@@ -17,4 +17,5 @@ public class LocalMerger
     public Song Right { get; set; }
     public bool Conflict { get; set; }
     public MatchType MatchType { get; set; }
+
 }

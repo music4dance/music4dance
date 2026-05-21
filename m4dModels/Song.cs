@@ -270,7 +270,12 @@ public class Song : TaggableObject
     public const string MultiDance = "MultiDance";
     public const string SongComment = "SongComment";
     public const string SongYear = "SongYear";
-    public const string DanceComment = "DanceComment";
+    // Dance-scoped metadata add fields (stored as "Field+:DanceId").
+    // Remove variants (Choreographer-, StepSheetUrl-) are not yet supported in the UX.
+    // AddCommentField / RemoveCommentField are already defined above ("Comment+" / "Comment-")
+    public const string AddChoreographerField = "Choreographer+";
+    public const string AddStepSheetUrlField = "StepSheetUrl+";
+    public const string SongIdOverride = "SongIdOverride";
 
     // Commands
     public const string CreateCommand = ".Create";
@@ -723,10 +728,13 @@ public class Song : TaggableObject
         ApplicationUser user, IList<string> fields, IList<string> cells,
         DanceMusicCoreService database, int weight = 1)
     {
-        return await Create(
-            Guid.NewGuid(),
-            CreatePropertiesFromRow(user, fields, cells, weight),
-            database);
+        var props = CreatePropertiesFromRow(user, fields, cells, weight);
+        if (props == null)
+        {
+            return null;
+        }
+
+        return await Create(Guid.NewGuid(), props, database);
     }
 
     private static List<SongProperty> CreatePropertiesFromRow(
@@ -734,7 +742,8 @@ public class Song : TaggableObject
         int weight = 1)
     {
         var properties = new List<SongProperty>();
-        var specifiedUser = false;
+        string specifiedUserName = null;
+        var specifiedUserField = UserField; // default; overwritten when TSV has USER/USERPROXY column
         var specifiedAction = false;
         SongProperty tagProperty = null;
         IList<string> tags = null;
@@ -921,7 +930,9 @@ public class Song : TaggableObject
                     break;
                 case UserField:
                 case UserProxy:
-                    specifiedUser = true;
+                    specifiedUserName = cell;
+                    specifiedUserField = baseName;
+                    cell = null; // will be inserted in header order at end, not here
                     break;
                 case AddedTags:
                     {
@@ -1109,16 +1120,36 @@ public class Song : TaggableObject
                     }
 
                     break;
-                case DanceComment:
-                    // TODO: Verify that this works
-                    // TODO: Add SongComment and generalize DanceComment to allow for different
-                    //  comments per dancer
-                    foreach (var r in ratings)
+                case AddCommentField:
+                    // Stored as "Comment+:DanceId=value" (matches .Create= serialization format)
+                    if (!string.IsNullOrWhiteSpace(cell) && ratings != null)
                     {
-                        properties.Add(new SongProperty(baseName, cell, -1, r.DanceId));
+                        foreach (var r in ratings)
+                        {
+                            properties.Add(new SongProperty(baseName, cell, -1, r.DanceId));
+                        }
                     }
 
                     cell = null;
+                    break;
+                case AddChoreographerField:
+                case AddStepSheetUrlField:
+                    if (!string.IsNullOrWhiteSpace(cell) && ratings != null)
+                    {
+                        foreach (var r in ratings)
+                        {
+                            properties.Add(new SongProperty(baseName, cell, -1, r.DanceId));
+                        }
+                    }
+
+                    cell = null;
+                    break;
+                case SongIdOverride:
+                    if (!Guid.TryParse(cell, out _))
+                    {
+                        cell = null;  // discard invalid GUIDs silently
+                    }
+
                     break;
                 case PlaylistField:
                     cell = string.IsNullOrWhiteSpace(cell) ? null : cell.Trim();
@@ -1172,21 +1203,25 @@ public class Song : TaggableObject
 
         const string sep = "|";
         Trace.WriteLineIf(
-            user == null && !specifiedUser,
+            user == null && specifiedUserName == null,
             $"Bad User for {string.Join(sep, cells)}");
 
         // ReSharper disable once InvertIf
         if (user != null)
         {
-            if (!specifiedUser)
+            // Always stamp the current time if no Time column was present in the source data.
+            if (properties.All(p => p.BaseName != TimeField))
             {
                 properties.Insert(
                     0,
                     new SongProperty(
                         TimeField,
                         DateTime.Now.ToString(CultureInfo.InvariantCulture)));
-                properties.Insert(0, new SongProperty(UserField, user.DecoratedName));
             }
+
+            // Insert User at position 0 so the final order after Command insert is [Command, User, Time, ...].
+            // Use the TSV-supplied value when the USER column was present, otherwise the logged-in user.
+            properties.Insert(0, new SongProperty(specifiedUserField, specifiedUserName ?? user.DecoratedName));
 
             if (!specifiedAction)
             {
@@ -1232,7 +1267,7 @@ public class Song : TaggableObject
         var map = new List<string>();
         var headers = line.Split(separator);
 
-        foreach (var parts in headers.Select(t => t.Trim()).Select(header => header.Split(':')))
+        foreach (var parts in headers.Select(t => t.Trim().Trim('"')).Select(header => header.Split(':')))
         {
             // If this fails, we want to add a null to our list because
             // that indicates a column we don't care about
@@ -1282,7 +1317,11 @@ public class Song : TaggableObject
             { "YEAR", SongYear },
             { "MPM", MeasureTempo },
             { "MULTIDANCE", MultiDance },
-            { "DANCECOMMENT", DanceComment }
+            { "DANCECOMMENT", AddCommentField },
+            { "SPOTIFY", SongProperty.FormatName(PurchaseField, null, "SS") },
+            { "CHOREOGRAPHER", AddChoreographerField },
+            { "STEPSHEETURL", AddStepSheetUrlField },
+            { "SONGID", SongIdOverride },
         };
 
     public static async Task<IList<Song>> CreateFromRows(
@@ -1622,6 +1661,12 @@ public class Song : TaggableObject
                         RemoveObjectComment(prop.DanceQualifier, user);
                     }
 
+                    break;
+                case AddChoreographerField:
+                    AddObjectChoreographer(prop.DanceQualifier, prop.Value);
+                    break;
+                case AddStepSheetUrlField:
+                    AddObjectStepSheetUrl(prop.DanceQualifier, prop.Value);
                     break;
                 case DeleteTagLabel:
                     ForceDeleteTag(prop.DanceQualifier, prop.Value, stats);
@@ -2415,6 +2460,9 @@ public class Song : TaggableObject
 
             modified |=
                 DanceTagsFromProperties(user.UserName, edit.SongProperties, stats, this);
+
+            // Handle Comment+, Choreographer+, StepSheetUrl+ for dance ratings
+            modified |= ActionFieldsFromProperties(user.UserName, edit.SongProperties);
         }
 
         modified |= UpdatePurchaseInfo(edit, true);
@@ -2911,6 +2959,60 @@ public class Song : TaggableObject
     {
         // Clear out cached user tags
         return BaseTagsFromProperties(userName, properties, stats, data, true);
+    }
+
+    // TODO(future): AdditiveMerge explicitly handles each action-field type. A cleaner
+    //   approach would be to directly append action SongProperties from the incoming edit
+    //   to the existing song's property log (same as the log-replay model), eliminating
+    //   the need to extend this method every time a new '+' field type is added. Blocked
+    //   by: AdditiveMerge also handles scalar/album/dance-rating deduplication that doesn't
+    //   map cleanly to pure append; and callers expect in-memory objects updated in place.
+    private bool ActionFieldsFromProperties(string userName, IEnumerable<SongProperty> properties)
+    {
+        var modified = false;
+        foreach (var prop in properties)
+        {
+            switch (prop.BaseName)
+            {
+                case AddCommentField:
+                    if (prop.DanceQualifier != null && !string.IsNullOrWhiteSpace(prop.Value))
+                    {
+                        var rating = FindRating(prop.DanceQualifier);
+                        if (rating != null)
+                        {
+                            _ = CreateProperty(prop.Name, prop.Value);
+                            rating.AddComment(prop.Value, userName);
+                            modified = true;
+                        }
+                    }
+                    break;
+                case AddChoreographerField:
+                    if (prop.DanceQualifier != null && !string.IsNullOrWhiteSpace(prop.Value))
+                    {
+                        var rating = FindRating(prop.DanceQualifier);
+                        if (rating != null)
+                        {
+                            _ = CreateProperty(prop.Name, prop.Value);
+                            rating.Choreographer = prop.Value;
+                            modified = true;
+                        }
+                    }
+                    break;
+                case AddStepSheetUrlField:
+                    if (prop.DanceQualifier != null && !string.IsNullOrWhiteSpace(prop.Value))
+                    {
+                        var rating = FindRating(prop.DanceQualifier);
+                        if (rating != null)
+                        {
+                            _ = CreateProperty(prop.Name, prop.Value);
+                            rating.StepSheetUrl = prop.Value;
+                            modified = true;
+                        }
+                    }
+                    break;
+            }
+        }
+        return modified;
     }
 
     public void Delete(ApplicationUser user)
@@ -4438,6 +4540,30 @@ public class Song : TaggableObject
         }
 
         tobj.AddComment(comment, userName);
+    }
+
+    public void AddObjectChoreographer(string qualifier, string value)
+    {
+        if (string.IsNullOrWhiteSpace(qualifier)) return;
+        var rating = FindRating(qualifier);
+        if (rating == null)
+        {
+            Trace.WriteLine($"Bad choreographer on {Title} by {Artist}");
+            return;
+        }
+        rating.Choreographer = value;
+    }
+
+    public void AddObjectStepSheetUrl(string qualifier, string value)
+    {
+        if (string.IsNullOrWhiteSpace(qualifier)) return;
+        var rating = FindRating(qualifier);
+        if (rating == null)
+        {
+            Trace.WriteLine($"Bad step sheet URL on {Title} by {Artist}");
+            return;
+        }
+        rating.StepSheetUrl = value;
     }
 
     public void RemoveObjectComment(string qualifier, string userName)

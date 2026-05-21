@@ -624,7 +624,8 @@ public class SongIndex
 
         foreach (var song in newSongs)
         {
-            var m = await MergeFromPurchaseInfo(song)
+            var m = await MergeFromSongId(song)
+                ?? await MergeFromPurchaseInfo(song)
                 ?? await MergeFromTitle(song);
 
             switch (method)
@@ -725,6 +726,23 @@ public class SongIndex
 
         return new LocalMerger
         { Left = song, Right = match, MatchType = type, Conflict = false };
+    }
+
+    private async Task<LocalMerger> MergeFromSongId(Song song)
+    {
+        var overrideProp = song.FirstProperty(Song.SongIdOverride);
+        if (overrideProp == null || !Guid.TryParse(overrideProp.Value, out var id))
+        {
+            return null;
+        }
+
+        var match = await FindSong(id);
+        if (match == null)
+        {
+            return null;
+        }
+
+        return new LocalMerger { Left = song, Right = match, MatchType = MatchType.Exact, Conflict = false };
     }
 
     private async Task<LocalMerger> MergeFromPurchaseInfo(Song song)

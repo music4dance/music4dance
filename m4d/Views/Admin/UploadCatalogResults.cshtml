@@ -1,0 +1,54 @@
+@using m4d.ViewModels
+@model IEnumerable<m4dModels.LocalMerger>
+
+@{
+    ViewBag.Title = "Upload Results";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+
+    var committed = Model.ToList();
+    var newCount = committed.Count(m => m.MatchType == m4dModels.MatchType.None);
+    var mergedCount = committed.Count - newCount;
+}
+
+<h1>@ViewBag.Title</h1>
+
+<h3>
+    Committed @committed.Count song(s): @newCount new, @mergedCount updated.
+</h3>
+
+@if (ViewData.ContainsKey("UserName"))
+{
+    <h3><b>Attributed to:</b> @ViewBag.UserName</h3>
+}
+
+<table class="table table-striped table-sm">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Artist</th>
+            <th>Song ID</th>
+            <th>Match Type</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in committed)
+        {
+            var songId = item.MatchType == m4dModels.MatchType.None
+                ? item.Left.SongId
+                : item.Right?.SongId ?? item.Left.SongId;
+            <tr>
+                <td>@Html.DisplayFor(m => item.Left.Title)</td>
+                <td>@Html.DisplayFor(m => item.Left.Artist)</td>
+                <td>
+                    @Html.ActionLink(songId.ToString(), "Details", "Song",
+                        new { id = songId }, new { target = "_blank" })
+                </td>
+                <td>@item.MatchType</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<p>
+    @Html.ActionLink("Upload another catalog", "UploadCatalog", "Admin")
+</p>

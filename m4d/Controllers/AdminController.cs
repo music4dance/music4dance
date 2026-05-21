@@ -32,6 +32,16 @@ public class Review
 {
     public string PlayList { get; set; }
     public IList<LocalMerger> Merge { get; set; }
+    /// <summary>
+    /// The username attributed to this upload (from the TSV USER column or the logged-in admin).
+    /// Stored here so CommitPreview can set ViewBag.UserName without needing it as a form parameter.
+    /// </summary>
+    public string UserName { get; set; }
+    /// <summary>
+    /// Populated by PreviewUploadCatalog: the fully-merged songs ready to save.
+    /// CommitPreview calls SaveSongs on this list directly, then clears it to free memory.
+    /// </summary>
+    public IList<Song> Songs { get; set; }
 }
 
 public class SetupDiagnosticsAttribute : ActionFilterAttribute
@@ -1137,6 +1147,14 @@ public class AdminController(
 
         if (string.IsNullOrWhiteSpace(user))
         {
+            // No explicit user supplied — fall back to the currently logged-in admin.
+            // If the upload data contains a USER column, we'll override attribution
+            // below after parsing the songs.
+            user = User.Identity?.Name;
+        }
+
+        if (string.IsNullOrWhiteSpace(user))
+        {
             throw new ArgumentNullException(
                 nameof(user), "You must specify a user");
         }
@@ -1250,6 +1268,20 @@ public class AdminController(
             }
         }
 
+        // If the TSV specifies a USER column, prefer that value for attribution.
+        // This takes priority over the form's user field (unless the form user was
+        // explicitly provided and the TSV has no USER column).
+        // NOTE: We do not require the user to exist in the current DB — a virtual
+        // ApplicationUser is created at commit time if needed.
+        if (newSongs.Count > 0)
+        {
+            var tsvUserValue = newSongs[0].FirstProperty(Song.UserField)?.Value;
+            if (!string.IsNullOrWhiteSpace(tsvUserValue))
+            {
+                user = tsvUserValue;
+            }
+        }
+
         ViewBag.UserName = user;
         ViewBag.Dances = dances;
         ViewBag.Separator = separator;
@@ -1296,12 +1328,81 @@ public class AdminController(
             userName = UserName;
         }
 
-        return View(
-            await CommitCatalog(
-                Database, initial,
-                await Database.FindUser(userName), danceIds) == 0
-                ? "Error"
-                : "UploadCatalog");
+        // FindUser returns null when the attributed user (e.g. from a TSV USER column)
+        // doesn't exist in the current environment's database.  Fall back to a virtual
+        // ApplicationUser so the commit is still attributed to the correct name.
+        var commitUser = await Database.FindUser(userName) ?? new ApplicationUser(userName);
+
+        var count = await CommitCatalog(
+            Database, initial,
+            commitUser, danceIds);
+
+        if (count == 0)
+        {
+            return View("Error");
+        }
+
+        ViewBag.UserName = userName;
+        return View("UploadCatalogResults", (IEnumerable<m4dModels.LocalMerger>)initial.Merge);
+    }
+
+    //
+    // Post: //PreviewUploadCatalog
+    // Runs the full merge + service enrichment pipeline but stops before SaveSongs.
+    // The resulting songs are cached in the Review so CommitPreview can save them directly.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> PreviewUploadCatalog(int fileId, string userName,
+        string danceIds,
+        string headers, string separator)
+    {
+        var review = GetReviewById(fileId);
+
+        ViewBag.Name = "Preview Catalog";
+        ViewBag.FileId = fileId;
+
+        if (string.IsNullOrEmpty(userName))
+        {
+            userName = UserName;
+        }
+
+        var commitUser = await Database.FindUser(userName) ?? new ApplicationUser(userName);
+
+        var songs = await PreviewCatalog(Database, review, commitUser, danceIds);
+
+        if (songs.Count == 0)
+        {
+            return View("Error");
+        }
+
+        review.Songs = songs;
+        review.UserName = userName;
+
+        return View("PreviewBatch", songs);
+    }
+
+    //
+    // Post: //CommitPreview
+    // Saves the pre-merged songs that were produced by PreviewUploadCatalog.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> CommitPreview(int fileId)
+    {
+        var review = GetReviewById(fileId);
+
+        if (review.Songs == null || review.Songs.Count == 0)
+        {
+            return View("Error");
+        }
+
+        await Database.SongIndex.SaveSongs(review.Songs);
+        var mergeResults = review.Merge;
+        review.Songs = null;  // free memory — songs are now in the index
+
+        ViewBag.UserName = review.UserName;
+        return View("UploadCatalogResults", (IEnumerable<m4dModels.LocalMerger>)mergeResults);
     }
 
     #endregion
