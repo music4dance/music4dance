@@ -146,6 +146,20 @@ public static class UserMapper
             return user.User.Id;
         }
 
+        // Pseudo/proxy users are stored in history with a decorated name (e.g., "batch-a|P").
+        // The dictionary is keyed by plain UserName, so look up the base and re-decorate to confirm.
+        var pipeIndex = userName.LastIndexOf('|');
+        if (pipeIndex >= 0)
+        {
+            var baseName = userName[..pipeIndex];
+            if (dictionary.TryGetValue(baseName, out var pseudoUser)
+                && ApplicationUser.BuildDecoratedName(pseudoUser.User.UserName, pseudoUser.IsPseudo) == userName)
+            {
+                // Confirmed pseudo user — let the decorated name pass through unchanged.
+                return userName;
+            }
+        }
+
         if (dictionary.Count == 0)
         {
             return "*UNAVAILABLE*";
