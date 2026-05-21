@@ -86,17 +86,23 @@ public static class UserMapper
     }
 
     public static async Task<SongHistory> AnonymizeHistory(
-        SongHistory history, UserManager<ApplicationUser> userManager, ServiceHealthManager serviceHealth = null)
+        SongHistory history, UserManager<ApplicationUser> userManager, ServiceHealthManager serviceHealth = null,
+        bool isAuthenticated = true)
     {
         var cache = await GetUserNameDictionary(userManager, serviceHealth);
 
-        return ModifyHistory(history, p => Anonymize(p, cache));
+        return isAuthenticated
+            ? ModifyHistory(history, p => Anonymize(p, cache))
+            : ModifyHistory(history, p => AnonymizeAll(p, cache));
     }
 
     public static SongHistory AnonymizeHistory(
-        SongHistory history, IReadOnlyDictionary<string, UserInfo> dictionary)
+        SongHistory history, IReadOnlyDictionary<string, UserInfo> dictionary,
+        bool isAuthenticated = true)
     {
-        return ModifyHistory(history, p => Anonymize(p, dictionary));
+        return isAuthenticated
+            ? ModifyHistory(history, p => Anonymize(p, dictionary))
+            : ModifyHistory(history, p => AnonymizeAll(p, dictionary));
     }
 
     public static async Task<SongHistory> DeanonymizeHistory(
@@ -129,6 +135,24 @@ public static class UserMapper
                     : p
             )],
         };
+    }
+
+    // Anonymizes all users to their ID regardless of privacy setting, for unauthenticated visitors.
+    private static string AnonymizeAll(string userName,
+        IReadOnlyDictionary<string, UserInfo> dictionary)
+    {
+        if (dictionary.TryGetValue(userName, out var user))
+        {
+            return user.User.Id;
+        }
+
+        if (dictionary.Count == 0)
+        {
+            return "*UNAVAILABLE*";
+        }
+
+        // Not found but dictionary has data — likely already an anonymized ID; keep as-is.
+        return userName;
     }
 
     private static string Anonymize(string userName,

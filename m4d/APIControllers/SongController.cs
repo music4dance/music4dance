@@ -67,9 +67,10 @@ ServiceHealthManager serviceHealth) : DanceMusicApiController(context, userManag
             }
 
             var anonymized = new List<SongHistory>();
+            var isAuthenticated = User.Identity?.IsAuthenticated == true;
             foreach (var song in songs)
             {
-                anonymized.Add(await UserMapper.AnonymizeHistory(song.GetHistory(mapper), UserManager, ServiceHealth));
+                anonymized.Add(await UserMapper.AnonymizeHistory(song.GetHistory(mapper), UserManager, ServiceHealth, isAuthenticated));
             }
 
             return JsonCamelCase(anonymized);
@@ -107,7 +108,8 @@ ServiceHealthManager serviceHealth) : DanceMusicApiController(context, userManag
             return song == null
                 ? StatusCode((int)HttpStatusCode.NotFound)
                 : JsonCamelCase(
-                    await UserMapper.AnonymizeHistory(song.GetHistory(mapper), UserManager, ServiceHealth));
+                    await UserMapper.AnonymizeHistory(song.GetHistory(mapper), UserManager, ServiceHealth,
+                        User.Identity?.IsAuthenticated == true));
         }
         catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
         {

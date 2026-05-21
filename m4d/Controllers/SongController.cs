@@ -240,9 +240,10 @@ public class SongController : ContentController
     private async Task<List<SongHistory>> AnonymizeSongs(IReadOnlyCollection<Song> songs)
     {
         var dictionary = await UserMapper.GetUserNameDictionary(UserManager, ServiceHealth);
+        var isAuthenticated = Identity.IsAuthenticated;
         return songs.Select(
             s =>
-                UserMapper.AnonymizeHistory(s.GetHistory(Mapper), dictionary)).ToList();
+                UserMapper.AnonymizeHistory(s.GetHistory(Mapper), dictionary, isAuthenticated)).ToList();
     }
 
     private async Task<ActionResult> FormatSongList(IReadOnlyCollection<Song> songs,
@@ -685,7 +686,7 @@ public class SongController : ContentController
         {
             Title = song.Title,
             SongHistory = await UserMapper.AnonymizeHistory(
-                song.GetHistory(Mapper), UserManager, ServiceHealth),
+                song.GetHistory(Mapper), UserManager, ServiceHealth, Identity.IsAuthenticated),
             Filter = Mapper.Map<SongFilterSparse>(Filter),
             UserName = UserName,
         };

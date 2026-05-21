@@ -24,15 +24,15 @@ const isCurrentUser = computed(() => {
         <IBiBoxArrowUpRight style="vertical-align: top" class="fs-6" /></a
       >.
     </div>
-    <MustRegister
-      v-else-if="!menuContext.isAuthenticated"
-      title="You must be registerd and logged in to view other user's profiles."
-      :menu-context="menuContext"
-    />
     <div v-else-if="model.isPseudo">
       This is a placeholder user representing information from public lists, spotify playlist or
       libraries of friend's of music4dance.
     </div>
+    <MustRegister
+      v-else-if="!menuContext.isAuthenticated"
+      title="You must be registerd and logged in to view other user's profiles. Note that if they have chosen to remain anonymous, no profile information will be shown, but you will be able to see their song lists."
+      :menu-context="menuContext"
+    />
     <div v-else>
       <p v-if="model.isAnonymous">
         This user has chosen to remain anonymous, so no profile information is displayed. Their song
