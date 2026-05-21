@@ -151,8 +151,14 @@ public static class UserMapper
             return "*UNAVAILABLE*";
         }
 
-        // Not found but dictionary has data — likely already an anonymized ID; keep as-is.
-        return userName;
+        // Return unchanged only if it already looks like a GUID (i.e., was previously anonymized).
+        // Otherwise the user wasn't found in a populated dictionary — don't leak the username.
+        if (userName.Length == 36 && userName.Contains('-'))
+        {
+            return userName;
+        }
+
+        return "*UNAVAILABLE*";
     }
 
     private static string Anonymize(string userName,

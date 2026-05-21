@@ -6,6 +6,10 @@ import { computed } from "vue";
 const props = defineProps<{ model: ProfileModel; menuContext: MenuContext }>();
 
 const isCurrentUser = computed(() => {
+  if (props.model.isAnonymous) {
+    // model.userName is a GUID for anonymous users; match against the visitor's user ID
+    return props.model.userName.toLowerCase() === props.menuContext.userId?.toLowerCase();
+  }
   return props.model.userName.toLowerCase() === props.menuContext.userName?.toLowerCase();
 });
 

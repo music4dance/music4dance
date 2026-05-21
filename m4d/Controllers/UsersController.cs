@@ -41,9 +41,12 @@ public class UsersController(
         var isAuthenticated = User.Identity?.IsAuthenticated == true;
         // For anonymous (private) users always expose the GUID, not the real username,
         // even if the profile was looked up by username.
-        var profileUserName = user.Privacy == 0 && !user.IsPseudo ? user.Id : id;
+        // For public users, always use the canonical username so a GUID URL param
+        // doesn't make the client treat a public user as anonymous.
+        var profileUserName = user.Privacy == 0 && !user.IsPseudo ? user.Id : user.UserName;
 
-        if (!s_userCache.TryGetValue(id, out var profile))
+        // Unauthenticated visitors bypass the cache to prevent leaking cached counts.
+        if (!isAuthenticated || !s_userCache.TryGetValue(id, out var profile))
         {
             if (isAuthenticated)
             {
@@ -76,8 +79,8 @@ public class UsersController(
             }
         }
 
-        return Vue3($"Info for {id}",
-            $"Favorites and song lists for {id}",
+        return Vue3($"Info for {profile.UserName}",
+            $"Favorites and song lists for {profile.UserName}",
             "user-info",
             profile, "account-management");
     }
