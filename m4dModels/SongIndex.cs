@@ -795,13 +795,11 @@ public class SongIndex
 
     public async Task<int> UserSongCount(string user, bool? like)
     {
-        const int max = 10000;
-
         var filter = Manager.GetSongFilter();
         filter.User = new UserQuery(user, true, like).Query;
 
         var afilter = AzureParmsFromFilter(filter);
-        afilter.Size = max;
+        afilter.Size = 0; // Don't return documents — TotalCount is all we need
         afilter.IncludeTotalCount = true;
 
         var response = await DoSearch(

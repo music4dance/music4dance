@@ -4,7 +4,6 @@ import { UserQuery } from "./UserQuery";
 @jsonObject
 export class ProfileModel {
   @jsonMember(String) public userName!: string;
-  @jsonMember(Boolean) public isPublic!: boolean;
   @jsonMember(Boolean) public isPseudo!: boolean;
   @jsonMember(String) public spotifyId?: string;
   @jsonMember(Number) public favoriteCount?: number;

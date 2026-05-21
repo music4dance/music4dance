@@ -85,7 +85,7 @@ public class CustomSearchController : ContentController
 
             var dictionary = await UserMapper.GetUserNameDictionary(UserManager, ServiceHealth);
             var histories = results.Songs
-                .Select(s => UserMapper.AnonymizeHistory(s.GetHistory(Mapper), dictionary))
+                .Select(s => UserMapper.AnonymizeHistory(s.GetHistory(Mapper), dictionary, User.Identity?.IsAuthenticated == true))
                 .ToList();
             string description = null;
             switch (name.ToLowerInvariant())

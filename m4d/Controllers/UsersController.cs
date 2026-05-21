@@ -38,24 +38,49 @@ public class UsersController(
         }
 
         var userName = user.UserName;
-        if (!s_userCache.TryGetValue(id, out var profile))
+        var isAuthenticated = User.Identity?.IsAuthenticated == true;
+        // For anonymous (private) users always expose the GUID, not the real username,
+        // even if the profile was looked up by username.
+        // For public users, always use the canonical username so a GUID URL param
+        // doesn't make the client treat a public user as anonymous.
+        var profileUserName = user.Privacy == 0 && !user.IsPseudo ? user.Id : user.UserName;
+
+        // Unauthenticated visitors bypass the cache to prevent leaking cached counts.
+        if (!isAuthenticated || !s_userCache.TryGetValue(id, out var profile))
         {
-            var songIndex = Database.SongIndex;
-            profile = new UserProfile
+            if (isAuthenticated)
             {
-                UserName = id, // This will be username or id depending on what came in
-                IsPublic = user.Privacy > 0,
-                IsPseudo = user.IsPseudo,
-                SpotifyId = user.SpotifyId,
-                FavoriteCount = await songIndex.UserSongCount(userName, true),
-                BlockedCount = await songIndex.UserSongCount(userName, false),
-                EditCount = await songIndex.UserSongCount(userName, null),
-            };
-            s_userCache[id] = profile;
+                var songIndex = Database.SongIndex;
+                var favoriteCountTask = songIndex.UserSongCount(userName, true);
+                var blockedCountTask = songIndex.UserSongCount(userName, false);
+                var editCountTask = songIndex.UserSongCount(userName, null);
+                await Task.WhenAll(favoriteCountTask, blockedCountTask, editCountTask);
+
+                profile = new UserProfile
+                {
+                    UserName = profileUserName,
+                    IsPseudo = user.IsPseudo,
+                    SpotifyId = user.SpotifyId,
+                    FavoriteCount = favoriteCountTask.Result,
+                    BlockedCount = blockedCountTask.Result,
+                    EditCount = editCountTask.Result,
+                };
+                s_userCache[id] = profile;
+            }
+            else
+            {
+                // Unauthenticated visitors don't see song lists, so skip the Azure Search calls.
+                profile = new UserProfile
+                {
+                    UserName = profileUserName,
+                    IsPseudo = user.IsPseudo,
+                    SpotifyId = user.SpotifyId,
+                };
+            }
         }
 
-        return Vue3($"Info for {id}",
-            $"Favorites and song lists for {id}",
+        return Vue3($"Info for {profile.UserName}",
+            $"Favorites and song lists for {profile.UserName}",
             "user-info",
             profile, "account-management");
     }

@@ -86,17 +86,23 @@ public static class UserMapper
     }
 
     public static async Task<SongHistory> AnonymizeHistory(
-        SongHistory history, UserManager<ApplicationUser> userManager, ServiceHealthManager serviceHealth = null)
+        SongHistory history, UserManager<ApplicationUser> userManager, ServiceHealthManager serviceHealth = null,
+        bool isAuthenticated = true)
     {
         var cache = await GetUserNameDictionary(userManager, serviceHealth);
 
-        return ModifyHistory(history, p => Anonymize(p, cache));
+        return isAuthenticated
+            ? ModifyHistory(history, p => Anonymize(p, cache))
+            : ModifyHistory(history, p => AnonymizeAll(p, cache));
     }
 
     public static SongHistory AnonymizeHistory(
-        SongHistory history, IReadOnlyDictionary<string, UserInfo> dictionary)
+        SongHistory history, IReadOnlyDictionary<string, UserInfo> dictionary,
+        bool isAuthenticated = true)
     {
-        return ModifyHistory(history, p => Anonymize(p, dictionary));
+        return isAuthenticated
+            ? ModifyHistory(history, p => Anonymize(p, dictionary))
+            : ModifyHistory(history, p => AnonymizeAll(p, dictionary));
     }
 
     public static async Task<SongHistory> DeanonymizeHistory(
@@ -129,6 +135,30 @@ public static class UserMapper
                     : p
             )],
         };
+    }
+
+    // Anonymizes all users to their ID regardless of privacy setting, for unauthenticated visitors.
+    private static string AnonymizeAll(string userName,
+        IReadOnlyDictionary<string, UserInfo> dictionary)
+    {
+        if (dictionary.TryGetValue(userName, out var user))
+        {
+            return user.User.Id;
+        }
+
+        if (dictionary.Count == 0)
+        {
+            return "*UNAVAILABLE*";
+        }
+
+        // Return unchanged only if it already looks like a GUID (i.e., was previously anonymized).
+        // Otherwise the user wasn't found in a populated dictionary — don't leak the username.
+        if (userName.Length == 36 && userName.Contains('-'))
+        {
+            return userName;
+        }
+
+        return "*UNAVAILABLE*";
     }
 
     private static string Anonymize(string userName,
@@ -164,13 +194,9 @@ public static class UserMapper
     {
         if (dictionary.TryGetValue(id, out var user))
         {
-            // Privacy == 0 means maximum privacy requested (keep as ID)
-            // Privacy > 0 means public (deanonymize to username)
-            if (user.User.Privacy > 0)
-            {
-                return user.User.UserName;
-            }
-            return id;
+            // Always return the real username for backend operations (search, history editing).
+            // Anonymization for public display is handled separately by Anonymize().
+            return user.User.UserName;
         }
 
         // User not in dictionary (database unavailable) - keep current value
