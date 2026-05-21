@@ -66,6 +66,12 @@ public class DanceRating : TaggableObject
     [DataMember]
     public int Weight { get; set; }
 
+    [DataMember]
+    public string Choreographer { get; set; }
+
+    [DataMember]
+    public string StepSheetUrl { get; set; }
+
     protected override HashSet<string> ValidClasses => s_validClasses;
 
     public static Dictionary<string, string> DanceMap

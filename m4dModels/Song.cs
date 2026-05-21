@@ -1663,6 +1663,12 @@ public class Song : TaggableObject
                     }
 
                     break;
+                case AddChoreographerField:
+                    AddObjectChoreographer(prop.DanceQualifier, prop.Value);
+                    break;
+                case AddStepSheetUrlField:
+                    AddObjectStepSheetUrl(prop.DanceQualifier, prop.Value);
+                    break;
                 case DeleteTagLabel:
                     ForceDeleteTag(prop.DanceQualifier, prop.Value, stats);
                     break;
@@ -2455,6 +2461,9 @@ public class Song : TaggableObject
 
             modified |=
                 DanceTagsFromProperties(user.UserName, edit.SongProperties, stats, this);
+
+            // Handle Comment+, Choreographer+, StepSheetUrl+ for dance ratings
+            modified |= ActionFieldsFromProperties(user.UserName, edit.SongProperties);
         }
 
         modified |= UpdatePurchaseInfo(edit, true);
@@ -2951,6 +2960,60 @@ public class Song : TaggableObject
     {
         // Clear out cached user tags
         return BaseTagsFromProperties(userName, properties, stats, data, true);
+    }
+
+    // TODO(future): AdditiveMerge explicitly handles each action-field type. A cleaner
+    //   approach would be to directly append action SongProperties from the incoming edit
+    //   to the existing song's property log (same as the log-replay model), eliminating
+    //   the need to extend this method every time a new '+' field type is added. Blocked
+    //   by: AdditiveMerge also handles scalar/album/dance-rating deduplication that doesn't
+    //   map cleanly to pure append; and callers expect in-memory objects updated in place.
+    private bool ActionFieldsFromProperties(string userName, IEnumerable<SongProperty> properties)
+    {
+        var modified = false;
+        foreach (var prop in properties)
+        {
+            switch (prop.BaseName)
+            {
+                case AddCommentField:
+                    if (prop.DanceQualifier != null && !string.IsNullOrWhiteSpace(prop.Value))
+                    {
+                        var rating = FindRating(prop.DanceQualifier);
+                        if (rating != null)
+                        {
+                            _ = CreateProperty(prop.Name, prop.Value);
+                            rating.AddComment(prop.Value, userName);
+                            modified = true;
+                        }
+                    }
+                    break;
+                case AddChoreographerField:
+                    if (prop.DanceQualifier != null && !string.IsNullOrWhiteSpace(prop.Value))
+                    {
+                        var rating = FindRating(prop.DanceQualifier);
+                        if (rating != null)
+                        {
+                            _ = CreateProperty(prop.Name, prop.Value);
+                            rating.Choreographer = prop.Value;
+                            modified = true;
+                        }
+                    }
+                    break;
+                case AddStepSheetUrlField:
+                    if (prop.DanceQualifier != null && !string.IsNullOrWhiteSpace(prop.Value))
+                    {
+                        var rating = FindRating(prop.DanceQualifier);
+                        if (rating != null)
+                        {
+                            _ = CreateProperty(prop.Name, prop.Value);
+                            rating.StepSheetUrl = prop.Value;
+                            modified = true;
+                        }
+                    }
+                    break;
+            }
+        }
+        return modified;
     }
 
     public void Delete(ApplicationUser user)
@@ -4478,6 +4541,30 @@ public class Song : TaggableObject
         }
 
         tobj.AddComment(comment, userName);
+    }
+
+    public void AddObjectChoreographer(string qualifier, string value)
+    {
+        if (string.IsNullOrWhiteSpace(qualifier)) return;
+        var rating = FindRating(qualifier);
+        if (rating == null)
+        {
+            Trace.WriteLine($"Bad choreographer on {Title} by {Artist}");
+            return;
+        }
+        rating.Choreographer = value;
+    }
+
+    public void AddObjectStepSheetUrl(string qualifier, string value)
+    {
+        if (string.IsNullOrWhiteSpace(qualifier)) return;
+        var rating = FindRating(qualifier);
+        if (rating == null)
+        {
+            Trace.WriteLine($"Bad step sheet URL on {Title} by {Artist}");
+            return;
+        }
+        rating.StepSheetUrl = value;
     }
 
     public void RemoveObjectComment(string qualifier, string userName)
