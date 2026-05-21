@@ -137,13 +137,29 @@ public static class UserMapper
         };
     }
 
-    // Anonymizes all users to their ID regardless of privacy setting, for unauthenticated visitors.
+    // Anonymizes real users to their ID for unauthenticated visitors.
+    // Pseudo/proxy users (service accounts stored as "username|P") are exempt and pass through
+    // unchanged, since they are not personal data and are informative in song history.
     private static string AnonymizeAll(string userName,
         IReadOnlyDictionary<string, UserInfo> dictionary)
     {
         if (dictionary.TryGetValue(userName, out var user))
         {
             return user.User.Id;
+        }
+
+        // Pseudo/proxy users are stored in history with a decorated name (e.g., "batch-a|P").
+        // The dictionary is keyed by plain UserName, so look up the base and re-decorate to confirm.
+        var pipeIndex = userName.LastIndexOf('|');
+        if (pipeIndex >= 0)
+        {
+            var baseName = userName[..pipeIndex];
+            if (dictionary.TryGetValue(baseName, out var pseudoUser)
+                && string.Equals(pseudoUser.User.DecoratedName, userName, StringComparison.OrdinalIgnoreCase))
+            {
+                // Confirmed pseudo user — let the decorated name pass through unchanged.
+                return userName;
+            }
         }
 
         if (dictionary.Count == 0)
