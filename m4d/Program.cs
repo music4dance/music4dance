@@ -379,8 +379,9 @@ else
                 // Default is 30s which can timeout when database is warming up
                 sqlOptions.CommandTimeout(60);
             }));
-        // Note: Database health is confirmed by the migration background task after
-        // a real connection is established - not marked healthy here at registration time.
+        // Note: Database health is marked healthy after migrations run synchronously
+        // later in startup (or after the first successful FixupStats DB access).
+        // It is intentionally not marked healthy here at registration time.
         Console.WriteLine("Database context configured successfully (CommandTimeout: 60s, health pending connection)");
     }
     catch (Exception ex)
