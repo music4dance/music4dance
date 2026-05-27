@@ -7,9 +7,7 @@
       "denominator": 4
     },
     "blogTag": "waltz",
-    "synonyms": [
-      "Waltz"
-    ],
+    "synonyms": ["Waltz"],
     "instances": [
       {
         "style": "American Smooth",
@@ -28,10 +26,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       },
       {
         "style": "International Standard",
@@ -50,10 +45,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       }
     ]
   },
@@ -83,9 +75,7 @@
       "denominator": 4
     },
     "blogTag": "castle-foxtrot",
-    "synonyms": [
-      "Slow Dance"
-    ],
+    "synonyms": ["Slow Dance"],
     "instances": [
       {
         "style": "Social",
@@ -104,9 +94,7 @@
       "denominator": 4
     },
     "blogTag": "slow-foxtrot",
-    "synonyms": [
-      "Foxtrot"
-    ],
+    "synonyms": ["Foxtrot"],
     "instances": [
       {
         "style": "American Smooth",
@@ -125,10 +113,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       },
       {
         "style": "International Standard",
@@ -147,10 +132,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       }
     ]
   },
@@ -171,10 +153,7 @@
         },
         "competitionGroup": "Ballroom",
         "competitionOrder": 2,
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       },
       {
         "style": "International Standard",
@@ -193,10 +172,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       }
     ]
   },
@@ -208,9 +184,7 @@
       "denominator": 4
     },
     "blogTag": "peabody",
-    "synonyms": [
-      "One Step"
-    ],
+    "synonyms": ["One Step"],
     "instances": [
       {
         "style": "American Smooth",
@@ -228,10 +202,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       }
     ]
   },
@@ -243,9 +214,7 @@
       "denominator": 4
     },
     "blogTag": "waltz",
-    "searchonyms": [
-      "viennese"
-    ],
+    "searchonyms": ["viennese"],
     "instances": [
       {
         "style": "American Smooth",
@@ -264,10 +233,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       },
       {
         "style": "International Standard",
@@ -286,10 +252,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       }
     ]
   },
@@ -319,10 +282,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       }
     ]
   },
@@ -352,10 +312,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       }
     ]
   },
@@ -376,10 +333,7 @@
         },
         "competitionGroup": "Ballroom",
         "competitionOrder": 1,
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       },
       {
         "style": "International Latin",
@@ -398,10 +352,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       }
     ]
   },
@@ -422,10 +373,7 @@
         },
         "competitionGroup": "Ballroom",
         "competitionOrder": 5,
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       }
     ]
   },
@@ -455,10 +403,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       }
     ]
   },
@@ -488,10 +433,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       },
       {
         "style": "International Latin",
@@ -510,10 +452,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       }
     ]
   },
@@ -525,14 +464,8 @@
       "denominator": 4
     },
     "blogTag": "east-coast-swing",
-    "synonyms": [
-      "Triple Swing",
-      "East Coast"
-    ],
-    "searchonyms": [
-      "swing",
-      "ec swing"
-    ],
+    "synonyms": ["Triple Swing", "East Coast"],
+    "searchonyms": ["swing", "ec swing"],
     "instances": [
       {
         "style": "American Rhythm",
@@ -551,10 +484,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       }
     ]
   },
@@ -566,12 +496,8 @@
       "denominator": 4
     },
     "blogTag": "west-coast-swing",
-    "synonyms": [
-      "West Coast"
-    ],
-    "searchonyms": [
-      "wc swing"
-    ],
+    "synonyms": ["West Coast"],
+    "searchonyms": ["wc swing"],
     "instances": [
       {
         "style": "American Rhythm",
@@ -579,9 +505,7 @@
           "min": 112.0,
           "max": 112.0
         },
-        "organizations": [
-          "NDCA"
-        ]
+        "organizations": ["NDCA"]
       },
       {
         "style": "Social",
@@ -589,9 +513,7 @@
           "min": 80.0,
           "max": 130.0
         },
-        "organizations": [
-          "NDCA"
-        ]
+        "organizations": ["NDCA"]
       }
     ]
   },
@@ -603,10 +525,7 @@
       "denominator": 4
     },
     "blogTag": "hustle",
-    "synonyms": [
-      "Street Swing",
-      "Disco Fox"
-    ],
+    "synonyms": ["Street Swing", "Disco Fox"],
     "instances": [
       {
         "style": "American Rhythm",
@@ -615,9 +534,7 @@
           "max": 120.0
         },
         "competitionGroup": "Ballroom",
-        "organizations": [
-          "NDCA"
-        ]
+        "organizations": ["NDCA"]
       }
     ]
   },
@@ -645,10 +562,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       }
     ]
   },
@@ -678,10 +592,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       },
       {
         "style": "American Rhythm",
@@ -699,10 +610,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       }
     ]
   },
@@ -732,10 +640,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       },
       {
         "style": "American Rhythm",
@@ -760,10 +665,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       }
     ]
   },
@@ -792,10 +694,7 @@
             }
           }
         ],
-        "organizations": [
-          "DanceSport",
-          "NDCA"
-        ]
+        "organizations": ["DanceSport", "NDCA"]
       }
     ]
   },
@@ -815,9 +714,7 @@
           "max": 200.0
         },
         "competitionGroup": "Ballroom",
-        "organizations": [
-          "NDCA"
-        ]
+        "organizations": ["NDCA"]
       },
       {
         "style": "Social",
@@ -825,9 +722,7 @@
           "min": 160.0,
           "max": 220.0
         },
-        "organizations": [
-          "NDCA"
-        ]
+        "organizations": ["NDCA"]
       }
     ]
   },
@@ -864,9 +759,7 @@
       "numerator": 4,
       "denominator": 4
     },
-    "searchonyms": [
-      "club two step"
-    ],
+    "searchonyms": ["club two step"],
     "instances": [
       {
         "style": "American Rhythm",
@@ -928,10 +821,7 @@
       "denominator": 4
     },
     "blogTag": "lindy-hop",
-    "synonyms": [
-      "Swing",
-      "Jitterbug"
-    ],
+    "synonyms": ["Swing", "Jitterbug"],
     "instances": [
       {
         "style": "Social",
@@ -1004,9 +894,7 @@
       "denominator": 4
     },
     "blogTag": "tango",
-    "synonyms": [
-      "Tango Argentino"
-    ],
+    "synonyms": ["Tango Argentino"],
     "instances": [
       {
         "style": "Social",
@@ -1166,11 +1054,7 @@
       "denominator": 4
     },
     "blogTag": "single-swing",
-    "synonyms": [
-      "Single-time Swing",
-      "East Coast Single Swing",
-      "Jitterbug"
-    ],
+    "synonyms": ["Single-time Swing", "East Coast Single Swing", "Jitterbug"],
     "instances": [
       {
         "style": "Social",
@@ -1332,6 +1216,18 @@
           "min": 1.0,
           "max": 500.0
         }
+      }
+    ]
+  },
+  {
+    "id": "PTN",
+    "name": "Pattern",
+    "meter": { "numerator": 1, "denominator": 1 },
+    "synonyms": ["Line Dance", "Choreographed Partner Dance", "Sequence Dance"],
+    "instances": [
+      {
+        "style": "Social",
+        "tempoRange": { "min": 1.0, "max": 500.0 }
       }
     ]
   }

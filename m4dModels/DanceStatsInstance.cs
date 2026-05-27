@@ -287,15 +287,21 @@ public class DanceStatsInstance
             {
                 await instance.FixupStats(database, serviceHealthManager);
             }
-            catch (Exception ex)
+            catch (Microsoft.Data.SqlClient.SqlException ex)
             {
-                // FixupStats DB operations failed - the deserialized instance is still usable
-                // from the cache file; log and continue rather than discarding valid data.
-                Console.WriteLine($"FixupStats failed, using cached stats data: {ex.Message}");
+                // Database-specific failure in FixupStats - the deserialized instance is still
+                // usable from the cache file; log and continue rather than discarding valid data.
+                Console.WriteLine($"FixupStats DB failure, using cached stats data: {ex.Message}");
                 if (serviceHealthManager != null)
                 {
                     (serviceHealthManager as dynamic).MarkUnavailable("Database", $"{ex.GetType().Name}: {ex.Message}");
                 }
+            }
+            catch (Exception ex)
+            {
+                // Non-database failure (e.g. search index update) - log and continue without
+                // poisoning database health, since the DB itself may be perfectly healthy.
+                Console.WriteLine($"FixupStats non-DB failure, using cached stats data: {ex.GetType().Name}: {ex.Message}");
             }
         }
 
