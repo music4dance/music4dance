@@ -144,8 +144,7 @@ public class DanceStatsInstance
             group.MaxWeight = group.Children.Max(d => d.MaxWeight);
         }
 
-        // Check if database is available before attempting database operations
-        // If ServiceHealthManager is provided and database is not healthy, return early
+        // Skip DB-dependent operations if database is already known to be unavailable
         if (serviceHealthManager != null)
         {
             var healthManager = serviceHealthManager as dynamic;
@@ -156,57 +155,75 @@ public class DanceStatsInstance
             }
         }
 
-        var playlists =
-            dms.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch)
-                .Where(p => p.Name != null)
-                .Select(p => new PlaylistMetadata { Id = p.Id, Name = p.Name })
-                .ToDictionary(m => m.Name, m => m);
-
-        var newDances = new List<string>();
-
-        foreach (var dance in Dances.Where(d => playlists.ContainsKey(d.DanceName)))
+        try
         {
-            if (playlists.TryGetValue(dance.DanceName, out var metadata))
-            {
-                dance.SpotifyPlaylist = metadata.Id;
-            }
-        }
+            var playlists =
+                dms.PlayLists.Where(p => p.Type == PlayListType.SpotifyFromSearch)
+                    .Where(p => p.Name != null)
+                    .Select(p => new PlaylistMetadata { Id = p.Id, Name = p.Name })
+                    .ToDictionary(m => m.Name, m => m);
 
-        var saveChanges = false;
-        foreach (var ds in
-            Dances.Concat(Groups).Where(s => s.Dance.Description == null))
-        {
-            var dance = await dms.Dances.FindAsync(ds.DanceId);
-            if (dance == null)
+            var newDances = new List<string>();
+
+            foreach (var dance in Dances.Where(d => playlists.ContainsKey(d.DanceName)))
             {
-                _ = dms.Dances.Add(
-                    new Dance
-                    {
-                        Id = ds.DanceId,
-                        Description = DescriptionPlaceholder
-                    });
-            }
-            else
-            {
-                dance.Description = DescriptionPlaceholder;
+                if (playlists.TryGetValue(dance.DanceName, out var metadata))
+                {
+                    dance.SpotifyPlaylist = metadata.Id;
+                }
             }
 
-            saveChanges = true;
+            var saveChanges = false;
+            foreach (var ds in
+                Dances.Concat(Groups).Where(s => s.Dance.Description == null))
+            {
+                var dance = await dms.Dances.FindAsync(ds.DanceId);
+                if (dance == null)
+                {
+                    _ = dms.Dances.Add(
+                        new Dance
+                        {
+                            Id = ds.DanceId,
+                            Description = DescriptionPlaceholder
+                        });
+                }
+                else
+                {
+                    dance.Description = DescriptionPlaceholder;
+                }
 
-            newDances.Add(ds.DanceId);
-            ds.SetTopSongs([]);
-            ds.SongTags = new TagSummary();
-            ds.DanceTags = new TagSummary();
+                saveChanges = true;
+
+                newDances.Add(ds.DanceId);
+                ds.SetTopSongs([]);
+                ds.SongTags = new TagSummary();
+                ds.DanceTags = new TagSummary();
+            }
+
+            if (saveChanges)
+            {
+                _ = await dms.SaveChanges();
+            }
+
+            if (newDances.Count > 0)
+            {
+                _ = await dms.SongIndex.UpdateIndex(newDances);
+            }
+
+            // First successful DB access - mark healthy if it wasn't already known
+            if (serviceHealthManager != null)
+            {
+                (serviceHealthManager as dynamic).MarkHealthy("Database");
+            }
         }
-
-        if (saveChanges)
+        catch (Microsoft.Data.SqlClient.SqlException ex)
         {
-            _ = await dms.SaveChanges();
-        }
-
-        if (newDances.Count > 0)
-        {
-            _ = await dms.SongIndex.UpdateIndex(newDances);
+            Console.WriteLine($"Database unavailable during FixupStats: {ex.Message}");
+            if (serviceHealthManager != null)
+            {
+                (serviceHealthManager as dynamic).MarkUnavailable("Database", $"{ex.GetType().Name}: {ex.Message}");
+            }
+            // Return gracefully - the in-memory stats loaded from cache are still valid
         }
     }
 
@@ -266,7 +283,20 @@ public class DanceStatsInstance
         var instance = JsonConvert.DeserializeObject<DanceStatsInstance>(json, settings) ?? throw new Exception($"Unable to deserialize dance stats instance: {json}");
         if (database != null)
         {
-            await instance.FixupStats(database, serviceHealthManager);
+            try
+            {
+                await instance.FixupStats(database, serviceHealthManager);
+            }
+            catch (Exception ex)
+            {
+                // FixupStats DB operations failed - the deserialized instance is still usable
+                // from the cache file; log and continue rather than discarding valid data.
+                Console.WriteLine($"FixupStats failed, using cached stats data: {ex.Message}");
+                if (serviceHealthManager != null)
+                {
+                    (serviceHealthManager as dynamic).MarkUnavailable("Database", $"{ex.GetType().Name}: {ex.Message}");
+                }
+            }
         }
 
         manager ??= database.DanceStatsManager;
