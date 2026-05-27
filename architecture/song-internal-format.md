@@ -68,12 +68,12 @@ after `=`) or simply `.CommandName` if no `=` was present during load.
 BaseName[:index[:qualifier]][:danceId]
 ```
 
-| Segment      | Meaning                                                                                                                                                      |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `BaseName`   | Field identity (e.g. `Title`, `Tag+`, `DanceRating`)                                                                                                         |
-| `:index`     | Zero-based, 2-digit decimal index for multi-valued fields (albums, purchases). `-1` = single-value                                                           |
-| `:qualifier` | Optional per-field qualifier — currently used for purchase type (e.g. `AS`, `IS`)                                                                            |
-| `:danceId`   | On `Tag+`/`Tag-`, `Comment+`/`Comment-`, `Choreographer+`/`Choreographer-`, and `StepSheetUrl+`/`StepSheetUrl-`: are the properties that dance ID applies to |
+| Segment      | Meaning                                                                                                                                                                      |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BaseName`   | Field identity (e.g. `Title`, `Tag+`, `DanceRating`)                                                                                                                         |
+| `:index`     | Zero-based, 2-digit decimal index for multi-valued fields (albums, purchases). `-1` = single-value                                                                           |
+| `:qualifier` | Optional per-field qualifier — currently used for purchase type (e.g. `AS`, `IS`)                                                                                            |
+| `:danceId`   | On `Tag+`/`Tag-`, `Comment+`/`Comment-`, `Choreographer+`/`Choreographer-`, `StepSheetUrl+`/`StepSheetUrl-`, and `PatternName+`: are the properties that dance ID applies to |
 
 Examples:
 
@@ -89,6 +89,7 @@ Examples:
 | `Comment+:CHA`       | Cha Cha–scoped comment addition          |
 | `Choreographer+:PTN` | Pattern dance choreographer name         |
 | `StepSheetUrl+:PTN`  | Pattern dance step sheet URL             |
+| `PatternName+:PTN`   | Pattern dance name (line/choreography)   |
 | `.Create`            | Action command (no index / qualifier)    |
 
 ---
@@ -128,8 +129,9 @@ Field families that follow this pattern:
 | Comments       | `Comment+`       | `Comment-`       | —                                        |
 | Choreographer  | `Choreographer+` | `Choreographer-` | Dance-scoped only                        |
 | Step sheet URL | `StepSheetUrl+`  | `StepSheetUrl-`  | Dance-scoped only                        |
+| Pattern name   | `PatternName+`   | —                | Dance-scoped only                        |
 
-Comments, Choreographer, and StepSheetUrl are covered in detail in §3.4. Tag-specific
+Comments, Choreographer, StepSheetUrl, and PatternName are covered in detail in §3.4. Tag-specific
 behaviors are described below.
 
 #### Tag Fields
@@ -190,6 +192,7 @@ pipe-delimited or categorized), and there is no `Delete*` hard-delete variant.
 | `Choreographer-` | `RemoveChoreographerField` | Remove the choreographer from a dance                              |
 | `StepSheetUrl+`  | `AddStepSheetUrlField`     | Add a step sheet URL to a dance                                    |
 | `StepSheetUrl-`  | `RemoveStepSheetUrlField`  | Remove the step sheet URL from a dance                             |
+| `PatternName+`   | `AddPatternNameField`      | Add the pattern/choreography name to a dance                       |
 
 **Example** (line dance song with PTN dance rating):
 

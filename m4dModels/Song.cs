@@ -15,6 +15,8 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
 
+using m4dModels.Utilities;
+
 using static System.Char;
 
 // ReSharper disable ArrangeThisQualifier
@@ -271,10 +273,11 @@ public class Song : TaggableObject
     public const string SongComment = "SongComment";
     public const string SongYear = "SongYear";
     // Dance-scoped metadata add fields (stored as "Field+:DanceId").
-    // Remove variants (Choreographer-, StepSheetUrl-) are not yet supported in the UX.
+    // Remove variants are not yet supported in the UX.
     // AddCommentField / RemoveCommentField are already defined above ("Comment+" / "Comment-")
     public const string AddChoreographerField = "Choreographer+";
     public const string AddStepSheetUrlField = "StepSheetUrl+";
+    public const string AddPatternNameField = "PatternName+";
     public const string SongIdOverride = "SongIdOverride";
 
     // Commands
@@ -763,10 +766,7 @@ public class Song : TaggableObject
             var baseName = SongProperty.ParseBaseName(fields[i]);
             string qual = null;
             cell = cell.Trim();
-            if (cell.Length > 0 && cell[0] == '"' && cell[^1] == '"')
-            {
-                cell = cell.Trim('"');
-            }
+            cell = cell.UnquoteCsvCell();
 
             specifiedAction |= SongProperty.IsActionName(baseName);
             // ReSharper disable once SwitchStatementMissingSomeCases
@@ -1134,6 +1134,7 @@ public class Song : TaggableObject
                     break;
                 case AddChoreographerField:
                 case AddStepSheetUrlField:
+                case AddPatternNameField:
                     if (!string.IsNullOrWhiteSpace(cell) && ratings != null)
                     {
                         foreach (var r in ratings)
@@ -1321,6 +1322,7 @@ public class Song : TaggableObject
             { "SPOTIFY", SongProperty.FormatName(PurchaseField, null, "SS") },
             { "CHOREOGRAPHER", AddChoreographerField },
             { "STEPSHEETURL", AddStepSheetUrlField },
+            { "PATTERNNAME", AddPatternNameField },
             { "SONGID", SongIdOverride },
         };
 
@@ -1667,6 +1669,9 @@ public class Song : TaggableObject
                     break;
                 case AddStepSheetUrlField:
                     AddObjectStepSheetUrl(prop.DanceQualifier, prop.Value);
+                    break;
+                case AddPatternNameField:
+                    AddObjectPatternName(prop.DanceQualifier, prop.Value);
                     break;
                 case DeleteTagLabel:
                     ForceDeleteTag(prop.DanceQualifier, prop.Value, stats);
@@ -3006,6 +3011,18 @@ public class Song : TaggableObject
                         {
                             _ = CreateProperty(prop.Name, prop.Value);
                             rating.StepSheetUrl = prop.Value;
+                            modified = true;
+                        }
+                    }
+                    break;
+                case AddPatternNameField:
+                    if (prop.DanceQualifier != null && !string.IsNullOrWhiteSpace(prop.Value))
+                    {
+                        var rating = FindRating(prop.DanceQualifier);
+                        if (rating != null)
+                        {
+                            _ = CreateProperty(prop.Name, prop.Value);
+                            rating.PatternName = prop.Value;
                             modified = true;
                         }
                     }
@@ -4564,6 +4581,18 @@ public class Song : TaggableObject
             return;
         }
         rating.StepSheetUrl = value;
+    }
+
+    public void AddObjectPatternName(string qualifier, string value)
+    {
+        if (string.IsNullOrWhiteSpace(qualifier)) return;
+        var rating = FindRating(qualifier);
+        if (rating == null)
+        {
+            Trace.WriteLine($"Bad pattern name on {Title} by {Artist}");
+            return;
+        }
+        rating.PatternName = value;
     }
 
     public void RemoveObjectComment(string qualifier, string userName)

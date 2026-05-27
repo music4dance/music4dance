@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.FileProviders;
@@ -378,8 +379,10 @@ else
                 // Default is 30s which can timeout when database is warming up
                 sqlOptions.CommandTimeout(60);
             }));
-        serviceHealth.MarkHealthy("Database");
-        Console.WriteLine("Database context configured successfully (CommandTimeout: 60s)");
+        // Note: Database health is marked healthy after migrations run synchronously
+        // later in startup (or after the first successful FixupStats DB access).
+        // It is intentionally not marked healthy here at registration time.
+        Console.WriteLine("Database context configured successfully (CommandTimeout: 60s, health pending connection)");
     }
     catch (Exception ex)
     {
@@ -884,42 +887,34 @@ app.MapRazorPages();
 
 GlobalState.UseTestKeys = isDevelopment;
 
-// Run database migrations in background after app starts accepting requests
-_ = Task.Run(async () =>
+// Run database migrations synchronously before starting the app, so the DB is
+// guaranteed to exist before DanceStatsHostedService or any other hosted service runs.
+if (serviceHealth.GetServiceStatus("Database").Status != ServiceStatus.Unavailable
+    && !useProdDb && !useTestDb)
 {
-    // Wait a moment for app to start accepting HTTP requests
-    await Task.Delay(TimeSpan.FromSeconds(2));
-
-    if (!serviceHealth.IsServiceAvailable("Database"))
-    {
-        Console.WriteLine("Skipping database migrations - database service is unavailable");
-        return;
-    }
-
-    if (useProdDb)
-    {
-        Console.WriteLine("Skipping database migrations and seed data - PROD_DB is set");
-        return;
-    }
-
-    if (useTestDb)
-    {
-        Console.WriteLine("Skipping database migrations and seed data - TEST_DB is set");
-        return;
-    }
-
-    Console.WriteLine("Running database migrations in background...");
+    Console.WriteLine("Running database migrations...");
     try
     {
-        using var scope = app.Services.CreateScope();
-        var sp = scope.ServiceProvider;
-        var db = sp.GetRequiredService<DanceMusicContext>().Database;
+        // Use a context without EnableRetryOnFailure so that Migrate() can reach its
+        // CREATE DATABASE path when the local DB has been deleted, rather than retrying
+        // the failed connection attempt and giving up before the DB is created.
+        var migrationOptions = new DbContextOptionsBuilder<DanceMusicContext>()
+            .UseSqlServer(connectionString, sqlOptions => sqlOptions.CommandTimeout(60))
+            .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning))
+            .Options;
 
-        db.Migrate();
+        using var migrationContext = new DanceMusicContext(migrationOptions);
+        Console.WriteLine($"[Migration] Connecting to: {migrationContext.Database.GetConnectionString()}");
+        Console.WriteLine("[Migration] Calling MigrateAsync...");
+        await migrationContext.Database.MigrateAsync();
+        Console.WriteLine("[Migration] MigrateAsync completed successfully");
+        serviceHealth.MarkHealthy("Database");
         Console.WriteLine("Database migrations completed successfully");
 
         if (isDevelopment)
         {
+            using var scope = app.Services.CreateScope();
+            var sp = scope.ServiceProvider;
             var userManager = sp.GetRequiredService<UserManager<ApplicationUser>>();
             var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
             await UserManagerHelpers.SeedData(userManager, roleManager, configuration);
@@ -932,6 +927,10 @@ _ = Task.Run(async () =>
         Console.WriteLine($"ERROR: Database migration failed: {ex.GetType().Name}: {ex.Message}");
         Console.WriteLine("WARNING: Continuing without database - data features will be unavailable");
     }
-});
+}
+else if (useProdDb || useTestDb)
+{
+    Console.WriteLine("Skipping database migrations - PROD_DB or TEST_DB is set");
+}
 
 app.Run();

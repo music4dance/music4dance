@@ -16,42 +16,43 @@ This document describes the full set of options and fields supported by the song
 
 The following header fields are recognized (case-insensitive). You may use any of these as column headers:
 
-| Header Name          | Internal Field  | Description                                                                    |
-| -------------------- | --------------- | ------------------------------------------------------------------------------ |
-| DANCE                | DanceRating     | Dance style(s) for the song - uses dance IDs (see below)                       |
-| TITLE                | Title           | Song title                                                                     |
-| ARTIST               | Artist          | Song artist                                                                    |
-| CONTRIBUTING ARTISTS | Artist          | Alternate header for artist                                                    |
-| LABEL                | Publisher       | Publisher/label                                                                |
-| USER                 | User            | User name (for per-user properties)                                            |
-| TEMPO                | Tempo           | Tempo in BPM                                                                   |
-| BPM                  | Tempo           | Alternate header for tempo                                                     |
-| BEATS-PER-MINUTE     | Tempo           | Alternate header for tempo                                                     |
-| LENGTH               | Length          | Song length (seconds or mm:ss)                                                 |
-| TRACK                | Track           | Track number                                                                   |
-| ALBUM                | Album           | Album name                                                                     |
-| #                    | Track           | Alternate header for track number                                              |
-| PUBLISHER            | Publisher       | Alternate header for publisher                                                 |
-| AMAZONTRACK          | Purchase (AS)   | Amazon track ID                                                                |
-| AMAZON               | Purchase (AS)   | Amazon album ID                                                                |
-| ITUNES               | Purchase (IS)   | iTunes ID                                                                      |
-| PATH                 | OwnerHash       | File path hash                                                                 |
-| TIME                 | Length          | Alternate header for length                                                    |
-| COMMENT              | Tag+            | Adds tags (see below)                                                          |
-| COMMENTS             | Tag+            | Alternate header for tags                                                      |
-| RATING               | R               | Used for rating (see below)                                                    |
-| DANCERS              | DancersCell     | Dancer names                                                                   |
-| TITLE+ARTIST         | TitleArtistCell | Combined title and artist (see below)                                          |
-| DANCETAGS            | DanceTags       | Dance-specific tags                                                            |
-| SONGTAGS             | SongTags        | General song tags                                                              |
-| GENRE                | GenreTags       | Genre/style tags                                                               |
-| YEAR                 | SongYear        | Year (adds a tag)                                                              |
-| MPM                  | MPM             | Measures-per-minute (tempo)                                                    |
-| MULTIDANCE           | MultiDance      | Multiple dances with tags (see below)                                          |
-| DANCECOMMENT         | Comment+        | Comment scoped to the current dance (stored as `Comment+:DanceId`)             |
-| CHOREOGRAPHER        | Choreographer+  | Choreographer scoped to the current dance (stored as `Choreographer+:DanceId`) |
-| STEPSHEETURL         | StepSheetUrl+   | Step sheet URL scoped to the current dance (stored as `StepSheetUrl+:DanceId`) |
-| SPOTIFY              | Purchase (SS)   | Spotify track ID                                                               |
+| Header Name          | Internal Field  | Description                                                                              |
+| -------------------- | --------------- | ---------------------------------------------------------------------------------------- |
+| DANCE                | DanceRating     | Dance style(s) for the song - uses dance IDs (see below)                                 |
+| TITLE                | Title           | Song title                                                                               |
+| ARTIST               | Artist          | Song artist                                                                              |
+| CONTRIBUTING ARTISTS | Artist          | Alternate header for artist                                                              |
+| LABEL                | Publisher       | Publisher/label                                                                          |
+| USER                 | User            | User name (for per-user properties)                                                      |
+| TEMPO                | Tempo           | Tempo in BPM                                                                             |
+| BPM                  | Tempo           | Alternate header for tempo                                                               |
+| BEATS-PER-MINUTE     | Tempo           | Alternate header for tempo                                                               |
+| LENGTH               | Length          | Song length (seconds or mm:ss)                                                           |
+| TRACK                | Track           | Track number                                                                             |
+| ALBUM                | Album           | Album name                                                                               |
+| #                    | Track           | Alternate header for track number                                                        |
+| PUBLISHER            | Publisher       | Alternate header for publisher                                                           |
+| AMAZONTRACK          | Purchase (AS)   | Amazon track ID                                                                          |
+| AMAZON               | Purchase (AS)   | Amazon album ID                                                                          |
+| ITUNES               | Purchase (IS)   | iTunes ID                                                                                |
+| PATH                 | OwnerHash       | File path hash                                                                           |
+| TIME                 | Length          | Alternate header for length                                                              |
+| COMMENT              | Tag+            | Adds tags (see below)                                                                    |
+| COMMENTS             | Tag+            | Alternate header for tags                                                                |
+| RATING               | R               | Used for rating (see below)                                                              |
+| DANCERS              | DancersCell     | Dancer names                                                                             |
+| TITLE+ARTIST         | TitleArtistCell | Combined title and artist (see below)                                                    |
+| DANCETAGS            | DanceTags       | Dance-specific tags                                                                      |
+| SONGTAGS             | SongTags        | General song tags                                                                        |
+| GENRE                | GenreTags       | Genre/style tags                                                                         |
+| YEAR                 | SongYear        | Year (adds a tag)                                                                        |
+| MPM                  | MPM             | Measures-per-minute (tempo)                                                              |
+| MULTIDANCE           | MultiDance      | Multiple dances with tags (see below)                                                    |
+| DANCECOMMENT         | Comment+        | Comment scoped to the current dance (stored as `Comment+:DanceId`)                       |
+| CHOREOGRAPHER        | Choreographer+  | Choreographer scoped to the current dance (stored as `Choreographer+:DanceId`)           |
+| STEPSHEETURL         | StepSheetUrl+   | Step sheet URL scoped to the current dance (stored as `StepSheetUrl+:DanceId`)           |
+| PATTERNNAME          | PatternName+    | Pattern/choreography name scoped to the current dance (stored as `PatternName+:DanceId`) |
+| SPOTIFY              | Purchase (SS)   | Spotify track ID                                                                         |
 
 > **Note:** The internal field is for reference; use the header name in your file.
 
@@ -118,23 +119,29 @@ The following header fields are recognized (case-insensitive). You may use any o
 - **SPOTIFY**: Spotify track ID
 - Used to generate purchase/streaming links for the song.
 
-### Dance-Scoped Fields (DANCECOMMENT, CHOREOGRAPHER, STEPSHEETURL)
+### Dance-Scoped Fields (DANCECOMMENT, CHOREOGRAPHER, STEPSHEETURL, PATTERNNAME)
 
 These fields apply a value to the most recently declared dance rating. They require at least one `DANCE` column to appear earlier in the same row.
 
 | Header        | Stored property format   | Example value                      |
 | ------------- | ------------------------ | ---------------------------------- |
-| DANCECOMMENT  | `Comment+:DanceId`       | `Boots on the Ground`              |
+| DANCECOMMENT  | `Comment+:DanceId`       | `"Ring" by Darren Bailey`          |
 | CHOREOGRAPHER | `Choreographer+:DanceId` | `Tre Little (USA) - January 2025`  |
 | STEPSHEETURL  | `StepSheetUrl+:DanceId`  | `https://www.copperknob.co.uk/...` |
+| PATTERNNAME   | `PatternName+:DanceId`   | `Ring`                             |
 
 The stored property name uses the `+` suffix followed by `:DanceId`, matching the `.Create=` serialization format used by the rest of the system. For example, for a PTN song:
 
 ```
-Comment+:PTN=Boots on the Ground
-Choreographer+:PTN=Tre Little (USA) - January 2025
-StepSheetUrl+:PTN=https://www.copperknob.co.uk/stepsheets/4GPM8ZG/boots-on-the-ground-with-clacker-fan
+Comment+:PTN="Ring" by Darren Bailey
+Choreographer+:PTN=Darren Bailey
+StepSheetUrl+:PTN=https://www.copperknob.co.uk/stepsheets/...
+PatternName+:PTN=Ring
 ```
+
+> **Line dance uploads**: the prepare-line-dance-upload.ps1 script generates DANCECOMMENT as
+> `"PatternName" by Choreographer` (plain ASCII double-quotes around the pattern name). If no
+> choreographer is recorded, the value is just `"PatternName"`.
 
 If there is no prior dance rating on the row, these fields are silently discarded.
 

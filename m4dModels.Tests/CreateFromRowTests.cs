@@ -661,6 +661,20 @@ public class CreateFromRowTests
         Assert.AreEqual(url, sheetProp.Value);
     }
 
+    [TestMethod]
+    public async Task PatternName_AppliedToPriorDanceRating()
+    {
+        var song = await Row(
+            [Song.TitleField, Song.DanceRatingField, Song.AddPatternNameField],
+            ["Title", "PTN", "Ring"]);
+
+        Assert.IsNotNull(song);
+        var patternProp = song.SongProperties.FirstOrDefault(p =>
+            p.BaseName == Song.AddPatternNameField && p.DanceQualifier == "PTN");
+        Assert.IsNotNull(patternProp, "PatternName should be stored with dance qualifier");
+        Assert.AreEqual("Ring", patternProp.Value);
+    }
+
     // ─── MPM (measures per minute) ────────────────────────────────────────────
 
     [TestMethod]
@@ -889,6 +903,7 @@ public class CreateFromRowTests
             ("DANCECOMMENT",        Song.AddCommentField),
             ("CHOREOGRAPHER",       Song.AddChoreographerField),
             ("STEPSHEETURL",        Song.AddStepSheetUrlField),
+            ("PATTERNNAME",         Song.AddPatternNameField),
             ("SONGID",              Song.SongIdOverride),
         };
 
