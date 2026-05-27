@@ -17,4 +17,19 @@ public static partial class StringHelpers
     {
         return new string([.. filename.Except(System.IO.Path.GetInvalidFileNameChars())]);
     }
+
+    /// <summary>
+    /// Unquotes a single CSV/TSV cell using RFC 4180 rules:
+    /// if the value is wrapped in a matching pair of double-quotes, strip the outer
+    /// quotes and unescape any internal doubled double-quotes (<c>""</c> → <c>"</c>).
+    /// Values that are not wrapped in quotes are returned unchanged.
+    /// </summary>
+    public static string UnquoteCsvCell(this string cell)
+    {
+        if (cell.Length >= 2 && cell[0] == '"' && cell[^1] == '"')
+        {
+            return cell[1..^1].Replace("\"\"", "\"");
+        }
+        return cell;
+    }
 }

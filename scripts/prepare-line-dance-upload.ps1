@@ -40,6 +40,12 @@
       SONGID      -> SongIdOverride  (direct SongId lookup, bypasses title matching)
       CHOREOGRAPHER -> Choreographer/PTN dance property (dance-level, like DanceComment)
       STEPSHEETURL  -> StepSheetUrl/PTN dance property (dance-level, like DanceComment)
+      PATTERNNAME   -> PatternName/PTN dance property (the line/pattern dance name)
+
+    DANCECOMMENT is formatted as "PatternName" by Choreographer so the comment text
+    surfaces the dance identity inline wherever comments are displayed.
+
+    DANCETAGS always includes Line Dance:Style (plus the difficulty tag when present).
 #>
 
 [CmdletBinding()]
@@ -208,6 +214,21 @@ foreach ($row in $rows) {
         $unknownDifficulties.Add($rawDiff) | Out-Null
     }
 
+    $choreographer = Get-CleanChoreographerName ($row.'Choreographer')
+    $patternName   = $row.'Dance Name'.Trim()
+
+    # Format DANCECOMMENT as "PatternName" by Choreographer.
+    # The TSV parser in Song.cs uses RFC 4180 unquoting, so plain ASCII double quotes
+    # survive Export-Csv round-tripping correctly.
+    $danceComment = if ($choreographer -ne '') {
+        "`"$patternName`" by $choreographer"
+    } else {
+        "`"$patternName`""
+    }
+
+    # DANCETAGS: always include Line Dance:Style; append difficulty when known
+    $danceTags = if ($diffTag -ne '') { "Line Dance:Style|$diffTag" } else { 'Line Dance:Style' }
+
     $uploadRow = [PSCustomObject]@{
         USER           = $Username
         DANCE          = 'PTN'
@@ -216,10 +237,11 @@ foreach ($row in $rows) {
         ARTIST         = $aa.Artist
         ALBUM          = $aa.Album
         SPOTIFY        = $spotifyId
-        DANCECOMMENT   = $row.'Dance Name'.Trim()
-        CHOREOGRAPHER  = Get-CleanChoreographerName ($row.'Choreographer')
+        DANCECOMMENT   = $danceComment
+        PATTERNNAME    = $patternName
+        CHOREOGRAPHER  = $choreographer
         STEPSHEETURL   = $row.'Copperknob Link'.Trim()
-        DANCETAGS      = $diffTag
+        DANCETAGS      = $danceTags
     }
 
     if ($songId -ne '') {
