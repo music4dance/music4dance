@@ -12,6 +12,7 @@ const model: AdminUsersModel = TypedJSON.parse(model_, AdminUsersModel)!;
 const showUnconfirmed = ref(false);
 const showPseudo = ref(false);
 const hidePrivate = ref(false);
+const userSearch = ref("");
 
 // --- Pagination ---
 const perPage = ref(50);
@@ -44,11 +45,14 @@ const filteredUsers = computed(() => {
   const su = showUnconfirmed.value;
   const sp = showPseudo.value;
   const hp = hidePrivate.value;
+  const q = userSearch.value.trim().toLowerCase();
 
   return allUsers.value.filter((u) => {
     if (!u.emailConfirmed && !u.isPseudo && !su) return false;
     if (u.isPseudo && !sp) return false;
     if (hp && u.privacy !== 255) return false;
+    if (q && !u.userName.toLowerCase().includes(q) && !(u.email ?? "").toLowerCase().includes(q))
+      return false;
     return true;
   });
 });
@@ -297,6 +301,17 @@ function playlistsUrl(userName: string): string {
 
     <hr />
     <h3>Users ({{ filteredUsers.length }})</h3>
+
+    <!-- Text search -->
+    <div class="mb-2" style="max-width: 24rem">
+      <BFormInput
+        v-model="userSearch"
+        placeholder="Filter by name or email…"
+        size="sm"
+        clearable
+        @update:model-value="currentPage = 1"
+      />
+    </div>
 
     <!-- Pagination controls (top) -->
     <div class="d-flex align-items-center gap-3 mb-2">

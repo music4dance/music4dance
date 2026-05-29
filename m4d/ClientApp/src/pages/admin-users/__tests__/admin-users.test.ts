@@ -1,7 +1,5 @@
 import { describe, test, expect, beforeEach } from "vitest";
-import { mount } from "@vue/test-utils";
 import { loadTestPage, testPageSnapshot } from "@/helpers/TestPageSnapshot";
-import { createBootstrap } from "bootstrap-vue-next";
 import App from "../App.vue";
 import { model } from "./model";
 
@@ -106,6 +104,31 @@ describe("admin-users page", () => {
       await btn.trigger("click");
       expect(btn.text()).toBe("Hide Unconfirmed");
     });
+
+    test("text search filters by userName", async () => {
+      const wrapper = loadTestPage(App, model);
+      const input = wrapper.find("input[placeholder*='Filter']");
+      expect(input.exists()).toBe(true);
+      // Default visible: alice, DEL:dave — type "alice" to narrow to 1
+      await input.setValue("alice");
+      expect(wrapper.find("#users-table").findAll("tbody tr").length).toBe(1);
+      // Clear search — both rows return
+      await input.setValue("");
+      expect(wrapper.find("#users-table").findAll("tbody tr").length).toBe(2);
+    });
+
+    test("text search filters by email", async () => {
+      const wrapper = loadTestPage(App, model);
+      // Show unconfirmed so bob is visible, then search by email domain
+      const unconfBtn = wrapper
+        .findAll("button")
+        .find((b) => b.text().includes("Show Unconfirmed"))!;
+      await unconfBtn.trigger("click");
+      const input = wrapper.find("input[placeholder*='Filter']");
+      await input.setValue("example.com");
+      // alice, bob, DEL:dave all have @example.com
+      expect(wrapper.find("#users-table").findAll("tbody tr").length).toBe(3);
+    });
   });
 
   describe("table content", () => {
@@ -126,23 +149,12 @@ describe("admin-users page", () => {
       expect(html).toBeTruthy();
     });
 
-    test("Never is shown for lastActive = 1900", () => {
+    test("Never is shown for lastActive = 1900", async () => {
       const wrapper = loadTestPage(App, model);
-      // bob is filtered out by default (unconfirmed); show unconfirmed to see "Never"
-      // We need to enable showUnconfirmed
-      // Re-mount via direct model approach
-      const bsvn = createBootstrap();
-      (window as unknown as Record<string, unknown>).model_ = model;
-      document.body.innerHTML = `<div id="app"></div>`;
-      const w = mount(App, {
-        attachTo: "#app",
-        global: { plugins: [bsvn], stubs: { MainMenu: { template: "<span />" } } },
-      });
-      // trigger show-unconfirmed to see bob
-      const btn = w.findAll("button").find((b) => b.text().includes("Show Unconfirmed"))!;
-      btn.trigger("click").then(() => {
-        expect(w.text()).toContain("Never");
-      });
+      // bob has lastActive in 1900 (never active) but is unconfirmed — show him first
+      const btn = wrapper.findAll("button").find((b) => b.text().includes("Show Unconfirmed"))!;
+      await btn.trigger("click");
+      expect(wrapper.text()).toContain("Never");
     });
 
     test("action links contain correct user id", () => {

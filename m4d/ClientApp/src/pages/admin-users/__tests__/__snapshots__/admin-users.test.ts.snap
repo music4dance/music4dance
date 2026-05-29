@@ -63,7 +63,8 @@ exports[`admin-users page > renders the admin users page 1`] = `
     </tbody>
   </table>
   <hr>
-  <h3>Users (2)</h3><!-- Pagination controls (top) -->
+  <h3>Users (2)</h3><!-- Text search -->
+  <div class="mb-2" style="max-width: 24rem;"><input id="BootstrapVueNext__ID__v-0__input___" class="form-control form-control-sm" type="text" placeholder="Filter by name or email…" clearable="" value=""></div><!-- Pagination controls (top) -->
   <div class="d-flex align-items-center gap-3 mb-2">
     <ul class="pagination justify-content-start pagination-sm mb-0" role="menubar" aria-disabled="false" aria-label="Pagination">
       <li class="page-item disabled" role="presentation" displayindex="0"><span is="span" class="page-link text-center" aria-label="Go to first page" aria-disabled="true" role="menuitem">«</span></li>
@@ -72,7 +73,7 @@ exports[`admin-users page > renders the admin users page 1`] = `
       <li class="page-item disabled" role="presentation" displayindex="3"><span is="span" class="page-link text-center" aria-label="Go to next page" aria-disabled="true" role="menuitem">›</span></li>
       <li class="page-item disabled" role="presentation" displayindex="4"><span is="span" class="page-link text-center" aria-label="Go to last page" aria-disabled="true" role="menuitem">»</span></li>
     </ul>
-    <div class="d-flex align-items-center gap-2"><label class="mb-0 small">Per page:</label><select id="BootstrapVueNext__ID__v-0__input___" class="form-select form-select-sm" style="width: auto;">
+    <div class="d-flex align-items-center gap-2"><label class="mb-0 small">Per page:</label><select id="BootstrapVueNext__ID__v-1__input___" class="form-select form-select-sm" style="width: auto;">
         <option value="25">25</option>
         <option selected="" value="50">50</option>
         <option value="100">100</option>
