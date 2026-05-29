@@ -1,6 +1,7 @@
 ﻿using m4d.Services;
 using m4d.Services.ServiceHealth;
 using m4d.Utilities;
+using m4d.ViewModels;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -32,14 +33,36 @@ public class ApplicationUsersController(
     //}
 
     // GET: ApplicationUsers
-    public async Task<ActionResult> Index(bool showUnconfirmed = false, bool showPseudo = false,
-        bool hidePrivate = false, string sort = "")
+    public async Task<ActionResult> Index()
     {
-        ViewBag.ShowUnconfirmed = showUnconfirmed;
-        ViewBag.ShowPseudo = showPseudo;
-        ViewBag.HidePrivate = hidePrivate;
-        ViewBag.Sort = sort;
-        return View("Index", await UserMapper.GetUserNameDictionary(Database.UserManager, ServiceHealth));
+        var dict = await UserMapper.GetUserNameDictionary(Database.UserManager, ServiceHealth);
+        var roles = Context.Roles.OrderBy(r => r.Name).Select(r => r.Name).ToList();
+        var services = MusicService.GetServices()
+            .Select(s => new AdminServiceInfo { Cid = s.CID.ToString(), Name = s.Name })
+            .ToList();
+
+        var users = dict.Values.Select(u => new AdminUserSummary
+        {
+            Id                 = u.User.Id,
+            UserName           = u.User.UserName,
+            Email              = u.User.Email,
+            EmailConfirmed     = u.User.EmailConfirmed,
+            IsPseudo           = u.IsPseudo,
+            StartDate          = u.User.StartDate,
+            LastActive         = u.User.LastActive,
+            HitCount           = u.User.HitCount,
+            LifetimePurchased  = u.User.LifetimePurchased,
+            SubscriptionLevel  = (int)u.User.SubscriptionLevel,
+            Privacy            = u.User.Privacy,
+            CanContact         = (int)u.User.CanContact,
+            ServicePreference  = u.User.ServicePreference,
+            FailedCardAttempts = u.User.FailedCardAttempts,
+            Roles              = u.Roles,
+            Logins             = u.Logins,
+        }).ToList();
+
+        var model = new AdminUsersModel { Users = users, AllRoles = roles, Services = services };
+        return Vue3("User Administrator", "Admin: User list", "admin-users", model);
     }
 
     // GET: ApplicationUsers/Details/5
@@ -271,12 +294,12 @@ public class ApplicationUsersController(
         return View(applicationUser);
     }
 
-    public async Task<ActionResult> ClearCache()
+    public ActionResult ClearCache()
     {
         UserMapper.Clear();
         UsersController.ClearCache();
         AdmAuthentication.Clear();
-        return await Index();
+        return RedirectToAction("Index");
     }
 
     // GET: ApplicationUsers
