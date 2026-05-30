@@ -54,6 +54,8 @@ const filteredPlaylists = computed(() => {
       q &&
       !p.user.toLowerCase().includes(q) &&
       !(p.name ?? "").toLowerCase().includes(q) &&
+      !(p.description ?? "").toLowerCase().includes(q) &&
+      !(p.data1 ?? "").toLowerCase().includes(q) &&
       !p.id.toLowerCase().includes(q)
     )
       return false;
@@ -213,7 +215,7 @@ function rowClass(item: PlayListSummary): string {
     <div class="d-flex align-items-center gap-3 mb-2 flex-wrap">
       <BFormInput
         v-model="userFilter"
-        placeholder="Filter by user, name or id…"
+        placeholder="Filter by user, name, description, tags or id…"
         size="sm"
         clearable
         style="max-width: 20rem"

@@ -70,6 +70,20 @@ describe("playlist page", () => {
       expect(rows.length).toBe(1);
     });
 
+    test("text filter narrows by description", async () => {
+      const input = wrapper.find("input[placeholder*='Filter']");
+      await input.setValue("tango playlist");
+      const rows = wrapper.find("#playlist-table").findAll("tbody tr");
+      expect(rows.length).toBe(1);
+    });
+
+    test("text filter narrows by data1 (Tags / Search)", async () => {
+      const input = wrapper.find("input[placeholder*='Filter']");
+      await input.setValue("TAN:Dance");
+      const rows = wrapper.find("#playlist-table").findAll("tbody tr");
+      expect(rows.length).toBe(1);
+    });
+
     test("text filter narrows by id", async () => {
       const input = wrapper.find("input[placeholder*='Filter']");
       await input.setValue("def456");

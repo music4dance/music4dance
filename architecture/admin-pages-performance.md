@@ -384,11 +384,11 @@ Same as Searches — add pagination controls at the bottom of `Views/ActivityLog
 
 ## Development Phases
 
-| Phase | PR scope                                              | Status      | Outcome                                                 |
-| ----- | ----------------------------------------------------- | ----------- | ------------------------------------------------------- |
+| Phase | PR scope                                              | Status                | Outcome                                                 |
+| ----- | ----------------------------------------------------- | --------------------- | ------------------------------------------------------- |
 | **1** | ApplicationUsers/Index → Vue (DTO + Vue page + tests) | ✅ Complete (PR #174) | Users page is responsive; all auxiliary pages unchanged |
-| **2** | PlayList/Index → Vue                                  | ✅ Complete | Playlists page is responsive                            |
-| **3** | Searches/Index + ActivityLog/Index server paging      | Not started | Remaining tables paginated without Vue conversion       |
+| **2** | PlayList/Index → Vue                                  | ✅ Complete           | Playlists page is responsive                            |
+| **3** | Searches/Index + ActivityLog/Index server paging      | Not started           | Remaining tables paginated without Vue conversion       |
 
 Each phase is independently deployable. Later phases can be re-prioritised without affecting
 earlier ones.

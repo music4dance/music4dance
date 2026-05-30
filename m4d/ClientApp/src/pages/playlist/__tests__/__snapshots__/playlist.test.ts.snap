@@ -25,7 +25,7 @@ exports[`playlist page > renders the playlist page 1`] = `
       <p><strong>Deleted:</strong> 1</p>
     </div>
   </div><!-- Filter + Pagination controls -->
-  <div class="d-flex align-items-center gap-3 mb-2 flex-wrap"><input id="BootstrapVueNext__ID__v-0__input___" class="form-control form-control-sm" type="text" placeholder="Filter by user, name or id…" clearable="" style="max-width: 20rem;" value="">
+  <div class="d-flex align-items-center gap-3 mb-2 flex-wrap"><input id="BootstrapVueNext__ID__v-0__input___" class="form-control form-control-sm" type="text" placeholder="Filter by user, name, description, tags or id…" clearable="" style="max-width: 20rem;" value="">
     <ul class="pagination justify-content-start pagination-sm mb-0" role="menubar" aria-disabled="false" aria-label="Pagination">
       <li class="page-item disabled" role="presentation" displayindex="0"><span is="span" class="page-link text-center" aria-label="Go to first page" aria-disabled="true" role="menuitem">«</span></li>
       <li class="page-item disabled" role="presentation" displayindex="1"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
