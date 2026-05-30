@@ -1,6 +1,7 @@
 ﻿using m4d.Services;
 using m4d.Services.ServiceHealth;
 using m4d.Utilities;
+using m4d.ViewModels;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -26,9 +27,39 @@ public class PlayListController(
 
     // GET: PlayLists
     [Authorize(Roles = "dbAdmin")]
-    public IActionResult Index(PlayListType type = PlayListType.SongsFromSpotify, string user = null, bool showDeleted = false)
+    public IActionResult Index(PlayListType type = PlayListType.SongsFromSpotify, string user = null)
     {
-        return View(string.IsNullOrWhiteSpace(user) ? GetIndex(type, showDeleted) : GetUserIndex(type, user, showDeleted));
+        var query = Database.PlayLists.Where(p => p.Type == type);
+        if (!string.IsNullOrWhiteSpace(user))
+            query = query.Where(p => p.User == user);
+
+        var playlists = query
+            .ToList()
+            .Select(p => new PlayListSummary
+            {
+                Id = p.Id,
+                User = p.User,
+                Type = (int)p.Type,
+                Name = p.Name,
+                Description = p.Description,
+                Data1 = string.IsNullOrEmpty(p.Data1) ? null : p.Data1[..Math.Min(p.Data1.Length, 50)],
+                Data2 = string.IsNullOrEmpty(p.Data2) ? null : p.Data2[..Math.Min(p.Data2.Length, 50)],
+                Created = p.Created,
+                Updated = p.Updated,
+                Deleted = p.Deleted,
+            })
+            .ToList();
+
+        var model = new PlayListPageModel
+        {
+            PlayLists = playlists,
+            Type = (int)type,
+            FilteredUser = string.IsNullOrWhiteSpace(user) ? null : user,
+            Data1Name = PlayList.GetData1Name(type),
+            Data2Name = PlayList.GetData2Name(type),
+        };
+
+        return Vue3("Playlist Index", "Admin: Playlist list", "playlist", model);
     }
 
     // GET: PlayLists/Details/5
@@ -341,7 +372,7 @@ public class PlayListController(
 
         _ = await Database.SaveChanges();
 
-        return View("Index", GetIndex(PlayListType.SpotifyFromSearch));
+        return RedirectToAction("Index", new { type = PlayListType.SpotifyFromSearch });
     }
 
     private async Task UpdateAllBase(PlayListType type, IPrincipal user = null)

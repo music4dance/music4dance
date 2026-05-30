@@ -186,7 +186,7 @@ function usageUrl(userName: string): string {
   return "/UsageLog/UserLog?user=" + encodeURIComponent(userName);
 }
 function playlistsUrl(userName: string): string {
-  return "/PlayList/Index?type=0&user=" + encodeURIComponent(userName);
+  return "/PlayList/Index?user=" + encodeURIComponent(userName);
 }
 </script>
 
