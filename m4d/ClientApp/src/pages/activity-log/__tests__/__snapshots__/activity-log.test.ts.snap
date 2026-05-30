@@ -27,7 +27,7 @@ exports[`activity-log page > renders the activity log page snapshot 1`] = `
               <!---->5001
             </td>
             <td class="">
-              <!---->11/20/2024, 6:30 AM
+              <!---->11/20/2024, 2:30 PM
             </td>
             <td class="">
               <!----><span>alice</span>
@@ -45,7 +45,7 @@ exports[`activity-log page > renders the activity log page snapshot 1`] = `
               <!---->5002
             </td>
             <td class="">
-              <!---->11/19/2024, 1:15 AM
+              <!---->11/19/2024, 9:15 AM
             </td>
             <td class="">
               <!----><span>bob</span>
@@ -63,7 +63,7 @@ exports[`activity-log page > renders the activity log page snapshot 1`] = `
               <!---->5003
             </td>
             <td class="">
-              <!---->11/18/2024, 3:00 AM
+              <!---->11/18/2024, 11:00 AM
             </td>
             <td class="">
               <!----><span class="text-muted">no user</span>
@@ -133,7 +133,7 @@ exports[`activity-log page > renders the single-page view snapshot 1`] = `
               <!---->5001
             </td>
             <td class="">
-              <!---->11/20/2024, 6:30 AM
+              <!---->11/20/2024, 2:30 PM
             </td>
             <td class="">
               <!----><span>alice</span>

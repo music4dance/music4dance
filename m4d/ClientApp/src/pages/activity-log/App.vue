@@ -52,6 +52,7 @@ function formatDate(dateStr: string | undefined): string {
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
+    timeZone: "UTC",
   });
 }
 </script>
