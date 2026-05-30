@@ -34,7 +34,6 @@ public class PlayListController(
             query = query.Where(p => p.User == user);
 
         var playlists = query
-            .OrderByDescending(p => p.Updated)
             .ToList()
             .Select(p => new PlayListSummary
             {
