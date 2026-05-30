@@ -9,7 +9,7 @@ describe("admin-users page", () => {
   });
 
   describe("summary statistics", () => {
-    let wrapper: ReturnType<typeof mount>;
+    let wrapper: ReturnType<typeof loadTestPage>;
 
     beforeEach(() => {
       wrapper = loadTestPage(App, model);
