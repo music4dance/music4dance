@@ -200,7 +200,7 @@ export class AdminUsersModel {
   - `/Song/FilterUser?user={userName}` (List Songs)
   - `/Searches/Index?user={userName}&showDetails=true&sort=recent` (List Searches)
   - `/UsageLog/UserLog?user={userName}` (Usage)
-  - `/Playlist/Index?type=SongsFromSpotify&user={userName}` (Playlists)
+  - `/PlayList/Index?user={userName}` (Playlists — defaults to SongsFromSpotify type)
 
 #### Preserved top-of-page links (non-list actions)
 
@@ -268,18 +268,23 @@ Alternatively, start with type fixed to a default and let the Vue page switch ty
 reloading the URL with the new `type` query parameter (simplest migration path — only requires
 changing how `filteredLists` is computed client-side, not eliminating the server query parameter).
 
-### Vue page: `src/pages/admin-playlists/`
+### Vue page: `src/pages/playlist/` _(as built)_
 
-- Deserialise model
+- Deserialise model via TypedJSON (`PlayListPageModel` + `PlayListSummary`)
 - Client-side controls:
-  - Type selector (dropdown) — may still cause a page reload if loading all types at once is
-    too large; evaluate at implementation time
-  - User filter (text input, filters `filteredLists` by `item.user`)
-  - Show/hide deleted toggle
-- `<BTable>` with per-page pagination and sortable columns
-- Per-row action links (Details, Edit, Delete/Undelete, Restore, user-filter link)
-- Preserve top-of-page bulk actions: Create New, Restore All, Update All, BulkCreate links,
-  Statistics
+  - Type links (SongsFromSpotify / SpotifyFromSearch) — trigger a server reload with `?type=N`;
+    current type is **not** a client-side filter
+  - User filter (text input on user/name/id); pre-populated from the `user` URL param
+  - Show Active / Show Deleted toggle (fully client-side; both active and deleted playlists are
+    included in the server payload)
+- `<BTable id="playlist-table">` with per-page pagination and sortable columns; deleted rows
+  styled with `table-danger`
+- Per-row action links: Update \| Edit \| Details \| Delete (active) / Undelete (deleted); Restore
+  shown when `updated && !data2`
+- Sidebar: Create New, Restore All (SongsFromSpotify), Update All, Delete All (user-filtered +
+  active + count > 0), BulkCreate links (SpotifyFromSearch only), Statistics
+
+> See `architecture/playlist-management.md` — _Vue Index Page_ section for full detail.
 
 ---
 
@@ -379,11 +384,11 @@ Same as Searches — add pagination controls at the bottom of `Views/ActivityLog
 
 ## Development Phases
 
-| Phase | PR scope                                              | Outcome                                                 |
-| ----- | ----------------------------------------------------- | ------------------------------------------------------- |
-| **1** | ApplicationUsers/Index → Vue (DTO + Vue page + tests) | Users page is responsive; all auxiliary pages unchanged |
-| **2** | PlayList/Index → Vue                                  | Playlists page is responsive                            |
-| **3** | Searches/Index + ActivityLog/Index server paging      | Remaining tables paginated without Vue conversion       |
+| Phase | PR scope                                              | Status      | Outcome                                                 |
+| ----- | ----------------------------------------------------- | ----------- | ------------------------------------------------------- |
+| **1** | ApplicationUsers/Index → Vue (DTO + Vue page + tests) | ✅ Complete (PR #174) | Users page is responsive; all auxiliary pages unchanged |
+| **2** | PlayList/Index → Vue                                  | ✅ Complete | Playlists page is responsive                            |
+| **3** | Searches/Index + ActivityLog/Index server paging      | Not started | Remaining tables paginated without Vue conversion       |
 
 Each phase is independently deployable. Later phases can be re-prioritised without affecting
 earlier ones.
@@ -414,7 +419,10 @@ earlier ones.
 ## Design Decisions
 
 1. **PlayList type switching (Phase 2)**: `type` stays as a server query parameter (causes a page
-   reload). Only `user` and `showDeleted` move to client-side state within the Vue page.
+   reload). `showDeleted` is fully client-side (both active and deleted rows are sent in the
+   payload; the toggle just filters the computed list). `user` is also a server query parameter
+   but only for pre-populating the client-side text filter — all playlists of the given type are
+   always sent.
 
 2. **Date serialisation**: Use camelCase JSON serialiser defaults throughout. Dates arrive as
    strings in the JSON payload; TypeScript models declare them as `string` and format for display

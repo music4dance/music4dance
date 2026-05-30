@@ -143,7 +143,7 @@ exports[`admin-users page > renders the admin users page 1`] = `
             <!----><span><!--v-if-->Spotify</span>
           </td>
           <td class="">
-            <!----><a href="/Song/FilterUser?user=alice">List Songs</a>, <a href="/Searches/Index?user=alice&amp;showDetails=true&amp;sort=recent">List Searches</a><br><a href="/ApplicationUsers/ChangeRoles/user-1">Change Roles</a><br><a href="/ApplicationUsers/Delete/user-1">Delete</a>, <a href="/ApplicationUsers/Edit/user-1">Edit</a>, <a href="/UsageLog/UserLog?user=alice">Usage</a>, <a href="/PlayList/Index?type=0&amp;user=alice">Playlists</a>, <a href="/ApplicationUsers/ClearPremium/user-1">ClearPremium</a>
+            <!----><a href="/Song/FilterUser?user=alice">List Songs</a>, <a href="/Searches/Index?user=alice&amp;showDetails=true&amp;sort=recent">List Searches</a><br><a href="/ApplicationUsers/ChangeRoles/user-1">Change Roles</a><br><a href="/ApplicationUsers/Delete/user-1">Delete</a>, <a href="/ApplicationUsers/Edit/user-1">Edit</a>, <a href="/UsageLog/UserLog?user=alice">Usage</a>, <a href="/PlayList/Index?user=alice">Playlists</a>, <a href="/ApplicationUsers/ClearPremium/user-1">ClearPremium</a>
           </td>
         </tr>
         <!---->
@@ -183,7 +183,7 @@ exports[`admin-users page > renders the admin users page 1`] = `
           <td class=""></td>
           <td class=""></td>
           <td class="">
-            <!----><a href="/Song/FilterUser?user=DEL%3Adave">List Songs</a>, <a href="/Searches/Index?user=DEL%3Adave&amp;showDetails=true&amp;sort=recent">List Searches</a><br><a href="/ApplicationUsers/ChangeRoles/user-4">Change Roles</a><br><a href="/ApplicationUsers/Delete/user-4">Delete</a>, <a href="/ApplicationUsers/Edit/user-4">Edit</a>, <a href="/UsageLog/UserLog?user=DEL%3Adave">Usage</a>, <a href="/PlayList/Index?type=0&amp;user=DEL%3Adave">Playlists</a>, <a href="/ApplicationUsers/ClearPremium/user-4">ClearPremium</a>
+            <!----><a href="/Song/FilterUser?user=DEL%3Adave">List Songs</a>, <a href="/Searches/Index?user=DEL%3Adave&amp;showDetails=true&amp;sort=recent">List Searches</a><br><a href="/ApplicationUsers/ChangeRoles/user-4">Change Roles</a><br><a href="/ApplicationUsers/Delete/user-4">Delete</a>, <a href="/ApplicationUsers/Edit/user-4">Edit</a>, <a href="/UsageLog/UserLog?user=DEL%3Adave">Usage</a>, <a href="/PlayList/Index?user=DEL%3Adave">Playlists</a>, <a href="/ApplicationUsers/ClearPremium/user-4">ClearPremium</a>
           </td>
         </tr>
         <!---->
