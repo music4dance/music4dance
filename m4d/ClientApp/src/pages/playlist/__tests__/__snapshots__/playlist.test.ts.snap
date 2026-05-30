@@ -1,132 +1,145 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`playlist page > renders the playlist page 1`] = `
-"<div class="container-fluid">
-  <h2>SongsFromSpotify Playlists</h2><!-- User filter banner -->
+"<div><span context="[object Object]">MainMenu</span>
   <!--v-if-->
-  <div class="row mb-3">
-    <!-- Sidebar: actions -->
-    <div class="col-sm-3">
-      <p><a href="/PlayList/Create" class="btn btn-primary btn-sm">Create New</a></p>
-      <p><a href="/PlayList/RestoreAll" class="btn btn-outline-secondary btn-sm">Restore All</a></p>
-      <p><a href="/PlayList/UpdateAll?type=2" class="btn btn-outline-secondary btn-sm">Update All</a></p>
-      <p><button class="btn btn-sm btn-outline-secondary" type="button">Show Deleted</button></p>
+  <!--v-if-->
+  <div id="body-content" class="container-fluid body-content">
+    <h1>SongsFromSpotify Playlists</h1>
+    <div>
+      <!-- User filter banner -->
       <!--v-if-->
-    </div><!-- Type switcher -->
-    <div class="col-sm-3">
-      <p><strong>Type:</strong></p>
-      <p><a class="fw-bold" href="/PlayList/Index?type=2">SongsFromSpotify</a></p>
-      <p><a class="" href="/PlayList/Index?type=3">SpotifyFromSearch</a></p>
-    </div><!-- BulkCreate (SpotifyFromSearch only) + Statistics -->
-    <!--v-if-->
-    <!-- Stats -->
-    <div class="col-sm-3">
-      <p><strong>Active:</strong> 2</p>
-      <p><strong>Deleted:</strong> 1</p>
+      <div class="row mb-3">
+        <!-- Sidebar: actions -->
+        <div class="col-sm-3">
+          <p><a href="/PlayList/Create" class="btn btn-primary btn-sm">Create New</a></p>
+          <p><a href="/PlayList/RestoreAll" class="btn btn-outline-secondary btn-sm">Restore All</a></p>
+          <p><a href="/PlayList/UpdateAll?type=2" class="btn btn-outline-secondary btn-sm">Update All</a></p>
+          <p><button class="btn btn-sm btn-outline-secondary" type="button">Show Deleted</button></p>
+          <!--v-if-->
+        </div><!-- Type switcher -->
+        <div class="col-sm-3">
+          <p><strong>Type:</strong></p>
+          <p><a class="fw-bold" href="/PlayList/Index?type=2">SongsFromSpotify</a></p>
+          <p><a class="" href="/PlayList/Index?type=3">SpotifyFromSearch</a></p>
+        </div><!-- BulkCreate (SpotifyFromSearch only) + Statistics -->
+        <!--v-if-->
+        <!-- Stats -->
+        <div class="col-sm-3">
+          <p><strong>Active:</strong> 2</p>
+          <p><strong>Deleted:</strong> 1</p>
+        </div>
+      </div><!-- Filter + Pagination controls -->
+      <div class="d-flex align-items-center gap-3 mb-2 flex-wrap"><input id="BootstrapVueNext__ID__v-0__input___" class="form-control form-control-sm" type="text" placeholder="Filter by user, name, description, tags or id…" clearable="" style="max-width: 20rem;" value="">
+        <ul class="pagination justify-content-start pagination-sm mb-0" role="menubar" aria-disabled="false" aria-label="Pagination">
+          <li class="page-item disabled" role="presentation" displayindex="0"><span is="span" class="page-link text-center" aria-label="Go to first page" aria-disabled="true" role="menuitem">«</span></li>
+          <li class="page-item disabled" role="presentation" displayindex="1"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
+          <li class="page-item active" role="presentation" displayindex="2"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="1" role="menuitem" type="button" tabindex="0">1</button></li>
+          <li class="page-item disabled" role="presentation" displayindex="3"><span is="span" class="page-link text-center" aria-label="Go to next page" aria-disabled="true" role="menuitem">›</span></li>
+          <li class="page-item disabled" role="presentation" displayindex="4"><span is="span" class="page-link text-center" aria-label="Go to last page" aria-disabled="true" role="menuitem">»</span></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2"><label class="mb-0 small">Per page:</label><select id="BootstrapVueNext__ID__v-1__input___" class="form-select form-select-sm" style="width: auto;">
+            <option value="25">25</option>
+            <option selected="" value="50">50</option>
+            <option value="100">100</option>
+            <option value="250">250</option>
+          </select></div>
+      </div>
+      <p class="text-muted small"> Showing 2 active playlists </p><!-- Playlist table -->
+      <div class="table-responsive">
+        <table id="playlist-table" class="table b-table table-hover table-striped table-sm" aria-busy="false">
+          <!---->
+          <thead class="">
+            <tr class="">
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">Id</th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">User</th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">Name</th>
+              <th scope="col" class="">Description</th>
+              <th scope="col" class="">Tags</th>
+              <th scope="col" class="">SongIds</th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">Created</th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="descending">Updated</th>
+              <th scope="col" class=""></th>
+            </tr>
+            <!---->
+          </thead>
+          <tbody class="">
+            <!---->
+            <tr class="" id="playlist-table__row_spotify-abc123">
+              <td class="">
+                <!----><a href="/PlayList/Details/spotify-abc123">spotify-abc123</a>
+              </td>
+              <td class="">
+                <!----><a href="#">alice</a>
+              </td>
+              <td class="">
+                <!---->Waltz Songs
+              </td>
+              <td class="">
+                <!---->A waltz playlist
+              </td>
+              <td class="">
+                <!---->WAL:Dance
+              </td>
+              <td class="">
+                <!---->song1|song2
+              </td>
+              <td class="">
+                <!---->1/15/2024
+              </td>
+              <td class="">
+                <!---->6/1/2024
+              </td>
+              <td class="">
+                <!----><a href="/PlayList/Update/spotify-abc123">Update</a> | <a href="/PlayList/Edit/spotify-abc123">Edit</a> | <a href="/PlayList/Details/spotify-abc123">Details</a> | <a href="/PlayList/Delete/spotify-abc123">Delete</a>
+                <!--v-if-->
+              </td>
+            </tr>
+            <!---->
+            <tr class="" id="playlist-table__row_spotify-def456">
+              <td class="">
+                <!----><a href="/PlayList/Details/spotify-def456">spotify-def456</a>
+              </td>
+              <td class="">
+                <!----><a href="#">bob</a>
+              </td>
+              <td class="">
+                <!---->Tango Songs
+              </td>
+              <td class="">
+                <!---->A tango playlist
+              </td>
+              <td class="">
+                <!---->TAN:Dance
+              </td>
+              <td class="">
+                <!---->
+              </td>
+              <td class="">
+                <!---->2/20/2024
+              </td>
+              <td class="">
+                <!---->
+              </td>
+              <td class="">
+                <!----><a href="/PlayList/Update/spotify-def456">Update</a> | <a href="/PlayList/Edit/spotify-def456">Edit</a> | <a href="/PlayList/Details/spotify-def456">Details</a> | <a href="/PlayList/Delete/spotify-def456">Delete</a>
+                <!--v-if-->
+              </td>
+            </tr>
+            <!---->
+            <!---->
+          </tbody>
+          <!---->
+          <!---->
+        </table>
+      </div>
     </div>
-  </div><!-- Filter + Pagination controls -->
-  <div class="d-flex align-items-center gap-3 mb-2 flex-wrap"><input id="BootstrapVueNext__ID__v-0__input___" class="form-control form-control-sm" type="text" placeholder="Filter by user, name, description, tags or id…" clearable="" style="max-width: 20rem;" value="">
-    <ul class="pagination justify-content-start pagination-sm mb-0" role="menubar" aria-disabled="false" aria-label="Pagination">
-      <li class="page-item disabled" role="presentation" displayindex="0"><span is="span" class="page-link text-center" aria-label="Go to first page" aria-disabled="true" role="menuitem">«</span></li>
-      <li class="page-item disabled" role="presentation" displayindex="1"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
-      <li class="page-item active" role="presentation" displayindex="2"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="1" role="menuitem" type="button" tabindex="0">1</button></li>
-      <li class="page-item disabled" role="presentation" displayindex="3"><span is="span" class="page-link text-center" aria-label="Go to next page" aria-disabled="true" role="menuitem">›</span></li>
-      <li class="page-item disabled" role="presentation" displayindex="4"><span is="span" class="page-link text-center" aria-label="Go to last page" aria-disabled="true" role="menuitem">»</span></li>
-    </ul>
-    <div class="d-flex align-items-center gap-2"><label class="mb-0 small">Per page:</label><select id="BootstrapVueNext__ID__v-1__input___" class="form-select form-select-sm" style="width: auto;">
-        <option value="25">25</option>
-        <option selected="" value="50">50</option>
-        <option value="100">100</option>
-        <option value="250">250</option>
-      </select></div>
   </div>
-  <p class="text-muted small"> Showing 2 active playlists </p><!-- Playlist table -->
-  <div class="table-responsive">
-    <table id="playlist-table" class="table b-table table-hover table-striped table-sm" aria-busy="false">
-      <!---->
-      <thead class="">
-        <tr class="">
-          <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">Id</th>
-          <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">User</th>
-          <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">Name</th>
-          <th scope="col" class="">Description</th>
-          <th scope="col" class="">Tags</th>
-          <th scope="col" class="">SongIds</th>
-          <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">Created</th>
-          <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="descending">Updated</th>
-          <th scope="col" class=""></th>
-        </tr>
-        <!---->
-      </thead>
-      <tbody class="">
-        <!---->
-        <tr class="" id="playlist-table__row_spotify-abc123">
-          <td class="">
-            <!----><a href="/PlayList/Details/spotify-abc123">spotify-abc123</a>
-          </td>
-          <td class="">
-            <!----><a href="#">alice</a>
-          </td>
-          <td class="">
-            <!---->Waltz Songs
-          </td>
-          <td class="">
-            <!---->A waltz playlist
-          </td>
-          <td class="">
-            <!---->WAL:Dance
-          </td>
-          <td class="">
-            <!---->song1|song2
-          </td>
-          <td class="">
-            <!---->1/15/2024
-          </td>
-          <td class="">
-            <!---->6/1/2024
-          </td>
-          <td class="">
-            <!----><a href="/PlayList/Update/spotify-abc123">Update</a> | <a href="/PlayList/Edit/spotify-abc123">Edit</a> | <a href="/PlayList/Details/spotify-abc123">Details</a> | <a href="/PlayList/Delete/spotify-abc123">Delete</a>
-            <!--v-if-->
-          </td>
-        </tr>
-        <!---->
-        <tr class="" id="playlist-table__row_spotify-def456">
-          <td class="">
-            <!----><a href="/PlayList/Details/spotify-def456">spotify-def456</a>
-          </td>
-          <td class="">
-            <!----><a href="#">bob</a>
-          </td>
-          <td class="">
-            <!---->Tango Songs
-          </td>
-          <td class="">
-            <!---->A tango playlist
-          </td>
-          <td class="">
-            <!---->TAN:Dance
-          </td>
-          <td class="">
-            <!---->
-          </td>
-          <td class="">
-            <!---->2/20/2024
-          </td>
-          <td class="">
-            <!---->
-          </td>
-          <td class="">
-            <!----><a href="/PlayList/Update/spotify-def456">Update</a> | <a href="/PlayList/Edit/spotify-def456">Edit</a> | <a href="/PlayList/Details/spotify-def456">Details</a> | <a href="/PlayList/Delete/spotify-def456">Delete</a>
-            <!--v-if-->
-          </td>
-        </tr>
-        <!---->
-        <!---->
-      </tbody>
-      <!---->
-      <!---->
-    </table>
+  <div id="footer-content">
+    <hr>
+    <footer>
+      <p> © 2026 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a href="https://github.com/music4dance/music4dance" target="_blank">Code</a> - <a>Help</a></p>
+    </footer>
   </div>
 </div>"
 `;

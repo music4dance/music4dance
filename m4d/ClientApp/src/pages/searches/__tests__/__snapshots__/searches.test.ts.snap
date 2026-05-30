@@ -1,0 +1,324 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`searches page > renders the admin detail view snapshot 1`] = `
+"<div><span context="[object Object]">MainMenu</span>
+  <!--v-if-->
+  <!--v-if-->
+  <div id="body-content" class="container-fluid body-content">
+    <h1>My Searches</h1>
+    <div>
+      <!-- Navigation links -->
+      <div class="row mb-2">
+        <p class="col-sm"><a id="saved-search" href="/Song/Index?user=alice">Basic Search</a></p>
+        <p class="col-sm text-end pe-4"><a id="advanced-search" href="/Song/AdvancedSearchForm?filter=index">Advanced Search</a></p>
+      </div><!-- Sort buttons -->
+      <div class="row mb-3">
+        <div class="btn-group col-sm" role="group" aria-label="Sort order"><a href="/Searches/Index?user=alice&amp;showDetails=true" role="button" class="btn btn-primary"> Most Popular </a><a href="/Searches/Index?user=alice&amp;sort=recent&amp;showDetails=true" role="button" class="btn btn-outline-primary"> Most Recent </a></div>
+      </div><!-- Spotify Only switch -->
+      <div class="row mb-3">
+        <div class="col-sm">
+          <div class="form-check form-switch"><input id="spotifyOnlySwitch" class="form-check-input" type="checkbox" role="switch"><label class="form-check-label" for="spotifyOnlySwitch">Spotify Only</label></div>
+        </div>
+      </div><!-- Search table -->
+      <table id="searches-table" class="table b-table table-striped table-songs col-sm" aria-busy="false">
+        <!---->
+        <thead class="">
+          <tr class="">
+            <th scope="col" class="">Search</th>
+            <th scope="col" class="">Query</th>
+            <th scope="col" class="">User</th>
+            <th scope="col" class="">Count</th>
+            <th scope="col" class="">Created</th>
+            <th scope="col" class="">Modified</th>
+          </tr>
+          <!---->
+        </thead>
+        <tbody class="">
+          <!---->
+          <tr class="">
+            <td class="">
+              <!----><a href="/Song/Index?filter=index-CHA--Cha+Cha" role="button" class="btn btn-success btn-sm">Search</a><a href="/Song/Index?filter=index-CHA--Cha+Cha---.-2" role="button" class="btn btn-outline-success btn-sm ms-1"> Page 2</a> &nbsp; <a href="/Searches/Delete/1001?user=alice" role="button" class="btn btn-danger btn-sm">Delete</a> &nbsp;
+              <!--v-if--> Cha Cha
+            </td>
+            <td class="">
+              <!---->index-CHA--Cha+Cha
+            </td>
+            <td class="">
+              <!---->alice
+            </td>
+            <td class="">
+              <!---->42
+            </td>
+            <td class="">
+              <!---->3/15/2023
+            </td>
+            <td class="">
+              <!---->11/20/2024
+            </td>
+          </tr>
+          <!---->
+          <tr class="">
+            <td class="">
+              <!----><a href="/Song/Index?filter=index-WLT" role="button" class="btn btn-success btn-sm">Search</a>
+              <!--v-if--> &nbsp; <a href="/Searches/Delete/1002?user=alice" role="button" class="btn btn-danger btn-sm">Delete</a> &nbsp; <a href="https://open.spotify.com/playlist/3cEYpjA9oz9GiPac4AsH4n" target="_blank"><img src="/images/icons/spotify-logo.png" alt="Spotify Playlist" width="24" height="24"></a> Waltz
+            </td>
+            <td class="">
+              <!---->index-WLT
+            </td>
+            <td class="">
+              <!---->alice
+            </td>
+            <td class="">
+              <!---->15
+            </td>
+            <td class="">
+              <!---->6/1/2023
+            </td>
+            <td class="">
+              <!---->10/5/2024
+            </td>
+          </tr>
+          <!---->
+          <tr class="">
+            <td class="">
+              <!----><a href="/Song/Index?filter=index--.-.-.-bpm120" role="button" class="btn btn-success btn-sm">Search</a>
+              <!--v-if--> &nbsp; <a href="/Searches/Delete/1003?user=alice" role="button" class="btn btn-danger btn-sm">Delete</a> &nbsp;
+              <!--v-if--> 120 bpm
+            </td>
+            <td class="">
+              <!---->index--.-.-.-bpm120
+            </td>
+            <td class="">
+              <!---->alice
+            </td>
+            <td class="">
+              <!---->7
+            </td>
+            <td class="">
+              <!---->1/10/2024
+            </td>
+            <td class="">
+              <!---->1/10/2024
+            </td>
+          </tr>
+          <!---->
+          <!---->
+        </tbody>
+        <!---->
+        <!---->
+      </table><!-- Admin controls -->
+      <div class="mt-2"><a href="/Searches/Index?user=alice">Toggle Details</a></div><!-- Delete All -->
+      <div class="row mt-2">
+        <div class="col-sm"><a href="/Searches/DeleteAll" class="btn btn-outline-danger btn-sm">Clear My Search History</a></div>
+      </div><!-- Pagination -->
+      <div class="row mt-3">
+        <div class="col-md-8">
+          <ul class="pagination justify-content-start" role="menubar" aria-disabled="false" aria-label="Search history pages">
+            <li class="page-item disabled" role="presentation" displayindex="0"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
+            <li class="page-item active" role="presentation" displayindex="1"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="3" role="menuitem" type="button" tabindex="0">1</button></li>
+            <li class="page-item" role="presentation" displayindex="2"><button is="button" class="page-link text-center" aria-label="Go to page 2" aria-posinset="2" aria-setsize="3" role="menuitem" type="button" tabindex="-1">2</button></li>
+            <li class="page-item" role="presentation" displayindex="3"><button is="button" class="page-link text-center" aria-label="Go to page 3" aria-posinset="3" aria-setsize="3" role="menuitem" type="button" tabindex="-1">3</button></li>
+            <li class="page-item" role="presentation" displayindex="4"><button is="button" class="page-link text-center" aria-label="Go to next page" role="menuitem" type="button" tabindex="-1">›</button></li>
+          </ul>
+        </div>
+        <div class="col-md-4"> Page <input type="number" step="1" min="1" max="3" class="form-control form-control-sm d-inline-block" style="width: 4em;" aria-label="Page number"> of 3</div>
+      </div>
+    </div>
+  </div>
+  <div id="footer-content">
+    <hr>
+    <footer>
+      <p> © 2026 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a href="https://github.com/music4dance/music4dance" target="_blank">Code</a> - <a>Help</a></p>
+    </footer>
+  </div>
+</div>"
+`;
+
+exports[`searches page > renders the all-users view snapshot 1`] = `
+"<div><span context="[object Object]">MainMenu</span>
+  <!--v-if-->
+  <!--v-if-->
+  <div id="body-content" class="container-fluid body-content">
+    <h1>All Searches</h1>
+    <div>
+      <!-- Navigation links -->
+      <div class="row mb-2">
+        <p class="col-sm"><a id="saved-search" href="/Song/Index?user=alice">Basic Search</a></p>
+        <p class="col-sm text-end pe-4"><a id="advanced-search" href="/Song/AdvancedSearchForm?filter=index">Advanced Search</a></p>
+      </div><!-- Sort buttons -->
+      <div class="row mb-3">
+        <div class="btn-group col-sm" role="group" aria-label="Sort order"><a href="/Searches/Index?user=all" role="button" class="btn btn-primary"> Most Popular </a><a href="/Searches/Index?user=all&amp;sort=recent" role="button" class="btn btn-outline-primary"> Most Recent </a></div>
+      </div><!-- Spotify Only switch -->
+      <div class="row mb-3">
+        <div class="col-sm">
+          <div class="form-check form-switch"><input id="spotifyOnlySwitch" class="form-check-input" type="checkbox" role="switch"><label class="form-check-label" for="spotifyOnlySwitch">Spotify Only</label></div>
+        </div>
+      </div><!-- Search table -->
+      <table id="searches-table" class="table b-table table-striped table-songs col-sm" aria-busy="false">
+        <!---->
+        <thead class="">
+          <tr class="">
+            <th scope="col" class="">Search</th>
+            <th scope="col" class="">Count</th>
+          </tr>
+          <!---->
+        </thead>
+        <tbody class="">
+          <!---->
+          <tr class="">
+            <td class="">
+              <!----><a href="/Song/Index?filter=index-CHA--Cha+Cha" role="button" class="btn btn-success btn-sm">Search</a><a href="/Song/Index?filter=index-CHA--Cha+Cha---.-2" role="button" class="btn btn-outline-success btn-sm ms-1"> Page 2</a> &nbsp; <a href="/Searches/Delete/1001?user=alice" role="button" class="btn btn-danger btn-sm">Delete</a> &nbsp;
+              <!--v-if--> Cha Cha
+            </td>
+            <td class="">
+              <!---->42
+            </td>
+          </tr>
+          <!---->
+          <tr class="">
+            <td class="">
+              <!----><a href="/Song/Index?filter=index-WLT" role="button" class="btn btn-success btn-sm">Search</a>
+              <!--v-if--> &nbsp; <a href="/Searches/Delete/1002?user=alice" role="button" class="btn btn-danger btn-sm">Delete</a> &nbsp; <a href="https://open.spotify.com/playlist/3cEYpjA9oz9GiPac4AsH4n" target="_blank"><img src="/images/icons/spotify-logo.png" alt="Spotify Playlist" width="24" height="24"></a> Waltz
+            </td>
+            <td class="">
+              <!---->15
+            </td>
+          </tr>
+          <!---->
+          <tr class="">
+            <td class="">
+              <!----><a href="/Song/Index?filter=index--.-.-.-bpm120" role="button" class="btn btn-success btn-sm">Search</a>
+              <!--v-if--> &nbsp; <a href="/Searches/Delete/1003?user=alice" role="button" class="btn btn-danger btn-sm">Delete</a> &nbsp;
+              <!--v-if--> 120 bpm
+            </td>
+            <td class="">
+              <!---->7
+            </td>
+          </tr>
+          <!---->
+          <!---->
+        </tbody>
+        <!---->
+        <!---->
+      </table><!-- Admin controls -->
+      <!--v-if-->
+      <!-- Delete All -->
+      <!--v-if-->
+      <!-- Pagination -->
+      <div class="row mt-3">
+        <div class="col-md-8">
+          <ul class="pagination justify-content-start" role="menubar" aria-disabled="false" aria-label="Search history pages">
+            <li class="page-item disabled" role="presentation" displayindex="0"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
+            <li class="page-item active" role="presentation" displayindex="1"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="3" role="menuitem" type="button" tabindex="0">1</button></li>
+            <li class="page-item" role="presentation" displayindex="2"><button is="button" class="page-link text-center" aria-label="Go to page 2" aria-posinset="2" aria-setsize="3" role="menuitem" type="button" tabindex="-1">2</button></li>
+            <li class="page-item" role="presentation" displayindex="3"><button is="button" class="page-link text-center" aria-label="Go to page 3" aria-posinset="3" aria-setsize="3" role="menuitem" type="button" tabindex="-1">3</button></li>
+            <li class="page-item" role="presentation" displayindex="4"><button is="button" class="page-link text-center" aria-label="Go to next page" role="menuitem" type="button" tabindex="-1">›</button></li>
+          </ul>
+        </div>
+        <div class="col-md-4"> Page <input type="number" step="1" min="1" max="3" class="form-control form-control-sm d-inline-block" style="width: 4em;" aria-label="Page number"> of 3</div>
+      </div>
+    </div>
+  </div>
+  <div id="footer-content">
+    <hr>
+    <footer>
+      <p> © 2026 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a href="https://github.com/music4dance/music4dance" target="_blank">Code</a> - <a>Help</a></p>
+    </footer>
+  </div>
+</div>"
+`;
+
+exports[`searches page > renders the searches page snapshot 1`] = `
+"<div><span context="[object Object]">MainMenu</span>
+  <!--v-if-->
+  <!--v-if-->
+  <div id="body-content" class="container-fluid body-content">
+    <h1>My Searches</h1>
+    <div>
+      <!-- Navigation links -->
+      <div class="row mb-2">
+        <p class="col-sm"><a id="saved-search" href="/Song/Index?user=alice">Basic Search</a></p>
+        <p class="col-sm text-end pe-4"><a id="advanced-search" href="/Song/AdvancedSearchForm?filter=index">Advanced Search</a></p>
+      </div><!-- Sort buttons -->
+      <div class="row mb-3">
+        <div class="btn-group col-sm" role="group" aria-label="Sort order"><a href="/Searches/Index?user=alice" role="button" class="btn btn-primary"> Most Popular </a><a href="/Searches/Index?user=alice&amp;sort=recent" role="button" class="btn btn-outline-primary"> Most Recent </a></div>
+      </div><!-- Spotify Only switch -->
+      <div class="row mb-3">
+        <div class="col-sm">
+          <div class="form-check form-switch"><input id="spotifyOnlySwitch" class="form-check-input" type="checkbox" role="switch"><label class="form-check-label" for="spotifyOnlySwitch">Spotify Only</label></div>
+        </div>
+      </div><!-- Search table -->
+      <table id="searches-table" class="table b-table table-striped table-songs col-sm" aria-busy="false">
+        <!---->
+        <thead class="">
+          <tr class="">
+            <th scope="col" class="">Search</th>
+            <th scope="col" class="">Count</th>
+          </tr>
+          <!---->
+        </thead>
+        <tbody class="">
+          <!---->
+          <tr class="">
+            <td class="">
+              <!----><a href="/Song/Index?filter=index-CHA--Cha+Cha" role="button" class="btn btn-success btn-sm">Search</a><a href="/Song/Index?filter=index-CHA--Cha+Cha---.-2" role="button" class="btn btn-outline-success btn-sm ms-1"> Page 2</a> &nbsp; <a href="/Searches/Delete/1001?user=alice" role="button" class="btn btn-danger btn-sm">Delete</a> &nbsp;
+              <!--v-if--> Cha Cha
+            </td>
+            <td class="">
+              <!---->42
+            </td>
+          </tr>
+          <!---->
+          <tr class="">
+            <td class="">
+              <!----><a href="/Song/Index?filter=index-WLT" role="button" class="btn btn-success btn-sm">Search</a>
+              <!--v-if--> &nbsp; <a href="/Searches/Delete/1002?user=alice" role="button" class="btn btn-danger btn-sm">Delete</a> &nbsp; <a href="https://open.spotify.com/playlist/3cEYpjA9oz9GiPac4AsH4n" target="_blank"><img src="/images/icons/spotify-logo.png" alt="Spotify Playlist" width="24" height="24"></a> Waltz
+            </td>
+            <td class="">
+              <!---->15
+            </td>
+          </tr>
+          <!---->
+          <tr class="">
+            <td class="">
+              <!----><a href="/Song/Index?filter=index--.-.-.-bpm120" role="button" class="btn btn-success btn-sm">Search</a>
+              <!--v-if--> &nbsp; <a href="/Searches/Delete/1003?user=alice" role="button" class="btn btn-danger btn-sm">Delete</a> &nbsp;
+              <!--v-if--> 120 bpm
+            </td>
+            <td class="">
+              <!---->7
+            </td>
+          </tr>
+          <!---->
+          <!---->
+        </tbody>
+        <!---->
+        <!---->
+      </table><!-- Admin controls -->
+      <!--v-if-->
+      <!-- Delete All -->
+      <div class="row mt-2">
+        <div class="col-sm"><a href="/Searches/DeleteAll" class="btn btn-outline-danger btn-sm">Clear My Search History</a></div>
+      </div><!-- Pagination -->
+      <div class="row mt-3">
+        <div class="col-md-8">
+          <ul class="pagination justify-content-start" role="menubar" aria-disabled="false" aria-label="Search history pages">
+            <li class="page-item disabled" role="presentation" displayindex="0"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
+            <li class="page-item active" role="presentation" displayindex="1"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="3" role="menuitem" type="button" tabindex="0">1</button></li>
+            <li class="page-item" role="presentation" displayindex="2"><button is="button" class="page-link text-center" aria-label="Go to page 2" aria-posinset="2" aria-setsize="3" role="menuitem" type="button" tabindex="-1">2</button></li>
+            <li class="page-item" role="presentation" displayindex="3"><button is="button" class="page-link text-center" aria-label="Go to page 3" aria-posinset="3" aria-setsize="3" role="menuitem" type="button" tabindex="-1">3</button></li>
+            <li class="page-item" role="presentation" displayindex="4"><button is="button" class="page-link text-center" aria-label="Go to next page" role="menuitem" type="button" tabindex="-1">›</button></li>
+          </ul>
+        </div>
+        <div class="col-md-4"> Page <input type="number" step="1" min="1" max="3" class="form-control form-control-sm d-inline-block" style="width: 4em;" aria-label="Page number"> of 3</div>
+      </div>
+    </div>
+  </div>
+  <div id="footer-content">
+    <hr>
+    <footer>
+      <p> © 2026 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a href="https://github.com/music4dance/music4dance" target="_blank">Code</a> - <a>Help</a></p>
+    </footer>
+  </div>
+</div>"
+`;

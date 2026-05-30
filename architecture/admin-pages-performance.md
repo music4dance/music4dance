@@ -7,10 +7,10 @@ Chromium-based browsers to become unresponsive. The root cause is not the data v
 is the cost of parsing and laying out thousands of DOM nodes at once. Two categories of pages need
 different treatments:
 
-| Category               | Pages                                      | Strategy                                                      |
-| ---------------------- | ------------------------------------------ | ------------------------------------------------------------- |
-| **Vue conversion**     | `ApplicationUsers/Index`, `PlayList/Index` | Plant all data as JSON, page/filter/sort client-side with BVN |
-| **Server-side paging** | `Searches/Index`, `ActivityLog/Index`      | Add `page` parameter, paginate at the DB/query level          |
+| Category                           | Pages                                      | Strategy                                                                                           |
+| ---------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| **Vue conversion (client paging)** | `ApplicationUsers/Index`, `PlayList/Index` | Plant all data as JSON, page/filter/sort client-side with BVN                                      |
+| **Vue conversion (server paging)** | `Searches/Index`, `ActivityLog/Index`      | Server paginates at DB level; Vue renders the current page and windowed server-side pagination nav |
 
 Auxiliary pages (Details, Edit, Delete confirmation, ChangeRoles, etc.) remain as Razor — no
 conversion is needed or wanted for these.
@@ -288,7 +288,7 @@ changing how `filteredLists` is computed client-side, not eliminating the server
 
 ---
 
-## Part 3 — Server-Side Paging: Searches/Index _(Priority 3)_
+## Part 3 — Vue Conversion + Server-Side Paging: Searches/Index _(Priority 3)_
 
 ### Current behavior
 
@@ -296,8 +296,9 @@ changing how `filteredLists` is computed client-side, not eliminating the server
 
 ### Target behavior
 
-Add a `page` parameter. Page at the database level via `.Skip()`/`.Take()` and display Bootstrap
-pagination controls in the existing Razor view. No Vue conversion.
+Add a `page` parameter. Page at the database level via `.Skip()`/`.Take()`. Render via Vue using
+the `Vue3()` helper — server supplies `SearchesPageModel` JSON; Vue renders the table and builds
+windowed server-side pagination nav links (no SPA routing — each page click navigates to the server).
 
 ### C# changes
 
@@ -335,14 +336,78 @@ public async Task<IActionResult> Index(string user, string sort = null,
 }
 ```
 
-### Razor view changes
+### C# changes
 
-Add a standard Bootstrap pagination block at the bottom of `Index.cshtml`, passing the current
-filter parameters through `asp-route-*` attributes to preserve state across page turns.
+#### New DTOs — `m4d/ViewModels/SearchesPageModel.cs`
+
+```csharp
+public class SearchSummary
+{
+    public long Id { get; set; }
+    public string UserName { get; set; }   // "anonymous" when no user
+    public string Query { get; set; }
+    public string Description { get; set; }  // filter.Description, computed server-side
+    public string SearchUrl { get; set; }    // pre-built; involves SongFilter serialization
+    public string SearchPageUrl { get; set; } // link to most-recently-visited page (optional)
+    public int? MostRecentPage { get; set; }
+    public int Count { get; set; }
+    public DateTime Created { get; set; }
+    public DateTime Modified { get; set; }
+    public string Spotify { get; set; }
+    public string DeleteUrl { get; set; }   // pre-built with all current filter params
+}
+
+public class SearchesPageModel
+{
+    public List<SearchSummary> Searches { get; set; }
+    public int Page { get; set; }
+    public int TotalPages { get; set; }
+    public string Sort { get; set; }          // "recent" or null
+    public bool ShowDetails { get; set; }     // admin detail view
+    public bool SpotifyOnly { get; set; }
+    public string User { get; set; }          // "all" or a username
+    public bool IsAdmin { get; set; }         // show Toggle Details link
+    public bool CanDeleteAll { get; set; }    // false when User == "all"
+    public string BasicSearchUrl { get; set; }
+    public string AdvancedSearchUrl { get; set; }
+    public string DeleteAllUrl { get; set; }
+}
+```
+
+Search URLs and delete URLs are pre-built server-side because they require `SongFilter`
+serialization. Pagination/sort/toggle URLs are built client-side by the Vue component from the
+known parameters (user, sort, showDetails, spotifyOnly).
+
+#### Modified `Index()` action
+
+Builds `SearchesPageModel`, projects each `Search` to `SearchSummary` using `Url.Action()` for
+per-row URLs, then returns `Vue3("My Searches", "Search history", "searches", viewModel)`.
+
+### Vue page: `src/pages/searches/`
+
+```
+src/pages/searches/
+  App.vue               -- renders controls + table + pagination nav
+  SearchesPageModel.ts  -- TypedJSON-decorated model classes
+  __tests__/
+    searches.test.ts    -- snapshot + behavior tests
+    model.ts            -- test fixture data
+```
+
+**Vue design decisions:**
+
+- Server handles paging — each page click navigates to `/Searches/Index?...&page=N`
+- Sort toggle (Most Popular / Most Recent) navigates via computed URL, resets to page 1
+- Spotify Only switch navigates via computed URL (same parameters + toggled `spotifyOnly`)
+- Toggle Details navigates via computed URL (admin only)
+- Windowed pagination nav: ±2 window around current page, first/last always shown, ellipsis in gaps
+- `BTable` fields are computed based on `showDetails` — detail view adds Query, User, Count,
+  Created, Modified columns
+- Per-row delete URL and search URLs are pre-built in the model (not computed in Vue)
 
 ---
 
-## Part 4 — Server-Side Paging: ActivityLog/Index _(Priority 4)_
+## Part 4 — Vue Conversion + Server-Side Paging: ActivityLog/Index _(Priority 4)_
 
 ### Current behavior
 
@@ -350,45 +415,60 @@ filter parameters through `asp-route-*` attributes to preserve state across page
 
 ### Target behavior
 
-Same treatment as Searches/Index: add `page` parameter, paginate at the DB level, add Bootstrap
-pagination to the existing Razor partial.
+Same paging treatment as Searches/Index. Render via Vue — server supplies `ActivityLogPageModel`
+JSON; Vue renders the table and windowed server-side pagination nav.
 
 ### C# changes
 
+#### New DTOs — `m4d/ViewModels/ActivityLogPageModel.cs`
+
 ```csharp
-private const int ActivityLogPageSize = 100;
-
-public IActionResult Index(int page = 1)
+public class ActivityLogEntry
 {
-    var query = Database.Context.ActivityLog
-        .OrderByDescending(l => l.Date)
-        .Include(a => a.User);
+    public int Id { get; set; }
+    public DateTimeOffset Date { get; set; }
+    public string UserName { get; set; }
+    public string Action { get; set; }
+    public string Details { get; set; }
+}
 
-    var totalCount = query.Count();
-    var list = query
-        .Skip((page - 1) * ActivityLogPageSize)
-        .Take(ActivityLogPageSize)
-        .AsEnumerable();
-
-    ViewBag.Page = page;
-    ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / ActivityLogPageSize);
-    return View(list);
+public class ActivityLogPageModel
+{
+    public List<ActivityLogEntry> Entries { get; set; }
+    public int Page { get; set; }
+    public int TotalPages { get; set; }
 }
 ```
 
-### Razor view changes
+#### Modified `Index()` action
 
-Same as Searches — add pagination controls at the bottom of `Views/ActivityLog/Index.cshtml`.
+Builds `ActivityLogPageModel`, then returns
+`Vue3("Activity Log", "Admin: Activity log", "activity-log", viewModel)`.
+
+### Vue page: `src/pages/activity-log/`
+
+```
+src/pages/activity-log/
+  App.vue                  -- renders table + pagination nav
+  ActivityLogPageModel.ts  -- TypedJSON-decorated model classes
+  __tests__/
+    activity-log.test.ts   -- snapshot + behavior tests
+    model.ts               -- test fixture data
+```
+
+Pagination nav follows same windowed pattern as Searches.
 
 ---
 
 ## Development Phases
 
-| Phase | PR scope                                              | Status                | Outcome                                                 |
-| ----- | ----------------------------------------------------- | --------------------- | ------------------------------------------------------- |
-| **1** | ApplicationUsers/Index → Vue (DTO + Vue page + tests) | ✅ Complete (PR #174) | Users page is responsive; all auxiliary pages unchanged |
-| **2** | PlayList/Index → Vue                                  | ✅ Complete           | Playlists page is responsive                            |
-| **3** | Searches/Index + ActivityLog/Index server paging      | Not started           | Remaining tables paginated without Vue conversion       |
+| Phase | PR scope                                              | Status                | Outcome                                                             |
+| ----- | ----------------------------------------------------- | --------------------- | ------------------------------------------------------------------- |
+| **1** | ApplicationUsers/Index → Vue (DTO + Vue page + tests) | ✅ Complete (PR #174) | Users page is responsive; all auxiliary pages unchanged             |
+| **2** | PlayList/Index → Vue                                  | ✅ Complete           | Playlists page is responsive                                        |
+| **3** | Searches/Index server paging (DB-level Skip/Take)     | ✅ Complete           | Searches paginated server-side                                      |
+| **4** | ActivityLog/Index server paging                       | ✅ Complete           | Activity log paginated server-side                                  |
+| **5** | Searches/Index + ActivityLog/Index → Vue conversion   | ✅ Complete           | Both pages rendered by Vue with windowed server-side pagination nav |
 
 Each phase is independently deployable. Later phases can be re-prioritised without affecting
 earlier ones.
@@ -409,10 +489,19 @@ earlier ones.
   (auxiliary actions are unchanged; `Index()` now returns a `VueModel` but the existing tests
   only verify auxiliary actions like `Edit`, `Delete`, `ChangeRoles`).
 
-### Phase 3 & 4 (Paging)
+### Phase 3 & 4 (Server-Side Paging)
 
-- Add integration test for the `Index(page)` action verifying correct `Skip`/`Take` behaviour.
+- Integration test for `Index(page)` action verifying correct `Skip`/`Take` behaviour
+  (`Index_PaginatesResults_WhenMoreThanPageSizeExists`).
 - Manual verification that page 1 loads the first N records and page 2 loads the next N.
+
+### Phase 5 (Vue Conversion of Searches + ActivityLog)
+
+- **Snapshot tests** for both pages: `searches.test.ts`, `activity-log.test.ts`
+- **Behavior tests**: sort active state, pagination visibility, delete-all visibility,
+  admin Toggle Details visibility, table columns in detail mode, Spotify icon, no-user placeholder
+- **Manual smoke test**: navigate to each page, verify pagination nav, sort toggles, delete buttons,
+  Spotify links, and (for Searches) the admin Toggle Details link.
 
 ---
 

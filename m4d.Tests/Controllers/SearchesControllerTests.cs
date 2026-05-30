@@ -2,11 +2,13 @@ using AutoMapper;
 
 using m4d.Controllers;
 using m4d.Tests.TestHelpers;
+using m4d.ViewModels;
 
 using m4dModels;
 using m4dModels.Tests;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
@@ -85,6 +87,11 @@ public class SearchesControllerTests
         {
             HttpContext = new DefaultHttpContext { User = principal }
         };
+
+        // Set up a no-op IUrlHelper so Url.Action() calls in Index() don't throw
+        var mockUrl = new Mock<IUrlHelper>();
+        mockUrl.Setup(m => m.Action(It.IsAny<UrlActionContext>())).Returns("#");
+        controller.Url = mockUrl.Object;
 
         return controller;
     }
@@ -391,5 +398,65 @@ public class SearchesControllerTests
         // Assert — error view returned, nothing in DB
         Assert.IsInstanceOfType<ViewResult>(result);
         Assert.AreEqual(0, await dms.Context.Searches.CountAsync());
+    }
+
+    // -------------------------------------------------------------------------
+    // Index pagination
+    // -------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task Index_PaginatesResults_WhenMoreThanPageSizeExists()
+    {
+        // Arrange — add 150 anonymous searches
+        // Use "Index" as a safe query string (parses as empty filter with no dance IDs)
+        var dms = await DanceMusicTester.CreateServiceWithUsers("SearchesPaging");
+
+        for (int i = 0; i < 150; i++)
+        {
+            await AddSearch(dms.Context, userId: null, "Index", count: i,
+                created: new DateTime(2024, 1, 1),
+                modified: new DateTime(2025, 1, 1));
+        }
+
+        // Use separate controller instances per call: ViewBag/ViewData is shared instance-level
+        // state on the controller, so calling the same action twice on one instance causes the
+        // second call's values to overwrite the first result's ViewData and Model.
+        ClaimsIdentity MakeAdminIdentity() => new(
+        [
+            new Claim(ClaimTypes.Name, "dwgray"),
+            new Claim(ClaimTypes.Role, "dbAdmin"),
+        ], "TestAuthentication");
+
+        var controller1 = CreateController(dms, "dwgray");
+        controller1.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(MakeAdminIdentity()) }
+        };
+
+        var controller2 = CreateController(dms, "dwgray");
+        controller2.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(MakeAdminIdentity()) }
+        };
+
+        // Act
+        var result1 = await controller1.Index(user: "all", page: 1) as ViewResult;
+        var result2 = await controller2.Index(user: "all", page: 2) as ViewResult;
+
+        // Assert — model is now SearchesPageModel wrapped in VueModel
+        var pageModel1 = ((result1!.Model as VueModel)!.Model as SearchesPageModel)!;
+        var pageModel2 = ((result2!.Model as VueModel)!.Model as SearchesPageModel)!;
+
+        Assert.AreEqual(100, pageModel1.Searches.Count, "Page 1 should return a full page");
+        Assert.AreEqual(50, pageModel2.Searches.Count, "Page 2 should return the remaining rows");
+        Assert.AreEqual(1, pageModel1.Page);
+        Assert.AreEqual(2, pageModel1.TotalPages);
+        Assert.AreEqual(2, pageModel2.Page);
+        Assert.AreEqual(2, pageModel2.TotalPages);
+
+        // Assert — no overlap between pages
+        var ids1 = pageModel1.Searches.Select(s => s.Id).ToHashSet();
+        var ids2 = pageModel2.Searches.Select(s => s.Id).ToHashSet();
+        Assert.AreEqual(0, ids1.Intersect(ids2).Count(), "Pages should not contain duplicate rows");
     }
 }

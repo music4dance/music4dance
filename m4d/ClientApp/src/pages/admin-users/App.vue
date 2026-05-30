@@ -191,10 +191,7 @@ function playlistsUrl(userName: string): string {
 </script>
 
 <template>
-  <div class="container-fluid">
-    <h2>User Administrator</h2>
-    <hr />
-
+  <PageFrame id="app" title="User Administrator">
     <!-- Summary row -->
     <div class="row mb-3">
       <div class="col-md-3">
@@ -408,5 +405,5 @@ function playlistsUrl(userName: string): string {
       :per-page="perPage"
       size="sm"
     />
-  </div>
+  </PageFrame>
 </template>

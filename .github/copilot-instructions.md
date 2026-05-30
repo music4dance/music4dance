@@ -131,6 +131,12 @@ The directory itself is tracked (via `local/.gitkeep`) but its contents are giti
   - **NEVER** use `<i class="bi bi-icon-name">` (old Bootstrap Icons pattern)
   - Icons from `@iconify-json/bi` package (Bootstrap Icons)
   - No explicit imports needed - unplugin-icons handles auto-import
+- **PageFrame**: ALL Vue page apps (`src/pages/*/App.vue`) MUST wrap their template content in `<PageFrame id="app" :title="...">` (or `title="..."` for static titles)
+  - Provides: main navigation menu, service status banner, h1 page title, and site footer
+  - Pages that skip PageFrame will lack all site chrome (nav, footer, branding)
+  - Use `const pageTitle = computed(() => ...)` for dynamic titles, then `:title="pageTitle"`
+  - **Note**: PageFrame's footer contains `<a target="_blank">` — avoid `a[target="_blank"]` in tests; use more-specific selectors (e.g. `img[alt="..."]`)
+
 - **Bootstrap Components**: ALWAYS prefer bootstrap-vue-next components over custom implementations or native Bootstrap 5
   - Use `<BAccordion>`, `<BAlert>`, `<BButton>`, `<BCard>`, etc. from bootstrap-vue-next
   - Avoid manual Bootstrap CSS/JS patterns when equivalent component exists

@@ -2,6 +2,7 @@
 
 using m4d.Services;
 using m4d.Services.ServiceHealth;
+using m4d.ViewModels;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -29,9 +30,11 @@ public class SearchesController : ContentController
         HelpPage = "saved-searches";
     }
 
+    private const int SearchesPageSize = 100;
+
     // GET: Searches
     public async Task<IActionResult> Index(string user, string sort = null,
-        bool showDetails = false, bool spotifyOnly = false)
+        bool showDetails = false, bool spotifyOnly = false, int page = 1)
     {
         if (string.IsNullOrWhiteSpace(user) || user.Equals(
             UserQuery.IdentityUser,
@@ -55,10 +58,15 @@ public class SearchesController : ContentController
             searches = searches.Where(s => s.ApplicationUserId == appUser.Id);
         }
 
-        var model =
-            (string.Equals(sort, "recent")
-                ? searches.OrderByDescending(s => s.Modified)
-                : searches.OrderByDescending(s => s.Count)).Take(250).ToList();
+        var ordered = string.Equals(sort, "recent")
+            ? searches.OrderByDescending(s => s.Modified)
+            : searches.OrderByDescending(s => s.Count);
+
+        var totalCount = await ordered.CountAsync();
+        var model = await ordered
+            .Skip((page - 1) * SearchesPageSize)
+            .Take(SearchesPageSize)
+            .ToListAsync();
 
 
         if (user is not null and not "all")
@@ -71,12 +79,61 @@ public class SearchesController : ContentController
             model = model.Where(s => !string.IsNullOrWhiteSpace(s.Spotify)).ToList();
         }
 
-        ViewBag.Sort = sort;
-        ViewBag.ShowDetails = showDetails;
-        ViewBag.SpotifyOnly = spotifyOnly;
-        ViewBag.SongFilter = Filter;
-        ViewBag.User = user;
-        return View(model);
+        var isAdmin = User.IsInRole("showDiagnostics");
+        var searchSummaries = model.Select(item =>
+        {
+            var t = item.Filter;
+            if (!t.IsAzure)
+            {
+                t.Action = "Advanced";
+            }
+            string searchPageUrl = null;
+            if (item.MostRecentPage.HasValue && item.MostRecentPage.Value > 1)
+            {
+                var tPage = item.Filter;
+                tPage.Page = item.MostRecentPage;
+                if (!tPage.IsAzure)
+                {
+                    tPage.Action = "Advanced";
+                }
+                searchPageUrl = Url.Action("Index", "Song", new { filter = tPage.ToString() });
+            }
+            return new SearchSummary
+            {
+                Id = item.Id,
+                UserName = item.ApplicationUser?.UserName ?? "anonymous",
+                Query = item.Query,
+                Description = t.Description,
+                SearchUrl = Url.Action("Index", "Song", new { filter = t.ToString() }),
+                SearchPageUrl = searchPageUrl,
+                MostRecentPage = item.MostRecentPage,
+                Count = item.Count,
+                Created = item.Created,
+                Modified = item.Modified,
+                Spotify = item.Spotify,
+                DeleteUrl = Url.Action("Delete", "Searches", new { id = item.Id, user, showDetails, spotifyOnly, sort }),
+            };
+        }).ToList();
+
+        var viewModel = new SearchesPageModel
+        {
+            Searches = searchSummaries,
+            Page = page,
+            TotalPages = (int)Math.Ceiling((double)totalCount / SearchesPageSize),
+            Sort = sort,
+            ShowDetails = showDetails,
+            SpotifyOnly = spotifyOnly,
+            User = user,
+            IsAdmin = isAdmin,
+            CanDeleteAll = user is not null and not "all",
+            BasicSearchUrl = Url.Action("Index", "Song", new { user }),
+            AdvancedSearchUrl = Url.Action("advancedsearchform", "Song", new { filter = Filter?.ToString() }),
+            DeleteAllUrl = user is not null and not "all"
+                ? Url.Action("DeleteAll", "Searches", new { sort, showDetails, spotifyOnly })
+                : null,
+        };
+
+        return Vue3("My Searches", "Search history", "searches", viewModel);
     }
 
     // GET: Searches/Resume
