@@ -398,12 +398,18 @@ src/pages/searches/
 
 - Server handles paging — each page click navigates to `/Searches/Index?...&page=N`
 - Sort toggle (Most Popular / Most Recent) navigates via computed URL, resets to page 1
-- Spotify Only switch navigates via computed URL (same parameters + toggled `spotifyOnly`)
+- Spotify Only switch navigates via an `onSpotifyToggle()` handler function that sets
+  `window.location.href` — Vue template expressions do not have `window` in scope, so the
+  navigation must happen inside a `<script setup>` function
 - Toggle Details navigates via computed URL (admin only)
-- Windowed pagination nav: ±2 window around current page, first/last always shown, ellipsis in gaps
+- Pagination: `BPagination` (bootstrap-vue-next) + page-jump input (`Page [n] of N`), matching
+  `SongFooter.vue` style. `total-rows="totalPages" per-page="1"` maps page count directly.
+  `@page-click` intercepts BVN's internal routing and sets `window.location.href` to the
+  server URL for the selected page
 - `BTable` fields are computed based on `showDetails` — detail view adds Query, User, Count,
   Created, Modified columns
 - Per-row delete URL and search URLs are pre-built in the model (not computed in Vue)
+- All pages wrapped in `<PageFrame>` for consistent nav/header/footer chrome
 
 ---
 
@@ -456,19 +462,20 @@ src/pages/activity-log/
     model.ts               -- test fixture data
 ```
 
-Pagination nav follows same windowed pattern as Searches.
+Pagination follows the same `BPagination` + page-jump input pattern as Searches. All pages
+wrapped in `<PageFrame id="app" title="Activity Log">`.
 
 ---
 
 ## Development Phases
 
-| Phase | PR scope                                              | Status                | Outcome                                                             |
-| ----- | ----------------------------------------------------- | --------------------- | ------------------------------------------------------------------- |
-| **1** | ApplicationUsers/Index → Vue (DTO + Vue page + tests) | ✅ Complete (PR #174) | Users page is responsive; all auxiliary pages unchanged             |
-| **2** | PlayList/Index → Vue                                  | ✅ Complete           | Playlists page is responsive                                        |
-| **3** | Searches/Index server paging (DB-level Skip/Take)     | ✅ Complete           | Searches paginated server-side                                      |
-| **4** | ActivityLog/Index server paging                       | ✅ Complete           | Activity log paginated server-side                                  |
-| **5** | Searches/Index + ActivityLog/Index → Vue conversion   | ✅ Complete           | Both pages rendered by Vue with windowed server-side pagination nav |
+| Phase | PR scope                                              | Status                | Outcome                                                                                                      |
+| ----- | ----------------------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **1** | ApplicationUsers/Index → Vue (DTO + Vue page + tests) | ✅ Complete (PR #174) | Users page is responsive; all auxiliary pages unchanged                                                      |
+| **2** | PlayList/Index → Vue                                  | ✅ Complete           | Playlists page is responsive                                                                                 |
+| **3** | Searches/Index server paging (DB-level Skip/Take)     | ✅ Complete           | Searches paginated server-side                                                                               |
+| **4** | ActivityLog/Index server paging                       | ✅ Complete           | Activity log paginated server-side                                                                           |
+| **5** | Searches/Index + ActivityLog/Index → Vue conversion   | ✅ Complete           | Both pages rendered by Vue with `BPagination` + page-jump input; PageFrame added to all four admin Vue pages |
 
 Each phase is independently deployable. Later phases can be re-prioritised without affecting
 earlier ones.
@@ -500,6 +507,11 @@ earlier ones.
 - **Snapshot tests** for both pages: `searches.test.ts`, `activity-log.test.ts`
 - **Behavior tests**: sort active state, pagination visibility, delete-all visibility,
   admin Toggle Details visibility, table columns in detail mode, Spotify icon, no-user placeholder
+- **Pagination selector**: use `ul.pagination` (the `<ul>` BPagination always renders); do not
+  use `nav[aria-label]` — bootstrap-vue-next does not render it in a form reachable by CSS
+  attribute selector in JSDOM
+- **Spotify icon test**: use `img[alt="Spotify Playlist"]` rather than `a[target="_blank"]` —
+  PageFrame's footer also contains an `<a target="_blank">` link
 - **Manual smoke test**: navigate to each page, verify pagination nav, sort toggles, delete buttons,
   Spotify links, and (for Searches) the admin Toggle Details link.
 
@@ -525,3 +537,19 @@ earlier ones.
 
 5. **Browser history / URL state**: Filter toggles (showUnconfirmed, etc.) do not update the URL.
    This is acceptable for an admin-only page.
+
+6. **Pagination controls (server-paged pages)**: Searches and ActivityLog use `BPagination`
+   (bootstrap-vue-next) plus a direct page-jump input (`Page [n] of N`), matching `SongFooter.vue`.
+   Config: `total-rows="totalPages" per-page="1"` maps page numbers directly; `@page-click`
+   intercepts BVN's client-side routing and instead sets `window.location.href` to the
+   server-rendered URL for the selected page. Client-paged pages (admin-users, playlist) continue
+   to use BPagination with BTable's built-in `current-page` / `per-page` props.
+
+7. **`window.location.href` in Vue templates**: Vue 3's template compiler does not expose
+   `window` as a global. Any navigation that needs `window.location.href` must be wrapped in a
+   `<script setup>` handler function (e.g. `onSpotifyToggle()`). Binding `@change="window.location.href = ..."` directly in the template will fail silently at runtime.
+
+8. **PageFrame**: All `src/pages/*/App.vue` root components wrap their content in `<PageFrame>`
+   to provide the main navigation bar, service status banner, `<h1>` page title, and site footer.
+   `admin-users` and `playlist` (Phases 1–2) were retrofitted with PageFrame alongside the
+   Phase 5 work.
