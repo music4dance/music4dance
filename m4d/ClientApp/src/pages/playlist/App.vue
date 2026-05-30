@@ -13,8 +13,10 @@ const SONGS_FROM_SPOTIFY = 2;
 const SPOTIFY_FROM_SEARCH = 3;
 
 // --- Filter state ---
-const showDeleted = ref(false);
-const userFilter = ref(model.filteredUser ?? "");
+const queryParams = new URLSearchParams(window.location.search);
+const showDeleted = ref(queryParams.get("showDeleted") === "true");
+const userFilter = ref(model.filteredUser ?? ""); // dedicated username — used only for server URLs
+const textFilter = ref(model.filteredUser ?? ""); // general text search bound to the input
 
 // --- Pagination ---
 const perPage = ref(50);
@@ -46,7 +48,7 @@ const hasData2 = computed(() => model.data2Name !== "Data2");
 
 const filteredPlaylists = computed(() => {
   const sd = showDeleted.value;
-  const q = userFilter.value.trim().toLowerCase();
+  const q = textFilter.value.trim().toLowerCase();
 
   return allPlaylists.value.filter((p) => {
     if (p.deleted !== sd) return false;
@@ -92,7 +94,6 @@ const fields = computed<Exclude<TableFieldRaw<PlayListSummary>, string>[]>(() =>
         ? new Date(item.updated).getTime().toString().padStart(20, "0")
         : "0".padStart(20, "0"),
   },
-  ...(showDeleted.value ? [{ key: "deletedAt", label: "Deleted", sortable: false }] : []),
   { key: "actions", label: "", sortable: false },
 ]);
 
@@ -171,7 +172,7 @@ function rowClass(item: PlayListSummary): string {
             {{ showDeleted ? "Show Active" : "Show Deleted" }}
           </BButton>
         </p>
-        <p v-if="userFilter && !showDeleted && filteredPlaylists.length > 0">
+        <p v-if="textFilter && !showDeleted && filteredPlaylists.length > 0">
           <a :href="deleteAllUrl()" class="btn btn-danger btn-sm">Delete All</a>
         </p>
       </div>
@@ -214,12 +215,15 @@ function rowClass(item: PlayListSummary): string {
     <!-- Filter + Pagination controls -->
     <div class="d-flex align-items-center gap-3 mb-2 flex-wrap">
       <BFormInput
-        v-model="userFilter"
+        v-model="textFilter"
         placeholder="Filter by user, name, description, tags or id…"
         size="sm"
         clearable
         style="max-width: 20rem"
-        @update:model-value="currentPage = 1"
+        @update:model-value="
+          currentPage = 1;
+          userFilter = '';
+        "
       />
       <BPagination
         v-model="currentPage"
@@ -271,6 +275,7 @@ function rowClass(item: PlayListSummary): string {
           href="#"
           @click.prevent="
             userFilter = item.user;
+            textFilter = item.user;
             currentPage = 1;
           "
           >{{ item.user }}</a
