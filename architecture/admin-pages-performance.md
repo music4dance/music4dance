@@ -1,0 +1,430 @@
+# Admin Pages Performance Improvement Plan
+
+## Problem Statement
+
+Several admin index pages are rendering large HTML tables server-side (via Razor), which causes
+Chromium-based browsers to become unresponsive. The root cause is not the data volume itself — it
+is the cost of parsing and laying out thousands of DOM nodes at once. Two categories of pages need
+different treatments:
+
+| Category               | Pages                                      | Strategy                                                      |
+| ---------------------- | ------------------------------------------ | ------------------------------------------------------------- |
+| **Vue conversion**     | `ApplicationUsers/Index`, `PlayList/Index` | Plant all data as JSON, page/filter/sort client-side with BVN |
+| **Server-side paging** | `Searches/Index`, `ActivityLog/Index`      | Add `page` parameter, paginate at the DB/query level          |
+
+Auxiliary pages (Details, Edit, Delete confirmation, ChangeRoles, etc.) remain as Razor — no
+conversion is needed or wanted for these.
+
+---
+
+## Part 1 — Vue Conversion: ApplicationUsers/Index _(Priority 1)_
+
+### Current behavior
+
+`ApplicationUsersController.Index` calls `UserMapper.GetUserNameDictionary()` and passes the
+full `IReadOnlyDictionary<string, UserInfo>` to the `Index.cshtml` Razor view. The view does all
+filtering, sorting, and rendering inline, producing a single HTML table with one `<tr>` per user.
+The table grows linearly with the user count and the page becomes unresponsive.
+
+### Target behavior
+
+The controller serialises a safe, flat DTO array as `model_` JSON (via the existing `Vue3()`
+helper). A new Vue page deserialises this and renders the table using `<BTable>` from
+bootstrap-vue-next, with:
+
+- Client-side **filtering** (showUnconfirmed / showPseudo / hidePrivate toggles — reactive,
+  no page reload)
+- Client-side **sorting** (clickable column headers; BVN `<BTable>` handles this natively)
+- Client-side **pagination** (BVN `<BPagination>` + `<BTable per-page>`)
+
+Because all data is already on the page (the dataset is manageable), no API calls are needed and
+no pagination state needs to survive a navigation.
+
+### Security note
+
+`ApplicationUser` contains `PasswordHash`, `SecurityStamp`, `ConcurrencyStamp`, and other
+sensitive identity fields. **The JSON payload must use a dedicated DTO** that exposes only the
+fields actually needed by the index view. Never serialize the full `ApplicationUser` entity.
+
+### C# changes
+
+#### 1. New DTO — `AdminUserSummary`
+
+Create in `m4d/ViewModels/AdminUserSummary.cs` (or in a new `Admin/` subdirectory).
+
+Fields needed (cross-referenced with the existing `Index.cshtml` columns and action links):
+
+```csharp
+public class AdminUserSummary
+{
+    // Identity / display
+    public string Id { get; set; }          // for Edit/Delete/ChangeRoles links
+    public string UserName { get; set; }
+    public string Email { get; set; }
+    public bool EmailConfirmed { get; set; }
+    public bool IsPseudo { get; set; }
+
+    // Activity
+    public DateTime StartDate { get; set; }
+    public DateTime LastActive { get; set; }
+    public int HitCount { get; set; }
+
+    // Subscription / commerce
+    public decimal LifetimePurchased { get; set; }
+    public int SubscriptionLevel { get; set; }  // serialise enum as int
+
+    // Profile flags
+    public byte Privacy { get; set; }
+    public string ServicePreference { get; set; }
+    public int FailedCardAttempts { get; set; }
+
+    // Roles / logins (already projected lists in UserInfo)
+    public List<string> Roles { get; set; }
+    public List<string> Logins { get; set; }
+}
+```
+
+#### 2. New wrapper model — `AdminUsersModel`
+
+```csharp
+public class AdminUsersModel
+{
+    public List<AdminUserSummary> Users { get; set; }
+    public List<string> AllRoles { get; set; }   // for role count summary
+}
+```
+
+#### 3. Modified `Index()` action
+
+```csharp
+// GET: ApplicationUsers
+public async Task<ActionResult> Index()
+{
+    var dict = await UserMapper.GetUserNameDictionary(Database.UserManager, ServiceHealth);
+    var roles = Context.Roles.Select(r => r.Name).ToList();
+
+    var users = dict.Values.Select(u => new AdminUserSummary
+    {
+        Id             = u.User.Id,
+        UserName       = u.User.UserName,
+        Email          = u.User.Email,
+        EmailConfirmed = u.User.EmailConfirmed,
+        IsPseudo       = u.IsPseudo,
+        StartDate      = u.User.StartDate,
+        LastActive     = u.User.LastActive,
+        HitCount       = u.User.HitCount,
+        LifetimePurchased = u.User.LifetimePurchased,
+        SubscriptionLevel = (int)u.User.SubscriptionLevel,
+        Privacy        = u.User.Privacy,
+        ServicePreference = u.User.ServicePreference,
+        FailedCardAttempts = u.User.FailedCardAttempts,
+        Roles          = u.Roles,
+        Logins         = u.Logins,
+    }).ToList();
+
+    var model = new AdminUsersModel { Users = users, AllRoles = roles };
+    return Vue3("User Administrator", "Admin: User list", "admin-users", model);
+}
+```
+
+The `showUnconfirmed`, `showPseudo`, `hidePrivate`, and `sort` query parameters are **removed**
+from the server action — they become purely client-side state managed by Vue reactive refs.
+
+The `ClearCache()` action remains unchanged (redirects back to `Index`).
+
+### TypeScript / Vue changes
+
+#### New page entry: `src/pages/admin-users/`
+
+Structure mirrors existing Vue pages:
+
+```
+src/pages/admin-users/
+  main.ts            -- standard Vite entry (same pattern as other pages)
+  App.vue            -- root component
+  __tests__/
+    admin-users.test.ts
+    model.ts         -- test fixture data
+```
+
+#### TypeScript model (`AdminUsersModel.ts`)
+
+```typescript
+@jsonObject
+export class AdminUserSummary {
+  @jsonMember(String) public id!: string;
+  @jsonMember(String) public userName!: string;
+  @jsonMember(String) public email?: string;
+  @jsonMember(Boolean) public emailConfirmed!: boolean;
+  @jsonMember(Boolean) public isPseudo!: boolean;
+  @jsonMember(String) public startDate!: string; // serialized as string
+  @jsonMember(String) public lastActive!: string;
+  @jsonMember(Number) public hitCount!: number;
+  @jsonMember(Number) public lifetimePurchased!: number;
+  @jsonMember(Number) public subscriptionLevel!: number;
+  @jsonMember(Number) public privacy!: number;
+  @jsonMember(String) public servicePreference?: string;
+  @jsonMember(Number) public failedCardAttempts!: number;
+  @jsonArrayMember(String) public roles!: string[];
+  @jsonArrayMember(String) public logins!: string[];
+}
+
+@jsonObject
+export class AdminUsersModel {
+  @jsonArrayMember(AdminUserSummary) public users!: AdminUserSummary[];
+  @jsonArrayMember(String) public allRoles!: string[];
+}
+```
+
+#### `App.vue` key features
+
+- Deserialise model with `TypedJSON.parse(model_, AdminUsersModel)`
+- Reactive filter state:
+  - `showUnconfirmed: ref(false)`
+  - `showPseudo: ref(false)`
+  - `hidePrivate: ref(false)`
+- `filteredUsers` — `computed()` over `model.users` applying the three boolean filters
+- Sorting — pass `filteredUsers` to BVN `<BTable :items="filteredUsers" :fields="fields">`; BVN
+  handles column-header click sorting natively
+- Pagination — `<BTable :per-page="perPage" :current-page="currentPage">` +
+  `<BPagination>` component underneath the table
+- Summary stats row (total, registered, confirmed, deleted, service breakdown, role counts) —
+  computed from the **unfiltered** `model.users` array, same as the current Razor view
+- Action links are plain `<a href="...">` anchors (no fetch/API needed) pointing to the existing
+  Razor auxiliary pages:
+  - `/ApplicationUsers/Details/{id}`
+  - `/ApplicationUsers/Edit/{id}`
+  - `/ApplicationUsers/Delete/{id}`
+  - `/ApplicationUsers/ChangeRoles/{id}`
+  - `/ApplicationUsers/ClearPremium/{id}`
+  - `/Song/FilterUser?user={userName}` (List Songs)
+  - `/Searches/Index?user={userName}&showDetails=true&sort=recent` (List Searches)
+  - `/UsageLog/UserLog?user={userName}` (Usage)
+  - `/Playlist/Index?type=SongsFromSpotify&user={userName}` (Playlists)
+
+#### Preserved top-of-page links (non-list actions)
+
+- "New Pseudo User" → `/ApplicationUsers/Create`
+- "Clear Cache" → `/ApplicationUsers/ClearCache`
+- "Voting Results" → `/ApplicationUsers/VotingResults`
+- "Premium" → `/ApplicationUsers/PremiumUsers`
+
+### Razor view retirement
+
+`m4d/Views/ApplicationUsers/Index.cshtml` is replaced by the Vue3 shell (rendered by `Vue3()`
+via `Views/Shared/Vue3.cshtml`). The old file can be deleted as part of the PR.
+
+---
+
+## Part 2 — Vue Conversion: PlayList/Index _(Priority 2)_
+
+### Current behavior
+
+`PlayListController.Index` returns a `PlayListIndex` model to the Razor view, which renders one
+`<tr>` per playlist with no pagination. The unfiltered result includes all playlists of the
+selected type.
+
+### Target behavior
+
+Same pattern as the user page: plant `PlayListIndex`-equivalent data as JSON, move
+filtering/sorting/pagination to Vue. Filters that currently require a page reload (type, user,
+showDeleted) become client-side toggle/select controls.
+
+### Data security
+
+`PlayList` contains no sensitive PII; the `PlayListIndex` model (and `PlayList` records) are
+appropriate to serialise. The main concern is not exposing unreleated tables — the model stays
+limited to the list being shown.
+
+Because `PlayList.Data1Name` / `Data2Name` are computed properties on `PlayList` (not persisted),
+the serialisation should either include them explicitly or the TypeScript model should replicate
+the logic. Easiest: include them as plain strings on the C# DTO.
+
+### C# changes
+
+#### Modified `Index()` action
+
+```csharp
+[Authorize(Roles = "dbAdmin")]
+public IActionResult Index(PlayListType type = PlayListType.SongsFromSpotify,
+    string user = null, bool showDeleted = false)
+{
+    // Load all playlists of the given type (showDeleted will become a client filter)
+    // For now, keep the existing query structure and pass the full dataset:
+    var model = string.IsNullOrWhiteSpace(user)
+        ? GetIndex(type, showDeleted)
+        : GetUserIndex(type, user, showDeleted);
+
+    // Wrap in a serialization-friendly container
+    return Vue3($"PlayList Admin — {type}", "Admin: Playlist list",
+        "admin-playlists", new AdminPlaylistsModel(model));
+}
+```
+
+`AdminPlaylistsModel` simply flattens `PlayListIndex` into a serialisation-safe form (no
+`[NotMapped]` computed property issues). Type enum values are serialised as integers.
+
+Alternatively, start with type fixed to a default and let the Vue page switch types by
+reloading the URL with the new `type` query parameter (simplest migration path — only requires
+changing how `filteredLists` is computed client-side, not eliminating the server query parameter).
+
+### Vue page: `src/pages/admin-playlists/`
+
+- Deserialise model
+- Client-side controls:
+  - Type selector (dropdown) — may still cause a page reload if loading all types at once is
+    too large; evaluate at implementation time
+  - User filter (text input, filters `filteredLists` by `item.user`)
+  - Show/hide deleted toggle
+- `<BTable>` with per-page pagination and sortable columns
+- Per-row action links (Details, Edit, Delete/Undelete, Restore, user-filter link)
+- Preserve top-of-page bulk actions: Create New, Restore All, Update All, BulkCreate links,
+  Statistics
+
+---
+
+## Part 3 — Server-Side Paging: Searches/Index _(Priority 3)_
+
+### Current behavior
+
+`SearchesController.Index` fetches up to 250 records (`.Take(250)`). There is no pagination UI.
+
+### Target behavior
+
+Add a `page` parameter. Page at the database level via `.Skip()`/`.Take()` and display Bootstrap
+pagination controls in the existing Razor view. No Vue conversion.
+
+### C# changes
+
+```csharp
+private const int SearchesPageSize = 100;
+
+public async Task<IActionResult> Index(string user, string sort = null,
+    bool showDetails = false, bool spotifyOnly = false, int page = 1)
+{
+    // ... existing user/auth setup ...
+
+    IQueryable<Search> searches = Database.Searches.Include(s => s.ApplicationUser);
+    if (user is not null and not "all")
+    {
+        // ... existing user lookup ...
+        searches = searches.Where(s => s.ApplicationUserId == appUser.Id);
+    }
+
+    var ordered = string.Equals(sort, "recent")
+        ? searches.OrderByDescending(s => s.Modified)
+        : searches.OrderByDescending(s => s.Count);
+
+    var totalCount = await ordered.CountAsync();
+    var model = await ordered
+        .Skip((page - 1) * SearchesPageSize)
+        .Take(SearchesPageSize)
+        .ToListAsync();
+
+    // ... existing spotify/spotifyOnly logic ...
+
+    ViewBag.Page = page;
+    ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / SearchesPageSize);
+    // ... existing ViewBag assignments ...
+    return View(model);
+}
+```
+
+### Razor view changes
+
+Add a standard Bootstrap pagination block at the bottom of `Index.cshtml`, passing the current
+filter parameters through `asp-route-*` attributes to preserve state across page turns.
+
+---
+
+## Part 4 — Server-Side Paging: ActivityLog/Index _(Priority 4)_
+
+### Current behavior
+
+`ActivityLogController.Index` takes the 500 most-recent records. No pagination.
+
+### Target behavior
+
+Same treatment as Searches/Index: add `page` parameter, paginate at the DB level, add Bootstrap
+pagination to the existing Razor partial.
+
+### C# changes
+
+```csharp
+private const int ActivityLogPageSize = 100;
+
+public IActionResult Index(int page = 1)
+{
+    var query = Database.Context.ActivityLog
+        .OrderByDescending(l => l.Date)
+        .Include(a => a.User);
+
+    var totalCount = query.Count();
+    var list = query
+        .Skip((page - 1) * ActivityLogPageSize)
+        .Take(ActivityLogPageSize)
+        .AsEnumerable();
+
+    ViewBag.Page = page;
+    ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / ActivityLogPageSize);
+    return View(list);
+}
+```
+
+### Razor view changes
+
+Same as Searches — add pagination controls at the bottom of `Views/ActivityLog/Index.cshtml`.
+
+---
+
+## Development Phases
+
+| Phase | PR scope                                              | Outcome                                                 |
+| ----- | ----------------------------------------------------- | ------------------------------------------------------- |
+| **1** | ApplicationUsers/Index → Vue (DTO + Vue page + tests) | Users page is responsive; all auxiliary pages unchanged |
+| **2** | PlayList/Index → Vue                                  | Playlists page is responsive                            |
+| **3** | Searches/Index + ActivityLog/Index server paging      | Remaining tables paginated without Vue conversion       |
+
+Each phase is independently deployable. Later phases can be re-prioritised without affecting
+earlier ones.
+
+---
+
+## Testing Notes
+
+### Phase 1 (ApplicationUsers Vue)
+
+- **Unit tests** for the new Vue component (`admin-users.test.ts`): snapshot test; verify
+  filtering logic (showUnconfirmed, showPseudo, hidePrivate); verify pagination; verify summary
+  stat computations.
+- **Manual smoke test**: navigate to `/ApplicationUsers` as a dbAdmin user, verify all filter
+  toggles work, table renders without browser freeze, all action links reach the correct Razor
+  page.
+- The existing server-side tests for `ApplicationUsersController` continue to pass without change
+  (auxiliary actions are unchanged; `Index()` now returns a `VueModel` but the existing tests
+  only verify auxiliary actions like `Edit`, `Delete`, `ChangeRoles`).
+
+### Phase 3 & 4 (Paging)
+
+- Add integration test for the `Index(page)` action verifying correct `Skip`/`Take` behaviour.
+- Manual verification that page 1 loads the first N records and page 2 loads the next N.
+
+---
+
+## Design Decisions
+
+1. **PlayList type switching (Phase 2)**: `type` stays as a server query parameter (causes a page
+   reload). Only `user` and `showDeleted` move to client-side state within the Vue page.
+
+2. **Date serialisation**: Use camelCase JSON serialiser defaults throughout. Dates arrive as
+   strings in the JSON payload; TypeScript models declare them as `string` and format for display
+   using standard JS `Date` parsing.
+
+3. **`ClearCache` redirect**: The `ClearCache` action uses `return RedirectToAction("Index")`
+   (not `await Index()`) so it correctly returns to the Vue-served page.
+
+4. **Role count summary**: `allRoles` is included in the server model. The Vue component counts
+   roles from `model.users` via computed properties, avoiding a separate API call.
+
+5. **Browser history / URL state**: Filter toggles (showUnconfirmed, etc.) do not update the URL.
+   This is acceptable for an admin-only page.
