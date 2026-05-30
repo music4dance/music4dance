@@ -14,7 +14,9 @@ exports[`searches page > renders the admin detail view snapshot 1`] = `
       </div><!-- Sort buttons -->
       <div class="row mb-3">
         <div class="btn-group col-sm" role="group" aria-label="Sort order"><a href="/Searches/Index?user=alice&amp;showDetails=true" role="button" class="btn btn-primary"> Most Popular </a><a href="/Searches/Index?user=alice&amp;sort=recent&amp;showDetails=true" role="button" class="btn btn-outline-primary"> Most Recent </a></div>
-      </div><!-- Spotify Only switch -->
+      </div>
+      <!-- Spotify Only switch — hidden for all-users admin view since Spotify links are
+         user-scoped and the toggle would have no meaningful effect across all users -->
       <div class="row mb-3">
         <div class="col-sm">
           <div class="form-check form-switch"><input id="spotifyOnlySwitch" class="form-check-input" type="checkbox" role="switch"><label class="form-check-label" for="spotifyOnlySwitch">Spotify Only</label></div>
@@ -148,12 +150,11 @@ exports[`searches page > renders the all-users view snapshot 1`] = `
       </div><!-- Sort buttons -->
       <div class="row mb-3">
         <div class="btn-group col-sm" role="group" aria-label="Sort order"><a href="/Searches/Index?user=all" role="button" class="btn btn-primary"> Most Popular </a><a href="/Searches/Index?user=all&amp;sort=recent" role="button" class="btn btn-outline-primary"> Most Recent </a></div>
-      </div><!-- Spotify Only switch -->
-      <div class="row mb-3">
-        <div class="col-sm">
-          <div class="form-check form-switch"><input id="spotifyOnlySwitch" class="form-check-input" type="checkbox" role="switch"><label class="form-check-label" for="spotifyOnlySwitch">Spotify Only</label></div>
-        </div>
-      </div><!-- Search table -->
+      </div>
+      <!-- Spotify Only switch — hidden for all-users admin view since Spotify links are
+         user-scoped and the toggle would have no meaningful effect across all users -->
+      <!--v-if-->
+      <!-- Search table -->
       <table id="searches-table" class="table b-table table-striped table-songs col-sm" aria-busy="false">
         <!---->
         <thead class="">
@@ -242,7 +243,9 @@ exports[`searches page > renders the searches page snapshot 1`] = `
       </div><!-- Sort buttons -->
       <div class="row mb-3">
         <div class="btn-group col-sm" role="group" aria-label="Sort order"><a href="/Searches/Index?user=alice" role="button" class="btn btn-primary"> Most Popular </a><a href="/Searches/Index?user=alice&amp;sort=recent" role="button" class="btn btn-outline-primary"> Most Recent </a></div>
-      </div><!-- Spotify Only switch -->
+      </div>
+      <!-- Spotify Only switch — hidden for all-users admin view since Spotify links are
+         user-scoped and the toggle would have no meaningful effect across all users -->
       <div class="row mb-3">
         <div class="col-sm">
           <div class="form-check form-switch"><input id="spotifyOnlySwitch" class="form-check-input" type="checkbox" role="switch"><label class="form-check-label" for="spotifyOnlySwitch">Spotify Only</label></div>

@@ -144,8 +144,9 @@ function onSpotifyToggle(): void {
       </div>
     </div>
 
-    <!-- Spotify Only switch -->
-    <div class="row mb-3">
+    <!-- Spotify Only switch — hidden for all-users admin view since Spotify links are
+         user-scoped and the toggle would have no meaningful effect across all users -->
+    <div v-if="model.user !== 'all'" class="row mb-3">
       <div class="col-sm">
         <div class="form-check form-switch">
           <input

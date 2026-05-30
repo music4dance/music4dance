@@ -62,21 +62,35 @@ public class SearchesController : ContentController
             ? searches.OrderByDescending(s => s.Modified)
             : searches.OrderByDescending(s => s.Count);
 
-        var totalCount = await ordered.CountAsync();
-        var model = await ordered
-            .Skip((page - 1) * SearchesPageSize)
-            .Take(SearchesPageSize)
-            .ToListAsync();
-
-
-        if (user is not null and not "all")
-        {
-            await SetSpotify(model, user);
-        }
+        List<Search> model;
+        int totalCount;
 
         if (spotifyOnly && user is not null and not "all")
         {
-            model = model.Where(s => !string.IsNullOrWhiteSpace(s.Spotify)).ToList();
+            // Spotify is a runtime property (not persisted), so it cannot be filtered at the DB
+            // level. Load all results for the user, populate Spotify links, filter, then page
+            // in memory so that totalCount and TotalPages reflect only Spotify-linked searches.
+            var all = await ordered.ToListAsync();
+            await SetSpotify(all, user);
+            var filtered = all.Where(s => !string.IsNullOrWhiteSpace(s.Spotify)).ToList();
+            totalCount = filtered.Count;
+            model = filtered
+                .Skip((page - 1) * SearchesPageSize)
+                .Take(SearchesPageSize)
+                .ToList();
+        }
+        else
+        {
+            totalCount = await ordered.CountAsync();
+            model = await ordered
+                .Skip((page - 1) * SearchesPageSize)
+                .Take(SearchesPageSize)
+                .ToListAsync();
+
+            if (user is not null and not "all")
+            {
+                await SetSpotify(model, user);
+            }
         }
 
         var isAdmin = User.IsInRole("showDiagnostics");
@@ -111,7 +125,7 @@ public class SearchesController : ContentController
                 Created = item.Created,
                 Modified = item.Modified,
                 Spotify = item.Spotify,
-                DeleteUrl = Url.Action("Delete", "Searches", new { id = item.Id, user, showDetails, spotifyOnly, sort }),
+                DeleteUrl = Url.Action("Delete", "Searches", new { id = item.Id, user = item.ApplicationUser?.UserName, showDetails, spotifyOnly, sort }),
             };
         }).ToList();
 
