@@ -172,7 +172,7 @@ function rowClass(item: PlayListSummary): string {
             {{ showDeleted ? "Show Active" : "Show Deleted" }}
           </BButton>
         </p>
-        <p v-if="textFilter && !showDeleted && filteredPlaylists.length > 0">
+        <p v-if="userFilter && !showDeleted && filteredPlaylists.length > 0">
           <a :href="deleteAllUrl()" class="btn btn-danger btn-sm">Delete All</a>
         </p>
       </div>
