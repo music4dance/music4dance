@@ -1,204 +1,216 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`admin-users page > renders the admin users page 1`] = `
-"<div class="container-fluid">
-  <h2>User Administrator</h2>
-  <hr><!-- Summary row -->
-  <div class="row mb-3">
-    <div class="col-md-3">
-      <p><strong>Total Users:</strong> 4</p>
-      <p><strong>Registered Users:</strong> 3</p>
-      <p><strong>Confirmed Users:</strong> 2</p>
-      <p><strong>Deleted Users:</strong> 1</p>
-    </div>
-    <div class="col-md-3">
-      <p><b>dbAdmin</b>: 0</p>
-      <p><b>premium</b>: 1</p>
-      <p><b>trial</b>: 0</p>
-    </div>
-    <div class="col-md-3">
-      <p><b>Microsoft</b>: 1</p>
-      <p><b>Spotify</b>: 2</p>
-      <p><b>Facebook</b>: 0</p>
-      <p><b>Google</b>: 1</p>
-    </div>
-    <div class="col-md-3">
-      <p><a href="/ApplicationUsers/Create" class="btn btn-primary" role="button">New Pseudo User</a></p>
-      <p><button class="btn btn-md btn-primary" type="button">Show Unconfirmed</button></p>
-      <p><button class="btn btn-md btn-primary" type="button">Show Pseudo</button></p>
-      <p><button class="btn btn-md btn-primary" type="button">Hide Private</button></p>
-      <p><a href="/ApplicationUsers/ClearCache" class="btn btn-secondary" role="button">Clear Cache</a></p>
-      <p><a href="/ApplicationUsers/VotingResults" class="btn btn-primary" role="button">Voting Results</a></p>
-      <p><a href="/ApplicationUsers/PremiumUsers" class="btn btn-primary" role="button">Premium</a></p>
-    </div>
-  </div><!-- Service preference table -->
-  <table class="table table-striped mb-3">
-    <thead>
-      <tr>
-        <th>Service</th>
-        <th>Users</th>
-        <th>%u</th>
-        <th>%p</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Spotify</td>
-        <td>2</td>
-        <td>67%</td>
-        <td>200%</td>
-      </tr>
-      <tr>
-        <td>Google</td>
-        <td>1</td>
-        <td>33%</td>
-        <td>100%</td>
-      </tr>
-      <tr>
-        <td>none</td>
-        <td>2</td>
-        <td>67%</td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <hr>
-  <h3>Users (2)</h3><!-- Text search -->
-  <div class="mb-2" style="max-width: 24rem;"><input id="BootstrapVueNext__ID__v-0__input___" class="form-control form-control-sm" type="text" placeholder="Filter by name or email…" clearable="" value=""></div><!-- Pagination controls (top) -->
-  <div class="d-flex align-items-center gap-3 mb-2">
-    <ul class="pagination justify-content-start pagination-sm mb-0" role="menubar" aria-disabled="false" aria-label="Pagination">
-      <li class="page-item disabled" role="presentation" displayindex="0"><span is="span" class="page-link text-center" aria-label="Go to first page" aria-disabled="true" role="menuitem">«</span></li>
-      <li class="page-item disabled" role="presentation" displayindex="1"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
-      <li class="page-item active" role="presentation" displayindex="2"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="1" role="menuitem" type="button" tabindex="0">1</button></li>
-      <li class="page-item disabled" role="presentation" displayindex="3"><span is="span" class="page-link text-center" aria-label="Go to next page" aria-disabled="true" role="menuitem">›</span></li>
-      <li class="page-item disabled" role="presentation" displayindex="4"><span is="span" class="page-link text-center" aria-label="Go to last page" aria-disabled="true" role="menuitem">»</span></li>
-    </ul>
-    <div class="d-flex align-items-center gap-2"><label class="mb-0 small">Per page:</label><select id="BootstrapVueNext__ID__v-1__input___" class="form-select form-select-sm" style="width: auto;">
-        <option value="25">25</option>
-        <option selected="" value="50">50</option>
-        <option value="100">100</option>
-        <option value="250">250</option>
-      </select></div>
-  </div><!-- User table -->
-  <div class="table-responsive">
-    <table id="users-table" class="table b-table table-hover table-striped table-sm" aria-busy="false">
-      <!---->
-      <thead class="">
-        <tr class="">
-          <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">EC</th>
-          <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">UserName / Email</th>
-          <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">Signed Up</th>
-          <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="descending">Signed In</th>
-          <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">PRV</th>
-          <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">CNT</th>
-          <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">SVC</th>
-          <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">CCF</th>
-          <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">$</th>
-          <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">HC</th>
-          <th scope="col" class="">Roles</th>
-          <th scope="col" class="">Logins</th>
-          <th scope="col" class=""></th>
-        </tr>
-        <!---->
-      </thead>
-      <tbody class="">
-        <!---->
-        <tr class="" id="users-table__row_user-1">
-          <td class="">
-            <!----><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="text-success">
-              <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417L5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path>
-            </svg>
-          </td>
-          <td class="">
-            <!----><a href="/ApplicationUsers/Details/user-1" style="">alice</a><br><small class="text-muted">alice@example.com</small>
-          </td>
-          <td class="">
-            <!---->3/15/2022
-          </td>
-          <td class="">
-            <!---->11/20/2024
-          </td>
-          <td class="">
-            <!---->255
-          </td>
-          <td class="">
-            <!---->5
-          </td>
-          <td class="">
-            <!---->S
-          </td>
-          <td class="">
-            <!---->0
-          </td>
-          <td class="">
-            <!---->19.99
-          </td>
-          <td class="">
-            <!---->42
-          </td>
-          <td class="">
-            <!----><span><!--v-if-->premium</span>
-          </td>
-          <td class="">
-            <!----><span><!--v-if-->Spotify</span>
-          </td>
-          <td class="">
-            <!----><a href="/Song/FilterUser?user=alice">List Songs</a>, <a href="/Searches/Index?user=alice&amp;showDetails=true&amp;sort=recent">List Searches</a><br><a href="/ApplicationUsers/ChangeRoles/user-1">Change Roles</a><br><a href="/ApplicationUsers/Delete/user-1">Delete</a>, <a href="/ApplicationUsers/Edit/user-1">Edit</a>, <a href="/UsageLog/UserLog?user=alice">Usage</a>, <a href="/PlayList/Index?user=alice">Playlists</a>, <a href="/ApplicationUsers/ClearPremium/user-1">ClearPremium</a>
-          </td>
-        </tr>
-        <!---->
-        <tr class="" id="users-table__row_user-4">
-          <td class="">
-            <!----><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="text-success">
-              <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417L5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path>
-            </svg>
-          </td>
-          <td class="">
-            <!----><a href="/ApplicationUsers/Details/user-4" style="">DEL:dave</a><br><small class="text-muted">dave@example.com</small>
-          </td>
-          <td class="">
-            <!---->6/1/2020
-          </td>
-          <td class="">
-            <!---->1/15/2021
-          </td>
-          <td class="">
-            <!---->255
-          </td>
-          <td class="">
-            <!---->0
-          </td>
-          <td class="">
+"<div><span context="[object Object]">MainMenu</span>
+  <!--v-if-->
+  <!--v-if-->
+  <div id="body-content" class="container-fluid body-content">
+    <h1>User Administrator</h1>
+    <div>
+      <!-- Summary row -->
+      <div class="row mb-3">
+        <div class="col-md-3">
+          <p><strong>Total Users:</strong> 4</p>
+          <p><strong>Registered Users:</strong> 3</p>
+          <p><strong>Confirmed Users:</strong> 2</p>
+          <p><strong>Deleted Users:</strong> 1</p>
+        </div>
+        <div class="col-md-3">
+          <p><b>dbAdmin</b>: 0</p>
+          <p><b>premium</b>: 1</p>
+          <p><b>trial</b>: 0</p>
+        </div>
+        <div class="col-md-3">
+          <p><b>Microsoft</b>: 1</p>
+          <p><b>Spotify</b>: 2</p>
+          <p><b>Facebook</b>: 0</p>
+          <p><b>Google</b>: 1</p>
+        </div>
+        <div class="col-md-3">
+          <p><a href="/ApplicationUsers/Create" class="btn btn-primary" role="button">New Pseudo User</a></p>
+          <p><button class="btn btn-md btn-primary" type="button">Show Unconfirmed</button></p>
+          <p><button class="btn btn-md btn-primary" type="button">Show Pseudo</button></p>
+          <p><button class="btn btn-md btn-primary" type="button">Hide Private</button></p>
+          <p><a href="/ApplicationUsers/ClearCache" class="btn btn-secondary" role="button">Clear Cache</a></p>
+          <p><a href="/ApplicationUsers/VotingResults" class="btn btn-primary" role="button">Voting Results</a></p>
+          <p><a href="/ApplicationUsers/PremiumUsers" class="btn btn-primary" role="button">Premium</a></p>
+        </div>
+      </div><!-- Service preference table -->
+      <table class="table table-striped mb-3">
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Users</th>
+            <th>%u</th>
+            <th>%p</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Spotify</td>
+            <td>2</td>
+            <td>67%</td>
+            <td>200%</td>
+          </tr>
+          <tr>
+            <td>Google</td>
+            <td>1</td>
+            <td>33%</td>
+            <td>100%</td>
+          </tr>
+          <tr>
+            <td>none</td>
+            <td>2</td>
+            <td>67%</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+      <hr>
+      <h3>Users (2)</h3><!-- Text search -->
+      <div class="mb-2" style="max-width: 24rem;"><input id="BootstrapVueNext__ID__v-0__input___" class="form-control form-control-sm" type="text" placeholder="Filter by name or email…" clearable="" value=""></div><!-- Pagination controls (top) -->
+      <div class="d-flex align-items-center gap-3 mb-2">
+        <ul class="pagination justify-content-start pagination-sm mb-0" role="menubar" aria-disabled="false" aria-label="Pagination">
+          <li class="page-item disabled" role="presentation" displayindex="0"><span is="span" class="page-link text-center" aria-label="Go to first page" aria-disabled="true" role="menuitem">«</span></li>
+          <li class="page-item disabled" role="presentation" displayindex="1"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
+          <li class="page-item active" role="presentation" displayindex="2"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="1" role="menuitem" type="button" tabindex="0">1</button></li>
+          <li class="page-item disabled" role="presentation" displayindex="3"><span is="span" class="page-link text-center" aria-label="Go to next page" aria-disabled="true" role="menuitem">›</span></li>
+          <li class="page-item disabled" role="presentation" displayindex="4"><span is="span" class="page-link text-center" aria-label="Go to last page" aria-disabled="true" role="menuitem">»</span></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2"><label class="mb-0 small">Per page:</label><select id="BootstrapVueNext__ID__v-1__input___" class="form-select form-select-sm" style="width: auto;">
+            <option value="25">25</option>
+            <option selected="" value="50">50</option>
+            <option value="100">100</option>
+            <option value="250">250</option>
+          </select></div>
+      </div><!-- User table -->
+      <div class="table-responsive">
+        <table id="users-table" class="table b-table table-hover table-striped table-sm" aria-busy="false">
+          <!---->
+          <thead class="">
+            <tr class="">
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">EC</th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">UserName / Email</th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">Signed Up</th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="descending">Signed In</th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">PRV</th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">CNT</th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">SVC</th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">CCF</th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">$</th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">HC</th>
+              <th scope="col" class="">Roles</th>
+              <th scope="col" class="">Logins</th>
+              <th scope="col" class=""></th>
+            </tr>
             <!---->
-          </td>
-          <td class="">
-            <!---->0
-          </td>
-          <td class="">
-            <!---->0
-          </td>
-          <td class="">
-            <!---->0
-          </td>
-          <td class=""></td>
-          <td class=""></td>
-          <td class="">
-            <!----><a href="/Song/FilterUser?user=DEL%3Adave">List Songs</a>, <a href="/Searches/Index?user=DEL%3Adave&amp;showDetails=true&amp;sort=recent">List Searches</a><br><a href="/ApplicationUsers/ChangeRoles/user-4">Change Roles</a><br><a href="/ApplicationUsers/Delete/user-4">Delete</a>, <a href="/ApplicationUsers/Edit/user-4">Edit</a>, <a href="/UsageLog/UserLog?user=DEL%3Adave">Usage</a>, <a href="/PlayList/Index?user=DEL%3Adave">Playlists</a>, <a href="/ApplicationUsers/ClearPremium/user-4">ClearPremium</a>
-          </td>
-        </tr>
-        <!---->
-        <!---->
-      </tbody>
-      <!---->
-      <!---->
-    </table>
-  </div><!-- Pagination controls (bottom) -->
-  <ul class="pagination justify-content-start pagination-sm" role="menubar" aria-disabled="false" aria-label="Pagination">
-    <li class="page-item disabled" role="presentation" displayindex="0"><span is="span" class="page-link text-center" aria-label="Go to first page" aria-disabled="true" role="menuitem">«</span></li>
-    <li class="page-item disabled" role="presentation" displayindex="1"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
-    <li class="page-item active" role="presentation" displayindex="2"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="1" role="menuitem" type="button" tabindex="0">1</button></li>
-    <li class="page-item disabled" role="presentation" displayindex="3"><span is="span" class="page-link text-center" aria-label="Go to next page" aria-disabled="true" role="menuitem">›</span></li>
-    <li class="page-item disabled" role="presentation" displayindex="4"><span is="span" class="page-link text-center" aria-label="Go to last page" aria-disabled="true" role="menuitem">»</span></li>
-  </ul>
+          </thead>
+          <tbody class="">
+            <!---->
+            <tr class="" id="users-table__row_user-1">
+              <td class="">
+                <!----><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="text-success">
+                  <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417L5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path>
+                </svg>
+              </td>
+              <td class="">
+                <!----><a href="/ApplicationUsers/Details/user-1" style="">alice</a><br><small class="text-muted">alice@example.com</small>
+              </td>
+              <td class="">
+                <!---->3/15/2022
+              </td>
+              <td class="">
+                <!---->11/20/2024
+              </td>
+              <td class="">
+                <!---->255
+              </td>
+              <td class="">
+                <!---->5
+              </td>
+              <td class="">
+                <!---->S
+              </td>
+              <td class="">
+                <!---->0
+              </td>
+              <td class="">
+                <!---->19.99
+              </td>
+              <td class="">
+                <!---->42
+              </td>
+              <td class="">
+                <!----><span><!--v-if-->premium</span>
+              </td>
+              <td class="">
+                <!----><span><!--v-if-->Spotify</span>
+              </td>
+              <td class="">
+                <!----><a href="/Song/FilterUser?user=alice">List Songs</a>, <a href="/Searches/Index?user=alice&amp;showDetails=true&amp;sort=recent">List Searches</a><br><a href="/ApplicationUsers/ChangeRoles/user-1">Change Roles</a><br><a href="/ApplicationUsers/Delete/user-1">Delete</a>, <a href="/ApplicationUsers/Edit/user-1">Edit</a>, <a href="/UsageLog/UserLog?user=alice">Usage</a>, <a href="/PlayList/Index?user=alice">Playlists</a>, <a href="/ApplicationUsers/ClearPremium/user-1">ClearPremium</a>
+              </td>
+            </tr>
+            <!---->
+            <tr class="" id="users-table__row_user-4">
+              <td class="">
+                <!----><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" class="text-success">
+                  <path fill="currentColor" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417L5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path>
+                </svg>
+              </td>
+              <td class="">
+                <!----><a href="/ApplicationUsers/Details/user-4" style="">DEL:dave</a><br><small class="text-muted">dave@example.com</small>
+              </td>
+              <td class="">
+                <!---->6/1/2020
+              </td>
+              <td class="">
+                <!---->1/15/2021
+              </td>
+              <td class="">
+                <!---->255
+              </td>
+              <td class="">
+                <!---->0
+              </td>
+              <td class="">
+                <!---->
+              </td>
+              <td class="">
+                <!---->0
+              </td>
+              <td class="">
+                <!---->0
+              </td>
+              <td class="">
+                <!---->0
+              </td>
+              <td class=""></td>
+              <td class=""></td>
+              <td class="">
+                <!----><a href="/Song/FilterUser?user=DEL%3Adave">List Songs</a>, <a href="/Searches/Index?user=DEL%3Adave&amp;showDetails=true&amp;sort=recent">List Searches</a><br><a href="/ApplicationUsers/ChangeRoles/user-4">Change Roles</a><br><a href="/ApplicationUsers/Delete/user-4">Delete</a>, <a href="/ApplicationUsers/Edit/user-4">Edit</a>, <a href="/UsageLog/UserLog?user=DEL%3Adave">Usage</a>, <a href="/PlayList/Index?user=DEL%3Adave">Playlists</a>, <a href="/ApplicationUsers/ClearPremium/user-4">ClearPremium</a>
+              </td>
+            </tr>
+            <!---->
+            <!---->
+          </tbody>
+          <!---->
+          <!---->
+        </table>
+      </div><!-- Pagination controls (bottom) -->
+      <ul class="pagination justify-content-start pagination-sm" role="menubar" aria-disabled="false" aria-label="Pagination">
+        <li class="page-item disabled" role="presentation" displayindex="0"><span is="span" class="page-link text-center" aria-label="Go to first page" aria-disabled="true" role="menuitem">«</span></li>
+        <li class="page-item disabled" role="presentation" displayindex="1"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
+        <li class="page-item active" role="presentation" displayindex="2"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="1" role="menuitem" type="button" tabindex="0">1</button></li>
+        <li class="page-item disabled" role="presentation" displayindex="3"><span is="span" class="page-link text-center" aria-label="Go to next page" aria-disabled="true" role="menuitem">›</span></li>
+        <li class="page-item disabled" role="presentation" displayindex="4"><span is="span" class="page-link text-center" aria-label="Go to last page" aria-disabled="true" role="menuitem">»</span></li>
+      </ul>
+    </div>
+  </div>
+  <div id="footer-content">
+    <hr>
+    <footer>
+      <p> © 2026 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a href="https://github.com/music4dance/music4dance" target="_blank">Code</a> - <a>Help</a></p>
+    </footer>
+  </div>
 </div>"
 `;

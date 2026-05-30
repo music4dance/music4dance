@@ -1,0 +1,164 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`activity-log page > renders the activity log page snapshot 1`] = `
+"<div><span context="[object Object]">MainMenu</span>
+  <!--v-if-->
+  <!--v-if-->
+  <div id="body-content" class="container-fluid body-content">
+    <h1>Activity Log</h1>
+    <div>
+      <!-- Activity log table -->
+      <table id="activity-log-table" class="table b-table table-striped table-songs col-sm" aria-busy="false">
+        <!---->
+        <thead class="">
+          <tr class="">
+            <th scope="col" class="">Id</th>
+            <th scope="col" class="">Date</th>
+            <th scope="col" class="">User Name</th>
+            <th scope="col" class="">Action</th>
+            <th scope="col" class="">Details</th>
+          </tr>
+          <!---->
+        </thead>
+        <tbody class="">
+          <!---->
+          <tr class="">
+            <td class="">
+              <!---->5001
+            </td>
+            <td class="">
+              <!---->11/20/2024, 2:30 PM
+            </td>
+            <td class="">
+              <!----><span>alice</span>
+            </td>
+            <td class="">
+              <!---->Login
+            </td>
+            <td class="">
+              <!---->Logged in via Spotify
+            </td>
+          </tr>
+          <!---->
+          <tr class="">
+            <td class="">
+              <!---->5002
+            </td>
+            <td class="">
+              <!---->11/19/2024, 9:15 AM
+            </td>
+            <td class="">
+              <!----><span>bob</span>
+            </td>
+            <td class="">
+              <!---->EditSong
+            </td>
+            <td class="">
+              <!---->Updated tempo for song abc123
+            </td>
+          </tr>
+          <!---->
+          <tr class="">
+            <td class="">
+              <!---->5003
+            </td>
+            <td class="">
+              <!---->11/18/2024, 11:00 AM
+            </td>
+            <td class="">
+              <!----><span class="text-muted">no user</span>
+            </td>
+            <td class="">
+              <!---->AnonymousSearch
+            </td>
+            <td class="">
+              <!---->Searched for Waltz
+            </td>
+          </tr>
+          <!---->
+          <!---->
+        </tbody>
+        <!---->
+        <!---->
+      </table><!-- Pagination -->
+      <div class="row mt-3">
+        <div class="col-md-8">
+          <ul class="pagination justify-content-start" role="menubar" aria-disabled="false" aria-label="Activity log pages">
+            <li class="page-item disabled" role="presentation" displayindex="0"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
+            <li class="page-item active" role="presentation" displayindex="1"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="5" role="menuitem" type="button" tabindex="0">1</button></li>
+            <li class="page-item" role="presentation" displayindex="2"><button is="button" class="page-link text-center" aria-label="Go to page 2" aria-posinset="2" aria-setsize="5" role="menuitem" type="button" tabindex="-1">2</button></li>
+            <li class="page-item bv-d-sm-down-none" role="presentation" displayindex="3"><button is="button" class="page-link text-center" aria-label="Go to page 3" aria-posinset="3" aria-setsize="5" role="menuitem" type="button" tabindex="-1">3</button></li>
+            <li class="page-item" role="presentation" displayindex="4"><button is="button" class="page-link text-center" aria-label="Go to page 4" aria-posinset="4" aria-setsize="5" role="menuitem" type="button" tabindex="-1">4</button></li>
+            <li class="page-item" role="presentation" displayindex="5"><button is="button" class="page-link text-center" aria-label="Go to page 5" aria-posinset="5" aria-setsize="5" role="menuitem" type="button" tabindex="-1">5</button></li>
+            <li class="page-item" role="presentation" displayindex="6"><button is="button" class="page-link text-center" aria-label="Go to next page" role="menuitem" type="button" tabindex="-1">›</button></li>
+          </ul>
+        </div>
+        <div class="col-md-4"> Page <input type="number" step="1" min="1" max="5" class="form-control form-control-sm d-inline-block" style="width: 4em;" aria-label="Page number"> of 5</div>
+      </div>
+    </div>
+  </div>
+  <div id="footer-content">
+    <hr>
+    <footer>
+      <p> © 2026 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a href="https://github.com/music4dance/music4dance" target="_blank">Code</a> - <a>Help</a></p>
+    </footer>
+  </div>
+</div>"
+`;
+
+exports[`activity-log page > renders the single-page view snapshot 1`] = `
+"<div><span context="[object Object]">MainMenu</span>
+  <!--v-if-->
+  <!--v-if-->
+  <div id="body-content" class="container-fluid body-content">
+    <h1>Activity Log</h1>
+    <div>
+      <!-- Activity log table -->
+      <table id="activity-log-table" class="table b-table table-striped table-songs col-sm" aria-busy="false">
+        <!---->
+        <thead class="">
+          <tr class="">
+            <th scope="col" class="">Id</th>
+            <th scope="col" class="">Date</th>
+            <th scope="col" class="">User Name</th>
+            <th scope="col" class="">Action</th>
+            <th scope="col" class="">Details</th>
+          </tr>
+          <!---->
+        </thead>
+        <tbody class="">
+          <!---->
+          <tr class="">
+            <td class="">
+              <!---->5001
+            </td>
+            <td class="">
+              <!---->11/20/2024, 2:30 PM
+            </td>
+            <td class="">
+              <!----><span>alice</span>
+            </td>
+            <td class="">
+              <!---->Login
+            </td>
+            <td class="">
+              <!---->Logged in via Spotify
+            </td>
+          </tr>
+          <!---->
+          <!---->
+        </tbody>
+        <!---->
+        <!---->
+      </table><!-- Pagination -->
+      <!--v-if-->
+    </div>
+  </div>
+  <div id="footer-content">
+    <hr>
+    <footer>
+      <p> © 2026 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a href="https://github.com/music4dance/music4dance" target="_blank">Code</a> - <a>Help</a></p>
+    </footer>
+  </div>
+</div>"
+`;

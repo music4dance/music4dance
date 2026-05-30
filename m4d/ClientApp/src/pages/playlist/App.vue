@@ -41,6 +41,8 @@ function playListTypeName(type: number): string {
   return "Unknown";
 }
 
+const pageTitle = computed(() => `${playListTypeName(model.type)} Playlists`);
+
 // --- Computed ---
 const allPlaylists = computed(() => model.playLists ?? []);
 
@@ -128,9 +130,7 @@ function rowClass(item: PlayListSummary): string {
 </script>
 
 <template>
-  <div class="container-fluid">
-    <h2>{{ playListTypeName(model.type) }} Playlists</h2>
-
+  <PageFrame id="app" :title="pageTitle">
     <!-- User filter banner -->
     <div v-if="userFilter" class="alert alert-info d-flex align-items-center gap-2 py-2">
       <span
@@ -304,5 +304,5 @@ function rowClass(item: PlayListSummary): string {
         </template>
       </template>
     </BTable>
-  </div>
+  </PageFrame>
 </template>
