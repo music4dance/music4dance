@@ -39,11 +39,13 @@ public class UsersController(
 
         var userName = user.UserName;
         var isAuthenticated = User.Identity?.IsAuthenticated == true;
-        // For anonymous (private) users always expose the GUID, not the real username,
+        // For private users (Privacy == 0): always expose the GUID, not the real username,
         // even if the profile was looked up by username.
-        // For public users, always use the canonical username so a GUID URL param
-        // doesn't make the client treat a public user as anonymous.
-        var profileUserName = user.Privacy == 0 && !user.IsPseudo ? user.Id : user.UserName;
+        // For public users: only show the real username to authenticated members.
+        // Unauthenticated visitors always see the GUID, matching the privacy promise on the
+        // registration page ("visible to other members when they are signed in").
+        // Pseudo users (service accounts like Spotify, Tempo Bot) pass through unchanged.
+        var profileUserName = (user.Privacy == 0 || !isAuthenticated) && !user.IsPseudo ? user.Id : user.UserName;
 
         // Unauthenticated visitors bypass the cache to prevent leaking cached counts.
         if (!isAuthenticated || !s_userCache.TryGetValue(id, out var profile))
