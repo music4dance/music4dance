@@ -122,8 +122,8 @@ function undeleteUrl(id: string): string {
   return "/PlayList/Undelete/" + id + (u ? "?user=" + encodeURIComponent(u) : "");
 }
 
-function rowClass(item: PlayListSummary): string {
-  return item.deleted ? "table-danger" : "";
+function rowClass(item: PlayListSummary | null): string {
+  return item?.deleted ? "table-danger" : "";
 }
 </script>
 
