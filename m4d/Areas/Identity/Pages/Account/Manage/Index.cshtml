@@ -53,11 +53,14 @@ var canExport = User.IsInRole(DanceMusicCoreService.DiagRole) || User.IsInRole(D
                 </p> }
                         else
                         {
-            <p>
-                    Please consider sharing your profile. This information is only shared with other members of the
-                    music4dance community and the only information that we currently share is your username
-                    in the context of <a asp-controller="Users" asp-action="Info" asp-route-id="@Model.UserName">your song lists</a> and in the song details where we show the
-                    changes that each user makes to a song. If we gather additional information in the future we will
+                <p>
+                    Please consider sharing your profile. This information is only visible to other members of the
+                    music4dance community when logged into the site. The only information that we currently share is your
+                    username in the context of <a asp-controller="Users" asp-action="Info" asp-route-id="@Model.UserName">
+                    your song lists</a> and in the song details where we show the changes that each user makes to a song.
+                </p>
+                <p>
+                    If we gather additional information in the future we will
                     opt you out by default. In addition, if you would like to change your user name to something
                     else, please <a href='https://music4dance.blog/feedback/'>contact us</a> with your preferred user
                     name and we'll make the change.
