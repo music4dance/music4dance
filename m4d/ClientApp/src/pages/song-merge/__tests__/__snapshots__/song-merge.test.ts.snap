@@ -231,7 +231,7 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
       <!---->
       <div class="text-primary card-header">Albums</div>
       <div class="list-group list-group-flush">
-        <div class="list-group-item"><button type="button" class="btn-close me-2" aria-label="Close" size="sm" text-variant="danger"></button><a href="/song/album?title=Albertine">Albertine</a><span> (Track 1)</span><span class="mx-2"><a href="https://www.amazon.com/s?i=digital-music&amp;k=&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a><a href="https://open.spotify.com/track/0DD55tCwxn8CF5DkY1cjwg" target="blank"><img src="/images/icons/Spotify-logo.png" width="32" height="32" alt="Find it on Spotify"></a></span></div>
+        <div class="list-group-item"><button type="button" class="btn-close me-2" aria-label="Close" size="sm" text-variant="danger"></button><a href="/song/album?title=Albertine">Albertine</a><span> (Track 1)</span><span class="mx-2"><a href="https://www.amazon.com/dp/B0019AZNMU?tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a><a href="https://open.spotify.com/track/0DD55tCwxn8CF5DkY1cjwg" target="blank"><img src="/images/icons/Spotify-logo.png" width="32" height="32" alt="Find it on Spotify"></a></span></div>
       </div>
       <!---->
       <!---->

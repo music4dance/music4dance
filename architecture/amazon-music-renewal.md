@@ -238,7 +238,7 @@ The server can infer the user's country from their IP address and either return 
 
 **Verdict:** Most accurate, but adds complexity. Only worth pursuing if OneLink proves insufficient or if we need to display country-specific data beyond just the Amazon domain.
 
-### D: User preference (profile setting)
+### E: User preference (profile setting)
 
 Allow users to select their preferred Amazon marketplace in their account profile. This is accurate and requires no geolocation, but most users won't set it.
 
@@ -268,12 +268,12 @@ For pure Option 1, the getter always returns a search URL regardless of whether 
 
 ```typescript
 public get link(): string {
-  const q = encodeURIComponent(`${this.artist} ${this.name}`);
+  const q = encodeURIComponent(`${this.artist ?? ""} ${this.songTitle ?? ""}`.trim());
   return `https://www.amazon.com/s?i=digital-music&k=${q}&tag=msc4dnc-20`;
 }
 ```
 
-`PurchaseInfo` does not currently carry `artist`/`name` fields. Options:
+`PurchaseInfo` does not currently carry `artist`/`songTitle` fields. Options:
 
 - Add `artist` / `name` to `PurchaseInfo` (populated from `SongHistory` when building the purchase list)
 - Or construct the search link in the component that renders the purchase button, passing title/artist as props
@@ -283,10 +283,10 @@ public get link(): string {
 
 ```typescript
 public get link(): string {
-  if (this.cleanSong) {
+  if (this.songId) {
     return `https://www.amazon.com/dp/${this.cleanSong}?tag=msc4dnc-20`;
   }
-  const q = encodeURIComponent(`${this.artist} ${this.name}`);
+  const q = encodeURIComponent(`${this.artist ?? ""} ${this.songTitle ?? ""}`.trim());
   return `https://www.amazon.com/s?i=digital-music&k=${q}&tag=msc4dnc-20`;
 }
 ```

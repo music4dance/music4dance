@@ -414,4 +414,25 @@ describe("Song", () => {
       expect(purchases.find((p) => p.service === ServiceType.Spotify)).toBeUndefined();
     });
   });
+
+  describe("AmazonPurchaseInfo.link fallback (PurchaseEncoded.decode() path)", () => {
+    it("falls back to ASIN direct link when artist and songTitle are not set but songId is present", () => {
+      const info = new AmazonPurchaseInfo({ songId: "D:B00ABCDE12" });
+      expect(info.link).toBe("https://www.amazon.com/dp/B00ABCDE12?tag=msc4dnc-20");
+    });
+
+    it("falls back to generic Amazon music search when neither title/artist nor songId is present", () => {
+      const info = new AmazonPurchaseInfo({});
+      expect(info.link).toBe("https://www.amazon.com/s?i=digital-music&tag=msc4dnc-20");
+    });
+
+    it("prefers title+artist search over ASIN when both are available", () => {
+      const info = new AmazonPurchaseInfo({ songId: "D:B00ABCDE12" });
+      info.artist = "The Beatles";
+      info.songTitle = "Let It Be";
+      expect(info.link).toContain("amazon.com/s");
+      expect(info.link).toContain(encodeURIComponent("The Beatles Let It Be"));
+      expect(info.link).not.toContain("/dp/");
+    });
+  });
 });

@@ -110,7 +110,15 @@ export class AmazonPurchaseInfo extends PurchaseInfo {
 
   public get link(): string {
     const q = encodeURIComponent(`${this.artist ?? ""} ${this.songTitle ?? ""}`.trim());
-    return `https://www.amazon.com/s?i=digital-music&k=${q}&tag=msc4dnc-20`;
+    if (q) {
+      return `https://www.amazon.com/s?i=digital-music&k=${q}&tag=msc4dnc-20`;
+    }
+    // Fallback: if artist/songTitle were not populated (e.g. via PurchaseEncoded.decode()),
+    // use the stored ASIN as a direct product link rather than generating an empty search.
+    if (this.songId) {
+      return `https://www.amazon.com/dp/${this.cleanSong}?tag=msc4dnc-20`;
+    }
+    return `https://www.amazon.com/s?i=digital-music&tag=msc4dnc-20`;
   }
 
   public get name(): string {
