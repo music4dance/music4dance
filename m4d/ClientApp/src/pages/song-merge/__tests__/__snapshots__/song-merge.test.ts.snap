@@ -28,7 +28,7 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
         </div>
         <div class="row mb-2">
           <div class="col-md-4">
-            <div><span class="mx-auto my-1" style="width: 110px;"><a href="https://www.amazon.com/gp/product/B0019AZNMU/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B0019AZNMU&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank" style="margin-right: 0.25rem; margin-bottom: 0.25rem;"><img src="/images/icons/Amazon-charm.png" width="110" height="40" alt="Find it on Amazon"></a></span><span class="mx-auto my-1" style="width: 110px;"><a href="https://open.spotify.com/track/0DD55tCwxn8CF5DkY1cjwg" target="blank" style="margin-right: 0.25rem; margin-bottom: 0.25rem;"><img src="/images/icons/Spotify-charm.png" width="110" height="40" alt="Find it on Spotify"></a></span>
+            <div><span class="mx-auto my-1" style="width: 110px;"><a href="https://www.amazon.com/s?i=digital-music&amp;k=Brooke%20Fraser%20Shadow%20Feet&amp;tag=msc4dnc-20" target="blank" style="margin-right: 0.25rem; margin-bottom: 0.25rem;"><img src="/images/icons/Amazon-charm.png" width="110" height="40" alt="Find it on Amazon"></a></span><span class="mx-auto my-1" style="width: 110px;"><a href="https://open.spotify.com/track/0DD55tCwxn8CF5DkY1cjwg" target="blank" style="margin-right: 0.25rem; margin-bottom: 0.25rem;"><img src="/images/icons/Spotify-charm.png" width="110" height="40" alt="Find it on Spotify"></a></span>
               <div class="my-2">
                 <div class="d-inline-block">
                   <!-- Show requirements button if user doesn't meet requirements -->
@@ -231,7 +231,7 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
       <!---->
       <div class="text-primary card-header">Albums</div>
       <div class="list-group list-group-flush">
-        <div class="list-group-item"><button type="button" class="btn-close me-2" aria-label="Close" size="sm" text-variant="danger"></button><a href="/song/album?title=Albertine">Albertine</a><span> (Track 1)</span><span class="mx-2"><a href="https://www.amazon.com/gp/product/B0019AZNMU/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B0019AZNMU&amp;linkCode=as2&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a><a href="https://open.spotify.com/track/0DD55tCwxn8CF5DkY1cjwg" target="blank"><img src="/images/icons/Spotify-logo.png" width="32" height="32" alt="Find it on Spotify"></a></span></div>
+        <div class="list-group-item"><button type="button" class="btn-close me-2" aria-label="Close" size="sm" text-variant="danger"></button><a href="/song/album?title=Albertine">Albertine</a><span> (Track 1)</span><span class="mx-2"><a href="https://www.amazon.com/s?i=digital-music&amp;k=&amp;tag=msc4dnc-20" target="blank"><img src="/images/icons/Amazon-logo.png" width="32" height="32" alt="Find it on Amazon"></a><a href="https://open.spotify.com/track/0DD55tCwxn8CF5DkY1cjwg" target="blank"><img src="/images/icons/Spotify-logo.png" width="32" height="32" alt="Find it on Spotify"></a></span></div>
       </div>
       <!---->
       <!---->

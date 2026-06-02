@@ -6,7 +6,7 @@ import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { AlbumDetails } from "./AlbumDetails";
 import { DanceRating } from "./DanceRating";
 import { ModifiedRecord } from "./ModifiedRecord";
-import { PurchaseInfo, ServiceType } from "./Purchase";
+import { AmazonPurchaseInfo, PurchaseInfo, ServiceType } from "./Purchase";
 import { SongHistory } from "./SongHistory";
 import { PropertyType, SongProperty } from "./SongProperty";
 import { Tag } from "./Tag";
@@ -155,12 +155,21 @@ export class Song extends TaggableObject {
   }
 
   public getPurchaseInfos(): PurchaseInfo[] {
-    const ret = [];
+    const ret: PurchaseInfo[] = [];
 
     for (const service of enumKeys(ServiceType)) {
-      const purchase = this.getPurchaseInfo(ServiceType[service]);
-      if (purchase) {
-        ret.push(purchase);
+      const serviceType = ServiceType[service];
+      if (serviceType === ServiceType.Amazon) {
+        // Always include Amazon as a search link regardless of stored ASIN (Option 1)
+        const info = new AmazonPurchaseInfo({});
+        info.artist = this.artist;
+        info.songTitle = this.title;
+        ret.push(info);
+      } else {
+        const purchase = this.getPurchaseInfo(serviceType);
+        if (purchase) {
+          ret.push(purchase);
+        }
       }
     }
 

@@ -487,7 +487,6 @@ function onReset(evt: Event): void {
           label-for="services"
         >
           <BFormCheckboxGroup id="services" v-model="services">
-            <BFormCheckbox value="A">Amazon</BFormCheckbox>
             <BFormCheckbox value="I">ITunes</BFormCheckbox>
             <BFormCheckbox value="S">Spotify</BFormCheckbox>
           </BFormCheckboxGroup>

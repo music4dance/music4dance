@@ -322,5 +322,5 @@ Deferred. If users need to input Amazon URLs manually, a regex for `amazon.com/d
 | `m4d/ClientApp/src/models/Purchase.ts`                 | `AmazonPurchaseInfo.link` — always return search URL using title/artist; include affiliate tag                     |
 | `m4d/ClientApp/src/…` (filter/purchase components)     | Pass title/artist to `AmazonPurchaseInfo`, or construct search link in the component                               |
 | `m4d/ClientApp/src/…` (filter UI)                      | Remove Amazon from the service filter                                                                              |
-| `m4d/Views/Shared/_Layout.cshtml` (or `PageFrame.vue`) | Add OneLink `<script>` tag **only if needed** — verify server-side routing first (see §4 of implementation plan)  |
+| `m4d/Views/Shared/_Layout.cshtml` (or `PageFrame.vue`) | Add OneLink `<script>` tag **only if needed** — verify server-side routing first (see §4 of implementation plan)   |
 | Amazon Associates account (external)                   | **Done** — OneLink configured for US, CA, FR, DE, IT, NL, PL, ES, SE, GB; add AU/JP accounts if those markets grow |
