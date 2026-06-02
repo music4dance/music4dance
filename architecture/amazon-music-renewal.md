@@ -254,7 +254,7 @@ Allow users to select their preferred Amazon marketplace in their account profil
 | Server-side IP geo             | High                     | Best     | Requires per-country account |
 | User preference                | Medium                   | Exact    | Requires per-country account |
 
-**Recommended:** OneLink is now configured for US, Canada, France, Germany, Italy, Netherlands, Poland, Spain, Sweden, and United Kingdom — covering the major English- and Western-European-language markets for ballroom content. Amazon may route visitors server-side with no further code change; verify with a UK VPN test before assuming a JS snippet is needed (see §4 of the implementation plan).
+**Recommended and implemented:** OneLink is configured for US, Canada, France, Germany, Italy, Netherlands, Poland, Spain, Sweden, and United Kingdom — covering the major English- and Western-European-language markets for ballroom content. Amazon routes visitors server-side based on their affiliate tag and locale; no JS snippet is required on the site. Verify by clicking an Amazon link through a UK VPN exit node and confirming it lands on amazon.co.uk.
 
 ---
 
@@ -301,13 +301,9 @@ With all songs now showing a search link, the filter no longer has a meaningful 
 
 Existing Amazon ASINs are kept in the database. No migration, no column removal. They serve as a breadcrumb for Option 4 and may be useful if ASINs are ever re-verified via PA-API.
 
-### 4. Verify Amazon OneLink routing (and add script if needed)
+### 4. Verify Amazon OneLink routing
 
-OneLink is enrolled for 10 countries. Amazon may be routing visitors server-side with no code change required.
-
-**Verify first:** Click one of your own Amazon links through a VPN exit node in the UK (or ask a UK user to test). If the link lands on amazon.co.uk, routing is active and no code change is needed.
-
-**If a JS snippet is required:** Retrieve it from Associates Central → Tools → OneLink (or the global store page under a "Script" / "Get Code" section) and add it to `_Layout.cshtml` as a single `<script>` tag.
+OneLink is enrolled for 10 countries. Amazon handles redirection server-side based on the affiliate tag and visitor locale — **no JS snippet is needed**. To confirm routing is active, click an Amazon link through a UK VPN exit node and verify it lands on amazon.co.uk.
 
 ### 5. Update `ServiceMatcher` (optional future work)
 
@@ -315,12 +311,27 @@ Deferred. If users need to input Amazon URLs manually, a regex for `amazon.com/d
 
 ---
 
-## Files to Change
+## Files Changed
 
-| File                                                   | Change                                                                                                             |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `m4d/ClientApp/src/models/Purchase.ts`                 | `AmazonPurchaseInfo.link` — always return search URL using title/artist; include affiliate tag                     |
-| `m4d/ClientApp/src/…` (filter/purchase components)     | Pass title/artist to `AmazonPurchaseInfo`, or construct search link in the component                               |
-| `m4d/ClientApp/src/…` (filter UI)                      | Remove Amazon from the service filter                                                                              |
-| `m4d/Views/Shared/_Layout.cshtml` (or `PageFrame.vue`) | Add OneLink `<script>` tag **only if needed** — verify server-side routing first (see §4 of implementation plan)   |
-| Amazon Associates account (external)                   | **Done** — OneLink configured for US, CA, FR, DE, IT, NL, PL, ES, SE, GB; add AU/JP accounts if those markets grow |
+| File                                              | Change                                                                                                                                               |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `m4d/ClientApp/src/models/Purchase.ts`            | `AmazonPurchaseInfo`: added `artist` and `songTitle` fields; `link` getter now always returns a search URL                                           |
+| `m4d/ClientApp/src/models/Song.ts`                | `getPurchaseInfos()` always creates an `AmazonPurchaseInfo` populated with `artist`/`title`, even with no stored ASIN                                |
+| `m4d/ClientApp/src/pages/advanced-search/App.vue` | Removed `<BFormCheckbox value="A">Amazon</BFormCheckbox>` from the "Available on:" service filter group                                              |
+| `m4d/ClientApp/src/models/__tests__/Song.test.ts` | Added four tests for the new `getPurchaseInfos` behavior (always present, search URL shape, no ASIN product link, other services absent without IDs) |
+| Amazon Associates account (external)              | **Done** — OneLink configured for US, CA, FR, DE, IT, NL, PL, ES, SE, GB; add AU/JP accounts if those markets grow                                   |
+| `m4d/Views/Shared/_Layout.cshtml`                 | **No change needed** — Amazon uses server-side OneLink routing; no JS snippet required                                                               |
+
+---
+
+## Published-Filter Behavior (Confirmed)
+
+The default search filter for all song listings applies `Purchase/any()` as an Azure Search OData filter (via `SongIndex.AddCruftInfo` with `CruftFilter.NoCruft`). This requires a song to have at least one entry in the Azure Search `Purchase` collection to appear in default results.
+
+The `Purchase` collection is populated from **stored purchase IDs in the database** — Amazon ASINs, iTunes IDs, and Spotify track IDs. Because we retained all existing Amazon ASINs in the database unchanged, songs that previously had ASINs still have an entry in the `Purchase` collection and continue to pass the default filter. Songs that were never associated with any service (no ASIN, no iTunes ID, no Spotify ID) are still excluded from default searches.
+
+**The published-filter behavior is unchanged.** The only user-visible differences are:
+
+- Every song now shows an Amazon search link (including songs that previously had no purchase link at all)
+- The Amazon link always goes to a search results page for the song's artist + title
+- The "Available on Amazon" checkbox is no longer shown in the advanced search filter

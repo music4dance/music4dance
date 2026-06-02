@@ -23,14 +23,14 @@ music4dance integrates with three external music services (Spotify, iTunes/Apple
 
 ### Registered Services
 
-| Service                    | CID | Searchable | Notes                                                |
-| -------------------------- | --- | ---------- | ---------------------------------------------------- |
-| Amazon                     | `A` | No         | Link-only, no search URL                             |
-| iTunes                     | `I` | Yes        | REST search + track lookup                           |
-| Spotify                    | `S` | Yes        | REST search, track lookup, playlists, audio features |
-| EMusic                     | `E` | No         | Stub, historical                                     |
-| Pandora                    | `P` | No         | Stub, historical                                     |
-| AMG (American Music Group) | `M` | No         | Hidden stub                                          |
+| Service                    | CID | Searchable | Notes                                                            |
+| -------------------------- | --- | ---------- | ---------------------------------------------------------------- |
+| Amazon                     | `A` | No         | Search links only; always shown per song; filter removed from UI |
+| iTunes                     | `I` | Yes        | REST search + track lookup                                       |
+| Spotify                    | `S` | Yes        | REST search, track lookup, playlists, audio features             |
+| EMusic                     | `E` | No         | Stub, historical                                                 |
+| Pandora                    | `P` | No         | Stub, historical                                                 |
+| AMG (American Music Group) | `M` | No         | Hidden stub                                                      |
 
 Services are registered at static-class initialization time and looked up by either `ServiceType` enum or `CID` character.
 
@@ -89,20 +89,22 @@ Services are registered at static-class initialization time and looked up by eit
 
 ### Amazon Music (`m4dModels/AmazonService.cs`)
 
-- **Links:** `http://www.amazon.com/gp/product/{ASIN}?…&tag=msc4dnc-20` (affiliate link)
-- **Search:** None — `IsSearchable = false`, no search URL
+- **Links:** `https://www.amazon.com/s?i=digital-music&k={artist}+{title}&tag=msc4dnc-20` (affiliate search link — see below)
+- **Search:** None — `IsSearchable = false`
 - **Track lookup:** None — `GetMusicServiceTrack` explicitly skips Amazon (`if (service.Id != ServiceType.Amazon)`)
 - **Auth:** None currently used
 
-**ID format:**
-Amazon IDs use a namespaced prefix:
+**Link strategy:** Rather than direct ASIN product links (which go stale as labels reprice or re-release recordings), every song is linked to an Amazon digital music search for its artist + title. This gives users a live, always-working link to Amazon's current catalogue at the cost of landing on a search results page rather than a specific product. The affiliate tag `msc4dnc-20` is included in all links.
+
+**ID format (retained, unused):**
+Existing Amazon IDs remain stored in the database using a namespaced prefix:
 
 - `D:ASIN` — digital track (MP3 store)
 - `A:ASIN` — physical album
 
-`NormalizeId` adds `D:` if no prefix is present. `Strip` removes the prefix before embedding in URLs or affiliate links. On the client side (`Purchase.ts`), `AmazonPurchaseInfo.cleanId` strips `D:` or `A:` before constructing the link URL.
+`NormalizeId` adds `D:` if no prefix is present. `Strip` removes the prefix. On the client side (`Purchase.ts`), `AmazonPurchaseInfo.cleanSong`/`cleanAlbum` strip the prefix — retained for a potential future switch to direct ASIN links without a DB migration.
 
-**Current state:** Link-only. No automated lookup or enrichment. Existing ASINs in the database may be stale.
+**Current state:** Search-link-only. No automated lookup or enrichment. Existing ASINs are retained in the database but not used in link generation. The "Available on Amazon" filter has been removed from the search UI (see Purchase Filtering below).
 
 ---
 
@@ -150,13 +152,17 @@ The `Song.GetPurchaseIds(service)` method returns all IDs for a given service ac
 
 ## Purchase Filtering
 
-`SongFilter.Purchase` is a string of CID characters (e.g., `"S"` = Spotify only, `"AS"` = Amazon or Spotify). A leading `!` negates the filter. This is translated to an OData expression for Azure Search:
+`SongFilter.Purchase` is a string of CID characters (e.g., `"S"` = Spotify only, `"IS"` = iTunes or Spotify). A leading `!` negates the filter. This is translated to an OData expression for Azure Search:
 
 ```
-Purchase/any(t: t eq 'Spotify') or Purchase/any(t: t eq 'Amazon')
+Purchase/any(t: t eq 'Spotify') or Purchase/any(t: t eq 'ITunes')
 ```
 
 The `Purchase` index field in Azure Search is a `Collection(Edm.String)` storing service names. This is how the "Available on X" filter in the song browser works.
+
+**Amazon filter removed from UI:** The "Available on Amazon" checkbox has been removed from the advanced search form (`advanced-search/App.vue`). Because every song now shows an Amazon search link regardless of whether an ASIN is stored, filtering by Amazon presence is no longer meaningful. The OData mechanism still supports `'Amazon'` in the filter string for backward compatibility (existing saved searches that encoded `A` will not break), but the filter is not offered in the UI.
+
+**Default "published" filter:** All default searches prepend `Purchase/any()` to the OData filter (via `SongIndex.AddCruftInfo` with `CruftFilter.NoCruft`). This requires a song to have at least one entry in the Azure Search `Purchase` collection — i.e., to be linked to at least one service (Amazon, iTunes, or Spotify). Because existing Amazon ASINs were retained in the database, songs that previously had ASINs still pass this filter. Songs that were never associated with any purchase ID remain excluded from default searches, preserving the pre-change behavior.
 
 ---
 
@@ -177,9 +183,13 @@ The `Purchase` index field in Azure Search is a `Collection(Edm.String)` storing
 
 - `SpotifyPurchaseInfo.link` → `https://open.spotify.com/track/{songId}`
 - `ItunesPurchaseInfo.link` → `https://itunes.apple.com/album/id{albumId}?i={songId}&uo=4&at=11lwtf`
-- `AmazonPurchaseInfo.link` → `https://www.amazon.com/gp/product/{cleanSong}?…&tag=msc4dnc-20` (strips `D:`/`A:` prefix)
+- `AmazonPurchaseInfo.link` → `https://www.amazon.com/s?i=digital-music&k={artist}+{title}&tag=msc4dnc-20`
+  - `artist` and `songTitle` are set by `Song.getPurchaseInfos()` after construction (not serialized)
+  - `cleanSong`/`cleanAlbum`/`cleanId` are retained for a potential future Option 4 direct-link switch
 
 `PurchaseEncoded` is the serialized form transferred from backend to frontend (two-char keys `aa`, `as`, `ia`, `is`, `sa`, `ss`).
+
+**`Song.getPurchaseInfos()`** always includes an `AmazonPurchaseInfo` entry, even for songs with no stored ASIN. For iTunes and Spotify, an entry is only included if a matching ID is present in the song's albums. This means the Amazon search link appears on every song page regardless of whether the song has ever been associated with Amazon.
 
 ---
 
