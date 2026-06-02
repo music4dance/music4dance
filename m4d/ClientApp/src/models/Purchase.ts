@@ -99,18 +99,33 @@ export class ItunesPurchaseInfo extends PurchaseInfo {
 
 @jsonObject
 export class AmazonPurchaseInfo extends PurchaseInfo {
+  /** Song title — set by Song.getPurchaseInfos() after construction; not serialized. */
+  public songTitle?: string;
+  /** Artist name — set by Song.getPurchaseInfos() after construction; not serialized. */
+  public artist?: string;
+
   public get service(): ServiceType {
     return ServiceType.Amazon;
   }
 
   public get link(): string {
-    return `https://www.amazon.com/gp/product/${this.cleanSong}/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN=${this.cleanSong}&linkCode=as2&tag=msc4dnc-20`;
+    const q = encodeURIComponent(`${this.artist ?? ""} ${this.songTitle ?? ""}`.trim());
+    if (q) {
+      return `https://www.amazon.com/s?i=digital-music&k=${q}&tag=msc4dnc-20`;
+    }
+    // Fallback: if artist/songTitle were not populated (e.g. via PurchaseEncoded.decode()),
+    // use the stored ASIN as a direct product link rather than generating an empty search.
+    if (this.songId) {
+      return `https://www.amazon.com/dp/${this.cleanSong}?tag=msc4dnc-20`;
+    }
+    return `https://www.amazon.com/s?i=digital-music&tag=msc4dnc-20`;
   }
 
   public get name(): string {
     return "Amazon";
   }
 
+  // cleanSong / cleanAlbum retained for potential future use (Option 4 direct-link fallback)
   public get cleanAlbum(): string {
     return this.cleanId(this.albumId);
   }

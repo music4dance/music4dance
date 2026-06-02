@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { Song } from "../Song";
 import { SongHistory } from "../SongHistory";
 import { PropertyType, SongProperty } from "../SongProperty";
+import { AmazonPurchaseInfo, ServiceType } from "../Purchase";
 
 describe("Song", () => {
   describe("isUserModified", () => {
@@ -363,6 +364,75 @@ describe("Song", () => {
         ]),
       );
       expect(song.findDanceRatingById("FXT")?.weight).toBe(5);
+    });
+  });
+
+  describe("getPurchaseInfos", () => {
+    function makeSong(title: string, artist: string): Song {
+      return Song.fromHistory(
+        new SongHistory({
+          id: "test-id",
+          properties: [
+            new SongProperty({ name: ".Create", value: "" }),
+            new SongProperty({ name: "User", value: "alice" }),
+            new SongProperty({ name: "Time", value: "2024-01-01T00:00:00.000Z" }),
+            new SongProperty({ name: "Title", value: title }),
+            new SongProperty({ name: "Artist", value: artist }),
+          ],
+        }),
+      );
+    }
+
+    it("always includes Amazon even when no ASIN is stored", () => {
+      const song = makeSong("Test Song", "Test Artist");
+      const purchases = song.getPurchaseInfos();
+      const amazon = purchases.find((p) => p.service === ServiceType.Amazon);
+      expect(amazon).toBeDefined();
+    });
+
+    it("Amazon link uses title and artist as search query", () => {
+      const song = makeSong("Smooth Criminal", "Michael Jackson");
+      const purchases = song.getPurchaseInfos();
+      const amazon = purchases.find((p) => p.service === ServiceType.Amazon) as AmazonPurchaseInfo;
+      expect(amazon).toBeDefined();
+      expect(amazon.link).toContain("amazon.com/s");
+      expect(amazon.link).toContain(encodeURIComponent("Michael Jackson Smooth Criminal"));
+      expect(amazon.link).toContain("tag=msc4dnc-20");
+    });
+
+    it("Amazon link includes only the search path (not an ASIN product link)", () => {
+      const song = makeSong("Any Song", "Any Artist");
+      const purchases = song.getPurchaseInfos();
+      const amazon = purchases.find((p) => p.service === ServiceType.Amazon) as AmazonPurchaseInfo;
+      expect(amazon.link).not.toContain("/gp/product/");
+    });
+
+    it("does not include ITunes or Spotify when no IDs are stored", () => {
+      const song = makeSong("Test Song", "Test Artist");
+      const purchases = song.getPurchaseInfos();
+      expect(purchases.find((p) => p.service === ServiceType.ITunes)).toBeUndefined();
+      expect(purchases.find((p) => p.service === ServiceType.Spotify)).toBeUndefined();
+    });
+  });
+
+  describe("AmazonPurchaseInfo.link fallback (PurchaseEncoded.decode() path)", () => {
+    it("falls back to ASIN direct link when artist and songTitle are not set but songId is present", () => {
+      const info = new AmazonPurchaseInfo({ songId: "D:B00ABCDE12" });
+      expect(info.link).toBe("https://www.amazon.com/dp/B00ABCDE12?tag=msc4dnc-20");
+    });
+
+    it("falls back to generic Amazon music search when neither title/artist nor songId is present", () => {
+      const info = new AmazonPurchaseInfo({});
+      expect(info.link).toBe("https://www.amazon.com/s?i=digital-music&tag=msc4dnc-20");
+    });
+
+    it("prefers title+artist search over ASIN when both are available", () => {
+      const info = new AmazonPurchaseInfo({ songId: "D:B00ABCDE12" });
+      info.artist = "The Beatles";
+      info.songTitle = "Let It Be";
+      expect(info.link).toContain("amazon.com/s");
+      expect(info.link).toContain(encodeURIComponent("The Beatles Let It Be"));
+      expect(info.link).not.toContain("/dp/");
     });
   });
 });
