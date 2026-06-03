@@ -33,11 +33,8 @@ public class DatabaseRecoveryService
     // Semaphore ensures at most one recovery attempt runs at a time.
     private readonly SemaphoreSlim _retryLock = new(1, 1);
 
-    // Best-effort throttle: set before the attempt starts so concurrent callers
-    // see the updated time immediately; the semaphore protects actual execution.
-    private volatile int _lastRetryTicks = 0; // Interlocked-safe DateTime.UtcNow.Ticks truncated to int32 range
-
-    // Store full ticks as long for accuracy
+    // Throttle: last attempt start time in UTC ticks (updated before Task.Run so
+    // concurrent callers see the updated value immediately and don't queue extra tasks).
     private long _lastRetryUtcTicks = 0;
 
     public DatabaseRecoveryService(
@@ -76,10 +73,14 @@ public class DatabaseRecoveryService
         if (string.IsNullOrEmpty(connectionString))
             return;
 
-        // Throttle check (non-atomic read is intentional – best-effort only)
-        var elapsed = TimeSpan.FromTicks(DateTime.UtcNow.Ticks - Interlocked.Read(ref _lastRetryUtcTicks));
+        // Throttle check – update the timestamp here (before Task.Run) so that
+        // concurrent requests racing through TriggerRecoveryIfNeeded all see the
+        // updated value and don't each queue a separate Task.Run work item.
+        var now = DateTime.UtcNow.Ticks;
+        var elapsed = TimeSpan.FromTicks(now - Interlocked.Read(ref _lastRetryUtcTicks));
         if (elapsed < _retryInterval)
             return;
+        Interlocked.Exchange(ref _lastRetryUtcTicks, now);
 
         // Fire-and-forget: never blocks the user request
         _ = Task.Run(async () =>
@@ -110,9 +111,8 @@ public class DatabaseRecoveryService
 
         try
         {
-            // Update the throttle timestamp now (inside the lock) so that the
-            // next TriggerRecoveryIfNeeded call sees an up-to-date value whether
-            // or not this attempt succeeds.
+            // Refresh the throttle timestamp inside the lock so the interval
+            // is measured from when the attempt actually ran, not when it was queued.
             Interlocked.Exchange(ref _lastRetryUtcTicks, DateTime.UtcNow.Ticks);
 
             _logger.LogInformation("Database recovery: attempting reconnection...");

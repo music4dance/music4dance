@@ -38,6 +38,16 @@ public class DanceMusicController(
 
     private MusicServiceManager _musicServiceManager;
 
+    // Walk the full exception chain so EF-wrapped SqlException/Win32Exception
+    // at any nesting depth are caught and treated as a DB connectivity failure.
+    private static bool ContainsDatabaseException(Exception ex)
+    {
+        for (var e = ex; e != null; e = e.InnerException)
+            if (e is Microsoft.Data.SqlClient.SqlException || e is System.ComponentModel.Win32Exception)
+                return true;
+        return false;
+    }
+
     public override async Task OnActionExecutionAsync(
         ActionExecutingContext context, ActionExecutionDelegate next)
     {
@@ -47,10 +57,7 @@ public class DanceMusicController(
         {
             userMetadata = await UserMetadata.Create(UserName, UserManager);
         }
-        catch (Exception ex) when (ex is Microsoft.Data.SqlClient.SqlException ||
-                                   ex is System.ComponentModel.Win32Exception ||
-                                   (ex.InnerException is Microsoft.Data.SqlClient.SqlException) ||
-                                   (ex.InnerException is System.ComponentModel.Win32Exception))
+        catch (Exception ex) when (ContainsDatabaseException(ex))
         {
             ServiceHealth?.MarkUnavailable("Database", $"{ex.GetType().Name}: {ex.Message}");
             userMetadata = UserMetadata.Anonymous;
