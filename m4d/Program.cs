@@ -368,8 +368,17 @@ else
 {
     try
     {
-        services.AddDbContext<DanceMusicContext>(options =>
-            options.UseSqlServer(connectionString, sqlOptions =>
+        services.AddDbContext<DanceMusicContext>((sp, options) =>
+        {
+            // Re-read the connection string from IConfiguration on every context
+            // resolution so that mid-run appsettings changes (e.g. the database
+            // recovery scenario where the connection string is updated while the
+            // app is running) are picked up by new scoped contexts automatically.
+            var cfg = sp.GetRequiredService<IConfiguration>();
+            var liveConnStr = cfg["AZURE_SQL_CONNECTIONSTRING"]
+                ?? cfg.GetConnectionString("DanceMusicContextConnection")
+                ?? connectionString;
+            options.UseSqlServer(liveConnStr, sqlOptions =>
             {
                 sqlOptions.EnableRetryOnFailure(
                     maxRetryCount: 5,
@@ -378,7 +387,8 @@ else
                 // Set command timeout to 60 seconds to handle Azure SQL cold starts
                 // Default is 30s which can timeout when database is warming up
                 sqlOptions.CommandTimeout(60);
-            }));
+            });
+        });
         // Note: Database health is marked healthy after migrations run synchronously
         // later in startup (or after the first successful FixupStats DB access).
         // It is intentionally not marked healthy here at registration time.
@@ -563,6 +573,8 @@ services.AddAutoMapper(
 
 services.AddViteServices();
 
+services.AddSingleton<DatabaseRecoveryService>();
+
 services.AddHostedService<DanceStatsHostedService>();
 services.AddHostedService<StartupInitializationService>();
 
@@ -731,6 +743,16 @@ else
 
 app.UseHttpLogging();
 app.UseRouting();
+
+// Database recovery: when the DB was unavailable at startup (e.g., Azure on-demand SQL still
+// waking up), attempt a reconnection on user requests.  The attempt is fire-and-forget and
+// throttled by ServiceHealth:DatabaseRetryInterval so it never delays the caller.
+var dbRecoveryService = app.Services.GetRequiredService<DatabaseRecoveryService>();
+app.Use(async (context, next) =>
+{
+    dbRecoveryService.TriggerRecoveryIfNeeded();
+    await next();
+});
 
 // Configure forwarded headers for Azure Front Door
 // This must come before authentication to ensure RemoteIpAddress is correct

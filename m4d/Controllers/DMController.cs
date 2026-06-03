@@ -42,7 +42,19 @@ public class DanceMusicController(
         ActionExecutingContext context, ActionExecutionDelegate next)
     {
         // Create UserMetadata early (needed for both tracking modes)
-        var userMetadata = await UserMetadata.Create(UserName, UserManager);
+        UserMetadata userMetadata;
+        try
+        {
+            userMetadata = await UserMetadata.Create(UserName, UserManager);
+        }
+        catch (Exception ex) when (ex is Microsoft.Data.SqlClient.SqlException ||
+                                   ex is System.ComponentModel.Win32Exception ||
+                                   (ex.InnerException is Microsoft.Data.SqlClient.SqlException) ||
+                                   (ex.InnerException is System.ComponentModel.Win32Exception))
+        {
+            ServiceHealth?.MarkUnavailable("Database", $"{ex.GetType().Name}: {ex.Message}");
+            userMetadata = UserMetadata.Anonymous;
+        }
         ViewData["UserMetadata"] = userMetadata;
 
         // Check if client-side tracking is enabled early to avoid setting cookies

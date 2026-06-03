@@ -11,6 +11,8 @@ public class UserMetadata
         return new UserMetadata(user, roles);
     }
 
+    public static UserMetadata Anonymous => new UserMetadata(null, null);
+
     private UserMetadata(ApplicationUser user, IList<string> roles)
     {
         User = user;
