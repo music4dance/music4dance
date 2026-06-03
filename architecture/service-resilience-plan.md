@@ -13,7 +13,6 @@ Based on code analysis, the site depends on the following external services:
 ### Critical Services (Required for Core Functionality)
 
 1. **SQL Server Database** (`DanceMusicContextConnection`)
-
    - Connection string: SQL Server connection
    - Used for: User accounts, song data, playlists, dance information, voting
    - Impact if down: Cannot retrieve or store any data
@@ -22,7 +21,6 @@ Based on code analysis, the site depends on the following external services:
    - Target behavior: Application starts successfully, serves cached/static content
 
 2. **Azure App Configuration**
-
    - Endpoint: `https://music4dance.azconfig.io`
    - Used for: Feature flags, configuration refresh, Key Vault integration
    - Impact if down: Cannot load feature flags or dynamic configuration
@@ -38,14 +36,12 @@ Based on code analysis, the site depends on the following external services:
 ### Authentication Services (Optional but Important)
 
 4. **Google OAuth**
-
    - ClientId/ClientSecret required
    - Used for: User authentication via Google
    - Impact if down: Users cannot log in with Google
    - Current behavior: Login page shows option but fails on click
 
 5. **Facebook OAuth**
-
    - ClientId/ClientSecret required
    - Used for: User authentication via Facebook
    - Impact if down: Users cannot log in with Facebook
@@ -60,14 +56,12 @@ Based on code analysis, the site depends on the following external services:
 ### Supporting Services
 
 7. **Azure Communication Services**
-
    - ConnectionString required
    - Used for: Email sending (confirmation emails, notifications)
    - Impact if down: Users cannot receive confirmation emails
    - Current behavior: Likely throws exception when trying to send email
 
 8. **reCAPTCHA v2**
-
    - SiteKey/SecretKey required
    - Used for: Bot prevention on registration/forms
    - Impact if down: Forms may be vulnerable to spam, or may block legitimate users
@@ -531,7 +525,6 @@ Frontend Work:
 **Final Tasks Before Completion**:
 
 1. ✅ **Email Notifications on First Service Failure** (Section 5.2)
-
    - Send email to configured admin addresses on initial service failure
    - Track notification state to prevent duplicate emails
    - Use existing Azure Communication Services (same as password resets)
@@ -552,6 +545,33 @@ Frontend Work:
 - ✅ Update warning banner automatically refreshes with health polling
 - ✅ Unified status communication system (service health + manual updates)
 
+### Phase 6: Azure Search Credential Error Handling ✅ COMPLETE
+
+See [Phase 6 Completion Report](service-resilience-phase6-completion-report.md) for full details.
+
+### Phase 7: Database Reconnection Recovery ✅ COMPLETE
+
+**Scope**: Automatic self-healing when the database is unavailable at startup (Azure on-demand SQL cold-start scenario).
+
+**Problem Statement**: On the Azure test instance, both the App Service and the SQL database wake on-demand. The app starts first, migration fails, and `Database` is marked `Unavailable`. Previously the only recovery was a manual app restart.
+
+**Implementation**:
+
+- ✅ **`DatabaseRecoveryService`** (`m4d/Services/DatabaseRecoveryService.cs`) — singleton that fires a background reconnection probe on each user request, throttled to at most once per `ServiceHealth:DatabaseRetryInterval` (default 1 minute). On success, marks DB healthy and runs deferred `FixupStats` initialisation.
+- ✅ **Request pipeline middleware** — `TriggerRecoveryIfNeeded()` called early in the pipeline; never blocks the user request (fire-and-forget `Task.Run`).
+- ✅ **Live connection string reload** — `AddDbContext` now uses the `(IServiceProvider, options)` factory overload so the connection string is re-read from `IConfiguration` on every context resolution. Enables mid-run `appsettings.json` updates to be picked up without a restart (cost: one `ConcurrentDictionary` lookup per request scope — negligible).
+- ✅ **`UserMetadata.Create` exception handling** — `DanceMusicController.OnActionExecutionAsync` now catches `SqlException` / `Win32Exception`, marks DB unavailable, and continues with `UserMetadata.Anonymous` rather than producing an error page.
+- ✅ **`UserMetadata.Anonymous`** — new static factory on `UserMetadata` that returns a null-user instance (identical to an unauthenticated visitor) for use when the DB is down.
+
+**Key Deliverables**:
+
+- ✅ App self-heals from startup DB failure within one retry interval after DB becomes reachable
+- ✅ No app restart required
+- ✅ DB exceptions during `OnActionExecutionAsync` produce degraded pages, not error screens
+- ✅ Live connection string changes picked up automatically by all new scoped contexts
+
+**Configuration**: `ServiceHealth:DatabaseRetryInterval` (default `"00:01:00"`). See [Phase 7 Completion Report](service-resilience-phase7-completion-report.md).
+
 ### Phase 5: Static Cache Fallback ✅ COMPLETE
 
 **Scope**: Ensure resilience during fresh deployments by maintaining static JSON cache in source control.
@@ -561,13 +581,11 @@ Frontend Work:
 **Implementation Tasks**:
 
 1. ✅ **Create Static Cache Directory Structure**
-
    - Add `m4d/ClientApp/public/cache/` directory to source control
    - Store fallback versions of critical JSON data files
    - Include in build output for deployment
 
 2. ✅ **Export Current Data to Static Cache Files**
-
    - Generate fallback JSON files from current database
    - Dance database fallback (~29 KB)
    - Tag database fallback (~164 KB)
@@ -575,7 +593,6 @@ Frontend Work:
    - Metrics fallback (~3 KB)
 
 3. ✅ **Update Frontend to Use Static Fallback**
-
    - Created `LoadDanceDatabase.ts` helper with three-tier fallback chain
    - Fallback order: Live API → Runtime cache → Static fallback
    - Console logging when falling back to static cache

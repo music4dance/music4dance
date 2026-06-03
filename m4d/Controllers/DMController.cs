@@ -38,11 +38,30 @@ public class DanceMusicController(
 
     private MusicServiceManager _musicServiceManager;
 
+    // Walk the full exception chain so EF-wrapped SqlException/Win32Exception
+    // at any nesting depth are caught and treated as a DB connectivity failure.
+    private static bool ContainsDatabaseException(Exception ex)
+    {
+        for (var e = ex; e != null; e = e.InnerException)
+            if (e is Microsoft.Data.SqlClient.SqlException || e is System.ComponentModel.Win32Exception)
+                return true;
+        return false;
+    }
+
     public override async Task OnActionExecutionAsync(
         ActionExecutingContext context, ActionExecutionDelegate next)
     {
         // Create UserMetadata early (needed for both tracking modes)
-        var userMetadata = await UserMetadata.Create(UserName, UserManager);
+        UserMetadata userMetadata;
+        try
+        {
+            userMetadata = await UserMetadata.Create(UserName, UserManager);
+        }
+        catch (Exception ex) when (ContainsDatabaseException(ex))
+        {
+            ServiceHealth?.MarkUnavailable("Database", $"{ex.GetType().Name}: {ex.Message}");
+            userMetadata = UserMetadata.Anonymous;
+        }
         ViewData["UserMetadata"] = userMetadata;
 
         // Check if client-side tracking is enabled early to avoid setting cookies
