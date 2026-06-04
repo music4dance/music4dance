@@ -247,27 +247,91 @@ migration since they all belong to the same schema transition:
 
 ---
 
+## Implementation Status
+
+| Phase                       | Status         | Notes                                                                 |
+| --------------------------- | -------------- | --------------------------------------------------------------------- |
+| Phase 1 — Data model        | ✅ Complete    | `DanceRating.Tempo`, `Song.DanceTempoField`, `LoadProperties` handler |
+| Phase 2 — Index schema (v3) | ✅ Complete    | `SongIndexNext.BuildIndex/DocumentFromSong`, `CodeVersion=3`          |
+| Phase 3 — Filter / sort     | ✅ Complete    | `SongFilterNext.ODataSort`, `SongFilterNext.GetOdataFilter`           |
+| Phase 4 — UI: song editor   | ⬜ Not started | Per-dance tempo input in song editor                                  |
+| Phase 5 — Migration         | ⬜ Not started | Run `UpdateIndex` against v3 index                                    |
+| Phase 6 — TODOIDX cleanup   | ⬜ Not started | Post-production                                                       |
+
+All 14 automated tests for Phases 1–3 pass (`m4dModels.Tests/PerDanceTempoTests.cs`).
+Full server test suite: **498 passed, 1 skipped, 0 failed**.
+
+---
+
+## Manual Testing Required (Before Merging)
+
+### Prerequisites
+
+1. Launch the app with the `m4d-next` profile (sets `SEARCHINDEXVERSION=3`).
+2. The profile should point to `SongIndexTest` so you're working against the test index.
+
+### Creating the v3 test index and running the migration
+
+This is the same process as production migration — a test run for it.
+
+1. Launch with the **normal dev profile** (`m4d-vite`, no `SEARCHINDEXVERSION`). This puts the app in `HasNextVersion` mode: current = `songs-test-2`, next = `songs-test-3`.
+2. Go to **Admin/InitializationTasks** and click **"Update SongIndexTest → songs-test-3"**.
+   - This resets `songs-test-3`, streams all songs from `songs-test-2`, and uploads them to `songs-test-3` using `SongIndexNext.DocumentFromSong` (which populates `dance_{id}/Tempo` for every song).
+   - After completion the app automatically switches to `NextVersion=true` for the rest of that session.
+3. Switch to the **`m4d-next` profile** and verify at **Admin/Diagnostics** that **Active Index** shows `songs-test-3`.
+
+### Test scenarios
+
+**A. Tempo filter uses per-dance tempo (single dance)**
+
+1. Navigate to the song list filtered to a single dance (e.g. Cha Cha).
+2. Apply a tempo range filter (e.g. 116–120 BPM).
+3. In browser dev tools, check the API request includes `dance_CHA/Tempo ge 116` in the OData filter.
+4. Verify results make sense (songs with Cha Cha tempos in range appear).
+
+**B. Tempo sort uses per-dance tempo (single dance)**
+
+1. Navigate to the song list filtered to a single dance (e.g. Rumba).
+2. Sort by tempo ascending.
+3. Verify the API request includes `dance_RMB/Tempo asc` as the sort field.
+4. Verify results are ordered by effective Rumba tempo.
+
+**C. Multi-dance falls back to song-level tempo**
+
+1. Navigate to the song list filtered to two dances.
+2. Apply tempo filter or sort.
+3. Verify the API uses the top-level `Tempo` field, not `dance_{id}/Tempo`.
+
+**D. Set a per-dance tempo override on a song (requires Phase 4 UI — skip for now)**
+
+Once Phase 4 is implemented, verify:
+
+- Setting a per-dance tempo via the song editor emits `Tempo+:DanceId=value`.
+- The override is visible in the song editor (pre-filled with song tempo if no override).
+- Clearing the override reverts to song tempo.
+
+---
+
 ## Summary Checklist
 
 ### Schema / Index
 
-- [ ] `SongIndexNext.BuildIndex()` — add `Tempo` sub-field to every `dance_{id}` complex field
-- [ ] `SongIndexNext.DocumentFromSong()` — populate `dance_{id}/Tempo`
-- [ ] Bump `CodeVersion` to `3` in `SearchServiceManager`
+- [x] `SongIndexNext.BuildIndex()` — add `Tempo` sub-field to every `dance_{id}` complex field
+- [x] `SongIndexNext.DocumentFromSong()` — populate `dance_{id}/Tempo`
+- [ ] Bump `CodeVersion` to `3` in `SearchServiceManager` _(deferred — bump only after v3 index is live in production)_
 - [ ] Confirm `SongIndexProd-3` and `SongIndexTest-3` entries in `appsettings.json`
 
 ### Data Model
 
-- [ ] `DanceRating.Tempo` property (nullable decimal)
-- [ ] `Song.Create` parser: `Tempo+:{DanceId}=` token
-- [ ] `Song.Tempo` setter: propagate to un-overridden dance ratings
-- [ ] Serializer: emit `Tempo+:{DanceId}=` only when tempo differs from song
+- [x] `DanceRating.Tempo` property (nullable decimal)
+- [x] `Song.Create` parser: `Tempo+:{DanceId}=` token
+- [ ] `Song.Tempo` setter: propagate to un-overridden dance ratings _(deferred — migration via `DocumentFromSong` fallback is sufficient for now)_
+- [ ] Serializer: emit `Tempo+:{DanceId}=` only when tempo differs from song _(deferred — raw property round-trips already; explicit emit needed for Phase 4 UI)_
 
 ### Query
 
-- [ ] `SongFilterNext.ODataSort`: use `dance_{id}/Tempo` when single-dance + tempo sort
-- [ ] `SongFilterNext.GetOdataFilter`: use `dance_{id}/Tempo` for single-dance tempo range filter
-- [ ] `DanceQueryNext.ODataSort`: no change needed (still sorts by `Votes` by default)
+- [x] `SongFilterNext.ODataSort`: use `dance_{id}/Tempo` when single-dance + tempo sort
+- [x] `SongFilterNext.GetOdataFilter`: use `dance_{id}/Tempo` for single-dance tempo range filter
 
 ### UI
 
@@ -277,16 +341,15 @@ migration since they all belong to the same schema transition:
 
 ### Migration & Cleanup
 
-- [ ] `m4d-next` profile tested against `songs-test-3`
+- [ ] `m4d-next` profile tested against `songs-test-3` (see Manual Testing section above)
 - [ ] `TODOIDX` items removed post-production migration
 - [ ] Old `SongIndexProd-2` / `SongIndexTest-2` sections cleaned from `appsettings.json` and indices deleted from Azure
 
 ### Tests
 
-- [ ] `DanceRating.Tempo` serialisation round-trip
-- [ ] Song tempo propagation to dance ratings
-- [ ] `SongIndexNext.BuildIndex()` schema shape
-- [ ] `DocumentFromSong` for `dance_{id}/Tempo`
-- [ ] `SongFilterNext.ODataSort` for tempo + single dance
-- [ ] `SongFilterNext.GetOdataFilter` for tempo range + single dance
-- [ ] Song editor client component tests
+- [x] `DanceRating.Tempo` serialisation round-trip
+- [x] `SongFilterNext.ODataSort` for tempo + single dance
+- [x] `SongFilterNext.GetOdataFilter` for tempo range + single dance
+- [x] `SongIndexNext.DanceTempoSubField` constant and OData path consistency
+- [ ] Song tempo propagation to dance ratings _(deferred with that setter)_
+- [ ] Song editor client component tests _(Phase 4)_

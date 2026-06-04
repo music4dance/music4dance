@@ -1,10 +1,12 @@
-﻿namespace m4dModels;
+﻿using Azure.Search.Documents.Indexes.Models;
 
-// SongIndexNext is now merged into SongIndex.
-// Retain as a stub for future breaking changes.
+namespace m4dModels;
+
+// SongIndexNext: implements the v3 index schema with per-dance Tempo sub-field.
 public class SongIndexNext : SongIndex
 {
-    // Stub for future use.
+    public const string DanceTempoSubField = "Tempo";
+
     public SongIndexNext()
     {
     }
@@ -13,4 +15,54 @@ public class SongIndexNext : SongIndex
     {
     }
 
+    public override bool IsNext => true;
+
+    // Override to add Tempo sub-field to each dance_{id} complex field.
+    public override SearchIndex BuildIndex()
+    {
+        var baseIndex = base.BuildIndex();
+
+        // Add Tempo sub-field to every dance_{id} complex field.
+        foreach (var field in baseIndex.Fields.Where(
+            f => f.Name.StartsWith("dance_") && f.Type == SearchFieldDataType.Complex))
+        {
+            field.Fields.Add(new SearchField(DanceTempoSubField, SearchFieldDataType.Double)
+            {
+                IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
+            });
+        }
+
+        return baseIndex;
+    }
+
+    // Override to populate dance_{id}/Tempo with the per-dance override or the song-level tempo.
+    protected override object DocumentFromSong(Song song)
+    {
+        var docObj = base.DocumentFromSong(song);
+        if (docObj is not Azure.Search.Documents.Models.SearchDocument doc)
+        {
+            return docObj;
+        }
+
+        foreach (var dr in song.DanceRatings)
+        {
+            var fieldName = BuildDanceFieldName(dr.DanceId);
+            if (doc[fieldName] is not Dictionary<string, object> danceDoc)
+            {
+                continue;
+            }
+
+            // Use per-dance tempo override when set; fall back to song-level tempo.
+            var effectiveTempo = dr.Tempo ?? song.Tempo;
+            danceDoc[DanceTempoSubField] = CleanNumber((float?)effectiveTempo);
+        }
+
+        // Also update the dance_ALL pseudo-field.
+        if (doc["dance_ALL"] is Dictionary<string, object> allDoc)
+        {
+            allDoc[DanceTempoSubField] = CleanNumber((float?)song.Tempo);
+        }
+
+        return doc;
+    }
 }

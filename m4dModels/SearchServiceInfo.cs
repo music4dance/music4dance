@@ -22,6 +22,9 @@ public interface ISearchServiceManager
     SongFilter GetSongFilter(string filter = null);
     SongFilter GetSongFilter(RawSearch raw, string action = null);
     void RedirectToUpdate();
+    string CurrentIndexName { get; }
+    bool HasNextIndex { get; }
+    string NextIndexName { get; }
 }
 
 public class SearchServiceManager : ISearchServiceManager
@@ -130,9 +133,15 @@ public class SearchServiceManager : ISearchServiceManager
       CodeVersion == ConfigVersion &&
       GetInfo().HasNextVersion;
 
+    // True whenever appsettings has a "next" index entry, regardless of current version mode.
+    public bool HasNextIndex => GetInfo().HasNextVersion;
+
     public int ConfigVersion { get; set; }
 
     public bool NextVersion => ConfigVersion > CodeVersion;
+
+    public string CurrentIndexName => GetInfo().IndexName;
+    public string NextIndexName => GetInfo().NextIndexName;
 
     public string RawEnvironment { get; }
     public void RedirectToUpdate()
@@ -212,6 +221,9 @@ public class SearchServiceInfo(string id, int version, string name,
         return await client.CreateOrUpdateIndexAsync(index);
     }
     public bool HasNextVersion => _versionedNames.Count > 1;
+
+    public string IndexName => GetVersionedName();
+    public string NextIndexName => GetVersionedName(isNext: true);
 
     private string GetVersionedId(bool? isNext = null) =>
         Id == SearchServiceManager.ExperimentalId

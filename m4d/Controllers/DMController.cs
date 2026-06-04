@@ -427,6 +427,20 @@ public class DanceMusicController(
         return lines;
     }
 
+    protected static async IAsyncEnumerable<string> ReadLinesAsync(IFormFile file)
+    {
+        using var stream = file.OpenReadStream();
+        using var tr = new StreamReader(stream);
+        string s;
+        while ((s = await tr.ReadLineAsync()) != null)
+        {
+            if (!string.IsNullOrWhiteSpace(s))
+            {
+                yield return s;
+            }
+        }
+    }
+
     protected string EnsureAppData(IWebHostEnvironment environment)
     {
         var path = Path.Combine(environment.WebRootPath, "AppData");

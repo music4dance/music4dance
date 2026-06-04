@@ -248,6 +248,9 @@ public class Song : TaggableObject
     public const string AddedTags = "Tag+";
     public const string RemovedTags = "Tag-";
 
+    // Per-dance tempo override: "Tempo+:DanceId=value"
+    public const string DanceTempoField = "Tempo+";
+
     // Comments
     public const string AddCommentField = "Comment+";
     public const string RemoveCommentField = "Comment-";
@@ -1672,6 +1675,26 @@ public class Song : TaggableObject
                     break;
                 case AddPatternNameField:
                     AddObjectPatternName(prop.DanceQualifier, prop.Value);
+                    break;
+                case DanceTempoField:
+                    {
+                        var danceId = prop.DanceQualifier;
+                        if (!string.IsNullOrWhiteSpace(danceId))
+                        {
+                            var dr = FindRating(danceId);
+                            if (dr != null)
+                            {
+                                if (string.IsNullOrWhiteSpace(prop.Value))
+                                {
+                                    dr.Tempo = null; // clear override — revert to song tempo
+                                }
+                                else if (decimal.TryParse(prop.Value, out var danceTempo))
+                                {
+                                    dr.Tempo = danceTempo;
+                                }
+                            }
+                        }
+                    }
                     break;
                 case DeleteTagLabel:
                     ForceDeleteTag(prop.DanceQualifier, prop.Value, stats);

@@ -49,7 +49,15 @@ version.
 
 Similarly, `SongIndex.Create()` returns a `SongIndexNext` for experimental/next-version contexts.
 `SongIndexNext` overrides `BuildIndex()` (and any other methods that differ) to emit the new schema.
-Both classes are currently stubs; override as needed when implementing a new breaking change.
+
+**`SongIndexNext` must override `IsNext => true`.** Every index operation (`ResetIndex`,
+`BuildIndex`, `GetSearchClient`, `GetVersionedName`) routes to the correct versioned index name via
+`IsNext`. Without this override, all operations silently target the old index (`songs-prod-2`
+instead of `songs-prod-3`).
+
+```csharp
+public override bool IsNext => true;
+```
 
 ### `// TODOIDX:` Markers
 
@@ -85,9 +93,18 @@ Launch profiles in `m4d/Properties/launchSettings.json` cover the most common co
 
 ### Step 1 — Define the new schema in `SongIndexNext`
 
-Override `BuildIndex()` (and any other methods) in `SongIndexNext.cs` to emit the new Azure AI
-Search index schema. The base `SongIndex.BuildIndex()` continues to emit the old schema for
-backwards compatibility until the migration is complete.
+Override `IsNext`, `BuildIndex()`, and any other methods in `SongIndexNext.cs`. **`IsNext => true`
+is mandatory** — it controls which versioned index name is used by every operation in the base
+class. Without it, `ResetIndex`, `UploadIndex`, and the search client all silently target the old
+index.
+
+```csharp
+public override bool IsNext => true;
+```
+
+Override `BuildIndex()` to emit the new Azure AI Search index schema. The base
+`SongIndex.BuildIndex()` continues to emit the old schema for backwards compatibility until the
+migration is complete.
 
 ### Step 2 — Add any filter logic in `SongFilterNext`
 

@@ -402,24 +402,12 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
     #region Index Management
     public async Task CloneIndex(string to)
     {
-        AdminMonitor.UpdateTask("StartBackup");
-        
-        // Use streaming backup to avoid 100K limit
-        var lines = new List<string>();
-        await foreach (var line in SongIndex.BackupIndexStreamingAsync())
-        {
-            lines.Add(line);
-            if (lines.Count % 10000 == 0)
-            {
-                AdminMonitor.UpdateTask("Backup", lines.Count);
-            }
-        }
-        
         var toIndex = GetSongIndex(to);
         AdminMonitor.UpdateTask("StartReset");
         _ = await toIndex.ResetIndex();
         AdminMonitor.UpdateTask("StartUpload");
-        _ = await toIndex.UploadIndex(lines, false);
+        // Stream directly from source index into destination — no in-memory buffer.
+        _ = await toIndex.UploadIndex(SongIndex.BackupIndexStreamingAsync(), false);
     }
 
     public async Task UpdateIndex()
@@ -427,21 +415,9 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
         AdminMonitor.UpdateTask("StartCreate");
         var toIndex = GetSongIndex(null, isNext: true);
         _ = await toIndex.ResetIndex();
-        AdminMonitor.UpdateTask("StartBackup");
-        
-        // Use streaming backup to avoid 100K limit
-        var lines = new List<string>();
-        await foreach (var line in SongIndex.BackupIndexStreamingAsync())
-        {
-            lines.Add(line);
-            if (lines.Count % 10000 == 0)
-            {
-                AdminMonitor.UpdateTask("Backup", lines.Count);
-            }
-        }
-        
         AdminMonitor.UpdateTask("StartUpload");
-        _ = await toIndex.UploadIndex(lines, false);
+        // Stream directly from source index into destination — no in-memory buffer.
+        _ = await toIndex.UploadIndex(SongIndex.BackupIndexStreamingAsync(), false);
         AdminMonitor.UpdateTask("RedirectToUpdate");
         _songSearch = null;
         SearchService.RedirectToUpdate();

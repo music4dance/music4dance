@@ -242,7 +242,7 @@ public class SongFilter
             ? (CruftFilter)Level.Value
             : CruftFilter.NoCruft;
 
-    public IList<string> ODataSort
+    public virtual IList<string> ODataSort
     {
         get
         {
@@ -620,7 +620,7 @@ public class SongFilter
         return SwapUser(user, UserQuery.IdentityUser);
     }
 
-    public string GetOdataFilter(DanceMusicCoreService dms)
+    public virtual string GetOdataFilter(DanceMusicCoreService dms)
     {
         var odata = SongSort.Numeric
             ? $"({SongSort.Id} ne null) and ({SongSort.Id} ne 0)"
