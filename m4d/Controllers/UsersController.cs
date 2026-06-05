@@ -32,13 +32,19 @@ public class UsersController(
         var user = await UserManager.FindByNameAsync(id)
             ?? await UserManager.FindByIdAsync(id);
 
+        var isAuthenticated = User.Identity?.IsAuthenticated == true;
+
         if (user == null)
         {
-            return StatusCode((int)HttpStatusCode.NotFound);
+            // Return the same response as a private user with no activity to prevent
+            // username enumeration: a bad actor cannot distinguish "no such user" from
+            // "user exists but has chosen maximum privacy".
+            var emptyProfile = new UserProfile { UserName = id };
+            return Vue3($"Info for {id}", $"Favorites and song lists for {id}",
+                "user-info", emptyProfile, "account-management");
         }
 
         var userName = user.UserName;
-        var isAuthenticated = User.Identity?.IsAuthenticated == true;
         // For private users (Privacy == 0): always expose the GUID, not the real username,
         // even if the profile was looked up by username.
         // For public users: only show the real username to authenticated members.
