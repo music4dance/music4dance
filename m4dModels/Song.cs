@@ -1682,9 +1682,22 @@ public class Song : TaggableObject
                             var dr = FindRating(danceQual);
                             if (dr != null)
                             {
-                                dr.Tempo = string.IsNullOrWhiteSpace(prop.Value)
-                                    ? null
-                                    : decimal.TryParse(prop.Value, out var dt) ? dt : (decimal?)null;
+                                if (string.IsNullOrWhiteSpace(prop.Value))
+                                {
+                                    dr.Tempo = null; // clear override
+                                }
+                                else if (decimal.TryParse(prop.Value, out var dt))
+                                {
+                                    dr.Tempo = dt;
+                                    // Promote: if no song-level tempo has been set yet, infer it
+                                    // from this dance override. This preserves the semantic that
+                                    // the user is expressing a dance preference, not a song one —
+                                    // other users remain free to set song.Tempo independently.
+                                    if (Tempo == null)
+                                    {
+                                        Tempo = dt;
+                                    }
+                                }
                             }
                         }
                         else

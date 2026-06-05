@@ -114,6 +114,64 @@ public class PerDanceTempoTests
         Assert.AreEqual(108.0m, rmbRating.Tempo, "Edit should set per-dance tempo override");
     }
 
+    [TestMethod]
+    public async Task DanceRating_DanceTempoPromotesSongTempo_WhenSongTempoIsNull()
+    {
+        // If a dance tempo override is set and song has no tempo, song.Tempo should be promoted.
+        const string songData =
+            ".Create=\tUser=dwgray\tTime=00/00/0000 0:00:00 PM\t" +
+            "Title=Promote Test\tArtist=Test Artist\t" +
+            "Tag+=Cha Cha:Dance\t" +
+            "DanceRating=CHA+1\t" +
+            "Tempo:CHA=128.0";
+
+        var song = await Song.Create(songData, _dms);
+        Assert.IsNotNull(song);
+        Assert.AreEqual(128.0m, song.Tempo, "song.Tempo should be promoted from CHA override");
+        Assert.AreEqual(128.0m, song.DanceRatings.First(dr => dr.DanceId == "CHA").Tempo,
+            "CHA.Tempo override should be preserved");
+    }
+
+    [TestMethod]
+    public async Task DanceRating_DanceTempoDoesNotOverrideSongTempo_WhenAlreadySet()
+    {
+        // If song.Tempo is already set, Tempo:DanceId should not change it.
+        const string songData =
+            ".Create=\tUser=dwgray\tTime=00/00/0000 0:00:00 PM\t" +
+            "Title=No Promote Test\tArtist=Test Artist\tTempo=120.0\t" +
+            "Tag+=Cha Cha:Dance\t" +
+            "DanceRating=CHA+1\t" +
+            "Tempo:CHA=128.0";
+
+        var song = await Song.Create(songData, _dms);
+        Assert.IsNotNull(song);
+        Assert.AreEqual(120.0m, song.Tempo, "song.Tempo should NOT be changed by dance override");
+        Assert.AreEqual(128.0m, song.DanceRatings.First(dr => dr.DanceId == "CHA").Tempo);
+    }
+
+    [TestMethod]
+    public async Task DanceRating_SecondDanceInheritsPromotedSongTempo()
+    {
+        // With promoted song.Tempo, a second dance with no override inherits the promoted value.
+        const string songData =
+            ".Create=\tUser=dwgray\tTime=00/00/0000 0:00:00 PM\t" +
+            "Title=Inherited Promote\tArtist=Test Artist\t" +
+            "Tag+=Cha Cha:Dance|Salsa:Dance\t" +
+            "DanceRating=CHA+1\tDanceRating=SLS+1\t" +
+            "Tempo:CHA=128.0";
+
+        var song = await Song.Create(songData, _dms);
+        Assert.IsNotNull(song);
+        Assert.AreEqual(128.0m, song.Tempo, "song.Tempo promoted from CHA");
+
+        var sls = song.DanceRatings.FirstOrDefault(dr => dr.DanceId == "SLS");
+        Assert.IsNotNull(sls);
+        Assert.IsNull(sls.Tempo, "SLS has no explicit override — dr.Tempo is null");
+        // Effective tempo for SLS = sls.Tempo ?? song.Tempo = 128.0 (verified at index time)
+        var effectiveSls = sls.Tempo ?? song.Tempo;
+        Assert.AreEqual(128.0m, effectiveSls, "SLS effective tempo should inherit promoted song.Tempo");
+    }
+
     // -------------------------------------------------------------------------
     // Phase 3: SongFilterNext — per-dance tempo filter
     // -------------------------------------------------------------------------

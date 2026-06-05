@@ -52,6 +52,49 @@ describe("Song per-dance tempo parsing", () => {
     expect(rmb?.tempo).toBeUndefined();
   });
 
+  it("promotes song tempo when Tempo:DanceId set and song has no tempo", () => {
+    const history = makeHistory([
+      { name: ".Create", value: "" },
+      { name: "User", value: "dwgray" },
+      { name: "Time", value: "01/01/2024 12:00:00 PM" },
+      { name: "DanceRating", value: "CHA+1" },
+      { name: "Tempo:CHA", value: "128" },
+    ]);
+    const song = Song.fromHistory(history);
+    expect(song.tempo).toBe(128);
+    expect(song.findDanceRatingById("CHA")?.tempo).toBe(128);
+  });
+
+  it("does not promote song tempo when song tempo already set", () => {
+    const history = makeHistory([
+      ...makeBaseSong().properties, // includes Tempo=120
+      { name: ".Edit", value: "" },
+      { name: "User", value: "dwgray" },
+      { name: "Time", value: "01/01/2024 1:00:00 PM" },
+      { name: "Tempo:CHA", value: "128" },
+    ]);
+    const song = Song.fromHistory(history);
+    expect(song.tempo).toBe(120); // unchanged
+    expect(song.findDanceRatingById("CHA")?.tempo).toBe(128);
+  });
+
+  it("second dance without override inherits promoted song tempo via fallback", () => {
+    const history = makeHistory([
+      { name: ".Create", value: "" },
+      { name: "User", value: "dwgray" },
+      { name: "Time", value: "01/01/2024 12:00:00 PM" },
+      { name: "DanceRating", value: "CHA+1" },
+      { name: "DanceRating", value: "RMB+1" },
+      { name: "Tempo:CHA", value: "128" },
+    ]);
+    const song = Song.fromHistory(history);
+    expect(song.tempo).toBe(128); // promoted
+    const rmb = song.findDanceRatingById("RMB");
+    expect(rmb?.tempo).toBeUndefined(); // no explicit override
+    const effectiveRmb = rmb?.tempo ?? song.tempo;
+    expect(effectiveRmb).toBe(128); // inherits via fallback
+  });
+
   it("last Tempo write wins on multiple edits", () => {
     const history = makeHistory([
       ...makeBaseSong().properties,
