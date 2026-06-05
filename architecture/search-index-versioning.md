@@ -59,6 +59,11 @@ instead of `songs-prod-3`).
 public override bool IsNext => true;
 ```
 
+**`dance_ALL/Tempo` is intentionally omitted.** The `dance_ALL` pseudo-field carries aggregate vote
+data used for sort-by-popularity. There is no need for a `Tempo` sub-field there because
+non-single-dance queries (including the "all dances" case) fall back to the top-level song `Tempo`
+field. Populating `dance_ALL/Tempo` would just duplicate `song.Tempo` with no consumer.
+
 ### `// TODOIDX:` Markers
 
 Code that must be **removed** once the migration to the next index version is complete is tagged with

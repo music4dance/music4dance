@@ -37,15 +37,51 @@ This ensures `dance_{id}/Tempo` is always populated for existing data. New songs
 treatment at creation time. The sort/filter then unconditionally uses `dance_{id}/Tempo` when a
 single dance is selected and we are in the next-version schema.
 
-### Serialization: unmodified vs. dance-scoped tempo
+### Tempo Semantics Rules
 
-Following the existing dance-scoped tag pattern (`Tag+:DANCEID=value`):
+#### Table 1 — Write semantics (what each token does to in-memory model)
 
-| Operation                        | Serialization         | Effect                                                                                                                             |
-| -------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| Set song tempo (normal)          | `Tempo=180.0`         | Sets song `Tempo` **and** updates all dance rating `Tempo` values that still equal the old song tempo (i.e., still at the default) |
-| Set per-dance tempo              | `Tempo+:CHA=168.0`    | Sets only the Cha Cha dance rating's `Tempo` — does **not** touch other dances or the song `Tempo`                                 |
-| Reset a dance back to song tempo | `Tempo+:CHA=` (empty) | Clears the dance-specific override; the dance reverts to the song `Tempo` on the next recalculation                                |
+| Token                | Pre-condition          | `song.Tempo` after | `dr.Tempo` (named dance) after | Rationale                                                                                                                                                                                                |
+| -------------------- | ---------------------- | ------------------ | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Tempo=120`          | any                    | → 120              | unchanged                      | Standard song-level set                                                                                                                                                                                  |
+| `Tempo=` (empty)     | any                    | → null             | unchanged                      | Explicit clear; dances lose inherited value                                                                                                                                                              |
+| `Tempo:CHA=128`      | `song.Tempo` has value | unchanged          | CHA → 128                      | Override one dance only                                                                                                                                                                                  |
+| `Tempo:CHA=128`      | `song.Tempo` is null   | → 128 (inferred)   | CHA → 128                      | **Promote**: dance tempo becomes song tempo _by inference in `LoadProperties`_; explicit dance override is preserved so other users can freely change `song.Tempo` later without disturbing CHA's intent |
+| `Tempo:CHA=` (empty) | any                    | unchanged          | CHA → null                     | Remove override; CHA reverts to inheriting `song.Tempo`                                                                                                                                                  |
+| `Tempo:CHA=` (empty) | `song.Tempo` is null   | unchanged          | CHA → null                     | CHA loses its tempo entirely (no fallback)                                                                                                                                                               |
+
+**Promote decision**: inference happens inside `LoadProperties`/`loadProperties` replay, not in the UI. This preserves the semantic that the user is explicitly expressing a _dance_ preference, not a song preference — leaving other users free to set `song.Tempo` independently.
+
+#### Table 2 — Index propagation (`DocumentFromSong`, `dance_{id}/Tempo = dr.Tempo ?? song.Tempo`)
+
+| `song.Tempo`   | `dr.Tempo` (CHA) | `dr.Tempo` (SLS) | `dance_CHA/Tempo` | `dance_SLS/Tempo` |
+| -------------- | ---------------- | ---------------- | ----------------- | ----------------- |
+| 120            | null             | null             | 120 (inherited)   | 120 (inherited)   |
+| 120            | 128              | null             | 128 (override)    | 120 (inherited)   |
+| null           | null             | null             | null              | null              |
+| 128 (inferred) | 128 (explicit)   | null             | 128 (explicit)    | 128 (inherited)   |
+
+Note row 4: once `song.Tempo` is inferred as 128, any dance without an explicit override (e.g. SLS) **inherits 128**, not null. The fallback `dr.Tempo ?? song.Tempo` applies at index time.
+
+#### Table 3 — Permission rules
+
+| Actor                                       | `Tempo=value`        | `Tempo=` (clear) | `Tempo:DanceId=value`          | `Tempo:DanceId=` (clear) | Overwrite another human's value |
+| ------------------------------------------- | -------------------- | ---------------- | ------------------------------ | ------------------------ | ------------------------------- |
+| Algorithm / pseudo (`batch-*`, `tempo-bot`) | ✅ if no human value | ❌               | ✅ if no human value for dance | ❌                       | ❌                              |
+| `canTag` role (privileged)                  | ✅                   | ✅               | ✅                             | ✅                       | ✅                              |
+| Song creator                                | ✅                   | ✅               | ✅                             | ✅                       | Own values only                 |
+| Other authenticated user                    | ✅ if no human value | ❌               | ✅ if no human value for dance | ❌                       | ❌                              |
+| Anonymous                                   | ❌                   | ❌               | ❌                             | ❌                       | ❌                              |
+
+"Human value exists" = last writer of `Tempo` / `Tempo:DanceId` was a non-pseudo user (tracked via `isUserModified`).
+
+#### Table 4 — UX gaps to address
+
+| Rule                         | Required UX                                                                                                     |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `Tempo=` clears song tempo   | "Clear tempo" action in song editor (canTag only)                                                               |
+| `Tempo:CHA=` clears override | Dance tempo input already supports empty → clear; but UI should visually distinguish "not set" from "inherited" |
+| Promote inference            | No UI change needed; handled server- and client-side in property replay                                         |
 
 ---
 

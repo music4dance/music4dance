@@ -32,7 +32,7 @@ public class PerDanceTempoTests
             "Title=Per Dance Tempo Test\tArtist=Test Artist\tTempo=120.0\t" +
             "Tag+=Cha Cha:Dance|Salsa:Dance\t" +
             "DanceRating=CHA+1\tDanceRating=SLS+1\t" +
-            "Tempo+:CHA=128.0";
+            "Tempo:CHA=128.0";
 
         // Act
         var song = await Song.Create(songData, _dms);
@@ -58,7 +58,7 @@ public class PerDanceTempoTests
             "Title=Tempo RoundTrip\tArtist=Test Artist\tTempo=120.0\t" +
             "Tag+=Waltz:Dance\t" +
             "DanceRating=WLZ+1\t" +
-            "Tempo+:WLZ=90.0";
+            "Tempo:WLZ=90.0";
 
         var song = await Song.Create(songData, _dms);
         Assert.IsNotNull(song, "Initial song creation failed");
@@ -104,7 +104,7 @@ public class PerDanceTempoTests
             "Tag+=Rumba:Dance\t" +
             "DanceRating=RMB+1\t" +
             ".Edit=\tUser=dwgray\tTime=00/00/0000 0:00:00 PM\t" +
-            "Tempo+:RMB=108.0";
+            "Tempo:RMB=108.0";
 
         var song = await Song.Create(songData, _dms);
         Assert.IsNotNull(song);

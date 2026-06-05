@@ -25,7 +25,7 @@ const props = defineProps<{
   edit?: boolean;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   "delete-dance": [dr: DanceRating];
   "tag-clicked": [tag: TagHandler];
   "update-song": [];
@@ -48,6 +48,17 @@ const danceLink = (dr: DanceRating): string => {
 };
 
 const filterFamilyTag = computed(() => props.filter.familyTag);
+
+const canEditDanceTempo = computed(() => !!props.user && context.hasRole("canTag"));
+
+/** Display value for per-dance tempo: override if set, else song-level tempo. */
+const displayTempo = (dr: DanceRating): string => (dr.tempo ?? props.song.tempo)?.toString() ?? "";
+
+const onTempoChange = (dr: DanceRating, value: string): void => {
+  if (!props.editor) return;
+  props.editor.setDanceTempo(dr.danceId, value || undefined);
+  emit("edit");
+};
 </script>
 
 <template>
@@ -70,6 +81,28 @@ const filterFamilyTag = computed(() => props.filter.familyTag);
         <a :href="danceLink(dr)"
           ><DanceName :dance="danceFromRating(dr)" :show-synonyms="true"
         /></a>
+        <span v-if="canEditDanceTempo" class="ms-2 small text-muted">
+          <template v-if="edit">
+            Tempo:
+            <input
+              type="number"
+              class="form-control form-control-sm d-inline"
+              style="width: 5em"
+              :value="displayTempo(dr)"
+              :placeholder="song.tempo?.toString() ?? ''"
+              @blur="onTempoChange(dr, ($event.target as HTMLInputElement).value)"
+              @keyup.enter="onTempoChange(dr, ($event.target as HTMLInputElement).value)"
+            />
+            BPM
+            <span
+              v-if="dr.tempo && dr.tempo !== song.tempo"
+              class="text-warning ms-1"
+              title="Per-dance override active"
+              ><IBiExclamationCircle
+            /></span>
+          </template>
+          <template v-else-if="dr.tempo && dr.tempo !== song.tempo"> {{ dr.tempo }} BPM </template>
+        </span>
         <span v-if="dr.tags" style="margin-left: 0.25rem; line-height: 2.75rem">
           <TagListEditor
             :container="dr"

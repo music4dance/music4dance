@@ -315,6 +315,15 @@ export class SongEditor {
     return property;
   }
 
+  /**
+   * Set or clear a per-dance tempo override.
+   * Produces a `Tempo+:DANCEID=value` property in the edit block.
+   * Pass undefined or empty string to clear the override (reverts to song-level tempo).
+   */
+  public setDanceTempo(danceId: string, value: string | undefined): SongProperty {
+    return this.modifyProperty(`${PropertyType.tempoField}:${danceId}`, value ?? "");
+  }
+
   public setupEdit(user?: string): void {
     user ??= this.user;
     const properties = this.properties;

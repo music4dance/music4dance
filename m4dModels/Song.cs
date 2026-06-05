@@ -248,9 +248,6 @@ public class Song : TaggableObject
     public const string AddedTags = "Tag+";
     public const string RemovedTags = "Tag-";
 
-    // Per-dance tempo override: "Tempo+:DanceId=value"
-    public const string DanceTempoField = "Tempo+";
-
     // Comments
     public const string AddCommentField = "Comment+";
     public const string RemoveCommentField = "Comment-";
@@ -1676,22 +1673,29 @@ public class Song : TaggableObject
                 case AddPatternNameField:
                     AddObjectPatternName(prop.DanceQualifier, prop.Value);
                     break;
-                case DanceTempoField:
+                case TempoField:
                     {
-                        var danceId = prop.DanceQualifier;
-                        if (!string.IsNullOrWhiteSpace(danceId))
+                        var danceQual = prop.DanceQualifier;
+                        if (!string.IsNullOrWhiteSpace(danceQual))
                         {
-                            var dr = FindRating(danceId);
+                            // Per-dance tempo: Tempo:DanceId=value; empty value clears override.
+                            var dr = FindRating(danceQual);
                             if (dr != null)
                             {
-                                if (string.IsNullOrWhiteSpace(prop.Value))
-                                {
-                                    dr.Tempo = null; // clear override — revert to song tempo
-                                }
-                                else if (decimal.TryParse(prop.Value, out var danceTempo))
-                                {
-                                    dr.Tempo = danceTempo;
-                                }
+                                dr.Tempo = string.IsNullOrWhiteSpace(prop.Value)
+                                    ? null
+                                    : decimal.TryParse(prop.Value, out var dt) ? dt : (decimal?)null;
+                            }
+                        }
+                        else
+                        {
+                            // Song-level tempo — replicate default reflection handling.
+                            var isUser2 = !currentModified?.ApplicationUser?.IsPseudo ?? false;
+                            if (!(isUserModified.Contains(TempoField) && !isUser2))
+                            {
+                                var piTempo = GetType().GetProperty(TempoField);
+                                piTempo?.SetValue(this, prop.ObjectValue);
+                                if (isUser2) _ = isUserModified.Add(TempoField);
                             }
                         }
                     }

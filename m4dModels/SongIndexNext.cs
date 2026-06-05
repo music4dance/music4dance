@@ -57,12 +57,9 @@ public class SongIndexNext : SongIndex
             danceDoc[DanceTempoSubField] = CleanNumber((float?)effectiveTempo);
         }
 
-        // Also update the dance_ALL pseudo-field.
-        if (doc["dance_ALL"] is Dictionary<string, object> allDoc)
-        {
-            allDoc[DanceTempoSubField] = CleanNumber((float?)song.Tempo);
-        }
 
+        // Note: dance_ALL/Votes is used for aggregate vote sorting, but Tempo is not
+        // needed here — non-single-dance queries use the top-level song Tempo field.
         return doc;
     }
 }

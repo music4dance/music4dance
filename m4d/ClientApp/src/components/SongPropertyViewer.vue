@@ -26,7 +26,12 @@ const isComment = computed(
     props.property.baseName === PropertyType.addCommentField ||
     props.property.baseName === PropertyType.removeCommentField,
 );
-const isTempo = computed(() => props.property.baseName === PropertyType.tempoField);
+const isTempo = computed(
+  () => props.property.baseName === PropertyType.tempoField && !danceId.value,
+);
+const isDanceTempo = computed(
+  () => props.property.baseName === PropertyType.tempoField && !!danceId.value,
+);
 const viewer = (tag: Tag) => (isDance(tag) ? DanceViewer : TagViewer);
 const isDance = (tag: Tag) => tag.category === TagCategory.Dance;
 </script>
@@ -35,6 +40,9 @@ const isDance = (tag: Tag) => tag.category === TagCategory.Dance;
   <div>
     <CommentViewer v-if="isComment" :comment="property.value" :added="isAdd" :dance-id="danceId" />
     <span v-else-if="isTempo"> tempo = {{ property.value }} BPM</span>
+    <span v-else-if="isDanceTempo">
+      {{ danceId }} tempo = {{ property.value || "(cleared)" }} BPM</span
+    >
     <div v-else>
       <component
         :is="viewer(tag)"

@@ -358,6 +358,34 @@ export class Song extends TaggableObject {
             }
           }
           break;
+        case PropertyType.tempoField: {
+          // Tempo=value sets song tempo; Tempo:DANCEID=value sets per-dance override.
+          // Empty value clears the field (null for dance, undefined for song).
+          const danceIdQual = property.danceQualifier;
+          if (danceIdQual) {
+            const dr = this.findDanceRatingById(danceIdQual);
+            if (dr) {
+              const v = property.value;
+              dr.tempo = v ? parseFloat(v) : undefined;
+            }
+          } else {
+            // Song-level — same as default reflection path
+            const value = property.valueTyped;
+            if (value !== ".") {
+              const wasUser = this.userModifiedProperties.has(baseName);
+              if (!(wasUser && pseudo)) {
+                (this as any)[pascalToCamel(baseName)] = value;
+                if (!pseudo) {
+                  this.userModifiedProperties.add(baseName);
+                  if (currentModified?.userName) {
+                    this.propLastSetByMap.set(baseName, currentModified.userName);
+                  }
+                }
+              }
+            }
+          }
+          break;
+        }
         case PropertyType.deleteTag:
           this.forceDeleteTag(property.danceQualifier, property.value);
           break;
