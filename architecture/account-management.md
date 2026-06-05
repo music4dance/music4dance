@@ -152,3 +152,46 @@ If `FilterUser?user=someuser` returns no results:
 
 External login providers (e.g., Google, Microsoft) require the user to choose a username when
 first logging in via `ExternalLogin.cshtml`. The same username validator applies.
+
+---
+
+## User Deletion and Vote Preservation
+
+When an admin deletes a user via `ApplicationUsersController.DeleteConfirmed`, their song
+contributions (votes, tags, edits) are **preserved but permanently anonymized** rather than
+deleted. This is done by calling `Database.ChangeUserName` before removing the account:
+
+```csharp
+await Database.ChangeUserName(applicationUser.DecoratedName, applicationUser.Id);
+```
+
+### How It Works
+
+`ChangeUserName` finds all songs in Azure Search where the user's `DecoratedName` appears in the
+`UserField` or `UserProxy` properties, then rewrites those properties with the new name. By
+passing the user's GUID as the new name, all contributions are attributed to an anonymous identity
+that happens to look like a GUID.
+
+### Why a GUID Means "Anonymous"
+
+GUIDs (36 characters containing `-`) are detected as anonymous identities throughout the stack:
+
+- **`UserQuery.IsAnonymous`** (TypeScript): `userName.length === 36 && userName.includes('-')` →
+  displays as "Anonymous" in song history and filter descriptions
+- **`UserQuery.IsAnonymous`** (C#): same check → display and filter logic treats them as anonymous
+- **`UserMapper.AnonymizeAll`**: explicitly passes GUIDs through unchanged (already anonymized)
+- **`UserMapper.Deanonymize`**: GUID not found in dictionary → returns GUID unchanged (no-op)
+
+### Why the GUID Is Permanently Anonymous
+
+After the user is deleted the GUID is no longer in the user database, so:
+
+- `AnonymizeFilter` and `DeanonymizeFilter` cannot resolve it → passes through as-is
+- Admin operations that deanonymize history find no match → GUID stays as-is
+- There is no way to reverse the anonymization after deletion — this is intentional
+
+### What Is Also Deleted
+
+- The user's saved searches (`Context.Searches`) are hard-deleted
+- The `ApplicationUser` row is hard-deleted
+- `UserMapper.Clear()` is called to invalidate the in-memory user cache

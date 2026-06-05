@@ -9,7 +9,6 @@ using m4d.Configuration;
 using m4d.Utilities;
 using m4d.ViewModels;
 
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -24,15 +23,10 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.FeatureManagement;
-
 using Microsoft.Data.SqlClient;
 
 using Newtonsoft.Json.Serialization;
-
-using Owl.reCAPTCHA;
-
 using System.Reflection;
-
 using Vite.AspNetCore;
 
 
@@ -376,8 +370,9 @@ else
             // app is running) are picked up by new scoped contexts automatically.
             var cfg = sp.GetRequiredService<IConfiguration>();
             var liveConnStr = cfg["AZURE_SQL_CONNECTIONSTRING"]
-                ?? cfg.GetConnectionString("DanceMusicContextConnection")
-                ?? connectionString;
+                ?? (cfg.GetValue<bool>("PROD_DB") ? cfg["ProdConnectionString"] : null)
+                ?? (cfg.GetValue<bool>("TEST_DB") ? cfg["TestConnectionString"] : null)
+                ?? cfg.GetConnectionString("DanceMusicContextConnection");
             options.UseSqlServer(liveConnStr, sqlOptions =>
             {
                 sqlOptions.EnableRetryOnFailure(
