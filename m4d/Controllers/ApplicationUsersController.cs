@@ -336,6 +336,11 @@ public class ApplicationUsersController(
     {
         var applicationUser = await UserManager.FindByIdAsync(id);
 
+        if (applicationUser == null)
+        {
+            return StatusCode((int)HttpStatusCode.NotFound);
+        }
+
         // Reassign all song contributions (votes, tags, edits) from the deleted user's name
         // to their GUID ID, so they appear as Anonymous rather than being lost.
         await Database.ChangeUserName(applicationUser.DecoratedName, applicationUser.Id);
