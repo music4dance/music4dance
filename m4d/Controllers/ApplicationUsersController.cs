@@ -75,6 +75,12 @@ public class ApplicationUsersController(
 
         var user = Database.Context.Users.Where(u => u.Id == id)
             .Include(u => u.ActivityLog).Include(u => u.Searches).FirstOrDefault();
+
+        if (user == null)
+        {
+            return StatusCode((int)HttpStatusCode.NotFound);
+        }
+
         return View(user);
     }
 
@@ -329,6 +335,10 @@ public class ApplicationUsersController(
     public async Task<ActionResult> DeleteConfirmed(string id)
     {
         var applicationUser = await UserManager.FindByIdAsync(id);
+
+        // Reassign all song contributions (votes, tags, edits) from the deleted user's name
+        // to their GUID ID, so they appear as Anonymous rather than being lost.
+        await Database.ChangeUserName(applicationUser.DecoratedName, applicationUser.Id);
 
         var searches = Context.Searches.Where(s => s.ApplicationUserId == applicationUser.Id);
         foreach (var search in searches)
