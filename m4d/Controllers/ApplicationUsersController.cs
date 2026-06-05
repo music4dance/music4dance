@@ -343,7 +343,28 @@ public class ApplicationUsersController(
 
         // Reassign all song contributions (votes, tags, edits) from the deleted user's name
         // to their GUID ID, so they appear as Anonymous rather than being lost.
-        await Database.ChangeUserName(applicationUser.DecoratedName, applicationUser.Id);
+        if (!ServiceHealth.IsServiceAvailable("SearchService"))
+        {
+            Logger.LogError("Cannot delete user {UserId}: Azure Search is unavailable. " +
+                "Delete aborted to avoid losing song contributions.", id);
+            return StatusCode((int)HttpStatusCode.ServiceUnavailable,
+                "Azure Search is currently unavailable. User deletion requires the search index " +
+                "to be reachable so that song contributions can be anonymized before the account " +
+                "is removed. Please try again once the search service has recovered.");
+        }
+
+        try
+        {
+            await Database.ChangeUserName(applicationUser.DecoratedName, applicationUser.Id);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to anonymize song contributions for user {UserId} ({UserName}) " +
+                "before deletion. Delete aborted.", id, applicationUser.UserName);
+            return StatusCode((int)HttpStatusCode.ServiceUnavailable,
+                "Failed to anonymize song contributions. User deletion aborted to avoid data loss. " +
+                "Please check the search service and try again.");
+        }
 
         var searches = Context.Searches.Where(s => s.ApplicationUserId == applicationUser.Id);
         foreach (var search in searches)

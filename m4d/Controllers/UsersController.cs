@@ -39,8 +39,11 @@ public class UsersController(
             // Return the same response as a private user with no activity to prevent
             // username enumeration: a bad actor cannot distinguish "no such user" from
             // "user exists but has chosen maximum privacy".
-            var emptyProfile = new UserProfile { UserName = id };
-            return Vue3($"Info for {id}", $"Favorites and song lists for {id}",
+            // Use a fixed anonymous placeholder rather than echoing `id` back — a real
+            // private user viewed while unauthenticated would show their GUID, not their
+            // username, so echoing the requested name would leak its existence.
+            var emptyProfile = new UserProfile { UserName = "anonymous" };
+            return Vue3("User Profile", "Favorites and song lists",
                 "user-info", emptyProfile, "account-management");
         }
 
