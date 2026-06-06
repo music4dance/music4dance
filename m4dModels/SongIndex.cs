@@ -15,6 +15,7 @@ namespace m4dModels;
 
 public class SongIndex
 {
+    private static readonly TimeSpan IndexDocumentTimeout = TimeSpan.FromSeconds(20);
     public const string SongIdField = "SongId";
     public const string AltIdField = "AlternateIds";
     public const string MoodField = "Mood";
@@ -934,8 +935,13 @@ public class SongIndex
                     try
                     {
                         var batch = IndexDocumentsBatch.Upload(added);
-                        var results = await Client.IndexDocumentsAsync(batch);
+                        using var cts = new CancellationTokenSource(IndexDocumentTimeout);
+                        var results = await Client.IndexDocumentsAsync(batch, cancellationToken: cts.Token);
                         Trace.WriteLine($"Added = {results.Value.Results.Count}");
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        Trace.WriteLine($"UpdateAzureIndex upload timed out after {IndexDocumentTimeout.TotalSeconds} seconds");
                     }
                     catch (RequestFailedException ex)
                     {
@@ -949,8 +955,13 @@ public class SongIndex
                     {
                         var batch = IndexDocumentsBatch.Delete(
                             deleted.Select(d => new SearchDocument { [SongIdField] = GetSongId(d) }));
-                        var results = await Client.IndexDocumentsAsync(batch);
+                        using var cts = new CancellationTokenSource(IndexDocumentTimeout);
+                        var results = await Client.IndexDocumentsAsync(batch, cancellationToken: cts.Token);
                         Trace.WriteLine($"Deleted = {results.Value.Results.Count}");
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        Trace.WriteLine($"UpdateAzureIndex delete timed out after {IndexDocumentTimeout.TotalSeconds} seconds");
                     }
                     catch (RequestFailedException ex)
                     {

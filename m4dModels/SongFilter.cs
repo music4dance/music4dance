@@ -636,6 +636,10 @@ public class SongFilter
 
     public virtual string GetOdataFilter(DanceMusicCoreService dms)
     {
+        var tempoFieldPath = IsSingleDance
+            ? $"dance_{DanceQuery?.DanceIds.FirstOrDefault()}/Tempo"
+            : "Tempo";
+
         var odata = SongSort.Numeric
             ? $"({SongSort.Id} ne null) and ({SongSort.Id} ne 0)"
             : null;
@@ -646,13 +650,13 @@ public class SongFilter
         if (TempoMin.HasValue)
         {
             var tempoMin = TempoMin.Value % 1M < (decimal).0001 ? TempoMin - .5M : TempoMin;
-            odata = (odata == null ? "" : odata + " and ") + $"(Tempo ge {tempoMin})";
+            odata = (odata == null ? "" : odata + " and ") + $"({tempoFieldPath} ge {tempoMin})";
         }
 
         if (TempoMax.HasValue)
         {
             var tempoMax = TempoMax.Value % 1M < (decimal).0001 ? TempoMax + .5M : TempoMax;
-            odata = (odata == null ? "" : odata + " and ") + $"(Tempo le {tempoMax})";
+            odata = (odata == null ? "" : odata + " and ") + $"({tempoFieldPath} le {tempoMax})";
         }
 
         if (LengthMin.HasValue)

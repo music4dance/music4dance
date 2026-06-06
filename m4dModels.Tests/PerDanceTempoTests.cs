@@ -196,18 +196,34 @@ public class PerDanceTempoTests
     }
 
     [TestMethod]
-    public void SongFilter_TempoRange_SingleDance_UsesTopLevelTempoField()
+    public void SongFilter_TempoRange_SingleDance_UsesPerDanceTempoField()
     {
-        // Base filter (v2) should still use top-level Tempo field.
+        // Base filter (v2) should use per-dance Tempo field when exactly one concrete dance is selected.
         var filter = SongFilter.Create(false, "Index-CHA-.-.-.-.-100-120-1");
 
         Assert.IsFalse(filter is SongFilterNext, "Should be a base SongFilter, not SongFilterNext");
+        Assert.IsTrue(filter.IsSingleDance, "Should be single dance");
 
         var odata = filter.GetOdataFilter(_dms);
         Trace.WriteLine($"OData: {odata}");
 
         Assert.IsNotNull(odata);
-        StringAssert.Contains(odata, "(Tempo ge", "Base filter should use top-level Tempo");
+        StringAssert.Contains(odata, "dance_CHA/Tempo", "Base filter should use per-dance Tempo");
+    }
+
+    [TestMethod]
+    public void SongFilter_TempoRange_SingleDanceGroup_UsesTopLevelTempoField()
+    {
+        // Single dance-group filter (e.g. Foxtrot group): no per-dance tempo field available.
+        var filter = SongFilter.Create(false, "Index-FXT-.-.-.-.-100-120-1");
+
+        Assert.IsFalse(filter.IsSingleDance, "Single dance-group should not be treated as single dance");
+
+        var odata = filter.GetOdataFilter(_dms);
+        Trace.WriteLine($"OData: {odata}");
+
+        Assert.IsNotNull(odata);
+        StringAssert.Contains(odata, "(Tempo ge", "Dance-group filter should use top-level Tempo");
     }
 
     [TestMethod]
@@ -292,7 +308,7 @@ public class PerDanceTempoTests
     public void SongFilterNext_DanceSort_SingleDance_UsesVotes()
     {
         // Single dance + dance (votes) sort → should NOT use per-dance Tempo.
-        var filter = SongFilter.Create(true, "Index-FXT-.-.-.-.-.-.-1");
+        var filter = SongFilter.Create(true, "Index-CHA-.-.-.-.-.-.-1");
 
         Assert.IsTrue(filter is SongFilterNext, "Should be SongFilterNext");
         Assert.IsTrue(filter.IsSingleDance, "Should be single dance");
