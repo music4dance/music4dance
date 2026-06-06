@@ -136,6 +136,15 @@ describe("song filter", () => {
     );
   });
 
+  it("should describe a single-dance tempo filter using dance-specific tempo wording", () => {
+    const f = SongFilter.buildFilter("Advanced-CHA-----100-150--");
+    expect(f).toBeDefined();
+    expect(f.singleDance).toBe(true);
+    expect(f.description).toContain(
+      "having for Cha Cha tempo between 100 and 150 beats per minute",
+    );
+  });
+
   it("should describe a full purchase filter", () => {
     const f = SongFilter.buildFilter("Advanced----AIS-");
     expect(f).toBeDefined();

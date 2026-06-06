@@ -270,12 +270,14 @@ export class SongFilter {
   }
 
   private get describeTempo(): string {
+    const singleDanceName = this.singleDance ? this.danceQuery.dances[0]?.name : undefined;
+    const qualifier = singleDanceName ? `for ${singleDanceName} ` : "";
     if (this.tempoMin && this.tempoMax) {
-      return `having tempo between ${this.tempoMin} and ${this.tempoMax} beats per minute`;
+      return `having ${qualifier}tempo between ${this.tempoMin} and ${this.tempoMax} beats per minute`;
     } else if (this.tempoMin) {
-      return `having tempo greater than ${this.tempoMin} beats per minute`;
+      return `having ${qualifier}tempo greater than ${this.tempoMin} beats per minute`;
     } else if (this.tempoMax) {
-      return `having tempo less than ${this.tempoMax} beats per minute`;
+      return `having ${qualifier}tempo less than ${this.tempoMax} beats per minute`;
     } else {
       return "";
     }

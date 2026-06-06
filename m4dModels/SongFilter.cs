@@ -341,7 +341,15 @@ public class SongFilter
         !GetDanceIsComplex() &&
         UserQuery.IsDefault(user);
 
-    public bool IsSingleDance => GetDanceCount() == 1;
+    public bool IsSingleDance
+    {
+        get
+        {
+            if (IsRaw) return false;
+            var dances = DanceQuery?.Dances.ToList();
+            return dances?.Count == 1 && dances[0] is not DanceLibrary.DanceGroup;
+        }
+    }
     public bool HasDances => GetDanceCount() > 0;
 
     private int GetDanceCount()
@@ -404,21 +412,27 @@ public class SongFilter
 
             if (TempoMin.HasValue && TempoMax.HasValue)
             {
+                var danceQualifier = IsSingleDance
+                    ? $"for {DanceQuery.Dances.First().Name} " : "";
                 _ = sb.AppendFormat(
-                    "{0}having tempo between {1} and {2} beats per minute",
-                    separator, TempoMin.Value, TempoMax.Value);
+                    "{0}having {1}tempo between {2} and {3} beats per minute",
+                    separator, danceQualifier, TempoMin.Value, TempoMax.Value);
             }
             else if (TempoMin.HasValue)
             {
+                var danceQualifier = IsSingleDance
+                    ? $"for {DanceQuery.Dances.First().Name} " : "";
                 _ = sb.AppendFormat(
-                    "{0}having tempo greater than {1} beats per minute", separator,
-                    TempoMin.Value);
+                    "{0}having {1}tempo greater than {2} beats per minute", separator,
+                    danceQualifier, TempoMin.Value);
             }
             else if (TempoMax.HasValue)
             {
+                var danceQualifier = IsSingleDance
+                    ? $"for {DanceQuery.Dances.First().Name} " : "";
                 _ = sb.AppendFormat(
-                    "{0}having tempo less than {1} beats per minute", separator,
-                    TempoMax.Value);
+                    "{0}having {1}tempo less than {2} beats per minute", separator,
+                    danceQualifier, TempoMax.Value);
             }
 
             if (LengthMin.HasValue && LengthMax.HasValue)
