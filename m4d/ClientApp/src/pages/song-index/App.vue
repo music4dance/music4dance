@@ -15,6 +15,28 @@ const userName = context.userName;
 const { songs: selected, select: selectSong } = useSongSelector();
 const hasData = model.histories && model.histories.length > 0;
 const searchAvailable = context.searchHealthy !== false;
+
+interface SearchRequestDiagnostics {
+  searchText?: string;
+  queryType?: string;
+  searchMode?: string;
+  filter?: string;
+  orderBy?: string[];
+  skip?: number;
+  size?: number;
+  includeTotalCount?: boolean;
+  cruftFilter?: string;
+}
+
+declare const searchRequestDiagnostics_: SearchRequestDiagnostics | undefined;
+
+const hasSearchRequestDiagnostics = typeof searchRequestDiagnostics_ !== "undefined";
+const searchRequestDiagnostics = hasSearchRequestDiagnostics
+  ? searchRequestDiagnostics_
+  : undefined;
+const searchRequestDiagnosticsText = searchRequestDiagnostics
+  ? JSON.stringify(searchRequestDiagnostics, null, 2)
+  : "";
 </script>
 
 <template>
@@ -54,6 +76,12 @@ const searchAvailable = context.searchHealthy !== false;
       </BAlert>
       <SongFooter v-if="hasData" :model="model" />
       <AdminFooter :model="model" :selected="selected" />
+
+      <BCard v-if="searchRequestDiagnostics" class="mt-4">
+        <h2 class="h5 mb-2">Azure Search Request Parameters</h2>
+        <p class="text-muted mb-2">Diagnostic output for the request sent to Azure Search.</p>
+        <pre class="mb-0"><code>{{ searchRequestDiagnosticsText }}</code></pre>
+      </BCard>
     </template>
   </PageFrame>
 </template>

@@ -258,6 +258,11 @@ public class SongController : ContentController
 
         var histories = await AnonymizeSongs(songs);
 
+        if (User.IsInRole(DanceMusicCoreService.DiagRole))
+        {
+            ViewData["SearchRequestDiagnostics"] = await BuildSearchRequestDiagnostics();
+        }
+
         return UseVue switch
         {
             UseVue.V3 => Vue3("Songs for Dancing", $"music4dance catalog: {Filter.Description}", Filter.VueName,
@@ -271,6 +276,25 @@ public class SongController : ContentController
                                 },
                                 danceEnvironment: true),
             _ => throw new Exception("Unknown UseVue value"),
+        };
+    }
+
+    private async Task<SearchRequestDiagnosticsModel> BuildSearchRequestDiagnostics()
+    {
+        var options = await AzureParmsFromFilter(Filter);
+        options = SongIndex.AddCruftInfo(options, Filter.CruftFilter);
+
+        return new SearchRequestDiagnosticsModel
+        {
+            SearchText = Filter.SearchString,
+            QueryType = options.QueryType.ToString(),
+            SearchMode = options.SearchMode.ToString(),
+            Filter = options.Filter,
+            OrderBy = options.OrderBy?.ToList() ?? [],
+            Skip = options.Skip,
+            Size = options.Size,
+            IncludeTotalCount = options.IncludeTotalCount ?? false,
+            CruftFilter = Filter.CruftFilter.ToString(),
         };
     }
 
