@@ -185,6 +185,19 @@ export class Song extends TaggableObject {
     return this.findDanceRatingById(ds.id);
   }
 
+  /**
+   * Returns the effective tempo in the context of an optional dance ID.
+   * If a per-dance tempo override exists, it is preferred; otherwise song-level tempo is used.
+   */
+  public tempoForDance(danceId?: string): number | undefined {
+    if (!danceId) {
+      return this.tempo;
+    }
+
+    const rating = this.findDanceRatingById(danceId);
+    return rating?.tempo ?? this.tempo;
+  }
+
   public removeDanceRating(id: string): void {
     const index = this.danceRatings?.findIndex((dr) => dr.id === id);
     if (index === -1) {

@@ -3,8 +3,31 @@ import { Song } from "../Song";
 import { SongHistory } from "../SongHistory";
 import { PropertyType, SongProperty } from "../SongProperty";
 import { AmazonPurchaseInfo, ServiceType } from "../Purchase";
+import { DanceRating } from "../DanceRating";
 
 describe("Song", () => {
+  describe("tempoForDance", () => {
+    it("returns per-dance tempo when an override exists", () => {
+      const song = new Song({
+        tempo: 171,
+        danceRatings: [new DanceRating({ danceId: "VWZ", weight: 1, tempo: 214 })],
+      });
+
+      expect(song.tempoForDance("VWZ")).toBe(214);
+    });
+
+    it("falls back to song tempo when dance override is missing", () => {
+      const song = new Song({
+        tempo: 171,
+        danceRatings: [new DanceRating({ danceId: "VWZ", weight: 1 })],
+      });
+
+      expect(song.tempoForDance("VWZ")).toBe(171);
+      expect(song.tempoForDance("CHA")).toBe(171);
+      expect(song.tempoForDance()).toBe(171);
+    });
+  });
+
   describe("isUserModified", () => {
     it("should return true when field is modified by real user", () => {
       const history = new SongHistory({
