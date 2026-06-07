@@ -174,10 +174,15 @@ Once you are satisfied with the behaviour on the test index:
 > **Prerequisites**: The new `songs-prod-N+1` index name has been provisioned in Azure AI Search
 > and added to `appsettings.json`. The code for the new schema is deployed to production with
 > `SEARCHINDEXVERSION` still unset.
+>
+> **Per-dance tempo cutover note**: keep `CodeVersion = 2` during this runbook. The live switch
+> to next-version behavior is performed by `UpdateSearchIdx` via `RedirectToUpdate()` (sets
+> `ConfigVersion = CodeVersion + 1`).
 
 ### Step 1 — Navigate to the Admin Diagnostics page
 
-`/Admin/Diagnostics` — confirm the current index and version are as expected.
+`/Admin/Diagnostics` — confirm the current index and version are as expected for pre-cutover
+state (current index active, next-version index configured but not yet live).
 
 ### Step 2 — Run `UpdateSearchIdx`
 
@@ -190,17 +195,22 @@ What happens internally (`DanceMusicCoreService.UpdateIndex`):
 3. Streams all songs from the current index using `BackupIndexStreamingAsync()` (no 100 K limit).
 4. Uploads the backup to the new index via `UploadIndex()`.
 5. Calls `SearchService.RedirectToUpdate()`, setting `ConfigVersion = CodeVersion + 1` → `NextVersion = true`.
-6. Clears the stats cache and reloads from Azure.
-7. Clears the banner.
+6. Returns to Admin controller, which reloads dance stats from Azure.
+7. Clears the banner message.
 
 ### Step 3 — Verify
 
 Browse the site. Spot-check song search, dance pages, and tag filters. Check `/Admin/Diagnostics`
 to confirm the active index is now `songs-prod-N+1`.
 
+For per-dance tempo specifically, verify at least one single-dance tempo filter/sort query emits
+`dance_{id}/Tempo` in diagnostics.
+
 ### Step 4 — Clean up `TODOIDX` items
 
 Remove all `// TODOIDX:` compatibility shims from the codebase. Run all tests.
+
+For per-dance tempo migration, do this in a follow-up PR after cutover is stable.
 
 ### Step 5 — Remove the old index section from `appsettings.json`
 
@@ -211,6 +221,8 @@ Azure AI Search. Keep the `N+1` entry as the new current version.
 
 If `CodeVersion` was bumped in Step 4 of _Implementing a Breaking Change_, this is already done.
 Re-deploy so the constant matches the live index.
+
+For the current per-dance rollout path, this is an explicit post-cutover step.
 
 ---
 
