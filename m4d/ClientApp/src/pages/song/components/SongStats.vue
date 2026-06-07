@@ -34,7 +34,10 @@ const modifiedFormatted = computed(() => formatDate(props.song.modified));
 const createdFormatted = computed(() => formatDate(props.song.created));
 const editedFormatted = computed(() => formatDate(props.song.edited!));
 
-const emit = defineEmits<{ edit: [] }>();
+const emit = defineEmits<{
+  edit: [];
+  "update-field": [field: SongProperty];
+}>();
 
 const formatEchoNest = (n: number): string => {
   return (n * 100).toFixed(1).toString() + "%";
