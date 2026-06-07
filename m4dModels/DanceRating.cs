@@ -75,6 +75,9 @@ public class DanceRating : TaggableObject
     [DataMember]
     public string PatternName { get; set; }
 
+    [DataMember]
+    public decimal? Tempo { get; set; }
+
     protected override HashSet<string> ValidClasses => s_validClasses;
 
     public static Dictionary<string, string> DanceMap

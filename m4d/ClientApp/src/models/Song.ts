@@ -185,6 +185,19 @@ export class Song extends TaggableObject {
     return this.findDanceRatingById(ds.id);
   }
 
+  /**
+   * Returns the effective tempo in the context of an optional dance ID.
+   * If a per-dance tempo override exists, it is preferred; otherwise song-level tempo is used.
+   */
+  public tempoForDance(danceId?: string): number | undefined {
+    if (!danceId) {
+      return this.tempo;
+    }
+
+    const rating = this.findDanceRatingById(danceId);
+    return rating?.tempo ?? this.tempo;
+  }
+
   public removeDanceRating(id: string): void {
     const index = this.danceRatings?.findIndex((dr) => dr.id === id);
     if (index === -1) {
@@ -358,6 +371,47 @@ export class Song extends TaggableObject {
             }
           }
           break;
+        case PropertyType.tempoField: {
+          // Tempo=value sets song tempo; Tempo:DANCEID=value sets per-dance override.
+          // Empty value clears the field (null for dance, undefined for song).
+          const danceIdQual = property.danceQualifier;
+          if (danceIdQual) {
+            const dr = this.findDanceRatingById(danceIdQual);
+            if (dr) {
+              const v = property.value;
+              if (v) {
+                const parsedTempo = Number(v);
+                if (Number.isFinite(parsedTempo)) {
+                  dr.tempo = parsedTempo;
+                  // Promote: if no song-level tempo has been set yet, infer it from this
+                  // dance override. Preserves the semantic that the user is expressing a
+                  // dance preference — other users remain free to set song.Tempo independently.
+                  if (this.tempo == null) {
+                    this.tempo = parsedTempo;
+                  }
+                }
+              } else {
+                dr.tempo = undefined; // empty = clear override
+              }
+            }
+          } else {
+            // Song-level — same as default reflection path
+            const value = property.valueTyped;
+            if (value !== ".") {
+              const wasUser = this.userModifiedProperties.has(baseName);
+              if (!(wasUser && pseudo)) {
+                (this as any)[pascalToCamel(baseName)] = value;
+                if (!pseudo) {
+                  this.userModifiedProperties.add(baseName);
+                  if (currentModified?.userName) {
+                    this.propLastSetByMap.set(baseName, currentModified.userName);
+                  }
+                }
+              }
+            }
+          }
+          break;
+        }
         case PropertyType.deleteTag:
           this.forceDeleteTag(property.danceQualifier, property.value);
           break;

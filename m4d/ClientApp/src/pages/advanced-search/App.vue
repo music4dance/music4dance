@@ -413,7 +413,15 @@ function onReset(evt: Event): void {
           </div>
         </BFormGroup>
 
-        <BFormGroup id="tempo-range-group" label="Tempo range (BPM):" label-for="tempo-range">
+        <BFormGroup
+          id="tempo-range-group"
+          :label="
+            dances.length === 1
+              ? `Tempo range for ${danceDB.danceFromId(dances[0])!.name} (BPM):`
+              : 'Tempo range (BPM):'
+          "
+          label-for="tempo-range"
+        >
           <BFormGroup id="tempo-range">
             <div class="d-flex">
               <BFormInput

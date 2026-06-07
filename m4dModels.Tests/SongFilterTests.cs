@@ -97,6 +97,45 @@ public class SongFilterTests
     }
 
     [TestMethod]
+    public void FilterDescription_SingleDanceTempo_UsesDanceName()
+    {
+        // Single-dance filter: tempo description should include the dance name.
+        var fMin = SongFilter.Create(false, @"Index-CHA-.-.--.-100-.-1");
+        var fMax = SongFilter.Create(false, @"Index-CHA-.-.--.-.-150-1");
+        var fRange = SongFilter.Create(false, @"Index-CHA-.-.--.-100-150-1");
+
+        StringAssert.Contains(fMin.Description,
+            "having for Cha Cha tempo greater than 100 beats per minute");
+        StringAssert.Contains(fMax.Description,
+            "having for Cha Cha tempo less than 150 beats per minute");
+        StringAssert.Contains(fRange.Description,
+            "having for Cha Cha tempo between 100 and 150 beats per minute");
+
+        // Single dance-group filter: no dance name qualifier because groups don't have tempo index schema.
+        var fGroup = SongFilter.Create(false, @"Index-FXT-.-.--.-100-150-1");
+        StringAssert.Contains(fGroup.Description, "having tempo between 100 and 150 beats per minute");
+        Assert.IsFalse(fGroup.Description.Contains("for "),
+            "Single dance-group should not have 'for' qualifier");
+
+        // Multi-dance: no dance name qualifier.
+        var fMulti = SongFilter.Create(false, @"Index-CHA,RMB-.-.--.-100-150-1");
+        StringAssert.Contains(fMulti.Description, "having tempo between 100 and 150 beats per minute");
+        Assert.IsFalse(fMulti.Description.Contains("for "), "Multi-dance should not have 'for' qualifier");
+    }
+
+    [TestMethod]
+    public void ShortDescription_DancePrefix_DoesNotInsertStrayPeriod()
+    {
+        var filter = SongFilter.Create(false, @"Advanced-MBO,RMB,SMB-.-.-.-null-.-.-1-|");
+
+        Assert.IsFalse(filter.ShortDescription.Contains(": . "),
+            $"Unexpected short description punctuation: {filter.ShortDescription}");
+        Assert.IsTrue(
+            filter.ShortDescription.StartsWith("Mambo, Rumba, Samba: Sorted by Dance Rating", StringComparison.Ordinal),
+            $"Unexpected short description: {filter.ShortDescription}");
+    }
+
+    [TestMethod]
     public void FilterDescriptionV2()
     {
         var f1 = SongFilter.Create(false, F1V2);

@@ -21,7 +21,7 @@
 </ul>
 
 @if (SearchService.HasNextVersion && !SearchService.NextVersion) {
-    @Html.ActionLink($"Update {SearchService.DefaultId}", "UpdateSearchIdx")
+    @Html.ActionLink($"Update {SearchService.DefaultId} → {SearchService.NextIndexName}", "UpdateSearchIdx")
 }
 
 <h3 class="mt-3"> Initializiation Tasks</h3>

@@ -15,6 +15,7 @@ namespace m4dModels;
 
 public class SongIndex
 {
+    private static readonly TimeSpan IndexDocumentTimeout = TimeSpan.FromSeconds(20);
     public const string SongIdField = "SongId";
     public const string AltIdField = "AlternateIds";
     public const string MoodField = "Mood";
@@ -934,12 +935,19 @@ public class SongIndex
                     try
                     {
                         var batch = IndexDocumentsBatch.Upload(added);
-                        var results = await Client.IndexDocumentsAsync(batch);
+                        using var cts = new CancellationTokenSource(IndexDocumentTimeout);
+                        var results = await Client.IndexDocumentsAsync(batch, cancellationToken: cts.Token);
                         Trace.WriteLine($"Added = {results.Value.Results.Count}");
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        throw new TimeoutException(
+                            $"UpdateAzureIndex upload timed out after {IndexDocumentTimeout.TotalSeconds} seconds");
                     }
                     catch (RequestFailedException ex)
                     {
-                        Trace.WriteLine($"RequestFailedException: {ex.Message}");
+                        throw new InvalidOperationException(
+                            $"UpdateAzureIndex upload failed: {ex.Message}", ex);
                     }
                 }
 
@@ -949,12 +957,19 @@ public class SongIndex
                     {
                         var batch = IndexDocumentsBatch.Delete(
                             deleted.Select(d => new SearchDocument { [SongIdField] = GetSongId(d) }));
-                        var results = await Client.IndexDocumentsAsync(batch);
+                        using var cts = new CancellationTokenSource(IndexDocumentTimeout);
+                        var results = await Client.IndexDocumentsAsync(batch, cancellationToken: cts.Token);
                         Trace.WriteLine($"Deleted = {results.Value.Results.Count}");
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        throw new TimeoutException(
+                            $"UpdateAzureIndex delete timed out after {IndexDocumentTimeout.TotalSeconds} seconds");
                     }
                     catch (RequestFailedException ex)
                     {
-                        Trace.WriteLine($"RequestFailedException: {ex.Message}");
+                        throw new InvalidOperationException(
+                            $"UpdateAzureIndex delete failed: {ex.Message}", ex);
                     }
                 }
 
@@ -967,7 +982,7 @@ public class SongIndex
         catch (Exception e)
         {
             Trace.WriteLine($"UpdateAzureIndex Failed: {e.Message}");
-            return 0;
+            throw;
         }
     }
 
@@ -1683,7 +1698,7 @@ public class SongIndex
             suggesters: searchSuggesters,
             scoringProfiles: searchScoringProfiles,
             defaultScoringProfile: "Default",
-            isNext: false
+            isNext: IsNext
         );
     }
 
@@ -1884,40 +1899,20 @@ public class SongIndex
         return doc;
     }
 
-    public async Task<int> UploadIndex(IList<string> lines, bool trackDeleted)
+    public async Task<int> UploadIndex(IAsyncEnumerable<string> lines, bool trackDeleted)
     {
         const int chunkSize = 500;
-        var page = 0;
         var added = 0;
         var delete = new List<string>();
+        var chunk = new List<Song>();
 
-        for (var i = 0; i < lines.Count; page += 1)
+        async Task FlushChunk()
         {
-            AdminMonitor.UpdateTask("AddSongs", added);
-            var chunk = new List<Song>();
-            for (; i < lines.Count && i < (page + 1) * chunkSize; i++)
-            {
-                var song = await Song.Create(lines[i], DanceMusicService);
-                chunk.Add(song);
-                if (trackDeleted)
-                {
-                    delete.AddRange(song.GetAltids());
-                }
-            }
-
-            if (chunk.Count == 0)
-            {
-                continue;
-            }
-
-            //var songs = chunk.Where(s => !s.IsNull).Select(s =>
-            //    new IndexDocumentsAction<SearchDocument>(
-            //        IndexActionType.MergeOrUpload, s.GetIndexDocument()));
-
+            if (chunk.Count == 0) return;
             try
             {
-                var songs = chunk.Where(s => !s.IsNull).Select(song => DocumentFromSong(song));
-                var batch = IndexDocumentsBatch.Upload(songs);
+                var docs = chunk.Where(s => !s.IsNull).Select(DocumentFromSong);
+                var batch = IndexDocumentsBatch.Upload(docs);
                 var results = await Client.IndexDocumentsAsync(batch);
                 added += results.Value.Results.Count;
             }
@@ -1925,9 +1920,25 @@ public class SongIndex
             {
                 Trace.WriteLine($"RequestFailedException: {ex.Message}");
             }
-
             Trace.WriteLine($"Upload Index: {added} songs added.");
+            chunk.Clear();
         }
+
+        await foreach (var line in lines)
+        {
+            AdminMonitor.UpdateTask("AddSongs", added);
+            var song = await Song.Create(line, DanceMusicService);
+            chunk.Add(song);
+            if (trackDeleted)
+            {
+                delete.AddRange(song.GetAltids());
+            }
+            if (chunk.Count >= chunkSize)
+            {
+                await FlushChunk();
+            }
+        }
+        await FlushChunk();
 
         if (delete.Count <= 0)
         {

@@ -5170,6 +5170,7 @@ exports[`Song Index > renders a song index page 1`] = `
         </div>
       </div>
       <!--v-if-->
+      <!--v-if-->
     </div>
   </div>
   <div id="footer-content">

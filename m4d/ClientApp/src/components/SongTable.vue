@@ -12,6 +12,7 @@ import { SongSort, SortOrder } from "@/models/SongSort";
 import { Tag, TagContext } from "@/models/Tag";
 import { TaggableObject } from "@/models/TaggableObject";
 import { TagHandler } from "@/models/TagHandler";
+import { displayTempoForSongTable } from "@/components/songTableTempo";
 import { computed, ref, watch } from "vue";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
@@ -280,8 +281,7 @@ const tempoRef = (song: Song): string | undefined => {
 };
 
 const tempoValue = (song: Song): string => {
-  const tempo = song.tempo;
-  return tempo && !isHidden("tempo") ? `${Math.round(tempo)}` : "";
+  return displayTempoForSongTable(song, singleDance.value, isHidden("tempo"));
 };
 
 const lengthValue = (song: Song): string => {

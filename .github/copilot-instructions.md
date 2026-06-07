@@ -614,6 +614,71 @@ describe("useMyComposable", () => {
 4. ✅ Synchronous assertions for sendBeacon (no async/await)
 5. ✅ Test both happy path and edge cases
 
+### Component Testing with bootstrap-vue-next
+
+When testing Vue components that use bootstrap-vue-next (`BCard`, `BListGroup`, `BListGroupItem`, etc.):
+
+**Problem**: `shallowMount` or stub dicts stub out bootstrap components, preventing their slots from rendering. Child content becomes invisible to queries.
+
+**Solution**: Register the real bootstrap-vue-next components in `global.components` so slots render, while still stubbing unrelated child components:
+
+```typescript
+import { BCard, BListGroup, BListGroupItem, BButton } from "bootstrap-vue-next";
+import { mount } from "@vue/test-utils";
+
+const wrapper = mount(MyComponent, {
+  props: { ... },
+  global: {
+    components: { BCard, BListGroup, BListGroupItem, BButton },
+    stubs: {
+      // Stub leaf components that don't affect layout
+      ChildComponent: true,
+      // Use named class stubs for icons you need to assert on
+      IBiSomeIcon: { template: "<span class='some-icon-stub' />" },
+    },
+  },
+});
+```
+
+**Icons from unplugin-icons render as inline SVGs, not stub elements.** Do not assert on stub tag names like `ibixcircle-stub`. Instead:
+
+- Assert on `svg` element presence: `wrapper.find("svg").exists()`
+- Assert on button attributes: `wrapper.find('button[title^="Clear"]').exists()`
+- Or use a named class stub: `IBiXCircle: { template: "<span class='x-circle-stub' />" }`
+
+**Mocking `getMenuContext()` for role-based rendering tests:**
+
+`getMenuContext()` caches a module-level singleton. Setting `window.menuContext` before mounting doesn't reset it. Use `vi.mock` instead:
+
+```typescript
+import { vi } from "vitest";
+import { MenuContext } from "@/models/MenuContext";
+
+const mockContext = new MenuContext();
+
+vi.mock("@/helpers/GetMenuContext", () => ({
+  getMenuContext: () => mockContext,
+  getAxiosXsrf: () => undefined,
+}));
+
+// Then mutate mockContext per-test:
+mockContext.roles = ["canTag"];
+mockContext.userName = "dwgray";
+```
+
+Reset in `afterEach`:
+
+```typescript
+afterEach(() => {
+  mockContext.roles = [];
+  mockContext.userName = undefined;
+});
+```
+
+**Common pitfall**: Components that use `new MenuContext()` instead of `getMenuContext()` will always have empty roles. Always use `getMenuContext()` in components. See [Vue reactivity docs](https://vuejs.org/guide/essentials/computed.html).
+
+**Reference**: `m4d/ClientApp/src/pages/song/components/__tests__/DanceDetails.test.ts`
+
 ### Testing Checklists
 
 **For New API Controllers:**

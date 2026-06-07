@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Song } from "@/models/Song";
-import { PropertyType } from "@/models/SongProperty";
+import { PropertyType, SongProperty } from "@/models/SongProperty";
 import { computed } from "vue";
 import { formatDate } from "@/helpers/timeHelpers";
 import { getMenuContext } from "@/helpers/GetMenuContext";
@@ -79,8 +79,15 @@ const formatEchoNest = (n: number): string => {
           class="ms-1 p-0 align-baseline"
           @click="emit('edit')"
           ><IBiPencilFill /></BButton
-      ></BTd>
-    </BTr>
+        ><BButton
+          v-if="canTagUser && editing && song.tempo"
+          type="button"
+          variant="link"
+          class="ms-1 p-0 align-baseline text-danger"
+          title="Clear tempo"
+          @click="$emit('update-field', new SongProperty({ name: 'Tempo', value: '' }))"
+          ><IBiXCircle /></BButton></BTd
+    ></BTr>
     <BTr v-if="song.danceability">
       <BTh>Beat</BTh>
       <BTd>

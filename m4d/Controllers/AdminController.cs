@@ -622,8 +622,6 @@ public class AdminController(
             StartAdminTask("LoadIndex");
             AdminMonitor.UpdateTask("UploadFile");
 
-            var lines = UploadFile(fileUpload);
-
             AdminMonitor.UpdateTask("LoadIndex");
 
             var idx = Database.GetSongIndex(idxName);
@@ -632,7 +630,7 @@ public class AdminController(
                 _ = await idx.ResetIndex();
             }
 
-            var c = await idx.UploadIndex(lines, !reset);
+            var c = await idx.UploadIndex(ReadLinesAsync(fileUpload), !reset);
 
             if (SearchService.GetInfo(idxName).Id == SearchService.GetInfo("default").Id)
             {

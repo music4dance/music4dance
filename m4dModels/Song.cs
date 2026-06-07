@@ -1673,6 +1673,46 @@ public class Song : TaggableObject
                 case AddPatternNameField:
                     AddObjectPatternName(prop.DanceQualifier, prop.Value);
                     break;
+                case TempoField:
+                    {
+                        var danceQual = prop.DanceQualifier;
+                        if (!string.IsNullOrWhiteSpace(danceQual))
+                        {
+                            // Per-dance tempo: Tempo:DanceId=value; empty value clears override.
+                            var dr = FindRating(danceQual);
+                            if (dr != null)
+                            {
+                                if (string.IsNullOrWhiteSpace(prop.Value))
+                                {
+                                    dr.Tempo = null; // clear override
+                                }
+                                else if (decimal.TryParse(prop.Value, out var dt))
+                                {
+                                    dr.Tempo = dt;
+                                    // Promote: if no song-level tempo has been set yet, infer it
+                                    // from this dance override. This preserves the semantic that
+                                    // the user is expressing a dance preference, not a song one —
+                                    // other users remain free to set song.Tempo independently.
+                                    if (Tempo == null)
+                                    {
+                                        Tempo = dt;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Song-level tempo — replicate default reflection handling.
+                            var isUser2 = !currentModified?.ApplicationUser?.IsPseudo ?? false;
+                            if (!(isUserModified.Contains(TempoField) && !isUser2))
+                            {
+                                var piTempo = GetType().GetProperty(TempoField);
+                                piTempo?.SetValue(this, prop.ObjectValue);
+                                if (isUser2) _ = isUserModified.Add(TempoField);
+                            }
+                        }
+                    }
+                    break;
                 case DeleteTagLabel:
                     ForceDeleteTag(prop.DanceQualifier, prop.Value, stats);
                     break;

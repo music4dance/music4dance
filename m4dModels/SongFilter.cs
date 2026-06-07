@@ -242,7 +242,7 @@ public class SongFilter
             ? (CruftFilter)Level.Value
             : CruftFilter.NoCruft;
 
-    public IList<string> ODataSort
+    public virtual IList<string> ODataSort
     {
         get
         {
@@ -341,7 +341,15 @@ public class SongFilter
         !GetDanceIsComplex() &&
         UserQuery.IsDefault(user);
 
-    public bool IsSingleDance => GetDanceCount() == 1;
+    public bool IsSingleDance
+    {
+        get
+        {
+            if (IsRaw) return false;
+            var dances = DanceQuery?.Dances.ToList();
+            return dances?.Count == 1 && dances[0] is not DanceLibrary.DanceGroup;
+        }
+    }
     public bool HasDances => GetDanceCount() > 0;
 
     private int GetDanceCount()
@@ -404,21 +412,27 @@ public class SongFilter
 
             if (TempoMin.HasValue && TempoMax.HasValue)
             {
+                var danceQualifier = IsSingleDance
+                    ? $"for {DanceQuery.Dances.First().Name} " : "";
                 _ = sb.AppendFormat(
-                    "{0}having tempo between {1} and {2} beats per minute",
-                    separator, TempoMin.Value, TempoMax.Value);
+                    "{0}having {1}tempo between {2} and {3} beats per minute",
+                    separator, danceQualifier, TempoMin.Value, TempoMax.Value);
             }
             else if (TempoMin.HasValue)
             {
+                var danceQualifier = IsSingleDance
+                    ? $"for {DanceQuery.Dances.First().Name} " : "";
                 _ = sb.AppendFormat(
-                    "{0}having tempo greater than {1} beats per minute", separator,
-                    TempoMin.Value);
+                    "{0}having {1}tempo greater than {2} beats per minute", separator,
+                    danceQualifier, TempoMin.Value);
             }
             else if (TempoMax.HasValue)
             {
+                var danceQualifier = IsSingleDance
+                    ? $"for {DanceQuery.Dances.First().Name} " : "";
                 _ = sb.AppendFormat(
-                    "{0}having tempo less than {1} beats per minute", separator,
-                    TempoMax.Value);
+                    "{0}having {1}tempo less than {2} beats per minute", separator,
+                    danceQualifier, TempoMax.Value);
             }
 
             if (LengthMin.HasValue && LengthMax.HasValue)
@@ -512,12 +526,20 @@ public class SongFilter
             {
                 _ = sb.Append("only including songs with comments");
             }
+            var endsWithDancePrefix = sb.Length >= 2 && sb[^2] == ':' && sb[^1] == ' ';
             if (sb.Length > 0)
             {
-                _ = sb.Append(". ");
+                if (!endsWithDancePrefix)
+                {
+                    _ = sb.Append(". ");
+                }
             }
 
-            _ = sb.Append(SongSort.Description);
+            var sortDescription = endsWithDancePrefix
+                ? SongSort.Description.TrimStart()
+                : SongSort.Description;
+
+            _ = sb.Append(sortDescription);
 
             return sb.ToString().Trim();
         }
@@ -620,8 +642,18 @@ public class SongFilter
         return SwapUser(user, UserQuery.IdentityUser);
     }
 
-    public string GetOdataFilter(DanceMusicCoreService dms)
+    public virtual string GetOdataFilter(DanceMusicCoreService dms)
     {
+        return BuildOdataFilter(dms, "Tempo");
+    }
+
+    protected string BuildOdataFilter(DanceMusicCoreService dms, string tempoFieldPath)
+    {
+        if (string.IsNullOrWhiteSpace(tempoFieldPath))
+        {
+            throw new ArgumentException("tempoFieldPath must be provided", nameof(tempoFieldPath));
+        }
+
         var odata = SongSort.Numeric
             ? $"({SongSort.Id} ne null) and ({SongSort.Id} ne 0)"
             : null;
@@ -632,13 +664,13 @@ public class SongFilter
         if (TempoMin.HasValue)
         {
             var tempoMin = TempoMin.Value % 1M < (decimal).0001 ? TempoMin - .5M : TempoMin;
-            odata = (odata == null ? "" : odata + " and ") + $"(Tempo ge {tempoMin})";
+            odata = (odata == null ? "" : odata + " and ") + $"({tempoFieldPath} ge {tempoMin})";
         }
 
         if (TempoMax.HasValue)
         {
             var tempoMax = TempoMax.Value % 1M < (decimal).0001 ? TempoMax + .5M : TempoMax;
-            odata = (odata == null ? "" : odata + " and ") + $"(Tempo le {tempoMax})";
+            odata = (odata == null ? "" : odata + " and ") + $"({tempoFieldPath} le {tempoMax})";
         }
 
         if (LengthMin.HasValue)

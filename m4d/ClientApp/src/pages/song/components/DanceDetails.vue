@@ -6,12 +6,12 @@ import { SongFilter } from "@/models/SongFilter";
 import { computed } from "vue";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import type { NamedObject } from "@/models/DanceDatabase/NamedObject";
-import { MenuContext } from "@/models/MenuContext";
+import { getMenuContext } from "@/helpers/GetMenuContext";
 import type { TagHandler } from "@/models/TagHandler";
 import { TagContext } from "@/models/Tag";
 
 const danceDB = safeDanceDatabase();
-const context = new MenuContext();
+const context = getMenuContext();
 
 defineOptions({ inheritAttrs: false });
 
@@ -25,7 +25,7 @@ const props = defineProps<{
   edit?: boolean;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   "delete-dance": [dr: DanceRating];
   "tag-clicked": [tag: TagHandler];
   "update-song": [];
@@ -48,6 +48,17 @@ const danceLink = (dr: DanceRating): string => {
 };
 
 const filterFamilyTag = computed(() => props.filter.familyTag);
+
+const canEditDanceTempo = computed(() => !!props.user && context.hasRole("canTag"));
+
+/** Display value for per-dance tempo: override if set, else song-level tempo. */
+const displayTempo = (dr: DanceRating): string => (dr.tempo ?? props.song.tempo)?.toString() ?? "";
+
+const onTempoChange = (dr: DanceRating, value: string): void => {
+  if (!props.editor) return;
+  props.editor.setDanceTempo(dr.danceId, value || undefined);
+  emit("edit");
+};
 </script>
 
 <template>
@@ -70,6 +81,53 @@ const filterFamilyTag = computed(() => props.filter.familyTag);
         <a :href="danceLink(dr)"
           ><DanceName :dance="danceFromRating(dr)" :show-synonyms="true"
         /></a>
+        <span v-if="displayTempo(dr)" class="ms-2 small">
+          <template v-if="edit && canEditDanceTempo">
+            <!-- Edit mode (canTag): labelled input, placeholder = inherited value -->
+            <span :class="dr.tempo != null ? 'text-success' : 'text-muted'"
+              >Tempo:<IBiLink45deg
+                v-if="dr.tempo == null"
+                class="ms-1 me-1"
+                style="font-size: 0.75em; opacity: 0.6"
+                title="Inheriting song tempo"
+            /></span>
+            <input
+              type="number"
+              class="form-control form-control-sm d-inline mx-1"
+              style="width: 5em"
+              :value="dr.tempo ?? ''"
+              :placeholder="song.tempo?.toString() ?? '???'"
+              :title="
+                dr.tempo != null
+                  ? 'Per-dance override — clear to inherit song tempo'
+                  : 'Inheriting song tempo'
+              "
+              @blur="onTempoChange(dr, ($event.target as HTMLInputElement).value)"
+              @keyup.enter="onTempoChange(dr, ($event.target as HTMLInputElement).value)"
+            />
+            BPM
+            <BButton
+              v-if="dr.tempo != null"
+              type="button"
+              variant="link"
+              class="p-0 ms-1 align-baseline text-muted"
+              title="Clear per-dance override (revert to song tempo)"
+              @click="onTempoChange(dr, '')"
+              ><IBiXCircle style="font-size: 0.85em"
+            /></BButton>
+          </template>
+          <template v-else>
+            <!-- View mode (all users): show effective tempo, style by inherited vs override -->
+            <span
+              :class="dr.tempo != null ? 'text-success' : 'text-muted'"
+              :title="dr.tempo != null ? 'Per-dance tempo override' : 'Inherited from song tempo'"
+              >{{ displayTempo(dr) }} BPM<IBiLink45deg
+                v-if="dr.tempo == null"
+                class="ms-1"
+                style="font-size: 0.75em; opacity: 0.6"
+            /></span>
+          </template>
+        </span>
         <span v-if="dr.tags" style="margin-left: 0.25rem; line-height: 2.75rem">
           <TagListEditor
             :container="dr"

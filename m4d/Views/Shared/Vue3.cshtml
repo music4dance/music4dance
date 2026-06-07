@@ -21,6 +21,15 @@ var converterModel = Model.Model != null
                 PreserveCase = Model.PreserveCase,
             }
     : null;
+
+ViewData.TryGetValue("SearchRequestDiagnostics", out var searchRequestDiagnostics);
+var diagnosticsConverterModel = searchRequestDiagnostics != null
+    ? new ObjectConverterModel
+            {
+                Name = "searchRequestDiagnostics_",
+                Model = searchRequestDiagnostics,
+            }
+    : null;
 }
 
 @if (Model.Script != null)
@@ -36,6 +45,10 @@ var converterModel = Model.Model != null
     @if (Model.Model != null)
     {
         <partial name="_jsonCamelCase" model="@converterModel" />
+    }
+    @if (diagnosticsConverterModel != null)
+    {
+        <partial name="_jsonCamelCase" model="@diagnosticsConverterModel" />
     }
     <script type="module" vite-src="@entry" asp-append-version="true"></script>
 }

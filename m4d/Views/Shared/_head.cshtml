@@ -90,7 +90,15 @@
 <!-- TradeDoubler site verification 2516966 -->
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>@ViewBag.Title - Music4Dance: Shall we dance...to music?</title>
+@{
+    var pageTitle = ViewBag.Title as string;
+    var keepAsIs = !string.IsNullOrWhiteSpace(pageTitle) &&
+        pageTitle.StartsWith("music4dance:", StringComparison.OrdinalIgnoreCase);
+    var fullTitle = keepAsIs
+        ? pageTitle
+        : $"{pageTitle} - Music4Dance: Shall we dance...to music?";
+}
+<title>@fullTitle</title>
 @if (!string.IsNullOrEmpty(ViewBag.Description))
 {
     <meta name="description" content="@ViewBag.Description"/>
