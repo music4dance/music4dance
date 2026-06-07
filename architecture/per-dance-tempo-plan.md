@@ -95,14 +95,14 @@ Note row 4: once `song.Tempo` is inferred as 128, any dance without an explicit 
 
 **`m4dModels/Song.cs`** (serialization)
 
-- In `Song.Create` (the tab-delimited parser), recognise `Tempo+:{DanceId}=value`:
+- In `Song.Create` (the tab-delimited parser), recognise `Tempo:{DanceId}=value`:
   - Look up the dance rating by ID; set its `Tempo`.
 - Modify the handler for `Tempo=value`:
   - As before, set `song.Tempo = value`.
   - Also, for every `DanceRating` whose current `Tempo == null` OR whose `Tempo == old song tempo`,
     set `rating.Tempo = value`. (This keeps ratings that have been split from drifting.)
 - In the serializer (wherever the song is emitted back to the triplet format), emit
-  `Tempo+:{dr.DanceId}=value` lines for every `DanceRating` where `dr.Tempo != song.Tempo`
+  `Tempo:{dr.DanceId}=value` lines for every `DanceRating` where `dr.Tempo != song.Tempo`
   (i.e., only write the override lines, not the defaults).
 
 **Tests (`m4dModels.Tests` or `DanceTests`):**
@@ -148,7 +148,8 @@ doc[BuildDanceFieldName(dr.DanceId)] = new Dictionary<string, object>
 };
 ```
 
-Bump `SearchServiceManager.CodeVersion` from `2` to `3` in `SearchServiceInfo.cs`.
+Bump `SearchServiceManager.CodeVersion` from `2` to `3` in `SearchServiceInfo.cs`
+only when production cutover is complete.
 
 Add to `appsettings.json` (already present, just confirm):
 
@@ -238,13 +239,13 @@ shows/edits the song-level tempo. With this change:
 - The song-level tempo field remains at the top.
 - Below each dance rating, show the dance-specific tempo (pre-filled with the song tempo if no
   override is set).
-- Editing a dance tempo produces a `Tempo+:DanceId=value` serialisation token in the edit block.
+- Editing a dance tempo produces a `Tempo:DanceId=value` serialisation token in the edit block.
 - If a dance tempo is cleared (set to empty), the override is removed and it reverts to the song
   tempo.
 
 **Serialization token on edit**: Follow the same pattern used for dance-specific tags
 (`Tag+:DanceId=...`). The edit block passed to `SongIndex.EditSong` should include the
-`Tempo+:DanceId=value` tokens.
+`Tempo:DanceId=value` tokens.
 
 **Tests:**
 
@@ -285,17 +286,20 @@ migration since they all belong to the same schema transition:
 
 ## Implementation Status
 
-| Phase                       | Status         | Notes                                                                 |
-| --------------------------- | -------------- | --------------------------------------------------------------------- |
-| Phase 1 — Data model        | ✅ Complete    | `DanceRating.Tempo`, `Song.DanceTempoField`, `LoadProperties` handler |
-| Phase 2 — Index schema (v3) | ✅ Complete    | `SongIndexNext.BuildIndex/DocumentFromSong`, `CodeVersion=3`          |
-| Phase 3 — Filter / sort     | ✅ Complete    | `SongFilterNext.ODataSort`, `SongFilterNext.GetOdataFilter`           |
-| Phase 4 — UI: song editor   | ⬜ Not started | Per-dance tempo input in song editor                                  |
-| Phase 5 — Migration         | ⬜ Not started | Run `UpdateIndex` against v3 index                                    |
-| Phase 6 — TODOIDX cleanup   | ⬜ Not started | Post-production                                                       |
+| Phase                       | Status         | Notes                                                                                                 |
+| --------------------------- | -------------- | ----------------------------------------------------------------------------------------------------- |
+| Phase 1 — Data model        | ✅ Complete    | `DanceRating.Tempo`, unified `Tempo` token with optional `:DanceId` qualifier                         |
+| Phase 2 — Index schema (v3) | ✅ Complete    | `SongIndexNext.BuildIndex/DocumentFromSong`                                                           |
+| Phase 3 — Filter / sort     | ✅ Complete    | Single concrete dance tempo filter/sort uses `dance_{id}/Tempo`; groups fallback to top-level `Tempo` |
+| Phase 4 — UI: song editor   | ✅ Complete    | Per-dance tempo input, clear override action, inherited vs override indicators                        |
+| Phase 5 — Migration         | ⏳ Pending Ops | Production cutover (`UpdateSearchIdx`), then bump `CodeVersion`                                       |
+| Phase 6 — TODOIDX cleanup   | ⏳ Pending Ops | Post-production cleanup and old index removal                                                         |
 
-All 14 automated tests for Phases 1–3 pass (`m4dModels.Tests/PerDanceTempoTests.cs`).
-Full server test suite: **498 passed, 1 skipped, 0 failed**.
+Focused verification completed:
+
+- Server: `PerDanceTempoTests` + `SongFilterTests` pass (26/26).
+- Client: per-dance tempo model/list selection tests pass (31/31 in focused run).
+  Full server test suite: **498 passed, 1 skipped, 0 failed**.
 
 ---
 
@@ -338,11 +342,11 @@ This is the same process as production migration — a test run for it.
 2. Apply tempo filter or sort.
 3. Verify the API uses the top-level `Tempo` field, not `dance_{id}/Tempo`.
 
-**D. Set a per-dance tempo override on a song (requires Phase 4 UI — skip for now)**
+**D. Set a per-dance tempo override on a song**
 
-Once Phase 4 is implemented, verify:
+Verify:
 
-- Setting a per-dance tempo via the song editor emits `Tempo+:DanceId=value`.
+- Setting a per-dance tempo via the song editor emits `Tempo:DanceId=value`.
 - The override is visible in the song editor (pre-filled with song tempo if no override).
 - Clearing the override reverts to song tempo.
 
@@ -360,20 +364,22 @@ Once Phase 4 is implemented, verify:
 ### Data Model
 
 - [x] `DanceRating.Tempo` property (nullable decimal)
-- [x] `Song.Create` parser: `Tempo+:{DanceId}=` token
+- [x] `Song.Create` parser: `Tempo:{DanceId}=` token
 - [ ] `Song.Tempo` setter: propagate to un-overridden dance ratings _(deferred — migration via `DocumentFromSong` fallback is sufficient for now)_
-- [ ] Serializer: emit `Tempo+:{DanceId}=` only when tempo differs from song _(deferred — raw property round-trips already; explicit emit needed for Phase 4 UI)_
+- [x] Client/server replay semantics: `Tempo:{DanceId}` supported with promote inference
+- [ ] Serializer: emit `Tempo:{DanceId}=` only when tempo differs from song _(deferred; current append-history replay is canonical)_
 
 ### Query
 
 - [x] `SongFilterNext.ODataSort`: use `dance_{id}/Tempo` when single-dance + tempo sort
 - [x] `SongFilterNext.GetOdataFilter`: use `dance_{id}/Tempo` for single-dance tempo range filter
+- [x] `SongFilter.GetOdataFilter`: same single-dance behavior for base filter path
 
 ### UI
 
-- [ ] Song editor: per-dance tempo field visible and editable
-- [ ] Song editor: empty = inherit from song tempo
-- [ ] Edit serialisation produces correct `Tempo+:{DanceId}=` token
+- [x] Song editor: per-dance tempo field visible and editable
+- [x] Song editor: empty = inherit from song tempo
+- [x] Edit serialisation produces correct `Tempo:{DanceId}=` token
 
 ### Migration & Cleanup
 
@@ -387,5 +393,5 @@ Once Phase 4 is implemented, verify:
 - [x] `SongFilterNext.ODataSort` for tempo + single dance
 - [x] `SongFilterNext.GetOdataFilter` for tempo range + single dance
 - [x] `SongIndexNext.DanceTempoSubField` constant and OData path consistency
-- [ ] Song tempo propagation to dance ratings _(deferred with that setter)_
-- [ ] Song editor client component tests _(Phase 4)_
+- [x] Song tempo propagation/inference behavior for replay path
+- [x] Song editor/list client behavior tests

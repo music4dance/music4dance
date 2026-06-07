@@ -6,6 +6,12 @@ The search index versioning system allows breaking changes to the Azure AI Searc
 in isolation and then rolled out to production with near-zero downtime. It was introduced in
 [PR #27](https://github.com/music4dance/music4dance/pull/27).
 
+## Current Rollout Status (Per-Dance Tempo)
+
+- The v3 schema and query behavior for per-dance tempo are implemented in code (`SongIndexNext` / filter paths).
+- Production cutover is still an operational step: run `UpdateSearchIdx`, validate, then bump `CodeVersion`.
+- Until that cutover is complete, `CodeVersion` remains `2` and next-version behavior is activated via `SEARCHINDEXVERSION`.
+
 ---
 
 ## Concepts
