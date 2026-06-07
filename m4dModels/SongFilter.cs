@@ -526,12 +526,20 @@ public class SongFilter
             {
                 _ = sb.Append("only including songs with comments");
             }
+            var endsWithDancePrefix = sb.Length >= 2 && sb[^2] == ':' && sb[^1] == ' ';
             if (sb.Length > 0)
             {
-                _ = sb.Append(". ");
+                if (!endsWithDancePrefix)
+                {
+                    _ = sb.Append(". ");
+                }
             }
 
-            _ = sb.Append(SongSort.Description);
+            var sortDescription = endsWithDancePrefix
+                ? SongSort.Description.TrimStart()
+                : SongSort.Description;
+
+            _ = sb.Append(sortDescription);
 
             return sb.ToString().Trim();
         }

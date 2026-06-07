@@ -263,9 +263,14 @@ public class SongController : ContentController
             ViewData["SearchRequestDiagnostics"] = await BuildSearchRequestDiagnostics();
         }
 
+        var searchTitle = string.IsNullOrWhiteSpace(Filter.ShortDescription)
+            ? "music4dance: Songs for Dancing"
+            : $"music4dance: {Filter.ShortDescription}";
+
         return UseVue switch
         {
-            UseVue.V3 => Vue3("Songs for Dancing", $"music4dance catalog: {Filter.Description}", Filter.VueName,
+            UseVue.V3 => Vue3(searchTitle,
+                                $"music4dance catalog: {Filter.Description}", Filter.VueName,
                                 new SongListModel
                                 {
                                     Histories = histories,

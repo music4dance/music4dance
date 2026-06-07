@@ -124,6 +124,18 @@ public class SongFilterTests
     }
 
     [TestMethod]
+    public void ShortDescription_DancePrefix_DoesNotInsertStrayPeriod()
+    {
+        var filter = SongFilter.Create(false, @"Advanced-MBO,RMB,SMB-.-.-.-null-.-.-1-|");
+
+        Assert.IsFalse(filter.ShortDescription.Contains(": . "),
+            $"Unexpected short description punctuation: {filter.ShortDescription}");
+        Assert.IsTrue(
+            filter.ShortDescription.StartsWith("Mambo, Rumba, Samba: Sorted by Dance Rating", StringComparison.Ordinal),
+            $"Unexpected short description: {filter.ShortDescription}");
+    }
+
+    [TestMethod]
     public void FilterDescriptionV2()
     {
         var f1 = SongFilter.Create(false, F1V2);
