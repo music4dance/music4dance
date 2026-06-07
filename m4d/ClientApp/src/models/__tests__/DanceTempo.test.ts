@@ -3,7 +3,9 @@ import { Song } from "@/models/Song";
 import { SongEditor } from "@/models/SongEditor";
 import { SongHistory } from "@/models/SongHistory";
 import { SongProperty } from "@/models/SongProperty";
+import { DanceRating } from "@/models/DanceRating";
 import { setupTestEnvironment } from "@/helpers/TestHelpers";
+import { TypedJSON } from "typedjson";
 
 setupTestEnvironment();
 
@@ -137,6 +139,33 @@ describe("Song per-dance tempo parsing", () => {
     ]);
     // Should not throw
     expect(() => Song.fromHistory(history)).not.toThrow();
+  });
+
+  it("ignores invalid Tempo:DanceId values instead of writing NaN", () => {
+    const history = makeHistory([
+      ...makeBaseSong().properties,
+      { name: ".Edit", value: "" },
+      { name: "User", value: "dwgray" },
+      { name: "Time", value: "01/01/2024 1:00:00 PM" },
+      { name: "Tempo:CHA", value: "not-a-number" },
+    ]);
+
+    const song = Song.fromHistory(history);
+    expect(song.findDanceRatingById("CHA")?.tempo).toBeUndefined();
+    expect(song.tempo).toBe(120);
+  });
+
+  it("typedjson round-trips DanceRating.tempo", () => {
+    const serializer = new TypedJSON(Song);
+    const source = new Song({
+      tempo: 171,
+      danceRatings: [new DanceRating({ danceId: "VWZ", weight: 1, tempo: 214 })],
+    });
+
+    const json = serializer.stringify(source);
+    const parsed = serializer.parse(json);
+
+    expect(parsed?.danceRatings?.[0]?.tempo).toBe(214);
   });
 });
 

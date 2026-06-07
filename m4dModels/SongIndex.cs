@@ -941,11 +941,13 @@ public class SongIndex
                     }
                     catch (TaskCanceledException)
                     {
-                        Trace.WriteLine($"UpdateAzureIndex upload timed out after {IndexDocumentTimeout.TotalSeconds} seconds");
+                        throw new TimeoutException(
+                            $"UpdateAzureIndex upload timed out after {IndexDocumentTimeout.TotalSeconds} seconds");
                     }
                     catch (RequestFailedException ex)
                     {
-                        Trace.WriteLine($"RequestFailedException: {ex.Message}");
+                        throw new InvalidOperationException(
+                            $"UpdateAzureIndex upload failed: {ex.Message}", ex);
                     }
                 }
 
@@ -961,11 +963,13 @@ public class SongIndex
                     }
                     catch (TaskCanceledException)
                     {
-                        Trace.WriteLine($"UpdateAzureIndex delete timed out after {IndexDocumentTimeout.TotalSeconds} seconds");
+                        throw new TimeoutException(
+                            $"UpdateAzureIndex delete timed out after {IndexDocumentTimeout.TotalSeconds} seconds");
                     }
                     catch (RequestFailedException ex)
                     {
-                        Trace.WriteLine($"RequestFailedException: {ex.Message}");
+                        throw new InvalidOperationException(
+                            $"UpdateAzureIndex delete failed: {ex.Message}", ex);
                     }
                 }
 
@@ -978,7 +982,7 @@ public class SongIndex
         catch (Exception e)
         {
             Trace.WriteLine($"UpdateAzureIndex Failed: {e.Message}");
-            return 0;
+            throw;
         }
     }
 

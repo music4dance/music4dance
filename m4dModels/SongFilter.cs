@@ -644,9 +644,15 @@ public class SongFilter
 
     public virtual string GetOdataFilter(DanceMusicCoreService dms)
     {
-        var tempoFieldPath = IsSingleDance
-            ? $"dance_{DanceQuery?.DanceIds.FirstOrDefault()}/Tempo"
-            : "Tempo";
+        return BuildOdataFilter(dms, "Tempo");
+    }
+
+    protected string BuildOdataFilter(DanceMusicCoreService dms, string tempoFieldPath)
+    {
+        if (string.IsNullOrWhiteSpace(tempoFieldPath))
+        {
+            throw new ArgumentException("tempoFieldPath must be provided", nameof(tempoFieldPath));
+        }
 
         var odata = SongSort.Numeric
             ? $"({SongSort.Id} ne null) and ({SongSort.Id} ne 0)"

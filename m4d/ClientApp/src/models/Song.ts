@@ -380,12 +380,15 @@ export class Song extends TaggableObject {
             if (dr) {
               const v = property.value;
               if (v) {
-                dr.tempo = parseFloat(v);
-                // Promote: if no song-level tempo has been set yet, infer it from this
-                // dance override. Preserves the semantic that the user is expressing a
-                // dance preference — other users remain free to set song.Tempo independently.
-                if (this.tempo == null) {
-                  this.tempo = dr.tempo;
+                const parsedTempo = Number(v);
+                if (Number.isFinite(parsedTempo)) {
+                  dr.tempo = parsedTempo;
+                  // Promote: if no song-level tempo has been set yet, infer it from this
+                  // dance override. Preserves the semantic that the user is expressing a
+                  // dance preference — other users remain free to set song.Tempo independently.
+                  if (this.tempo == null) {
+                    this.tempo = parsedTempo;
+                  }
                 }
               } else {
                 dr.tempo = undefined; // empty = clear override

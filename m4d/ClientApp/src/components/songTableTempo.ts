@@ -10,5 +10,5 @@ export const displayTempoForSongTable = (
   }
 
   const tempo = song.tempoForDance(danceId);
-  return tempo ? `${Math.round(tempo)}` : "";
+  return typeof tempo === "number" && Number.isFinite(tempo) ? `${Math.round(tempo)}` : "";
 };

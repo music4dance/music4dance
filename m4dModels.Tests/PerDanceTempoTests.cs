@@ -196,9 +196,9 @@ public class PerDanceTempoTests
     }
 
     [TestMethod]
-    public void SongFilter_TempoRange_SingleDance_UsesPerDanceTempoField()
+    public void SongFilter_TempoRange_SingleDance_UsesTopLevelTempoField()
     {
-        // Base filter (v2) should use per-dance Tempo field when exactly one concrete dance is selected.
+        // Base filter (v2 schema) must use top-level Tempo field.
         var filter = SongFilter.Create(false, "Index-CHA-.-.-.-.-100-120-1");
 
         Assert.IsFalse(filter is SongFilterNext, "Should be a base SongFilter, not SongFilterNext");
@@ -208,7 +208,8 @@ public class PerDanceTempoTests
         Trace.WriteLine($"OData: {odata}");
 
         Assert.IsNotNull(odata);
-        StringAssert.Contains(odata, "dance_CHA/Tempo", "Base filter should use per-dance Tempo");
+        StringAssert.Contains(odata, "(Tempo ge", "Base filter should use top-level Tempo");
+        Assert.IsFalse(odata.Contains("dance_CHA/Tempo"), "Base filter should not emit v3-only per-dance field");
     }
 
     [TestMethod]

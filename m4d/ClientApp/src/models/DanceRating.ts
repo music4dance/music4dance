@@ -9,7 +9,7 @@ export class DanceRating extends TaggableObject {
   @jsonMember(String) public danceId!: string;
   @jsonMember(Number) public weight!: number;
   /** Per-dance tempo override. Null/undefined means inherit from song-level tempo. */
-  public tempo?: number;
+  @jsonMember(Number) public tempo?: number;
 
   public static fromTag(tag: Tag): DanceRating | undefined {
     if (tag.category !== TagCategory.Dance) {
