@@ -6,7 +6,7 @@ import App from "../App.vue";
 describe("Playlist Viewer", () => {
   beforeAll(() => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-06-10T12:00:00Z"));
+    vi.setSystemTime(new Date("2026-05-01T12:00:00"));
   });
 
   afterAll(() => {

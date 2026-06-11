@@ -282,7 +282,9 @@ const focusEditTarget = async (): Promise<void> => {
   }
 
   focusTarget.value = target;
-  target.scrollIntoView({ block: "center", inline: "nearest" });
+  if (typeof target.scrollIntoView === "function") {
+    target.scrollIntoView({ block: "center", inline: "nearest" });
+  }
   focused.value = true;
 
   if (supportsSelect(target)) {
