@@ -14,11 +14,7 @@ describe("Playlist Viewer", () => {
     vi.useRealTimers();
   });
 
-  test(
-    "renders a playlist viewer index page",
-    () => {
-      testPageSnapshot(App, model);
-    },
-    50000,
-  );
+  test("renders a playlist viewer index page", () => {
+    testPageSnapshot(App, model);
+  }, 50000);
 });
