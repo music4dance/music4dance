@@ -10,10 +10,11 @@ import { Tag, TagContext } from "@/models/Tag";
 import { TrackModel } from "@/models/TrackModel";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
-import { computed, onBeforeMount, onBeforeUnmount, ref } from "vue";
+import { computed, nextTick, onBeforeMount, onBeforeUnmount, ref, watch } from "vue";
 import type { SongHistory } from "@/models/SongHistory";
 import { useToast, useModal } from "bootstrap-vue-next";
 import { TagHandler } from "@/models/TagHandler";
+import { useFocus } from "@vueuse/core";
 
 const context = getMenuContext();
 const danceDB = safeDanceDatabase();
@@ -46,6 +47,9 @@ const editor = ref<SongEditor | null>(
 let toastValue: string | undefined;
 
 const edit = ref(props.startEditing);
+const pendingEditTargetSelector = ref<string | undefined>(undefined);
+const focusTarget = ref<HTMLElement | null>(null);
+const { focused } = useFocus(focusTarget);
 
 const tagModalVisible = ref(false);
 const currentTag = ref<TagHandler>(new TagHandler({ tag: Tag.fromString("Placeholder:Other") }));
@@ -226,8 +230,73 @@ const updateSong = (): void => {
   songStore.value = editor.value!.song;
 };
 const setEdit = (): void => {
+  pendingEditTargetSelector.value = undefined;
   edit.value = true;
 };
+const requestEdit = (targetSelector?: string): void => {
+  pendingEditTargetSelector.value = targetSelector;
+  edit.value = true;
+};
+
+const nextFrame = async (): Promise<void> => {
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
+};
+
+const supportsSelect = (target: HTMLElement): target is HTMLInputElement | HTMLTextAreaElement => {
+  if (target instanceof HTMLTextAreaElement) {
+    return true;
+  }
+
+  if (!(target instanceof HTMLInputElement)) {
+    return false;
+  }
+
+  const selectableTypes = new Set(["", "text", "search", "url", "tel", "password", "email"]);
+  return selectableTypes.has(target.type);
+};
+
+const findFocusTarget = (targetSelector: string): HTMLElement | null => {
+  try {
+    return document.querySelector(targetSelector) as HTMLElement | null;
+  } catch {
+    return null;
+  }
+};
+
+const focusEditTarget = async (): Promise<void> => {
+  await nextTick();
+  await nextFrame();
+  await nextTick();
+
+  const targetSelector = pendingEditTargetSelector.value;
+  if (!targetSelector) {
+    return;
+  }
+
+  const target = findFocusTarget(targetSelector);
+
+  if (!target) {
+    return;
+  }
+
+  focusTarget.value = target;
+  if (typeof target.scrollIntoView === "function") {
+    target.scrollIntoView({ block: "center", inline: "nearest" });
+  }
+  focused.value = true;
+
+  if (supportsSelect(target)) {
+    target.select();
+  }
+};
+
+watch(edit, async (isEditing, wasEditing) => {
+  if (isEditing && !wasEditing) {
+    await focusEditTarget();
+  }
+});
 const addTrack = (track: TrackModel): void => {
   editor.value?.addAlbumFromTrack(track);
 };
@@ -357,18 +426,20 @@ onBeforeUnmount(() => {
         />
       </BCol>
       <BCol md="4">
-        <TagListEditor
-          :container="song"
-          :filter="filter"
-          :user="model.userName"
-          :editor="editor as SongEditor"
-          :edit="edit"
-          :context="TagContext.Song"
-          :system-tag-keys="(history as SongHistory)?.systemTagKeys"
-          @edit="setEdit"
-          @update-song="updateSong"
-          @tag-clicked="showTagModal"
-        />
+        <div data-edit-target="song-tags">
+          <TagListEditor
+            :container="song"
+            :filter="filter"
+            :user="model.userName"
+            :editor="editor as SongEditor"
+            :edit="edit"
+            :context="TagContext.Song"
+            :system-tag-keys="(history as SongHistory)?.systemTagKeys"
+            @edit="requestEdit($event)"
+            @update-song="updateSong"
+            @tag-clicked="showTagModal"
+          />
+        </div>
       </BCol>
       <BCol v-if="song.hasSample" md="4">
         <audio controls class="mx-auto">
@@ -397,7 +468,7 @@ onBeforeUnmount(() => {
           :edit="edit"
           @dance-vote="onDanceVote($event)"
           @update-song="updateSong"
-          @edit="setEdit"
+          @edit="requestEdit"
           @delete-dance="onDeleteDance($event)"
           @tag-clicked="showTagModal"
         />
@@ -412,7 +483,7 @@ onBeforeUnmount(() => {
           :is-creator="isCreator"
           :user="model.userName"
           @update-field="updateField($event)"
-          @edit="setEdit"
+          @edit="requestEdit($event)"
         /><BButton
           v-if="hasUserChanges && !editing"
           variant="outline-primary"
