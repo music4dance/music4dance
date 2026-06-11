@@ -245,30 +245,25 @@ shows/edits the song-level tempo. With this change:
 
 #### Interaction fix: keep the clicked control visible while entering edit mode
 
-The edit-entry icons can trigger a layout shift when the editor opens. The next implementation
-pass should track which control initiated editing (song tempo pencil, song tags pencil, dance tags
-pencil, and any future field-level edit icon), then restore focus and visibility after the
+The edit-entry icons can trigger a layout shift when the editor opens. The implementation now
+uses selector-based edit targeting so each entry point can request the exact control to focus after
 re-render.
 
-- Record the edit source as part of the page state: top-right song editor button versus a specific
-  field/tag pencil and (for dance-scoped controls) the dance id.
-- When a field/tag pencil is clicked, keep the corresponding row/section as the active target after
-  the edit UI appears.
-- After the DOM updates, scroll the active control into view and focus the input so the row stays
-  visible even when the layout changes.
-- Use a template ref plus a small focus/scroll helper; VueUse may help here, but the key behavior
-  is that the initiating control should remain the active target across the re-render.
+- `requestEdit` now accepts a selector string from the initiating control (song tempo, song tags,
+  dance row controls) instead of branching on source IDs in `SongCore`.
+- After DOM update, `SongCore` scrolls to the selector target and applies focus using VueUse
+  focus handling.
+- Dance row entry points (including dance-tag pencil) now route to the dance tempo input selector
+  for that same dance row so the editor target is predictable.
 
 #### Visual fix: distinguish inherited tempo from explicit tempo
 
-The inherited placeholder text currently reads too much like a real value. The next implementation
-pass should make inherited values obviously provisional.
+Inherited tempo now renders with muted/italic placeholder styling and numeric-first text.
 
-- Render inherited tempo with a lower-emphasis style than explicit overrides.
-- Prefer a muted placeholder treatment plus supporting affordance, such as an `Inherited` label,
-  a subtle icon, or `placeholder="Song tempo"` instead of showing the full numeric value inline.
-- Keep explicit per-dance overrides styled as the real editable value, so the user can tell at a
-  glance whether the dance has its own tempo or is inheriting from the song.
+- Dance tempo inherited placeholder uses `NNN (inherited)` and widened controls.
+- Song tempo uses `NNN (inferred)` only for the true corner case where song tempo was promoted from
+  dance tempo replay with no explicit song-level `Tempo=` token.
+- Song tempo and song length controls were widened to improve readability without changing behavior.
 
 **Serialization token on edit**: Follow the same pattern used for dance-specific tags
 (`Tag+:DanceId=...`). The edit block passed to `SongIndex.EditSong` should include the
@@ -277,6 +272,9 @@ pass should make inherited values obviously provisional.
 **Tests:**
 
 - Client-side: the tempo input in the dance-rating section emits the correct token.
+- Client-side: selector propagation/focus targeting is verified from dance controls into `SongCore`.
+- Client-side: dance-tag edit entry emits a dance-tempo selector for the same dance row.
+- Client-side: inferred placeholder is shown only for true dance-promoted song tempo.
 - Server-side: `EditSong` round-trips the per-dance tempo correctly.
 
 ---
@@ -318,14 +316,14 @@ migration since they all belong to the same schema transition:
 | Phase 1 — Data model        | ✅ Complete    | `DanceRating.Tempo`, unified `Tempo` token with optional `:DanceId` qualifier                         |
 | Phase 2 — Index schema (v3) | ✅ Complete    | `SongIndexNext.BuildIndex/DocumentFromSong`                                                           |
 | Phase 3 — Filter / sort     | ✅ Complete    | Single concrete dance tempo filter/sort uses `dance_{id}/Tempo`; groups fallback to top-level `Tempo` |
-| Phase 4 — UI: song editor   | ✅ Complete    | Per-dance tempo input, clear override action, inherited vs override indicators                        |
+| Phase 4 — UI: song editor   | ✅ Complete    | Per-dance tempo input, selector-based focus targeting, inherited/inferred visual treatment            |
 | Phase 5 — Migration         | ⏳ Pending Ops | Production cutover (`UpdateSearchIdx`), then bump `CodeVersion`                                       |
 | Phase 6 — TODOIDX cleanup   | ⏳ Pending Ops | Post-production cleanup and old index removal                                                         |
 
 Focused verification completed:
 
 - Server: `PerDanceTempoTests` + `SongFilterTests` pass (26/26).
-- Client: per-dance tempo model/list selection tests pass (31/31 in focused run).
+- Client: song editor selector/focus and inferred/inherited tempo tests pass (44/44 in focused run).
   Full server test suite: **498 passed, 1 skipped, 0 failed**.
 
 ---
@@ -427,3 +425,5 @@ Verify:
 - [x] `SongIndexNext.DanceTempoSubField` constant and OData path consistency
 - [x] Song tempo propagation/inference behavior for replay path
 - [x] Song editor/list client behavior tests
+- [x] Selector propagation test from dance edit controls into `SongCore`
+- [x] Dance tag edit maps to dance-tempo selector for row-local focus target
