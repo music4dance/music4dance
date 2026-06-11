@@ -25,7 +25,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   "update-song": [];
   "tag-clicked": [tag: TagHandler];
-  edit: [];
+  edit: [targetSelector?: string];
 }>();
 
 const userTagKeys = computed<string[]>({
@@ -151,7 +151,17 @@ const tagHandler = (tag: Tag): TagHandler => {
         :user="user"
         @tag-clicked="emit('tag-clicked', $event)"
       />
-      <BLink v-if="authenticated" href="#" @click="$emit('edit')">
+      <BLink
+        v-if="authenticated"
+        href="#"
+        role="button"
+        @click.prevent="
+          $emit(
+            'edit',
+            '[data-edit-target=&quot;song-tags&quot;] input, [data-edit-target=&quot;song-tags&quot;] button',
+          )
+        "
+      >
         <IBiPencilFill class="me-2" />
       </BLink>
     </span>

@@ -63,6 +63,22 @@ function makeNoTempoSong(): Song {
   return Song.fromHistory(history);
 }
 
+/** Build a Song where song tempo is inferred from a dance tempo token (no explicit Tempo= token). */
+function makeDanceInferredTempoSong(tempo = "180"): Song {
+  const history = new SongHistory({
+    id: "test-song-id",
+    properties: [
+      new SongProperty({ name: ".Create", value: "" }),
+      new SongProperty({ name: "User", value: "dwgray" }),
+      new SongProperty({ name: "Time", value: "01/01/2020 12:00:00" }),
+      new SongProperty({ name: "Title", value: "Test Song" }),
+      new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+      new SongProperty({ name: "Tempo:CHA", value: tempo }),
+    ],
+  });
+  return Song.fromHistory(history);
+}
+
 function mountStats(song: Song, user?: string, editing = false) {
   return mount(SongStats, {
     props: { song, user, editing },
@@ -204,6 +220,22 @@ describe("SongStats.vue — canOverrideTempo / algo tempo pencil button", () => 
       expect(tempoEditor).toBeDefined();
       expect(tempoEditor!.props("role")).toBe("canTag");
       expect(tempoEditor!.props("overridePermission")).toBe(false);
+    });
+
+    it("uses numeric-first inferred placeholder text only for dance-promoted song tempo", () => {
+      const wrapper = mountStats(makeDanceInferredTempoSong(), "testuser", true);
+      const input = wrapper.find('input[data-field-name="Tempo"]');
+      expect(input.exists()).toBe(true);
+      expect(input.attributes("placeholder")).toBe("180 (inferred)");
+      expect((input.element as HTMLInputElement).value).toBe("");
+    });
+
+    it("does not show inferred placeholder for explicit bot-set song tempo", () => {
+      const wrapper = mountStats(makeAlgoTempoSong(), "testuser", true);
+      const input = wrapper.find('input[data-field-name="Tempo"]');
+      expect(input.exists()).toBe(true);
+      expect(input.attributes("placeholder")).toBeUndefined();
+      expect((input.element as HTMLInputElement).value).toBe("180");
     });
   });
 });

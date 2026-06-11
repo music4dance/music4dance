@@ -29,7 +29,7 @@ const emit = defineEmits<{
   "delete-dance": [dr: DanceRating];
   "tag-clicked": [tag: TagHandler];
   "update-song": [];
-  edit: [];
+  edit: [targetSelector?: string];
 }>();
 
 const danceRatingsFiltered = computed(() => {
@@ -57,7 +57,11 @@ const displayTempo = (dr: DanceRating): string => (dr.tempo ?? props.song.tempo)
 const onTempoChange = (dr: DanceRating, value: string): void => {
   if (!props.editor) return;
   props.editor.setDanceTempo(dr.danceId, value || undefined);
-  emit("edit");
+  emit("edit", `input[data-edit-target=\"dance-tempo\"][data-dance-id=\"${dr.danceId}\"]`);
+};
+
+const onEditDanceTags = (dr: DanceRating): void => {
+  emit("edit", `input[data-edit-target=\"dance-tempo\"][data-dance-id=\"${dr.danceId}\"]`);
 };
 </script>
 
@@ -83,7 +87,7 @@ const onTempoChange = (dr: DanceRating, value: string): void => {
         /></a>
         <span v-if="displayTempo(dr)" class="ms-2 small">
           <template v-if="edit && canEditDanceTempo">
-            <!-- Edit mode (canTag): labelled input, placeholder = inherited value -->
+            <!-- Edit mode (canTag): inherited placeholders are intentionally muted and textual. -->
             <span :class="dr.tempo != null ? 'text-success' : 'text-muted'"
               >Tempo:<IBiLink45deg
                 v-if="dr.tempo == null"
@@ -94,13 +98,21 @@ const onTempoChange = (dr: DanceRating, value: string): void => {
             <input
               type="number"
               class="form-control form-control-sm d-inline mx-1"
-              style="width: 5em"
+              style="width: 10.5em"
+              data-edit-target="dance-tempo"
+              :data-dance-id="dr.danceId"
               :value="dr.tempo ?? ''"
-              :placeholder="song.tempo?.toString() ?? '???'"
+              :class="{ 'tempo-inherited': dr.tempo == null }"
+              :placeholder="dr.tempo == null && song.tempo ? `${song.tempo} (inherited)` : ''"
               :title="
                 dr.tempo != null
                   ? 'Per-dance override — clear to inherit song tempo'
                   : 'Inheriting song tempo'
+              "
+              :aria-label="
+                dr.tempo == null
+                  ? `Inherited from song tempo (${song.tempo ?? 'unknown'})`
+                  : 'Per-dance tempo override'
               "
               @blur="onTempoChange(dr, ($event.target as HTMLInputElement).value)"
               @keyup.enter="onTempoChange(dr, ($event.target as HTMLInputElement).value)"
@@ -128,7 +140,12 @@ const onTempoChange = (dr: DanceRating, value: string): void => {
             /></span>
           </template>
         </span>
-        <span v-if="dr.tags" style="margin-left: 0.25rem; line-height: 2.75rem">
+        <span
+          v-if="dr.tags"
+          data-edit-target="dance-tags"
+          :data-dance-id="dr.danceId"
+          style="margin-left: 0.25rem; line-height: 2.75rem"
+        >
           <TagListEditor
             :container="dr"
             :filter="filter"
@@ -138,7 +155,7 @@ const onTempoChange = (dr: DanceRating, value: string): void => {
             :context="TagContext.Dance"
             @update-song="$emit('update-song')"
             @tag-clicked="$emit('tag-clicked', $event)"
-            @edit="$emit('edit')"
+            @edit="onEditDanceTags(dr)"
           />
         </span>
         <CommentEditor
@@ -152,3 +169,11 @@ const onTempoChange = (dr: DanceRating, value: string): void => {
     ></BListGroup>
   </BCard>
 </template>
+
+<style scoped>
+.tempo-inherited::placeholder {
+  color: var(--bs-secondary-color);
+  font-style: italic;
+  opacity: 0.85;
+}
+</style>
