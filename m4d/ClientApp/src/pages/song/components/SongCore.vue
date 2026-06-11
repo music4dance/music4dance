@@ -244,6 +244,27 @@ const nextFrame = async (): Promise<void> => {
   });
 };
 
+const supportsSelect = (target: HTMLElement): target is HTMLInputElement | HTMLTextAreaElement => {
+  if (target instanceof HTMLTextAreaElement) {
+    return true;
+  }
+
+  if (!(target instanceof HTMLInputElement)) {
+    return false;
+  }
+
+  const selectableTypes = new Set(["", "text", "search", "url", "tel", "password", "email"]);
+  return selectableTypes.has(target.type);
+};
+
+const findFocusTarget = (targetSelector: string): HTMLElement | null => {
+  try {
+    return document.querySelector(targetSelector) as HTMLElement | null;
+  } catch {
+    return null;
+  }
+};
+
 const focusEditTarget = async (): Promise<void> => {
   await nextTick();
   await nextFrame();
@@ -254,11 +275,9 @@ const focusEditTarget = async (): Promise<void> => {
     return;
   }
 
-  console.log(`Focusing target: ${targetSelector}`);
-  const target = document.querySelector(targetSelector) as HTMLElement | null;
+  const target = findFocusTarget(targetSelector);
 
   if (!target) {
-    console.warn(`Couldn't find target to focus: ${targetSelector}`);
     return;
   }
 
@@ -266,7 +285,7 @@ const focusEditTarget = async (): Promise<void> => {
   target.scrollIntoView({ block: "center", inline: "nearest" });
   focused.value = true;
 
-  if (target instanceof HTMLInputElement) {
+  if (supportsSelect(target)) {
     target.select();
   }
 };

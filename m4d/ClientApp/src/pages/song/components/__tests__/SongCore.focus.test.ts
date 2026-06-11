@@ -120,17 +120,16 @@ describe("SongCore selector propagation", () => {
     danceDetails.vm.$emit("edit", 'input[data-edit-target="dance-tempo"][data-dance-id="CHA"]');
     await nextTick();
     await nextTick();
+    await vi.waitFor(() => {
+      expect(
+        querySelectorSpy.mock.calls.some(
+          (call) => call[0] === 'input[data-edit-target="dance-tempo"][data-dance-id="CHA"]',
+        ),
+      ).toBe(true);
+    });
 
-    const target = document.querySelector(
-      'input[data-edit-target="dance-tempo"][data-dance-id="CHA"]',
-    ) as HTMLInputElement | null;
-
-    expect(target).not.toBeNull();
-    expect(
-      querySelectorSpy.mock.calls.some(
-        (call) => call[0] === 'input[data-edit-target="dance-tempo"][data-dance-id="CHA"]',
-      ),
-    ).toBe(true);
+    const target = wrapper.find('input[data-edit-target="dance-tempo"][data-dance-id="CHA"]');
+    expect(target.exists()).toBe(true);
 
     querySelectorSpy.mockRestore();
 
