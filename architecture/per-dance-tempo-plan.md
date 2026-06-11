@@ -243,6 +243,33 @@ shows/edits the song-level tempo. With this change:
 - If a dance tempo is cleared (set to empty), the override is removed and it reverts to the song
   tempo.
 
+#### Interaction fix: keep the clicked control visible while entering edit mode
+
+The edit-entry icons can trigger a layout shift when the editor opens. The next implementation
+pass should track which control initiated editing (song tempo pencil, song tags pencil, dance tags
+pencil, and any future field-level edit icon), then restore focus and visibility after the
+re-render.
+
+- Record the edit source as part of the page state: top-right song editor button versus a specific
+  field/tag pencil and (for dance-scoped controls) the dance id.
+- When a field/tag pencil is clicked, keep the corresponding row/section as the active target after
+  the edit UI appears.
+- After the DOM updates, scroll the active control into view and focus the input so the row stays
+  visible even when the layout changes.
+- Use a template ref plus a small focus/scroll helper; VueUse may help here, but the key behavior
+  is that the initiating control should remain the active target across the re-render.
+
+#### Visual fix: distinguish inherited tempo from explicit tempo
+
+The inherited placeholder text currently reads too much like a real value. The next implementation
+pass should make inherited values obviously provisional.
+
+- Render inherited tempo with a lower-emphasis style than explicit overrides.
+- Prefer a muted placeholder treatment plus supporting affordance, such as an `Inherited` label,
+  a subtle icon, or `placeholder="Song tempo"` instead of showing the full numeric value inline.
+- Keep explicit per-dance overrides styled as the real editable value, so the user can tell at a
+  glance whether the dance has its own tempo or is inheriting from the song.
+
 **Serialization token on edit**: Follow the same pattern used for dance-specific tags
 (`Tag+:DanceId=...`). The edit block passed to `SongIndex.EditSong` should include the
 `Tempo:DanceId=value` tokens.
@@ -321,6 +348,11 @@ This is the same process as production migration — a test run for it.
 3. Switch to the **`m4d-next` profile** and verify at **Admin/Diagnostics** that **Active Index** shows `songs-test-3`.
 
 ### Test scenarios
+
+Before opening or merging the PR, also run the client build verification:
+
+1. From `m4d/ClientApp`, run `yarn build`.
+2. Confirm the build completes successfully, which includes the client TypeScript type check.
 
 **A. Tempo filter uses per-dance tempo (single dance)**
 

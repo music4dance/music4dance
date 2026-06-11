@@ -29,13 +29,22 @@ const canSetTempo = computed(
 const canEditTempo = computed(() => canOverrideTempo.value || canSetTempo.value);
 /** canTag users have elevated privileges and can edit tempo on any song. */
 const canTagUser = computed(() => !!props.user && context.hasRole("canTag"));
+const isInferredTempo = computed(() => !!props.song.tempo && props.song.isTempoInferredFromDance);
+const tempoEditorValue = computed(() =>
+  props.editing && isInferredTempo.value ? "" : props.song.tempo ? props.song.tempo.toString() : "",
+);
+const tempoPlaceholder = computed(() =>
+  props.editing && isInferredTempo.value && props.song.tempo
+    ? `${props.song.tempo} (inferred)`
+    : undefined,
+);
 
 const modifiedFormatted = computed(() => formatDate(props.song.modified));
 const createdFormatted = computed(() => formatDate(props.song.created));
 const editedFormatted = computed(() => formatDate(props.song.edited!));
 
 const emit = defineEmits<{
-  edit: [];
+  edit: [targetSelector?: string];
   "update-field": [field: SongProperty];
 }>();
 
@@ -52,6 +61,7 @@ const formatEchoNest = (n: number): string => {
         ><FieldEditor
           name="Length"
           :value="song.length ? song.length.toString() : ''"
+          input-width="10.5em"
           :editing="editing"
           :is-creator="isCreator"
           role="canTag"
@@ -66,7 +76,10 @@ const formatEchoNest = (n: number): string => {
       <BTd
         ><FieldEditor
           name="Tempo"
-          :value="song.tempo ? song.tempo.toString() : ''"
+          :value="tempoEditorValue"
+          :placeholder="tempoPlaceholder"
+          input-width="10.5em"
+          input-class="tempo-input-wide tempo-inferred"
           :editing="editing"
           :is-creator="isCreator"
           role="canTag"
@@ -80,7 +93,7 @@ const formatEchoNest = (n: number): string => {
           type="button"
           variant="link"
           class="ms-1 p-0 align-baseline"
-          @click="emit('edit')"
+          @click="emit('edit', 'input[data-field-name=&quot;Tempo&quot;]')"
           ><IBiPencilFill /></BButton
         ><BButton
           v-if="canTagUser && editing && song.tempo"
@@ -136,3 +149,15 @@ const formatEchoNest = (n: number): string => {
     </BTr>
   </BTableSimple>
 </template>
+
+<style scoped>
+.tempo-input-wide {
+  width: 10.5em;
+}
+
+.tempo-inferred::placeholder {
+  color: var(--bs-secondary-color);
+  font-style: italic;
+  opacity: 0.85;
+}
+</style>

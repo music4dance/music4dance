@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { mount } from "@vue/test-utils";
-import { BCard, BListGroup, BListGroupItem, BButton, BCloseButton } from "bootstrap-vue-next";
+import { BCard, BListGroup, BListGroupItem, BButton } from "bootstrap-vue-next";
 import { setupTestEnvironment } from "@/helpers/TestHelpers";
 import DanceDetails from "../DanceDetails.vue";
 import { Song } from "@/models/Song";
@@ -9,6 +9,7 @@ import { SongProperty } from "@/models/SongProperty";
 import { SongEditor } from "@/models/SongEditor";
 import { SongFilter } from "@/models/SongFilter";
 import { MenuContext } from "@/models/MenuContext";
+import { defineComponent } from "vue";
 
 setupTestEnvironment();
 
@@ -167,12 +168,12 @@ describe("DanceDetails.vue — tempo editing (canTag required)", () => {
     expect(wrapper.find('input[type="number"]').exists()).toBe(true);
   });
 
-  it("edit input has empty value and placeholder = song tempo when no override", () => {
+  it("edit input has empty value and numeric-first inherited placeholder text when no override", () => {
     setRoles(["canTag"]);
     const song = makeSong(120);
     const wrapper = mountDetails(song, { edit: true, user: "dwgray" });
     const input = wrapper.find('input[type="number"]');
-    expect(input.attributes("placeholder")).toBe("120");
+    expect(input.attributes("placeholder")).toBe("120 (inherited)");
     expect((input.element as HTMLInputElement).value).toBe("");
   });
 
@@ -231,5 +232,42 @@ describe("DanceDetails.vue — tempo editing (canTag required)", () => {
     const tempoProps = editor.editHistory.properties.filter((p) => p.name === "Tempo:CHA");
     expect(tempoProps).toHaveLength(1);
     expect(tempoProps[0].value).toBe("132");
+  });
+
+  it("maps dance tag pencil edit to dance tempo selector", async () => {
+    setRoles(["canTag"]);
+    const song = makeSong(120);
+
+    const tagEditorStub = defineComponent({
+      name: "TagListEditor",
+      emits: ["edit", "update-song", "tag-clicked"],
+      template: `<button class="tag-edit" @click="$emit('edit')">edit tags</button>`,
+    });
+
+    const wrapper = mount(DanceDetails, {
+      props: {
+        song,
+        title: "Dances",
+        danceRatings: song.danceRatings ?? [],
+        filter: new SongFilter(),
+        user: "dwgray",
+        editor: new SongEditor(undefined, "dwgray", makeHistory()),
+        edit: true,
+      },
+      global: {
+        stubs: {
+          ...STUBS,
+          TagListEditor: tagEditorStub,
+        },
+        components: { BCard, BListGroup, BListGroupItem, BButton },
+      },
+    });
+
+    await wrapper.find(".tag-edit").trigger("click");
+
+    expect(wrapper.emitted("edit")).toBeTruthy();
+    expect(wrapper.emitted("edit")?.[0]).toEqual([
+      'input[data-edit-target="dance-tempo"][data-dance-id="CHA"]',
+    ]);
   });
 });

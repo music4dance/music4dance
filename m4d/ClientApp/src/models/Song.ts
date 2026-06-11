@@ -42,6 +42,8 @@ export class Song extends TaggableObject {
   private userModifiedProperties = new Set<string>();
   /** Maps field baseName → username of the last non-pseudo editor of that field. */
   private propLastSetByMap = new Map<string, string | undefined>();
+  private hasExplicitSongTempo = false;
+  private tempoInferredFromDance = false;
 
   public constructor(init?: Partial<Song>) {
     super();
@@ -64,6 +66,14 @@ export class Song extends TaggableObject {
    */
   public propLastSetBy(field: string): string | undefined {
     return this.propLastSetByMap.get(field);
+  }
+
+  /**
+   * True only when the current song-level tempo came from dance-tempo promotion
+   * (Tempo:DANCE=value) and no explicit song-level Tempo token has been applied.
+   */
+  public get isTempoInferredFromDance(): boolean {
+    return this.tempoInferredFromDance;
   }
 
   public compareToHistory(history: SongHistory, user?: string): boolean {
@@ -386,8 +396,9 @@ export class Song extends TaggableObject {
                   // Promote: if no song-level tempo has been set yet, infer it from this
                   // dance override. Preserves the semantic that the user is expressing a
                   // dance preference — other users remain free to set song.Tempo independently.
-                  if (this.tempo == null) {
+                  if (this.tempo == null && !this.hasExplicitSongTempo) {
                     this.tempo = parsedTempo;
+                    this.tempoInferredFromDance = true;
                   }
                 }
               } else {
@@ -398,6 +409,8 @@ export class Song extends TaggableObject {
             // Song-level — same as default reflection path
             const value = property.valueTyped;
             if (value !== ".") {
+              this.hasExplicitSongTempo = true;
+              this.tempoInferredFromDance = false;
               const wasUser = this.userModifiedProperties.has(baseName);
               if (!(wasUser && pseudo)) {
                 (this as any)[pascalToCamel(baseName)] = value;

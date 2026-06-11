@@ -13,6 +13,9 @@ const props = defineProps<{
   role?: string;
   isCreator?: boolean;
   overridePermission?: boolean;
+  placeholder?: string;
+  inputClass?: string;
+  inputWidth?: string;
 }>();
 
 const emit = defineEmits<{
@@ -53,10 +56,13 @@ const hasEditPermission = computed(() => {
     <input
       v-if="editing && hasEditPermission"
       v-model="localValue"
+      :name="name"
+      :data-field-name="name"
       :type="computedType"
+      :placeholder="placeholder"
       class="form-control ml-2"
-      style="display: inline"
-      :class="{ number: isNumber, text: !isNumber }"
+      :style="{ display: 'inline', width: inputWidth }"
+      :class="[{ number: isNumber, text: !isNumber }, inputClass]"
       @blur="commitValue"
       @keyup.enter="commitValue"
     />
