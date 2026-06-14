@@ -28,6 +28,7 @@ public class SongIndex
     public const string UsersField = "Users";
     public const string CommentsField = "Comments";
     public const string DanceTagsInferred = "DanceTagsInferred"; // TODOIDX: Remove when index is updated
+    public const string DanceTempoSubField = "Tempo";
     public const string GenreTags = "GenreTags";
     public const string TempoTags = "TempoTags";
     public const string StyleTags = "StyleTags";
@@ -1732,6 +1733,10 @@ public class SongIndex
                     {
                         IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = false
                     },
+                   new SearchField(DanceTempoSubField, SearchFieldDataType.Double)
+                    {
+                        IsSearchable = false, IsSortable = true, IsFilterable = true, IsFacetable = true
+                    },
                    new(
                     TempoTags, SearchFieldDataType.Collection(SearchFieldDataType.String))
                     {
@@ -1877,6 +1882,7 @@ public class SongIndex
             doc[BuildDanceFieldName(dr.DanceId)] = new Dictionary<string, object>
                 {
                     { Votes, dr.Weight },
+                    { DanceTempoSubField, CleanNumber((float?)(dr.Tempo ?? song.Tempo)) },
                     { TempoTags, oneTempo.ToArray() },
                     { StyleTags, oneStyle.ToArray() },
                     { OtherTags, oneOther.ToArray() }

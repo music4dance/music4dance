@@ -237,6 +237,10 @@ public class SongFilter
     public virtual TagQuery TagQuery => new(Tags);
     public virtual SongSort SongSort => new(SortOrder, TextSearch);
 
+    protected string SingleDanceId => IsSingleDance
+        ? DanceQuery?.DanceIds.FirstOrDefault()
+        : null;
+
     public CruftFilter CruftFilter =>
         !Action.StartsWith("merge", StringComparison.OrdinalIgnoreCase) && Level.HasValue
             ? (CruftFilter)Level.Value
@@ -251,6 +255,12 @@ public class SongFilter
                 return string.IsNullOrEmpty(SortOrder) ? new List<string>() : SortOrder.Split(',', StringSplitOptions.RemoveEmptyEntries);
             }
             var sort = SongSort;
+
+            if (sort.Id == SongSort.Tempo && SingleDanceId != null)
+            {
+                var order = sort.Descending ? "desc" : "asc";
+                return [$"dance_{SingleDanceId}/{SongIndex.DanceTempoSubField} {order}"];
+            }
 
             return sort.Id switch
             {
@@ -644,7 +654,11 @@ public class SongFilter
 
     public virtual string GetOdataFilter(DanceMusicCoreService dms)
     {
-        return BuildOdataFilter(dms, "Tempo");
+        var tempoFieldPath = SingleDanceId != null && (TempoMin.HasValue || TempoMax.HasValue)
+            ? $"dance_{SingleDanceId}/{SongIndex.DanceTempoSubField}"
+            : Song.TempoField;
+
+        return BuildOdataFilter(dms, tempoFieldPath);
     }
 
     protected string BuildOdataFilter(DanceMusicCoreService dms, string tempoFieldPath)

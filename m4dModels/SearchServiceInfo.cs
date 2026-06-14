@@ -128,7 +128,7 @@ public class SearchServiceManager : ISearchServiceManager
             }
         }
     }
-    public int CodeVersion => 2;
+    public int CodeVersion => 3;
     public bool HasNextVersion =>
       CodeVersion == ConfigVersion &&
       GetInfo().HasNextVersion;
