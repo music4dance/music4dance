@@ -654,7 +654,10 @@ public class SongFilter
 
     public virtual string GetOdataFilter(DanceMusicCoreService dms)
     {
-        var tempoFieldPath = SingleDanceId != null && (TempoMin.HasValue || TempoMax.HasValue)
+        var usingSingleDanceTempo = SingleDanceId != null &&
+            (TempoMin.HasValue || TempoMax.HasValue || SongSort.Id == SongSort.Tempo);
+
+        var tempoFieldPath = usingSingleDanceTempo
             ? $"dance_{SingleDanceId}/{SongIndex.DanceTempoSubField}"
             : Song.TempoField;
 
@@ -668,8 +671,12 @@ public class SongFilter
             throw new ArgumentException("tempoFieldPath must be provided", nameof(tempoFieldPath));
         }
 
+        var numericSortFieldPath = SongSort.Id == SongSort.Tempo
+            ? tempoFieldPath
+            : SongSort.Id;
+
         var odata = SongSort.Numeric
-            ? $"({SongSort.Id} ne null) and ({SongSort.Id} ne 0)"
+            ? $"({numericSortFieldPath} ne null) and ({numericSortFieldPath} ne 0)"
             : null;
 
         odata = CombineFilter(odata, GetDanceODataFilter(dms));
