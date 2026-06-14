@@ -553,3 +553,37 @@ earlier ones.
    to provide the main navigation bar, service status banner, `<h1>` page title, and site footer.
    `admin-users` and `playlist` (Phases 1–2) were retrofitted with PageFrame alongside the
    Phase 5 work.
+
+---
+
+## Column Definitions (Admin Users Table)
+
+The admin users table now uses descriptive labels for communication-related fields so values are
+meaningful at a glance.
+
+| Column                   | Meaning                   | Notes                                                                                                                                                                                       |
+| ------------------------ | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `EC`                     | Email Confirmed           | Check icon means the user has confirmed email; hollow circle means not confirmed.                                                                                                           |
+| `UserName / Email`       | User identity             | Username link opens user details; email shown below username. Pseudo users are italicized.                                                                                                  |
+| `Signed Up`              | Account creation date     | `StartDate` value, rendered as local date (`M/D/YYYY`).                                                                                                                                     |
+| `Signed In`              | Last active date          | `LastActive` value, rendered as local date. `1900-01-01` sentinel is displayed as `Never`.                                                                                                  |
+| `PRV`                    | Privacy flag              | Numeric privacy byte (`0` = private / anonymous behavior, `255` = fully public).                                                                                                            |
+| `Contact Prefs`          | Communication permissions | Human-readable decoding of `CanContact` bit flags (not raw numbers): `music4dance promo`, `partner promo`, `surveys/blog`, or combinations. `None` means no communication consent selected. |
+| `Preferred Services`     | Music service interests   | Human-readable service names decoded from `ServicePreference` CIDs (for example Spotify, YouTube, Apple Music). `None` means no service preference selected.                                |
+| `CCF`                    | Credit card failures      | `FailedCardAttempts` count.                                                                                                                                                                 |
+| `$`                      | Lifetime purchases        | Total amount purchased by the user.                                                                                                                                                         |
+| `HC`                     | Hit count                 | Total tracked user requests/activity count.                                                                                                                                                 |
+| `Roles`                  | Identity roles            | ASP.NET Identity roles assigned to the user.                                                                                                                                                |
+| `Logins`                 | External login providers  | Linked provider list (for example Microsoft, Google, Spotify, Facebook).                                                                                                                    |
+| `(blank actions column)` | Admin actions             | Links for songs/searches/usage/playlists plus role, edit, delete, and premium reset actions.                                                                                                |
+
+### Communication Preference Encoding Reference
+
+`CanContact` is a bit field (`ContactStatus`) with these flags:
+
+- `1` (`0x01`): direct music4dance promotional messages
+- `2` (`0x02`): partner promotional messages
+- `4` (`0x04`): surveys / feedback / blog participation
+
+Composite values are sums of selected flags (for example `5` = `1 + 4`). The UI should present
+decoded text, not the numeric value.

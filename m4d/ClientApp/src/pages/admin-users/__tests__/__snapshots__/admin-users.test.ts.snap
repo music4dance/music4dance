@@ -94,8 +94,8 @@ exports[`admin-users page > renders the admin users page 1`] = `
               <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">Signed Up</th>
               <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="descending">Signed In</th>
               <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">PRV</th>
-              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">CNT</th>
-              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">SVC</th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">Contact Prefs</th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">Services</th>
               <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">CCF</th>
               <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">$</th>
               <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">HC</th>
@@ -126,10 +126,10 @@ exports[`admin-users page > renders the admin users page 1`] = `
                 <!---->255
               </td>
               <td class="">
-                <!---->5
+                <!----><span><!--v-if-->music4dance promo</span><span><br>surveys/blog</span>
               </td>
               <td class="">
-                <!---->S
+                <!----><span><!--v-if-->Spotify</span>
               </td>
               <td class="">
                 <!---->0
@@ -170,10 +170,10 @@ exports[`admin-users page > renders the admin users page 1`] = `
                 <!---->255
               </td>
               <td class="">
-                <!---->0
+                <!----><span><!--v-if-->None</span>
               </td>
               <td class="">
-                <!---->
+                <!----><span><!--v-if-->None</span>
               </td>
               <td class="">
                 <!---->0

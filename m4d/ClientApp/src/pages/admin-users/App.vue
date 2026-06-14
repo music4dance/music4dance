@@ -143,12 +143,12 @@ const fields: Exclude<TableFieldRaw<AdminUserSummary>, string>[] = [
   },
   {
     key: "canContact",
-    label: "CNT",
+    label: "Contact Prefs",
     sortable: true,
   },
   {
     key: "servicePreference",
-    label: "SVC",
+    label: "Services",
     sortable: true,
   },
   {
@@ -173,6 +173,37 @@ const fields: Exclude<TableFieldRaw<AdminUserSummary>, string>[] = [
 
 function fmt2(n: number): string {
   return (n * 100).toFixed(0) + "%";
+}
+
+function getContactPreferences(canContact: number): string[] {
+  if (!canContact) {
+    return ["None"];
+  }
+
+  const prefs: string[] = [];
+  if ((canContact & 0x01) === 0x01) {
+    prefs.push("music4dance promo");
+  }
+  if ((canContact & 0x02) === 0x02) {
+    prefs.push("partner promo");
+  }
+  if ((canContact & 0x04) === 0x04) {
+    prefs.push("surveys/blog");
+  }
+
+  return prefs.length > 0 ? prefs : ["None"];
+}
+
+function getServicePreferences(servicePreference?: string): string[] {
+  if (!servicePreference) {
+    return ["None"];
+  }
+
+  const names = servicePreference
+    .split("")
+    .map((cid) => (model.services ?? []).find((svc) => svc.cid === cid)?.name ?? cid);
+
+  return names.length > 0 ? names : ["None"];
 }
 
 // Build action URLs in JS (not as template literals) so `&` is never in HTML.
@@ -371,6 +402,23 @@ function playlistsUrl(userName: string): string {
       <!-- Signed In -->
       <template #cell(lastActive)="{ item }">
         {{ formatDate(item.lastActive) }}
+      </template>
+
+      <!-- Contact preferences -->
+      <template #cell(canContact)="{ item }">
+        <span v-for="(preference, i) in getContactPreferences(item.canContact)" :key="preference">
+          <br v-if="i > 0" />{{ preference }}
+        </span>
+      </template>
+
+      <!-- Preferred services -->
+      <template #cell(servicePreference)="{ item }">
+        <span
+          v-for="(serviceName, i) in getServicePreferences(item.servicePreference)"
+          :key="serviceName"
+        >
+          <br v-if="i > 0" />{{ serviceName }}
+        </span>
       </template>
 
       <!-- Roles -->
