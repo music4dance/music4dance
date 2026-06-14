@@ -52,6 +52,7 @@ The following header fields are recognized (case-insensitive). You may use any o
 | CHOREOGRAPHER        | Choreographer+  | Choreographer scoped to the current dance (stored as `Choreographer+:DanceId`)           |
 | STEPSHEETURL         | StepSheetUrl+   | Step sheet URL scoped to the current dance (stored as `StepSheetUrl+:DanceId`)           |
 | PATTERNNAME          | PatternName+    | Pattern/choreography name scoped to the current dance (stored as `PatternName+:DanceId`) |
+| SONGID               | SongIdOverride  | GUID used as an explicit match/merge hint for an existing song                           |
 | SPOTIFY              | Purchase (SS)   | Spotify track ID                                                                         |
 
 > **Note:** The internal field is for reference; use the header name in your file.
@@ -110,6 +111,16 @@ The following header fields are recognized (case-insensitive). You may use any o
 
 - Song duration in seconds or `mm:ss` format.
 - Examples: `270` or `4:30` (both represent 4 minutes 30 seconds)
+
+### SONGID
+
+- Must be a valid GUID.
+- Valid values are stored as `SongIdOverride` on the imported song.
+- Invalid values are silently discarded.
+- During later merge/import processing, this value alone is enough to match an existing song by ID.
+- `SONGID` does not make a row valid by itself: upload rows still need a `TITLE` value to import successfully.
+- `ARTIST` is not required for `SONGID`-based matching, though it may still be useful as metadata on the imported row.
+- Example: `9f0c1f7d-2d8a-4e60-b7ec-7d8c8c5d1b6a`
 
 ### PURCHASE FIELDS (AMAZON, AMAZONTRACK, ITUNES, SPOTIFY)
 
