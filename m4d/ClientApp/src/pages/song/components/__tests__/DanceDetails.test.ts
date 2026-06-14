@@ -234,6 +234,20 @@ describe("DanceDetails.vue — tempo editing (canTag required)", () => {
     expect(tempoProps[0].value).toBe("132");
   });
 
+  it("does not create a clear override when inherited input blurs unchanged", async () => {
+    setRoles(["canTag"]);
+    const song = makeSong(120);
+    const editor = new SongEditor(undefined, "dwgray", makeHistory(120));
+    const wrapper = mountDetails(song, { edit: true, user: "dwgray", editor });
+
+    const input = wrapper.find('input[type="number"]');
+    await input.trigger("blur");
+
+    const tempoProps = editor.editHistory.properties.filter((p) => p.name === "Tempo:CHA");
+    expect(tempoProps).toHaveLength(0);
+    expect(wrapper.emitted("edit")).toBeFalsy();
+  });
+
   it("maps dance tag pencil edit to dance tempo selector", async () => {
     setRoles(["canTag"]);
     const song = makeSong(120);

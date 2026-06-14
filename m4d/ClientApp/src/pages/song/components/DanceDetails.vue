@@ -56,7 +56,20 @@ const displayTempo = (dr: DanceRating): string => (dr.tempo ?? props.song.tempo)
 
 const onTempoChange = (dr: DanceRating, value: string): void => {
   if (!props.editor) return;
-  props.editor.setDanceTempo(dr.danceId, value || undefined);
+
+  const trimmed = value.trim();
+  const nextTempo = trimmed === "" ? undefined : Number(trimmed);
+  const currentTempo = dr.tempo;
+
+  // Ignore blur-only events that don't actually change the per-dance override.
+  if (
+    (nextTempo === undefined && currentTempo == null) ||
+    (nextTempo !== undefined && Number.isFinite(nextTempo) && currentTempo === nextTempo)
+  ) {
+    return;
+  }
+
+  props.editor.setDanceTempo(dr.danceId, trimmed === "" ? undefined : trimmed);
   emit("edit", `input[data-edit-target=\"dance-tempo\"][data-dance-id=\"${dr.danceId}\"]`);
 };
 

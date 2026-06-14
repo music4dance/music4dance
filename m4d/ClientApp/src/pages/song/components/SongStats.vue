@@ -67,6 +67,7 @@ const formatEchoNest = (n: number): string => {
           role="canTag"
           type="number"
           v-bind="$attrs"
+          @update-field="emit('update-field', $event)"
         />
         Seconds</BTd
       >
@@ -86,6 +87,7 @@ const formatEchoNest = (n: number): string => {
           :override-permission="canEditTempo"
           type="number"
           v-bind="$attrs"
+          @update-field="emit('update-field', $event)"
           >{{ song.tempo || "???" }}</FieldEditor
         >
         BPM<AlgoGeneratedIcon v-if="!editing" :song="song" /><BButton
