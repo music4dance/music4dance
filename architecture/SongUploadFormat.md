@@ -52,6 +52,7 @@ The following header fields are recognized (case-insensitive). You may use any o
 | CHOREOGRAPHER        | Choreographer+  | Choreographer scoped to the current dance (stored as `Choreographer+:DanceId`)           |
 | STEPSHEETURL         | StepSheetUrl+   | Step sheet URL scoped to the current dance (stored as `StepSheetUrl+:DanceId`)           |
 | PATTERNNAME          | PatternName+    | Pattern/choreography name scoped to the current dance (stored as `PatternName+:DanceId`) |
+| SONGID               | SongIdOverride  | GUID used as an explicit match/merge hint for an existing song                           |
 | SPOTIFY              | Purchase (SS)   | Spotify track ID                                                                         |
 
 > **Note:** The internal field is for reference; use the header name in your file.
@@ -110,6 +111,16 @@ The following header fields are recognized (case-insensitive). You may use any o
 
 - Song duration in seconds or `mm:ss` format.
 - Examples: `270` or `4:30` (both represent 4 minutes 30 seconds)
+
+### SONGID
+
+- Must be a valid GUID.
+- Valid values are stored as `SongIdOverride` on the imported song.
+- Invalid values are silently discarded.
+- During later merge/import processing, this value alone is enough to match an existing song by ID.
+- `SONGID` does not make a row valid by itself: upload rows still need a `TITLE` value to import successfully.
+- `ARTIST` is not required for `SONGID`-based matching, though it may still be useful as metadata on the imported row.
+- Example: `9f0c1f7d-2d8a-4e60-b7ec-7d8c8c5d1b6a`
 
 ### PURCHASE FIELDS (AMAZON, AMAZONTRACK, ITUNES, SPOTIFY)
 
@@ -350,7 +361,7 @@ Thinking Out Loud	Ed Sheeran	X	RMB	Pop|Ballad	2014	79	4:41
 
 The upload form provides additional fields that apply to ALL songs in the upload:
 
-- **User**: Associate all songs with a specific user - this field is required, since creating records without attributing them to a user breaks the system
+- **User**: Default user attribution for uploaded songs (unless a `USER` column is present in the upload data)
 - **Dances**: Apply these dances to all songs (in addition to per-song DANCE column)
 - **Artist**: Override or set artist for all songs
 - **Album**: Override or set album for all songs
@@ -363,9 +374,18 @@ The upload form provides additional fields that apply to ALL songs in the upload
 #### User
 
 - **Purpose**: Specifies which user account to associate with the uploaded songs
-- **Interaction with File**: Applied to all songs regardless of file content
+- **Interaction with File**:
+  - If the upload data does **not** include a `USER` column, this value is used for attribution.
+  - If the upload data **does** include a `USER` column, the per-row `USER` value takes precedence.
 - **Format**: Username string
 - **Example**: `john.doe@example.com`
+
+##### Pseudo Users and the `|P` Suffix
+
+- For the **form User field**, you usually do not need to append `|P` manually.
+- User lookup accepts either `name` or `name|P` (the lookup normalizes by removing the suffix).
+- When no `USER` column is provided, song creation uses the resolved account's decorated name, so pseudo users are stored as `name|P` automatically.
+- When a `USER` column is present, that value is used as-is for attribution. If you want explicit pseudo attribution from file data, include `|P` in that column value.
 
 #### Dances
 
@@ -447,10 +467,11 @@ The UploadCatalog endpoint supports two methods of providing data:
 
 When parameters interact with file data:
 
-1. **Additive**: User, Dances, Tags - these are ADDED to what's in the file
-2. **Conditional**: Album - only applied if the song has no album
-3. **Override with Preservation**: Artist - file artist is kept, form artist is added as additional data
-4. **Structural**: Separator, Header - these control how the file is parsed
+1. **User precedence**: Form `User` is the default attribution, but per-row `USER` column values override it
+2. **Additive**: Dances, Tags - these are added to what's in the file
+3. **Conditional**: Album - only applied if the song has no album
+4. **Override with Preservation**: Artist - file artist is kept, form artist is added as additional data
+5. **Structural**: Separator, Header - these control how the file is parsed
 
 ### Example Usage Scenarios
 
