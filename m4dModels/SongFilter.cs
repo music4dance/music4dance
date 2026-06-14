@@ -237,6 +237,10 @@ public class SongFilter
     public virtual TagQuery TagQuery => new(Tags);
     public virtual SongSort SongSort => new(SortOrder, TextSearch);
 
+    protected string SingleDanceId => IsSingleDance
+        ? DanceQuery?.DanceIds.FirstOrDefault()
+        : null;
+
     public CruftFilter CruftFilter =>
         !Action.StartsWith("merge", StringComparison.OrdinalIgnoreCase) && Level.HasValue
             ? (CruftFilter)Level.Value
@@ -251,6 +255,12 @@ public class SongFilter
                 return string.IsNullOrEmpty(SortOrder) ? new List<string>() : SortOrder.Split(',', StringSplitOptions.RemoveEmptyEntries);
             }
             var sort = SongSort;
+
+            if (sort.Id == SongSort.Tempo && SingleDanceId != null)
+            {
+                var order = sort.Descending ? "desc" : "asc";
+                return [$"dance_{SingleDanceId}/{SongIndex.DanceTempoSubField} {order}"];
+            }
 
             return sort.Id switch
             {
@@ -644,7 +654,14 @@ public class SongFilter
 
     public virtual string GetOdataFilter(DanceMusicCoreService dms)
     {
-        return BuildOdataFilter(dms, "Tempo");
+        var usingSingleDanceTempo = SingleDanceId != null &&
+            (TempoMin.HasValue || TempoMax.HasValue || SongSort.Id == SongSort.Tempo);
+
+        var tempoFieldPath = usingSingleDanceTempo
+            ? $"dance_{SingleDanceId}/{SongIndex.DanceTempoSubField}"
+            : Song.TempoField;
+
+        return BuildOdataFilter(dms, tempoFieldPath);
     }
 
     protected string BuildOdataFilter(DanceMusicCoreService dms, string tempoFieldPath)
@@ -654,8 +671,12 @@ public class SongFilter
             throw new ArgumentException("tempoFieldPath must be provided", nameof(tempoFieldPath));
         }
 
+        var numericSortFieldPath = SongSort.Id == SongSort.Tempo
+            ? tempoFieldPath
+            : SongSort.Id;
+
         var odata = SongSort.Numeric
-            ? $"({SongSort.Id} ne null) and ({SongSort.Id} ne 0)"
+            ? $"({numericSortFieldPath} ne null) and ({numericSortFieldPath} ne 0)"
             : null;
 
         odata = CombineFilter(odata, GetDanceODataFilter(dms));

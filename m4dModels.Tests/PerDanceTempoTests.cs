@@ -173,17 +173,17 @@ public class PerDanceTempoTests
     }
 
     // -------------------------------------------------------------------------
-    // Phase 3: SongFilterNext — per-dance tempo filter
+    // Phase 3: SongFilter — per-dance tempo filter
     // -------------------------------------------------------------------------
 
     [TestMethod]
-    public void SongFilterNext_TempoRange_SingleDance_UsesPerDanceTempoField()
+    public void SongFilter_TempoRange_SingleDance_UsesPerDanceTempoField()
     {
         // A filter with a single dance and a tempo range should reference dance_{id}/Tempo.
         // Filter format: Action-Dances-Sort-Search-Purchase-User-TempoMin-TempoMax-Page-Tags
-        var filter = SongFilter.Create(true, "Index-CHA-.-.-.-.-100-120-1");
+        var filter = SongFilter.Create(false, "Index-CHA-.-.-.-.-100-120-1");
 
-        Assert.IsTrue(filter is SongFilterNext, "Should produce a SongFilterNext");
+        Assert.IsFalse(filter is SongFilterNext, "Current-version filter should use base SongFilter");
         Assert.IsTrue(filter.IsSingleDance, "Should be single dance");
 
         var odata = filter.GetOdataFilter(_dms);
@@ -196,20 +196,19 @@ public class PerDanceTempoTests
     }
 
     [TestMethod]
-    public void SongFilter_TempoRange_SingleDance_UsesTopLevelTempoField()
+    public void SongFilterNext_TempoRange_SingleDance_UsesPerDanceTempoField()
     {
-        // Base filter (v2 schema) must use top-level Tempo field.
-        var filter = SongFilter.Create(false, "Index-CHA-.-.-.-.-100-120-1");
+        // Next-version filter should currently match the deployed base behavior.
+        var filter = SongFilter.Create(true, "Index-CHA-.-.-.-.-100-120-1");
 
-        Assert.IsFalse(filter is SongFilterNext, "Should be a base SongFilter, not SongFilterNext");
+        Assert.IsTrue(filter is SongFilterNext, "Should still produce SongFilterNext in next-version mode");
         Assert.IsTrue(filter.IsSingleDance, "Should be single dance");
 
         var odata = filter.GetOdataFilter(_dms);
         Trace.WriteLine($"OData: {odata}");
 
         Assert.IsNotNull(odata);
-        StringAssert.Contains(odata, "(Tempo ge", "Base filter should use top-level Tempo");
-        Assert.IsFalse(odata.Contains("dance_CHA/Tempo"), "Base filter should not emit v3-only per-dance field");
+        StringAssert.Contains(odata, "dance_CHA/Tempo", "Current next filter should match base per-dance field behavior");
     }
 
     [TestMethod]
@@ -228,12 +227,12 @@ public class PerDanceTempoTests
     }
 
     [TestMethod]
-    public void SongFilterNext_TempoRange_MultiDance_UsesTopLevelTempoField()
+    public void SongFilter_TempoRange_MultiDance_UsesTopLevelTempoField()
     {
         // Multi-dance filter: per-dance tempo NOT applicable — should fall back to top-level.
-        var filter = SongFilter.Create(true, "Index-CHA,SLS-.-.-.-.-100-120-1");
+        var filter = SongFilter.Create(false, "Index-CHA,SLS-.-.-.-.-100-120-1");
 
-        Assert.IsTrue(filter is SongFilterNext, "Should be SongFilterNext");
+        Assert.IsFalse(filter is SongFilterNext, "Current-version filter should use base SongFilter");
         Assert.IsFalse(filter.IsSingleDance, "Should be multi-dance");
 
         var odata = filter.GetOdataFilter(_dms);
@@ -244,12 +243,12 @@ public class PerDanceTempoTests
     }
 
     [TestMethod]
-    public void SongFilterNext_TempoRange_NoDance_UsesTopLevelTempoField()
+    public void SongFilter_TempoRange_NoDance_UsesTopLevelTempoField()
     {
         // No dance filter: should also use top-level Tempo.
-        var filter = SongFilter.Create(true, "Index-.-.-.-.-.-100-120-1");
+        var filter = SongFilter.Create(false, "Index-.-.-.-.-.-100-120-1");
 
-        Assert.IsTrue(filter is SongFilterNext, "Should be SongFilterNext");
+        Assert.IsFalse(filter is SongFilterNext, "Current-version filter should use base SongFilter");
 
         var odata = filter.GetOdataFilter(_dms);
         Trace.WriteLine($"OData: {odata}");
@@ -259,16 +258,16 @@ public class PerDanceTempoTests
     }
 
     // -------------------------------------------------------------------------
-    // Phase 3: SongFilterNext — per-dance tempo sort
+    // Phase 3: SongFilter — per-dance tempo sort
     // -------------------------------------------------------------------------
 
     [TestMethod]
-    public void SongFilterNext_TempoSort_SingleDance_UsesPerDanceTempoField()
+    public void SongFilter_TempoSort_SingleDance_UsesPerDanceTempoField()
     {
         // Single dance + tempo sort → should sort by dance_{id}/Tempo.
-        var filter = SongFilter.Create(true, "Index-RMB-Tempo-.-.-.-.-.-1");
+        var filter = SongFilter.Create(false, "Index-RMB-Tempo-.-.-.-.-.-1");
 
-        Assert.IsTrue(filter is SongFilterNext, "Should be SongFilterNext");
+        Assert.IsFalse(filter is SongFilterNext, "Current-version filter should use base SongFilter");
         Assert.IsTrue(filter.IsSingleDance, "Should be single dance");
 
         var sort = filter.ODataSort;
@@ -279,25 +278,25 @@ public class PerDanceTempoTests
     }
 
     [TestMethod]
-    public void SongFilter_TempoSort_SingleDance_UsesTopLevelTempoField()
+    public void SongFilterNext_TempoSort_SingleDance_UsesPerDanceTempoField()
     {
-        // Base filter (v2) should still sort by top-level Tempo.
-        var filter = SongFilter.Create(false, "Index-RMB-Tempo-.-.-.-.-.-1");
+        // Next-version filter should currently match the deployed base behavior.
+        var filter = SongFilter.Create(true, "Index-RMB-Tempo-.-.-.-.-.-1");
 
-        Assert.IsFalse(filter is SongFilterNext, "Should be base SongFilter");
+        Assert.IsTrue(filter is SongFilterNext, "Should still produce SongFilterNext in next-version mode");
 
         var sort = filter.ODataSort;
         Assert.AreEqual(1, sort.Count, "Should produce exactly one sort clause");
-        StringAssert.Contains(sort[0], "Tempo asc", "Base filter sort should use top-level Tempo");
+        StringAssert.Contains(sort[0], "dance_RMB/Tempo", "Next filter sort should match base per-dance tempo sort");
     }
 
     [TestMethod]
-    public void SongFilterNext_TempoSort_MultiDance_UsesTopLevelTempoField()
+    public void SongFilter_TempoSort_MultiDance_UsesTopLevelTempoField()
     {
         // Multi-dance + tempo sort → should fall back to top-level Tempo.
-        var filter = SongFilter.Create(true, "Index-CHA,SLS-Tempo-.-.-.-.-.-1");
+        var filter = SongFilter.Create(false, "Index-CHA,SLS-Tempo-.-.-.-.-.-1");
 
-        Assert.IsTrue(filter is SongFilterNext, "Should be SongFilterNext");
+        Assert.IsFalse(filter is SongFilterNext, "Current-version filter should use base SongFilter");
         Assert.IsFalse(filter.IsSingleDance, "Should be multi-dance");
 
         var sort = filter.ODataSort;
@@ -306,12 +305,12 @@ public class PerDanceTempoTests
     }
 
     [TestMethod]
-    public void SongFilterNext_DanceSort_SingleDance_UsesVotes()
+    public void SongFilter_DanceSort_SingleDance_UsesVotes()
     {
         // Single dance + dance (votes) sort → should NOT use per-dance Tempo.
-        var filter = SongFilter.Create(true, "Index-CHA-.-.-.-.-.-.-1");
+        var filter = SongFilter.Create(false, "Index-CHA-.-.-.-.-.-.-1");
 
-        Assert.IsTrue(filter is SongFilterNext, "Should be SongFilterNext");
+        Assert.IsFalse(filter is SongFilterNext, "Current-version filter should use base SongFilter");
         Assert.IsTrue(filter.IsSingleDance, "Should be single dance");
 
         var sort = filter.ODataSort;
@@ -322,26 +321,27 @@ public class PerDanceTempoTests
     }
 
     // -------------------------------------------------------------------------
-    // Phase 2: SongIndexNext schema
+    // Phase 2: SongIndex schema
     // -------------------------------------------------------------------------
 
     [TestMethod]
-    public void SongIndexNext_DanceTempoSubFieldConstant_IsCorrect()
+    public void SongIndex_DanceTempoSubField_IsUsedInPerDanceSortPath()
     {
-        // Verify the constant name matches what is expected in OData paths.
-        Assert.AreEqual("Tempo", SongIndexNext.DanceTempoSubField,
-            "DanceTempoSubField constant should be 'Tempo' to match dance_{id}/Tempo OData paths");
+        var filter = SongFilter.Create(false, "Index-CHA-Tempo-.-.-.-.-.-1");
+
+        Assert.AreEqual($"dance_CHA/{SongIndex.DanceTempoSubField} asc", filter.ODataSort[0],
+            "Per-dance tempo sort should use the SongIndex dance tempo sub-field path");
     }
 
     [TestMethod]
-    public void SongFilterNext_TempoFilter_ODataPathMatchesConstant()
+    public void SongFilter_TempoFilter_ODataPathMatchesConstant()
     {
-        // The per-dance tempo filter path should use the SongIndexNext constant.
-        var filter = SongFilter.Create(true, "Index-CHA-.-.-.-.-100-120-1");
+        // The per-dance tempo filter path should use the SongIndex constant.
+        var filter = SongFilter.Create(false, "Index-CHA-.-.-.-.-100-120-1");
         var odata = filter.GetOdataFilter(_dms);
 
-        var expectedField = $"dance_CHA/{SongIndexNext.DanceTempoSubField}";
+        var expectedField = $"dance_CHA/{SongIndex.DanceTempoSubField}";
         StringAssert.Contains(odata, expectedField,
-            "OData filter should reference the path matching the SongIndexNext constant");
+            "OData filter should reference the path matching the SongIndex constant");
     }
 }

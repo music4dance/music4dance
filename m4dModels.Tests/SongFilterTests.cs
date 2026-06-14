@@ -267,6 +267,18 @@ public class SongFilterTests
         Assert.AreEqual("singleDance", flags[0], "Flag should be 'singleDance'");
     }
 
+    [TestMethod]
+    public void GetOdataFilter_SingleDanceTempoSort_UsesPerDanceTempoFieldForNumericPrefilter()
+    {
+        var filter = SongFilter.Create(false, @"Index-CHA-Tempo-.-.-.-.-.-1");
+
+        var odata = filter.GetOdataFilter(null);
+
+        StringAssert.Contains(odata, "(dance_CHA/Tempo ne null) and (dance_CHA/Tempo ne 0)");
+        Assert.IsFalse(odata.Contains("(Tempo ne null) and (Tempo ne 0)"),
+            "Single-dance tempo sort should not prefilter on top-level Tempo");
+    }
+
     private const string F1 = @"Index-SWG-Album-Goodman-X-.-50-150-1-+Pop:Music";
     private const string F2 = @"Index-SWG-.-.-I";
     private const string F1V2 = @"v2-Index-SWG-Album-Goodman-I-.-50-150-30-90-1-+Pop:Music";

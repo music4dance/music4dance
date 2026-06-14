@@ -170,6 +170,34 @@ describe("SongStats.vue — canOverrideTempo / algo tempo pencil button", () => 
     });
   });
 
+  describe("FieldEditor event forwarding", () => {
+    it("forwards FieldEditor update-field events for Tempo and Length", async () => {
+      const wrapper = mountStats(makeAlgoTempoSong(), "testuser", true);
+      const fieldEditors = wrapper.findAllComponents({ name: "FieldEditor" });
+
+      const tempoEditor = fieldEditors.find((fe) => fe.props("name") === "Tempo");
+      const lengthEditor = fieldEditors.find((fe) => fe.props("name") === "Length");
+
+      expect(tempoEditor).toBeDefined();
+      expect(lengthEditor).toBeDefined();
+
+      await tempoEditor!.vm.$emit(
+        "update-field",
+        new SongProperty({ name: "Tempo", value: "138" }),
+      );
+      await lengthEditor!.vm.$emit(
+        "update-field",
+        new SongProperty({ name: "Length", value: "123" }),
+      );
+
+      const forwarded = wrapper.emitted("update-field");
+      expect(forwarded).toBeTruthy();
+      expect(forwarded).toHaveLength(2);
+      expect(forwarded?.[0]?.[0]).toEqual(new SongProperty({ name: "Tempo", value: "138" }));
+      expect(forwarded?.[1]?.[0]).toEqual(new SongProperty({ name: "Length", value: "123" }));
+    });
+  });
+
   describe("FieldEditor override-permission prop", () => {
     it("passes override-permission=true to FieldEditor when canOverrideTempo is true", () => {
       const wrapper = mountStats(makeAlgoTempoSong(), "testuser");

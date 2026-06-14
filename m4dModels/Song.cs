@@ -2536,7 +2536,6 @@ public class Song : TaggableObject
             { Tags = tags } ], stats);
     }
 
-    // TODOIDX: Clean up FailedLookup once index is updates
     public bool LookupTried()
     {
         return SongProperties.Any(
