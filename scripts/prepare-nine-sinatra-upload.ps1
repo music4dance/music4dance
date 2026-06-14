@@ -49,7 +49,7 @@ function Get-PropertyValue {
 }
 
 Write-Host "Reading playlist page: $PlaylistUrl"
-$response = Invoke-WebRequest -Uri $PlaylistUrl -TimeoutSec 60 -UseBasicParsing
+$response = Invoke-WebRequest -Uri $PlaylistUrl -TimeoutSec 60
 $content = $response.Content
 
 # The page embeds song data in: <script>var model_ = { ... };</script>
