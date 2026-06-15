@@ -18,12 +18,12 @@ in isolation and then rolled out to production with near-zero downtime. It was i
 
 ### Code Version vs. Config Version
 
-| Term                                                      | Meaning                                                                                                                                                                            |
-| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Code Version** (`SearchServiceManager.CodeVersion`)     | Hard-coded integer in source; the index schema version this build was compiled against. Currently **3**.                                                                           |
+| Term                                                      | Meaning                                                                                                                                                                                                                                 |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Code Version** (`SearchServiceManager.CodeVersion`)     | Hard-coded integer in source; the index schema version this build was compiled against. Currently **3**.                                                                                                                                |
 | **Config Version** (`SearchServiceManager.ConfigVersion`) | Runtime integer; normally equals `CodeVersion`. When set to `CodeVersion + 1`, the app uses the _next_ schema. Controlled by the `SEARCHINDEXVERSION` environment variable. Values below `CodeVersion` are clamped up to `CodeVersion`. |
-| **Next Version** (`SearchServiceManager.NextVersion`)     | `true` when `ConfigVersion > CodeVersion` — i.e. the app is actively using the newer schema.                                                                                       |
-| **HasNextVersion**                                        | `true` when the current `SearchServiceInfo` has a configuration entry for `CodeVersion + 1` **and** `NextVersion` is false — i.e. a next-version index exists but is not yet live. |
+| **Next Version** (`SearchServiceManager.NextVersion`)     | `true` when `ConfigVersion > CodeVersion` — i.e. the app is actively using the newer schema.                                                                                                                                            |
+| **HasNextVersion**                                        | `true` when the current `SearchServiceInfo` has a configuration entry for `CodeVersion + 1` **and** `NextVersion` is false — i.e. a next-version index exists but is not yet live.                                                      |
 
 ### Index Naming Convention
 
