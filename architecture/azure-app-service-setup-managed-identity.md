@@ -99,7 +99,7 @@ The application uses the following Azure services:
   - **IMPORTANT**: Cloud instances (Azure App Service) must use Staging or Production only
   - Development environment is **only** for local developer machines
   - Development environment enables detailed error pages visible to all users (security risk in cloud)
-- **SEARCHINDEX** and **SEARCHINDEXVERSION**: Automatically set by pipeline (staging/test → SongIndexTest-2, production → SongIndexProd-2)
+- **SEARCHINDEX** and **SEARCHINDEXVERSION**: Automatically set by pipeline (staging/test → SongIndexTest-3, production → SongIndexProd-3)
 
 **No manual configuration needed at this step**. The pipeline's `AzureWebApp@1` task uses the `appSettings` parameter to configure all necessary environment variables during deployment.
 
@@ -413,7 +413,7 @@ After the first pipeline deployment, your Application Settings will be automatic
 ASPNETCORE_ENVIRONMENT = Staging (or Production)
 SELF_CONTAINED_DEPLOYMENT = false (or true for self-contained deployments)
 SEARCHINDEX = SongIndexTest (staging/test) or SongIndexProd (production)
-SEARCHINDEXVERSION = 2
+SEARCHINDEXVERSION = 3
 WEBSITES_CONTAINER_START_TIME_LIMIT = 600
 ```
 
