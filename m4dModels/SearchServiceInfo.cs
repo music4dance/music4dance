@@ -135,7 +135,7 @@ public class SearchServiceManager : ISearchServiceManager
       CodeVersion == ConfigVersion &&
       GetInfo().HasNextVersion;
 
-    // True whenever appsettings has a "next" index entry, regardless of current version mode.
+    // True when appsettings has an explicit CodeVersion+1 entry for the current index id.
     public bool HasNextIndex => GetInfo().HasNextVersion;
 
     public int ConfigVersion { get; set; }
@@ -222,7 +222,7 @@ public class SearchServiceInfo(string id, int version, string name,
         var client = GetSearchIndexClient(isNext);
         return await client.CreateOrUpdateIndexAsync(index);
     }
-    public bool HasNextVersion => _versionedNames.Count > 1;
+    public bool HasNextVersion => HasVersion(manager.CodeVersion + 1);
 
     public string IndexName => GetVersionedName();
     public string NextIndexName => GetVersionedName(isNext: true);
@@ -232,8 +232,20 @@ public class SearchServiceInfo(string id, int version, string name,
             ? Id
             : $"{Id}-{(isNext ?? manager.NextVersion ? manager.CodeVersion + 1 : manager.ConfigVersion)}";
 
-    private string GetVersionedName(bool? isNext = null) =>
-        _versionedNames[isNext ?? manager.NextVersion ? manager.CodeVersion + 1 : manager.ConfigVersion];
+    public bool HasVersion(int version) => _versionedNames.ContainsKey(version);
+
+    private string GetVersionedName(bool? isNext = null)
+    {
+        var version = isNext ?? manager.NextVersion ? manager.CodeVersion + 1 : manager.ConfigVersion;
+        if (_versionedNames.TryGetValue(version, out var name))
+        {
+            return name;
+        }
+
+        var configured = string.Join(", ", _versionedNames.Keys.OrderBy(v => v));
+        throw new InvalidOperationException(
+            $"Index version {version} is not configured for '{Id}'. Configured versions: [{configured}].");
+    }
 
     private readonly Dictionary<int, string> _versionedNames = new()
     {
