@@ -34,12 +34,12 @@ variables:
     appName: "msc4dnc"
     aspnetEnvironment: "Production"
     searchIndex: "SongIndexProd"
-    searchIndexVersion: "2"
+    searchIndexVersion: "3"
   ${{ if eq(parameters.environment, 'test') }}:
     appName: "m4d-test"
     aspnetEnvironment: "Staging"
     searchIndex: "SongIndexTest"
-    searchIndexVersion: "2"
+    searchIndexVersion: "3"
   ${{ if eq(parameters.deploymentMode, 'self-contained') }}:
     useSelfContained: true
   ${{ if eq(parameters.deploymentMode, 'framework-dependent') }}:

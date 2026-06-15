@@ -8,9 +8,9 @@ in isolation and then rolled out to production with near-zero downtime. It was i
 
 ## Current Rollout Status (Per-Dance Tempo)
 
-- The v3 schema and query behavior for per-dance tempo are implemented in code (`SongIndexNext` / filter paths).
-- Production cutover is still an operational step: run `UpdateSearchIdx`, validate, then bump `CodeVersion`.
-- Until that cutover is complete, `CodeVersion` remains `2` and next-version behavior is activated via `SEARCHINDEXVERSION`.
+- The v3 schema is now the current schema in code (`CodeVersion = 3`).
+- Deployments should set `SEARCHINDEXVERSION=3` for current behavior.
+- `SEARCHINDEXVERSION` values lower than `CodeVersion` are ignored at runtime (clamped to `CodeVersion`).
 
 ---
 
@@ -20,8 +20,8 @@ in isolation and then rolled out to production with near-zero downtime. It was i
 
 | Term                                                      | Meaning                                                                                                                                                                            |
 | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Code Version** (`SearchServiceManager.CodeVersion`)     | Hard-coded integer in source; the index schema version this build was compiled against. Currently **2**.                                                                           |
-| **Config Version** (`SearchServiceManager.ConfigVersion`) | Runtime integer; normally equals `CodeVersion`. When set to `CodeVersion + 1`, the app uses the _next_ schema. Controlled by the `SEARCHINDEXVERSION` environment variable.        |
+| **Code Version** (`SearchServiceManager.CodeVersion`)     | Hard-coded integer in source; the index schema version this build was compiled against. Currently **3**.                                                                           |
+| **Config Version** (`SearchServiceManager.ConfigVersion`) | Runtime integer; normally equals `CodeVersion`. When set to `CodeVersion + 1`, the app uses the _next_ schema. Controlled by the `SEARCHINDEXVERSION` environment variable. Values below `CodeVersion` are clamped up to `CodeVersion`. |
 | **Next Version** (`SearchServiceManager.NextVersion`)     | `true` when `ConfigVersion > CodeVersion` — i.e. the app is actively using the newer schema.                                                                                       |
 | **HasNextVersion**                                        | `true` when the current `SearchServiceInfo` has a configuration entry for `CodeVersion + 1` **and** `NextVersion` is false — i.e. a next-version index exists but is not yet live. |
 
@@ -94,7 +94,7 @@ Launch profiles in `m4d/Properties/launchSettings.json` cover the most common co
 | ------------------ | ----------------------- | ----------------------- | --------------------------------------------------------------------------------------- |
 | `m4d-vite`         | `SongIndexTest`         | _(unset → CodeVersion)_ | Normal development against the current test index                                       |
 | `m4d-experimental` | `SongIndexExperimental` | _(auto +1)_             | Quick freeform experiments — no migration needed                                        |
-| `m4d-next`         | `SongIndexTest`         | `3` (CodeVersion+1)     | Test a _specific_ next-version schema against the test index before going to production |
+| `m4d-next`         | `SongIndexTest`         | `4` (CodeVersion+1)     | Test a _specific_ next-version schema against the test index before going to production |
 | `m4d-prod-db`      | `SongIndexProd`         | _(unset)_               | Reproduce a production bug against the production index                                 |
 | `m4d-test-db`      | `SongIndexTest`         | _(unset)_               | Integration testing against the test index                                              |
 

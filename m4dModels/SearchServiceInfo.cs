@@ -76,7 +76,9 @@ public class SearchServiceManager : ISearchServiceManager
         }
         else
         {
-            ConfigVersion = version;
+            // Never allow configuration to force a schema version older than this build.
+            // This prevents deploy-time env drift from pinning active index routing to stale schemas.
+            ConfigVersion = Math.Max(version, CodeVersion);
         }
         if (DefaultId == ExperimentalId)
         {
