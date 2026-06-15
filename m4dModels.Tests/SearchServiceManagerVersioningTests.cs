@@ -3,6 +3,7 @@ using Azure.Search.Documents.Indexes;
 
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 

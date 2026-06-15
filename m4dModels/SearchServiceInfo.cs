@@ -230,13 +230,13 @@ public class SearchServiceInfo(string id, int version, string name,
     private string GetVersionedId(bool? isNext = null) =>
         Id == SearchServiceManager.ExperimentalId
             ? Id
-            : $"{Id}-{(isNext ?? manager.NextVersion ? manager.CodeVersion + 1 : manager.ConfigVersion)}";
+            : $"{Id}-{((isNext ?? manager.NextVersion) ? manager.CodeVersion + 1 : manager.ConfigVersion)}";
 
     public bool HasVersion(int version) => _versionedNames.ContainsKey(version);
 
     private string GetVersionedName(bool? isNext = null)
     {
-        var version = isNext ?? manager.NextVersion ? manager.CodeVersion + 1 : manager.ConfigVersion;
+        var version = (isNext ?? manager.NextVersion) ? manager.CodeVersion + 1 : manager.ConfigVersion;
         if (_versionedNames.TryGetValue(version, out var name))
         {
             return name;
