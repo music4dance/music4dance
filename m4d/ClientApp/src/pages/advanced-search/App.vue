@@ -144,7 +144,16 @@ const sortId = ref<SortOrder | null>(initialSortId);
 const sortDirection = ref(sortInit.direction);
 
 const danceNames = computed(() => {
-  return dances.value.map((d) => danceDB.danceFromId(d)!.name);
+  return dances.value
+    .map((danceId) => danceDB.fromId(danceId)?.name)
+    .filter((name): name is string => !!name);
+});
+
+const singleDanceName = computed(() => {
+  if (dances.value.length !== 1) {
+    return undefined;
+  }
+  return danceDB.danceFromId(dances.value[0])?.name;
 });
 
 const activities = computed(() => {
@@ -416,9 +425,7 @@ function onReset(evt: Event): void {
         <BFormGroup
           id="tempo-range-group"
           :label="
-            dances.length === 1
-              ? `Tempo range for ${danceDB.danceFromId(dances[0])!.name} (BPM):`
-              : 'Tempo range (BPM):'
+            singleDanceName ? `Tempo range for ${singleDanceName} (BPM):` : 'Tempo range (BPM):'
           "
           label-for="tempo-range"
         >

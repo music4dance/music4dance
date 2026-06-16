@@ -1,4 +1,5 @@
 ﻿using Azure.Search.Documents;
+using DanceLibrary;
 
 using m4d.Services.ServiceHealth;
 using m4d.Utilities;
@@ -91,8 +92,13 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
         var userQuery = Filter.UserQuery;
         var vote = userQuery.IsUpVoted ? 1 : -1;
         var user = userQuery.IsIdentity ? UserName : userQuery.UserName;
+        var voteDances = Dances.Instance
+            .ExpandGroups(Filter.DanceQuery.Dances)
+            .GroupBy(d => d.Id)
+            .Select(g => g.First())
+            .ToList();
         return await PostSearch(options,
-            s => Filter.DanceQuery.Dances.Any(d => s.NormalizedUserDanceRating(user, d.Id) == vote));
+            s => voteDances.Any(d => s.NormalizedUserDanceRating(user, d.Id) == vote));
     }
 
     /// <summary>
