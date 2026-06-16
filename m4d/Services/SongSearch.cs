@@ -92,7 +92,11 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
         var userQuery = Filter.UserQuery;
         var vote = userQuery.IsUpVoted ? 1 : -1;
         var user = userQuery.IsIdentity ? UserName : userQuery.UserName;
-        var voteDances = Dances.Instance.ExpandGroups(Filter.DanceQuery.Dances).ToList();
+        var voteDances = Dances.Instance
+            .ExpandGroups(Filter.DanceQuery.Dances)
+            .GroupBy(d => d.Id)
+            .Select(g => g.First())
+            .ToList();
         return await PostSearch(options,
             s => voteDances.Any(d => s.NormalizedUserDanceRating(user, d.Id) == vote));
     }

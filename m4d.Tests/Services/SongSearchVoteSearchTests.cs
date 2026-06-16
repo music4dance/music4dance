@@ -30,7 +30,7 @@ public class SongSearchVoteSearchTests
         await Task.CompletedTask;
     }
 
-    private static async Task<SongSearch> CreateSongSearchAsync(
+    private static Task<SongSearch> CreateSongSearchAsync(
         DanceMusicService dms,
         IEnumerable<Song> songsToReturn,
         SongFilter filter)
@@ -59,7 +59,8 @@ public class SongSearchVoteSearchTests
             .Returns<string, SearchOptions, CruftFilter>((_, _, _) => AsAsyncEnumerable(songList));
 
         var queue = new TestBackgroundTaskQueue();
-        return new SongSearch(filter, "dwgray", true, mockSongIndex.Object, dms.UserManager, queue, null);
+        return Task.FromResult(
+            new SongSearch(filter, "dwgray", true, mockSongIndex.Object, dms.UserManager, queue, null));
     }
 
     private static async Task<Song> CreateSongAsync(DanceMusicCoreService dms, string raw)
