@@ -11,6 +11,23 @@ description: >-
 Updates NuGet packages across all projects in `music4dance.sln`, then verifies
 the build and test suite still pass.
 
+## Scope argument
+
+This skill accepts an optional argument: `minor` or `major`.
+
+- `/update-nuget` (no argument) — apply minor/patch bumps directly; list
+  major bumps and ask before applying them (default behavior below).
+- `/update-nuget minor` — apply **only** minor/patch bumps. Skip major bumps
+  entirely (don't even ask) and mention them in the final report as
+  available-but-not-applied.
+- `/update-nuget major` — review **only** the packages with a major version
+  available. Confirm with the user before applying each (or the batch), and
+  leave minor/patch bumps untouched for a separate pass.
+
+Framework-tied packages (see classification below) are never auto-applied
+under either mode — they always require explicit confirmation regardless of
+argument, since they represent a `net9.0` → `net10.0`-class upgrade.
+
 ## Projects in scope
 
 `DanceLib/DanceLibrary.csproj`, `m4dModels/m4dModels.csproj`, `m4d/m4d.csproj`,
@@ -50,15 +67,19 @@ There is also a local tool manifest at `m4d/.config/dotnet-tools.json`
      breaking API changes.
    - **Minor/patch bumps** — safe to apply directly.
 
-4. **Apply minor/patch updates** per project (the `--outdated` output tells
+4. **Apply updates per the scope argument** (the `--outdated` output tells
    you which project(s) reference each package):
 
    ```sh
    dotnet add <Project.csproj> package <PackageId> --version <Version>
    ```
 
-   Apply major bumps the same way, but only after the user has confirmed
-   them.
+   - No argument or `minor`: apply minor/patch bumps directly.
+   - No argument: also ask about major bumps and apply confirmed ones.
+   - `minor`: skip major bumps entirely, no need to ask.
+   - `major`: apply only the confirmed major bumps; leave minor/patch alone.
+   - Framework-tied packages are always confirmed individually, never bundled
+     into a blanket "apply all majors" approval.
 
 5. **Update the local tool manifest** if `dotnet-ef` (or any other tool) is
    outdated:

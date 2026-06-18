@@ -19,6 +19,22 @@ run `yarn install` after editing `package.json` directly.
 
 All commands below run from `m4d/ClientApp/`.
 
+## Scope argument
+
+This skill accepts an optional argument: `minor` or `major`.
+
+- `/update-yarn` (no argument) — apply patch/minor bumps directly; list
+  major bumps and ask before applying them (default behavior below).
+- `/update-yarn minor` — apply **only** patch/minor bumps. Skip major bumps
+  entirely (don't even ask) and mention them in the final report as
+  available-but-not-applied.
+- `/update-yarn major` — review **only** the packages with a major version
+  available. Confirm with the user before applying each (or a related
+  group), and leave patch/minor bumps untouched for a separate pass.
+
+Pinned `resolutions` entries are never auto-applied under either mode — they
+always require explicit confirmation regardless of argument.
+
 ## Procedure
 
 1. **See what's outdated:**
@@ -43,12 +59,18 @@ All commands below run from `m4d/ClientApp/`.
      with a transitive dependency. Don't bump them without checking why
      they're pinned; ask the user if a bump seems warranted.
 
-3. **Apply updates** with `yarn up` (Yarn Berry's upgrade command), one
-   package (or a related group) at a time so failures are easy to bisect:
+3. **Apply updates per the scope argument** with `yarn up` (Yarn Berry's
+   upgrade command), one package (or a related group) at a time so failures
+   are easy to bisect:
 
    ```sh
    yarn up <package>@<range>
    ```
+
+   - No argument or `minor`: apply patch/minor bumps directly.
+   - No argument: also ask about major bumps and apply confirmed ones.
+   - `minor`: skip major bumps entirely, no need to ask.
+   - `major`: apply only the confirmed major bumps; leave patch/minor alone.
 
    For a batch of same-risk patch/minor bumps you can pass multiple packages
    to one `yarn up` call.
