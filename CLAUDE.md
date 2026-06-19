@@ -6,7 +6,7 @@ Web app matching music to competitive/social ballroom dance styles based on mete
 
 ## Stack
 
-- **Backend**: ASP.NET Core (net9.0), C#
+- **Backend**: ASP.NET Core (net10.0), C#
   - `DanceLib/` — domain models and business logic
   - `m4d/` — web app (controllers, views, config)
   - `m4dModels/` — data models and EF context
