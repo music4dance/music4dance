@@ -4,14 +4,14 @@
     class="engagement-bottom-bar mb-0 rounded-0 border-top border-start-0 border-end-0 border-bottom-0"
     :model-value="true"
     :dismissible="false"
-    @click="onExpand"
     role="button"
     tabindex="0"
-    @keydown.enter="onExpand"
-    @keydown.space.prevent="onExpand"
     aria-label="Expand engagement options"
     data-engagement-element="bottom-bar"
     data-engagement-action="impression"
+    @click="onExpand"
+    @keydown.enter="onExpand"
+    @keydown.space.prevent="onExpand"
   >
     <div class="d-flex align-items-center">
       <IBiChevronUp class="me-3" />

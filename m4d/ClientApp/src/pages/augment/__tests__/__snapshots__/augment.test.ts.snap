@@ -8,7 +8,6 @@ exports[`Augment Page > Renders the Augment Page 1`] = `
       <h1 data-v-6c79bed6="">Add Song</h1>
       <div data-v-6c79bed6="" class="tabs">
         <!---->
-        <!---->
         <div class="card-header">
           <ul class="nav card-header-tabs nav-tabs" role="tablist" aria-orientation="horizontal">
             <li class="nav-item" role="presentation"><button class="nav-link active" role="tab" aria-controls="BootstrapVueNext__ID__v-0__tabpane___" aria-selected="true" type="button">by Title</button></li>

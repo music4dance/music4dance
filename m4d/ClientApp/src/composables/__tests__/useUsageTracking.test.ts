@@ -32,9 +32,7 @@ describe("useUsageTracking", () => {
       const usageId = tracker.getUsageId();
 
       expect(usageId).toBeTruthy();
-      expect(usageId).toMatch(
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
-      );
+      expect(usageId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
     });
 
     it("retrieves existing UsageId from localStorage", () => {

@@ -28,9 +28,9 @@ exports[`admin-users page > renders the admin users page 1`] = `
         </div>
         <div class="col-md-3">
           <p><a href="/ApplicationUsers/Create" class="btn btn-primary" role="button">New Pseudo User</a></p>
-          <p><button class="btn btn-md btn-primary" type="button">Show Unconfirmed</button></p>
-          <p><button class="btn btn-md btn-primary" type="button">Show Pseudo</button></p>
-          <p><button class="btn btn-md btn-primary" type="button">Hide Private</button></p>
+          <p><button class="btn btn-primary" type="button">Show Unconfirmed</button></p>
+          <p><button class="btn btn-primary" type="button">Show Pseudo</button></p>
+          <p><button class="btn btn-primary" type="button">Hide Private</button></p>
           <p><a href="/ApplicationUsers/ClearCache" class="btn btn-secondary" role="button">Clear Cache</a></p>
           <p><a href="/ApplicationUsers/VotingResults" class="btn btn-primary" role="button">Voting Results</a></p>
           <p><a href="/ApplicationUsers/PremiumUsers" class="btn btn-primary" role="button">Premium</a></p>
@@ -71,11 +71,11 @@ exports[`admin-users page > renders the admin users page 1`] = `
       <div class="mb-2" style="max-width: 24rem;"><input id="BootstrapVueNext__ID__v-0__input___" class="form-control form-control-sm" type="text" placeholder="Filter by name or email…" clearable="" value=""></div><!-- Pagination controls (top) -->
       <div class="d-flex align-items-center gap-3 mb-2">
         <ul class="pagination justify-content-start pagination-sm mb-0" role="menubar" aria-disabled="false" aria-label="Pagination">
-          <li class="page-item disabled" role="presentation" displayindex="0"><span is="span" class="page-link text-center" aria-label="Go to first page" aria-disabled="true" role="menuitem">«</span></li>
-          <li class="page-item disabled" role="presentation" displayindex="1"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
-          <li class="page-item active" role="presentation" displayindex="2"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="1" role="menuitem" type="button" tabindex="0">1</button></li>
-          <li class="page-item disabled" role="presentation" displayindex="3"><span is="span" class="page-link text-center" aria-label="Go to next page" aria-disabled="true" role="menuitem">›</span></li>
-          <li class="page-item disabled" role="presentation" displayindex="4"><span is="span" class="page-link text-center" aria-label="Go to last page" aria-disabled="true" role="menuitem">»</span></li>
+          <li class="page-item disabled" role="presentation" data-display-name="0"><span is="span" class="page-link text-center" aria-label="Go to first page" aria-disabled="true" role="menuitem">«</span></li>
+          <li class="page-item disabled" role="presentation" data-display-name="1"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
+          <li class="page-item active" role="presentation" data-display-name="2"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="1" role="menuitem" type="button" tabindex="0">1</button></li>
+          <li class="page-item disabled" role="presentation" data-display-name="3"><span is="span" class="page-link text-center" aria-label="Go to next page" aria-disabled="true" role="menuitem">›</span></li>
+          <li class="page-item disabled" role="presentation" data-display-name="4"><span is="span" class="page-link text-center" aria-label="Go to last page" aria-disabled="true" role="menuitem">»</span></li>
         </ul>
         <div class="d-flex align-items-center gap-2"><label class="mb-0 small">Per page:</label><select id="BootstrapVueNext__ID__v-1__input___" class="form-select form-select-sm" style="width: auto;">
             <option value="25">25</option>
@@ -89,19 +89,25 @@ exports[`admin-users page > renders the admin users page 1`] = `
           <!---->
           <thead class="">
             <tr class="">
-              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">EC</th>
-              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">UserName / Email</th>
-              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">Signed Up</th>
-              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="descending">Signed In</th>
-              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">PRV</th>
-              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">Contact Prefs</th>
-              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">Services</th>
-              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">CCF</th>
-              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">$</th>
-              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">HC</th>
-              <th scope="col" class="">Roles</th>
-              <th scope="col" class="">Logins</th>
-              <th scope="col" class=""></th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">EC <span class="visually-hidden">Click to sort ascending</span></th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">UserName / Email <span class="visually-hidden">Click to sort ascending</span></th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">Signed Up <span class="visually-hidden">Click to sort ascending</span></th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="descending">Signed In <span class="visually-hidden">Click to clear sorting</span></th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">PRV <span class="visually-hidden">Click to sort ascending</span></th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">Contact Prefs <span class="visually-hidden">Click to sort ascending</span></th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">Services <span class="visually-hidden">Click to sort ascending</span></th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">CCF <span class="visually-hidden">Click to sort ascending</span></th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">$ <span class="visually-hidden">Click to sort ascending</span></th>
+              <th scope="col" class="b-table-sort-icon-left b-table-sortable-column" tabindex="0" aria-sort="none">HC <span class="visually-hidden">Click to sort ascending</span></th>
+              <th scope="col" class="">Roles
+                <!---->
+              </th>
+              <th scope="col" class="">Logins
+                <!---->
+              </th>
+              <th scope="col" class="">
+                <!---->
+              </th>
             </tr>
             <!---->
           </thead>
@@ -198,11 +204,11 @@ exports[`admin-users page > renders the admin users page 1`] = `
         </table>
       </div><!-- Pagination controls (bottom) -->
       <ul class="pagination justify-content-start pagination-sm" role="menubar" aria-disabled="false" aria-label="Pagination">
-        <li class="page-item disabled" role="presentation" displayindex="0"><span is="span" class="page-link text-center" aria-label="Go to first page" aria-disabled="true" role="menuitem">«</span></li>
-        <li class="page-item disabled" role="presentation" displayindex="1"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
-        <li class="page-item active" role="presentation" displayindex="2"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="1" role="menuitem" type="button" tabindex="0">1</button></li>
-        <li class="page-item disabled" role="presentation" displayindex="3"><span is="span" class="page-link text-center" aria-label="Go to next page" aria-disabled="true" role="menuitem">›</span></li>
-        <li class="page-item disabled" role="presentation" displayindex="4"><span is="span" class="page-link text-center" aria-label="Go to last page" aria-disabled="true" role="menuitem">»</span></li>
+        <li class="page-item disabled" role="presentation" data-display-name="0"><span is="span" class="page-link text-center" aria-label="Go to first page" aria-disabled="true" role="menuitem">«</span></li>
+        <li class="page-item disabled" role="presentation" data-display-name="1"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
+        <li class="page-item active" role="presentation" data-display-name="2"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="1" role="menuitem" type="button" tabindex="0">1</button></li>
+        <li class="page-item disabled" role="presentation" data-display-name="3"><span is="span" class="page-link text-center" aria-label="Go to next page" aria-disabled="true" role="menuitem">›</span></li>
+        <li class="page-item disabled" role="presentation" data-display-name="4"><span is="span" class="page-link text-center" aria-label="Go to last page" aria-disabled="true" role="menuitem">»</span></li>
       </ul>
     </div>
   </div>

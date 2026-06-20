@@ -10,7 +10,7 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
         <div id="nav-collapse" class="collapse navbar-collapse" is-nav="true" style="display: none;">
           <ul class="navbar-nav">
             <li class="nav-item dropdown">
-              <div class="dropdown"><button class="btn btn-md btn-link nav-link dropdown-toggle" type="button" id="music-menu" aria-expanded="false" aria-haspopup="menu">Music</button>
+              <div class="dropdown"><button class="btn btn-link nav-link dropdown-toggle" type="button" id="music-menu" aria-expanded="false" aria-haspopup="menu">Music</button>
                 <!---->
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
                   <ul id="music-menu-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto b-floating-size fade" aria-labelledby="music-menu" role="menu">
@@ -35,7 +35,7 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
               </div>
             </li>
             <li class="nav-item dropdown">
-              <div class="dropdown"><button class="btn btn-md btn-link nav-link dropdown-toggle" type="button" id="tools-menu" aria-expanded="false" aria-haspopup="menu">Tools</button>
+              <div class="dropdown"><button class="btn btn-link nav-link dropdown-toggle" type="button" id="tools-menu" aria-expanded="false" aria-haspopup="menu">Tools</button>
                 <!---->
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
                   <ul id="tools-menu-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto b-floating-size fade" aria-labelledby="tools-menu" role="menu">
@@ -50,7 +50,7 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
               </div>
             </li>
             <li class="nav-item dropdown">
-              <div class="dropdown"><button class="btn btn-md btn-link nav-link dropdown-toggle" type="button" id="info" aria-expanded="false" aria-haspopup="menu">Info</button>
+              <div class="dropdown"><button class="btn btn-link nav-link dropdown-toggle" type="button" id="info" aria-expanded="false" aria-haspopup="menu">Info</button>
                 <!---->
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
                   <ul id="info-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto b-floating-size fade" aria-labelledby="info" role="menu">

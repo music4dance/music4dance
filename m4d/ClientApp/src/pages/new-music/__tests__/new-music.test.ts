@@ -4,11 +4,7 @@ import { model } from "./model";
 import App from "../App.vue";
 
 describe("New Music", () => {
-  test(
-    "renders a new music page",
-    () => {
-      testPageSnapshot(App, model);
-    },
-    50000,
-  );
+  test("renders a new music page", () => {
+    testPageSnapshot(App, model);
+  }, 50000);
 });

@@ -12,11 +12,21 @@ exports[`activity-log page > renders the activity log page snapshot 1`] = `
         <!---->
         <thead class="">
           <tr class="">
-            <th scope="col" class="">Id</th>
-            <th scope="col" class="">Date</th>
-            <th scope="col" class="">User Name</th>
-            <th scope="col" class="">Action</th>
-            <th scope="col" class="">Details</th>
+            <th scope="col" class="">Id
+              <!---->
+            </th>
+            <th scope="col" class="">Date
+              <!---->
+            </th>
+            <th scope="col" class="">User Name
+              <!---->
+            </th>
+            <th scope="col" class="">Action
+              <!---->
+            </th>
+            <th scope="col" class="">Details
+              <!---->
+            </th>
           </tr>
           <!---->
         </thead>
@@ -84,13 +94,13 @@ exports[`activity-log page > renders the activity log page snapshot 1`] = `
       <div class="row mt-3">
         <div class="col-md-8">
           <ul class="pagination justify-content-start" role="menubar" aria-disabled="false" aria-label="Activity log pages">
-            <li class="page-item disabled" role="presentation" displayindex="0"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
-            <li class="page-item active" role="presentation" displayindex="1"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="5" role="menuitem" type="button" tabindex="0">1</button></li>
-            <li class="page-item" role="presentation" displayindex="2"><button is="button" class="page-link text-center" aria-label="Go to page 2" aria-posinset="2" aria-setsize="5" role="menuitem" type="button" tabindex="-1">2</button></li>
-            <li class="page-item bv-d-sm-down-none" role="presentation" displayindex="3"><button is="button" class="page-link text-center" aria-label="Go to page 3" aria-posinset="3" aria-setsize="5" role="menuitem" type="button" tabindex="-1">3</button></li>
-            <li class="page-item" role="presentation" displayindex="4"><button is="button" class="page-link text-center" aria-label="Go to page 4" aria-posinset="4" aria-setsize="5" role="menuitem" type="button" tabindex="-1">4</button></li>
-            <li class="page-item" role="presentation" displayindex="5"><button is="button" class="page-link text-center" aria-label="Go to page 5" aria-posinset="5" aria-setsize="5" role="menuitem" type="button" tabindex="-1">5</button></li>
-            <li class="page-item" role="presentation" displayindex="6"><button is="button" class="page-link text-center" aria-label="Go to next page" role="menuitem" type="button" tabindex="-1">›</button></li>
+            <li class="page-item disabled" role="presentation" data-display-name="0"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
+            <li class="page-item active" role="presentation" data-display-name="1"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="5" role="menuitem" type="button" tabindex="0">1</button></li>
+            <li class="page-item" role="presentation" data-display-name="2"><button is="button" class="page-link text-center" aria-label="Go to page 2" aria-posinset="2" aria-setsize="5" role="menuitem" type="button" tabindex="-1">2</button></li>
+            <li class="page-item bv-d-sm-down-none" role="presentation" data-display-name="3"><button is="button" class="page-link text-center" aria-label="Go to page 3" aria-posinset="3" aria-setsize="5" role="menuitem" type="button" tabindex="-1">3</button></li>
+            <li class="page-item" role="presentation" data-display-name="4"><button is="button" class="page-link text-center" aria-label="Go to page 4" aria-posinset="4" aria-setsize="5" role="menuitem" type="button" tabindex="-1">4</button></li>
+            <li class="page-item" role="presentation" data-display-name="5"><button is="button" class="page-link text-center" aria-label="Go to page 5" aria-posinset="5" aria-setsize="5" role="menuitem" type="button" tabindex="-1">5</button></li>
+            <li class="page-item" role="presentation" data-display-name="6"><button is="button" class="page-link text-center" aria-label="Go to next page" role="menuitem" type="button" tabindex="-1">›</button></li>
           </ul>
         </div>
         <div class="col-md-4"> Page <input type="number" step="1" min="1" max="5" class="form-control form-control-sm d-inline-block" style="width: 4em;" aria-label="Page number"> of 5</div>
@@ -118,11 +128,21 @@ exports[`activity-log page > renders the single-page view snapshot 1`] = `
         <!---->
         <thead class="">
           <tr class="">
-            <th scope="col" class="">Id</th>
-            <th scope="col" class="">Date</th>
-            <th scope="col" class="">User Name</th>
-            <th scope="col" class="">Action</th>
-            <th scope="col" class="">Details</th>
+            <th scope="col" class="">Id
+              <!---->
+            </th>
+            <th scope="col" class="">Date
+              <!---->
+            </th>
+            <th scope="col" class="">User Name
+              <!---->
+            </th>
+            <th scope="col" class="">Action
+              <!---->
+            </th>
+            <th scope="col" class="">Details
+              <!---->
+            </th>
           </tr>
           <!---->
         </thead>

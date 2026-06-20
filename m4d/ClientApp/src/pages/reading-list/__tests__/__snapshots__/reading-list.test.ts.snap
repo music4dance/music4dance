@@ -17,7 +17,6 @@ exports[`About > Render the Readling List Page 1`] = `
     <div>
       <div data-v-b13604e2="" class="tabs">
         <!---->
-        <!---->
         <div class="">
           <ul class="nav nav-tabs" role="tablist" aria-orientation="horizontal">
             <li class="nav-item" role="presentation"><button class="nav-link active" role="tab" aria-controls="BootstrapVueNext__ID__v-0__tabpane___" aria-selected="true" type="button">Learning to Dance</button></li>

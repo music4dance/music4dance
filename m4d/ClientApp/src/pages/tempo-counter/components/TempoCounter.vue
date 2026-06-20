@@ -133,7 +133,6 @@ function timerReset(): void {
           :options="countOptions"
           buttons
           button-variant="outline-primary"
-          size="md"
           name="radio-btn-outline"
         />
       </BFormGroup>

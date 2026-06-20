@@ -6,23 +6,23 @@
     :backdrop="true"
     :scroll="false"
     no-header
-    @hidden="onHidden"
     :data-engagement-element="'offcanvas'"
     :data-engagement-level="engagementData?.level || (isAuthenticated ? 'loggedin' : '1')"
     :data-engagement-user-type="isAuthenticated ? 'authenticated' : 'anonymous'"
     :data-engagement-action="'impression'"
+    @hidden="onHidden"
   >
     <!-- Custom header with collapse button (entire header is clickable) -->
     <div
       class="engagement-offcanvas-header d-flex align-items-center border-bottom pb-2 mb-3"
       role="button"
       tabindex="0"
-      @click="onCollapse"
-      @keydown.enter="onCollapse"
-      @keydown.space.prevent="onCollapse"
       aria-label="Collapse"
       style="cursor: pointer"
       data-engagement-action="collapse-click"
+      @click="onCollapse"
+      @keydown.enter="onCollapse"
+      @keydown.space.prevent="onCollapse"
     >
       <span class="me-2 text-muted">
         <IBiChevronDown />
@@ -35,7 +35,7 @@
       v-if="engagementData?.message"
       class="engagement-message mb-3"
       v-html="engagementData.message"
-    ></div>
+    />
 
     <!-- Conditional content based on user type -->
     <div v-if="!isAuthenticated" class="free-account-benefits mb-3">
@@ -91,7 +91,7 @@
       <p class="text-muted small">Your membership includes:</p>
       <ul class="list-clean-aligned">
         <li v-for="(benefit, index) in premiumBenefits" :key="index">
-          <IBiCheckCircleFill class="text-success me-2" /><span v-html="benefit"></span>
+          <IBiCheckCircleFill class="text-success me-2" /><span v-html="benefit" />
         </li>
         <li v-if="premiumBenefitsMoreText">
           <IBiCheckCircleFill class="text-success me-2" />{{ premiumBenefitsMoreText }}
@@ -133,8 +133,8 @@
             variant="outline-secondary"
             size="sm"
             class="w-100"
-            @click="onCollapse"
             data-engagement-action="dismiss-click"
+            @click="onCollapse"
           >
             Maybe Later
           </BButton>
@@ -171,8 +171,8 @@
             variant="outline-secondary"
             size="sm"
             class="w-100"
-            @click="onCollapse"
             data-engagement-action="dismiss-click"
+            @click="onCollapse"
           >
             Maybe Later
           </BButton>

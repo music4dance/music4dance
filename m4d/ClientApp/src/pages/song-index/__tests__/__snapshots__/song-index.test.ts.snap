@@ -11,7 +11,7 @@ exports[`Song Index > renders a song index page 1`] = `
       <div>
         <h1 style="text-align: center;">Song Library</h1>
         <div class="input-group" role="group">
-          <!----><button class="btn btn-md btn-outline-primary collapsed" type="button" data-bvtoggle="dance-chooser" aria-expanded="false" aria-controls="dance-chooser">All Dances</button><label class="visually-hidden" for="keywords">Title, Artist, Album, Key Words</label><input id="keywords" class="form-control form-control-md" type="text" placeholder="Enter part of a title, artist, album, etc." autocomplete="off" list="keywords-suggestions" value=""><datalist id="keywords-suggestions"></datalist><button class="btn btn-md btn-outline-secondary" type="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+          <!----><button class="btn btn-outline-primary collapsed" type="button" data-bvtoggle="dance-chooser" aria-expanded="false" aria-controls="dance-chooser">All Dances</button><label class="visually-hidden" for="keywords">Title, Artist, Album, Key Words</label><input id="keywords" class="form-control" type="text" placeholder="Enter part of a title, artist, album, etc." autocomplete="off" list="keywords-suggestions" value=""><datalist id="keywords-suggestions"></datalist><button class="btn btn-outline-secondary" type="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
               <path fill="currentColor" d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0a5.5 5.5 0 0 1 11 0"></path>
             </svg></button>
           <!---->
@@ -5147,19 +5147,19 @@ exports[`Song Index > renders a song index page 1`] = `
       <div class="row">
         <div class="col-md-8">
           <ul class="pagination justify-content-start" role="menubar" aria-disabled="false" aria-label="Pagination">
-            <li class="page-item disabled" role="presentation" displayindex="0"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
-            <li class="page-item active" role="presentation" displayindex="1"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="2494" role="menuitem" type="button" tabindex="0">1</button></li>
-            <li class="page-item" role="presentation" displayindex="2"><button is="button" class="page-link text-center" aria-label="Go to page 2" aria-posinset="2" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">2</button></li>
-            <li class="page-item" role="presentation" displayindex="3"><button is="button" class="page-link text-center" aria-label="Go to page 3" aria-posinset="3" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">3</button></li>
-            <li class="page-item" role="presentation" displayindex="4"><button is="button" class="page-link text-center" aria-label="Go to page 4" aria-posinset="4" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">4</button></li>
-            <li class="page-item" role="presentation" displayindex="5"><button is="button" class="page-link text-center" aria-label="Go to page 5" aria-posinset="5" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">5</button></li>
-            <li class="page-item" role="presentation" displayindex="6"><button is="button" class="page-link text-center" aria-label="Go to page 6" aria-posinset="6" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">6</button></li>
-            <li class="page-item" role="presentation" displayindex="7"><button is="button" class="page-link text-center" aria-label="Go to page 7" aria-posinset="7" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">7</button></li>
-            <li class="page-item" role="presentation" displayindex="8"><button is="button" class="page-link text-center" aria-label="Go to page 8" aria-posinset="8" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">8</button></li>
-            <li class="page-item bv-d-sm-down-none" role="presentation" displayindex="9"><button is="button" class="page-link text-center" aria-label="Go to page 9" aria-posinset="9" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">9</button></li>
-            <li class="page-item disabled text-center bv-d-sm-down-none" role="separator" displayindex="10"><span class="page-link">…</span></li>
-            <li class="page-item" role="presentation" displayindex="11"><button is="button" class="page-link text-center" aria-label="Go to page 2494" aria-posinset="2494" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">2494</button></li>
-            <li class="page-item" role="presentation" displayindex="12"><button is="button" class="page-link text-center" aria-label="Go to next page" role="menuitem" type="button" tabindex="-1">›</button></li>
+            <li class="page-item disabled" role="presentation" data-display-name="0"><span is="span" class="page-link text-center" aria-label="Go to previous page" aria-disabled="true" role="menuitem">‹</span></li>
+            <li class="page-item active" role="presentation" data-display-name="1"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="2494" role="menuitem" type="button" tabindex="0">1</button></li>
+            <li class="page-item" role="presentation" data-display-name="2"><button is="button" class="page-link text-center" aria-label="Go to page 2" aria-posinset="2" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">2</button></li>
+            <li class="page-item" role="presentation" data-display-name="3"><button is="button" class="page-link text-center" aria-label="Go to page 3" aria-posinset="3" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">3</button></li>
+            <li class="page-item" role="presentation" data-display-name="4"><button is="button" class="page-link text-center" aria-label="Go to page 4" aria-posinset="4" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">4</button></li>
+            <li class="page-item" role="presentation" data-display-name="5"><button is="button" class="page-link text-center" aria-label="Go to page 5" aria-posinset="5" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">5</button></li>
+            <li class="page-item" role="presentation" data-display-name="6"><button is="button" class="page-link text-center" aria-label="Go to page 6" aria-posinset="6" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">6</button></li>
+            <li class="page-item" role="presentation" data-display-name="7"><button is="button" class="page-link text-center" aria-label="Go to page 7" aria-posinset="7" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">7</button></li>
+            <li class="page-item" role="presentation" data-display-name="8"><button is="button" class="page-link text-center" aria-label="Go to page 8" aria-posinset="8" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">8</button></li>
+            <li class="page-item bv-d-sm-down-none" role="presentation" data-display-name="9"><button is="button" class="page-link text-center" aria-label="Go to page 9" aria-posinset="9" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">9</button></li>
+            <li class="page-item disabled text-center bv-d-sm-down-none" role="separator" data-display-name="10"><span class="page-link">…</span></li>
+            <li class="page-item" role="presentation" data-display-name="11"><button is="button" class="page-link text-center" aria-label="Go to page 2494" aria-posinset="2494" aria-setsize="2494" role="menuitem" type="button" tabindex="-1">2494</button></li>
+            <li class="page-item" role="presentation" data-display-name="12"><button is="button" class="page-link text-center" aria-label="Go to next page" role="menuitem" type="button" tabindex="-1">›</button></li>
           </ul>
         </div>
         <div class="col-md-2">Page <input type="number" step="1" min="1" max="2494" class="form-control form-control-sm d-inline-block" style="width: 4em;" aria-label="Page number"> of 2494 (62336 songs found)</div>

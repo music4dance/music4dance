@@ -11,7 +11,6 @@ exports[`Home > Renders the Home Page 1`] = `
         <div data-v-8758b3c2="" class="card border-primary home-info-card" id="fun-info">
           <!---->
           <!---->
-          <!---->
           <div data-v-8758b3c2="" class="text-bg-primary card-header"><a data-v-8758b3c2="" href="https://music4dance.blog/" style="color: white; font-size: 1.5rem;">Fun with Music for All Kinds of Dancers</a></div>
           <div data-v-8758b3c2="" style="background-image: url(&quot;/images/shadows/fun-bkg.png&quot;);" class="home-card-background">
             <ul data-v-8758b3c2="" class="home-list" style="padding-left: 3rem; text-indent: -2rem;">
@@ -93,7 +92,6 @@ exports[`Home > Renders the Home Page 1`] = `
         <div data-v-8758b3c2="" class="card border-primary home-info-card" id="ballroom-info">
           <!---->
           <!---->
-          <!---->
           <div data-v-8758b3c2="" class="text-bg-primary card-header"><a data-v-8758b3c2="" href="/dances/ballroom-competition-categories" style="color: white; font-size: 1.5rem;">Music for Ballroom Dancers</a></div>
           <div data-v-8758b3c2="" style="background-image: url(&quot;/images/shadows/ballroom-bkg.png&quot;);" class="home-card-background">
             <ul data-v-8758b3c2="" class="home-list" style="padding-left: 3rem; text-indent: -2rem;">
@@ -138,7 +136,6 @@ exports[`Home > Renders the Home Page 1`] = `
           <!---->
         </div>
         <div data-v-8758b3c2="" class="card border-primary home-info-card" id="swing-info">
-          <!---->
           <!---->
           <!---->
           <div data-v-8758b3c2="" class="text-bg-primary card-header"><a data-v-8758b3c2="" href="/dances/swing" style="color: white; font-size: 1.5rem;">Music for Swing Dancers</a></div>
@@ -217,7 +214,6 @@ exports[`Home > Renders the Home Page 1`] = `
           <!---->
         </div>
         <div data-v-8758b3c2="" class="card border-primary home-info-card" id="latin-info">
-          <!---->
           <!---->
           <!---->
           <div data-v-8758b3c2="" class="text-bg-primary card-header"><a data-v-8758b3c2="" href="/dances/latin" style="color: white; font-size: 1.5rem;">Music for Latin Dancers</a></div>
@@ -306,7 +302,6 @@ exports[`Home > Renders the Home Page 1`] = `
         <div data-v-8758b3c2="" class="card border-primary home-info-card" id="tango-info">
           <!---->
           <!---->
-          <!---->
           <div data-v-8758b3c2="" class="text-bg-primary card-header"><a data-v-8758b3c2="" href="/dances/tango" style="color: white; font-size: 1.5rem;">Music for Tango Dancers</a></div>
           <div data-v-8758b3c2="" style="background-image: url(&quot;/images/shadows/tango-bkg.png&quot;);" class="home-card-background">
             <ul data-v-8758b3c2="" class="home-list" style="padding-left: 3rem; text-indent: -2rem;">
@@ -351,7 +346,6 @@ exports[`Home > Renders the Home Page 1`] = `
           <!---->
         </div>
         <div data-v-8758b3c2="" class="card border-primary home-info-card" id="wedding-info">
-          <!---->
           <!---->
           <!---->
           <div data-v-8758b3c2="" class="text-bg-primary card-header"><a data-v-8758b3c2="" href="/dances/wedding-music" style="color: white; font-size: 1.5rem;">Music for Wedding Dances</a></div>
