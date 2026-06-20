@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Resume > Renders Resume Page 1`] = `
+exports[`Tag Cloud > Renders Tag Cloud Page 1`] = `
 "<div><span context="[object Object]">MainMenu</span>
   <!--v-if-->
   <nav aria-label="breadcrumb">

@@ -26,13 +26,14 @@ This skill accepts an optional argument: `minor` or `major`.
 
 Framework-tied packages (see classification below) are never auto-applied
 under either mode — they always require explicit confirmation regardless of
-argument, since they represent a `net9.0` → `net10.0`-class upgrade.
+argument, since they represent a major framework-version upgrade (e.g.
+`net10.0` → `net11.0`-class).
 
 ## Projects in scope
 
 `DanceLib/DanceLibrary.csproj`, `m4dModels/m4dModels.csproj`, `m4d/m4d.csproj`,
 `SelfCrawler/SelfCrawler.csproj`, and the `*.Tests.csproj` projects
-(`DanceTests`, `m4dModels.Tests`, `m4d.Tests`). All target `net9.0`.
+(`DanceTests`, `m4dModels.Tests`, `m4d.Tests`). All target `net10.0`.
 
 There is also a local tool manifest at `m4d/.config/dotnet-tools.json`
 (`dotnet-ef`) — check it for updates separately, it isn't covered by
@@ -58,8 +59,8 @@ There is also a local tool manifest at `m4d/.config/dotnet-tools.json`
 
    - **Framework-tied packages** — anything starting `Microsoft.AspNetCore.*`,
      `Microsoft.EntityFrameworkCore.*`, `Microsoft.Extensions.*`,
-     `Microsoft.NETCore.*` — must stay on the `9.x` line matching the
-     project's `net9.0` target. If `Latest` shows a `10.x` version, that's a
+     `Microsoft.NETCore.*` — must stay on the `10.x` line matching the
+     project's `net10.0` target. If `Latest` shows an `11.x` version, that's a
      framework upgrade, not a routine bump — flag it to the user and skip it
      unless they explicitly ask for a framework upgrade.
    - **Major version bumps** on any other package (e.g. `5.x` → `6.x`) — list
