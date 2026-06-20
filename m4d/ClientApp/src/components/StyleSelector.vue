@@ -13,7 +13,7 @@ interface Props {
   /**
    * Size of the buttons
    */
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "lg";
   /**
    * Whether to show as pills (true) or regular buttons (false)
    */

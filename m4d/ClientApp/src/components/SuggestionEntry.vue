@@ -28,7 +28,7 @@ const props = withDefaults(
     danceId?: string;
   }>(),
   {
-    size: "md",
+    size: undefined,
     placeholder: "Search...",
     label: undefined,
     hideSuggestions: false,

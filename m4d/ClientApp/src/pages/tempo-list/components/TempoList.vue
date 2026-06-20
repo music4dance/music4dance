@@ -20,8 +20,7 @@ const fields: Exclude<TableFieldRaw<DanceType>, string>[] = [
   {
     key: "name",
     sortable: true,
-    sortByFormatted: ({ item }: { value: unknown; key: string; item: DanceType }) =>
-      item.name,
+    sortByFormatted: ({ item }: { value: unknown; key: string; item: DanceType }) => item.name,
     stickyColumn: true,
   },
   {
@@ -37,9 +36,11 @@ const fields: Exclude<TableFieldRaw<DanceType>, string>[] = [
     label: "BPM",
     sortable: true,
     sortByFormatted: ({ item }: { value: unknown; key: string; item: DanceType }) => {
-      return item?.tempoRange?.min.toLocaleString("en", {
-        minimumIntegerDigits: 4,
-      }) ?? "";
+      return (
+        item?.tempoRange?.min.toLocaleString("en", {
+          minimumIntegerDigits: 4,
+        }) ?? ""
+      );
     },
     formatter: ({ item }: { value: unknown; key: string; item: DanceType }) => {
       return item?.tempoRange?.toString() ?? "";
@@ -50,9 +51,11 @@ const fields: Exclude<TableFieldRaw<DanceType>, string>[] = [
     label: "MPM",
     sortable: true,
     sortByFormatted: ({ item }: { value: unknown; key: string; item: DanceType }) => {
-      return item?.tempoRange?.min.toLocaleString("en", {
-        minimumIntegerDigits: 4,
-      }) ?? "";
+      return (
+        item?.tempoRange?.min.toLocaleString("en", {
+          minimumIntegerDigits: 4,
+        }) ?? ""
+      );
     },
     formatter: ({ item }: { value: unknown; key: string; item: DanceType }) => {
       return item?.tempoRange?.mpm(item?.meter?.numerator ?? 1) ?? "";

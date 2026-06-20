@@ -4,11 +4,7 @@ import { model } from "./model";
 import App from "../App.vue";
 
 describe("Album", () => {
-  test(
-    "renders an album page",
-    () => {
-      testPageSnapshot(App, model);
-    },
-    50000,
-  );
+  test("renders an album page", () => {
+    testPageSnapshot(App, model);
+  }, 50000);
 });

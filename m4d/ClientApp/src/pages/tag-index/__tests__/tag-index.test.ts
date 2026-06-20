@@ -2,12 +2,8 @@ import { describe, test } from "vitest";
 import { testPageSnapshot } from "@/helpers/TestPageSnapshot";
 import App from "../App.vue";
 
-describe("Resume", () => {
-  test(
-    "Renders Resume Page",
-    () => {
-      testPageSnapshot(App);
-    },
-  100000,
-  );
+describe("Tag Cloud", () => {
+  test("Renders Tag Cloud Page", () => {
+    testPageSnapshot(App);
+  }, 100000);
 });

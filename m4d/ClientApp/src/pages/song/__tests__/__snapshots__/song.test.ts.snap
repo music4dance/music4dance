@@ -35,9 +35,9 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
                   <!--teleport start-->
                   <!--teleport end-->
                 </div>
-              </div><a class="btn btn-md btn-primary my-1" href="/song/Index?filter=v2-Index-----%5C-me%7Ch" role="button" small=""><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" aria-hidden="true">
+              </div><a class="btn btn-primary my-1" href="/song/Index?filter=v2-Index-----%5C-me%7Ch" role="button" small=""><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" aria-hidden="true">
                   <path fill="currentColor" d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0a5.5 5.5 0 0 1 11 0"></path>
-                </svg> Back to Search</a><a class="btn btn-md btn-outline-primary ms-1 my-1" href="https://music4dance.blog/music4dance-help/song-details/" role="button" target="_blank" small=""><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" aria-hidden="true">
+                </svg> Back to Search</a><a class="btn btn-outline-primary ms-1 my-1" href="https://music4dance.blog/music4dance-help/song-details/" role="button" target="_blank" small=""><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" aria-hidden="true">
                   <g fill="currentColor">
                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"></path>
                     <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25c.09-.656.54-1.134 1.342-1.134c.686 0 1.314.343 1.314 1.168c0 .635-.374.927-.965 1.371c-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486c.609-.463 1.244-.977 1.244-2.056c0-1.511-1.276-2.241-2.673-2.241c-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927c.609 0 1.028-.394 1.028-.927c0-.552-.42-.94-1.029-.94c-.584 0-1.009.388-1.009.94"></path>
@@ -59,7 +59,6 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
         <div class="row mb-2">
           <div class="col-md-4">
             <div data-v-713e0d4a="" class="card border-primary">
-              <!---->
               <!---->
               <div class="text-primary card-header">Dances</div>
               <div data-v-713e0d4a="" class="list-group list-group-flush">
@@ -154,7 +153,7 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
               </div>
               <!---->
               <!---->
-            </div><button class="btn btn-md btn-primary mt-2 collapsed" type="button" data-bvtoggle="dance-chooser" aria-expanded="false" aria-controls="dance-chooser">Add Dance Style</button>
+            </div><button class="btn btn-primary mt-2 collapsed" type="button" data-bvtoggle="dance-chooser" aria-expanded="false" aria-controls="dance-chooser">Add Dance Style</button>
           </div>
           <div class="col-md-auto">
             <table data-v-381110ba="" id="BootstrapVueNext__ID__v-9__" class="table b-table table-borderless table-sm">
@@ -169,7 +168,7 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
                         <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
                         <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>
                       </g>
-                    </svg></a><button data-v-381110ba="" class="btn btn-md btn-link ms-1 p-0 align-baseline" type="button"><svg data-v-381110ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                    </svg></a><button data-v-381110ba="" class="btn btn-link ms-1 p-0 align-baseline" type="button"><svg data-v-381110ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
                       <path fill="currentColor" d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793L14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5L3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z"></path>
                     </svg></button>
                   <!--v-if-->
@@ -235,7 +234,6 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
         <div class="row">
           <div class="col">
             <div class="card border-primary">
-              <!---->
               <!---->
               <div class="text-primary card-header">Albums</div>
               <div class="list-group list-group-flush">
@@ -325,7 +323,6 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
           </div>
           <div class="col">
             <div class="card border-primary">
-              <!---->
               <!---->
               <div class="text-primary card-header">
                 <div class="d-flex align-items-center justify-content-between"><span class="text-primary fw-bold">Changes</span>

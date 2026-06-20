@@ -28,18 +28,28 @@ exports[`Country > Renders the Country Western Competition Page 1`] = `
       <div>
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h4 class="mb-0">An Country Western dance round consists of the following:</h4>
-          <div class="btn-group btn-group-sm" role="group" aria-label="Group"><button class="btn btn-md btn-primary" type="button"> BPM </button><button class="btn btn-md btn-outline-primary" type="button"> MPM </button></div>
+          <div class="btn-group btn-group-sm" role="group" aria-label="Group"><button class="btn btn-primary" type="button"> BPM </button><button class="btn btn-outline-primary" type="button"> MPM </button></div>
         </div>
         <div class="table-responsive">
           <table id="BootstrapVueNext__ID__v-0__" class="table b-table table-hover table-striped" aria-busy="false">
             <!---->
             <thead class="">
               <tr class="">
-                <th scope="col" class="">Name</th>
-                <th scope="col" class="">ACDA</th>
-                <th scope="col" class="">UCWDC</th>
-                <th scope="col" class="">WORLDCDF</th>
-                <th scope="col" class="">Meter</th>
+                <th scope="col" class="">Name
+                  <!---->
+                </th>
+                <th scope="col" class="">ACDA
+                  <!---->
+                </th>
+                <th scope="col" class="">UCWDC
+                  <!---->
+                </th>
+                <th scope="col" class="">WORLDCDF
+                  <!---->
+                </th>
+                <th scope="col" class="">Meter
+                  <!---->
+                </th>
               </tr>
               <!---->
             </thead>

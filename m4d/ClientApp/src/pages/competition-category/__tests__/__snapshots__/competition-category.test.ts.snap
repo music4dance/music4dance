@@ -28,17 +28,25 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
       <div>
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h4 class="mb-0">An American Smooth four dance round consists of the following:</h4>
-          <div class="btn-group btn-group-sm" role="group" aria-label="Group"><button class="btn btn-md btn-primary" type="button"> BPM </button><button class="btn btn-md btn-outline-primary" type="button"> MPM </button></div>
+          <div class="btn-group btn-group-sm" role="group" aria-label="Group"><button class="btn btn-primary" type="button"> BPM </button><button class="btn btn-outline-primary" type="button"> MPM </button></div>
         </div>
         <div class="table-responsive">
           <table id="BootstrapVueNext__ID__v-0__" class="table b-table table-hover table-striped" aria-busy="false">
             <!---->
             <thead class="">
               <tr class="">
-                <th scope="col" class="">Name</th>
-                <th scope="col" class="">DanceSport</th>
-                <th scope="col" class="">NDCA</th>
-                <th scope="col" class="">Meter</th>
+                <th scope="col" class="">Name
+                  <!---->
+                </th>
+                <th scope="col" class="">DanceSport
+                  <!---->
+                </th>
+                <th scope="col" class="">NDCA
+                  <!---->
+                </th>
+                <th scope="col" class="">Meter
+                  <!---->
+                </th>
               </tr>
               <!---->
             </thead>
@@ -114,17 +122,25 @@ exports[`CompetitionCategory > Renders a Competition Category Page 1`] = `
       <div>
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h4 class="mb-0">Other dances categorized as American Smooth, although they aren't part of the competition round, are:</h4>
-          <div class="btn-group btn-group-sm" role="group" aria-label="Group"><button class="btn btn-md btn-primary" type="button"> BPM </button><button class="btn btn-md btn-outline-primary" type="button"> MPM </button></div>
+          <div class="btn-group btn-group-sm" role="group" aria-label="Group"><button class="btn btn-primary" type="button"> BPM </button><button class="btn btn-outline-primary" type="button"> MPM </button></div>
         </div>
         <div class="table-responsive">
           <table id="BootstrapVueNext__ID__v-3__" class="table b-table table-hover table-striped" aria-busy="false">
             <!---->
             <thead class="">
               <tr class="">
-                <th scope="col" class="">Name</th>
-                <th scope="col" class="">DanceSport</th>
-                <th scope="col" class="">NDCA</th>
-                <th scope="col" class="">Meter</th>
+                <th scope="col" class="">Name
+                  <!---->
+                </th>
+                <th scope="col" class="">DanceSport
+                  <!---->
+                </th>
+                <th scope="col" class="">NDCA
+                  <!---->
+                </th>
+                <th scope="col" class="">Meter
+                  <!---->
+                </th>
               </tr>
               <!---->
             </thead>
