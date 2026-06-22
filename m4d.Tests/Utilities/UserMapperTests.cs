@@ -1,11 +1,59 @@
+using Microsoft.AspNetCore.Identity;
+
 using m4d.Utilities;
 using m4dModels;
+
+using Moq;
 
 namespace m4d.Tests.Utilities;
 
 [TestClass]
+[DoNotParallelize] // Tests share UserMapper's process-wide static cache (cleared in TestCleanup).
 public class UserMapperTests
 {
+    [TestCleanup]
+    public void Cleanup()
+    {
+        // GetUserNameDictionary populates UserMapper's static cache - reset it so tests
+        // that exercise the real build path don't leak state into other tests.
+        UserMapper.Clear();
+    }
+
+    private static UserManager<ApplicationUser> MockUserManager(params ApplicationUser[] users)
+    {
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type
+        var userStoreMock = new Mock<IUserStore<ApplicationUser>>();
+        var mockUserManager = new Mock<UserManager<ApplicationUser>>(
+            userStoreMock.Object, null, null, null, null, null, null, null, null);
+#pragma warning restore CS8625
+
+        mockUserManager.Setup(m => m.Users).Returns(users.AsQueryable());
+        mockUserManager.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+            .ReturnsAsync([]);
+        mockUserManager.Setup(m => m.GetLoginsAsync(It.IsAny<ApplicationUser>()))
+            .ReturnsAsync([]);
+
+        return mockUserManager.Object;
+    }
+
+    [TestMethod]
+    public async Task GetUserNameDictionary_DuplicateUserName_SkipsBadRowAndKeepsBuilding()
+    {
+        // Two users sharing a UserName (case-insensitively) would throw on
+        // Dictionary.Add for the second one - that single bad row must not
+        // prevent "carol", enumerated after it, from being cached.
+        var alice = new ApplicationUser("alice", false) { Id = Guid.NewGuid().ToString() };
+        var aliceDuplicate = new ApplicationUser("Alice", false) { Id = Guid.NewGuid().ToString() };
+        var carol = new ApplicationUser("carol", false) { Id = Guid.NewGuid().ToString() };
+
+        var userManager = MockUserManager(alice, aliceDuplicate, carol);
+
+        var dict = await UserMapper.GetUserNameDictionary(userManager);
+
+        Assert.IsTrue(dict.ContainsKey("alice"));
+        Assert.IsTrue(dict.ContainsKey("carol"));
+    }
+
     private static IReadOnlyDictionary<string, UserInfo> BuildDictionary(params ApplicationUser[] users)
     {
         var dict = new Dictionary<string, UserInfo>(StringComparer.OrdinalIgnoreCase);
