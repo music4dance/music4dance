@@ -12,17 +12,29 @@ username, a pseudonymous label, an opaque GUID ("anonymous"), or
 There are three kinds of "user" in this system, and the visibility rule is
 different for each:
 
-| Kind                   | Examples                                  | `IsPseudo`                     | Privacy applies?  |
-| ---------------------- | ----------------------------------------- | ------------------------------ | ----------------- |
-| Real registered user   | `dwgray`, `forrest.csuy`                  | `false`                        | yes               |
-| Pseudo/proxy user      | m4d service accounts, Spotify proxy users | `true`                         | no — always shown |
-| Batch/algorithmic user | `batch`, `batch-s`, `tempo-bot`, etc.     | n/a (not an `ApplicationUser`) | no — always shown |
+| Kind                   | Examples                                  | `IsPseudo` | Privacy applies?  |
+| ---------------------- | ----------------------------------------- | ---------- | ----------------- |
+| Real registered user   | `dwgray`, `forrest.csuy`                  | `false`    | yes               |
+| Pseudo/proxy user      | m4d service accounts, Spotify proxy users | `true`     | no — always shown |
+| Batch/algorithmic user | `batch`, `batch-s`, `tempo-bot`, etc.     | `true`     | no — always shown |
 
-`ApplicationUser.IsPseudo => IsM4d || IsSpotify` (`m4dModels/ApplicationUser.cs`).
-Batch/algorithmic names are not `ApplicationUser` rows at all — they're
-literal strings recognized client-side by `UserQuery.systemUserNames` /
-`algorithmicUserNames` (`m4d/ClientApp/src/models/UserQuery.ts`) and
-server-side by the `|P` decoration check in `UserMapper.AnonymizeAll`.
+`ApplicationUser.IsPseudo => IsM4d || IsSpotify` (`m4dModels/ApplicationUser.cs`),
+where `IsM4d` is true for any account whose email ends in `@music4dance.net`.
+Batch/algorithmic accounts **are** ordinary rows in the `ApplicationUser`
+(Identity) table — `batch`, `batch-a`, `batch-e`, `batch-i`, `batch-s`,
+`batch-x` are seeded via `DanceMusicService.FindOrAddUser`, which defaults
+the email to `{name}@music4dance.net` when none is given, making them
+`IsPseudo` through the exact same mechanism as real m4d service accounts.
+They are recognized client-side as well, via `UserQuery.systemUserNames` /
+`algorithmicUserNames` (`m4d/ClientApp/src/models/UserQuery.ts`), purely for
+friendly display names — that list is presentation-only and does not affect
+visibility.
+
+**Known issue:** despite this, most history entries — including `batch`
+itself — currently render as `UNAVAILABLE` to anonymous visitors. This is
+not an intentional anonymization; see
+[Known issue: most history entries showing as UNAVAILABLE to anonymous visitors](#known-issue-most-history-entries-showing-as-unavailable-to-anonymous-visitors)
+for the root-cause analysis.
 
 There are two independent axes that determine what a _real_ user's name
 renders as:
@@ -285,27 +297,157 @@ is protecting users from an audience that hasn't even logged in.
 
 ---
 
-## Open questions
+## Known issue: most history entries showing as UNAVAILABLE to anonymous visitors
 
-These are not bugs, but are worth resolving deliberately before making
-further changes (this doc was requested specifically to surface them):
+**Status: root cause identified; mitigated.** `InternalBuildDictionaries`
+(`m4d/Utilities/UserMapper.cs:261`) now catches per-user instead of
+per-build, so one malformed row can no longer truncate the rest of the
+cache. The underlying bad row in production data still needs to be found and
+fixed (see the diagnostic queries below) — the code change makes the
+cache resilient to it, but doesn't explain why it exists.
+
+A first hypothesis — that `tempo-bot`/`automerge` are never persisted to
+the `ApplicationUser` table — was **ruled out**: a DB query confirmed
+`tempo-bot`, `batch`, and `spotify` all exist with correct
+`...@music4dance.net` / `...@spotify.com` emails (so `IsPseudo` and
+`DecoratedName` compute correctly for them) and `Privacy = 255`. Despite
+that, a real song history dump shows entries for `EthanH|P`, `JuliaS|P`,
+`LincolnA|P`, `batch|P`, `batch-a|P`, `batch-i|P`, `batch-x|P` **all**
+rendering as `UNAVAILABLE` to an anonymous viewer — including `batch`
+itself, which is unambiguously present in the DB with the right shape.
+Per-entry decoration logic (`AnonymizeAll`'s pipe-suffix / `DecoratedName`
+check) is independently covered by passing unit tests with a clean,
+manually constructed dictionary, so the bug isn't in that per-record logic
+either.
+
+The remaining explanation that fits **every** observed symptom — most
+entries `UNAVAILABLE`, but "a couple of pseudo users" and some real users
+correctly showing through (one as a GUID, i.e. "Anonymous") — is that
+`UserMapper`'s static, process-wide cache
+(`s_cachedUsers`/`s_cachedIds`, `m4d/Utilities/UserMapper.cs:9-13`) was
+only **partially populated** by `InternalBuildDictionaries`
+(`UserMapper.cs:261`) and has stayed that way ever since:
+
+```csharp
+private static async Task InternalBuildDictionaries(UserManager<ApplicationUser> userManager)
+{
+    foreach (var user in userManager.Users)
+    {
+        var roles = await userManager.GetRolesAsync(user);
+        var logins = await userManager.GetLoginsAsync(user);
+        var userInfo = new UserInfo { User = user, Roles = [...roles], Logins = [...] };
+        s_cachedUsers.Add(user.UserName, userInfo);   // <- throws on null or duplicate key
+        s_cachedIds.Add(user.Id, userInfo);
+    }
+    CacheTime = DateTime.Now;
+}
+```
+
+If iteration hits a row that makes `Dictionary.Add` throw — a `UserName`
+that's `null` (there's precedent for incomplete rows in this table:
+`ApplicationUser.IsPlaceholder => StartDate == DateTime.MinValue`), or two
+rows whose `UserName` is identical case-insensitively (the dictionaries use
+`StringComparer.OrdinalIgnoreCase`) — the exception is **not** an EF
+`SqlException`, so `BuildDictionaries`'s catch block
+(`UserMapper.cs:248`, `catch (Microsoft.Data.SqlClient.SqlException ex)`)
+does **not** catch it. It propagates out of that one unlucky request, but
+everything added to `s_cachedUsers`/`s_cachedIds` *before* the throw stays
+in the static field. Because `BuildDictionaries` only retries when
+`s_cachedUsers.Count == 0` (`UserMapper.cs:243`), and the partial dictionary
+is no longer empty, **the cache never retries** — every subsequent request,
+forever (until an app restart or a manual `UserMapper.Clear()`), uses that
+permanently-incomplete snapshot. Any username — real or pseudo, however
+correctly configured in the DB — that happened to be enumerated *after* the
+bad row simply isn't in the dictionary, and `AnonymizeAll` treats "not
+found" as "could be a leak, hide it" → `*UNAVAILABLE*`. (`Anonymize`, used
+for authenticated viewers, treats the identical "not found" case as "assume
+already anonymized, pass through unchanged" — which is why this has never
+been visible to a logged-in member.)
+
+**Confirmed against a full export of production `AspNetUsers`
+(`UserId`, `UserName`, `Email`, `Privacy` for all 2016 rows,
+`local/users.tsv`):** zero duplicate `Id` (case-sensitive or not), zero
+duplicate `UserName` (case-insensitively, matching the dictionaries'
+`StringComparer.OrdinalIgnoreCase`), zero blank/null `UserName`, zero
+malformed rows. **A `Dictionary.Add` collision on `UserName` or `Id` is
+ruled out** — those are the two keys `s_cachedUsers`/`s_cachedIds` use, and
+neither has a duplicate anywhere in the table.
+
+There **are** three pairs of accounts sharing an `Email` (case-insensitive:
+`wjdls0jq9ony6wwvkm4plzd0c@spotify.com`, `paulspiano@spotify.com`,
+`1293412305@spotify.com` — each shared between two distinct `Id`/`UserName`
+pairs, e.g. `AMBeaverton`/`ArthurMurrayBeaverton`). `Email` isn't a
+dictionary key in `UserMapper`, so this can't be what crashes
+`InternalBuildDictionaries`. It's more likely the explanation for the
+**separate** recurring prod→dev import "duplicate user" error — if the dev
+schema (or its restore step) enforces a unique index on `Email`/
+`NormalizedEmail` that production's actual data no longer satisfies, that
+would throw an unrelated, but similarly-named, "duplicate user" error
+during import. Worth confirming this against the import tool's exact error
+text, but it's likely a distinct issue from the `UNAVAILABLE` bug.
+
+With `AspNetUsers` itself clean, the remaining likely culprit is
+`GetRolesAsync`/`GetLoginsAsync` throwing for some specific user — neither
+is visible in the `UserId`/`UserName`/`Email`/`Privacy` export, so this
+needs either the application logs or a join against `AspNetUserRoles`/
+`AspNetUserLogins`:
+
+```sql
+-- Orphaned role mappings: a UserRole row pointing at a Role that no
+-- longer exists could make GetRolesAsync misbehave for that user.
+SELECT ur.UserId, ur.RoleId
+FROM AspNetUserRoles ur
+LEFT JOIN AspNetRoles r ON ur.RoleId = r.Id
+WHERE r.Id IS NULL;
+
+-- Same idea for logins.
+SELECT ul.UserId
+FROM AspNetUserLogins ul
+LEFT JOIN AspNetUsers u ON ul.UserId = u.Id
+WHERE u.Id IS NULL;
+```
+
+The fastest path at this point is likely the deployed fix itself (see
+below): once it's live, the new `Console.WriteLine` in
+`InternalBuildDictionaries` will print the exact `Id`/`UserName` of
+whichever row fails and why, which beats guessing at more queries. Also
+worth checking application logs/App Insights around the last app
+start/recycle for an unhandled exception out of `UserMapper`
+— it would *not* have been logged by the old code's `SqlException`-only
+catch block, so look at ASP.NET's own unhandled-exception logging for the
+period before this fix shipped.
+
+**Fix applied:** `InternalBuildDictionaries` now wraps each user's
+processing in its own `try`/`catch`, logging and skipping a row that fails
+instead of letting the exception abort the whole loop. A future bad row
+will be excluded from the cache (correctly falling back to
+`*UNAVAILABLE*`/GUID handling for just that one user) rather than silently
+truncating every user enumerated after it. Covered by
+`UserMapperTests.GetUserNameDictionary_DuplicateUserName_SkipsBadRowAndKeepsBuilding`
+(`m4d.Tests/Utilities/UserMapperTests.cs`).
+
+This does **not** explain *why* the bad row exists in production, and
+clearing the cache (`/ApplicationUsers/ClearCache`) only resets the
+in-memory snapshot — the next rebuild will simply skip the same bad row
+again (now correctly) rather than including it. Finding and fixing that
+row in the data is still open; the diagnostic queries above are the
+starting point.
+
+---
+
+## Open questions — resolved
 
 - **Authenticated-but-not-the-owner access to a private user's song
-  lists.** The profile page's song-list gate only checks
-  `menuContext.isAuthenticated`, not whether the _viewer_ is the _target_
-  user or whether the target is private. Any logged-in member can view
-  another private member's favorites/edits/blocked counts and click
-  through to the underlying song list. Is that intended (privacy only
-  protects against anonymous/logged-out visitors, not other members), or
-  should a private user's lists be restricted to themselves once
-  authentication is required anyway?
-- **Granularity of `Privacy`.** The field is a `byte` (0–255) but every
-  code path treats it as a boolean (`== 0` vs `!= 0`). If finer-grained
-  privacy levels are ever desired, `Anonymize`/`AnonymizeAll`/the profile
-  controller are the three places that would need to change together.
-- **`MustRegister` copy on the profile page** currently tells an
-  unauthenticated visitor they "will be able to see their song lists" even
-  though `UserList.vue` shows its own `MustRegister` gate for exactly that
-  content — i.e., the promise in the profile blurb is never actually kept
-  for logged-out visitors. Worth reconciling the copy with Feature 6's
-  behavior.
+  lists.** Confirmed intentional: a user who sets `Privacy != 0` has opted
+  in to other logged-in members seeing their lists (e.g. a dance teacher
+  publishing their liked Waltz songs). Privacy only withholds names/lists
+  from anonymous/logged-out visitors, not from other members.
+- **Granularity of `Privacy`.** Confirmed intentional for now — the
+  `byte` field may become a real bit-field for finer-grained privacy
+  levels later, but today it's deliberately treated as a boolean
+  (`== 0` vs `!= 0`) everywhere.
+- **`MustRegister` copy.** Resolved — the profile page's `MustRegister`
+  title now reuses the exact same copy as `UserList.vue`'s gate. Read as
+  "register and log in, and you'll get access," not as a promise of
+  immediate access, the two are now consistent with each other and with
+  actual behavior.

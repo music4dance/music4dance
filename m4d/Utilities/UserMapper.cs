@@ -262,18 +262,30 @@ public static class UserMapper
     {
         foreach (var user in userManager.Users)
         {
-            var roles = await userManager.GetRolesAsync(user);
-            var logins = await userManager.GetLoginsAsync(user);
-
-            var userInfo = new UserInfo
+            try
             {
-                User = user,
-                Roles = [.. roles],
-                Logins = [.. logins.Select(l => l.LoginProvider)]
-            };
+                var roles = await userManager.GetRolesAsync(user);
+                var logins = await userManager.GetLoginsAsync(user);
 
-            s_cachedUsers.Add(user.UserName, userInfo);
-            s_cachedIds.Add(user.Id, userInfo);
+                var userInfo = new UserInfo
+                {
+                    User = user,
+                    Roles = [.. roles],
+                    Logins = [.. logins.Select(l => l.LoginProvider)]
+                };
+
+                s_cachedUsers.Add(user.UserName, userInfo);
+                s_cachedIds.Add(user.Id, userInfo);
+            }
+            catch (Exception ex)
+            {
+                // A single malformed row (null/duplicate UserName or Id, orphaned
+                // role/login record, etc.) must not abort the whole build - that
+                // would permanently truncate the cache, since a rebuild is only
+                // attempted while the cache is empty.
+                Console.WriteLine(
+                    $"WARNING: Skipping user {user.Id} ({user.UserName}) while building user cache: {ex.Message}");
+            }
         }
 
         CacheTime = DateTime.Now;
