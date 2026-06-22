@@ -70,7 +70,7 @@ const links = computed(() => {
     <h2>{{ model.displayName }}'s Song Lists</h2>
     <MustRegister
       v-if="!menuContext.isAuthenticated"
-      title="You must be registered and logged in to view song lists."
+      title="You must be registered and logged in to view other user's profiles. Note that if they have chosen to remain anonymous, no profile information will be shown, but you will be able to see their song lists."
       :menu-context="menuContext"
     />
     <template v-else>
