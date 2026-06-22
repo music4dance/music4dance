@@ -34,7 +34,7 @@ const isCurrentUser = computed(() => {
     </div>
     <MustRegister
       v-else-if="!menuContext.isAuthenticated"
-      title="You must be registered and logged in to view other user's profiles. Note that if they have chosen to remain anonymous, no profile information will be shown, but you will be able to see their song lists."
+      title="You must be registered and logged in to view other users' profiles. Note that if they have chosen to remain anonymous, no profile information will be shown, but you will be able to see their song lists."
       :menu-context="menuContext"
     />
     <div v-else>

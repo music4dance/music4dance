@@ -277,6 +277,11 @@ public static class UserMapper
                 s_cachedUsers.Add(user.UserName, userInfo);
                 s_cachedIds.Add(user.Id, userInfo);
             }
+            catch (OperationCanceledException)
+            {
+                // Request abort/shutdown - not a data problem, let it propagate.
+                throw;
+            }
             catch (Exception ex)
             {
                 // A single malformed row (null/duplicate UserName or Id, orphaned
@@ -284,7 +289,7 @@ public static class UserMapper
                 // would permanently truncate the cache, since a rebuild is only
                 // attempted while the cache is empty.
                 Console.WriteLine(
-                    $"WARNING: Skipping user {user.Id} ({user.UserName}) while building user cache: {ex.Message}");
+                    $"WARNING: Skipping user {user.Id} ({user.UserName}) while building user cache: {ex}");
             }
         }
 

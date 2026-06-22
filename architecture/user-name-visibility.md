@@ -77,7 +77,7 @@ See [Failure mode: `*UNAVAILABLE*`](#failure-mode-unavailable) below.
 `UserMapper` (`m4d/Utilities/UserMapper.cs`) is the single place that maps
 between real usernames and GUIDs. It exposes two conceptually distinct
 operations that must not be conflated (this conflation is exactly what the
-recent PR — see `local/pr-anonymous-user-fixes.md` — was untangling):
+recent PR — see [PR 168](https://github.com/music4dance/music4dance/pull/168) — was untangling):
 
 - **`Deanonymize`** — GUID → real username, **unconditionally**, with no
   privacy or auth check. This is for _backend_ operations only: searching
@@ -351,13 +351,13 @@ rows whose `UserName` is identical case-insensitively (the dictionaries use
 `SqlException`, so `BuildDictionaries`'s catch block
 (`UserMapper.cs:248`, `catch (Microsoft.Data.SqlClient.SqlException ex)`)
 does **not** catch it. It propagates out of that one unlucky request, but
-everything added to `s_cachedUsers`/`s_cachedIds` *before* the throw stays
+everything added to `s_cachedUsers`/`s_cachedIds` _before_ the throw stays
 in the static field. Because `BuildDictionaries` only retries when
 `s_cachedUsers.Count == 0` (`UserMapper.cs:243`), and the partial dictionary
 is no longer empty, **the cache never retries** — every subsequent request,
 forever (until an app restart or a manual `UserMapper.Clear()`), uses that
 permanently-incomplete snapshot. Any username — real or pseudo, however
-correctly configured in the DB — that happened to be enumerated *after* the
+correctly configured in the DB — that happened to be enumerated _after_ the
 bad row simply isn't in the dictionary, and `AnonymizeAll` treats "not
 found" as "could be a leak, hide it" → `*UNAVAILABLE*`. (`Anonymize`, used
 for authenticated viewers, treats the identical "not found" case as "assume
@@ -413,7 +413,7 @@ below): once it's live, the new `Console.WriteLine` in
 whichever row fails and why, which beats guessing at more queries. Also
 worth checking application logs/App Insights around the last app
 start/recycle for an unhandled exception out of `UserMapper`
-— it would *not* have been logged by the old code's `SqlException`-only
+— it would _not_ have been logged by the old code's `SqlException`-only
 catch block, so look at ASP.NET's own unhandled-exception logging for the
 period before this fix shipped.
 
@@ -426,7 +426,7 @@ truncating every user enumerated after it. Covered by
 `UserMapperTests.GetUserNameDictionary_DuplicateUserName_SkipsBadRowAndKeepsBuilding`
 (`m4d.Tests/Utilities/UserMapperTests.cs`).
 
-This does **not** explain *why* the bad row exists in production, and
+This does **not** explain _why_ the bad row exists in production, and
 clearing the cache (`/ApplicationUsers/ClearCache`) only resets the
 in-memory snapshot — the next rebuild will simply skip the same bad row
 again (now correctly) rather than including it. Finding and fixing that

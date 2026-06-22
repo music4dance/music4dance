@@ -8,6 +8,7 @@ using Moq;
 namespace m4d.Tests.Utilities;
 
 [TestClass]
+[DoNotParallelize] // Tests share UserMapper's process-wide static cache (cleared in TestCleanup).
 public class UserMapperTests
 {
     [TestCleanup]
