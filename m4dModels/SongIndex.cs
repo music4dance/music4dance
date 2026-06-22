@@ -1866,6 +1866,7 @@ public class SongIndex
         var allOther = new HashSet<string>();
         var allTempo = new HashSet<string>();
         var allStyle = new HashSet<string>();
+        var hasTempoOverride = false;
 
         // Set the dance ratings
         foreach (var dr in song.DanceRatings)
@@ -1888,6 +1889,11 @@ public class SongIndex
                     { OtherTags, oneOther.ToArray() }
                 };
 
+            if (dr.Tempo != null && dr.Tempo != song.Tempo)
+            {
+                hasTempoOverride = true;
+            }
+
             allOther.UnionWith(oneOther);
             allTempo.UnionWith(oneTempo);
             allStyle.UnionWith(oneStyle);
@@ -1897,6 +1903,10 @@ public class SongIndex
         doc["dance_ALL"] = new Dictionary<string, object>
             {
                 { Votes, all == 0 ? null : all },
+                // Non-null only when at least one dance overrides the song-level tempo; lets
+                // searches filter on "dance_ALL/Tempo ne null" to find songs with tempo overrides,
+                // since Azure AI Search cannot compare two fields of the same document directly.
+                { DanceTempoSubField, hasTempoOverride ? CleanNumber((float?)song.Tempo) : null },
                 { TempoTags, allTempo.ToArray() },
                 { StyleTags, allStyle.ToArray() },
                 { OtherTags, allOther.ToArray() }
