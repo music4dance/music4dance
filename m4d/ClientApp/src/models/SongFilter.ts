@@ -141,7 +141,7 @@ export class SongFilter {
   }
 
   public get isRaw(): boolean {
-    const action = this.action ?? "".toLowerCase().replace(" ", "+");
+    const action = (this.action ?? "").toLowerCase().replaceAll(" ", "+");
     return action.startsWith("azure+raw") || action === "customsearch";
   }
 

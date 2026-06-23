@@ -235,4 +235,11 @@ describe("song filter", () => {
     expect(f.targetAction).toEqual("azuresearch");
     expect(f.url).toMatch(/^\/song\/azuresearch\?filter=/);
   });
+
+  it("should normalize case and spaces when checking isRaw", () => {
+    const f = new SongFilter();
+    f.action = "Azure Raw Lucene";
+
+    expect(f.isRaw).toBe(true);
+  });
 });
