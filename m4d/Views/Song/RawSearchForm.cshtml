@@ -57,12 +57,16 @@
                 </div>
 
                 <div class="row mb-3 align-items-start">
-                    <label asp-for="CruftFilter" class="col-sm-3 col-lg-2 col-form-label"></label>
+                    <label class="col-sm-3 col-lg-2 col-form-label">Cruft Filter</label>
                     <div class="col-sm-9 col-lg-10">
-                        @* CruftFilter is a [Flags] enum - GetEnumSelectList doesn't support those, so
-                           fall back to the default editor template, which renders one checkbox per flag. *@
-                        @Html.EditorFor(model => model.CruftFilter)
-                        <span asp-validation-for="CruftFilter" class="text-danger"></span>
+                        <div class="form-check">
+                            <input asp-for="ExcludePublishers" class="form-check-input" />
+                            <label asp-for="ExcludePublishers" class="form-check-label"></label>
+                        </div>
+                        <div class="form-check">
+                            <input asp-for="ExcludeDances" class="form-check-input" />
+                            <label asp-for="ExcludeDances" class="form-check-label"></label>
+                        </div>
                     </div>
                 </div>
 

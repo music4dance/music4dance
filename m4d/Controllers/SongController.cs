@@ -323,7 +323,7 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> RawSearch(
         [Bind(
-            "SearchText,ODataFilter,SortFields,SearchFields,Description,IsLucene,CruftFilter")]
+            "SearchText,ODataFilter,SortFields,SearchFields,Description,IsLucene,ExcludePublishers,ExcludeDances")]
         RawSearch rawSearch)
     {
         HelpPage = "advanced-search";
