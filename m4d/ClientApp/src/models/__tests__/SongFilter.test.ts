@@ -224,4 +224,15 @@ describe("song filter", () => {
         " sorted by Dance Rating from most popular to least popular.",
     );
   });
+
+  it("should route raw azure searches through azuresearch, not the raw action verbatim", () => {
+    const f = new SongFilter();
+    f.action = "azure+raw+";
+    f.dances = "dance_ALL/Tempo ne null";
+
+    expect(f.isRaw).toBe(true);
+    expect(f.isAzure).toBe(true);
+    expect(f.targetAction).toEqual("azuresearch");
+    expect(f.url).toMatch(/^\/song\/azuresearch\?filter=/);
+  });
 });

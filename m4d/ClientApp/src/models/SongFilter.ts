@@ -145,6 +145,17 @@ export class SongFilter {
     return action.startsWith("azure+raw") || action === "customsearch";
   }
 
+  public get isAzure(): boolean {
+    return (this.action ?? "").toLowerCase().startsWith("azure");
+  }
+
+  // Mirrors SongFilter.TargetAction (m4dModels/SongFilter.cs) — raw/advanced Azure
+  // search actions (e.g. "azure+raw+") don't have their own route; they're all
+  // served by the AzureSearch action.
+  public get targetAction(): string {
+    return this.isAzure ? "azuresearch" : (this.action ?? "index");
+  }
+
   public get keywordQuery(): KeywordQuery {
     return new KeywordQuery(this.searchString);
   }
@@ -249,7 +260,7 @@ export class SongFilter {
   }
 
   public get url(): string {
-    return `/song/${this.action ?? "index"}?filter=${this.encodedQuery}`;
+    return `/song/${this.targetAction}?filter=${this.encodedQuery}`;
   }
 
   private describePart(part: string | undefined): string {
