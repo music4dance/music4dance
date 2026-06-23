@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Azure.Search.Documents.Models;
 
 namespace m4dModels.Tests;
 
@@ -343,5 +344,50 @@ public class PerDanceTempoTests
         var expectedField = $"dance_CHA/{SongIndex.DanceTempoSubField}";
         StringAssert.Contains(odata, expectedField,
             "OData filter should reference the path matching the SongIndex constant");
+    }
+
+    // -------------------------------------------------------------------------
+    // Phase 2: dance_ALL/Tempo marks songs with a per-dance tempo override
+    // -------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task DocumentFromSong_DanceAllTempo_IsNull_WhenNoOverride()
+    {
+        const string songData =
+            ".Create=\tUser=dwgray\tTime=00/00/0000 0:00:00 PM\t" +
+            "Title=No Override Doc\tArtist=Test Artist\tTempo=120.0\t" +
+            "Tag+=Cha Cha:Dance|Salsa:Dance\t" +
+            "DanceRating=CHA+1\tDanceRating=SLS+1";
+
+        var song = await Song.Create(songData, _dms);
+        var index = new TestSongIndex();
+        index.AttachToService(_dms);
+
+        var doc = (SearchDocument)index.CallDocumentFromSong(song);
+        var danceAll = (Dictionary<string, object>)doc["dance_ALL"];
+
+        Assert.IsNull(danceAll[SongIndex.DanceTempoSubField],
+            "dance_ALL/Tempo should be null when no dance overrides the song tempo");
+    }
+
+    [TestMethod]
+    public async Task DocumentFromSong_DanceAllTempo_IsSongTempo_WhenAnyDanceOverrides()
+    {
+        const string songData =
+            ".Create=\tUser=dwgray\tTime=00/00/0000 0:00:00 PM\t" +
+            "Title=Override Doc\tArtist=Test Artist\tTempo=120.0\t" +
+            "Tag+=Cha Cha:Dance|Salsa:Dance\t" +
+            "DanceRating=CHA+1\tDanceRating=SLS+1\t" +
+            "Tempo:CHA=128.0";
+
+        var song = await Song.Create(songData, _dms);
+        var index = new TestSongIndex();
+        index.AttachToService(_dms);
+
+        var doc = (SearchDocument)index.CallDocumentFromSong(song);
+        var danceAll = (Dictionary<string, object>)doc["dance_ALL"];
+
+        Assert.AreEqual(120.0f, danceAll[SongIndex.DanceTempoSubField],
+            "dance_ALL/Tempo should equal song tempo when any dance overrides it");
     }
 }

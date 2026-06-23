@@ -427,3 +427,53 @@ Verify:
 - [x] Song editor/list client behavior tests
 - [x] Selector propagation test from dance edit controls into `SongCore`
 - [x] Dance tag edit maps to dance-tempo selector for row-local focus target
+- [x] `dance_ALL/Tempo` override marker (`DocumentFromSong_DanceAllTempo_*` tests)
+
+---
+
+## Phase 7 — `dance_ALL/Tempo` as a tempo-override marker field
+
+### Motivation (Phase 7)
+
+Editors want to search for songs that have at least one per-dance tempo override (e.g. to audit or
+review them). Azure AI Search cannot express "any `dance_{id}/Tempo` differs from the top-level
+`Tempo`" in a single OData filter — it has no way to compare two fields of the same document
+against each other.
+
+### Approach
+
+`dance_ALL` is a synthetic, schema-only complex field (it has no corresponding `DanceRating`) that
+already aggregates votes/tags across all dances on a song. It already carries the `Tempo`
+sub-field in the schema (added as part of Phase 2, since `dance_ALL`'s shape is built by the same
+`IndexFieldFromDanceId` helper as every other dance), but `DocumentFromSong` previously always left
+it `null`.
+
+`DocumentFromSong` (`m4dModels/SongIndex.cs`) now sets `dance_ALL/Tempo` to the song's top-level
+`Tempo` whenever **any** `DanceRating` has an explicit `Tempo` override that differs from
+`song.Tempo`. If no dance overrides the song tempo, `dance_ALL/Tempo` stays `null`.
+
+This makes `dance_ALL/Tempo ne null` a single-field, indexable proxy for "this song has at least
+one per-dance tempo override" — no field-to-field comparison required.
+
+### OData filter
+
+To find songs with at least one dance tempo override, in RawSearch or the Azure portal:
+
+```text
+dance_ALL/Tempo ne null
+```
+
+Combine with other filters as usual, e.g. restricted to Cha Cha overrides specifically:
+
+```text
+dance_ALL/Tempo ne null and dance_CHA/Tempo ne null
+```
+
+### Tests (Phase 7)
+
+`m4dModels.Tests/PerDanceTempoTests.cs`:
+
+- `DocumentFromSong_DanceAllTempo_IsNull_WhenNoOverride`
+- `DocumentFromSong_DanceAllTempo_IsSongTempo_WhenAnyDanceOverrides`
+
+Exposed via a `TestSongIndex.CallDocumentFromSong` wrapper since `DocumentFromSong` is `protected`.

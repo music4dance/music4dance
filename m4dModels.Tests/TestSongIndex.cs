@@ -151,6 +151,11 @@ public class TestSongIndex : SongIndex
         return Task.FromResult(song);
     }
 
+    /// <summary>
+    /// Exposes the protected DocumentFromSong for direct assertion in index-shape tests.
+    /// </summary>
+    public object CallDocumentFromSong(Song song) => DocumentFromSong(song);
+
     // Record for capturing EditSong calls
     public record EditSongCall(
         ApplicationUser User,

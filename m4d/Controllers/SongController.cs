@@ -311,6 +311,9 @@ public class SongController : ContentController
     {
         HelpPage = "advanced-search";
 
+        // RawSearchForm is a plain Razor form, not a Vue page - render it through the
+        // standard bs5 layout (header/nav/footer/Bootstrap) instead of the bare Vue layout.
+        UseVue = UseVue.No;
         ViewBag.AzureIndexInfo = Database.SongIndex.BuildIndex();
         return View(new RawSearch(Filter is { IsRaw: true } ? Filter : null));
     }
@@ -320,16 +323,21 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> RawSearch(
         [Bind(
-            "SearchText,ODataFilter,SortFields,SearchFields,Description,IsLucene,CruftFilter")]
+            "SearchText,ODataFilter,SortFields,SearchFields,Description,IsLucene,ExcludePublishers,ExcludeDances")]
         RawSearch rawSearch)
     {
         HelpPage = "advanced-search";
 
         Filter = Database.SearchService.GetSongFilter(rawSearch);
         ViewBag.AzureIndexInfo = Database.SongIndex.BuildIndex();
-        return ModelState.IsValid
-            ? await DoAzureSearch()
-            : View("RawSearchForm", rawSearch);
+        if (!ModelState.IsValid)
+        {
+            // Redisplaying the (plain Razor) form - see RawSearchForm for why UseVue is forced off.
+            UseVue = UseVue.No;
+            return View("RawSearchForm", rawSearch);
+        }
+
+        return await DoAzureSearch();
     }
 
     //

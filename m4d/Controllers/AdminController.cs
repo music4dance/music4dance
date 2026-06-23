@@ -622,6 +622,11 @@ public class AdminController(
             StartAdminTask("LoadIndex");
             AdminMonitor.UpdateTask("UploadFile");
 
+            if (fileUpload == null || fileUpload.Length == 0)
+            {
+                return FailAdminTask("Load Index: no file was selected", null);
+            }
+
             AdminMonitor.UpdateTask("LoadIndex");
 
             var idx = Database.GetSongIndex(idxName);

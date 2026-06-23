@@ -58,6 +58,26 @@ public class RawSearch
     [Display(Name = @"CruftFilter")]
     public CruftFilter CruftFilter { get; set; }
 
+    // CruftFilter is a [Flags] enum, which Html.GetEnumSelectList can't render as a <select>.
+    // Expose each bit as its own checkbox-friendly bool so the form can bind to them directly.
+    [Display(Name = @"Exclude songs with no publisher info")]
+    public bool ExcludePublishers
+    {
+        get => CruftFilter.HasFlag(CruftFilter.NoPublishers);
+        set => CruftFilter = value
+            ? CruftFilter | CruftFilter.NoPublishers
+            : CruftFilter & ~CruftFilter.NoPublishers;
+    }
+
+    [Display(Name = @"Exclude songs with no dances")]
+    public bool ExcludeDances
+    {
+        get => CruftFilter.HasFlag(CruftFilter.NoDances);
+        set => CruftFilter = value
+            ? CruftFilter | CruftFilter.NoDances
+            : CruftFilter & ~CruftFilter.NoDances;
+    }
+
     public string Flags { get; set; }
 
     [Display(Name = @"Flags")]
