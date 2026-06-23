@@ -1889,7 +1889,7 @@ public class SongIndex
                     { OtherTags, oneOther.ToArray() }
                 };
 
-            if (dr.Tempo != null && dr.Tempo != song.Tempo)
+            if (song.Tempo != null && dr.Tempo != null && dr.Tempo != song.Tempo)
             {
                 hasTempoOverride = true;
             }
