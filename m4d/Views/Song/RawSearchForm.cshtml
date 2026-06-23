@@ -4,229 +4,183 @@
 
 @{
     ViewBag.Title = "Raw Search";
-ViewBag.BreadCrumbs = BreadCrumbItem.BuildSongLibraryTrail(ViewBag.Title);
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildSongLibraryTrail(ViewBag.Title);
 }
 
-@using (Html.BeginForm("RawSearch", "Song"))
-{
-    @Html.AntiForgeryToken()
+<div class="py-3">
+    <h1 class="mb-4">@ViewBag.Title</h1>
 
-    <div class="form-horizontal">
-        <h1>Raw Search</h1>
-        <hr/>
-        @Html.ValidationSummary(true, "", new
+    <div class="card mb-4">
+        <div class="card-body p-4">
+            <form asp-action="RawSearch" asp-controller="Song" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row mb-3 align-items-start">
+                    <label asp-for="SearchText" class="col-sm-3 col-lg-2 col-form-label"></label>
+                    <div class="col-sm-9 col-lg-10">
+                        <input asp-for="SearchText" class="form-control" />
+                        <span asp-validation-for="SearchText" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-start">
+                    <label asp-for="ODataFilter" class="col-sm-3 col-lg-2 col-form-label"></label>
+                    <div class="col-sm-9 col-lg-10">
+                        <input asp-for="ODataFilter" class="form-control" />
+                        <span asp-validation-for="ODataFilter" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-start">
+                    <label asp-for="SortFields" class="col-sm-3 col-lg-2 col-form-label"></label>
+                    <div class="col-sm-9 col-lg-10">
+                        <input asp-for="SortFields" class="form-control" />
+                        <span asp-validation-for="SortFields" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-start">
+                    <label asp-for="SearchFields" class="col-sm-3 col-lg-2 col-form-label"></label>
+                    <div class="col-sm-9 col-lg-10">
+                        <input asp-for="SearchFields" class="form-control" />
+                        <span asp-validation-for="SearchFields" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-start">
+                    <label asp-for="Description" class="col-sm-3 col-lg-2 col-form-label"></label>
+                    <div class="col-sm-9 col-lg-10">
+                        <input asp-for="Description" class="form-control" />
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-start">
+                    <label asp-for="CruftFilter" class="col-sm-3 col-lg-2 col-form-label"></label>
+                    <div class="col-sm-9 col-lg-10">
+                        @* CruftFilter is a [Flags] enum - GetEnumSelectList doesn't support those, so
+                           fall back to the default editor template, which renders one checkbox per flag. *@
+                        @Html.EditorFor(model => model.CruftFilter)
+                        <span asp-validation-for="CruftFilter" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-4 align-items-start">
+                    <div class="col-sm-3 col-lg-2"></div>
+                    <div class="col-sm-9 col-lg-10">
+                        <div class="form-check">
+                            <input asp-for="IsLucene" class="form-check-input" />
+                            <label asp-for="IsLucene" class="form-check-label"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-9 col-lg-10 offset-sm-3 offset-lg-2">
+                        <button id="submit-search" class="btn btn-primary" type="submit">
+                            Search <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (ViewData.ContainsKey("AzureIndexInfo"))
     {
-        @class = "text-danger"
-    })
+        var index = (SearchIndex)ViewBag.AzureIndexInfo;
+        var simpleFields = index.Fields.Where(f => f.Type != SearchFieldDataType.Complex).ToList();
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.SearchText, new
-        {
-            @class = "control-label col-md-2"
-        })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.SearchText, new
+        // Each dance_{id} field (including dance_ALL) is a complex type with the same sub-field
+        // shape; group by that shape rather than repeating it once per dance.
+        var complexGroups = index.Fields
+            .Where(f => f.Type == SearchFieldDataType.Complex)
+            .GroupBy(f => string.Join(
+                "|",
+                f.Fields.Select(sf => $"{sf.Name}:{sf.Type}:{sf.IsSearchable}:{sf.IsSortable}:{sf.IsFilterable}:{sf.IsFacetable}")))
+            .Select(g => new
             {
-                htmlAttributes = new
-                {
-                    @class = "form-control wide-text-control"
-                }
+                Ids = g.Select(f => f.Name.StartsWith("dance_") ? f.Name["dance_".Length..] : f.Name)
+                    .OrderBy(id => id).ToList(),
+                SubFields = g.First().Fields
             })
-                @Html.ValidationMessageFor(model => model.SearchText, "", new
-            {
-                @class = "text-danger"
-            })
+            .ToList();
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Azure Search Fields</h5>
             </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.ODataFilter, new
-        {
-            @class = "control-label col-md-2"
-        })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.ODataFilter, new
-            {
-                htmlAttributes = new
-                {
-                    @class = "form-control wide-text-control"
-                }
-            })
-                @Html.ValidationMessageFor(model => model.ODataFilter, "", new
-            {
-                @class = "text-danger"
-            })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.SortFields, new
-        {
-            @class = "control-label col-md-2"
-        })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.SortFields, new
-            {
-                htmlAttributes = new
-                {
-                    @class = "form-control wide-text-control"
-                }
-            })
-                @Html.ValidationMessageFor(model => model.SortFields, "", new
-            {
-                @class = "text-danger"
-            })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.SearchFields, new
-        {
-            @class = "control-label col-md-2"
-        })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.SearchFields, new
-            {
-                htmlAttributes = new
-                {
-                    @class = "form-control wide-text-control"
-                }
-            })
-                @Html.ValidationMessageFor(model => model.SearchFields, "", new
-            {
-                @class = "text-danger"
-            })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.Description, new
-        {
-            @class = "control-label col-md-2"
-        })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Description, new
-            {
-                htmlAttributes = new
-                {
-                    @class = "form-control wide-text-control"
-                }
-            })
-                @Html.ValidationMessageFor(model => model.Description, "", new
-            {
-                @class = "text-danger"
-            })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.CruftFilter, new
-        {
-            @class = "control-label col-md-2"
-        })
-            <div class="col-md-10">
-                <div class="checkbox">
-                    @Html.EditorFor(model => model.CruftFilter)
-                    @Html.ValidationMessageFor(model => model.CruftFilter, "", new
-                {
-                    @class = "text-danger"
-                })
+            <div class="card-body p-4">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Datatype</th>
+                                <th>Searchable</th>
+                                <th>Sortable</th>
+                                <th>Filterable</th>
+                                <th>Facetable</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var field in simpleFields)
+                            {
+                                <tr>
+                                    <td>@field.Name</td>
+                                    <td>@field.Type</td>
+                                    <td>@field.IsSearchable</td>
+                                    <td>@field.IsSortable</td>
+                                    <td>@field.IsFilterable</td>
+                                    <td>@field.IsFacetable</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <div class="form-check col-md-11 ml-3">
-            @Html.EditorFor(model => model.IsLucene,
-            new
-            {
-                htmlAttributes = new
-                {
-                    @class = "form-check-input"
-                }
-            })
-            @Html.LabelFor(model => model.IsLucene, new
+        @foreach (var group in complexGroups)
         {
-            @class = "form-check-label"
-        })
-        </div>
-
-        <div class="form-group mt-2">
-            <div class="col-md-offset-2 col-md-10">
-                <button id="submit-search" class="btn btn-primary" type="submit">Search <span class="glyphicon glyphicon-search"></span></button>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        Per-Dance Sub-Fields <small class="text-muted">(substitute <code>{id}</code> below)</small>
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle mb-3">
+                            <thead>
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Datatype</th>
+                                    <th>Searchable</th>
+                                    <th>Sortable</th>
+                                    <th>Filterable</th>
+                                    <th>Facetable</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var sub in group.SubFields)
+                                {
+                                    <tr>
+                                        <td>dance_{id}/@sub.Name</td>
+                                        <td>@sub.Type</td>
+                                        <td>@sub.IsSearchable</td>
+                                        <td>@sub.IsSortable</td>
+                                        <td>@sub.IsFilterable</td>
+                                        <td>@sub.IsFacetable</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-muted small mb-0"><code>{id}</code> is any of: @string.Join(", ", group.Ids)</p>
+                </div>
             </div>
-        </div>
-    </div>
-}
-
-@if (ViewData.ContainsKey("AzureIndexInfo"))
-{
-    var index = (SearchIndex)ViewBag.AzureIndexInfo;
-    var simpleFields = index.Fields.Where(f => f.Type != SearchFieldDataType.Complex).ToList();
-
-    // Each dance_{id} field (including dance_ALL) is a complex type with the same sub-field
-    // shape; group by that shape rather than repeating it once per dance.
-    var complexGroups = index.Fields
-        .Where(f => f.Type == SearchFieldDataType.Complex)
-        .GroupBy(f => string.Join(
-            "|",
-            f.Fields.Select(sf => $"{sf.Name}:{sf.Type}:{sf.IsSearchable}:{sf.IsSortable}:{sf.IsFilterable}:{sf.IsFacetable}")))
-        .Select(g => new
-        {
-            Ids = g.Select(f => f.Name.StartsWith("dance_") ? f.Name["dance_".Length..] : f.Name)
-                .OrderBy(id => id).ToList(),
-            SubFields = g.First().Fields
-        })
-        .ToList();
-
-    <div class="row">
-        <div class="col">
-            <table class="table table-striped table-bordered">
-                <thead class="big-text">Azure Search Fields</thead>
-                <tbody>
-                <tr>
-                    <td>Field</td><td>Datatype</td><td>Searchable</td><td>Sortable</td><td>Filterable</td><td>Facetable</td>
-                </tr>
-                @foreach (var field in simpleFields)
-                {
-                    <tr>
-                        <td>@field.Name</td>
-                        <td>@field.Type</td>
-                        <td>@field.IsSearchable</td>
-                        <td>@field.IsSortable</td>
-                        <td>@field.IsFilterable</td>
-                        <td>@field.IsFacetable</td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    @foreach (var group in complexGroups)
-    {
-        <div class="row">
-            <div class="col">
-                <table class="table table-striped table-bordered">
-                    <thead class="big-text">Per-Dance Sub-Fields (substitute {id} below)</thead>
-                    <tbody>
-                    <tr>
-                        <td>Field</td><td>Datatype</td><td>Searchable</td><td>Sortable</td><td>Filterable</td><td>Facetable</td>
-                    </tr>
-                    @foreach (var sub in group.SubFields)
-                    {
-                        <tr>
-                            <td>dance_{id}/@sub.Name</td>
-                            <td>@sub.Type</td>
-                            <td>@sub.IsSearchable</td>
-                            <td>@sub.IsSortable</td>
-                            <td>@sub.IsFilterable</td>
-                            <td>@sub.IsFacetable</td>
-                        </tr>
-                    }
-                    </tbody>
-                </table>
-                <p><strong>{id}</strong> is any of: @string.Join(", ", group.Ids)</p>
-            </div>
-        </div>
+        }
     }
-}
+</div>
