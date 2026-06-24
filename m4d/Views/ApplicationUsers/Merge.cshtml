@@ -1,0 +1,47 @@
+@using m4d.ViewModels
+
+@{
+    ViewBag.Title = "Merge Pseudo Users";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
+}
+
+<h2>@ViewBag.Title</h2>
+<hr/>
+
+<p>
+    Merges two pseudo (service) users - typically duplicate Spotify-derived accounts created
+    when a playlist owner renamed their Spotify screen name. Enter the username to keep and the
+    username to merge away; playlists, votes/tags/edits, saved searches, and activity will be
+    reassigned to the kept user, and the merged user will be deleted.
+</p>
+
+@Html.ValidationSummary(false, "", new { @class = "text-danger" })
+
+@using (Html.BeginForm("MergeConfirm", "ApplicationUsers", FormMethod.Get))
+{
+    <div class="form-horizontal">
+        <div class="form-group">
+            <label class="control-label col-md-2">Username to Keep</label>
+            <div class="col-md-10">
+                <input type="text" name="keepName" class="form-control"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">Username to Merge Away</label>
+            <div class="col-md-10">
+                <input type="text" name="mergeName" class="form-control" value="@ViewBag.MergeName"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Review Merge" class="btn btn-primary"/>
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>

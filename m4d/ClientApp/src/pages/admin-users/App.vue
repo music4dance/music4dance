@@ -219,6 +219,9 @@ function usageUrl(userName: string): string {
 function playlistsUrl(userName: string): string {
   return "/PlayList/Index?user=" + encodeURIComponent(userName);
 }
+function mergeUrl(userName: string): string {
+  return "/ApplicationUsers/Merge?mergeName=" + encodeURIComponent(userName);
+}
 </script>
 
 <template>
@@ -440,6 +443,7 @@ function playlistsUrl(userName: string): string {
         <br />
         <a :href="`/ApplicationUsers/Delete/${item.id}`">Delete</a>,
         <a :href="`/ApplicationUsers/Edit/${item.id}`">Edit</a>,
+        <a v-if="item.isPseudo" :href="mergeUrl(item.userName)">Merge</a>,
         <a :href="usageUrl(item.userName)">Usage</a>,
         <a :href="playlistsUrl(item.userName)">Playlists</a>,
         <a :href="`/ApplicationUsers/ClearPremium/${item.id}`">ClearPremium</a>

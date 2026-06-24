@@ -193,6 +193,63 @@ public class ApplicationUsersController(
         return View(applicationUser);
     }
 
+    // GET: ApplicationUsers/Merge
+    public ActionResult Merge(string mergeName = null)
+    {
+        ViewBag.MergeName = mergeName;
+        return View();
+    }
+
+    // GET: ApplicationUsers/MergeConfirm?keepName=x&mergeName=y
+    public async Task<ActionResult> MergeConfirm(string keepName, string mergeName)
+    {
+        var keepUser = string.IsNullOrWhiteSpace(keepName) ? null : await Database.FindUser(keepName);
+        var mergeUser = string.IsNullOrWhiteSpace(mergeName) ? null : await Database.FindUser(mergeName);
+
+        if (keepUser == null || mergeUser == null)
+        {
+            ModelState.AddModelError("", "Both usernames must match an existing user.");
+            return View("Merge");
+        }
+
+        if (keepUser.Id == mergeUser.Id)
+        {
+            ModelState.AddModelError("", "Please choose two different users.");
+            return View("Merge");
+        }
+
+        if (!keepUser.IsPseudo || !mergeUser.IsPseudo)
+        {
+            ModelState.AddModelError("", "Merge is only supported for pseudo (service) users.");
+            return View("Merge");
+        }
+
+        return View(new MergeUsersModel { KeepUser = keepUser, MergeUser = mergeUser });
+    }
+
+    // POST: ApplicationUsers/MergeConfirm
+    [HttpPost]
+    [ActionName("MergeConfirm")]
+    [ValidateAntiForgeryToken]
+    public async Task<ActionResult> MergeConfirmed(string keepId, string mergeId)
+    {
+        try
+        {
+            await Database.MergeUsers(keepId, mergeId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to merge user {MergeId} into {KeepId}", mergeId, keepId);
+            ModelState.AddModelError(
+                "",
+                $"Unable to merge users: {ex.Message}");
+            return View("Merge");
+        }
+
+        UserMapper.Clear();
+        return RedirectToAction("Index");
+    }
+
     // GET: Users/ClearPremium/5
     public async Task<ActionResult> ClearPremium(string id)
     {
