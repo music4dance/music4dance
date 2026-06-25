@@ -51,6 +51,7 @@ An append-only log of `SongProperty` entries. The song's current state is derive
 A name/value pair with a structured naming convention (see `SongUploadFormat.md`). Key prefixes include:
 
 - `Title`, `Artist`, `Tempo`, `Length`, `Sample` — basic metadata fields
+- `Tempo:DANCEID=` — per-dance tempo override (see [Per-Dance Tempo](#per-dance-tempo) below)
 - `Album:nn`, `Purchase:nn:S` — album/purchase indexed fields
 - `Tag+` / `Tag-` — add/remove tags
 - `Tag+:DANCEID=` — dance-specific tags
@@ -244,6 +245,7 @@ All endpoints are in `m4d/APIControllers/SongController.cs`:
 | Edit Tempo/Length         | ❌        | ❌            | ✅       | ✅        | ✅      | ✅                |
 | Edit algo-set Tempo ¹     | ❌        | ✅            | ✅       | ✅        | ✅      | ✅                |
 | Set/re-edit own tempo ³   | ❌        | ✅            | ✅       | ✅        | ✅      | ✅                |
+| Edit per-dance Tempo ⁴    | ❌        | ✅            | ✅       | ✅        | ✅      | ✅                |
 | Edit Title/Artist         | ❌        | ❌            | ❌       | ❌        | ✅      | ✅                |
 | Delete dances             | ❌        | ❌            | ❌       | ❌        | ❌      | ✅                |
 | Admin textarea edit       | ❌        | ❌            | ❌       | ❌        | ❌      | ✅                |
@@ -257,6 +259,8 @@ Role hierarchy (additive): `dbAdmin` implies all other roles. `canEdit` implies 
 ³ **"Set/re-edit own tempo"**: Any authenticated user may set the tempo when no tempo has been recorded (`song.tempo` is undefined), **or** re-edit it when they were the last human to set it (`Song.propLastSetBy(tempoField) === currentUser`). Authorship is tracked in `Song.ts` via `propLastSetByMap` (built during `loadProperties`; bot/pseudo edits do not overwrite the map). Implemented in `SongStats.vue` via `canSetTempo`. If another user has since edited the tempo, this path is closed; further edits require `canTag` or the algo-override path (footnote ¹).
 
 ² **"Remove system-only tags"**: Any authenticated user may remove a tag whose most recent modification was by a batch/algorithmic user (pseudo or batch user). Computed in `SongHistory.systemTagKeys` by replaying the property log and tracking which tags were last touched by a system user. Surfaced in `TagListEditor.vue` as the "Remove System Tags:" section (shown only to non-`canEdit` users; `canEdit` users get the full "Remove Tags:" section instead).
+
+⁴ **"Edit per-dance Tempo"**: The same algo-override and own-tempo rules (footnotes ¹ and ³) apply independently to each dance's effective tempo (its override if one exists, else the inherited song tempo). Tracked per-dance in `Song.ts` via `danceTempoUserModified`/`danceTempoLastSetByMap` and exposed as `Song.isDanceTempoUserModified(danceId)` / `Song.danceTempoLastSetBy(danceId)`. Implemented in `DanceDetails.vue` via `canOverrideDanceTempo`/`canSetDanceTempo`. See [Per-Dance Tempo](#per-dance-tempo) below.
 
 Role checks are resolved via `MenuContext` (injected from server into the page's JS environment).
 
@@ -334,6 +338,62 @@ imports and excluded from the default (`userChanges`) view. They appear only whe
 
 ---
 
+## Per-Dance Tempo {#per-dance-tempo}
+
+Songs can store an optional tempo override per dance (`DanceRating.tempo`) alongside the
+song-level tempo, for songs that genuinely play at different tempos for different dances (the
+classic example is Slow Foxtrot vs. Viennese Waltz). When a dance has no override it inherits the
+song-level tempo. Originally designed in a now-removed implementation plan
+([issue #15](https://github.com/music4dance/music4dance/issues/15)); the feature is fully
+implemented and this section is its design record going forward.
+
+### Data model and serialization
+
+- `DanceRating.tempo` (`decimal?` server-side, `number?` client-side) — `null`/`undefined` means
+  "inherit from `song.tempo`".
+- The `Tempo:DANCEID=value` property token sets a dance's override; `Tempo:DANCEID=` (empty) clears
+  it, reverting to inheritance. The plain `Tempo=value` token still sets the song-level tempo.
+- **Promote inference**: if `Tempo:DANCEID=value` is applied while `song.tempo` is still unset, the
+  song-level tempo is inferred from that dance's value (`Song.tempoInferredFromDance` /
+  `isTempoInferredFromDance`). This lets a dance-specific edit "fill in" the song tempo without
+  other users losing the ability to set `song.tempo` independently later. Implemented in
+  `Song.loadProperties` (client) and the equivalent server-side replay in `m4dModels/Song.cs`.
+- Authorship of each dance's _effective_ tempo (its override if set, else the inherited song
+  tempo) is tracked the same way as song-level tempo, but per dance: `Song.danceTempoUserModified`
+  / `danceTempoLastSetByMap`, exposed via `Song.isDanceTempoUserModified(danceId)` and
+  `Song.danceTempoLastSetBy(danceId)`. An algorithmic (`|P`) edit never overwrites a dance tempo
+  override that a human previously set — mirroring the song-level guard.
+
+### Permissions and UI (`DanceDetails.vue`)
+
+Editing a per-dance tempo follows the same rules as song-level tempo (see footnotes ¹, ³, ⁴ in
+[Permission Model](#permission-model)), evaluated per dance via `canOverrideDanceTempo` /
+`canSetDanceTempo` / `canTagUser`:
+
+- **View mode**: shows the effective tempo (override or inherited), styled green when an override
+  is active and muted with a link icon (`IBiLink45deg`) when inherited. `<AlgoGeneratedIcon
+:song :dance-id>` renders the CPU icon next to the tempo when `isDanceTempoUserModified` is
+  `false` for that dance — parity with the song-level tempo icon in `SongStats.vue`. A pencil
+  button next to the tempo, visible whenever the current user is permitted to edit it, requests
+  edit mode focused on that dance's tempo input.
+- **Edit mode**: a numeric input shows the override value, or is empty with an
+  `"NNN (inherited)"` placeholder when there's no override. Clearing the input removes the
+  override; a "Clear" button does the same when an override is active.
+
+### Search index (Azure AI Search, schema version 3)
+
+Because Azure AI Search complex-type fields can't gain new sub-fields after creation, the per-dance
+`Tempo` value required a new index schema version. `SongIndexNext.BuildIndex` adds a `Tempo`
+sub-field to each `dance_{id}` complex field; `DocumentFromSong` populates
+`dance_{id}/Tempo = dr.Tempo ?? song.Tempo`. `SongFilterNext`/`DanceQueryNext` use
+`dance_{id}/Tempo` for sort/filter when a single dance is selected, falling back to the top-level
+`Tempo` field for multi-dance or no-dance queries. A synthetic `dance_ALL/Tempo` field is set to the
+song tempo whenever any dance overrides it, giving a single-field proxy for
+"this song has at least one per-dance tempo override" (`dance_ALL/Tempo ne null`). See
+[Search Index Versioning](search-index-versioning.md) for the version-3 migration mechanism.
+
+---
+
 ## Related Files
 
 | File                                              | Purpose                                                                                      |
@@ -360,5 +420,10 @@ imports and excluded from the default (`userChanges`) view. They appear only whe
 | `src/models/SongProperty.ts`                      | Property name/value pair + `PropertyType` enum                                               |
 | `src/models/UserQuery.ts`                         | User identity; friendly display names for all system users                                   |
 | `src/models/Song.ts`                              | Computed song view derived from `SongHistory`                                                |
+| `src/models/DanceRating.ts`                       | Client-side per-dance model; `tempo` override field                                          |
+| `m4dModels/DanceRating.cs`                        | Server-side per-dance model; `Tempo` override field                                          |
+| `m4dModels/SongIndexNext.cs`                      | Schema v3: `dance_{id}/Tempo` sub-field, `DocumentFromSong`                                  |
+| `m4dModels/SongFilterNext.cs`                     | Per-dance tempo sort/filter (`dance_{id}/Tempo`)                                             |
 | `architecture/SongUploadFormat.md`                | Property serialization format reference                                                      |
 | `architecture/VOTING_WITH_DANCE_FAMILIES.md`      | Dance family voting details                                                                  |
+| `architecture/search-index-versioning.md`         | Index schema versioning mechanism used for the v3 cutover                                    |

@@ -50,6 +50,40 @@ function makeSong(songTempo?: number, chaTempo?: number): Song {
   return Song.fromHistory(makeHistory(songTempo, chaTempo));
 }
 
+/** Song with a CHA dance rating whose tempo (song-level, inherited) was only ever set algorithmically. */
+function makeAlgoSongTempoSong(tempo = 133): Song {
+  const history = new SongHistory({
+    id: "00000000-0000-0000-0000-000000000001",
+    properties: [
+      new SongProperty({ name: ".Create", value: "" }),
+      new SongProperty({ name: "User", value: "batch-e|P" }),
+      new SongProperty({ name: "Time", value: "01/01/2024 12:00:00 PM" }),
+      new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+      new SongProperty({ name: "Tempo", value: String(tempo) }),
+    ],
+  });
+  return Song.fromHistory(history);
+}
+
+/** Song with a CHA-specific tempo override that was only ever set algorithmically. */
+function makeAlgoDanceTempoSong(songTempo = 120, chaTempo = 133): Song {
+  const history = new SongHistory({
+    id: "00000000-0000-0000-0000-000000000001",
+    properties: [
+      new SongProperty({ name: ".Create", value: "" }),
+      new SongProperty({ name: "User", value: "dwgray" }),
+      new SongProperty({ name: "Time", value: "01/01/2024 12:00:00 PM" }),
+      new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+      new SongProperty({ name: "Tempo", value: String(songTempo) }),
+      new SongProperty({ name: ".Edit", value: "" }),
+      new SongProperty({ name: "User", value: "batch-e|P" }),
+      new SongProperty({ name: "Time", value: "02/01/2024 12:00:00 PM" }),
+      new SongProperty({ name: "Tempo:CHA", value: String(chaTempo) }),
+    ],
+  });
+  return Song.fromHistory(history);
+}
+
 const STUBS = {
   DanceVote: true,
   DanceName: true,
@@ -60,6 +94,11 @@ const STUBS = {
   IBiLink45deg: { template: "<span class='link-stub' />" },
   IBiExclamationCircle: true,
   IBiX: true,
+  IBiPencilFill: true,
+  AlgoGeneratedIcon: {
+    props: ["song", "danceId", "stacked"],
+    template: `<span v-if="!song.isDanceTempoUserModified(danceId)" class="algo-icon-stub" />`,
+  },
 };
 
 function mountDetails(
@@ -283,5 +322,71 @@ describe("DanceDetails.vue — tempo editing (canTag required)", () => {
     expect(wrapper.emitted("edit")?.[0]).toEqual([
       'input[data-edit-target="dance-tempo"][data-dance-id="CHA"]',
     ]);
+  });
+});
+
+describe("DanceDetails.vue — algorithmic tempo override (any signed-in user)", () => {
+  it("shows the algo icon for a dance tempo inherited from an algo-only song tempo", () => {
+    setRoles(["canEdit"]);
+    const song = makeAlgoSongTempoSong();
+    const wrapper = mountDetails(song, { user: "bob" });
+    expect(wrapper.find(".algo-icon-stub").exists()).toBe(true);
+  });
+
+  it("shows the algo icon for an algo-only dance-specific tempo override", () => {
+    setRoles(["canEdit"]);
+    const song = makeAlgoDanceTempoSong();
+    const wrapper = mountDetails(song, { user: "bob" });
+    expect(wrapper.find(".algo-icon-stub").exists()).toBe(true);
+  });
+
+  it("hides the algo icon once a human has set the dance tempo", () => {
+    setRoles([]);
+    const song = makeSong(120, 128);
+    const wrapper = mountDetails(song);
+    expect(wrapper.find(".algo-icon-stub").exists()).toBe(false);
+  });
+
+  it("lets a non-canTag authenticated user edit a dance tempo that is only algo-set", () => {
+    setRoles(["canEdit"]);
+    mockContext.userName = "bob";
+    const song = makeAlgoSongTempoSong();
+    const wrapper = mountDetails(song, { edit: true, user: "bob" });
+    expect(wrapper.find('input[type="number"]').exists()).toBe(true);
+  });
+
+  it("lets a non-canTag authenticated user override an algo-only dance-specific tempo", () => {
+    setRoles(["canEdit"]);
+    mockContext.userName = "bob";
+    const song = makeAlgoDanceTempoSong();
+    const wrapper = mountDetails(song, { edit: true, user: "bob" });
+    expect(wrapper.find('input[type="number"]').exists()).toBe(true);
+  });
+
+  it("still blocks a non-canTag user once a human has set the dance tempo", () => {
+    setRoles(["canEdit"]);
+    mockContext.userName = "bob";
+    const song = makeSong(120, 128);
+    const wrapper = mountDetails(song, { edit: true, user: "bob" });
+    expect(wrapper.find('input[type="number"]').exists()).toBe(false);
+  });
+
+  it("lets a non-canTag user re-edit a dance tempo override they previously set themselves", () => {
+    setRoles(["canEdit"]);
+    mockContext.userName = "bob";
+    const history = new SongHistory({
+      id: "00000000-0000-0000-0000-000000000001",
+      properties: [
+        new SongProperty({ name: ".Create", value: "" }),
+        new SongProperty({ name: "User", value: "bob" }),
+        new SongProperty({ name: "Time", value: "01/01/2024 12:00:00 PM" }),
+        new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+        new SongProperty({ name: "Tempo", value: "120" }),
+        new SongProperty({ name: "Tempo:CHA", value: "128" }),
+      ],
+    });
+    const song = Song.fromHistory(history);
+    const wrapper = mountDetails(song, { edit: true, user: "bob" });
+    expect(wrapper.find('input[type="number"]').exists()).toBe(true);
   });
 });
