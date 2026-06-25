@@ -1,0 +1,47 @@
+@using m4d.ViewModels
+@model MergeUsersModel
+
+@{
+    ViewBag.Title = "Confirm Merge";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
+}
+
+<h2>@ViewBag.Title</h2>
+<hr/>
+
+<h3>Are you sure you want to merge these users?</h3>
+
+<div class="row">
+    <div class="col-sm-6">
+        <h4>Keep</h4>
+        <div class="row"><div class="col-sm-4">UserName</div><div class="col-sm-8">@Model.KeepUser.UserName</div></div>
+        <div class="row"><div class="col-sm-4">Id</div><div class="col-sm-8">@Model.KeepUser.Id</div></div>
+        <div class="row"><div class="col-sm-4">Email</div><div class="col-sm-8">@Model.KeepUser.Email</div></div>
+    </div>
+    <div class="col-sm-6">
+        <h4>Merge Away (will be deleted)</h4>
+        <div class="row"><div class="col-sm-4">UserName</div><div class="col-sm-8">@Model.MergeUser.UserName</div></div>
+        <div class="row"><div class="col-sm-4">Id</div><div class="col-sm-8">@Model.MergeUser.Id</div></div>
+        <div class="row"><div class="col-sm-4">Email</div><div class="col-sm-8">@Model.MergeUser.Email</div></div>
+    </div>
+</div>
+
+<p></p>
+<p>
+    Playlists, song votes/tags/edits, saved searches, and activity log entries owned by
+    <strong>@Model.MergeUser.UserName</strong> will be reassigned to
+    <strong>@Model.KeepUser.UserName</strong>, and <strong>@Model.MergeUser.UserName</strong>
+    will be permanently deleted. This cannot be undone.
+</p>
+
+@using (Html.BeginForm("MergeConfirm", "ApplicationUsers", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="keepId" value="@Model.KeepUser.Id"/>
+    <input type="hidden" name="mergeId" value="@Model.MergeUser.Id"/>
+
+    <div class="form-actions no-color">
+        <input type="submit" value="Merge" class="btn btn-primary"/> |
+        @Html.ActionLink("Back to List", "Index")
+    </div>
+}

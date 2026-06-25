@@ -17,7 +17,7 @@ Playlist management is currently an admin-only feature (`[Authorize(Roles = "dbA
 public class PlayList
 {
     public string Id { get; set; }       // Spotify playlist ID
-    public string User { get; set; }     // m4d user ID (owner)
+    public string User { get; set; }     // owner's plain UserName (not the user's GUID Id)
     public PlayListType Type { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
@@ -175,6 +175,18 @@ The `PlayList/Index` route is now a Vue SPA following the same pattern as `Appli
   - BulkCreate links (SpotifyFromSearch only), Statistics link
   - `BTable id="playlist-table"` with sortable columns; deleted rows highlighted with `table-danger`
   - Per-row action links: Update \| Edit \| Details \| Delete (active) / Undelete (deleted); Restore shown when `updated && !data2`
+
+---
+
+## User Merge
+
+`PlayList.User` is keyed by plain `UserName`, not the user's GUID `Id` — `Database.FindUser(playlist.User)`
+looks the owner up by name. This matters when merging two duplicate pseudo (service) users (e.g. a
+Spotify-derived account whose owner renamed their Spotify screen name, producing two `ApplicationUser`
+rows with the same email): merging must update `PlayList.User` for every playlist owned by the merged-away
+username, not just relink by Id. See [[account-management]] § User Merge for the full merge flow
+(`DanceMusicService.MergeUsers`), which also reassigns song votes/tags/edits and saved searches/activity log
+rows before deleting the merged-away user.
 
 ---
 

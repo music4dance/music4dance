@@ -1102,6 +1102,55 @@ public class DanceMusicService(DanceMusicContext context,
         return user;
     }
 
+    // Merges two pseudo users (e.g. duplicate Spotify-derived accounts created when a playlist
+    // owner renamed their Spotify screen name). Everything attributed to mergeId is reassigned to
+    // keepId - playlists (PlayList.User stores the plain UserName, not the Id), saved searches and
+    // activity log rows (which have a restrict-on-delete FK to AspNetUsers and must be moved off
+    // mergeId before it can be removed), and song votes/tags/edits in the search index (keyed by
+    // DecoratedName via ChangeUserName). mergeId is then deleted.
+    public async Task MergeUsers(string keepId, string mergeId)
+    {
+        if (string.Equals(keepId, mergeId, StringComparison.Ordinal))
+        {
+            throw new ArgumentException("Cannot merge a user into itself.");
+        }
+
+        var keepUser = await Context.Users.FindAsync(keepId) ??
+            throw new ArgumentException($"User '{keepId}' not found.", nameof(keepId));
+        var mergeUser = await Context.Users.FindAsync(mergeId) ??
+            throw new ArgumentException($"User '{mergeId}' not found.", nameof(mergeId));
+
+        if (!keepUser.IsPseudo || !mergeUser.IsPseudo)
+        {
+            throw new InvalidOperationException("MergeUsers only supports merging pseudo (service) users.");
+        }
+
+        foreach (var playlist in await PlayLists.Where(p => p.User == mergeUser.UserName).ToListAsync())
+        {
+            playlist.User = keepUser.UserName;
+        }
+
+        foreach (var search in await Searches.Where(s => s.ApplicationUserId == mergeUser.Id).ToListAsync())
+        {
+            search.ApplicationUserId = keepUser.Id;
+        }
+
+        foreach (var entry in await ActivityLog.Where(a => a.ApplicationUserId == mergeUser.Id).ToListAsync())
+        {
+            entry.ApplicationUserId = keepUser.Id;
+        }
+
+        _ = await Context.SaveChangesAsync();
+
+        await ChangeUserName(mergeUser.DecoratedName, keepUser.DecoratedName);
+
+        _ = Context.Users.Remove(mergeUser);
+        _ = await Context.SaveChangesAsync();
+
+        _ = UserCache.Remove(mergeUser.UserName);
+        _ = UserCache.Remove(keepUser.UserName);
+    }
+
     private void AddRole(string id, string role)
     {
         if (string.IsNullOrWhiteSpace(role))

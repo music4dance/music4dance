@@ -195,3 +195,40 @@ After the user is deleted the GUID is no longer in the user database, so:
 - The user's saved searches (`Context.Searches`) are hard-deleted
 - The `ApplicationUser` row is hard-deleted
 - `UserMapper.Clear()` is called to invalidate the in-memory user cache
+
+---
+
+## User Merge
+
+Pseudo (service) users are sometimes created more than once for the same real-world identity — most
+commonly when a Spotify playlist owner renames their Spotify screen name. `ServicePlaylistController.Post`
+calls `Database.FindUser(serviceList.OwnerName) ?? await Database.AddPseudoUser(name, email)`, so a rename
+that doesn't match the existing username creates a second pseudo `ApplicationUser` with the same
+`@spotify.com` email as the original — producing duplicate-email pairs.
+
+`DanceMusicService.MergeUsers(keepId, mergeId)` (`m4dModels/DanceMusicService.cs`) merges one pseudo user
+into another:
+
+1. Both users must already exist and have `IsPseudo == true` (registered/real users are rejected) — this is
+   a guard rail, not a general-purpose account-merge tool.
+2. **Playlists**: every `PlayList` row where `User == mergeUser.UserName` is repointed to
+   `keepUser.UserName` (see [[playlist-management]] — `PlayList.User` stores the plain username, not the Id).
+3. **Saved searches and activity log**: rows referencing `mergeUser.Id` are reassigned to `keepUser.Id`.
+   This must happen before the user row is removed — `Search.ApplicationUserId` has a `Restrict` delete
+   behavior (and `ActivityLog`'s FK would otherwise block deletion too).
+4. **Song contributions**: `ChangeUserName(mergeUser.DecoratedName, keepUser.DecoratedName)` rewrites every
+   `UserField`/`UserProxy` `SongProperty` in the search index from the merged-away user's decorated name to
+   the kept user's — the same mechanism used for the anonymize-on-delete flow above, but pointed at another
+   live username instead of a GUID.
+5. The merged-away `ApplicationUser` row is removed via `Context.Users.Remove` (roles/logins cascade-delete
+   automatically through the Identity FK configuration).
+6. The in-memory `FindUser` cache entries for both users are cleared so subsequent lookups re-read from the
+   database.
+
+### Admin UI
+
+`ApplicationUsersController.Merge` / `MergeConfirm` / `MergeConfirmed` expose this as a two-step admin flow
+(`/ApplicationUsers/Merge`): enter the username to keep and the username to merge away, review both
+accounts' UserName/Id/Email on a confirmation page, then submit to perform the merge. The admin users table
+has a per-row "Merge" link (pseudo users only) that pre-fills the "merge away" field. As with delete,
+`UserMapper.Clear()` is called after a successful merge.
