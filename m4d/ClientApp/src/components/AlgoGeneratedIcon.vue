@@ -1,24 +1,31 @@
 <script setup lang="ts">
 import { Song } from "@/models/Song";
 import { PropertyType } from "@/models/SongProperty";
+import { computed } from "vue";
 
-defineProps<{
+const props = defineProps<{
   song: Song;
   stacked?: boolean;
+  danceId?: string;
 }>();
 
 const docUrl = "https://music4dance.blog/music4dance-help/song-list/#tempo-note";
 
-const shouldShow = (song: Song): boolean => {
-  return !!song.tempo && !song.isUserModified(PropertyType.tempoField);
-};
+const shouldShow = computed(() => {
+  if (props.danceId) {
+    const tempo = props.song.tempoForDance(props.danceId);
+    return !!tempo && !props.song.isDanceTempoUserModified(props.danceId);
+  }
+  return !!props.song.tempo && !props.song.isUserModified(PropertyType.tempoField);
+});
 </script>
 
 <template>
   <a
-    v-if="shouldShow(song)"
+    v-if="shouldShow"
     :href="docUrl"
     target="_blank"
+    rel="noopener noreferrer"
     title="This tempo was algorithmically generated. Click to learn more."
     :class="['algo-generated-icon', { stacked }]"
   >

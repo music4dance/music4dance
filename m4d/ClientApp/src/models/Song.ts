@@ -44,6 +44,10 @@ export class Song extends TaggableObject {
   private propLastSetByMap = new Map<string, string | undefined>();
   private hasExplicitSongTempo = false;
   private tempoInferredFromDance = false;
+  /** danceId → whether the active per-dance tempo override was last set by a human. */
+  private danceTempoUserModified = new Map<string, boolean>();
+  /** danceId → username of the last human to set that dance's tempo override. */
+  private danceTempoLastSetByMap = new Map<string, string | undefined>();
 
   public constructor(init?: Partial<Song>) {
     super();
@@ -66,6 +70,30 @@ export class Song extends TaggableObject {
    */
   public propLastSetBy(field: string): string | undefined {
     return this.propLastSetByMap.get(field);
+  }
+
+  /**
+   * True when the effective tempo for a dance (override, or inherited song tempo when no
+   * override exists) was last set by a human (non-pseudo) user, rather than algorithmically.
+   */
+  public isDanceTempoUserModified(danceId: string): boolean {
+    const dr = this.findDanceRatingById(danceId);
+    if (dr?.tempo != null) {
+      return this.danceTempoUserModified.get(danceId) ?? false;
+    }
+    return this.isUserModified(PropertyType.tempoField);
+  }
+
+  /**
+   * Username of the last human to set the effective tempo for a dance (the override's
+   * setter, or the song tempo's setter when the dance has no override).
+   */
+  public danceTempoLastSetBy(danceId: string): string | undefined {
+    const dr = this.findDanceRatingById(danceId);
+    if (dr?.tempo != null) {
+      return this.danceTempoLastSetByMap.get(danceId);
+    }
+    return this.propLastSetBy(PropertyType.tempoField);
   }
 
   /**
@@ -389,10 +417,16 @@ export class Song extends TaggableObject {
             const dr = this.findDanceRatingById(danceIdQual);
             if (dr) {
               const v = property.value;
+              // Don't allow an algorithmic edit to clobber or clear a human's override.
+              const wasUser = this.danceTempoUserModified.get(danceIdQual) ?? false;
               if (v) {
                 const parsedTempo = Number(v);
-                if (Number.isFinite(parsedTempo)) {
+                if (Number.isFinite(parsedTempo) && !(wasUser && pseudo)) {
                   dr.tempo = parsedTempo;
+                  this.danceTempoUserModified.set(danceIdQual, !pseudo);
+                  if (!pseudo && currentModified?.userName) {
+                    this.danceTempoLastSetByMap.set(danceIdQual, currentModified.userName);
+                  }
                   // Promote: if no song-level tempo has been set yet, infer it from this
                   // dance override. Preserves the semantic that the user is expressing a
                   // dance preference — other users remain free to set song.Tempo independently.
@@ -401,8 +435,10 @@ export class Song extends TaggableObject {
                     this.tempoInferredFromDance = true;
                   }
                 }
-              } else {
+              } else if (!(wasUser && pseudo)) {
                 dr.tempo = undefined; // empty = clear override
+                this.danceTempoUserModified.delete(danceIdQual);
+                this.danceTempoLastSetByMap.delete(danceIdQual);
               }
             }
           } else {

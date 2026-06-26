@@ -49,10 +49,21 @@ const danceLink = (dr: DanceRating): string => {
 
 const filterFamilyTag = computed(() => props.filter.familyTag);
 
-const canEditDanceTempo = computed(() => !!props.user && context.hasRole("canTag"));
+const canTagUser = computed(() => !!props.user && context.hasRole("canTag"));
 
 /** Display value for per-dance tempo: override if set, else song-level tempo. */
 const displayTempo = (dr: DanceRating): string => (dr.tempo ?? props.song.tempo)?.toString() ?? "";
+
+/** True when the effective tempo for this dance has only ever been set algorithmically. */
+const isSystemDanceTempo = (dr: DanceRating): boolean =>
+  !!displayTempo(dr) && !props.song.isDanceTempoUserModified(dr.danceId);
+/** Any signed-in user may override a dance tempo that's only ever been set algorithmically. */
+const canOverrideDanceTempo = (dr: DanceRating): boolean => !!props.user && isSystemDanceTempo(dr);
+/** Any signed-in user may set a dance tempo with no value yet, or re-edit one they last set. */
+const canSetDanceTempo = (dr: DanceRating): boolean =>
+  !!props.user && (!displayTempo(dr) || props.song.danceTempoLastSetBy(dr.danceId) === props.user);
+const canEditDanceTempo = (dr: DanceRating): boolean =>
+  canTagUser.value || canOverrideDanceTempo(dr) || canSetDanceTempo(dr);
 
 const onTempoChange = (dr: DanceRating, value: string): void => {
   if (!props.editor) return;
@@ -73,8 +84,8 @@ const onTempoChange = (dr: DanceRating, value: string): void => {
   emit("edit", `input[data-edit-target=\"dance-tempo\"][data-dance-id=\"${dr.danceId}\"]`);
 };
 
-const onEditDanceTags = (dr: DanceRating): void => {
-  emit("edit", `input[data-edit-target=\"dance-tempo\"][data-dance-id=\"${dr.danceId}\"]`);
+const onEditDanceTempo = (dr: DanceRating): void => {
+  emit("edit", `input[data-edit-target="dance-tempo"][data-dance-id="${dr.danceId}"]`);
 };
 </script>
 
@@ -99,7 +110,7 @@ const onEditDanceTags = (dr: DanceRating): void => {
           ><DanceName :dance="danceFromRating(dr)" :show-synonyms="true"
         /></a>
         <span v-if="displayTempo(dr)" class="ms-2 small">
-          <template v-if="edit && canEditDanceTempo">
+          <template v-if="edit && canEditDanceTempo(dr)">
             <!-- Edit mode (canTag): inherited placeholders are intentionally muted and textual. -->
             <span :class="dr.tempo != null ? 'text-success' : 'text-muted'"
               >Tempo:<IBiLink45deg
@@ -149,8 +160,8 @@ const onEditDanceTags = (dr: DanceRating): void => {
               >{{ displayTempo(dr) }} BPM<IBiLink45deg
                 v-if="dr.tempo == null"
                 class="ms-1"
-                style="font-size: 0.75em; opacity: 0.6"
-            /></span>
+                style="font-size: 0.75em; opacity: 0.6" /></span
+            ><AlgoGeneratedIcon :song="song" :dance-id="dr.danceId" />
           </template>
         </span>
         <span
@@ -168,7 +179,7 @@ const onEditDanceTags = (dr: DanceRating): void => {
             :context="TagContext.Dance"
             @update-song="$emit('update-song')"
             @tag-clicked="$emit('tag-clicked', $event)"
-            @edit="onEditDanceTags(dr)"
+            @edit="onEditDanceTempo(dr)"
           />
         </span>
         <CommentEditor

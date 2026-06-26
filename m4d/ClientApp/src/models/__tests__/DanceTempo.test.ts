@@ -155,6 +155,59 @@ describe("Song per-dance tempo parsing", () => {
     expect(song.tempo).toBe(120);
   });
 
+  it("does not let an algorithmic edit clobber a human's dance tempo override", () => {
+    const history = makeHistory([
+      ...makeBaseSong().properties,
+      { name: ".Edit", value: "" },
+      { name: "User", value: "dwgray" },
+      { name: "Time", value: "01/01/2024 1:00:00 PM" },
+      { name: "Tempo:CHA", value: "128" },
+      { name: ".Edit", value: "" },
+      { name: "User", value: "batch-e|P" },
+      { name: "Time", value: "01/01/2024 2:00:00 PM" },
+      { name: "Tempo:CHA", value: "999" },
+    ]);
+    const song = Song.fromHistory(history);
+    expect(song.findDanceRatingById("CHA")?.tempo).toBe(128);
+    expect(song.isDanceTempoUserModified("CHA")).toBe(true);
+  });
+
+  it("does not let an algorithmic edit clear a human's dance tempo override", () => {
+    const history = makeHistory([
+      ...makeBaseSong().properties,
+      { name: ".Edit", value: "" },
+      { name: "User", value: "dwgray" },
+      { name: "Time", value: "01/01/2024 1:00:00 PM" },
+      { name: "Tempo:CHA", value: "128" },
+      { name: ".Edit", value: "" },
+      { name: "User", value: "batch-e|P" },
+      { name: "Time", value: "01/01/2024 2:00:00 PM" },
+      { name: "Tempo:CHA", value: "" },
+    ]);
+    const song = Song.fromHistory(history);
+    expect(song.findDanceRatingById("CHA")?.tempo).toBe(128);
+    expect(song.isDanceTempoUserModified("CHA")).toBe(true);
+  });
+
+  it("an ignored algorithmic edit does not trigger song-tempo promotion", () => {
+    const history = makeHistory([
+      { name: ".Create", value: "" },
+      { name: "User", value: "dwgray" },
+      { name: "Time", value: "01/01/2024 12:00:00 PM" },
+      { name: "DanceRating", value: "CHA+1" },
+      { name: "Tempo:CHA", value: "128" },
+      { name: ".Edit", value: "" },
+      { name: "User", value: "batch-e|P" },
+      { name: "Time", value: "01/01/2024 1:00:00 PM" },
+      { name: "Tempo:CHA", value: "" },
+    ]);
+    const song = Song.fromHistory(history);
+    // The clear was ignored (human override stands), so song.tempo must remain the
+    // promoted value rather than being re-promoted/disturbed by the ignored edit.
+    expect(song.tempo).toBe(128);
+    expect(song.findDanceRatingById("CHA")?.tempo).toBe(128);
+  });
+
   it("typedjson round-trips DanceRating.tempo", () => {
     const serializer = new TypedJSON(Song);
     const source = new Song({
