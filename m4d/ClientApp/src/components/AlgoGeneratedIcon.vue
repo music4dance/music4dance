@@ -25,6 +25,7 @@ const shouldShow = computed(() => {
     v-if="shouldShow"
     :href="docUrl"
     target="_blank"
+    rel="noopener noreferrer"
     title="This tempo was algorithmically generated. Click to learn more."
     :class="['algo-generated-icon', { stacked }]"
   >

@@ -74,7 +74,7 @@ export class Song extends TaggableObject {
 
   /**
    * True when the effective tempo for a dance (override, or inherited song tempo when no
-   * override exists) has only ever been set algorithmically.
+   * override exists) was last set by a human (non-pseudo) user, rather than algorithmically.
    */
   public isDanceTempoUserModified(danceId: string): boolean {
     const dr = this.findDanceRatingById(danceId);
@@ -417,17 +417,15 @@ export class Song extends TaggableObject {
             const dr = this.findDanceRatingById(danceIdQual);
             if (dr) {
               const v = property.value;
+              // Don't allow an algorithmic edit to clobber or clear a human's override.
+              const wasUser = this.danceTempoUserModified.get(danceIdQual) ?? false;
               if (v) {
                 const parsedTempo = Number(v);
-                if (Number.isFinite(parsedTempo)) {
-                  // Don't allow an algorithmic override to clobber a human's override.
-                  const wasUser = this.danceTempoUserModified.get(danceIdQual) ?? false;
-                  if (!(wasUser && pseudo)) {
-                    dr.tempo = parsedTempo;
-                    this.danceTempoUserModified.set(danceIdQual, !pseudo);
-                    if (!pseudo && currentModified?.userName) {
-                      this.danceTempoLastSetByMap.set(danceIdQual, currentModified.userName);
-                    }
+                if (Number.isFinite(parsedTempo) && !(wasUser && pseudo)) {
+                  dr.tempo = parsedTempo;
+                  this.danceTempoUserModified.set(danceIdQual, !pseudo);
+                  if (!pseudo && currentModified?.userName) {
+                    this.danceTempoLastSetByMap.set(danceIdQual, currentModified.userName);
                   }
                   // Promote: if no song-level tempo has been set yet, infer it from this
                   // dance override. Preserves the semantic that the user is expressing a
@@ -437,7 +435,7 @@ export class Song extends TaggableObject {
                     this.tempoInferredFromDance = true;
                   }
                 }
-              } else {
+              } else if (!(wasUser && pseudo)) {
                 dr.tempo = undefined; // empty = clear override
                 this.danceTempoUserModified.delete(danceIdQual);
                 this.danceTempoLastSetByMap.delete(danceIdQual);
