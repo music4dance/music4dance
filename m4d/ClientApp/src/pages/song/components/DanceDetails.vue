@@ -161,14 +161,7 @@ const onEditDanceTempo = (dr: DanceRating): void => {
                 v-if="dr.tempo == null"
                 class="ms-1"
                 style="font-size: 0.75em; opacity: 0.6" /></span
-            ><AlgoGeneratedIcon :song="song" :dance-id="dr.danceId" /><BButton
-              v-if="canEditDanceTempo(dr)"
-              type="button"
-              variant="link"
-              class="ms-1 p-0 align-baseline"
-              @click="onEditDanceTempo(dr)"
-              ><IBiPencilFill
-            /></BButton>
+            ><AlgoGeneratedIcon :song="song" :dance-id="dr.danceId" />
           </template>
         </span>
         <span
