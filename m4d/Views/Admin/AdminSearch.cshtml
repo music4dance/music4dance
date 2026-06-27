@@ -113,6 +113,19 @@
                                 Execute Modify
                             </button>
                         }
+
+                        @using (Html.BeginForm("AdminRefreshBySearch", "Admin", FormMethod.Post, new { @class = "mb-0 mt-2" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="userName" value="@Model.EditedBy.UserName" />
+                            <input type="hidden" name="from"     value="@(Model.EditedBy.From?.ToString("o"))" />
+                            <input type="hidden" name="to"       value="@(Model.EditedBy.To?.ToString("o"))" />
+
+                            <button type="submit" class="btn btn-outline-secondary"
+                                    onclick="return confirm('Refresh (re-index, no edits applied) @results.Count songs?')">
+                                Refresh
+                            </button>
+                        }
                     </div>
                 </div>
             }

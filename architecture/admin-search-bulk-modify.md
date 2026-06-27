@@ -117,6 +117,31 @@ discarded page-by-page (see `StreamAll` behaviour in [vote-search.md](vote-searc
 
 ---
 
+## AdminRefreshBySearch
+
+**Route:** `POST /Admin/AdminRefreshBySearch`
+**Controller:** `m4d/Controllers/AdminController.cs`
+
+Same matching/streaming/batching shape as `AdminModifyBySearch`, but instead of applying a
+`SongModifier`, it calls `SongIndex.RefreshSong(song)` — which just runs `Song.Reload(database)`
+on the song's own existing properties — and pushes the result to the Azure index. No edit block
+is added and no property values change; this only re-runs the in-memory parsing/derivation logic
+(ratings, tags, etc.) and re-serializes the result, which is useful after a parsing-logic change
+that should retroactively apply to already-indexed songs.
+
+The "Refresh" button sits next to "Execute Modify" on the Admin Search page and posts to this
+action with just `userName`/`from`/`to` — no modifier JSON required.
+
+Note: a `SongModifier` JSON that replaces a value with itself (e.g. `User: "music4dance"` →
+`replace: "music4dance"`) would *also* trigger a reload+reindex under `AdminModifyBySearch`,
+because `Song.AdminModify` always calls `Reload` unconditionally and the controller always adds
+the song to the index batch regardless of whether anything matched. That behavior is incidental,
+though — it depends on `AdminModify`'s internals (which also run `ExpandTags`/`CollapseTags`
+unnecessarily) and isn't guaranteed to remain true. `AdminRefreshBySearch` is the explicit,
+intentional way to do a pure refresh.
+
+---
+
 ## `SongModifier` Date-Range Fields
 
 The standard `SongModifier` JSON (used in `BatchAdminModify`) has been extended with optional
@@ -181,12 +206,12 @@ which is important because `WasEditedBy` then performs the accurate in-memory ch
 
 ## Related Code
 
-| File                                 | Purpose                                                     |
-| ------------------------------------ | ----------------------------------------------------------- |
-| `m4d/Controllers/AdminController.cs` | `AdminSearch` GET + `AdminModifyBySearch` POST              |
-| `m4d/ViewModels/AdminSearchModel.cs` | View model with `SuggestedModifierJson`                     |
-| `m4dModels/SongIndex.cs`             | `StreamAll`, `SearchAll`, `AzureParmsFromFilter`            |
-| `m4dModels/Song.cs`                  | `WasEditedBy`, `AdminModify`, `GetEditTimestamp`            |
-| `m4dModels/SongModifier.cs`          | `SongModifier` with `FromDate`/`ToDate`                     |
-| `m4dModels/UserQuery.cs`             | `UserQuery` with `modifier: 'a'`                            |
-| `m4d/Views/Admin/AdminSearch.cshtml` | Razor view rendering results and pre-populating modify form |
+| File                                 | Purpose                                                               |
+| ------------------------------------ | --------------------------------------------------------------------- |
+| `m4d/Controllers/AdminController.cs` | `AdminSearch` GET + `AdminModifyBySearch`/`AdminRefreshBySearch` POST |
+| `m4d/ViewModels/AdminSearchModel.cs` | View model with `SuggestedModifierJson`                               |
+| `m4dModels/SongIndex.cs`             | `StreamAll`, `SearchAll`, `AzureParmsFromFilter`, `RefreshSong`       |
+| `m4dModels/Song.cs`                  | `WasEditedBy`, `AdminModify`, `Reload`, `GetEditTimestamp`            |
+| `m4dModels/SongModifier.cs`          | `SongModifier` with `FromDate`/`ToDate`                               |
+| `m4dModels/UserQuery.cs`             | `UserQuery` with `modifier: 'a'`                                      |
+| `m4d/Views/Admin/AdminSearch.cshtml` | Razor view rendering results and pre-populating modify form           |
