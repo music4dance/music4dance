@@ -353,9 +353,9 @@ public class SongIndex
     /// derived/computed fields (e.g. dance ratings, tags) when the parsing logic has
     /// changed but the underlying edit history has not.
     /// </summary>
-    public async Task RefreshSong(Song edit)
+    public Task RefreshSong(Song edit)
     {
-        await edit.Reload(DanceMusicService);
+        return edit.Reload(DanceMusicService);
     }
 
     public async Task<bool> AppendHistory(SongHistory history, IMapper mapper)
