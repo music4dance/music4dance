@@ -347,6 +347,17 @@ public class SongIndex
         return await edit.AdminModify(songModifier, DanceMusicService);
     }
 
+    /// <summary>
+    /// Reloads a song from its own serialized properties without changing them, then
+    /// (via the caller) re-pushes it to the Azure index. Used to pick up changes in
+    /// derived/computed fields (e.g. dance ratings, tags) when the parsing logic has
+    /// changed but the underlying edit history has not.
+    /// </summary>
+    public Task RefreshSong(Song edit)
+    {
+        return edit.Reload(DanceMusicService);
+    }
+
     public async Task<bool> AppendHistory(SongHistory history, IMapper mapper)
     {
         var song = await FindSong(history.Id);

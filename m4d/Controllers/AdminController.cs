@@ -227,7 +227,84 @@ public class AdminController(
         }
     }
 
+    //
+    // POST: /Admin/AdminRefreshBySearch
+    // Re-loads each song matched by the EditedBy criteria from its own serialized
+    // properties (no edit applied) and re-pushes it to the Azure index, picking up
+    // any changes to derived/computed fields since the song was last indexed.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult AdminRefreshBySearch(string userName, DateTime? from, DateTime? to)
+    {
+        if (string.IsNullOrWhiteSpace(userName) || !from.HasValue || !to.HasValue)
+        {
+            return RedirectToAction("AdminSearch");
+        }
 
+        try
+        {
+            StartAdminTask("AdminRefreshBySearch");
+            AdminMonitor.UpdateTask("AdminRefreshBySearch");
+
+            var dms = Database.GetTransientService();
+            var capturedFrom = from.Value;
+            var capturedTo = to.Value;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var userFilter = SongFilter.Create(false);
+                    userFilter.User = new UserQuery(userName, include: true, modifier: 'a').Query;
+                    var searchOptions = dms.SongIndex.AzureParmsFromFilter(userFilter);
+                    var refreshedSongIds = new List<Guid>();
+                    var indexBatch = new List<Song>();
+                    const int updateBatchSize = 100;
+
+                    async Task FlushBatchAsync()
+                    {
+                        if (indexBatch.Count == 0) return;
+                        await dms.SongIndex.UpdateAzureIndex(indexBatch, dms);
+                        indexBatch.Clear();
+                    }
+
+                    await foreach (var song in dms.SongIndex.StreamAll(null, searchOptions, CruftFilter.AllCruft))
+                    {
+                        if (!song.WasEditedBy(userName, capturedFrom, capturedTo))
+                            continue;
+
+                        await dms.SongIndex.RefreshSong(song);
+                        refreshedSongIds.Add(song.SongId);
+
+                        indexBatch.Add(song);
+                        if (indexBatch.Count >= updateBatchSize)
+                            await FlushBatchAsync();
+                    }
+
+                    await FlushBatchAsync();
+
+                    AdminMonitor.CompleteTask(true,
+                        $"AdminRefreshBySearch: Refreshed={refreshedSongIds.Count} " +
+                        $"({string.Join(",", refreshedSongIds)})");
+                }
+                catch (Exception e)
+                {
+                    AdminMonitor.CompleteTask(false, $"AdminRefreshBySearch: Failed={e.Message}");
+                }
+                finally
+                {
+                    dms.Dispose();
+                }
+            });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"AdminRefreshBySearch: {e.Message}", e);
+        }
+    }
 
     //
     // GET: /Admin/Diagnostics
