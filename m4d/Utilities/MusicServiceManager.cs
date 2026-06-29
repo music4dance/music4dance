@@ -258,6 +258,18 @@ public class MusicServiceManager(IConfiguration configuration)
         }
 
         var ad = song.FindAlbum(album, trackNum);
+
+        // Services (Spotify in particular) periodically reissue a different track id for what
+        // is otherwise the same recording - matched here by album/track since that's how
+        // FindAlbum works. Reusing the matched album would silently overwrite (lose) the id
+        // already on file via UpdateMusicServicePurchase below, since each album only holds one
+        // id per service/type. Treat that as a new release instead, so both ids stay registered
+        // and either one will still match this song.
+        if (ad != null && HasConflictingPurchase(ad, service, PurchaseType.Song, trackId))
+        {
+            ad = null;
+        }
+
         if (ad != null)
         {
             // If there is a match set up the new info next to the album
@@ -327,6 +339,13 @@ public class MusicServiceManager(IConfiguration configuration)
         }
 
         return alt;
+    }
+
+    private static bool HasConflictingPurchase(AlbumDetails ad, MusicService service,
+        PurchaseType pt, string trackId)
+    {
+        var existing = ad.GetPurchaseIdentifier(service.Id, pt);
+        return existing != null && !string.IsNullOrEmpty(trackId) && !existing.StartsWith(trackId);
     }
 
     private static void UpdateMusicServicePurchase(AlbumDetails ad, MusicService service,

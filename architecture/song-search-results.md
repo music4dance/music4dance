@@ -152,6 +152,11 @@ dance/tempo/tag filtering, premium gating, or search logging. It's effectively a
 exposing it for arbitrary embedding, or merging its read path with the filter-driven pipeline) is
 the next piece of work.
 
+> **Update**: this endpoint has since grown subscription-tier match limits and a signed-in
+> "add unmatched songs" table that links into the Augment flow — see [[add-augment-song]] for how
+> a track gets attached to (or created in) the catalog once a user clicks Add. This summary
+> predates those changes and describes only the original read path.
+
 ### `List(IFormFile fileUpload)` — [SongController.cs:502](../m4d/Controllers/SongController.cs#L502)
 
 POST-only. Parses an uploaded file of song IDs (`UploadFile`), calls `SongIndex.List(ids)` (a
