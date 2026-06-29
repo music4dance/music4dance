@@ -155,21 +155,24 @@ public class SongController : ContentController
         // and discarding the rest.
         var candidateTracks = playlist.Tracks.Take(matchLimit).ToList();
 
-        var filter =
-            $"ServiceIds/any(id: search.in(id, '{string.Join(',', candidateTracks.Select(t => $"S:{t.TrackId}"))}'))";
-        var options = new SearchOptions
-        {
-            QueryType = SearchQueryType.Full,
-            SearchMode = SearchMode.All,
-            Filter = filter,
-            Size = matchLimit,
-            IncludeTotalCount = true,
-        };
-
         try
         {
-            var results = await SongIndex
-                .Search(null, options, CruftFilter.NoCruft);
+            // An empty playlist has no tracks to build an OData filter from, so skip the
+            // search entirely rather than sending Azure a degenerate "match nothing" query.
+            var results = candidateTracks.Count == 0
+                ? new SearchResults("", 0, 0, 1, matchLimit, [], new Dictionary<string, IList<FacetResult>>())
+                : await SongIndex.Search(
+                    null,
+                    new SearchOptions
+                    {
+                        QueryType = SearchQueryType.Full,
+                        SearchMode = SearchMode.All,
+                        Filter =
+                            $"ServiceIds/any(id: search.in(id, '{string.Join(',', candidateTracks.Select(t => $"S:{t.TrackId}"))}'))",
+                        Size = matchLimit,
+                        IncludeTotalCount = true,
+                    },
+                    CruftFilter.NoCruft);
             // Sort songs based on their order in the playlist using Spotify purchase IDs,
             // tracking which playlist track (if any) each song matched so we can report
             // the leftover, catalog-unmatched tracks below.
