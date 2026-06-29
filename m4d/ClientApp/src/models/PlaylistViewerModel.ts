@@ -1,5 +1,6 @@
 import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { SongHistory } from "./SongHistory";
+import { UnmatchedTrack } from "./UnmatchedTrack";
 
 @jsonObject
 export class PlaylistViewerModel {
@@ -10,4 +11,7 @@ export class PlaylistViewerModel {
   @jsonMember(String) public ownerId!: string;
   @jsonMember(String) public ownerName!: string;
   @jsonMember(Number) public totalCount!: number;
+  @jsonMember(Number) public matchedCount!: number;
+  @jsonMember(Boolean) public canAddSongs!: boolean;
+  @jsonArrayMember(UnmatchedTrack) public unmatched!: UnmatchedTrack[];
 }

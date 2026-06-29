@@ -4396,4 +4396,20 @@ export const model = {
   ownerId: "ebo1rk39vp51kkyjps45eobph",
   ownerName: "music4dance",
   totalCount: 8,
+  matchedCount: 8,
+  canAddSongs: false,
+  unmatched: [],
+};
+
+// Variant exercising the subscription-tier upsell alert (fewer histories than matchedCount)
+// and the signed-in "add unmatched songs" table.
+export const limitedModelWithUnmatched = {
+  ...model,
+  totalCount: 11,
+  matchedCount: 9,
+  canAddSongs: true,
+  unmatched: [
+    { title: "Come Fly with Me", artist: "Frank Sinatra", trackId: "1A2B3C4D5E6F7G8H9I0J1K" },
+    { title: "Fly Me to the Moon", artist: "Frank Sinatra", trackId: "2B3C4D5E6F7G8H9I0J1K2L" },
+  ],
 };

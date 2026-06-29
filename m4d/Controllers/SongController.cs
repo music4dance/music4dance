@@ -161,30 +161,51 @@ public class SongController : ContentController
         {
             var results = await SongIndex
                 .Search(null, options, CruftFilter.NoCruft);
-            // Sort songs based on their order in the playlist using Spotify purchase IDs.
+            // Sort songs based on their order in the playlist using Spotify purchase IDs,
+            // tracking which playlist track (if any) each song matched so we can report
+            // the leftover, catalog-unmatched tracks below.
 
             var trackOrder = playlist.Tracks
                 .Select((t, i) => new { t.TrackId, Index = i })
                 .ToDictionary(x => x.TrackId, x => x.Index);
 
             var sorted = results.Songs
-                .OrderBy(song =>
+                .Select(song =>
                 {
-                    var spotifyIds = song.GetPurchaseIds(spotify);
-                    var spotifyId = spotifyIds.FirstOrDefault(id => trackOrder.ContainsKey(id));
-                    return trackOrder.TryGetValue(spotifyId, out var idx) ? idx : int.MaxValue;
+                    var spotifyId = song.GetPurchaseIds(spotify).FirstOrDefault(trackOrder.ContainsKey);
+                    return (song, spotifyId, index: spotifyId != null ? trackOrder[spotifyId] : int.MaxValue);
                 })
+                .OrderBy(x => x.index)
                 .ToList();
+
+            var matchedTrackIds = sorted
+                .Where(x => x.spotifyId != null)
+                .Select(x => x.spotifyId)
+                .ToHashSet();
+
+            var canAddSongs = Identity.IsAuthenticated;
+            var matchLimit = MatchLimitForSubscription(await GetSubscriptionLevel());
+            var shown = sorted.Select(x => x.song).Take(matchLimit).ToList();
+
+            var unmatched = canAddSongs
+                ? playlist.Tracks
+                    .Where(t => !matchedTrackIds.Contains(t.TrackId))
+                    .Select(t => new UnmatchedTrack { Title = t.Name, Artist = t.Artist, TrackId = t.TrackId })
+                    .ToList()
+                : [];
 
             var model = new PlaylistViewerModel
             {
                 Id = id,
-                Histories = await AnonymizeSongs(sorted),
+                Histories = await AnonymizeSongs(shown),
                 Name = playlist.Name,
                 Description = playlist.Description,
                 OwnerId = playlist.OwnerId,
                 OwnerName = playlist.OwnerName,
-                TotalCount = playlist.Tracks.Count()
+                TotalCount = playlist.Tracks.Count(),
+                MatchedCount = sorted.Count,
+                CanAddSongs = canAddSongs,
+                Unmatched = unmatched
             };
 
             return Vue3($"{playlist.Name} music4dance",
@@ -196,6 +217,20 @@ public class SongController : ContentController
             return HandleRedirect(ex);
         }
     }
+
+    /// <summary>
+    /// Caps how many catalog-matched playlist songs are shown, as a subscription upsell:
+    /// anonymous and signed-in non-subscribers see the same small preview as a guest;
+    /// only paid tiers unlock progressively larger views.
+    /// </summary>
+    private static int MatchLimitForSubscription(SubscriptionLevel level) => level switch
+    {
+        SubscriptionLevel.Basic => 25,
+        SubscriptionLevel.Bronze => 100,
+        SubscriptionLevel.Silver => 250,
+        SubscriptionLevel.Gold => 500,
+        _ => 10,
+    };
 
     // TODO: Consider abstracting this (and maybe format) out into a builder/computer
     private async Task<ActionResult> DoAzureSearch()

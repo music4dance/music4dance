@@ -26,4 +26,20 @@ public class PlaylistViewerModel
     public string OwnerId { get; set; }
     public string OwnerName { get; set; }
     public int TotalCount { get; set; }
+
+    /// <summary>Total catalog matches found, before the subscription-tier display limit is applied.</summary>
+    public int MatchedCount { get; set; }
+
+    /// <summary>Whether the viewer is signed in and can add unmatched tracks to the catalog.</summary>
+    public bool CanAddSongs { get; set; }
+
+    /// <summary>Playlist tracks with no catalog match, populated only when <see cref="CanAddSongs"/>.</summary>
+    public List<UnmatchedTrack> Unmatched { get; set; }
+}
+
+public class UnmatchedTrack
+{
+    public string Title { get; set; }
+    public string Artist { get; set; }
+    public string TrackId { get; set; }
 }

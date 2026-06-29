@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, test, vi } from "vitest";
 import { testPageSnapshot } from "@/helpers/TestPageSnapshot";
-import { model } from "./model";
+import { model, limitedModelWithUnmatched } from "./model";
 import App from "../App.vue";
 
 describe("Playlist Viewer", () => {
@@ -15,5 +15,9 @@ describe("Playlist Viewer", () => {
 
   test("renders a playlist viewer index page", () => {
     testPageSnapshot(App, model);
+  }, 50000);
+
+  test("renders the subscription upsell and unmatched-songs table", () => {
+    testPageSnapshot(App, limitedModelWithUnmatched);
   }, 50000);
 });
