@@ -209,6 +209,14 @@ export class PurchaseEncoded {
       return;
     }
 
+    // A value may hold more than one id for the same service/type, separated by ","
+    // (see AlbumDetails.AddPurchaseId server-side) - only the primary (first) one is
+    // usable for building a link.
+    const commaIdx = id.indexOf(",");
+    if (commaIdx > 0) {
+      id = id.substring(0, commaIdx);
+    }
+
     const idx = id.indexOf("[");
     if (idx > 0) {
       return id.substring(0, idx);

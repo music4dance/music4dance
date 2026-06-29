@@ -166,6 +166,50 @@ public partial class AlbumDetails
         Purchase[BuildPurchaseKey(pt, ms)] = value;
     }
 
+    // Services (Spotify in particular) periodically reissue a different id for what is
+    // otherwise the same recording/album. Rather than overwrite (and lose) a prior id, multiple
+    // ids for the same service/type are packed into one dictionary value, separated by ','.
+    // Service ids themselves never contain a comma (alphanumeric Spotify/iTunes/Amazon ids).
+    private const char IdSeparator = ',';
+
+    /// <summary>
+    /// Adds <paramref name="value"/> to the (possibly already multi-valued) id slot for this
+    /// service/type, preserving any id(s) already there. No-ops if it's already present.
+    /// Returns true if the stored value changed.
+    /// </summary>
+    public bool AddPurchaseId(PurchaseType pt, ServiceType ms, string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        var ids = GetPurchaseIdentifiers(ms, pt);
+        if (ids.Contains(value))
+        {
+            return false;
+        }
+
+        Purchase ??= [];
+        Purchase[BuildPurchaseKey(pt, ms)] = string.Join(IdSeparator, [.. ids, value]);
+        return true;
+    }
+
+    /// <summary>
+    /// All ids on file for this service/type — usually one, but see <see cref="AddPurchaseId"/>.
+    /// </summary>
+    public IList<string> GetPurchaseIdentifiers(ServiceType ms, PurchaseType pt)
+    {
+        if (Purchase == null ||
+            !Purchase.TryGetValue(MusicService.GetService(ms).BuildPurchaseKey(pt), out var value) ||
+            string.IsNullOrWhiteSpace(value))
+        {
+            return [];
+        }
+
+        return [.. value.Split(IdSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
+    }
+
     public static string BuildPurchaseInfo(PurchaseType pt, ServiceType ms, string value)
     {
         return $"{BuildPurchaseKey(pt, ms)}={value}";
@@ -234,11 +278,10 @@ public partial class AlbumDetails
     public IList<string> GetExtendedPurchaseIds(PurchaseType pt)
     {
         return Purchase != null
-            ? MusicService.GetSearchableServices()
-                .Where(service => Purchase.ContainsKey(BuildPurchaseKey(pt, service.Id)))
-                .Select(
-                    service => $"{service.CID}:{Purchase[BuildPurchaseKey(pt, service.Id)]}")
-                .ToList()
+            ? [.. MusicService.GetSearchableServices()
+                .SelectMany(
+                    service => GetPurchaseIdentifiers(service.Id, pt)
+                        .Select(id => $"{service.CID}:{id}"))]
             : [];
     }
 
@@ -251,11 +294,11 @@ public partial class AlbumDetails
         }
 
         var service = MusicService.GetService(ms);
-        var albumKey = service.BuildPurchaseKey(PurchaseType.Album);
-        var songKey = service.BuildPurchaseKey(PurchaseType.Song);
 
-        _ = Purchase.TryGetValue(albumKey, out var albumInfo);
-        _ = Purchase.TryGetValue(songKey, out var songInfo);
+        // Only the primary (first) id is used to build a clickable link — a multi-valued
+        // slot (see AddPurchaseId) can only ever link to one canonical destination.
+        var albumInfo = GetPurchaseIdentifier(ms, PurchaseType.Album);
+        var songInfo = GetPurchaseIdentifier(ms, PurchaseType.Song);
 
         var link = service.GetPurchaseLink(pt, albumInfo, songInfo);
         return link != null && !string.IsNullOrWhiteSpace(region) &&
@@ -264,16 +307,13 @@ public partial class AlbumDetails
                 : link;
     }
 
+    /// <summary>
+    /// The primary (first) id on file for this service/type. See <see cref="GetPurchaseIdentifiers"/>
+    /// for the full, possibly multi-valued, list.
+    /// </summary>
     public string GetPurchaseIdentifier(ServiceType ms, PurchaseType pt)
     {
-        // Short-circuit if there is no purchase info for this album
-        return Purchase == null
-            ? null
-            : !Purchase.TryGetValue(
-            MusicService.GetService(ms).BuildPurchaseKey(pt),
-            out var value)
-            ? null
-            : value;
+        return GetPurchaseIdentifiers(ms, pt).FirstOrDefault();
     }
 
     public bool PurchaseDiff(Song song, AlbumDetails old)

@@ -4834,9 +4834,8 @@ public class Song : TaggableObject
 
     public ICollection<string> GetPurchaseIds(MusicService service)
     {
-        return Albums.Select(
-                album => album.GetPurchaseIdentifier(service.Id, PurchaseType.Song))
-            .Where(id => id != null)
+        return Albums
+            .SelectMany(album => album.GetPurchaseIdentifiers(service.Id, PurchaseType.Song))
             .ToList();
     }
 

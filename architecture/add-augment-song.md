@@ -177,11 +177,11 @@ via the same code path used elsewhere, the durable property log).
 
 ---
 
-## The One-ID-Per-Album-Per-Service Constraint (and the fix for stale IDs)
+## Multiple IDs Per Album/Service Slot (the fix for stale IDs)
 
 `AlbumDetails.Purchase` is a `Dictionary<string, string>` keyed by service+type (e.g. `"SS"` =
-Spotify Song) — **one value per key**. `UpdateMusicServicePurchase`
-([MusicServiceManager.cs:344](../m4d/Utilities/MusicServiceManager.cs#L344)) used to do:
+Spotify Song). `UpdateMusicServicePurchase`
+([MusicServiceManager.cs:332](../m4d/Utilities/MusicServiceManager.cs#L332)) used to do:
 
 ```csharp
 var old = ad.GetPurchaseIdentifier(service.Id, pt);
@@ -190,37 +190,80 @@ ad.SetPurchaseInfo(pt, service.Id, trackId);            // otherwise: set (overw
 ```
 
 Services — Spotify in particular — periodically reissue a *different* track ID for what is, as
-far as the catalog cares, the same recording (same title/artist/album/track number). Before the
-fix below, `Song.FindAlbum` would still match that existing album (it matches on album name/track
-number, not on the service ID), and `UpdateMusicServicePurchase` would silently **overwrite** the
-already-stored ID with the new one — losing the old ID rather than accumulating both. The
-practical symptom: a playlist built from the *old* ID would eventually stop matching after the
-*new* ID overwrote it, even though the song was otherwise correctly enriched.
+far as the catalog cares, the same recording (same title/artist/album/track number). `Song.FindAlbum`
+still matches that existing album (it matches on album name/track number, not on the service ID),
+and `UpdateMusicServicePurchase` would silently **overwrite** the already-stored ID with the new
+one — losing the old ID rather than accumulating both. The practical symptom: a playlist built
+from the *old* ID would eventually stop matching after the *new* ID overwrote it, even though the
+song was otherwise correctly enriched.
 
-The fix (`UpdateMusicService`,
-[MusicServiceManager.cs:260](../m4d/Utilities/MusicServiceManager.cs#L260)): before reusing a
-matched album, check whether it already carries a *different*, non-empty ID for this exact
-service+type:
+**First attempt (rejected)**: force a *new* `AlbumDetails` entry whenever the matched album already
+carried a conflicting ID, so the old and new IDs each got their own slot. This worked, but it's
+user-visible: the song-details page would then show what looks like two copies of the same album,
+and every per-album field (`Album`, `Track`, `Publisher` — currently small, but the catalog is
+expected to grow this set, e.g. label, on-album title, release date) gets duplicated right along
+with it.
 
-```csharp
-var ad = song.FindAlbum(album, trackNum);
-if (ad != null && HasConflictingPurchase(ad, service, PurchaseType.Song, trackId))
-{
-    ad = null;   // force the "new album" branch below instead of reusing this one
-}
-```
+**Shipped fix**: keep one `AlbumDetails` entry per real album, and let a single `Purchase`
+dictionary *value* hold more than one ID for the same service+type, comma-separated (service IDs
+themselves — Spotify/iTunes/Amazon — are alphanumeric and never contain a comma, so this is a safe
+in-band separator; SongProperty values otherwise only reserve `\t`, `\r\n`, and `=`, see
+`SongProperty.ToString`/`SongProperty(string,string)`). `AlbumDetails`
+([AlbumDetails.cs](../m4dModels/AlbumDetails.cs)) gained:
 
-When there's a conflict, the code falls through to the "no album matched" branch and creates a
-**new** `AlbumDetails` entry (own `Index`, own `Purchase` dict) carrying just the new ID. Both the
-old and new IDs now live in `song.Albums` (in different entries) and both show up in
-`Song.GetExtendedPurchaseIds()` / the Azure `ServiceIds` field (which aggregates **all** albums —
-see `SongIndex`'s document-build step), so either ID will match this song from then on. No data is
-lost, and no separate re-validation pass is required — this self-heals the next time anyone
-augments/looks up the song under the new ID, e.g. via the playlist viewer's "Add" button
-([[song-search-results]]).
+| Member | Role |
+| --- | --- |
+| `AddPurchaseId(pt, ms, value)` | Appends `value` to the slot if not already present (no-op if it already is). Used in place of the old unconditional `SetPurchaseInfo` call inside `UpdateMusicServicePurchase`. |
+| `GetPurchaseIdentifiers(ms, pt)` | Full, possibly multi-valued, list of IDs for a slot. |
+| `GetPurchaseIdentifier(ms, pt)` | Unchanged signature — now just the **primary** (first) ID, for every caller that only ever needed one (equality checks, link-building). |
+| `GetPurchaseLink(ms, pt, region)` | Builds the clickable purchase link from the primary ID only — a multi-valued slot can only ever resolve to one canonical URL. |
+| `GetExtendedPurchaseIds(pt)` | Flattens a multi-valued slot into multiple `"{CID}:{id}"` entries instead of one, so every ID still lands in `Song.GetExtendedPurchaseIds()` / the Azure `ServiceIds` field. |
 
-This only guards `PurchaseType.Song` (the reported case); `PurchaseType.Album` (`collectionId`)
-isn't covered by the same check yet — see Known Gaps.
+`Song.GetPurchaseIds(MusicService)` (used directly by the playlist viewer's track-order matching,
+[[song-search-results]]) was updated to flatten via `GetPurchaseIdentifiers` too, so a song with two
+Spotify IDs on the same album now matches a playlist built from *either* one.
+
+No data is lost, no UI duplication, and no separate re-validation pass is required — this
+self-heals the next time anyone augments/looks up the song under the new ID, e.g. via the playlist
+viewer's "Add" button.
+
+### Knock-on fix: `CleanBrokenServices`
+
+The admin link-health batch job (`BatchCleanService` type `B`,
+[SongController.cs:1882](../m4d/Controllers/SongController.cs#L1882)) tests each purchase link and
+deletes the backing `SongProperty` outright when the link 404s. Against a multi-valued slot that
+would have deleted *both* IDs whenever the primary one went dead, even if the sibling was still
+good. Fixed via a new `RemoveDeadPurchaseId` helper that strips just the dead ID and keeps any
+siblings, only queuing the whole property for removal once nothing is left. (It also incidentally
+fixes a latent imprecision in the old matching — `Value.StartsWith(link.SongId)` — which could
+match a *longer* ID with the right prefix; the new version splits and compares exact elements.)
+
+### Client-side awareness
+
+The song-details page doesn't reconstruct purchase links from a resolved `PurchaseLink` model —
+it replays the raw `SongHistory` property log itself (`Song.ts`'s `buildAlbumInfo`) into a
+`PurchaseEncoded` client model (`Purchase.ts`) holding the very same raw, possibly multi-valued
+strings (`ss`, `sa`, `is`, `ia`, `as`, `aa`). `PurchaseEncoded.cleanId` was updated to also truncate
+at the first comma (in addition to its existing `[`-truncation for legacy annotations) before
+building a Spotify/iTunes/Amazon link — same "primary ID only" rule as the server.
+
+### Residual gaps from this approach
+
+- `TrackList.vue`'s "not already added" filter (an editing-page admin tool that suggests
+  service tracks not yet linked to the song) compares a *prospective* track's ID against only the
+  *primary* ID of each album's purchase slot. A track matching a secondary ID would incorrectly
+  still show up as "not yet added" — purely cosmetic (clicking "Add" on it again is a safe no-op
+  server-side, just a redundant suggestion).
+- `SpotifySongProperties`/`UpdateSpotifyGenre` (genre-tag enrichment,
+  [SongController.cs:1872](../m4d/Controllers/SongController.cs#L1872)) passes a `Purchase:*:SS`
+  property's raw value straight to the Spotify track-lookup API. For a multi-valued slot that's a
+  malformed ID (the joined string), so that album's genre enrichment is silently skipped rather
+  than looking up either ID individually — a missed enrichment, not a correctness issue.
+- `MusicServiceManager.MatchSongAndService`'s "reconstruct existing IDs" loop looks up which album
+  an existing ID belongs to via `GetPurchaseIdentifier` (primary only); for a secondary ID this
+  album lookup misses, so the synthetic `ServiceTrack` it builds for that ID has no
+  `Album`/`TrackNumber`/`CollectionId` — the ID itself is still correct, just without that extra
+  context.
 
 ---
 
@@ -246,9 +289,9 @@ ID is enough to trigger it (and persist it), because `ServiceTrackController.Get
 
 ## Known Gaps / Future Work
 
-- **`PurchaseType.Album` (`collectionId`) conflicts** aren't guarded the same way `Song` IDs are —
-  an album-id reissue on an already-matched album would still overwrite. Same fix shape would
-  apply if this turns out to matter in practice.
+- See "Residual gaps from this approach" above for the small, low-severity imprecisions the
+  multi-ID-per-slot design introduced (all involve a *secondary* ID being treated as absent by a
+  handful of call sites that only ever look at the primary one).
 - **No proactive re-validation**: stale IDs are only fixed reactively, when someone happens to
   augment/look up the song under its new ID (e.g. via the playlist viewer's unmatched-song "Add"
   flow). There's no background job that re-checks existing catalog IDs against the service for
@@ -275,8 +318,11 @@ ID is enough to trigger it (and persist it), because `ServiceTrackController.Get
 | `m4d/APIControllers/ServiceTrackController.cs` | By-ID lookup + side-effecting create/merge |
 | `m4d/APIControllers/MusicServiceController.cs` | By-title/artist search against a service's own catalog |
 | `m4d/APIControllers/SongController.cs` | Catalog title/artist search; PATCH/PUT/POST save endpoints |
-| `m4d/Utilities/MusicServiceManager.cs` | `CreateSong`, `UpdateSongAndServices`, `UpdateFromTracks`, `UpdateMusicService`, `UpdateMusicServicePurchase`/`HasConflictingPurchase` |
-| `m4dModels/Song.cs` | `UserCreateFromTrack`, `CreateFromTrack`, `FindAlbum`, `Edit`/`EditCore` |
-| `m4dModels/AlbumDetails.cs` | `Purchase` dictionary, `PurchaseDiff`/`ModifyInfo`/`CreateProperties` |
+| `m4d/Utilities/MusicServiceManager.cs` | `CreateSong`, `UpdateSongAndServices`, `UpdateFromTracks`, `UpdateMusicService`, `UpdateMusicServicePurchase` |
+| `m4dModels/Song.cs` | `UserCreateFromTrack`, `CreateFromTrack`, `FindAlbum`, `Edit`/`EditCore`, `GetPurchaseIds` |
+| `m4dModels/AlbumDetails.cs` | `Purchase` dictionary, `AddPurchaseId`/`GetPurchaseIdentifiers`/`GetPurchaseIdentifier`, `PurchaseDiff`/`ModifyInfo`/`CreateProperties` |
 | `m4dModels/SongIndex.cs` | `GetSongFromService`, `FindMatchingSong`, `EditSong` overloads, `SaveSong` |
+| `m4d/Controllers/SongController.cs` | `CleanBrokenServices`/`RemoveDeadPurchaseId` (admin link-health batch job) |
 | `m4d/ClientApp/src/models/SongEditor.ts` | Client-side save (`saveChanges`/`create`) |
+| `m4d/ClientApp/src/models/Purchase.ts` | `PurchaseEncoded`/`cleanId` — primary-ID extraction for purchase links |
+| `m4d/ClientApp/src/models/Song.ts` | `buildAlbumInfo` — replays raw `Purchase:NN:XY` properties into `PurchaseEncoded` |

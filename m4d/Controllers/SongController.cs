@@ -1882,6 +1882,7 @@ public class SongController : ContentController
     private async Task<bool> CleanBrokenServices(Song song, ICollection<SongProperty> props)
     {
         var del = new List<SongProperty>();
+        var changed = false;
 
         foreach (var link in song.GetPurchaseLinks())
         {
@@ -1890,27 +1891,8 @@ public class SongController : ContentController
                 using var response = await HttpClient.GetAsync(link.Link);
                 if (!response.IsSuccessStatusCode)
                 {
-                    if (!string.IsNullOrWhiteSpace(link.SongId))
-                    {
-                        var t = props.FirstOrDefault(
-                            p => p.Name.StartsWith("Purchase") && p.Name.EndsWith('S') &&
-                                p.Value.StartsWith(link.SongId));
-                        if (t != null)
-                        {
-                            del.Add(t);
-                        }
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(link.AlbumId))
-                    {
-                        var t = props.FirstOrDefault(
-                            p => p.Name.StartsWith("Purchase") && p.Name.EndsWith('A') &&
-                                p.Value.StartsWith(link.AlbumId));
-                        if (t != null)
-                        {
-                            del.Add(t);
-                        }
-                    }
+                    changed |= RemoveDeadPurchaseId(props, del, 'S', link.SongId);
+                    changed |= RemoveDeadPurchaseId(props, del, 'A', link.AlbumId);
 
                     Logger.LogInformation($"Removing: {link.Link}");
                 }
@@ -1921,7 +1903,7 @@ public class SongController : ContentController
             }
         }
 
-        if (del.Count == 0)
+        if (!changed)
         {
             return false;
         }
@@ -1931,6 +1913,42 @@ public class SongController : ContentController
         foreach (var prop in del)
         {
             _ = props.Remove(prop);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Removes <paramref name="deadId"/> from a "Purchase...:{suffix}" property. A property's
+    /// value may hold more than one id for the same service/type (see
+    /// <see cref="AlbumDetails.AddPurchaseId"/>), so this strips out just the dead one and keeps
+    /// any siblings — only queuing the whole property for removal (via <paramref name="del"/>)
+    /// once nothing is left.
+    /// </summary>
+    internal static bool RemoveDeadPurchaseId(ICollection<SongProperty> props,
+        ICollection<SongProperty> del, char suffix, string deadId)
+    {
+        if (string.IsNullOrWhiteSpace(deadId))
+        {
+            return false;
+        }
+
+        var t = props.FirstOrDefault(
+            p => p.Name.StartsWith("Purchase") && p.Name.EndsWith(suffix) &&
+                p.Value.Split(',').Contains(deadId));
+        if (t == null)
+        {
+            return false;
+        }
+
+        var remaining = t.Value.Split(',').Where(idVal => idVal != deadId).ToArray();
+        if (remaining.Length == 0)
+        {
+            del.Add(t);
+        }
+        else
+        {
+            t.Value = string.Join(",", remaining);
         }
 
         return true;
