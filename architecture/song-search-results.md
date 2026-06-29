@@ -60,35 +60,17 @@ Action (mutates Filter) → DoAzureSearch() → SongSearch.Search() → FormatRe
 - Catches `InvalidOperationException` search-service errors and degrades to an empty result list
   rather than throwing.
 
-### `SongSearch.Search()` — [SongSearch.cs:30](../m4d/Services/SongSearch.cs#L30)
+### `SongSearch.Search()` — the next layer down
 
-This is the shared brains behind every filter-driven search:
+`DoAzureSearch` hands off to `SongSearch.Search()` for the actual query: premium gating, resolving
+`Filter.UserQuery` (identity vs. named user vs. vote query, with anonymize/deanonymize on either
+side), building the Azure `SearchOptions`, firing the fire-and-forget `LogSearch` analytics write
+(see [[saved-searches]]), and dispatching to either a direct `SongIndex.Search` call or the
+in-memory `VoteSearch`/`PostSearch` post-filter path (used when vote data — unfilterable in the
+Azure schema — has to be checked song-by-song after streaming candidates via `StreamAll`).
 
-- Enforces the premium gate: `Filter.Level` (bonus content) requires `IsPremium`, else
-  `RedirectException("RequiresPremium")`.
-- Resolves `Filter.UserQuery` (identity vs. named user vs. vote query):
-  - `IsIdentity` (e.g. "me") → resolves to the current user, or redirects to login if anonymous.
-  - A different named user → anonymizes the filter via `UserMapper.AnonymizeFilter` unless the
-    caller `isAdmin` (admins can view any user's filter as-is).
-- Builds Azure `SearchOptions` via `SongIndex.AzureParmsFromFilter`, after
-  `UserMapper.DeanonymizeFilter` resolves anonymized user tokens back to real user IDs server-side.
-- Fires `LogSearch()` — a fire-and-forget background task (`IBackgroundTaskQueue`) that
-  upserts a `Searches` row (query string + count + most-recent-page) for analytics, skipped for
-  empty-user or `customsearch` filters or when the DB is unhealthy. See also [[saved-searches]].
-- Dispatches to one of three search strategies:
-  | Condition | Strategy |
-  | --- | --- |
-  | `UserQuery.IsVoted` and dances selected | `VoteSearch` — see below |
-  | default | `SongIndex.Search(SearchString, options, CruftFilter)` — direct Azure query |
-
-- `VoteSearch` / `EditedBySearch` both call the private `PostSearch`, which streams **all** matching
-  songs from Azure via `SongIndex.StreamAll` (1000-row pages) and applies an in-memory predicate
-  (vote sign per dance, or edited-by-user-in-date-range) before paging the filtered list itself.
-  This is necessary because vote/edit-attribution isn't filterable in the Azure index schema, but it
-  means these queries can't use Azure's `IncludeTotalCount`/native paging — cost scales with total
-  matching-filter corpus size, not page size.
-- Any Azure client error is caught and degraded to an empty `SearchResults` (rather than bubbling up
-  to a 500), and marks `ServiceHealth` unavailable so subsequent requests short-circuit faster.
+**Full writeup**: [[song-search-service]] — covers `Search()` step-by-step, `VoteSearch`,
+`EditedBySearch`, the shared `PostSearch`/`StreamAll` mechanics, `Page()`, and `LogSearch`.
 
 ### `FormatResults()` / `FormatSongList()` — [SongController.cs:235](../m4d/Controllers/SongController.cs#L235)
 
