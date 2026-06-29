@@ -146,14 +146,23 @@ public class SongController : ContentController
                 $"Playlist {id} doesn't exist or is empty.");
         }
 
+        var canAddSongs = Identity.IsAuthenticated;
+        var matchLimit = MatchLimitForSubscription(await GetSubscriptionLevel());
+
+        // Matching costs an Azure Search round-trip sized to the number of tracks in the
+        // filter, so only check as many playlist tracks (in playlist order) as this viewer's
+        // subscription tier will actually display, rather than matching the whole playlist
+        // and discarding the rest.
+        var candidateTracks = playlist.Tracks.Take(matchLimit).ToList();
+
         var filter =
-            $"ServiceIds/any(id: search.in(id, '{string.Join(',', playlist.Tracks.Select(t => $"S:{t.TrackId}"))}'))";
+            $"ServiceIds/any(id: search.in(id, '{string.Join(',', candidateTracks.Select(t => $"S:{t.TrackId}"))}'))";
         var options = new SearchOptions
         {
             QueryType = SearchQueryType.Full,
             SearchMode = SearchMode.All,
             Filter = filter,
-            Size = 1000,
+            Size = matchLimit,
             IncludeTotalCount = true,
         };
 
@@ -165,7 +174,7 @@ public class SongController : ContentController
             // tracking which playlist track (if any) each song matched so we can report
             // the leftover, catalog-unmatched tracks below.
 
-            var trackOrder = playlist.Tracks
+            var trackOrder = candidateTracks
                 .Select((t, i) => new { t.TrackId, Index = i })
                 .ToDictionary(x => x.TrackId, x => x.Index);
 
@@ -183,12 +192,8 @@ public class SongController : ContentController
                 .Select(x => x.spotifyId)
                 .ToHashSet();
 
-            var canAddSongs = Identity.IsAuthenticated;
-            var matchLimit = MatchLimitForSubscription(await GetSubscriptionLevel());
-            var shown = sorted.Select(x => x.song).Take(matchLimit).ToList();
-
             var unmatched = canAddSongs
-                ? playlist.Tracks
+                ? candidateTracks
                     .Where(t => !matchedTrackIds.Contains(t.TrackId))
                     .Select(t => new UnmatchedTrack { Title = t.Name, Artist = t.Artist, TrackId = t.TrackId })
                     .ToList()
@@ -197,12 +202,13 @@ public class SongController : ContentController
             var model = new PlaylistViewerModel
             {
                 Id = id,
-                Histories = await AnonymizeSongs(shown),
+                Histories = await AnonymizeSongs(sorted.Select(x => x.song).ToList()),
                 Name = playlist.Name,
                 Description = playlist.Description,
                 OwnerId = playlist.OwnerId,
                 OwnerName = playlist.OwnerName,
                 TotalCount = playlist.Tracks.Count(),
+                CheckedCount = candidateTracks.Count,
                 MatchedCount = sorted.Count,
                 CanAddSongs = canAddSongs,
                 Unmatched = unmatched

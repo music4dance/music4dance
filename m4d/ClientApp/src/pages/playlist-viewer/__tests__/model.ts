@@ -4396,17 +4396,19 @@ export const model = {
   ownerId: "ebo1rk39vp51kkyjps45eobph",
   ownerName: "music4dance",
   totalCount: 8,
+  checkedCount: 8,
   matchedCount: 8,
   canAddSongs: false,
   unmatched: [],
 };
 
-// Variant exercising the subscription-tier upsell alert (fewer histories than matchedCount)
-// and the signed-in "add unmatched songs" table.
+// Variant exercising the subscription-tier upsell alert (checkedCount < totalCount)
+// and the signed-in "add unmatched songs" table (matchedCount < checkedCount).
 export const limitedModelWithUnmatched = {
   ...model,
   totalCount: 11,
-  matchedCount: 9,
+  checkedCount: 9,
+  matchedCount: 8,
   canAddSongs: true,
   unmatched: [
     { title: "Come Fly with Me", artist: "Frank Sinatra", trackId: "1A2B3C4D5E6F7G8H9I0J1K" },

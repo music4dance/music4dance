@@ -11,6 +11,7 @@ export class PlaylistViewerModel {
   @jsonMember(String) public ownerId!: string;
   @jsonMember(String) public ownerName!: string;
   @jsonMember(Number) public totalCount!: number;
+  @jsonMember(Number) public checkedCount!: number;
   @jsonMember(Number) public matchedCount!: number;
   @jsonMember(Boolean) public canAddSongs!: boolean;
   @jsonArrayMember(UnmatchedTrack) public unmatched!: UnmatchedTrack[];

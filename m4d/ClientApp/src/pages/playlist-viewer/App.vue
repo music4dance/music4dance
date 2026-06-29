@@ -11,10 +11,10 @@ const hiddenColumns = ["length", "track"];
 const userLink = `https://open.spotify.com/user/${model.ownerId}`;
 const playlistLink = `https://open.spotify.com/playlist/${model.id}`;
 
-// More catalog matches exist than the viewer's subscription tier shows.
-const isLimited = computed(() => model.histories.length < model.matchedCount);
-// Playlist tracks with no catalog match at all (independent of the tier limit above).
-const hasUnmatched = computed(() => model.matchedCount < model.totalCount);
+// We only checked part of the playlist, bounded by the viewer's subscription tier.
+const isPartial = computed(() => model.checkedCount < model.totalCount);
+// Some of the tracks we did check aren't in the catalog yet.
+const hasUnmatched = computed(() => model.matchedCount < model.checkedCount);
 
 const unmatchedFields = [{ key: "title" }, { key: "artist" }, { key: "add", label: "" }];
 
@@ -23,6 +23,21 @@ const addSongLink = (trackId: string): string => `/song/augment?id=${trackId}`;
 
 <template>
   <PageFrame id="app">
+    <BAlert v-if="isPartial" show variant="info"
+      >We checked the first {{ model.checkedCount }} of {{ model.totalCount }} songs in this
+      playlist for music4dance matches. <a href="/Home/Contribute">Upgrade your membership</a> to
+      have us check more. See our
+      <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank"
+        >subscription page</a
+      >
+      for details.</BAlert
+    >
+    <BAlert v-if="hasUnmatched && !model.canAddSongs" show variant="info"
+      >Some of the songs we checked aren't shown because they aren't in the music4dance catalog yet.
+      <a href="/Identity/Account/Login">Sign in</a> to add them yourself, or
+      <a href="https://music4dance.blog/feedback/" target="_blank">contact us</a> if you would like
+      us to support a specific playlist.</BAlert
+    >
     <h1>
       <BLink :href="playlistLink" target="_blank" title="Open in Spotify" underline-opacity="0"
         ><BImg
@@ -43,19 +58,6 @@ const addSongLink = (trackId: string): string => `/song/augment?id=${trackId}`;
     <p>
       by <BLink :href="userLink" target="_blank">{{ model.ownerName }}</BLink>
     </p>
-    <BAlert v-if="isLimited" show variant="info" class="mt-3"
-      >Showing {{ model.histories.length }} of {{ model.matchedCount }} matched songs.
-      <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank"
-        >Upgrade your subscription</a
-      >
-      to see more.</BAlert
-    >
-    <BAlert v-if="hasUnmatched && !model.canAddSongs" show variant="info" class="mt-3"
-      >Some of the songs in the spotify playlist aren't shown because there are no entries in the
-      music4dance catalog. <a href="/Identity/Account/Login">Sign in</a> to add them yourself, or
-      <a href="https://music4dance.blog/feedback/" target="_blank">contact us</a> if you would like
-      us to support a specific playlist.</BAlert
-    >
     <div v-if="hasUnmatched && model.canAddSongs" class="mt-3">
       <h2>Songs Not Yet in the Catalog</h2>
       <p>

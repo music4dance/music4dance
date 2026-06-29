@@ -27,7 +27,11 @@ public class PlaylistViewerModel
     public string OwnerName { get; set; }
     public int TotalCount { get; set; }
 
-    /// <summary>Total catalog matches found, before the subscription-tier display limit is applied.</summary>
+    /// <summary>How many playlist tracks (in playlist order) were actually checked against the
+    /// catalog, bounded by the viewer's subscription-tier limit.</summary>
+    public int CheckedCount { get; set; }
+
+    /// <summary>Catalog matches found among the <see cref="CheckedCount"/> tracks checked.</summary>
     public int MatchedCount { get; set; }
 
     /// <summary>Whether the viewer is signed in and can add unmatched tracks to the catalog.</summary>

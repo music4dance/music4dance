@@ -7,6 +7,8 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
   <div id="body-content" class="container-fluid body-content">
     <div class="mt-2"></div>
     <div>
+      <!--v-if-->
+      <!--v-if-->
       <h1><a class="link-underline link-underline-opacity-0" target="_blank" href="https://open.spotify.com/playlist/4PGMLc2lfy6hsdmyj2rm2x" to="" replace="false" title="Open in Spotify"><img class="b-img" src="/images/icons/spotify-logo.png" loading="eager" alt="Spotify Logo" style="vertical-align: middle;"><span class="ps-2">Nine Sinatra Songs</span></a></h1>
       <p>The songs from the Ballet by Twyla Tharp</p>
       <div data-v-a7ef304f="">
@@ -1513,8 +1515,6 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
       <section id="spotify-player"><iframe src="https://open.spotify.com/embed/playlist/4PGMLc2lfy6hsdmyj2rm2x" frameborder="0" width="300" height="80" allowtransparency="true" allow="encrypted-media"></iframe></section>
       <p> by <a class="" target="_blank" href="https://open.spotify.com/user/ebo1rk39vp51kkyjps45eobph" to="" replace="false">music4dance</a></p>
       <!--v-if-->
-      <!--v-if-->
-      <!--v-if-->
     </div>
   </div>
   <div id="footer-content">
@@ -1533,19 +1533,30 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
   <div id="body-content" class="container-fluid body-content">
     <div class="mt-2"></div>
     <div>
+      <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+        <div class="alert alert-info fade" tabindex="0" style="display: none;">
+          <!---->
+          <div class="d-flex gap-2">
+            <div class="alert-body">We checked the first 9 of 11 songs in this playlist for music4dance matches. <a href="/Home/Contribute">Upgrade your membership</a> to have us check more. See our <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank">subscription page</a> for details.</div>
+            <!---->
+          </div>
+          <!---->
+        </div>
+      </transition-stub>
+      <!--v-if-->
       <h1><a class="link-underline link-underline-opacity-0" target="_blank" href="https://open.spotify.com/playlist/4PGMLc2lfy6hsdmyj2rm2x" to="" replace="false" title="Open in Spotify"><img class="b-img" src="/images/icons/spotify-logo.png" loading="eager" alt="Spotify Logo" style="vertical-align: middle;"><span class="ps-2">Nine Sinatra Songs</span></a></h1>
       <p>The songs from the Ballet by Twyla Tharp</p>
       <div data-v-a7ef304f="">
-        <table data-v-a7ef304f="" id="BootstrapVueNext__ID__v-0__" class="table b-table table-borderless table-hover table-striped" aria-busy="false">
+        <table data-v-a7ef304f="" id="BootstrapVueNext__ID__v-1__" class="table b-table table-borderless table-hover table-striped" aria-busy="false">
           <!---->
           <thead class="">
             <tr class="">
               <th scope="col" class="">
                 <div data-v-a7ef304f="" class="likeHeader">Like/Play</div>
               </th>
-              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" to="" replace="false" id="Title">Title<!--v-if--></a><span id="BootstrapVueNext__ID__v-3__popover____placeholder" style="display: none;"></span>
+              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" to="" replace="false" id="Title">Title<!--v-if--></a><span id="BootstrapVueNext__ID__v-4__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-3__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-4__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <!---->
@@ -1556,9 +1567,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                   </div>
                 </transition-stub></span>
               </th>
-              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" to="" replace="false" id="Artist">Artist<!--v-if--></a><span id="BootstrapVueNext__ID__v-4__popover____placeholder" style="display: none;"></span>
+              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" to="" replace="false" id="Artist">Artist<!--v-if--></a><span id="BootstrapVueNext__ID__v-5__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-4__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-5__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <!---->
@@ -1569,9 +1580,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                   </div>
                 </transition-stub></span>
               </th>
-              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" to="" replace="false" id="Tempo">Tempo (BPM)<!--v-if--></a><span id="BootstrapVueNext__ID__v-5__popover____placeholder" style="display: none;"></span>
+              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" to="" replace="false" id="Tempo">Tempo (BPM)<!--v-if--></a><span id="BootstrapVueNext__ID__v-6__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-5__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-6__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <!---->
@@ -1583,9 +1594,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                 </transition-stub></span>
               </th>
               <th scope="col" class="">
-                <div data-v-a7ef304f="" class="echoHeader"><span data-v-a7ef304f=""><a class="link-underline-light" href="#" to="" replace="false" id="Beat"><img data-v-a7ef304f="" src="/src/assets/images/icons/beat-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-6__popover____placeholder" style="display: none;"></span>
+                <div data-v-a7ef304f="" class="echoHeader"><span data-v-a7ef304f=""><a class="link-underline-light" href="#" to="" replace="false" id="Beat"><img data-v-a7ef304f="" src="/src/assets/images/icons/beat-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-7__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-6__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-7__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <!---->
@@ -1594,9 +1605,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                         </div>
                       </div>
                     </div>
-                  </transition-stub></span><span data-v-a7ef304f=""><a class="link-underline-light" href="#" to="" replace="false" id="Energy"><img data-v-a7ef304f="" src="/src/assets/images/icons/Energy-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-7__popover____placeholder" style="display: none;"></span>
+                  </transition-stub></span><span data-v-a7ef304f=""><a class="link-underline-light" href="#" to="" replace="false" id="Energy"><img data-v-a7ef304f="" src="/src/assets/images/icons/Energy-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-8__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-7__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-8__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <!---->
@@ -1605,9 +1616,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                         </div>
                       </div>
                     </div>
-                  </transition-stub></span><span data-v-a7ef304f=""><a class="link-underline-light" href="#" to="" replace="false" id="Mood"><img data-v-a7ef304f="" src="/src/assets/images/icons/mood-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-8__popover____placeholder" style="display: none;"></span>
+                  </transition-stub></span><span data-v-a7ef304f=""><a class="link-underline-light" href="#" to="" replace="false" id="Mood"><img data-v-a7ef304f="" src="/src/assets/images/icons/mood-10.png" width="25" height="25"><!--v-if--></a><span id="BootstrapVueNext__ID__v-9__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-8__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-9__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <!---->
@@ -1619,9 +1630,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                   </transition-stub></span>
                 </div>
               </th>
-              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" to="" replace="false" id="Dances">Dances<!--v-if--></a><span id="BootstrapVueNext__ID__v-9__popover____placeholder" style="display: none;"></span>
+              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" to="" replace="false" id="Dances">Dances<!--v-if--></a><span id="BootstrapVueNext__ID__v-10__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-9__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-10__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <!---->
@@ -1632,9 +1643,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                   </div>
                 </transition-stub></span>
               </th>
-              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" to="" replace="false" id="Tags">Tags<!--v-if--></a><span id="BootstrapVueNext__ID__v-10__popover____placeholder" style="display: none;"></span>
+              <th scope="col" class=""><span data-v-a7ef304f=""><a class="link-underline-light" href="#" to="" replace="false" id="Tags">Tags<!--v-if--></a><span id="BootstrapVueNext__ID__v-11__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-10__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-11__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <!---->
@@ -1645,9 +1656,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                   </div>
                 </transition-stub></span>
               </th>
-              <th scope="col" class=""><span data-v-a7ef304f="" class="orderHeader"><a class="link-underline-light" href="#" to="" replace="false" id="Order"><svg data-v-a7ef304f="" viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M8 0a1 1 0 0 1 1 1v5.268l4.562-2.634a1 1 0 1 1 1 1.732L10 8l4.562 2.634a1 1 0 1 1-1 1.732L9 9.732V15a1 1 0 1 1-2 0V9.732l-4.562 2.634a1 1 0 1 1-1-1.732L6 8L1.438 5.366a1 1 0 0 1 1-1.732L7 6.268V1a1 1 0 0 1 1-1"></path></svg><!--v-if--></a><span id="BootstrapVueNext__ID__v-11__popover____placeholder" style="display: none;"></span>
+              <th scope="col" class=""><span data-v-a7ef304f="" class="orderHeader"><a class="link-underline-light" href="#" to="" replace="false" id="Order"><svg data-v-a7ef304f="" viewBox="0 0 16 16" width="1.2em" height="1.2em"><path fill="currentColor" d="M8 0a1 1 0 0 1 1 1v5.268l4.562-2.634a1 1 0 1 1 1 1.732L10 8l4.562 2.634a1 1 0 1 1-1 1.732L9 9.732V15a1 1 0 1 1-2 0V9.732l-4.562 2.634a1 1 0 1 1-1-1.732L6 8L1.438 5.366a1 1 0 0 1 1-1.732L7 6.268V1a1 1 0 0 1 1-1"></path></svg><!--v-if--></a><span id="BootstrapVueNext__ID__v-12__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-11__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-12__popover___" class="tooltip b-tooltip fade bs-tooltip-top" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <!---->
@@ -1665,9 +1676,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
             <!---->
             <tr class="">
               <td class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-2b68a13b-2e35-46d9-acaa-41cd50d2b3f2" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-12__popover____placeholder" style="display: none;"></span>
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-2b68a13b-2e35-46d9-acaa-41cd50d2b3f2" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-13__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-12__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-13__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -1694,9 +1705,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                     </svg></a></div>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000025" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-13__popover____placeholder" style="display: none;"></span>
+                <!----><a data-v-a7ef304f="" id="__m4d__000025" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-14__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-13__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-14__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.28 where 1.00 is the strongest beat.</div>
@@ -1704,9 +1715,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000026" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-4.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-14__popover____placeholder" style="display: none;"></span>
+                </a><a data-v-a7ef304f="" id="__m4d__000026" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-4.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-15__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-14__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-15__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.34 where 1.00 is the highest energy.</div>
@@ -1714,9 +1725,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000027" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-4.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-15__popover____placeholder" style="display: none;"></span>
+                </a><a data-v-a7ef304f="" id="__m4d__000027" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-4.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-16__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-15__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-16__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.34 where 1.00 is the happiest.</div>
@@ -1811,9 +1822,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                 </button>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" to="" replace="false" id="order_tip__2b68a13b-2e35-46d9-acaa-41cd50d2b3f2">M</a><span id="BootstrapVueNext__ID__v-16__popover____placeholder" style="display: none;"></span>
+                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" to="" replace="false" id="order_tip__2b68a13b-2e35-46d9-acaa-41cd50d2b3f2">M</a><span id="BootstrapVueNext__ID__v-17__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-16__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-17__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <!---->
@@ -1826,9 +1837,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
             <!---->
             <tr class="">
               <td class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-f1dce40d-142f-404a-818f-5f5fc71a9330" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-17__popover____placeholder" style="display: none;"></span>
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-f1dce40d-142f-404a-818f-5f5fc71a9330" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-18__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-17__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-18__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -1852,9 +1863,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                 </div>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000028" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-18__popover____placeholder" style="display: none;"></span>
+                <!----><a data-v-a7ef304f="" id="__m4d__000028" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-19__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-18__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-19__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.27 where 1.00 is the strongest beat.</div>
@@ -1862,9 +1873,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000029" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-19__popover____placeholder" style="display: none;"></span>
+                </a><a data-v-a7ef304f="" id="__m4d__000029" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-20__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-19__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-20__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.48 where 1.00 is the highest energy.</div>
@@ -1872,9 +1883,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000030" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-20__popover____placeholder" style="display: none;"></span>
+                </a><a data-v-a7ef304f="" id="__m4d__000030" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-21__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-20__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-21__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.56 where 1.00 is the happiest.</div>
@@ -1990,9 +2001,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                 </button>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" to="" replace="false" id="order_tip__f1dce40d-142f-404a-818f-5f5fc71a9330">M</a><span id="BootstrapVueNext__ID__v-21__popover____placeholder" style="display: none;"></span>
+                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" to="" replace="false" id="order_tip__f1dce40d-142f-404a-818f-5f5fc71a9330">M</a><span id="BootstrapVueNext__ID__v-22__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-21__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-22__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <!---->
@@ -2005,9 +2016,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
             <!---->
             <tr class="">
               <td class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-3ccfb240-fa9c-4bee-864c-d3fadce1e93d" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-22__popover____placeholder" style="display: none;"></span>
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-3ccfb240-fa9c-4bee-864c-d3fadce1e93d" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-23__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-22__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-23__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -2031,9 +2042,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                 </div>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000031" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-23__popover____placeholder" style="display: none;"></span>
+                <!----><a data-v-a7ef304f="" id="__m4d__000031" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-24__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-23__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-24__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.51 where 1.00 is the strongest beat.</div>
@@ -2041,9 +2052,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000032" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-2.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-24__popover____placeholder" style="display: none;"></span>
+                </a><a data-v-a7ef304f="" id="__m4d__000032" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-2.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-25__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-24__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-25__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.16 where 1.00 is the highest energy.</div>
@@ -2051,9 +2062,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000033" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-25__popover____placeholder" style="display: none;"></span>
+                </a><a data-v-a7ef304f="" id="__m4d__000033" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-26__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-25__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-26__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.44 where 1.00 is the happiest.</div>
@@ -2103,9 +2114,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                 </button>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" to="" replace="false" id="order_tip__3ccfb240-fa9c-4bee-864c-d3fadce1e93d">M</a><span id="BootstrapVueNext__ID__v-26__popover____placeholder" style="display: none;"></span>
+                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" to="" replace="false" id="order_tip__3ccfb240-fa9c-4bee-864c-d3fadce1e93d">M</a><span id="BootstrapVueNext__ID__v-27__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-26__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-27__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <!---->
@@ -2118,9 +2129,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
             <!---->
             <tr class="">
               <td class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-c7a4b10e-7ad7-41e5-8f32-479e6c07deeb" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-27__popover____placeholder" style="display: none;"></span>
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-c7a4b10e-7ad7-41e5-8f32-479e6c07deeb" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-28__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-27__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-28__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -2144,9 +2155,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                 </div>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000034" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-28__popover____placeholder" style="display: none;"></span>
+                <!----><a data-v-a7ef304f="" id="__m4d__000034" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-29__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-28__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-29__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.28 where 1.00 is the strongest beat.</div>
@@ -2154,9 +2165,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000035" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-29__popover____placeholder" style="display: none;"></span>
+                </a><a data-v-a7ef304f="" id="__m4d__000035" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-30__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-29__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-30__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.45 where 1.00 is the highest energy.</div>
@@ -2164,9 +2175,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000036" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-30__popover____placeholder" style="display: none;"></span>
+                </a><a data-v-a7ef304f="" id="__m4d__000036" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-31__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-30__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-31__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.22 where 1.00 is the happiest.</div>
@@ -2344,9 +2355,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                 </button>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" to="" replace="false" id="order_tip__c7a4b10e-7ad7-41e5-8f32-479e6c07deeb">M</a><span id="BootstrapVueNext__ID__v-31__popover____placeholder" style="display: none;"></span>
+                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" to="" replace="false" id="order_tip__c7a4b10e-7ad7-41e5-8f32-479e6c07deeb">M</a><span id="BootstrapVueNext__ID__v-32__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-31__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-32__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <!---->
@@ -2359,9 +2370,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
             <!---->
             <tr class="">
               <td class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-084fd54b-6ca0-467a-926d-d28d2c2ef8f8" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-32__popover____placeholder" style="display: none;"></span>
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-084fd54b-6ca0-467a-926d-d28d2c2ef8f8" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-33__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-32__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-33__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -2388,9 +2399,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                     </svg></a></div>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000037" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-33__popover____placeholder" style="display: none;"></span>
+                <!----><a data-v-a7ef304f="" id="__m4d__000037" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-34__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-33__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-34__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.26 where 1.00 is the strongest beat.</div>
@@ -2398,9 +2409,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000038" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-4.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-34__popover____placeholder" style="display: none;"></span>
+                </a><a data-v-a7ef304f="" id="__m4d__000038" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-4.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-35__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-34__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-35__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.34 where 1.00 is the highest energy.</div>
@@ -2408,9 +2419,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000039" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-35__popover____placeholder" style="display: none;"></span>
+                </a><a data-v-a7ef304f="" id="__m4d__000039" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-36__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-35__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-36__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.54 where 1.00 is the happiest.</div>
@@ -2521,9 +2532,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                 </button>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" to="" replace="false" id="order_tip__084fd54b-6ca0-467a-926d-d28d2c2ef8f8">Y</a><span id="BootstrapVueNext__ID__v-36__popover____placeholder" style="display: none;"></span>
+                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" to="" replace="false" id="order_tip__084fd54b-6ca0-467a-926d-d28d2c2ef8f8">Y</a><span id="BootstrapVueNext__ID__v-37__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-36__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-37__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <!---->
@@ -2536,9 +2547,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
             <!---->
             <tr class="">
               <td class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-45b88f9c-0536-4868-9061-eeb515975420" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-37__popover____placeholder" style="display: none;"></span>
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-45b88f9c-0536-4868-9061-eeb515975420" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-38__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-37__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-38__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -2565,9 +2576,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                     </svg></a></div>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000040" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-2.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-38__popover____placeholder" style="display: none;"></span>
+                <!----><a data-v-a7ef304f="" id="__m4d__000040" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-2.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-39__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-38__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-39__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.20 where 1.00 is the strongest beat.</div>
@@ -2575,9 +2586,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000041" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-39__popover____placeholder" style="display: none;"></span>
+                </a><a data-v-a7ef304f="" id="__m4d__000041" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-40__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-39__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-40__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.28 where 1.00 is the highest energy.</div>
@@ -2585,9 +2596,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000042" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-40__popover____placeholder" style="display: none;"></span>
+                </a><a data-v-a7ef304f="" id="__m4d__000042" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-3.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-41__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-40__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-41__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.20 where 1.00 is the happiest.</div>
@@ -2726,9 +2737,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                 </button>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" to="" replace="false" id="order_tip__45b88f9c-0536-4868-9061-eeb515975420">M</a><span id="BootstrapVueNext__ID__v-41__popover____placeholder" style="display: none;"></span>
+                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" to="" replace="false" id="order_tip__45b88f9c-0536-4868-9061-eeb515975420">M</a><span id="BootstrapVueNext__ID__v-42__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-41__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-42__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <!---->
@@ -2741,9 +2752,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
             <!---->
             <tr class="">
               <td class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-c367c1de-2192-4123-95f8-f3485e93b71f" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-42__popover____placeholder" style="display: none;"></span>
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-c367c1de-2192-4123-95f8-f3485e93b71f" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-43__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-42__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-43__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -2770,9 +2781,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                     </svg></a></div>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000043" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-8.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-43__popover____placeholder" style="display: none;"></span>
+                <!----><a data-v-a7ef304f="" id="__m4d__000043" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-8.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-44__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-43__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-44__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.72 where 1.00 is the strongest beat.</div>
@@ -2780,9 +2791,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000044" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-44__popover____placeholder" style="display: none;"></span>
+                </a><a data-v-a7ef304f="" id="__m4d__000044" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-45__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-44__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-45__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.43 where 1.00 is the highest energy.</div>
@@ -2790,9 +2801,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000045" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-8.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-45__popover____placeholder" style="display: none;"></span>
+                </a><a data-v-a7ef304f="" id="__m4d__000045" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-8.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-46__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-45__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-46__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.78 where 1.00 is the happiest.</div>
@@ -2858,9 +2869,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                 </button>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" to="" replace="false" id="order_tip__c367c1de-2192-4123-95f8-f3485e93b71f">M</a><span id="BootstrapVueNext__ID__v-46__popover____placeholder" style="display: none;"></span>
+                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" to="" replace="false" id="order_tip__c367c1de-2192-4123-95f8-f3485e93b71f">M</a><span id="BootstrapVueNext__ID__v-47__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-46__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-47__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <!---->
@@ -2873,9 +2884,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
             <!---->
             <tr class="">
               <td class="">
-                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-0249be9e-3b55-4470-b8dc-4e654e1bda1d" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-47__popover____placeholder" style="display: none;"></span>
+                <!----><span data-v-a7ef304f=""><!--v-if--><span><a id="like-button-0249be9e-3b55-4470-b8dc-4e654e1bda1d" href="#" role="button"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em" style="color: black; font-size: 1.5em;"><path fill="currentColor" d="m8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385c.92 1.815 2.834 3.989 6.286 6.357c3.452-2.368 5.365-4.542 6.286-6.357c.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"></path></svg></a><span id="BootstrapVueNext__ID__v-48__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-47__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-48__popover___" triggers="hover" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <div class="position-sticky top-0 tooltip-inner">Log in to like/dislike this song.</div>
@@ -2899,9 +2910,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                 </div>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" id="__m4d__000046" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-48__popover____placeholder" style="display: none;"></span>
+                <!----><a data-v-a7ef304f="" id="__m4d__000046" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#beat" target="_blank"><img src="/images/icons/beat-5.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-49__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-48__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-49__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a beat strength of 0.46 where 1.00 is the strongest beat.</div>
@@ -2909,9 +2920,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000047" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-49__popover____placeholder" style="display: none;"></span>
+                </a><a data-v-a7ef304f="" id="__m4d__000047" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#energy" target="_blank"><img src="/images/icons/energy-7.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-50__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-49__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-50__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a energy level of 0.69 where 1.00 is the highest energy.</div>
@@ -2919,9 +2930,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                       </div>
                     </div>
                   </transition-stub>
-                </a><a data-v-a7ef304f="" id="__m4d__000048" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-50__popover____placeholder" style="display: none;"></span>
+                </a><a data-v-a7ef304f="" id="__m4d__000048" href="https://music4dance.blog/music4dance-help/playing-or-purchasing-songs/echonest/#mood" target="_blank"><img src="/images/icons/mood-6.png" width="25" height="25"><span id="BootstrapVueNext__ID__v-51__popover____placeholder" style="display: none;"></span>
                   <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                    <div id="BootstrapVueNext__ID__v-50__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                    <div id="BootstrapVueNext__ID__v-51__popover___" triggers="hover click blur" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                       <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                       <div class="overflow-auto b-floating-size">
                         <div class="position-sticky top-0 tooltip-inner">This song has a mood level of 0.58 where 1.00 is the happiest.</div>
@@ -3005,9 +3016,9 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                 </button>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" to="" replace="false" id="order_tip__0249be9e-3b55-4470-b8dc-4e654e1bda1d">Y</a><span id="BootstrapVueNext__ID__v-51__popover____placeholder" style="display: none;"></span>
+                <!----><a data-v-a7ef304f="" class="link-underline-light" href="#" to="" replace="false" id="order_tip__0249be9e-3b55-4470-b8dc-4e654e1bda1d">Y</a><span id="BootstrapVueNext__ID__v-52__popover____placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
-                  <div id="BootstrapVueNext__ID__v-51__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
+                  <div id="BootstrapVueNext__ID__v-52__popover___" auto-hide="false" class="tooltip b-tooltip fade bs-tooltip-start" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
                     <div class="overflow-auto b-floating-size">
                       <!---->
@@ -3038,17 +3049,6 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
       </div>
       <section id="spotify-player"><iframe src="https://open.spotify.com/embed/playlist/4PGMLc2lfy6hsdmyj2rm2x" frameborder="0" width="300" height="80" allowtransparency="true" allow="encrypted-media"></iframe></section>
       <p> by <a class="" target="_blank" href="https://open.spotify.com/user/ebo1rk39vp51kkyjps45eobph" to="" replace="false">music4dance</a></p>
-      <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true" class="mt-3">
-        <div class="alert alert-info fade" tabindex="0" style="display: none;">
-          <!---->
-          <div class="d-flex gap-2">
-            <div class="alert-body">Showing 8 of 9 matched songs. <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank">Upgrade your subscription</a> to see more.</div>
-            <!---->
-          </div>
-          <!---->
-        </div>
-      </transition-stub>
-      <!--v-if-->
       <div class="mt-3">
         <h2>Songs Not Yet in the Catalog</h2>
         <p> These songs from the playlist aren't in music4dance yet — add them so you (and everyone else) can dance to them. </p>
