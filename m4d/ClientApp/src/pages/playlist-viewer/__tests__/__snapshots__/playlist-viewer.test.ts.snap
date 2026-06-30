@@ -1673,9 +1673,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
 </div>"
 `;
 
-exports[
-  `Playlist Viewer > renders a sign-in call to action with returnUrl for anonymous viewers 1`
-] = `
+exports[`Playlist Viewer > renders a sign-in call to action with returnUrl for anonymous viewers 1`] = `
 "<div><span context="[object Object]">MainMenu</span>
   <!--v-if-->
   <!--v-if-->
