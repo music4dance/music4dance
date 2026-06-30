@@ -91,4 +91,45 @@ public class AlbumDetailsTests
         CollectionAssert.AreEqual(
             new[] { "S:oldTrack123", "S:newTrack456" }, (System.Collections.ICollection)ids);
     }
+
+    [TestMethod]
+    public void PurchaseDiff_SlotUnchanged_ReturnsFalse()
+    {
+        var old = new AlbumDetails { Name = "Album", Track = 1, Index = 0 };
+        _ = old.AddPurchaseId(PurchaseType.Song, ServiceType.Spotify, "track123");
+
+        var edit = new AlbumDetails { Name = "Album", Track = 1, Index = 0 };
+        _ = edit.AddPurchaseId(PurchaseType.Song, ServiceType.Spotify, "track123");
+
+        var song = new Song();
+
+        var modified = edit.PurchaseDiff(song, old);
+
+        Assert.IsFalse(modified);
+        Assert.AreEqual(0, song.SongProperties.Count);
+    }
+
+    [TestMethod]
+    public void PurchaseDiff_AccumulatedIdOnExistingSlot_EmitsChangeAndReturnsTrue()
+    {
+        // Regression test for the bug where !string.Equals(value, value) was always false,
+        // so adding a second ID via AddPurchaseId never produced a SongProperty update —
+        // meaning the new ID never reached the Azure ServiceIds field.
+        var old = new AlbumDetails { Name = "Album", Track = 1, Index = 0 };
+        _ = old.AddPurchaseId(PurchaseType.Song, ServiceType.Spotify, "oldTrack123");
+
+        var edit = new AlbumDetails { Name = "Album", Track = 1, Index = 0 };
+        _ = edit.AddPurchaseId(PurchaseType.Song, ServiceType.Spotify, "oldTrack123");
+        _ = edit.AddPurchaseId(PurchaseType.Song, ServiceType.Spotify, "newTrack456");
+
+        var song = new Song();
+
+        var modified = edit.PurchaseDiff(song, old);
+
+        Assert.IsTrue(modified);
+        var expectedName = SongProperty.FormatName(Song.PurchaseField, 0, "SS");
+        var prop = song.SongProperties.FirstOrDefault(p => p.Name == expectedName);
+        Assert.IsNotNull(prop, $"Expected a {expectedName} property to be written");
+        Assert.AreEqual("oldTrack123,newTrack456", prop.Value);
+    }
 }

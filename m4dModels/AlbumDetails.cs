@@ -350,13 +350,12 @@ public partial class AlbumDetails
                     song, Index, Song.PurchaseField, key, null,
                     Purchase[key]);
             }
-            else if (old.Purchase != null && old.Purchase.ContainsKey(key) &&
-                    !string.Equals(value, value))
+            else if (!string.Equals(value, Purchase[key]))
             // Change
             {
                 modified |= ChangeProperty(
                     song, Index, Song.PurchaseField, key,
-value, value);
+                    value, Purchase[key]);
             }
         }
 

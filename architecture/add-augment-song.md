@@ -247,6 +247,44 @@ strings (`ss`, `sa`, `is`, `ia`, `as`, `aa`). `PurchaseEncoded.cleanId` was upda
 at the first comma (in addition to its existing `[`-truncation for legacy annotations) before
 building a Spotify/iTunes/Amazon link — same "primary ID only" rule as the server.
 
+### Bug: accumulated IDs were not written to `SongProperties` (now fixed)
+
+The `AddPurchaseId` / comma-separated-value design worked at the in-memory level but had a
+silent gap in the diff path that persists edits to the property log. `AlbumDetails.PurchaseDiff`
+(called by `ModifyInfo` → `EditCore` → `Song.Edit`) contains a "Change" branch that fires when
+a slot's value has mutated:
+
+```csharp
+// Before fix — the condition was always false:
+else if (!string.Equals(value, value))   // comparing the variable to itself!
+{
+    ChangeProperty(song, Index, Song.PurchaseField, key,
+        value, value);                    // and both old/new were the same
+}
+```
+
+Because `!string.Equals(value, value)` is always `false`, the "Change" branch never fired. When
+`UpdateMusicServicePurchase` called `AddPurchaseId` to extend `"oldId"` to `"oldId,newId"` on
+the in-memory `edit` clone, the subsequent `EditSong` diff saw the change in the
+`Purchase` dictionary but never emitted a `SongProperty` for it. The property log (and therefore
+the Azure `ServiceIds` field) stayed at `"oldId"`, so the new ID was not searchable.
+
+**Fix** ([AlbumDetails.cs](../m4dModels/AlbumDetails.cs), `PurchaseDiff`): compare `value`
+(the old slot value from `TryGetValue`) against `Purchase[key]` (the new slot value):
+
+```csharp
+else if (!string.Equals(value, Purchase[key]))
+{
+    ChangeProperty(song, Index, Song.PurchaseField, key,
+        value, Purchase[key]);
+}
+```
+
+Covered by `AlbumDetailsTests.PurchaseDiff_AccumulatedIdOnExistingSlot_EmitsChangeAndReturnsTrue`
+(unit test for `PurchaseDiff` directly) and
+`SongTests.Edit_AccumulatedTrackIdOnExistingAlbum_WritesCombinedIdToSongProperties`
+(integration test through `Song.Edit` → `EditCore` → `ModifyInfo` → `PurchaseDiff`).
+
 ### Residual gaps from this approach
 
 - `TrackList.vue`'s "not already added" filter (an editing-page admin tool that suggests
