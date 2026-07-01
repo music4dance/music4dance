@@ -92,6 +92,117 @@ public class AlbumDetailsTests
             new[] { "S:oldTrack123", "S:newTrack456" }, (System.Collections.ICollection)ids);
     }
 
+    #region AddPurchaseId(string key, string id) overload
+
+    [TestMethod]
+    public void AddPurchaseId_ByKey_FirstId_StoresIt()
+    {
+        var ad = new AlbumDetails();
+
+        var changed = ad.AddPurchaseId("SS", "track123");
+
+        Assert.IsTrue(changed);
+        Assert.AreEqual("track123", ad.GetPurchaseIdentifier(ServiceType.Spotify, PurchaseType.Song));
+    }
+
+    [TestMethod]
+    public void AddPurchaseId_ByKey_DifferentId_AccumulatesBoth()
+    {
+        var ad = new AlbumDetails();
+        _ = ad.AddPurchaseId("SS", "oldTrack123");
+
+        var changed = ad.AddPurchaseId("SS", "newTrack456");
+
+        Assert.IsTrue(changed);
+        CollectionAssert.AreEqual(
+            new[] { "oldTrack123", "newTrack456" },
+            (System.Collections.ICollection)ad.GetPurchaseIdentifiers(ServiceType.Spotify, PurchaseType.Song));
+    }
+
+    [TestMethod]
+    public void AddPurchaseId_ByKey_SameId_NoOp()
+    {
+        var ad = new AlbumDetails();
+        _ = ad.AddPurchaseId("SS", "track123");
+
+        var changed = ad.AddPurchaseId("SS", "track123");
+
+        Assert.IsFalse(changed);
+    }
+
+    [TestMethod]
+    public void AddPurchaseIds_CommaSeparated_AccumulatesAll()
+    {
+        var ad = new AlbumDetails();
+        _ = ad.AddPurchaseId("SS", "existing");
+
+        // Simulate loading a legacy comma-separated SongProperty value
+        var changed = ad.AddPurchaseIds("SS", "existing,newId1,newId2");
+
+        Assert.IsTrue(changed);
+        CollectionAssert.AreEqual(
+            new[] { "existing", "newId1", "newId2" },
+            (System.Collections.ICollection)ad.GetPurchaseIdentifiers(ServiceType.Spotify, PurchaseType.Song));
+    }
+
+    #endregion
+
+    #region RemovePurchaseId
+
+    [TestMethod]
+    public void RemovePurchaseId_ExistingId_RemovesIt()
+    {
+        var ad = new AlbumDetails();
+        _ = ad.AddPurchaseId("SS", "id1");
+        _ = ad.AddPurchaseId("SS", "id2");
+
+        var changed = ad.RemovePurchaseId("SS", "id1");
+
+        Assert.IsTrue(changed);
+        CollectionAssert.AreEqual(
+            new[] { "id2" },
+            (System.Collections.ICollection)ad.GetPurchaseIdentifiers(ServiceType.Spotify, PurchaseType.Song));
+    }
+
+    [TestMethod]
+    public void RemovePurchaseId_OnlyId_ClearsTheSlot()
+    {
+        var ad = new AlbumDetails();
+        _ = ad.AddPurchaseId("SS", "track123");
+
+        var changed = ad.RemovePurchaseId("SS", "track123");
+
+        Assert.IsTrue(changed);
+        Assert.IsNull(ad.GetPurchaseIdentifier(ServiceType.Spotify, PurchaseType.Song));
+        Assert.IsFalse(ad.HasPurchaseInfo);
+    }
+
+    [TestMethod]
+    public void RemovePurchaseId_IdNotPresent_NoOp()
+    {
+        var ad = new AlbumDetails();
+        _ = ad.AddPurchaseId("SS", "track123");
+
+        var changed = ad.RemovePurchaseId("SS", "unknownId");
+
+        Assert.IsFalse(changed);
+        Assert.AreEqual("track123", ad.GetPurchaseIdentifier(ServiceType.Spotify, PurchaseType.Song));
+    }
+
+    [TestMethod]
+    public void RemovePurchaseId_EmptyPurchase_NoOp()
+    {
+        var ad = new AlbumDetails();
+
+        var changed = ad.RemovePurchaseId("SS", "track123");
+
+        Assert.IsFalse(changed);
+    }
+
+    #endregion
+
+    #region PurchaseDiff
+
     [TestMethod]
     public void PurchaseDiff_SlotUnchanged_ReturnsFalse()
     {
@@ -110,11 +221,10 @@ public class AlbumDetailsTests
     }
 
     [TestMethod]
-    public void PurchaseDiff_AccumulatedIdOnExistingSlot_EmitsChangeAndReturnsTrue()
+    public void PurchaseDiff_NewIdAdded_EmitsOnePurchasePropertyForTheNewIdOnly()
     {
-        // Regression test for the bug where !string.Equals(value, value) was always false,
-        // so adding a second ID via AddPurchaseId never produced a SongProperty update —
-        // meaning the new ID never reached the Azure ServiceIds field.
+        // When a second id is accumulated on an existing slot, PurchaseDiff should emit
+        // a single Purchase property carrying just the new id — not a comma-separated blob.
         var old = new AlbumDetails { Name = "Album", Track = 1, Index = 0 };
         _ = old.AddPurchaseId(PurchaseType.Song, ServiceType.Spotify, "oldTrack123");
 
@@ -127,9 +237,138 @@ public class AlbumDetailsTests
         var modified = edit.PurchaseDiff(song, old);
 
         Assert.IsTrue(modified);
-        var expectedName = SongProperty.FormatName(Song.PurchaseField, 0, "SS");
-        var prop = song.SongProperties.FirstOrDefault(p => p.Name == expectedName);
-        Assert.IsNotNull(prop, $"Expected a {expectedName} property to be written");
-        Assert.AreEqual("oldTrack123,newTrack456", prop.Value);
+        var purchaseProps = song.SongProperties
+            .Where(p => p.Name == SongProperty.FormatName(Song.PurchaseField, 0, "SS"))
+            .ToList();
+        Assert.AreEqual(1, purchaseProps.Count, "Expected exactly one Purchase property for the new id");
+        Assert.AreEqual("newTrack456", purchaseProps[0].Value);
     }
+
+    [TestMethod]
+    public void PurchaseDiff_IdRemoved_EmitsSubtractiveProperty()
+    {
+        var old = new AlbumDetails { Name = "Album", Track = 1, Index = 0 };
+        _ = old.AddPurchaseId(PurchaseType.Song, ServiceType.Spotify, "id1");
+        _ = old.AddPurchaseId(PurchaseType.Song, ServiceType.Spotify, "id2");
+
+        // new state has only id2 — id1 was removed
+        var edit = new AlbumDetails { Name = "Album", Track = 1, Index = 0 };
+        _ = edit.AddPurchaseId(PurchaseType.Song, ServiceType.Spotify, "id2");
+
+        var song = new Song();
+
+        var modified = edit.PurchaseDiff(song, old);
+
+        Assert.IsTrue(modified);
+        var removedProps = song.SongProperties
+            .Where(p => p.Name == SongProperty.FormatName(Song.RemovedPurchaseField, 0, "SS"))
+            .ToList();
+        Assert.AreEqual(1, removedProps.Count, "Expected one Purchase- property for the removed id");
+        Assert.AreEqual("id1", removedProps[0].Value);
+        Assert.AreEqual(0,
+            song.SongProperties.Count(p => p.Name == SongProperty.FormatName(Song.PurchaseField, 0, "SS")),
+            "Should not emit a Purchase+ for the unchanged id");
+    }
+
+    [TestMethod]
+    public void PurchaseDiff_SlotCompletelyRemoved_EmitsSubtractivePropertyPerOldId()
+    {
+        var old = new AlbumDetails { Name = "Album", Track = 1, Index = 0 };
+        _ = old.AddPurchaseId(PurchaseType.Song, ServiceType.Spotify, "id1");
+        _ = old.AddPurchaseId(PurchaseType.Song, ServiceType.Spotify, "id2");
+
+        // new state has no Spotify Song slot at all
+        var edit = new AlbumDetails { Name = "Album", Track = 1, Index = 0 };
+
+        var song = new Song();
+
+        var modified = edit.PurchaseDiff(song, old);
+
+        Assert.IsTrue(modified);
+        var removedProps = song.SongProperties
+            .Where(p => p.Name == SongProperty.FormatName(Song.RemovedPurchaseField, 0, "SS"))
+            .Select(p => p.Value)
+            .ToList();
+        CollectionAssert.AreEquivalent(new[] { "id1", "id2" }, removedProps);
+    }
+
+    #endregion
+
+    #region BuildAlbumInfo with Purchase / Purchase-
+
+    [TestMethod]
+    public void BuildAlbumInfo_TwoPurchasePropertiesForSameSlot_AccumulatesBothIds()
+    {
+        // Two edit blocks each adding a different id for the same service/album — both
+        // should end up in the in-memory AlbumDetails without losing the first one.
+        var props = new List<SongProperty>
+        {
+            new(SongProperty.FormatName(Song.AlbumField, 0, null), "My Album"),
+            new(SongProperty.FormatName(Song.PurchaseField, 0, "SS"), "id1"),
+            new(SongProperty.FormatName(Song.PurchaseField, 0, "SS"), "id2"),
+        };
+
+        var albums = Song.BuildAlbumInfo(props);
+
+        Assert.AreEqual(1, albums.Count);
+        CollectionAssert.AreEqual(
+            new[] { "id1", "id2" },
+            (System.Collections.ICollection)albums[0].GetPurchaseIdentifiers(ServiceType.Spotify, PurchaseType.Song));
+    }
+
+    [TestMethod]
+    public void BuildAlbumInfo_PurchaseMinusProperty_RemovesSpecificId()
+    {
+        // A Purchase- property should remove one specific id while leaving sibling ids intact.
+        var props = new List<SongProperty>
+        {
+            new(SongProperty.FormatName(Song.AlbumField, 0, null), "My Album"),
+            new(SongProperty.FormatName(Song.PurchaseField, 0, "SS"), "id1"),
+            new(SongProperty.FormatName(Song.PurchaseField, 0, "SS"), "id2"),
+            new(SongProperty.FormatName(Song.RemovedPurchaseField, 0, "SS"), "id1"),
+        };
+
+        var albums = Song.BuildAlbumInfo(props);
+
+        Assert.AreEqual(1, albums.Count);
+        CollectionAssert.AreEqual(
+            new[] { "id2" },
+            (System.Collections.ICollection)albums[0].GetPurchaseIdentifiers(ServiceType.Spotify, PurchaseType.Song));
+    }
+
+    [TestMethod]
+    public void BuildAlbumInfo_PurchaseMinusLastId_ClearsTheSlot()
+    {
+        var props = new List<SongProperty>
+        {
+            new(SongProperty.FormatName(Song.AlbumField, 0, null), "My Album"),
+            new(SongProperty.FormatName(Song.PurchaseField, 0, "SS"), "id1"),
+            new(SongProperty.FormatName(Song.RemovedPurchaseField, 0, "SS"), "id1"),
+        };
+
+        var albums = Song.BuildAlbumInfo(props);
+
+        Assert.AreEqual(1, albums.Count);
+        Assert.IsNull(albums[0].GetPurchaseIdentifier(ServiceType.Spotify, PurchaseType.Song));
+    }
+
+    [TestMethod]
+    public void BuildAlbumInfo_LegacyCommaSeparatedPurchaseProperty_AccumulatesBothIds()
+    {
+        // Old-format SongProperty values (comma-separated) must continue to load correctly.
+        var props = new List<SongProperty>
+        {
+            new(SongProperty.FormatName(Song.AlbumField, 0, null), "My Album"),
+            new(SongProperty.FormatName(Song.PurchaseField, 0, "SS"), "id1,id2"),
+        };
+
+        var albums = Song.BuildAlbumInfo(props);
+
+        Assert.AreEqual(1, albums.Count);
+        CollectionAssert.AreEqual(
+            new[] { "id1", "id2" },
+            (System.Collections.ICollection)albums[0].GetPurchaseIdentifiers(ServiceType.Spotify, PurchaseType.Song));
+    }
+
+    #endregion
 }

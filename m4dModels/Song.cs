@@ -237,6 +237,7 @@ public class Song : TaggableObject
     public const string PublisherField = "Publisher";
     public const string TrackField = "Track";
     public const string PurchaseField = "Purchase";
+    public const string RemovedPurchaseField = "Purchase-";
     public const string AlbumListField = "AlbumList";
     public const string AlbumPromote = "PromoteAlbum";
     public const string AlbumOrder = "OrderAlbums";
@@ -654,7 +655,7 @@ public class Song : TaggableObject
         var psuedo = new HashSet<string>(
             [
                 TimeField, TempoField, ArtistField, TitleField,
-                AlbumField, PublisherField, TrackField, PurchaseField
+                AlbumField, PublisherField, TrackField, PurchaseField, RemovedPurchaseField
             ]);
 
         foreach (var prop in props)
@@ -1720,6 +1721,7 @@ public class Song : TaggableObject
                 case PublisherField:
                 case TrackField:
                 case PurchaseField:
+                case RemovedPurchaseField:
                     // All of these are taken care of with build album
                     break;
                 case DeleteCommand:
@@ -4922,7 +4924,8 @@ public class Song : TaggableObject
     {
         var names = new List<string>(
             [
-                AlbumField, PublisherField, TrackField, PurchaseField, AlbumPromote, AlbumOrder
+                AlbumField, PublisherField, TrackField, PurchaseField, RemovedPurchaseField,
+                AlbumPromote, AlbumOrder
             ]);
 
         // First build a hashtable of index->albuminfo, maintaining the total number and the
@@ -5003,25 +5006,29 @@ public class Song : TaggableObject
 
                         break;
                     case PurchaseField:
-                        if (d.Purchase == null)
-                        {
-                            d.Purchase = [];
-                        }
+                        d.Purchase ??= [];
 
                         if (remove)
                         {
                             _ = d.Purchase.Remove(qual);
                         }
-                        else
+                        else if (!string.Equals(qual, "ms", StringComparison.OrdinalIgnoreCase))
                         {
-                            // Filter out AMG for now (we should probably just delete AMG)
-                            if (!string.Equals(qual, "ms", StringComparison.OrdinalIgnoreCase))
-                            {
-                                d.Purchase[qual] = prop.Value;
-                            }
+                            // Accumulate IDs; backward-compatible with legacy comma-separated values
+                            _ = d.AddPurchaseIds(qual, prop.Value);
                         }
 
                         break;
+
+                    case RemovedPurchaseField:
+                        if (d.Purchase != null && !string.IsNullOrWhiteSpace(prop.Value) &&
+                            !string.Equals(qual, "ms", StringComparison.OrdinalIgnoreCase))
+                        {
+                            _ = d.RemovePurchaseId(qual, prop.Value);
+                        }
+
+                        break;
+
                     case AlbumPromote:
                         // Promote to first
                         promotions.Add(idx);
@@ -5459,8 +5466,8 @@ public class Song : TaggableObject
 
     protected static HashSet<string> AlbumFields =
     [
-        AlbumField, PublisherField, TrackField, PurchaseField, AlbumListField, AlbumPromote,
-        AlbumOrder
+        AlbumField, PublisherField, TrackField, PurchaseField, RemovedPurchaseField,
+        AlbumListField, AlbumPromote, AlbumOrder
     ];
 
     /// <summary>
