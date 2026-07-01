@@ -166,11 +166,20 @@ export class PurchaseEncoded {
   @jsonMember(String, { name: "sa" }) public sa?: string;
   @jsonMember(String, { name: "ss" }) public ss?: string;
 
+  // Accumulated ids from the SongProperty stream (history / buildAlbumInfo path).
+  // The primary id is the first-added one; the JSON API path uses @jsonMember fields instead.
+  private _ids = new Map<string, string[]>();
+
   public getId(service: ServiceType, obj: ServiceObjectType): string | undefined {
-    return this.cleanId(
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      (this as any)[service.toLowerCase() + obj.toLowerCase()],
-    );
+    const key = service.toLowerCase() + obj.toLowerCase();
+    // History path: return the primary (first) accumulated id.
+    const accumulated = this._ids.get(key);
+    if (accumulated && accumulated.length > 0) {
+      return accumulated[0];
+    }
+    // JSON API path: fall back to the deserialized property.
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    return this.cleanId((this as any)[key]);
   }
 
   public decode(): PurchaseInfo[] {
@@ -196,27 +205,42 @@ export class PurchaseEncoded {
     return PurchaseInfo.Build(service, album, song);
   }
 
+  /**
+   * Adds a single id to the slot for `type` (e.g. "ss", "ia"). Each call is additive —
+   * a second call for the same type accumulates alongside the first rather than replacing it.
+   * The primary id (used for links) is always the first one added.
+   */
   public addId(type: string, id: string): void {
     if (type.length !== 2) {
       throw new Error(`Invalid service type ${type}`);
     }
-    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    (this as any)[type.toLowerCase()] = id;
+    if (!id) {
+      return;
+    }
+    const key = type.toLowerCase();
+    const existing = this._ids.get(key) ?? [];
+    if (!existing.includes(id)) {
+      this._ids.set(key, [...existing, id]);
+    }
+  }
+
+  /**
+   * Removes a specific id from the accumulated slot for `type`. No-ops if the id is not
+   * present. When the last id is removed the slot becomes empty and getId returns undefined.
+   */
+  public removeId(type: string, id: string): void {
+    const key = type.toLowerCase();
+    const existing = this._ids.get(key);
+    if (!existing) {
+      return;
+    }
+    this._ids.set(key, existing.filter((x) => x !== id));
   }
 
   private cleanId(id: string): string | undefined {
     if (!id) {
       return;
     }
-
-    // A value may hold more than one id for the same service/type, separated by ","
-    // (see AlbumDetails.AddPurchaseId server-side) - only the primary (first) one is
-    // usable for building a link.
-    const commaIdx = id.indexOf(",");
-    if (commaIdx > 0) {
-      id = id.substring(0, commaIdx);
-    }
-
     const idx = id.indexOf("[");
     if (idx > 0) {
       return id.substring(0, idx);

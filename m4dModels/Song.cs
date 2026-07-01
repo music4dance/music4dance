@@ -5014,8 +5014,7 @@ public class Song : TaggableObject
                         }
                         else if (!string.Equals(qual, "ms", StringComparison.OrdinalIgnoreCase))
                         {
-                            // Accumulate IDs; backward-compatible with legacy comma-separated values
-                            _ = d.AddPurchaseIds(qual, prop.Value);
+                            _ = d.AddPurchaseId(qual, prop.Value);
                         }
 
                         break;

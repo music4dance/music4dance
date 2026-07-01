@@ -268,11 +268,6 @@ Purchase-:04:SS=7zj5ZTermM0LKglr0Gj1z0
 An empty-value `Purchase:NN:qualifier=` (null remove) still clears the **entire** slot — this
 is used by `PurchaseDiff` when a service type is removed altogether.
 
-**Legacy format**: Older log entries may contain comma-separated IDs in a single
-`Purchase:NN:qualifier` property (e.g. `Purchase:04:SS=id1,id2`). `BuildAlbumInfo` handles
-these transparently by splitting on `,` during load — the result is identical to two separate
-single-ID properties.
-
 Purchase qualifiers combine a service code and purchase type code. Examples:
 
 | Qualifier | Service      | Type             |

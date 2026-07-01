@@ -130,21 +130,6 @@ public class AlbumDetailsTests
         Assert.IsFalse(changed);
     }
 
-    [TestMethod]
-    public void AddPurchaseIds_CommaSeparated_AccumulatesAll()
-    {
-        var ad = new AlbumDetails();
-        _ = ad.AddPurchaseId("SS", "existing");
-
-        // Simulate loading a legacy comma-separated SongProperty value
-        var changed = ad.AddPurchaseIds("SS", "existing,newId1,newId2");
-
-        Assert.IsTrue(changed);
-        CollectionAssert.AreEqual(
-            new[] { "existing", "newId1", "newId2" },
-            (System.Collections.ICollection)ad.GetPurchaseIdentifiers(ServiceType.Spotify, PurchaseType.Song));
-    }
-
     #endregion
 
     #region RemovePurchaseId
@@ -350,24 +335,6 @@ public class AlbumDetailsTests
 
         Assert.AreEqual(1, albums.Count);
         Assert.IsNull(albums[0].GetPurchaseIdentifier(ServiceType.Spotify, PurchaseType.Song));
-    }
-
-    [TestMethod]
-    public void BuildAlbumInfo_LegacyCommaSeparatedPurchaseProperty_AccumulatesBothIds()
-    {
-        // Old-format SongProperty values (comma-separated) must continue to load correctly.
-        var props = new List<SongProperty>
-        {
-            new(SongProperty.FormatName(Song.AlbumField, 0, null), "My Album"),
-            new(SongProperty.FormatName(Song.PurchaseField, 0, "SS"), "id1,id2"),
-        };
-
-        var albums = Song.BuildAlbumInfo(props);
-
-        Assert.AreEqual(1, albums.Count);
-        CollectionAssert.AreEqual(
-            new[] { "id1", "id2" },
-            (System.Collections.ICollection)albums[0].GetPurchaseIdentifiers(ServiceType.Spotify, PurchaseType.Song));
     }
 
     #endregion

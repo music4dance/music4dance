@@ -230,22 +230,6 @@ public partial class AlbumDetails
     }
 
     /// <summary>
-    /// Adds each id found in <paramref name="ids"/> (a single id or a legacy comma-separated
-    /// list) to the slot identified by <paramref name="purchaseKey"/>, accumulating alongside
-    /// any existing id(s). Returns true if any id was newly added.
-    /// </summary>
-    public bool AddPurchaseIds(string purchaseKey, string ids)
-    {
-        var changed = false;
-        foreach (var id in SplitIds(ids))
-        {
-            changed |= AddPurchaseId(purchaseKey, id);
-        }
-
-        return changed;
-    }
-
-    /// <summary>
     /// Removes a specific <paramref name="id"/> from the slot identified by
     /// <paramref name="purchaseKey"/>. Removes the entire slot when it was the last id.
     /// No-ops if the id is not present. Returns true if changed.
