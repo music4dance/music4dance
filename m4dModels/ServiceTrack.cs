@@ -70,4 +70,7 @@ public class ServiceTrack
 
     [DataMember]
     public EchoTrack AudioData { get; set; }
+
+    [DataMember]
+    public string ISRC { get; set; }
 }

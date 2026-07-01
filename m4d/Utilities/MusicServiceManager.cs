@@ -92,6 +92,11 @@ public class MusicServiceManager(IConfiguration configuration)
             changed |= await GetSampleData(dms, sd);
         }
 
+        if (service.Id == ServiceType.Spotify && sd.GetPurchaseId(ServiceType.ISRC) == null)
+        {
+            changed |= await GetISRCData(dms, sd);
+        }
+
         return changed;
     }
 
@@ -226,6 +231,13 @@ public class MusicServiceManager(IConfiguration configuration)
             song, MusicService.GetService(track.Service),
             track.Name, track.Album, track.Artist, trackId, track.CollectionId,
             track.AltId, track.Duration.ToString(), track.TrackNumber);
+
+        if (!string.IsNullOrWhiteSpace(track.ISRC))
+        {
+            var ad = song.FindAlbum(track.Album, track.TrackNumber);
+            ad?.AddPurchaseId(PurchaseType.Song, ServiceType.ISRC, track.ISRC);
+        }
+
         if (track.Genres != null)
         {
             tags = tags.Add(
@@ -924,6 +936,35 @@ public class MusicServiceManager(IConfiguration configuration)
 
         edit.Sample = track?.SampleUrl ?? @".";
         return await dms.SongIndex.EditSong(user, song, edit);
+    }
+
+    public async Task<bool> GetISRCData(DanceMusicCoreService dms, Song song)
+    {
+        var spotify = MusicService.GetService(ServiceType.Spotify);
+        var isrcService = MusicService.GetService(ServiceType.ISRC);
+        var user = isrcService.ApplicationUser;
+        var edit = await Song.Create(song, dms);
+        var changed = false;
+
+        foreach (var spotifyId in song.GetPurchaseIds(spotify))
+        {
+            var track = await GetMusicServiceTrack(spotifyId, spotify);
+            if (string.IsNullOrWhiteSpace(track?.ISRC))
+            {
+                continue;
+            }
+
+            // Match to the album entry that carries this Spotify track ID
+            var album = edit.Albums.FirstOrDefault(
+                a => a.GetPurchaseIdentifiers(ServiceType.Spotify, PurchaseType.Song)
+                      .Contains(spotifyId));
+            if (album != null)
+            {
+                changed |= album.AddPurchaseId(PurchaseType.Song, ServiceType.ISRC, track.ISRC);
+            }
+        }
+
+        return changed && await dms.SongIndex.EditSong(user, song, edit);
     }
 
     #endregion

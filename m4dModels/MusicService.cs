@@ -296,6 +296,7 @@ public class MusicService
         AddService(new MusicServiceStub(ServiceType.Emusic, 'E', "EMusic"));
         AddService(new MusicServiceStub(ServiceType.Pandora, 'P', "Pandora"));
         AddService(new MusicServiceStub(ServiceType.AMG, 'M', "American Music Group", false));
+        AddService(new ISRCService());
     }
 
     private static void AddService(MusicService service)
