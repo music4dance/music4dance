@@ -1516,17 +1516,16 @@ public class SongIndex
         {
             search = "*";
         }
-        //else
-        //{
-        //    var index = await GetIndex();
-        //    var profiles = index.ScoringProfiles;
-        //    foreach (var profile in profiles)
-        //    {
-        //        Trace.WriteLine(profile.Name);
-        //    }
 
-        //    parameters.ScoringProfile = "TitleArtist";
-        //}
+        // If the caller hasn't explicitly requested specific fields, restrict to only
+        // the two fields actually consumed by CreateSong(). This avoids returning all
+        // dance_* complex sub-documents, which the SDK blindly probes as GeoPoint
+        // (throwing and catching a JsonException per field per document).
+        if (!parameters.Select.Any())
+        {
+            parameters.Select.Add(SongIdField);
+            parameters.Select.Add(PropertiesField);
+        }
 
         try
         {
