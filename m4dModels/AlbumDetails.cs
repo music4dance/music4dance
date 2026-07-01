@@ -172,8 +172,8 @@ public partial class AlbumDetails
     // Service ids themselves never contain a comma (alphanumeric Spotify/iTunes/Amazon ids).
     private const char IdSeparator = ',';
 
-    private static HashSet<string> SplitIds(string value) =>
-        [.. value.Split(IdSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
+    private static IReadOnlyList<string> SplitIds(string value) =>
+        [.. value.Split(IdSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct()];
 
     /// <summary>
     /// Adds <paramref name="value"/> to the (possibly already multi-valued) id slot for this

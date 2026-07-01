@@ -34,7 +34,10 @@ const loginLink = computed(
       >We checked the first {{ model.checkedCount }} of {{ model.totalCount }} songs in this
       playlist for music4dance matches. <a href="/Home/Contribute">Upgrade your membership</a> to
       have us check more. See our
-      <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank"
+      <a
+        href="https://music4dance.blog/music4dance-help/subscriptions/"
+        target="_blank"
+        rel="noopener noreferrer"
         >subscription page</a
       >
       for details.</BAlert
@@ -44,11 +47,18 @@ const loginLink = computed(
         noMatches ? "None of the songs we checked are" : "Some of the songs we checked aren't"
       }}
       in the music4dance catalog yet. <a :href="loginLink">Sign in</a> to add them yourself, or
-      <a href="https://music4dance.blog/feedback/" target="_blank">contact us</a> if you would like
-      us to support a specific playlist.</BAlert
+      <a href="https://music4dance.blog/feedback/" target="_blank" rel="noopener noreferrer"
+        >contact us</a
+      >
+      if you would like us to support a specific playlist.</BAlert
     >
     <h1>
-      <BLink :href="playlistLink" target="_blank" title="Open in Spotify" underline-opacity="0"
+      <BLink
+        :href="playlistLink"
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Open in Spotify"
+        underline-opacity="0"
         ><BImg
           src="/images/icons/spotify-logo.png"
           alt="Spotify Logo"
@@ -72,7 +82,10 @@ const loginLink = computed(
     />
     <SpotifyPlayer v-if="!isEmptyPlaylist" :playlist="model.id" />
     <p>
-      by <BLink :href="userLink" target="_blank">{{ model.ownerName }}</BLink>
+      by
+      <BLink :href="userLink" target="_blank" rel="noopener noreferrer">{{
+        model.ownerName
+      }}</BLink>
     </p>
     <div v-if="hasUnmatched && model.canAddSongs" class="mt-3">
       <h2>Songs Not Yet in the Catalog</h2>
@@ -89,6 +102,7 @@ const loginLink = computed(
           <a
             :href="addSongLink(data.item.trackId)"
             target="_blank"
+            rel="noopener noreferrer"
             role="button"
             title="Add to music4dance"
             ><IBiPlusCircle

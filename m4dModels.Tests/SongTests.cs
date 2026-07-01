@@ -691,7 +691,7 @@ public class SongTests
     }
 
     [TestMethod]
-    public void Edit_AccumulatedTrackIdOnExistingAlbum_WritesNewIdAsSeperateSongProperty()
+    public void Edit_AccumulatedTrackIdOnExistingAlbum_WritesNewIdAsSeparateSongProperty()
     {
         // When a second Spotify track ID is accumulated onto an existing album slot,
         // Song.Edit (via EditCore → ModifyInfo → PurchaseDiff) must append a new

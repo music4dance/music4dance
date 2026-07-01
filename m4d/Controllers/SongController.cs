@@ -179,20 +179,21 @@ public class SongController : ContentController
 
             var trackOrder = candidateTracks
                 .Select((t, i) => new { t.TrackId, Index = i })
-                .ToDictionary(x => x.TrackId, x => x.Index);
+                .GroupBy(x => x.TrackId)
+                .ToDictionary(g => g.Key, g => g.First().Index);
 
             var sorted = results.Songs
                 .Select(song =>
                 {
-                    var spotifyId = song.GetPurchaseIds(spotify).FirstOrDefault(trackOrder.ContainsKey);
-                    return (song, spotifyId, index: spotifyId != null ? trackOrder[spotifyId] : int.MaxValue);
+                    var matchedIds = song.GetPurchaseIds(spotify).Where(trackOrder.ContainsKey).ToList();
+                    var index = matchedIds.Count > 0 ? matchedIds.Min(id => trackOrder[id]) : int.MaxValue;
+                    return (song, matchedIds, index);
                 })
                 .OrderBy(x => x.index)
                 .ToList();
 
             var matchedTrackIds = sorted
-                .Where(x => x.spotifyId != null)
-                .Select(x => x.spotifyId)
+                .SelectMany(x => x.matchedIds)
                 .ToHashSet();
 
             var unmatched = canAddSongs
@@ -212,7 +213,7 @@ public class SongController : ContentController
                 OwnerName = playlist.OwnerName,
                 TotalCount = playlist.Tracks.Count(),
                 CheckedCount = candidateTracks.Count,
-                MatchedCount = sorted.Count,
+                MatchedCount = matchedTrackIds.Count,
                 CanAddSongs = canAddSongs,
                 Unmatched = unmatched
             };

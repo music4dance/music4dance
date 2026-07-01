@@ -9,7 +9,7 @@ exports[`Playlist Viewer > renders a message and add table when nothing matched 
     <div>
       <!--v-if-->
       <!--v-if-->
-      <h1><a class="link-underline link-underline-opacity-0" target="_blank" href="https://open.spotify.com/playlist/4PGMLc2lfy6hsdmyj2rm2x" to="" replace="false" title="Open in Spotify"><img class="b-img" src="/images/icons/spotify-logo.png" loading="eager" alt="Spotify Logo" style="vertical-align: middle;"><span class="ps-2">Nine Sinatra Songs</span></a></h1>
+      <h1><a class="link-underline link-underline-opacity-0" target="_blank" href="https://open.spotify.com/playlist/4PGMLc2lfy6hsdmyj2rm2x" rel="noopener noreferrer" to="" replace="false" title="Open in Spotify"><img class="b-img" src="/images/icons/spotify-logo.png" loading="eager" alt="Spotify Logo" style="vertical-align: middle;"><span class="ps-2">Nine Sinatra Songs</span></a></h1>
       <p>The songs from the Ballet by Twyla Tharp</p>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
         <div class="alert alert-warning fade" tabindex="0" style="display: none;">
@@ -22,7 +22,7 @@ exports[`Playlist Viewer > renders a message and add table when nothing matched 
         </div>
       </transition-stub>
       <section id="spotify-player"><iframe src="https://open.spotify.com/embed/playlist/4PGMLc2lfy6hsdmyj2rm2x" frameborder="0" width="300" height="80" allowtransparency="true" allow="encrypted-media"></iframe></section>
-      <p> by <a class="" target="_blank" href="https://open.spotify.com/user/ebo1rk39vp51kkyjps45eobph" to="" replace="false">music4dance</a></p>
+      <p> by <a class="" target="_blank" href="https://open.spotify.com/user/ebo1rk39vp51kkyjps45eobph" rel="noopener noreferrer" to="" replace="false">music4dance</a></p>
       <div class="mt-3">
         <h2>Songs Not Yet in the Catalog</h2>
         <p>None of the songs in this playlist are in music4dance yet — add them so you (and everyone else) can dance to them. </p>
@@ -52,7 +52,7 @@ exports[`Playlist Viewer > renders a message and add table when nothing matched 
                 <!---->Frank Sinatra
               </td>
               <td class="">
-                <!----><a href="/song/augment?id=1A2B3C4D5E6F7G8H9I0J1K" target="_blank" role="button" title="Add to music4dance"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                <!----><a href="/song/augment?id=1A2B3C4D5E6F7G8H9I0J1K" target="_blank" rel="noopener noreferrer" role="button" title="Add to music4dance"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
                     <g fill="currentColor">
                       <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"></path>
                       <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"></path>
@@ -69,7 +69,7 @@ exports[`Playlist Viewer > renders a message and add table when nothing matched 
                 <!---->Frank Sinatra
               </td>
               <td class="">
-                <!----><a href="/song/augment?id=2B3C4D5E6F7G8H9I0J1K2L" target="_blank" role="button" title="Add to music4dance"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                <!----><a href="/song/augment?id=2B3C4D5E6F7G8H9I0J1K2L" target="_blank" rel="noopener noreferrer" role="button" title="Add to music4dance"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
                     <g fill="currentColor">
                       <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"></path>
                       <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"></path>
@@ -86,7 +86,7 @@ exports[`Playlist Viewer > renders a message and add table when nothing matched 
                 <!---->Frank Sinatra
               </td>
               <td class="">
-                <!----><a href="/song/augment?id=3C4D5E6F7G8H9I0J1K2L3M" target="_blank" role="button" title="Add to music4dance"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                <!----><a href="/song/augment?id=3C4D5E6F7G8H9I0J1K2L3M" target="_blank" rel="noopener noreferrer" role="button" title="Add to music4dance"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
                     <g fill="currentColor">
                       <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"></path>
                       <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"></path>
@@ -121,7 +121,7 @@ exports[`Playlist Viewer > renders a message for an empty playlist 1`] = `
     <div>
       <!--v-if-->
       <!--v-if-->
-      <h1><a class="link-underline link-underline-opacity-0" target="_blank" href="https://open.spotify.com/playlist/4PGMLc2lfy6hsdmyj2rm2x" to="" replace="false" title="Open in Spotify"><img class="b-img" src="/images/icons/spotify-logo.png" loading="eager" alt="Spotify Logo" style="vertical-align: middle;"><span class="ps-2">Nine Sinatra Songs</span></a></h1>
+      <h1><a class="link-underline link-underline-opacity-0" target="_blank" href="https://open.spotify.com/playlist/4PGMLc2lfy6hsdmyj2rm2x" rel="noopener noreferrer" to="" replace="false" title="Open in Spotify"><img class="b-img" src="/images/icons/spotify-logo.png" loading="eager" alt="Spotify Logo" style="vertical-align: middle;"><span class="ps-2">Nine Sinatra Songs</span></a></h1>
       <p>The songs from the Ballet by Twyla Tharp</p>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
         <div class="alert alert-warning fade" tabindex="0" style="display: none;">
@@ -134,7 +134,7 @@ exports[`Playlist Viewer > renders a message for an empty playlist 1`] = `
         </div>
       </transition-stub>
       <!--v-if-->
-      <p> by <a class="" target="_blank" href="https://open.spotify.com/user/ebo1rk39vp51kkyjps45eobph" to="" replace="false">music4dance</a></p>
+      <p> by <a class="" target="_blank" href="https://open.spotify.com/user/ebo1rk39vp51kkyjps45eobph" rel="noopener noreferrer" to="" replace="false">music4dance</a></p>
       <!--v-if-->
     </div>
   </div>
@@ -156,7 +156,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
     <div>
       <!--v-if-->
       <!--v-if-->
-      <h1><a class="link-underline link-underline-opacity-0" target="_blank" href="https://open.spotify.com/playlist/4PGMLc2lfy6hsdmyj2rm2x" to="" replace="false" title="Open in Spotify"><img class="b-img" src="/images/icons/spotify-logo.png" loading="eager" alt="Spotify Logo" style="vertical-align: middle;"><span class="ps-2">Nine Sinatra Songs</span></a></h1>
+      <h1><a class="link-underline link-underline-opacity-0" target="_blank" href="https://open.spotify.com/playlist/4PGMLc2lfy6hsdmyj2rm2x" rel="noopener noreferrer" to="" replace="false" title="Open in Spotify"><img class="b-img" src="/images/icons/spotify-logo.png" loading="eager" alt="Spotify Logo" style="vertical-align: middle;"><span class="ps-2">Nine Sinatra Songs</span></a></h1>
       <p>The songs from the Ballet by Twyla Tharp</p>
       <div data-v-a7ef304f="">
         <table data-v-a7ef304f="" id="BootstrapVueNext__ID__v-0__" class="table b-table table-borderless table-hover table-striped" aria-busy="false">
@@ -1660,7 +1660,7 @@ exports[`Playlist Viewer > renders a playlist viewer index page 1`] = `
         <!--teleport end-->
       </div>
       <section id="spotify-player"><iframe src="https://open.spotify.com/embed/playlist/4PGMLc2lfy6hsdmyj2rm2x" frameborder="0" width="300" height="80" allowtransparency="true" allow="encrypted-media"></iframe></section>
-      <p> by <a class="" target="_blank" href="https://open.spotify.com/user/ebo1rk39vp51kkyjps45eobph" to="" replace="false">music4dance</a></p>
+      <p> by <a class="" target="_blank" href="https://open.spotify.com/user/ebo1rk39vp51kkyjps45eobph" rel="noopener noreferrer" to="" replace="false">music4dance</a></p>
       <!--v-if-->
     </div>
   </div>
@@ -1685,13 +1685,13 @@ exports[`Playlist Viewer > renders a sign-in call to action with returnUrl for a
         <div class="alert alert-info fade" tabindex="0" style="display: none;">
           <!---->
           <div class="d-flex gap-2">
-            <div class="alert-body">Some of the songs we checked aren't in the music4dance catalog yet. <a href="/Identity/Account/Login?ReturnUrl=%2Fsong%2Fplaylist%3Fid%3D4PGMLc2lfy6hsdmyj2rm2x">Sign in</a> to add them yourself, or <a href="https://music4dance.blog/feedback/" target="_blank">contact us</a> if you would like us to support a specific playlist.</div>
+            <div class="alert-body">Some of the songs we checked aren't in the music4dance catalog yet. <a href="/Identity/Account/Login?ReturnUrl=%2Fsong%2Fplaylist%3Fid%3D4PGMLc2lfy6hsdmyj2rm2x">Sign in</a> to add them yourself, or <a href="https://music4dance.blog/feedback/" target="_blank" rel="noopener noreferrer">contact us</a> if you would like us to support a specific playlist.</div>
             <!---->
           </div>
           <!---->
         </div>
       </transition-stub>
-      <h1><a class="link-underline link-underline-opacity-0" target="_blank" href="https://open.spotify.com/playlist/4PGMLc2lfy6hsdmyj2rm2x" to="" replace="false" title="Open in Spotify"><img class="b-img" src="/images/icons/spotify-logo.png" loading="eager" alt="Spotify Logo" style="vertical-align: middle;"><span class="ps-2">Nine Sinatra Songs</span></a></h1>
+      <h1><a class="link-underline link-underline-opacity-0" target="_blank" href="https://open.spotify.com/playlist/4PGMLc2lfy6hsdmyj2rm2x" rel="noopener noreferrer" to="" replace="false" title="Open in Spotify"><img class="b-img" src="/images/icons/spotify-logo.png" loading="eager" alt="Spotify Logo" style="vertical-align: middle;"><span class="ps-2">Nine Sinatra Songs</span></a></h1>
       <p>The songs from the Ballet by Twyla Tharp</p>
       <div data-v-a7ef304f="">
         <table data-v-a7ef304f="" id="BootstrapVueNext__ID__v-1__" class="table b-table table-borderless table-hover table-striped" aria-busy="false">
@@ -3195,7 +3195,7 @@ exports[`Playlist Viewer > renders a sign-in call to action with returnUrl for a
         <!--teleport end-->
       </div>
       <section id="spotify-player"><iframe src="https://open.spotify.com/embed/playlist/4PGMLc2lfy6hsdmyj2rm2x" frameborder="0" width="300" height="80" allowtransparency="true" allow="encrypted-media"></iframe></section>
-      <p> by <a class="" target="_blank" href="https://open.spotify.com/user/ebo1rk39vp51kkyjps45eobph" to="" replace="false">music4dance</a></p>
+      <p> by <a class="" target="_blank" href="https://open.spotify.com/user/ebo1rk39vp51kkyjps45eobph" rel="noopener noreferrer" to="" replace="false">music4dance</a></p>
       <!--v-if-->
     </div>
   </div>
@@ -3219,14 +3219,14 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
         <div class="alert alert-info fade" tabindex="0" style="display: none;">
           <!---->
           <div class="d-flex gap-2">
-            <div class="alert-body">We checked the first 9 of 11 songs in this playlist for music4dance matches. <a href="/Home/Contribute">Upgrade your membership</a> to have us check more. See our <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank">subscription page</a> for details.</div>
+            <div class="alert-body">We checked the first 9 of 11 songs in this playlist for music4dance matches. <a href="/Home/Contribute">Upgrade your membership</a> to have us check more. See our <a href="https://music4dance.blog/music4dance-help/subscriptions/" target="_blank" rel="noopener noreferrer">subscription page</a> for details.</div>
             <!---->
           </div>
           <!---->
         </div>
       </transition-stub>
       <!--v-if-->
-      <h1><a class="link-underline link-underline-opacity-0" target="_blank" href="https://open.spotify.com/playlist/4PGMLc2lfy6hsdmyj2rm2x" to="" replace="false" title="Open in Spotify"><img class="b-img" src="/images/icons/spotify-logo.png" loading="eager" alt="Spotify Logo" style="vertical-align: middle;"><span class="ps-2">Nine Sinatra Songs</span></a></h1>
+      <h1><a class="link-underline link-underline-opacity-0" target="_blank" href="https://open.spotify.com/playlist/4PGMLc2lfy6hsdmyj2rm2x" rel="noopener noreferrer" to="" replace="false" title="Open in Spotify"><img class="b-img" src="/images/icons/spotify-logo.png" loading="eager" alt="Spotify Logo" style="vertical-align: middle;"><span class="ps-2">Nine Sinatra Songs</span></a></h1>
       <p>The songs from the Ballet by Twyla Tharp</p>
       <div data-v-a7ef304f="">
         <table data-v-a7ef304f="" id="BootstrapVueNext__ID__v-1__" class="table b-table table-borderless table-hover table-striped" aria-busy="false">
@@ -4730,7 +4730,7 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
         <!--teleport end-->
       </div>
       <section id="spotify-player"><iframe src="https://open.spotify.com/embed/playlist/4PGMLc2lfy6hsdmyj2rm2x" frameborder="0" width="300" height="80" allowtransparency="true" allow="encrypted-media"></iframe></section>
-      <p> by <a class="" target="_blank" href="https://open.spotify.com/user/ebo1rk39vp51kkyjps45eobph" to="" replace="false">music4dance</a></p>
+      <p> by <a class="" target="_blank" href="https://open.spotify.com/user/ebo1rk39vp51kkyjps45eobph" rel="noopener noreferrer" to="" replace="false">music4dance</a></p>
       <div class="mt-3">
         <h2>Songs Not Yet in the Catalog</h2>
         <p>These songs from the playlist aren't in music4dance yet — add them so you (and everyone else) can dance to them. </p>
@@ -4760,7 +4760,7 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                 <!---->Frank Sinatra
               </td>
               <td class="">
-                <!----><a href="/song/augment?id=1A2B3C4D5E6F7G8H9I0J1K" target="_blank" role="button" title="Add to music4dance"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                <!----><a href="/song/augment?id=1A2B3C4D5E6F7G8H9I0J1K" target="_blank" rel="noopener noreferrer" role="button" title="Add to music4dance"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
                     <g fill="currentColor">
                       <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"></path>
                       <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"></path>
@@ -4777,7 +4777,7 @@ exports[`Playlist Viewer > renders the subscription upsell and unmatched-songs t
                 <!---->Frank Sinatra
               </td>
               <td class="">
-                <!----><a href="/song/augment?id=2B3C4D5E6F7G8H9I0J1K2L" target="_blank" role="button" title="Add to music4dance"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                <!----><a href="/song/augment?id=2B3C4D5E6F7G8H9I0J1K2L" target="_blank" rel="noopener noreferrer" role="button" title="Add to music4dance"><svg viewBox="0 0 16 16" width="1.2em" height="1.2em">
                     <g fill="currentColor">
                       <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"></path>
                       <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"></path>
