@@ -11,5 +11,6 @@ public enum ServiceType
     Emusic,
     Pandora,
     AMG,
+    ISRC,
     Max
 };

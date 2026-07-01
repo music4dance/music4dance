@@ -1650,9 +1650,7 @@ public class SongController : ContentController
             }
 
             var tried = 0;
-            var done = false;
-
-            Filter.Page = 1;
+            var capturedFilter = Filter;
 
             var dms = Database.GetTransientService();
             _ = Task.Run(
@@ -1660,87 +1658,66 @@ public class SongController : ContentController
                 {
                     try
                     {
-                        while (!done)
+                        var parameters = dms.SongIndex.AzureParmsFromFilter(capturedFilter);
+                        var save = new List<Song>();
+
+                        await foreach (var song in dms.SongIndex.StreamAll(
+                            capturedFilter.SearchString, parameters, CruftFilter.AllCruft))
                         {
-                            AdminMonitor.UpdateTask(
-                                "BuildSongList",
-                                ((Filter.Page ?? 1) - 1) * 500);
-
-                            var parameters = dms.SongIndex.AzureParmsFromFilter(Filter, 500);
-                            parameters.IncludeTotalCount = false;
-                            var res = await dms.SongIndex.Search(
-                                Filter.SearchString, parameters,
-                                CruftFilter.AllCruft);
-                            if (!res.Songs.Any())
+                            try
                             {
-                                break;
-                            }
+                                AdminMonitor.UpdateTask("Processing", tried);
+                                tried += 1;
 
-                            var save = new List<Song>();
-
-                            var processed = 0;
-                            foreach (var song in res.Songs)
-                            {
-                                try
+                                string b = null;
+                                if (log)
                                 {
-                                    AdminMonitor.UpdateTask(
-                                        "Processing",
-                                        ((Filter.Page ?? 1) - 1) * 500 + processed);
+                                    b = song.Serialize(options: "R");
+                                }
+                                var songT = await act(dms, song);
+                                if (songT != null)
+                                {
+                                    changed.Add(songT.SongId);
+                                    save.Add(songT);
 
-                                    processed += 1;
-                                    tried += 1;
-                                    string b = null;
                                     if (log)
                                     {
-                                        b = song.Serialize(options: "R");
+                                        await before.WriteLineAsync(b + "\r\n");
+                                        var a = songT.Serialize(options: "R");
+                                        await after.WriteLineAsync(a + "\r\n");
                                     }
-                                    var songT = await act(dms, song);
-                                    if (songT != null)
-                                    {
-                                        changed.Add(songT.SongId);
-                                        save.Add(songT);
-
-                                        if (log)
-                                        {
-                                            await before.WriteLineAsync(b + "\r\n");
-                                            var a = songT.Serialize(options: "R");
-                                            await after.WriteLineAsync(a + "\r\n");
-                                        }
-                                    }
-
-                                    if (count > 0 && tried > count)
-                                    {
-                                        break;
-                                    }
-
-                                    if ((tried + 1) % 25 != 0)
-                                    {
-                                        continue;
-                                    }
-
-                                    Logger.LogInformation($"{tried} songs tried.");
                                 }
-                                catch (AbortBatchException e)
+
+                                if (count > 0 && tried >= count)
                                 {
-                                    Logger.LogWarning($"Aborted Batch Process at {DateTime.Now}: {e.Message}");
                                     break;
                                 }
-                                catch (Exception e)
+
+                                if (tried % 25 == 0)
                                 {
-                                    Logger.LogError($"{song.Title} by {song.Artist} failed with: {e.Message}");
+                                    Logger.LogInformation($"{tried} songs tried.");
+                                }
+
+                                if (!preview && save.Count >= 500)
+                                {
+                                    dms.SongIndex.SaveSongsImmediate(save);
+                                    save.Clear();
                                 }
                             }
-
-                            if (!preview && save.Count > 0)
+                            catch (AbortBatchException e)
                             {
-                                dms.SongIndex.SaveSongsImmediate(save);
+                                Logger.LogWarning($"Aborted Batch Process at {DateTime.Now}: {e.Message}");
+                                break;
                             }
-
-                            Filter.Page += 1;
-                            if (processed < 500)
+                            catch (Exception e)
                             {
-                                done = true;
+                                Logger.LogError($"{song.Title} by {song.Artist} failed with: {e.Message}");
                             }
+                        }
+
+                        if (!preview && save.Count > 0)
+                        {
+                            dms.SongIndex.SaveSongsImmediate(save);
                         }
 
                         AdminMonitor.CompleteTask(
@@ -1787,6 +1764,21 @@ public class SongController : ContentController
                 await MusicServiceManager.GetEchoData(dms, song)
                     ? song
                     : null);
+    }
+
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult BatchISRC()
+    {
+        UseVue = UseVue.No;
+        return BatchProcess(
+            async (dms, song) =>
+            {
+                if (song.GetPurchaseId(ServiceType.ISRC) != null)
+                    return null;
+                return await MusicServiceManager.GetISRCData(dms, song)
+                    ? song
+                    : null;
+            });
     }
 
     #endregion

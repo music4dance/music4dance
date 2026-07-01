@@ -179,6 +179,19 @@ internal class SpotifyService : MusicService
             {
             }
 
+            string isrc = null;
+            try
+            {
+                var externalIds = track.external_ids;
+                if (externalIds != null)
+                {
+                    isrc = externalIds.isrc;
+                }
+            }
+            catch (RuntimeBinderException)
+            {
+            }
+
             string imageUrl = null;
             if (album?.images != null)
             {
@@ -210,7 +223,8 @@ internal class SpotifyService : MusicService
                 Duration = (track.duration_ms + 500) / 1000,
                 TrackNumber = trackNum,
                 IsPlayable = isPlayable,
-                SampleUrl = sample
+                SampleUrl = sample,
+                ISRC = isrc
             };
 
             return st;

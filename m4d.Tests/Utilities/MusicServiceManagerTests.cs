@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using m4d.Utilities;
 using m4dModels;
+using m4dModels.Tests;
 using System.Security.Principal;
 using Microsoft.EntityFrameworkCore;
 using DanceLibrary;
@@ -244,5 +245,139 @@ public class MusicServiceManagerTests
 
     // NOTE: ValidateAndCorrectTempo integration tests are in MusicServiceManagerIntegrationTests.cs
     // Those tests use DanceMusicTester to create real service instances and test the full workflow.
+}
+
+[TestClass]
+public class GetISRCDataTests
+{
+    [ClassInitialize]
+    public static async Task ClassSetup(TestContext _)
+    {
+        await DanceMusicTester.LoadDances();
+    }
+
+    // Subclass that replaces the Spotify HTTP call with an in-process dictionary lookup.
+    private class FakeMusicServiceManager(Dictionary<string, string> isrcBySpotifyId)
+        : MusicServiceManager(new Mock<IConfiguration>().Object)
+    {
+        public override async Task<ServiceTrack> GetMusicServiceTrack(string id, MusicService service)
+        {
+            await Task.CompletedTask;
+            return isrcBySpotifyId.TryGetValue(id, out var isrc) && isrc != null
+                ? new ServiceTrack { Service = ServiceType.Spotify, TrackId = id, ISRC = isrc }
+                : null;
+        }
+    }
+
+    private static async Task<(DanceMusicService dms, TestSongIndex testIndex)> CreateTestEnv(string dbName)
+    {
+        var dms = await DanceMusicTester.CreateService(dbName, useTestSongIndex: true);
+        await DanceMusicTester.AddUser(dms, "batch-s", true);
+        var testIndex = (TestSongIndex)dms.SongIndex;
+        return (dms, testIndex);
+    }
+
+    // Creates a song via the property-string format so that Song.Create(song, dms) inside
+    // GetISRCData correctly reconstructs all albums (SongProperties is the source of truth).
+    private static async Task<Song> CreateSongWithSpotifyIds(
+        DanceMusicService dms, string albumA, string spotifyA, string albumB, string spotifyB)
+    {
+        return await Song.Create(
+            $".Create=\tUser=batch-s\tTitle=Test Song\tArtist=Test Artist\t" +
+            $"Album:00={albumA}\tTrack:00=1\tPurchase:00:SS={spotifyA}\t" +
+            $"Album:01={albumB}\tTrack:01=2\tPurchase:01:SS={spotifyB}",
+            dms);
+    }
+
+    [TestMethod]
+    public async Task GetISRCData_TwoSpotifyIdsDistinctISRCs_AttachesEachISRCToMatchingAlbum()
+    {
+        var (dms, testIndex) = await CreateTestEnv("GetISRC_DistinctISRCs");
+        var song = await CreateSongWithSpotifyIds(dms, "Album A", "spotifyId1", "Album B", "spotifyId2");
+
+        var manager = new FakeMusicServiceManager(new Dictionary<string, string>
+        {
+            ["spotifyId1"] = "USRC1",
+            ["spotifyId2"] = "USRC2",
+        });
+
+        var result = await manager.GetISRCData(dms, song);
+
+        Assert.IsTrue(result, "Should return true when ISRCs were newly added");
+        Assert.AreEqual(1, testIndex.EditCalls.Count);
+        var edit = testIndex.EditCalls[0].Edit;
+        Assert.AreEqual(
+            "USRC1",
+            edit.Albums[0].GetPurchaseIdentifier(ServiceType.ISRC, PurchaseType.Song),
+            "ISRC should be on the album whose Spotify ID matched spotifyId1");
+        Assert.AreEqual(
+            "USRC2",
+            edit.Albums[1].GetPurchaseIdentifier(ServiceType.ISRC, PurchaseType.Song),
+            "ISRC should be on the album whose Spotify ID matched spotifyId2");
+    }
+
+    [TestMethod]
+    public async Task GetISRCData_TwoSpotifyIdsSameISRC_ISRCAttachedOnlyToFirstMatchingAlbum()
+    {
+        // Two Spotify IDs (e.g. original release and re-release) that share the same ISRC.
+        // The seenISRCs HashSet should prevent the duplicate from being written a second time.
+        var (dms, testIndex) = await CreateTestEnv("GetISRC_DuplicateISRC");
+        var song = await CreateSongWithSpotifyIds(dms, "Album A", "spotifyId1", "Album B", "spotifyId2");
+
+        var manager = new FakeMusicServiceManager(new Dictionary<string, string>
+        {
+            ["spotifyId1"] = "USRC_SHARED",
+            ["spotifyId2"] = "USRC_SHARED",
+        });
+
+        var result = await manager.GetISRCData(dms, song);
+
+        Assert.IsTrue(result, "Should return true because at least one ISRC was added");
+        Assert.AreEqual(1, testIndex.EditCalls.Count);
+        var edit = testIndex.EditCalls[0].Edit;
+        Assert.AreEqual(
+            "USRC_SHARED",
+            edit.Albums[0].GetPurchaseIdentifier(ServiceType.ISRC, PurchaseType.Song),
+            "First album should receive the shared ISRC");
+        Assert.IsNull(
+            edit.Albums[1].GetPurchaseIdentifier(ServiceType.ISRC, PurchaseType.Song),
+            "Duplicate ISRC must be skipped — second album should have no ISRC");
+    }
+
+    [TestMethod]
+    public async Task GetISRCData_NoSpotifyIds_ReturnsFalse()
+    {
+        var (dms, testIndex) = await CreateTestEnv("GetISRC_NoSpotify");
+        var song = await Song.Create(
+            ".Create=\tUser=batch-s\tTitle=No Spotify Song\tArtist=Test Artist", dms);
+
+        var manager = new FakeMusicServiceManager([]);
+
+        var result = await manager.GetISRCData(dms, song);
+
+        Assert.IsFalse(result, "No Spotify IDs means nothing to look up — should return false");
+        Assert.AreEqual(0, testIndex.EditCalls.Count);
+    }
+
+    [TestMethod]
+    public async Task GetISRCData_SpotifyTrackHasNoISRC_ReturnsFalse()
+    {
+        var (dms, testIndex) = await CreateTestEnv("GetISRC_NoISRCOnTrack");
+        var song = await Song.Create(
+            ".Create=\tUser=batch-s\tTitle=Test Song\tArtist=Test Artist\t" +
+            "Album:00=Album A\tTrack:00=1\tPurchase:00:SS=spotifyId1",
+            dms);
+
+        // null ISRC simulates a Spotify track that has no external_ids.isrc
+        var manager = new FakeMusicServiceManager(new Dictionary<string, string>
+        {
+            ["spotifyId1"] = null,
+        });
+
+        var result = await manager.GetISRCData(dms, song);
+
+        Assert.IsFalse(result, "Track with no ISRC should result in no change");
+        Assert.AreEqual(0, testIndex.EditCalls.Count);
+    }
 }
 

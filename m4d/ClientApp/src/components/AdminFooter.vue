@@ -91,6 +91,7 @@ const onBulkEdit = (submit: HTMLInputElement | null): void => {
             >iTunes</BDropdownItem
           >
           <BDropdownItem :href="batchUrlBase('batchEchoNest', -1)">EchoNest</BDropdownItem>
+          <BDropdownItem :href="batchUrlBase('batchISRC', -1)">ISRC</BDropdownItem>
           <BDropdownItem :href="batchUrlBase('batchSamples', -1)">Samples</BDropdownItem>
           <BDropdownItem>User Tags (deprecated)</BDropdownItem>
           <BDropdownItem>Tags (deprecated)</BDropdownItem>
