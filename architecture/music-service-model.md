@@ -6,10 +6,11 @@
 
 ```
 MusicService (abstract base, m4dModels/MusicService.cs)
-├── ITunesService   (m4dModels/ITunesService.cs)   CID='I'  Searchable
-├── SpotifyService  (m4dModels/SpotifyService.cs)   CID='S'  Searchable
-├── AmazonService   (m4dModels/AmazonService.cs)    CID='A'  Not searchable
-└── MusicServiceStub                                 CID=E/P/M  Not searchable
+├── ITunesService      (m4dModels/ITunesService.cs)    CID='I'  IsIndexed  CanSearchExternally
+├── SpotifyService     (m4dModels/SpotifyService.cs)   CID='S'  IsIndexed  CanSearchExternally
+├── ISRCService        (m4dModels/ISRCService.cs)      CID='R'  IsIndexed  (no external search)
+├── AmazonService      (m4dModels/AmazonService.cs)    CID='A'  (not indexed, no external search)
+└── MusicServiceStub                                    CID=E/P/M  (not indexed, no external search)
     (EMusic, Pandora, AMG — historical stubs)
 ```
 
@@ -18,8 +19,20 @@ All instances are registered once at static-class init time and looked up by `Se
 ```csharp
 MusicService.GetService(ServiceType.Spotify)   // by enum
 MusicService.GetService('S')                   // by CID char
-MusicService.GetSearchableServices()           // iTunes + Spotify only
+MusicService.GetIndexedServices()              // iTunes + Spotify + ISRC (Azure Search ServiceIds)
+MusicService.GetSearchableServices()           // iTunes + Spotify only (external enrichment loop)
 ```
+
+### IsIndexed vs CanSearchExternally
+
+`MusicService` has two boolean flags that independently control how a service participates in the pipeline:
+
+| Property | Default | Controls |
+| --- | --- | --- |
+| `IsIndexed` | `true` | Whether `GetExtendedPurchaseIds()` includes this service's IDs in the Azure Search `ServiceIds` field |
+| `CanSearchExternally` | `IsIndexed` | Whether the enrichment loop (`UpdateSongAndServices` / `ConditionalUpdateSongAndServices`) calls this service's external API |
+
+`ISRCService` sets `CanSearchExternally = false` because there is no ISRC search API — ISRCs are read from Spotify track metadata by `GetISRCData` and never looked up independently. This prevents the enrichment loop from calling `ParseSearchResults` on ISRC (which would always return empty) and then persisting a spurious `RecordFail('R')` entry on every song.
 
 ## Base Class Responsibility
 

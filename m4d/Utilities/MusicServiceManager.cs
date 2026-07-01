@@ -424,7 +424,7 @@ public class MusicServiceManager(IConfiguration configuration)
         return list;
     }
 
-    public async Task<ServiceTrack> GetMusicServiceTrack(string id, MusicService service)
+    public virtual async Task<ServiceTrack> GetMusicServiceTrack(string id, MusicService service)
     {
         var extra = id.IndexOf('[');
         if (extra != -1)

@@ -36,7 +36,8 @@ public class MusicService
     public ApplicationUser ApplicationUser =>
         new(User, true);
 
-    public virtual bool IsSearchable => true;
+    public virtual bool IsIndexed => true;
+    public virtual bool CanSearchExternally => IsIndexed;
     public virtual bool ShowInProfile => true;
     public string Domain => string.IsNullOrWhiteSpace(AssociateLink) ? null : new Uri(AssociateLink).DnsSafeHost;
     protected string AssociateLink { get; set; }
@@ -259,9 +260,14 @@ public class MusicService
         return IdMap.Values;
     }
 
+    public static IEnumerable<MusicService> GetIndexedServices()
+    {
+        return IdMap.Values.Where(s => s.IsIndexed);
+    }
+
     public static IEnumerable<MusicService> GetSearchableServices()
     {
-        return IdMap.Values.Where(s => s.IsSearchable);
+        return IdMap.Values.Where(s => s.CanSearchExternally);
     }
 
     public static IEnumerable<MusicService> GetProfileServices()

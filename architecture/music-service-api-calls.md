@@ -55,7 +55,7 @@ Key: `"{CID}:{trackId}"` (e.g., `"S:3X2p7fCVH4g5ITBGH8pEtZ"`). Cleared when coun
 | `UpdateSongAndServices`            | New song added; always re-queries all services  |
 | `ConditionalUpdateSongAndServices` | Bulk commit; skips services already tried       |
 
-Both iterate `MusicService.GetSearchableServices()` (iTunes then Spotify) and call the same inner methods.
+Both iterate `MusicService.GetSearchableServices()` (iTunes then Spotify — services with `CanSearchExternally = true`) and call the same inner methods. `ISRCService` is intentionally excluded from this loop (`CanSearchExternally = false`); its IDs are populated by `GetISRCData` rather than by the general enrichment path.
 
 ### Inner Flow
 
@@ -68,6 +68,7 @@ UpdateAudioData(dms, service, sd)
     └─ [Spotify only] GetEchoData(dms, sd)
            └─ ValidateAndCorrectTempo(dms, sd)
     └─ [Spotify or iTunes] GetSampleData(dms, sd)
+    └─ [Spotify only, if no ISRC yet] GetISRCData(dms, sd)
 ```
 
 ---
@@ -157,6 +158,20 @@ GET https://api.spotify.com/v1/audio-features?ids={id1},{id2},...
 ### `ValidateAndCorrectTempo(dms, song)`
 
 Only runs when the song has exactly one dance rating. Uses `dance.ValidateTempo(bpm, meter)` against WDC/NDCA tempo rules. If correction is needed, commits a tempo edit under the `tempo-bot` pseudo-user. If the meter looks wrong, adds `check-accuracy:Tempo` tag for manual review. See [tempo-validation-rules.md](tempo-validation-rules.md) for the per-dance rules.
+
+---
+
+## ISRC Enrichment
+
+### `GetISRCData(dms, song)`
+
+1. Iterates all Spotify track IDs on `song.GetPurchaseIds(spotify)`.
+2. For each, calls `GetMusicServiceTrack(id, spotify)` to retrieve `track.ISRC` from the Spotify tracks endpoint (`GET /v1/tracks/{id}`).
+3. Maintains a `seenISRCs` set (pre-seeded from any ISRCs already on the song) to deduplicate across re-releases that share the same recording.
+4. Finds the `AlbumDetails` in the edit copy whose Spotify track ID matches and calls `album.AddPurchaseId(PurchaseType.Song, ServiceType.ISRC, isrc)`.
+5. Commits via `dms.SongIndex.EditSong` attributed to `batch-s` (the Spotify pseudo-user, since the data originates from Spotify).
+
+`GetISRCData` is called by `UpdateAudioData` when a song has Spotify IDs but no ISRC yet. The `BatchISRC` admin batch action calls it in bulk via `BatchProcess`/`StreamAll`, skipping songs that already have any ISRC (`song.GetPurchaseId(ServiceType.ISRC) != null`).
 
 ---
 

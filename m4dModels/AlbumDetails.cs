@@ -348,7 +348,7 @@ public partial class AlbumDetails
     public IList<string> GetExtendedPurchaseIds(PurchaseType pt)
     {
         return Purchase != null
-            ? [.. MusicService.GetSearchableServices()
+            ? [.. MusicService.GetIndexedServices()
                 .SelectMany(
                     service => GetPurchaseIdentifiers(service.Id, pt)
                         .Select(id => $"{service.CID}:{id}"))]

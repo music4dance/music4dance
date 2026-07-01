@@ -14,7 +14,7 @@ internal class AmazonService : MusicService
     {
     }
 
-    public override bool IsSearchable => false;
+    public override bool IsIndexed => false;
 
     protected override string BuildPurchaseLink(PurchaseType pt, string album, string song)
     {
