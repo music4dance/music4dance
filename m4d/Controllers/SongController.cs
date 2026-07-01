@@ -1772,9 +1772,13 @@ public class SongController : ContentController
         UseVue = UseVue.No;
         return BatchProcess(
             async (dms, song) =>
-                await MusicServiceManager.GetISRCData(dms, song)
+            {
+                if (song.GetPurchaseId(ServiceType.ISRC) != null)
+                    return null;
+                return await MusicServiceManager.GetISRCData(dms, song)
                     ? song
-                    : null);
+                    : null;
+            });
     }
 
     #endregion
