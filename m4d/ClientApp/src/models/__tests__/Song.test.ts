@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { Song } from "../Song";
 import { SongHistory } from "../SongHistory";
 import { PropertyType, SongProperty } from "../SongProperty";
-import { AmazonPurchaseInfo, ServiceType } from "../Purchase";
+import { AmazonPurchaseInfo, ServiceObjectType, ServiceType } from "../Purchase";
 import { DanceRating } from "../DanceRating";
 
 describe("Song", () => {
@@ -456,6 +456,71 @@ describe("Song", () => {
       expect(info.link).toContain("amazon.com/s");
       expect(info.link).toContain(encodeURIComponent("The Beatles Let It Be"));
       expect(info.link).not.toContain("/dp/");
+    });
+  });
+
+  describe("buildAlbumInfo (via fromHistory)", () => {
+    function makeHistory(properties: SongProperty[]): SongHistory {
+      return new SongHistory({
+        id: "test-id",
+        properties: [
+          new SongProperty({ name: ".Create", value: "" }),
+          new SongProperty({ name: "User", value: "batch-s" }),
+          new SongProperty({ name: "Time", value: new Date().toISOString() }),
+          new SongProperty({ name: "Title", value: "Test Song" }),
+          new SongProperty({ name: "Artist", value: "Test Artist" }),
+          ...properties,
+        ],
+      });
+    }
+
+    it("accumulates two Purchase properties for the same slot into a single album", () => {
+      // Two edit blocks each adding a different Spotify id for the same album index —
+      // both should end up on the AlbumDetails without the first being overwritten.
+      const history = makeHistory([
+        new SongProperty({ name: "Album:00", value: "My Album" }),
+        new SongProperty({ name: "Track:00", value: "3" }),
+        new SongProperty({ name: "Purchase:00:SS", value: "id1" }),
+        new SongProperty({ name: "Purchase:00:SS", value: "id2" }),
+      ]);
+
+      const song = Song.fromHistory(history);
+
+      expect(song.albums).toHaveLength(1);
+      // Primary id (first-added) is returned by getId
+      expect(song.albums![0].purchase.getId(ServiceType.Spotify, ServiceObjectType.Song)).toBe(
+        "id1",
+      );
+    });
+
+    it("Purchase- removes a specific id while leaving siblings intact", () => {
+      const history = makeHistory([
+        new SongProperty({ name: "Album:00", value: "My Album" }),
+        new SongProperty({ name: "Purchase:00:SS", value: "id1" }),
+        new SongProperty({ name: "Purchase:00:SS", value: "id2" }),
+        new SongProperty({ name: "Purchase-:00:SS", value: "id1" }),
+      ]);
+
+      const song = Song.fromHistory(history);
+
+      // id1 was removed; id2 becomes the new primary
+      expect(song.albums![0].purchase.getId(ServiceType.Spotify, ServiceObjectType.Song)).toBe(
+        "id2",
+      );
+    });
+
+    it("Purchase- removing the last id clears the slot", () => {
+      const history = makeHistory([
+        new SongProperty({ name: "Album:00", value: "My Album" }),
+        new SongProperty({ name: "Purchase:00:SS", value: "id1" }),
+        new SongProperty({ name: "Purchase-:00:SS", value: "id1" }),
+      ]);
+
+      const song = Song.fromHistory(history);
+
+      expect(
+        song.albums![0].purchase.getId(ServiceType.Spotify, ServiceObjectType.Song),
+      ).toBeUndefined();
     });
   });
 });

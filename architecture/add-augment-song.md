@@ -1,0 +1,366 @@
+# Add / Augment Song
+
+## Overview
+
+"Augment" is the user-facing flow for adding a song to the music4dance catalog, or attaching a
+service (Spotify/Apple Music) track to a catalog song that's missing it. It lives at
+`/song/augment` (`SongController.Augment`, [SongController.cs:784](../m4d/Controllers/SongController.cs#L784))
+and is rendered as a Vue page (`src/pages/augment/`). This document covers that flow end to end:
+the two ways a user can locate a track (by service ID, by title/artist), the lookup-time
+enrichment/dedup that happens server-side before the user ever sees an edit form, and the
+separate, later step where the user's own votes/tags get saved.
+
+This is a different "add songs" surface than the admin playlist-import system
+([[playlist-management]]) and different again from the read-only [[song-search-results]] flow —
+this one is anonymous-reachable for *searching*, but actually creating/editing requires sign-in.
+
+---
+
+## Entry Point: `/song/augment`
+
+```csharp
+public ActionResult Augment(string title = null, string artist = null, string id = null, string dance = null)
+```
+
+Renders `AugmentViewModel { Title, Artist, Id, Dance }` into the `augment` Vue page. All four
+fields are optional query-string seeds — e.g. the playlist viewer's "add unmatched song" links
+(see [[song-search-results]]) land here with just `?id=<spotifyTrackId>`.
+
+### Vue page (`src/pages/augment/App.vue`)
+
+A three-phase state machine (`AugmentPhase`: `lookup` → `results`/`edit`):
+
+- **`lookup`** — shown first. If the viewer is authenticated (`context.userName` set), shows a
+  `BTabs` with **by Title**, **by Id**, and (for admins) **Admin** (paste raw property TSV). If
+  not authenticated, shows `AugmentInfo` instead — a "you must sign in" gate; anonymous users can
+  search but not commit anything.
+- **`results`/`edit`** — once a song is found or a new one is started, `SongCore` (the same
+  song-detail editor used by `/song/details`) takes over, pre-filled via `SongDetailsModel
+  { created, songHistory, filter, userName }`. The page's only job before this point is to obtain
+  that `SongDetailsModel`. Saving/voting from here on follows the **normal song-edit save path**,
+  not anything Augment-specific.
+
+`computedId`/`computedDance` are stripped to `undefined` once `model.value.id` is cleared (it's
+needed so `AugmentLookup` doesn't immediately re-trigger its `onMounted` lookup on remount after a
+reset).
+
+---
+
+## Locating a Track
+
+### By ID (`AugmentLookup.vue`)
+
+Used when the caller already has a service ID or URL (the common path coming from the playlist
+viewer's "Add" links, or pasting a Spotify/Apple Music URL). `ServiceMatcher`
+(`src/helpers/ServiceMatcher.ts`) recognizes the ID shape via regex (bare 22-char Spotify ID, bare
+7–10 digit iTunes ID, or either as a full open.spotify.com/itunes URL) and calls:
+
+```
+GET /api/servicetrack/{serviceChar}{id}?localOnly=false&danceId=<dance>
+```
+
+→ `ServiceTrackController.Get` ([ServiceTrackController.cs:23](../m4d/APIControllers/ServiceTrackController.cs#L23)).
+
+### By Title/Artist (`AugmentSearch.vue`)
+
+Used when the caller doesn't have a specific track ID. Two-step UI:
+
+1. `GET /api/song?title=...&artist=...` (`APIControllers/SongController.Get`, calls
+   `SongIndex.SongsFromTitleArtist`) — searches the **catalog** first. If a match is shown and
+   picked, the user clicks straight into edit mode (`SongDetailsModel{created:false}`) — no
+   service lookup needed at all.
+2. If nothing matches (or the user wants a different one), **Search Spotify** / **Search Apple
+   Music** buttons call `GET /api/musicservice?service=S|I&title=...&artist=...`
+   (`MusicServiceController.Get` → `MusicServiceManager.FindMusicServiceSong`) to search the
+   *service's* catalog instead. Picking a result from that list calls
+   `GET /api/servicetrack/{service}{trackId}` — i.e. it converges on the same by-ID lookup as
+   above, just with a service-search step in front of it.
+
+---
+
+## `ServiceTrackController.Get` — Lookup, Dedup, and Side-Effecting Create
+
+```csharp
+[HttpGet("{id}")]
+public async Task<IActionResult> Get(string id, bool localOnly = false, string danceId = null)
+```
+
+This is a `GET`, but it is **not read-only** — looking up an ID this way can create or modify a
+catalog song as a side effect, which is why the controller carries `[ValidateAntiForgeryToken]`.
+
+1. `SongIndex.GetSongFromService(service, id)` — exact lookup: searches the Azure `ServiceIds`
+   field for `"{CID}:{id}"` (e.g. `"S:4iV5W9...""`). If found, that's the song — done, no
+   enrichment needed, nothing to merge.
+2. If not found and `!localOnly`: `MusicServiceManager.CreateSong(Database, user, id, service,
+   danceId)` — see below. `localOnly=true` (used by `SongButton.vue` in the Spotify explorer admin
+   tool) skips this and just reports "not found" without creating anything.
+3. `created` is computed as `await SongIndex.FindSong(song.SongId) == null` — checked *after*
+   `CreateSong` has already run (and already saved, if it matched/modified an existing song), so
+   for the "matched existing song" case this is always `false` → the client shows "Edit Song"
+   ("We found this song in the music4dance catalog..."). For a genuinely new song it's `true` →
+   "Create Song".
+
+### `MusicServiceManager.CreateSong` — [MusicServiceManager.cs:457](../m4d/Utilities/MusicServiceManager.cs#L457)
+
+```csharp
+public async Task<Song> CreateSong(DanceMusicCoreService dms,
+    ApplicationUser user, string id, MusicService service, string danceId = null)
+{
+    var track = await GetMusicServiceTrack(id, service);          // fetch metadata for *this* id
+    if (track == null) return null;
+
+    var song = await Song.UserCreateFromTrack(dms, user, track, danceId);   // transient candidate
+
+    var found = false;
+    var oldSong = await dms.SongIndex.FindMatchingSong(song);      // dedup by title (+ length)
+    if (oldSong != null)
+    {
+        found = true;
+        song = oldSong;                                            // prefer the existing song
+    }
+
+    _ = await UpdateSongAndServices(dms, song);     // re-search ALL services by title/artist
+    _ = await UpdateFromTracks(dms, song, [track]); // apply *this* track's data explicitly
+    _ = await UpdateAudioData(dms, service, song);  // tempo/danceability/sample, if missing
+
+    if (found)
+    {
+        await dms.SongIndex.SaveSong(song);          // persist (new songs are saved earlier)
+    }
+
+    return song;
+}
+```
+
+- **Dedup**: `SongIndex.FindMatchingSong` (`MergeFromTitle` under the hood — same general family
+  of title-similarity matching as [[song-merge-algorithm]], though that document covers the
+  admin merge-candidate UI specifically) only treats `MatchType.Exact` or `MatchType.Length` as a
+  match. Anything weaker and `found` stays `false` — a new song gets created, even if it's
+  arguably "the same song" the cataloger was thinking of.
+- **Attribution split**: `Song.UserCreateFromTrack` attributes the row creation to the real
+  `user`, but immediately re-attributes the rest of the initial property block to the *service's*
+  bot/pseudo `ApplicationUser` (e.g. `spotify|P`) — the human only gets credit for the implicit
+  "like". The enrichment calls below (`UpdateSongAndServices`, `UpdateFromTracks`) attribute their
+  edits to the service bot user too (see `UpdateFromTracks` below) — this is why service-driven
+  metadata edits show up in song history as `batch-s|P`, `spotify|P`, etc., not the cataloger's
+  name.
+- **Why `UpdateSongAndServices` runs at all here**: it's a blanket "fill in whatever's missing
+  from every service" pass (iTunes, Amazon, etc., not just the one the user searched), independent
+  of the literal track being added. It's mostly a no-op for the service actually being added
+  (since that work happens next), but fills gaps for the *other* services on a freshly-matched
+  existing song.
+
+### `UpdateFromTracks` → `UpdateMusicServiceFromTrack` → `UpdateMusicService`
+
+```
+UpdateFromTracks(dms, song, [track])
+  → edit = await Song.Create(song, dms)              // independent deep clone, for diffing
+  → UpdateMusicServiceFromTrack(dms, edit, track, ref tags)
+      → UpdateMusicService(edit, service, name, album, artist, trackId, collectionId, ...)
+  → SongIndex.EditSong(serviceBotUser, song, edit, tags)   // diffs edit against song, mutates song in place
+```
+
+`UpdateMusicService` ([MusicServiceManager.cs:241](../m4d/Utilities/MusicServiceManager.cs#L241))
+fills in `Title`/`Artist` only if currently blank, finds-or-creates the matching `AlbumDetails`
+entry (`Song.FindAlbum(album, trackNum)`, matched by cleaned album name + optionally track
+number), and calls `UpdateMusicServicePurchase` to stamp the service's track/album IDs onto that
+album entry. Length is backfilled from the track's duration if the song doesn't have one.
+
+`SongIndex.EditSong(user, song, edit, tags)` (the 3-arg overload,
+[SongIndex.cs:271](../m4dModels/SongIndex.cs#L271)) is what actually performs the diff —
+`Song.Edit` → `EditCore` walks `edit.Albums` against the song's current albums by `Index`: a
+matching index calls `AlbumDetails.ModifyInfo`/`PurchaseDiff` (changed-property edits); no matching
+index calls `AlbumDetails.CreateProperties` (brand-new album, new properties). Either way, the
+diff is applied to `song`'s own `SongProperties` *in place* — `CreateSong`'s final
+`SongIndex.SaveSong(song)` is what pushes the accumulated in-memory state to the Azure index (and,
+via the same code path used elsewhere, the durable property log).
+
+---
+
+## Multiple IDs Per Album/Service Slot (the fix for stale IDs)
+
+`AlbumDetails.Purchase` is a `Dictionary<string, string>` keyed by service+type (e.g. `"SS"` =
+Spotify Song). `UpdateMusicServicePurchase`
+([MusicServiceManager.cs:332](../m4d/Utilities/MusicServiceManager.cs#L332)) used to do:
+
+```csharp
+var old = ad.GetPurchaseIdentifier(service.Id, pt);
+if (old != null && old.StartsWith(trackId)) return;   // already correct, skip
+ad.SetPurchaseInfo(pt, service.Id, trackId);            // otherwise: set (overwrite) unconditionally
+```
+
+Services — Spotify in particular — periodically reissue a *different* track ID for what is, as
+far as the catalog cares, the same recording (same title/artist/album/track number). `Song.FindAlbum`
+still matches that existing album (it matches on album name/track number, not on the service ID),
+and `UpdateMusicServicePurchase` would silently **overwrite** the already-stored ID with the new
+one — losing the old ID rather than accumulating both. The practical symptom: a playlist built
+from the *old* ID would eventually stop matching after the *new* ID overwrote it, even though the
+song was otherwise correctly enriched.
+
+**First attempt (rejected)**: force a *new* `AlbumDetails` entry whenever the matched album already
+carried a conflicting ID, so the old and new IDs each got their own slot. This worked, but it's
+user-visible: the song-details page would then show what looks like two copies of the same album,
+and every per-album field (`Album`, `Track`, `Publisher` — currently small, but the catalog is
+expected to grow this set, e.g. label, on-album title, release date) gets duplicated right along
+with it.
+
+**Shipped fix**: keep one `AlbumDetails` entry per real album, and let a single `Purchase`
+dictionary *value* hold more than one ID for the same service+type, comma-separated (service IDs
+themselves — Spotify/iTunes/Amazon — are alphanumeric and never contain a comma, so this is a safe
+in-band separator; SongProperty values otherwise only reserve `\t`, `\r\n`, and `=`, see
+`SongProperty.ToString`/`SongProperty(string,string)`). `AlbumDetails`
+([AlbumDetails.cs](../m4dModels/AlbumDetails.cs)) gained:
+
+| Member | Role |
+| --- | --- |
+| `AddPurchaseId(pt, ms, value)` | Appends `value` to the slot if not already present (no-op if it already is). Used in place of the old unconditional `SetPurchaseInfo` call inside `UpdateMusicServicePurchase`. |
+| `GetPurchaseIdentifiers(ms, pt)` | Full, possibly multi-valued, list of IDs for a slot. |
+| `GetPurchaseIdentifier(ms, pt)` | Unchanged signature — now just the **primary** (first) ID, for every caller that only ever needed one (equality checks, link-building). |
+| `GetPurchaseLink(ms, pt, region)` | Builds the clickable purchase link from the primary ID only — a multi-valued slot can only ever resolve to one canonical URL. |
+| `GetExtendedPurchaseIds(pt)` | Flattens a multi-valued slot into multiple `"{CID}:{id}"` entries instead of one, so every ID still lands in `Song.GetExtendedPurchaseIds()` / the Azure `ServiceIds` field. |
+
+`Song.GetPurchaseIds(MusicService)` (used directly by the playlist viewer's track-order matching,
+[[song-search-results]]) was updated to flatten via `GetPurchaseIdentifiers` too, so a song with two
+Spotify IDs on the same album now matches a playlist built from *either* one.
+
+No data is lost, no UI duplication, and no separate re-validation pass is required — this
+self-heals the next time anyone augments/looks up the song under the new ID, e.g. via the playlist
+viewer's "Add" button.
+
+### Knock-on fix: `CleanBrokenServices`
+
+The admin link-health batch job (`BatchCleanService` type `B`,
+[SongController.cs:1882](../m4d/Controllers/SongController.cs#L1882)) tests each purchase link and
+deletes the backing `SongProperty` outright when the link 404s. Against a multi-valued slot that
+would have deleted *both* IDs whenever the primary one went dead, even if the sibling was still
+good. Fixed via a new `RemoveDeadPurchaseId` helper that strips just the dead ID and keeps any
+siblings, only queuing the whole property for removal once nothing is left. (It also incidentally
+fixes a latent imprecision in the old matching — `Value.StartsWith(link.SongId)` — which could
+match a *longer* ID with the right prefix; the new version splits and compares exact elements.)
+
+### Client-side awareness
+
+The song-details page doesn't reconstruct purchase links from a resolved `PurchaseLink` model —
+it replays the raw `SongHistory` property log itself (`Song.ts`'s `buildAlbumInfo`) into a
+`PurchaseEncoded` client model (`Purchase.ts`) holding the very same raw, possibly multi-valued
+strings (`ss`, `sa`, `is`, `ia`, `as`, `aa`). `PurchaseEncoded.cleanId` was updated to also truncate
+at the first comma (in addition to its existing `[`-truncation for legacy annotations) before
+building a Spotify/iTunes/Amazon link — same "primary ID only" rule as the server.
+
+### Bug: accumulated IDs were not written to `SongProperties` (now fixed)
+
+The `AddPurchaseId` / comma-separated-value design worked at the in-memory level but had a
+silent gap in the diff path that persists edits to the property log. `AlbumDetails.PurchaseDiff`
+(called by `ModifyInfo` → `EditCore` → `Song.Edit`) contains a "Change" branch that fires when
+a slot's value has mutated:
+
+```csharp
+// Before fix — the condition was always false:
+else if (!string.Equals(value, value))   // comparing the variable to itself!
+{
+    ChangeProperty(song, Index, Song.PurchaseField, key,
+        value, value);                    // and both old/new were the same
+}
+```
+
+Because `!string.Equals(value, value)` is always `false`, the "Change" branch never fired. When
+`UpdateMusicServicePurchase` called `AddPurchaseId` to extend `"oldId"` to `"oldId,newId"` on
+the in-memory `edit` clone, the subsequent `EditSong` diff saw the change in the
+`Purchase` dictionary but never emitted a `SongProperty` for it. The property log (and therefore
+the Azure `ServiceIds` field) stayed at `"oldId"`, so the new ID was not searchable.
+
+**Fix** ([AlbumDetails.cs](../m4dModels/AlbumDetails.cs), `PurchaseDiff`): compare `value`
+(the old slot value from `TryGetValue`) against `Purchase[key]` (the new slot value):
+
+```csharp
+else if (!string.Equals(value, Purchase[key]))
+{
+    ChangeProperty(song, Index, Song.PurchaseField, key,
+        value, Purchase[key]);
+}
+```
+
+Covered by `AlbumDetailsTests.PurchaseDiff_AccumulatedIdOnExistingSlot_EmitsChangeAndReturnsTrue`
+(unit test for `PurchaseDiff` directly) and
+`SongTests.Edit_AccumulatedTrackIdOnExistingAlbum_WritesCombinedIdToSongProperties`
+(integration test through `Song.Edit` → `EditCore` → `ModifyInfo` → `PurchaseDiff`).
+
+### Residual gaps from this approach
+
+- `TrackList.vue`'s "not already added" filter (an editing-page admin tool that suggests
+  service tracks not yet linked to the song) compares a *prospective* track's ID against only the
+  *primary* ID of each album's purchase slot. A track matching a secondary ID would incorrectly
+  still show up as "not yet added" — purely cosmetic (clicking "Add" on it again is a safe no-op
+  server-side, just a redundant suggestion).
+- `SpotifySongProperties`/`UpdateSpotifyGenre` (genre-tag enrichment,
+  [SongController.cs:1872](../m4d/Controllers/SongController.cs#L1872)) passes a `Purchase:*:SS`
+  property's raw value straight to the Spotify track-lookup API. For a multi-valued slot that's a
+  malformed ID (the joined string), so that album's genre enrichment is silently skipped rather
+  than looking up either ID individually — a missed enrichment, not a correctness issue.
+- `MusicServiceManager.MatchSongAndService`'s "reconstruct existing IDs" loop looks up which album
+  an existing ID belongs to via `GetPurchaseIdentifier` (primary only); for a secondary ID this
+  album lookup misses, so the synthetic `ServiceTrack` it builds for that ID has no
+  `Album`/`TrackNumber`/`CollectionId` — the ID itself is still correct, just without that extra
+  context.
+
+---
+
+## Saving the User's Own Edits
+
+Everything above happens *before* the user has touched anything — it's automatic enrichment
+attributed to the service bot user, triggered by a lookup. The user's actual contribution (voting
+on dances, adding tags, correcting title/artist) happens in `SongCore` after the lookup, and is
+saved through a completely separate path (`SongEditor.ts`, `APIControllers/SongController`):
+
+| Case | Client call | Server action |
+| --- | --- | --- |
+| Editing an existing song (the common Augment outcome — "Edit Song") | `PATCH /api/song/{id}` | `SongIndex.AppendHistory` — normal user edit, attributed to the signed-in user |
+| Brand new song (`created: true`) | `POST /api/song/` | `SongIndex.CreateOrMergeSong` |
+| Admin raw edit | `PUT /api/song/{id}` | `SongIndex.AdminEditSong` |
+
+This split matters for the architecture: the service-ID merge/enrichment fix above happens
+*regardless* of whether the user ever clicks save on the edit form — simply looking a track up by
+ID is enough to trigger it (and persist it), because `ServiceTrackController.Get` is a mutating
+`GET`.
+
+---
+
+## Known Gaps / Future Work
+
+- See "Residual gaps from this approach" above for the small, low-severity imprecisions the
+  multi-ID-per-slot design introduced (all involve a *secondary* ID being treated as absent by a
+  handful of call sites that only ever look at the primary one).
+- **No proactive re-validation**: stale IDs are only fixed reactively, when someone happens to
+  augment/look up the song under its new ID (e.g. via the playlist viewer's unmatched-song "Add"
+  flow). There's no background job that re-checks existing catalog IDs against the service for
+  staleness. An additional lookup step during playlist matching itself (matching by title/artist
+  as a fallback when the literal ID filter misses) was discussed but not implemented — see
+  [[song-search-results]] for the current ID-only matching behavior of the playlist viewer.
+- **Dedup strictness**: `FindMatchingSong` only accepts `MatchType.Exact`/`MatchType.Length`. A
+  near-miss (e.g. a "(Remastered)" suffix difference that title-cleaning doesn't normalize) results
+  in a duplicate song being created rather than merged — a separate concern from the ID-conflict
+  fix here, addressable instead via [[song-merge-algorithm]]'s admin merge-candidate tooling after
+  the fact.
+
+---
+
+## Related Code
+
+| File | Purpose |
+| --- | --- |
+| `m4d/Controllers/SongController.cs` | `Augment` action — renders the Vue page |
+| `m4d/ClientApp/src/pages/augment/App.vue` | Phase state machine (lookup/results/edit) |
+| `m4d/ClientApp/src/pages/augment/components/AugmentLookup.vue` | By-ID lookup tab |
+| `m4d/ClientApp/src/pages/augment/components/AugmentSearch.vue` | By-title/artist search tab, with service-search fallback |
+| `m4d/ClientApp/src/helpers/ServiceMatcher.ts` | ID/URL recognition, `/api/servicetrack` call |
+| `m4d/APIControllers/ServiceTrackController.cs` | By-ID lookup + side-effecting create/merge |
+| `m4d/APIControllers/MusicServiceController.cs` | By-title/artist search against a service's own catalog |
+| `m4d/APIControllers/SongController.cs` | Catalog title/artist search; PATCH/PUT/POST save endpoints |
+| `m4d/Utilities/MusicServiceManager.cs` | `CreateSong`, `UpdateSongAndServices`, `UpdateFromTracks`, `UpdateMusicService`, `UpdateMusicServicePurchase` |
+| `m4dModels/Song.cs` | `UserCreateFromTrack`, `CreateFromTrack`, `FindAlbum`, `Edit`/`EditCore`, `GetPurchaseIds` |
+| `m4dModels/AlbumDetails.cs` | `Purchase` dictionary, `AddPurchaseId`/`GetPurchaseIdentifiers`/`GetPurchaseIdentifier`, `PurchaseDiff`/`ModifyInfo`/`CreateProperties` |
+| `m4dModels/SongIndex.cs` | `GetSongFromService`, `FindMatchingSong`, `EditSong` overloads, `SaveSong` |
+| `m4d/Controllers/SongController.cs` | `CleanBrokenServices`/`RemoveDeadPurchaseId` (admin link-health batch job) |
+| `m4d/ClientApp/src/models/SongEditor.ts` | Client-side save (`saveChanges`/`create`) |
+| `m4d/ClientApp/src/models/Purchase.ts` | `PurchaseEncoded`/`cleanId` — primary-ID extraction for purchase links |
+| `m4d/ClientApp/src/models/Song.ts` | `buildAlbumInfo` — replays raw `Purchase:NN:XY` properties into `PurchaseEncoded` |

@@ -146,45 +146,76 @@ public class SongController : ContentController
                 $"Playlist {id} doesn't exist or is empty.");
         }
 
-        var filter =
-            $"ServiceIds/any(id: search.in(id, '{string.Join(',', playlist.Tracks.Select(t => $"S:{t.TrackId}"))}'))";
-        var options = new SearchOptions
-        {
-            QueryType = SearchQueryType.Full,
-            SearchMode = SearchMode.All,
-            Filter = filter,
-            Size = 1000,
-            IncludeTotalCount = true,
-        };
+        var canAddSongs = Identity.IsAuthenticated;
+        var matchLimit = MatchLimitForSubscription(await GetSubscriptionLevel());
+
+        // Matching costs an Azure Search round-trip sized to the number of tracks in the
+        // filter, so only check as many playlist tracks (in playlist order) as this viewer's
+        // subscription tier will actually display, rather than matching the whole playlist
+        // and discarding the rest.
+        var candidateTracks = playlist.Tracks.Take(matchLimit).ToList();
 
         try
         {
-            var results = await SongIndex
-                .Search(null, options, CruftFilter.NoCruft);
-            // Sort songs based on their order in the playlist using Spotify purchase IDs.
+            // An empty playlist has no tracks to build an OData filter from, so skip the
+            // search entirely rather than sending Azure a degenerate "match nothing" query.
+            var results = candidateTracks.Count == 0
+                ? new SearchResults("", 0, 0, 1, matchLimit, [], new Dictionary<string, IList<FacetResult>>())
+                : await SongIndex.Search(
+                    null,
+                    new SearchOptions
+                    {
+                        QueryType = SearchQueryType.Full,
+                        SearchMode = SearchMode.All,
+                        Filter =
+                            $"ServiceIds/any(id: search.in(id, '{string.Join(',', candidateTracks.Select(t => $"S:{t.TrackId}"))}'))",
+                        Size = matchLimit,
+                        IncludeTotalCount = true,
+                    },
+                    CruftFilter.NoCruft);
+            // Sort songs based on their order in the playlist using Spotify purchase IDs,
+            // tracking which playlist track (if any) each song matched so we can report
+            // the leftover, catalog-unmatched tracks below.
 
-            var trackOrder = playlist.Tracks
+            var trackOrder = candidateTracks
                 .Select((t, i) => new { t.TrackId, Index = i })
-                .ToDictionary(x => x.TrackId, x => x.Index);
+                .GroupBy(x => x.TrackId)
+                .ToDictionary(g => g.Key, g => g.First().Index);
 
             var sorted = results.Songs
-                .OrderBy(song =>
+                .Select(song =>
                 {
-                    var spotifyIds = song.GetPurchaseIds(spotify);
-                    var spotifyId = spotifyIds.FirstOrDefault(id => trackOrder.ContainsKey(id));
-                    return trackOrder.TryGetValue(spotifyId, out var idx) ? idx : int.MaxValue;
+                    var matchedIds = song.GetPurchaseIds(spotify).Where(trackOrder.ContainsKey).ToList();
+                    var index = matchedIds.Count > 0 ? matchedIds.Min(id => trackOrder[id]) : int.MaxValue;
+                    return (song, matchedIds, index);
                 })
+                .OrderBy(x => x.index)
                 .ToList();
+
+            var matchedTrackIds = sorted
+                .SelectMany(x => x.matchedIds)
+                .ToHashSet();
+
+            var unmatched = canAddSongs
+                ? candidateTracks
+                    .Where(t => !matchedTrackIds.Contains(t.TrackId))
+                    .Select(t => new UnmatchedTrack { Title = t.Name, Artist = t.Artist, TrackId = t.TrackId })
+                    .ToList()
+                : [];
 
             var model = new PlaylistViewerModel
             {
                 Id = id,
-                Histories = await AnonymizeSongs(sorted),
+                Histories = await AnonymizeSongs(sorted.Select(x => x.song).ToList()),
                 Name = playlist.Name,
                 Description = playlist.Description,
                 OwnerId = playlist.OwnerId,
                 OwnerName = playlist.OwnerName,
-                TotalCount = playlist.Tracks.Count()
+                TotalCount = playlist.Tracks.Count(),
+                CheckedCount = candidateTracks.Count,
+                MatchedCount = matchedTrackIds.Count,
+                CanAddSongs = canAddSongs,
+                Unmatched = unmatched
             };
 
             return Vue3($"{playlist.Name} music4dance",
@@ -196,6 +227,20 @@ public class SongController : ContentController
             return HandleRedirect(ex);
         }
     }
+
+    /// <summary>
+    /// Caps how many catalog-matched playlist songs are shown, as a subscription upsell:
+    /// anonymous and signed-in non-subscribers see the same small preview as a guest;
+    /// only paid tiers unlock progressively larger views.
+    /// </summary>
+    private static int MatchLimitForSubscription(SubscriptionLevel level) => level switch
+    {
+        SubscriptionLevel.Basic => 25,
+        SubscriptionLevel.Bronze => 100,
+        SubscriptionLevel.Silver => 250,
+        SubscriptionLevel.Gold => 500,
+        _ => 10,
+    };
 
     // TODO: Consider abstracting this (and maybe format) out into a builder/computer
     private async Task<ActionResult> DoAzureSearch()
@@ -1838,6 +1883,7 @@ public class SongController : ContentController
     private async Task<bool> CleanBrokenServices(Song song, ICollection<SongProperty> props)
     {
         var del = new List<SongProperty>();
+        var changed = false;
 
         foreach (var link in song.GetPurchaseLinks())
         {
@@ -1846,27 +1892,8 @@ public class SongController : ContentController
                 using var response = await HttpClient.GetAsync(link.Link);
                 if (!response.IsSuccessStatusCode)
                 {
-                    if (!string.IsNullOrWhiteSpace(link.SongId))
-                    {
-                        var t = props.FirstOrDefault(
-                            p => p.Name.StartsWith("Purchase") && p.Name.EndsWith('S') &&
-                                p.Value.StartsWith(link.SongId));
-                        if (t != null)
-                        {
-                            del.Add(t);
-                        }
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(link.AlbumId))
-                    {
-                        var t = props.FirstOrDefault(
-                            p => p.Name.StartsWith("Purchase") && p.Name.EndsWith('A') &&
-                                p.Value.StartsWith(link.AlbumId));
-                        if (t != null)
-                        {
-                            del.Add(t);
-                        }
-                    }
+                    changed |= RemoveDeadPurchaseId(props, del, 'S', link.SongId);
+                    changed |= RemoveDeadPurchaseId(props, del, 'A', link.AlbumId);
 
                     Logger.LogInformation($"Removing: {link.Link}");
                 }
@@ -1877,7 +1904,7 @@ public class SongController : ContentController
             }
         }
 
-        if (del.Count == 0)
+        if (!changed)
         {
             return false;
         }
@@ -1887,6 +1914,42 @@ public class SongController : ContentController
         foreach (var prop in del)
         {
             _ = props.Remove(prop);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Removes <paramref name="deadId"/> from a "Purchase...:{suffix}" property. A property's
+    /// value may hold more than one id for the same service/type (see
+    /// <see cref="AlbumDetails.AddPurchaseId"/>), so this strips out just the dead one and keeps
+    /// any siblings — only queuing the whole property for removal (via <paramref name="del"/>)
+    /// once nothing is left.
+    /// </summary>
+    internal static bool RemoveDeadPurchaseId(ICollection<SongProperty> props,
+        ICollection<SongProperty> del, char suffix, string deadId)
+    {
+        if (string.IsNullOrWhiteSpace(deadId))
+        {
+            return false;
+        }
+
+        var t = props.FirstOrDefault(
+            p => p.Name.StartsWith("Purchase") && p.Name.EndsWith(suffix) &&
+                p.Value.Split(',').Contains(deadId));
+        if (t == null)
+        {
+            return false;
+        }
+
+        var remaining = t.Value.Split(',').Where(idVal => idVal != deadId).ToArray();
+        if (remaining.Length == 0)
+        {
+            del.Add(t);
+        }
+        else
+        {
+            t.Value = string.Join(",", remaining);
         }
 
         return true;

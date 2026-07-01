@@ -113,7 +113,7 @@ await FlushBatchAsync();
 ```
 
 This avoids materialising the full candidate list in memory — songs not matching `WasEditedBy` are
-discarded page-by-page (see `StreamAll` behaviour in [vote-search.md](vote-search.md)).
+discarded page-by-page (see `StreamAll` behaviour in [song-search-service.md](song-search-service.md)).
 
 ---
 
@@ -182,8 +182,8 @@ OData filter before each page (to prevent `AddCruftInfo` from compounding across
 disables `IncludeTotalCount` for the duration (Azure would otherwise compute a total on every
 page request unnecessarily).
 
-See [vote-search.md](vote-search.md) for a description of the shared `PostSearch`/`StreamAll`
-pattern used by `VoteSearch` and `EditedBySearch`.
+See [song-search-service.md](song-search-service.md) for a description of the shared `PostSearch`/`StreamAll`
+pattern used by `VoteSearch` and `EditedBySearch`, and of `SongSearch.Search()` more generally.
 
 ---
 

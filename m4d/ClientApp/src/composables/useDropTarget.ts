@@ -41,6 +41,12 @@ export function useDropTarget() {
   }
 
   async function checkService(input: string): Promise<boolean> {
+    const playlistId = matcher.parsePlaylist(input);
+    if (playlistId) {
+      window.location.href = `/song/playlist?id=${playlistId}`;
+      return true;
+    }
+
     const service = matcher.match(input);
     if (service) {
       try {

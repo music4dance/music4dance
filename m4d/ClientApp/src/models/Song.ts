@@ -484,6 +484,7 @@ export class Song extends TaggableObject {
         case PropertyType.publisherField:
         case PropertyType.trackField:
         case PropertyType.purchaseField:
+        case PropertyType.removedPurchaseField:
           // All of these are taken care of with build album
           break;
         case PropertyType.deleteCommand:
@@ -601,6 +602,7 @@ export class Song extends TaggableObject {
       PropertyType.publisherField,
       PropertyType.trackField,
       PropertyType.purchaseField,
+      PropertyType.removedPurchaseField,
     ]);
 
     const map = new Map<number, AlbumDetails>();
@@ -633,6 +635,9 @@ export class Song extends TaggableObject {
             break;
           case PropertyType.purchaseField:
             details.purchase.addId(property.qualifier!, property.value);
+            break;
+          case PropertyType.removedPurchaseField:
+            details.purchase.removeId(property.qualifier!, property.value);
             break;
         }
       });

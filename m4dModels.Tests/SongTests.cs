@@ -690,4 +690,33 @@ public class SongTests
         Assert.AreEqual(c - 10, song.SongProperties.Count);
     }
 
+    [TestMethod]
+    public void Edit_AccumulatedTrackIdOnExistingAlbum_WritesNewIdAsSeparateSongProperty()
+    {
+        // When a second Spotify track ID is accumulated onto an existing album slot,
+        // Song.Edit (via EditCore → ModifyInfo → PurchaseDiff) must append a new
+        // SongProperty carrying just the new id. The original property is left in place;
+        // BuildAlbumInfo accumulates both ids when the song is next loaded.
+        var purchasePropName = SongProperty.FormatName(Song.PurchaseField, 0, "SS");
+
+        var song = new Song { Title = "Test Song", Artist = "Test Artist" };
+        song.SongProperties.Add(new SongProperty(SongProperty.FormatName(Song.AlbumField, 0), "Test Album"));
+        song.SongProperties.Add(new SongProperty(SongProperty.FormatName(Song.TrackField, 0), "1"));
+        song.SongProperties.Add(new SongProperty(purchasePropName, "oldTrack123"));
+
+        var edit = new Song { Title = "Test Song", Artist = "Test Artist" };
+        var editAlbum = new AlbumDetails { Name = "Test Album", Track = 1, Index = 0 };
+        _ = editAlbum.AddPurchaseId(PurchaseType.Song, ServiceType.Spotify, "oldTrack123");
+        _ = editAlbum.AddPurchaseId(PurchaseType.Song, ServiceType.Spotify, "newTrack456");
+        edit.Albums.Add(editAlbum);
+
+        var changed = song.Edit(ApplicationUser.AdminUser, edit, null, null);
+
+        Assert.IsTrue(changed);
+        var purchaseProps = song.SongProperties.Where(p => p.Name == purchasePropName).ToList();
+        Assert.AreEqual(2, purchaseProps.Count, "Expected the original property plus a new one for the added id");
+        Assert.AreEqual("oldTrack123", purchaseProps[0].Value, "Original property should be untouched");
+        Assert.AreEqual("newTrack456", purchaseProps[1].Value, "New property carries only the new id");
+    }
+
 }

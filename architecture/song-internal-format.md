@@ -123,13 +123,14 @@ rating rather than the song as a whole.
 
 Field families that follow this pattern:
 
-| Family         | Add field        | Remove field     | Extra behaviors                          |
-| -------------- | ---------------- | ---------------- | ---------------------------------------- |
-| Tags           | `Tag+`           | `Tag-`           | Categorized, pipe-delimited, `DeleteTag` |
-| Comments       | `Comment+`       | `Comment-`       | —                                        |
-| Choreographer  | `Choreographer+` | `Choreographer-` | Dance-scoped only                        |
-| Step sheet URL | `StepSheetUrl+`  | `StepSheetUrl-`  | Dance-scoped only                        |
-| Pattern name   | `PatternName+`   | —                | Dance-scoped only                        |
+| Family         | Add field        | Remove field     | Extra behaviors                                              |
+| -------------- | ---------------- | ---------------- | ------------------------------------------------------------ |
+| Tags           | `Tag+`           | `Tag-`           | Categorized, pipe-delimited, `DeleteTag`                     |
+| Comments       | `Comment+`       | `Comment-`       | —                                                            |
+| Choreographer  | `Choreographer+` | `Choreographer-` | Dance-scoped only                                            |
+| Step sheet URL | `StepSheetUrl+`  | `StepSheetUrl-`  | Dance-scoped only                                            |
+| Pattern name   | `PatternName+`   | —                | Dance-scoped only                                            |
+| Purchase IDs   | `Purchase:NN:Q`  | `Purchase-:NN:Q` | Album-indexed, one ID per property, see §3.6 for full rules  |
 
 Comments, Choreographer, StepSheetUrl, and PatternName are covered in detail in §3.4. Tag-specific
 behaviors are described below.
@@ -221,14 +222,51 @@ These appear at the start of every edit block and establish attribution for the 
 
 Albums are indexed (`:00`, `:01`, …) and each album can have multiple related properties.
 
-| Name                    | Value                   | Meaning                                                           |
-| ----------------------- | ----------------------- | ----------------------------------------------------------------- |
-| `Album:NN`              | Album name              | Name of the NN-th album                                           |
-| `Publisher:NN`          | Publisher name          | Label/publisher for album NN                                      |
-| `Track:NN`              | int                     | Track number within album NN                                      |
-| `Purchase:NN:qualifier` | service-specific ID     | Purchase link. Qualifier identifies the service and purchase type |
-| `PromoteAlbum`          | album index             | Mark an album as the preferred display album                      |
-| `OrderAlbums`           | comma-delimited indices | Override the display ordering of albums                           |
+| Name                     | Value                   | Meaning                                                                    |
+| ------------------------ | ----------------------- | -------------------------------------------------------------------------- |
+| `Album:NN`               | Album name              | Name of the NN-th album                                                    |
+| `Publisher:NN`           | Publisher name          | Label/publisher for album NN                                               |
+| `Track:NN`               | int                     | Track number within album NN                                               |
+| `Purchase:NN:qualifier`  | single service ID       | Adds one purchase ID. Qualifier identifies the service and purchase type   |
+| `Purchase-:NN:qualifier` | single service ID       | Removes one purchase ID from the accumulated set for that slot             |
+| `PromoteAlbum`           | album index             | Mark an album as the preferred display album                               |
+| `OrderAlbums`            | comma-delimited indices | Override the display ordering of albums                                    |
+
+#### Purchase accumulation semantics
+
+Each `Purchase:NN:qualifier` property holds **exactly one ID**. Multiple properties with the
+same `NN` and `qualifier` in the log are **additive** — all IDs accumulate into the in-memory
+`AlbumDetails.Purchase[qualifier]` slot when the log is replayed by `BuildAlbumInfo`.
+
+Services (Spotify in particular) periodically reissue different IDs for the same recording or
+album. Recording every known ID allows all of them to be used for searchability while the
+primary (first) ID is used for clickable links.
+
+```
+.Edit=
+User=batch-s|P
+Time=01/14/2016 22:04:36
+Purchase:04:SS=7zj5ZTermM0LKglr0Gj1z0
+.Edit=
+User=batch-s|P
+Time=08/04/2023 10:59:19
+Purchase:04:SS=6mVvHypAxQT1wxpduZPUp2
+```
+
+After replaying both blocks, `AlbumDetails[4].Purchase["SS"]` contains both IDs
+(`7zj5ZTermM0LKglr0Gj1z0,6mVvHypAxQT1wxpduZPUp2`). The first ID remains the primary link.
+
+To remove a specific ID from the accumulated set, append a `Purchase-` block:
+
+```
+.Edit=
+User=batch-s|P
+Time=...
+Purchase-:04:SS=7zj5ZTermM0LKglr0Gj1z0
+```
+
+An empty-value `Purchase:NN:qualifier=` (null remove) still clears the **entire** slot — this
+is used by `PurchaseDiff` when a service type is removed altogether.
 
 Purchase qualifiers combine a service code and purchase type code. Examples:
 
@@ -238,6 +276,8 @@ Purchase qualifiers combine a service code and purchase type code. Examples:
 | `AD`      | Amazon (`A`) | Album/disc (`D`) |
 | `IS`      | iTunes (`I`) | Song (`S`)       |
 | `IA`      | iTunes (`I`) | Album (`A`)      |
+| `SS`      | Spotify (`S`)| Song (`S`)       |
+| `SA`      | Spotify (`S`)| Album (`A`)      |
 
 ### 3.7 User Preference Fields
 
@@ -505,6 +545,8 @@ They map to the same string values:
 | `lengthField`             | `LengthField`              | `"Length"`         |
 | `addedTags`               | `AddedTags`                | `"Tag+"`           |
 | `removedTags`             | `RemovedTags`              | `"Tag-"`           |
+| —                         | `PurchaseField`            | `"Purchase"`       |
+| —                         | `RemovedPurchaseField`     | `"Purchase-"`      |
 | `danceRatingField`        | `DanceRatingField`         | `"DanceRating"`    |
 | `likeTag`                 | `LikeTag`                  | `"Like"`           |
 | `userProxy`               | `UserProxy`                | `"UserProxy"`      |

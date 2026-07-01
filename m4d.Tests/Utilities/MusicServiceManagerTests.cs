@@ -194,6 +194,52 @@ public class MusicServiceManagerTests
         Assert.AreEqual("Existing Album", song.Albums[0].Name);
     }
 
+    [TestMethod]
+    public void UpdateMusicService_SameTrackIdAlreadyOnAlbum_DoesNotAddAlbum()
+    {
+        var song = new Song { Title = "Title", Artist = "Artist" };
+        var existing = new AlbumDetails { Name = "Existing Album", Track = 1 };
+        existing.SetPurchaseInfo(PurchaseType.Song, ServiceType.Spotify, "track123");
+        song.Albums.Add(existing);
+        var service = MusicService.GetService(ServiceType.Spotify);
+
+        MusicServiceManager.UpdateMusicService(
+            song, service, "Title", "Existing Album", "Artist",
+            "track123", "collection456", null, "180", 1);
+
+        Assert.AreEqual(1, song.Albums.Count);
+        Assert.AreEqual(
+            "track123",
+            song.Albums[0].GetPurchaseIdentifier(ServiceType.Spotify, PurchaseType.Song));
+    }
+
+    [TestMethod]
+    public void UpdateMusicService_DifferentTrackIdOnMatchedAlbum_AccumulatesBothIdsOnSameAlbum()
+    {
+        // Spotify (and other services) periodically reissue a different track id for what is
+        // otherwise the same recording. The matched album already carries a different id;
+        // both should stay registered on that *same* album (no duplicate album entry, no lost
+        // id) - see AlbumDetails.AddPurchaseId.
+        var song = new Song { Title = "Title", Artist = "Artist" };
+        var existing = new AlbumDetails { Name = "Existing Album", Track = 1 };
+        existing.SetPurchaseInfo(PurchaseType.Song, ServiceType.Spotify, "oldTrack123");
+        song.Albums.Add(existing);
+        var service = MusicService.GetService(ServiceType.Spotify);
+
+        MusicServiceManager.UpdateMusicService(
+            song, service, "Title", "Existing Album", "Artist",
+            "newTrack456", "collection456", null, "180", 1);
+
+        Assert.AreEqual(1, song.Albums.Count);
+        CollectionAssert.AreEqual(
+            new[] { "oldTrack123", "newTrack456" },
+            (System.Collections.ICollection)song.Albums[0]
+                .GetPurchaseIdentifiers(ServiceType.Spotify, PurchaseType.Song));
+        Assert.AreEqual(
+            "oldTrack123",
+            song.Albums[0].GetPurchaseIdentifier(ServiceType.Spotify, PurchaseType.Song));
+    }
+
     #endregion
 
     // NOTE: ValidateAndCorrectTempo integration tests are in MusicServiceManagerIntegrationTests.cs

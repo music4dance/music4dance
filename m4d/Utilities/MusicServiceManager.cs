@@ -332,17 +332,14 @@ public class MusicServiceManager(IConfiguration configuration)
     private static void UpdateMusicServicePurchase(AlbumDetails ad, MusicService service,
         PurchaseType pt, string trackId, string alternateId = null)
     {
-        // Don't update if there is alread a trackId
-        var old = ad.GetPurchaseIdentifier(service.Id, pt);
-        if (old != null && old.StartsWith(trackId))
-        {
-            return;
-        }
-
-        ad.SetPurchaseInfo(pt, service.Id, trackId);
+        // Services (Spotify in particular) periodically reissue a different id for what is
+        // otherwise the same recording/album that FindAlbum already matched us to. AddPurchaseId
+        // accumulates rather than overwrites, so an older id already on file isn't lost - both
+        // will continue to match this song (see AlbumDetails.AddPurchaseId).
+        _ = ad.AddPurchaseId(pt, service.Id, trackId);
         if (!string.IsNullOrWhiteSpace(alternateId))
         {
-            ad.SetPurchaseInfo(pt, ServiceType.AMG, alternateId);
+            _ = ad.AddPurchaseId(pt, ServiceType.AMG, alternateId);
         }
     }
 

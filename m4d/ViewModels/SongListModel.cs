@@ -26,4 +26,24 @@ public class PlaylistViewerModel
     public string OwnerId { get; set; }
     public string OwnerName { get; set; }
     public int TotalCount { get; set; }
+
+    /// <summary>How many playlist tracks (in playlist order) were actually checked against the
+    /// catalog, bounded by the viewer's subscription-tier limit.</summary>
+    public int CheckedCount { get; set; }
+
+    /// <summary>Catalog matches found among the <see cref="CheckedCount"/> tracks checked.</summary>
+    public int MatchedCount { get; set; }
+
+    /// <summary>Whether the viewer is signed in and can add unmatched tracks to the catalog.</summary>
+    public bool CanAddSongs { get; set; }
+
+    /// <summary>Playlist tracks with no catalog match, populated only when <see cref="CanAddSongs"/>.</summary>
+    public List<UnmatchedTrack> Unmatched { get; set; }
+}
+
+public class UnmatchedTrack
+{
+    public string Title { get; set; }
+    public string Artist { get; set; }
+    public string TrackId { get; set; }
 }

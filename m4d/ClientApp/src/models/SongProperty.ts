@@ -51,6 +51,7 @@ export enum PropertyType {
   publisherField = "Publisher",
   trackField = "Track",
   purchaseField = "Purchase",
+  removedPurchaseField = "Purchase-",
   albumListField = "AlbumList",
   albumPromote = "PromoteAlbum",
   albumOrder = "OrderAlbums",

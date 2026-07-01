@@ -166,6 +166,120 @@ public partial class AlbumDetails
         Purchase[BuildPurchaseKey(pt, ms)] = value;
     }
 
+    // Services (Spotify in particular) periodically reissue a different id for what is
+    // otherwise the same recording/album. Rather than overwrite (and lose) a prior id, multiple
+    // ids for the same service/type are packed into one dictionary value, separated by ','.
+    // Service ids themselves never contain a comma (alphanumeric Spotify/iTunes/Amazon ids).
+    private const char IdSeparator = ',';
+
+    private static IReadOnlyList<string> SplitIds(string value) =>
+        [.. value.Split(IdSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct()];
+
+    /// <summary>
+    /// Adds <paramref name="value"/> to the (possibly already multi-valued) id slot for this
+    /// service/type, preserving any id(s) already there. No-ops if it's already present.
+    /// Returns true if the stored value changed.
+    /// </summary>
+    public bool AddPurchaseId(PurchaseType pt, ServiceType ms, string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        var ids = GetPurchaseIdentifiers(ms, pt);
+        if (ids.Contains(value))
+        {
+            return false;
+        }
+
+        Purchase ??= [];
+        Purchase[BuildPurchaseKey(pt, ms)] = string.Join(IdSeparator, [.. ids, value]);
+        return true;
+    }
+
+    /// <summary>
+    /// Adds a single <paramref name="id"/> to the slot identified by the raw
+    /// <paramref name="purchaseKey"/> (e.g. "SS", "IA"), accumulating alongside any existing
+    /// id(s). No-ops if <paramref name="id"/> is already present. Returns true if changed.
+    /// </summary>
+    public bool AddPurchaseId(string purchaseKey, string id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            return false;
+        }
+
+        Purchase ??= [];
+        if (Purchase.TryGetValue(purchaseKey, out var existing) && !string.IsNullOrWhiteSpace(existing))
+        {
+            var ids = SplitIds(existing);
+            if (ids.Contains(id))
+            {
+                return false;
+            }
+
+            Purchase[purchaseKey] = string.Join(IdSeparator, [.. ids, id]);
+        }
+        else
+        {
+            Purchase[purchaseKey] = id;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Removes a specific <paramref name="id"/> from the slot identified by
+    /// <paramref name="purchaseKey"/>. Removes the entire slot when it was the last id.
+    /// No-ops if the id is not present. Returns true if changed.
+    /// </summary>
+    public bool RemovePurchaseId(string purchaseKey, string id)
+    {
+        if (string.IsNullOrWhiteSpace(id) || Purchase == null)
+        {
+            return false;
+        }
+
+        if (!Purchase.TryGetValue(purchaseKey, out var existing) || string.IsNullOrWhiteSpace(existing))
+        {
+            return false;
+        }
+
+        var allIds = SplitIds(existing);
+        var remaining = allIds.Where(x => x != id).ToArray();
+        if (remaining.Length == allIds.Count)
+        {
+            return false;
+        }
+
+        if (remaining.Length == 0)
+        {
+            _ = Purchase.Remove(purchaseKey);
+        }
+        else
+        {
+            Purchase[purchaseKey] = string.Join(IdSeparator, remaining);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// All ids on file for this service/type — usually one, but see <see cref="AddPurchaseId"/>.
+    /// </summary>
+    public IList<string> GetPurchaseIdentifiers(ServiceType ms, PurchaseType pt)
+    {
+        if (Purchase == null ||
+            !Purchase.TryGetValue(MusicService.GetService(ms).BuildPurchaseKey(pt), out var value) ||
+            string.IsNullOrWhiteSpace(value))
+        {
+            return [];
+        }
+
+        return [.. value.Split(IdSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
+    }
+
     public static string BuildPurchaseInfo(PurchaseType pt, ServiceType ms, string value)
     {
         return $"{BuildPurchaseKey(pt, ms)}={value}";
@@ -234,11 +348,10 @@ public partial class AlbumDetails
     public IList<string> GetExtendedPurchaseIds(PurchaseType pt)
     {
         return Purchase != null
-            ? MusicService.GetSearchableServices()
-                .Where(service => Purchase.ContainsKey(BuildPurchaseKey(pt, service.Id)))
-                .Select(
-                    service => $"{service.CID}:{Purchase[BuildPurchaseKey(pt, service.Id)]}")
-                .ToList()
+            ? [.. MusicService.GetSearchableServices()
+                .SelectMany(
+                    service => GetPurchaseIdentifiers(service.Id, pt)
+                        .Select(id => $"{service.CID}:{id}"))]
             : [];
     }
 
@@ -251,11 +364,11 @@ public partial class AlbumDetails
         }
 
         var service = MusicService.GetService(ms);
-        var albumKey = service.BuildPurchaseKey(PurchaseType.Album);
-        var songKey = service.BuildPurchaseKey(PurchaseType.Song);
 
-        _ = Purchase.TryGetValue(albumKey, out var albumInfo);
-        _ = Purchase.TryGetValue(songKey, out var songInfo);
+        // Only the primary (first) id is used to build a clickable link — a multi-valued
+        // slot (see AddPurchaseId) can only ever link to one canonical destination.
+        var albumInfo = GetPurchaseIdentifier(ms, PurchaseType.Album);
+        var songInfo = GetPurchaseIdentifier(ms, PurchaseType.Song);
 
         var link = service.GetPurchaseLink(pt, albumInfo, songInfo);
         return link != null && !string.IsNullOrWhiteSpace(region) &&
@@ -264,33 +377,31 @@ public partial class AlbumDetails
                 : link;
     }
 
+    /// <summary>
+    /// The primary (first) id on file for this service/type. See <see cref="GetPurchaseIdentifiers"/>
+    /// for the full, possibly multi-valued, list.
+    /// </summary>
     public string GetPurchaseIdentifier(ServiceType ms, PurchaseType pt)
     {
-        // Short-circuit if there is no purchase info for this album
-        return Purchase == null
-            ? null
-            : !Purchase.TryGetValue(
-            MusicService.GetService(ms).BuildPurchaseKey(pt),
-            out var value)
-            ? null
-            : value;
+        return GetPurchaseIdentifiers(ms, pt).FirstOrDefault();
     }
 
     public bool PurchaseDiff(Song song, AlbumDetails old)
     {
         var modified = false;
 
-        // First delete all of the keys that are in old but not in new
+        // Emit Purchase- for each id that existed in old but is gone from new
         if (old.Purchase != null)
-        // ReSharper disable once LoopCanBeConvertedToQuery
         {
             foreach (var key in old.Purchase.Keys)
             {
-                if (Purchase != null && !Purchase.ContainsKey(key))
+                var oldIds = SplitIds(old.Purchase[key]);
+                var newIds = Purchase != null && Purchase.TryGetValue(key, out var nv) ? SplitIds(nv) : [];
+                foreach (var removedId in oldIds.Except(newIds))
                 {
-                    modified |= ChangeProperty(
-                        song, Index, Song.PurchaseField, key,
-                        old.Purchase[key], null);
+                    _ = song.CreateProperty(
+                        SongProperty.FormatName(Song.RemovedPurchaseField, Index, key), removedId);
+                    modified = true;
                 }
             }
         }
@@ -300,23 +411,16 @@ public partial class AlbumDetails
             return modified;
         }
 
-        // Now add all of the keys that are in new but either don't exist or are different in old
+        // Emit one Purchase property per id that is new (not in old)
         foreach (var key in Purchase.Keys)
         {
-            if (old.Purchase == null || !old.Purchase.TryGetValue(key, out var value))
-            // Add
+            var newIds = SplitIds(Purchase[key]);
+            var oldIds = old.Purchase != null && old.Purchase.TryGetValue(key, out var ov) ? SplitIds(ov) : [];
+            foreach (var addedId in newIds.Except(oldIds))
             {
-                modified |= ChangeProperty(
-                    song, Index, Song.PurchaseField, key, null,
-                    Purchase[key]);
-            }
-            else if (old.Purchase != null && old.Purchase.ContainsKey(key) &&
-                    !string.Equals(value, value))
-            // Change
-            {
-                modified |= ChangeProperty(
-                    song, Index, Song.PurchaseField, key,
-value, value);
+                _ = song.CreateProperty(
+                    SongProperty.FormatName(Song.PurchaseField, Index, key), addedId);
+                modified = true;
             }
         }
 
@@ -325,17 +429,21 @@ value, value);
 
     public void PurchaseAdd(Song song, AlbumDetails old)
     {
-        // Now add all of the keys that are in new but either don't exist or are different in old
         if (Purchase == null)
         {
             return;
         }
 
-        foreach (var key in Purchase.Keys.Where(
-            key =>
-                old.Purchase == null || !old.Purchase.ContainsKey(key)))
+        // Emit one Purchase property per id that is new (not in old), for any key
+        foreach (var key in Purchase.Keys)
         {
-            _ = ChangeProperty(song, Index, Song.PurchaseField, key, null, Purchase[key]);
+            var newIds = SplitIds(Purchase[key]);
+            var oldIds = old.Purchase != null && old.Purchase.TryGetValue(key, out var ov) ? SplitIds(ov) : [];
+            foreach (var addedId in newIds.Except(oldIds))
+            {
+                _ = song.CreateProperty(
+                    SongProperty.FormatName(Song.PurchaseField, Index, key), addedId);
+            }
         }
     }
 
@@ -569,7 +677,11 @@ value, value);
 
         foreach (var purchase in Purchase)
         {
-            AddProperty(song, Index, Song.PurchaseField, purchase.Key, purchase.Value);
+            foreach (var id in SplitIds(purchase.Value))
+            {
+                _ = song.CreateProperty(
+                    SongProperty.FormatName(Song.PurchaseField, Index, purchase.Key), id);
+            }
         }
     }
 

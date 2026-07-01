@@ -4396,4 +4396,60 @@ export const model = {
   ownerId: "ebo1rk39vp51kkyjps45eobph",
   ownerName: "music4dance",
   totalCount: 8,
+  checkedCount: 8,
+  matchedCount: 8,
+  canAddSongs: false,
+  unmatched: [],
+};
+
+// Variant exercising the subscription-tier upsell alert (checkedCount < totalCount)
+// and the signed-in "add unmatched songs" table (matchedCount < checkedCount).
+export const limitedModelWithUnmatched = {
+  ...model,
+  totalCount: 11,
+  checkedCount: 9,
+  matchedCount: 8,
+  canAddSongs: true,
+  unmatched: [
+    { title: "Come Fly with Me", artist: "Frank Sinatra", trackId: "1A2B3C4D5E6F7G8H9I0J1K" },
+    { title: "Fly Me to the Moon", artist: "Frank Sinatra", trackId: "2B3C4D5E6F7G8H9I0J1K2L" },
+  ],
+};
+
+// Variant for a playlist with no tracks at all.
+export const emptyPlaylistModel = {
+  ...model,
+  histories: [],
+  totalCount: 0,
+  checkedCount: 0,
+  matchedCount: 0,
+  canAddSongs: false,
+  unmatched: [],
+};
+
+// Variant for an anonymous viewer with some unmatched tracks, to exercise the sign-in
+// (with returnUrl) call to action instead of the add-songs table.
+export const anonymousUnmatchedModel = {
+  ...model,
+  totalCount: 9,
+  checkedCount: 9,
+  matchedCount: 8,
+  canAddSongs: false,
+  unmatched: [],
+};
+
+// Variant where every checked track is missing from the catalog (signed in, so the
+// add-songs table covers all of them).
+export const noMatchesModel = {
+  ...model,
+  histories: [],
+  totalCount: 3,
+  checkedCount: 3,
+  matchedCount: 0,
+  canAddSongs: true,
+  unmatched: [
+    { title: "Come Fly with Me", artist: "Frank Sinatra", trackId: "1A2B3C4D5E6F7G8H9I0J1K" },
+    { title: "Fly Me to the Moon", artist: "Frank Sinatra", trackId: "2B3C4D5E6F7G8H9I0J1K2L" },
+    { title: "Witchcraft", artist: "Frank Sinatra", trackId: "3C4D5E6F7G8H9I0J1K2L3M" },
+  ],
 };
