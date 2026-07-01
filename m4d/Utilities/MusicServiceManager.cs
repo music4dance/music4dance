@@ -941,15 +941,20 @@ public class MusicServiceManager(IConfiguration configuration)
     public async Task<bool> GetISRCData(DanceMusicCoreService dms, Song song)
     {
         var spotify = MusicService.GetService(ServiceType.Spotify);
-        var isrcService = MusicService.GetService(ServiceType.ISRC);
-        var user = isrcService.ApplicationUser;
+        var user = spotify.ApplicationUser;
         var edit = await Song.Create(song, dms);
         var changed = false;
+
+        // Seed with ISRCs already stored so we never write the same code twice,
+        // even if multiple Spotify IDs (re-releases) share the same recording.
+        var seenISRCs = new HashSet<string>(
+            edit.Albums.SelectMany(
+                a => a.GetPurchaseIdentifiers(ServiceType.ISRC, PurchaseType.Song)));
 
         foreach (var spotifyId in song.GetPurchaseIds(spotify))
         {
             var track = await GetMusicServiceTrack(spotifyId, spotify);
-            if (string.IsNullOrWhiteSpace(track?.ISRC))
+            if (string.IsNullOrWhiteSpace(track?.ISRC) || !seenISRCs.Add(track.ISRC))
             {
                 continue;
             }
