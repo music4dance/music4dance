@@ -106,6 +106,7 @@ The key is two characters: `CID + PurchaseTypeChar`:
 | `AS` | Amazon Song ID (ASIN)          |
 | `AA` | Amazon Album ID (ASIN)         |
 | `MS` | AMG Song ID (legacy)           |
+| `RS` | ISRC recording code            |
 
 `MusicService.BuildPurchaseKey(PurchaseType)` builds the key; `TryParsePurchaseType` reverses it.
 

@@ -2,6 +2,8 @@
 
 music4dance integrates with three external music services (Spotify, iTunes/Apple Music, Amazon Music) to link songs to streaming/purchase options, auto-populate metadata when songs are added, and support playlist management.
 
+> This is the feature-level overview: registered services, purchase filtering, and client-side rendering. For the step-by-step HTTP call sequences see [music-service-api-calls.md](music-service-api-calls.md). For the class hierarchy and on-disk data encoding see [music-service-model.md](music-service-model.md).
+
 ## Service Registry (`MusicService` class)
 
 `m4dModels/MusicService.cs` is the central base class and registry for all music service integrations.
@@ -23,14 +25,15 @@ music4dance integrates with three external music services (Spotify, iTunes/Apple
 
 ### Registered Services
 
-| Service                    | CID | Searchable | Notes                                                            |
-| -------------------------- | --- | ---------- | ---------------------------------------------------------------- |
-| Amazon                     | `A` | No         | Search links only; always shown per song; filter removed from UI |
-| iTunes                     | `I` | Yes        | REST search + track lookup                                       |
-| Spotify                    | `S` | Yes        | REST search, track lookup, playlists, audio features             |
-| EMusic                     | `E` | No         | Stub, historical                                                 |
-| Pandora                    | `P` | No         | Stub, historical                                                 |
-| AMG (American Music Group) | `M` | No         | Hidden stub                                                      |
+| Service                    | CID | Searchable | Notes                                                                                    |
+| -------------------------- | --- | ---------- | ---------------------------------------------------------------------------------------- |
+| Amazon                     | `A` | No         | Search links only; always shown per song; filter removed from UI                         |
+| iTunes                     | `I` | Yes        | REST search + track lookup                                                               |
+| Spotify                    | `S` | Yes        | REST search, track lookup, playlists, audio features                                     |
+| EMusic                     | `E` | No         | Stub, historical                                                                         |
+| Pandora                    | `P` | No         | Stub, historical                                                                         |
+| AMG (American Music Group) | `M` | No         | Hidden stub                                                                              |
+| ISRC                       | `R` | No         | Not a storefront — recording codes read from Spotify track metadata; hidden from profile |
 
 Services are registered at static-class initialization time and looked up by either `ServiceType` enum or `CID` character.
 
@@ -110,43 +113,21 @@ Existing Amazon IDs remain stored in the database using a namespaced prefix:
 
 ## HTTP Infrastructure
 
-All service calls go through `MusicServiceManager.GetMusicServiceResults` (read) or `MusicServiceAction` (write):
-
-- HTTP client is a shared singleton (`HttpClientHelper.Client`)
-- `Authorization` header is populated by `AdmAuthentication.GetServiceAuthorization` which selects the appropriate token type per `ServiceType`
-- Rate limit headers (`X-RateLimit-Remaining`, `X-RateLimit-Used`, `X-RateLimit-Limit`) are monitored; near-limit calls sleep 3 seconds, HTTP 429 sleeps 15 seconds and retries
-- A simple in-process dictionary cache (`s_trackCache`) avoids re-fetching the same track ID within a process lifetime (cleared when it exceeds 10,000 entries)
-- Karaoke results are filtered out from all search results before ranking
+All service calls go through `MusicServiceManager.GetMusicServiceResults` (read) or `MusicServiceAction` (write), using a shared `HttpClientHelper.Client` singleton, per-service auth via `AdmAuthentication.GetServiceAuthorization`, and rate-limit backoff/retry. Karaoke results are filtered out of all search results before ranking. See [music-service-api-calls.md § HTTP Layer](music-service-api-calls.md#http-layer) for the rate-limit table, retry/pause behavior, and the track-ID cache.
 
 ---
 
 ## Song Enrichment Pipeline
 
-When a new song is added, `UpdateSongAndServices` is called, which iterates `MusicService.GetSearchableServices()` (currently iTunes and Spotify):
-
-1. **`MatchSongAndService`** — searches by title/artist, falls back to cleaned strings (punctuation/parentheses stripped), filters by title/artist match, then narrows by album name or duration proximity, then clusters by dominant length
-2. **`UpdateFromTracks`** — writes track/album/purchase IDs back to the song via `EditSong`
-3. **`UpdateAudioData`** — fetches Spotify audio features (tempo, danceability, meter) and sample preview URL (Spotify first, iTunes fallback)
-4. **`ValidateAndCorrectTempo`** (Spotify only) — validates detected BPM against dance-specific rules for single-dance songs; applies corrections or flags for manual review
-
-`ConditionalUpdateSongAndServices` skips services already tried (tracks a "failed" marker on the song) — used for bulk ingestion to avoid re-querying.
+When a new song is added, `UpdateSongAndServices` iterates `MusicService.GetSearchableServices()` (iTunes and Spotify) to match the song against each service, write back track/album/purchase IDs, pull Spotify audio features (tempo, danceability, meter) and a sample preview URL, and validate/correct the detected tempo. `ConditionalUpdateSongAndServices` skips services already tried on a song — used for bulk ingestion. See [music-service-api-calls.md § Song Enrichment Pipeline](music-service-api-calls.md#song-enrichment-pipeline) for the full call sequence.
 
 ---
 
 ## Purchase ID Storage
 
-Purchase IDs are stored on `AlbumDetails` (one per album occurrence on a song) as a dictionary keyed by a two-character code:
+Purchase IDs are stored on `AlbumDetails` (one per album occurrence on a song) as a dictionary keyed by a two-character code (service `CID` + purchase-type char, e.g. `SS` = Spotify Track ID). Each dictionary entry is a single string but can hold _multiple_ comma-separated IDs — `AddPurchaseId` appends rather than overwrites, since services (Spotify in particular) periodically reissue a new ID for the same recording. See [music-service-model.md § Multi-ID Accumulation](music-service-model.md#multi-id-accumulation) and [§ Purchase Dictionary Key Format](music-service-model.md#purchase-dictionary-key-format) for the full key table and the underlying `SongProperty` encoding.
 
-| Key  | Meaning                |
-| ---- | ---------------------- |
-| `AS` | Amazon Song ID (ASIN)  |
-| `AA` | Amazon Album ID (ASIN) |
-| `IS` | iTunes Song ID         |
-| `IA` | iTunes Collection ID   |
-| `SS` | Spotify Track ID       |
-| `SA` | Spotify Album ID       |
-
-The `Song.GetPurchaseIds(service)` method returns all IDs for a given service across all albums. `AlbumDetails.GetPurchaseIdentifier(serviceType, purchaseType)` retrieves a single ID.
+`AlbumDetails.GetPurchaseIdentifiers(serviceType, purchaseType)` returns all IDs in a slot; `GetPurchaseIdentifier` returns only the first (primary) one, used for link generation. `Song.GetPurchaseIds(service)` returns all IDs for a given service across all of a song's albums.
 
 ---
 
