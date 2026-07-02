@@ -523,6 +523,20 @@ public class MusicServiceManager(IConfiguration configuration)
         return match;
     }
 
+    /// <summary>
+    /// Attaches one or more already-fetched service tracks (e.g. playlist entries) to an
+    /// existing catalog song that was matched by ISRC rather than by service id directly — the
+    /// batched, playlist-viewer counterpart to CreateSong's single-track ISRC fallback (see
+    /// FindSongByISRC). Unlike CreateSong, this does not run the broader
+    /// UpdateSongAndServices/UpdateAudioData enrichment pass; it only records the id(s) so the
+    /// song is findable by them going forward.
+    /// </summary>
+    public async Task AttachTracksToSong(DanceMusicCoreService dms, Song song, IList<ServiceTrack> tracks)
+    {
+        _ = await UpdateFromTracks(dms, song, tracks);
+        await dms.SongIndex.SaveSong(song);
+    }
+
     private static readonly Dictionary<string, ServiceTrack> s_trackCache = [];
 
     public async Task<GenericPlaylist> LookupPlaylist(MusicService service, string url,

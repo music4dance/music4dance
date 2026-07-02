@@ -463,3 +463,52 @@ public class FindSongByISRCTests
     }
 }
 
+// Covers MusicServiceManager.AttachTracksToSong — the playlist viewer's batched counterpart to
+// CreateSong's single-track ISRC-fallback attach step: once a song is matched by ISRC, this is
+// what records the new Spotify id on it.
+[TestClass]
+public class AttachTracksToSongTests
+{
+    [ClassInitialize]
+    public static async Task ClassSetup(TestContext _)
+    {
+        await DanceMusicTester.LoadDances();
+    }
+
+    [TestMethod]
+    public async Task AttachTracksToSong_NewSpotifyId_AccumulatesOnExistingAlbumAndSaves()
+    {
+        var dms = await DanceMusicTester.CreateService("AttachTracksToSong_Accumulate", useTestSongIndex: true);
+        await DanceMusicTester.AddUser(dms, "batch-s", true);
+        var testIndex = (TestSongIndex)dms.SongIndex;
+
+        var song = await Song.Create(
+            ".Create=\tUser=batch-s\tTitle=Existing Song\tArtist=Existing Artist\t" +
+            "Album:00=Album A\tTrack:00=1\tPurchase:00:SS=oldSpotifyId\tPurchase:00:RS=USRC1",
+            dms);
+        await testIndex.SaveSong(song);
+
+        var manager = new MusicServiceManager(new Mock<IConfiguration>().Object);
+        var track = new ServiceTrack
+        {
+            Service = ServiceType.Spotify,
+            TrackId = "newSpotifyId",
+            Name = "Existing Song",
+            Artist = "Existing Artist",
+            Album = "Album A",
+            TrackNumber = 1,
+            ISRC = "USRC1"
+        };
+
+        await manager.AttachTracksToSong(dms, song, [track]);
+
+        var spotify = MusicService.GetService(ServiceType.Spotify);
+        var spotifyIds = song.GetPurchaseIds(spotify);
+        CollectionAssert.Contains(spotifyIds.ToList(), "oldSpotifyId");
+        CollectionAssert.Contains(spotifyIds.ToList(), "newSpotifyId");
+
+        var saved = await testIndex.FindSong(song.SongId);
+        Assert.IsNotNull(saved);
+    }
+}
+
