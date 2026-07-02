@@ -2,8 +2,8 @@
 
 ## Status: ? COMPLETE - Integration Tests Implemented
 
-**Test Results:** 8/8 tests passing (100%)  
-**Implementation:** Integration tests using DanceMusicTester pattern  
+**Test Results:** 8/8 tests passing (100%)
+**Implementation:** Integration tests using DanceMusicTester pattern
 **Documentation:** See `architecture/testing-patterns.md` for comprehensive guide
 
 ---
@@ -28,6 +28,7 @@ public class UsageLogApiController(
 ### ? What Was Implemented
 
 **Test Infrastructure:**
+
 1. **TestBackgroundTaskQueue** (`m4d.Tests/TestHelpers/TestBackgroundTaskQueue.cs`)
    - Test spy for `IBackgroundTaskQueue`
    - Captures enqueued tasks for verification
@@ -41,14 +42,16 @@ public class UsageLogApiController(
 **Key Solutions:**
 
 1. **Accessing Internal DanceStatsManager:**
+
    ```csharp
    var danceStatsManagerField = typeof(DanceMusicCoreService)
-       .GetField("<DanceStatsManager>k__BackingField", 
+       .GetField("<DanceStatsManager>k__BackingField",
            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
    var danceStats = (IDanceStatsManager)danceStatsManagerField.GetValue(dms)!;
    ```
 
 2. **In-Memory Configuration:**
+
    ```csharp
    var configBuilder = new ConfigurationBuilder();
    configBuilder.AddInMemoryCollection(new Dictionary<string, string?>
@@ -65,6 +68,7 @@ public class UsageLogApiController(
    - Use null-forgiving operator (`!`) after null checks
 
 **Test Coverage:**
+
 - ? Valid anonymous request (202 Accepted)
 - ? Authenticated user request (202 Accepted)
 - ? Multiple events in batch
@@ -75,6 +79,7 @@ public class UsageLogApiController(
 - ? Optional field validation (reflection-based)
 
 **Limitations:**
+
 - Background task execution not tested (requires full service provider)
 - Database persistence verification not included (acceptable for fire-and-forget)
 - Tests must run sequentially (threading issues with shared static state)
@@ -82,6 +87,7 @@ public class UsageLogApiController(
 ### ?? Documentation
 
 For comprehensive testing patterns and examples, see:
+
 - **`architecture/testing-patterns.md`** - Complete testing guide
   - Server-side integration testing patterns
   - Client-side testing patterns (Vitest/Vue)
@@ -95,21 +101,27 @@ For comprehensive testing patterns and examples, see:
 ## Challenges (Resolved)
 
 ### 1. DanceMusicContext
+
 **Issue:** Entity Framework DbContext cannot be easily mocked with Moq
+
 - Requires actual database connection or in-memory database
 - Constructor requires `DbContextOptions<DanceMusicContext>`
 
 **Solution:** Use `DanceMusicTester` pattern (already exists in codebase)
+
 - Creates actual database with test data
 - Provides clean test database per test
 - Example: `DanceMusicTester.CreateServiceWithUsers("TestDb")`
 
 ### 2. UserManager<ApplicationUser>
+
 **Issue:** Complex class with many dependencies
+
 - Cannot be mocked directly
 - Requires `IUserStore<ApplicationUser>` and 8 other dependencies
 
 **Solution:** Mock `IUserStore<ApplicationUser>` and create UserManager
+
 ```csharp
 var mockUserStore = new Mock<IUserStore<ApplicationUser>>();
 var mockUserManager = new Mock<UserManager<ApplicationUser>>(
@@ -117,11 +129,14 @@ var mockUserManager = new Mock<UserManager<ApplicationUser>>(
 ```
 
 ### 3. IBackgroundTaskQueue
+
 **Issue:** Custom interface that needs behavior verification
+
 - Critical to test that tasks are enqueued
 - Cannot verify task execution in unit tests (async background)
 
 **Solution:** Mock and verify EnqueueTask was called
+
 ```csharp
 var mockTaskQueue = new Mock<IBackgroundTaskQueue>();
 // ... execute test
@@ -129,21 +144,27 @@ mockTaskQueue.Verify(q => q.EnqueueTask(It.IsAny<Func<...>>()), Times.Once);
 ```
 
 ### 4. ISearchServiceManager & IDanceStatsManager
+
 **Issue:** Domain-specific services
+
 - Not directly used in UsageLogApiController
 - Inherited from base controller
 
 **Solution:** Mock with empty behavior
+
 ```csharp
 var mockSearchService = new Mock<ISearchServiceManager>();
 var mockDanceStats = new Mock<IDanceStatsManager>();
 ```
 
 ### 5. IConfiguration
+
 **Issue:** Needs to provide configuration values
+
 - Used for feature flags and settings
 
 **Solution:** Use `ConfigurationBuilder` with in-memory values
+
 ```csharp
 var configuration = new ConfigurationBuilder()
     .AddInMemoryCollection(new Dictionary<string, string>
@@ -155,10 +176,13 @@ var configuration = new ConfigurationBuilder()
 ```
 
 ### 6. ILogger<UsageLogApiController>
+
 **Issue:** Generic logger interface
+
 - Used for logging but not critical to test
 
 **Solution:** Use `NullLogger<T>` or mock
+
 ```csharp
 var mockLogger = new Mock<ILogger<UsageLogApiController>>();
 // Or
@@ -185,7 +209,7 @@ public class UsageLogApiControllerIntegrationTests
         // Arrange
         var dms = await DanceMusicTester.CreateServiceWithUsers("UsageLogTest");
         var taskQueue = new TestBackgroundTaskQueue(); // Custom implementation
-        
+
         var controller = new UsageLogApiController(
             dms.Context,
             dms.UserManager,
@@ -195,7 +219,7 @@ public class UsageLogApiControllerIntegrationTests
             NullLogger<UsageLogApiController>.Instance,
             taskQueue
         );
-        
+
         var request = new UsageLogBatchRequest
         {
             Events = new List<UsageEventDto>
@@ -203,17 +227,17 @@ public class UsageLogApiControllerIntegrationTests
                 new() { UsageId = Guid.NewGuid().ToString(), ... }
             }
         };
-        
+
         // Act
         var result = await controller.LogBatch(request);
-        
+
         // Assert
         Assert.IsInstanceOfType(result, typeof(AcceptedResult));
         Assert.IsTrue(taskQueue.Tasks.Count > 0);
-        
+
         // Execute the queued task
         await taskQueue.ExecuteAll(dms.ServiceProvider);
-        
+
         // Verify database
         var logs = dms.Context.UsageLog.ToList();
         Assert.AreEqual(1, logs.Count);
@@ -223,12 +247,12 @@ public class UsageLogApiControllerIntegrationTests
 public class TestBackgroundTaskQueue : IBackgroundTaskQueue
 {
     public List<Func<IServiceScopeFactory, CancellationToken, Task>> Tasks { get; } = new();
-    
+
     public void EnqueueTask(Func<IServiceScopeFactory, CancellationToken, Task> task)
     {
         Tasks.Add(task);
     }
-    
+
     public async Task ExecuteAll(IServiceProvider serviceProvider)
     {
         var scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
@@ -237,7 +261,7 @@ public class TestBackgroundTaskQueue : IBackgroundTaskQueue
             await task(scopeFactory, CancellationToken.None);
         }
     }
-    
+
     public Task<Func<IServiceScopeFactory, CancellationToken, Task>> DequeueAsync(CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
@@ -255,7 +279,7 @@ public class UsageLogApiControllerUnitTests
 {
     // This approach requires significantly more setup
     // and doesn't test actual database integration
-    
+
     [TestMethod]
     public async Task LogBatch_ValidRequest_EnqueuesTask()
     {
@@ -264,16 +288,16 @@ public class UsageLogApiControllerUnitTests
         var mockUserManager = CreateMockUserManager();
         var mockTaskQueue = new Mock<IBackgroundTaskQueue>();
         // ... more mocks
-        
+
         var controller = new UsageLogApiController(...);
-        
+
         // Act
         var result = await controller.LogBatch(request);
-        
+
         // Assert
         mockTaskQueue.Verify(q => q.EnqueueTask(It.IsAny<...>()), Times.Once);
     }
-    
+
     private Mock<DanceMusicContext> CreateMockContext()
     {
         // This is very complex with EF Core
@@ -295,6 +319,7 @@ public class UsageLogApiControllerUnitTests
 6. ? Matches testing pattern used throughout codebase
 
 **Trade-offs:**
+
 - Slower than pure unit tests (but still fast with in-memory database)
 - Requires database setup (already automated via DanceMusicTester)
 - Tests more than one unit (but that's appropriate for this case)
