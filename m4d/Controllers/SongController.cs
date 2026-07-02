@@ -1698,7 +1698,7 @@ public class SongController : ContentController
                                     Logger.LogInformation($"{tried} songs tried.");
                                 }
 
-                                if (!preview && save.Count >= 500)
+                                if (!preview && save.Count >= 100)
                                 {
                                     dms.SongIndex.SaveSongsImmediate(save);
                                     save.Clear();
