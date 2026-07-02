@@ -156,6 +156,25 @@ public class TestSongIndex : SongIndex
     /// </summary>
     public object CallDocumentFromSong(Song song) => DocumentFromSong(song);
 
+    /// <summary>
+    /// In-memory stand-in for the Azure-backed exact ServiceIds lookup: scans songs already
+    /// saved via SaveSong for one whose extended purchase ids contain "{CID}:{id}". Lets tests
+    /// exercise service-id/ISRC lookup paths (e.g. MusicServiceManager.CreateSong's ISRC
+    /// fallback) without a real search backend.
+    /// </summary>
+    public override Task<Song> GetSongFromService(MusicService service, string id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            return Task.FromResult<Song>(null);
+        }
+
+        var needle = $"{service.CID}:{id}";
+        var match = _songStore.Values.FirstOrDefault(
+            s => s.GetExtendedPurchaseIds().Contains(needle));
+        return Task.FromResult(match);
+    }
+
     // Record for capturing EditSong calls
     public record EditSongCall(
         ApplicationUser User,

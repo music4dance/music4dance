@@ -381,3 +381,85 @@ public class GetISRCDataTests
     }
 }
 
+// Covers MusicServiceManager.FindSongByISRC — the helper CreateSong uses to check for an
+// existing catalog song sharing an ISRC before falling back to SongIndex.FindMatchingSong's
+// (Azure-search-backed) title dedup. CreateSong itself isn't covered end-to-end here: once the
+// ISRC branch misses, UpdateSongAndServices makes live HTTP calls to iTunes/Spotify with no
+// available test seam (GetMusicServiceResults is private, non-virtual) — the same reason no
+// other CreateSong tests exist in this suite yet.
+[TestClass]
+public class FindSongByISRCTests
+{
+    [ClassInitialize]
+    public static async Task ClassSetup(TestContext _)
+    {
+        await DanceMusicTester.LoadDances();
+    }
+
+    private static async Task<(DanceMusicService dms, TestSongIndex testIndex)> CreateTestEnv(string dbName)
+    {
+        var dms = await DanceMusicTester.CreateService(dbName, useTestSongIndex: true);
+        await DanceMusicTester.AddUser(dms, "batch-s", true);
+        var testIndex = (TestSongIndex)dms.SongIndex;
+        return (dms, testIndex);
+    }
+
+    private static async Task<Song> CreateAndSaveSongWithIsrc(
+        DanceMusicService dms, TestSongIndex testIndex, string spotifyId, string isrc)
+    {
+        var song = await Song.Create(
+            $".Create=\tUser=batch-s\tTitle=Existing Song\tArtist=Existing Artist\t" +
+            $"Album:00=Album A\tTrack:00=1\tPurchase:00:SS={spotifyId}\tPurchase:00:RS={isrc}",
+            dms);
+        await testIndex.SaveSong(song);
+        return song;
+    }
+
+    [TestMethod]
+    public async Task FindSongByISRC_NullIsrc_ReturnsNullWithoutSearching()
+    {
+        var (dms, _) = await CreateTestEnv("FindByISRC_Null");
+        var manager = new MusicServiceManager(new Mock<IConfiguration>().Object);
+
+        var result = await manager.FindSongByISRC(dms, null);
+
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task FindSongByISRC_EmptyIsrc_ReturnsNullWithoutSearching()
+    {
+        var (dms, _) = await CreateTestEnv("FindByISRC_Empty");
+        var manager = new MusicServiceManager(new Mock<IConfiguration>().Object);
+
+        var result = await manager.FindSongByISRC(dms, "   ");
+
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task FindSongByISRC_MatchingIsrcOnFile_ReturnsThatSong()
+    {
+        var (dms, testIndex) = await CreateTestEnv("FindByISRC_Match");
+        var existing = await CreateAndSaveSongWithIsrc(dms, testIndex, "oldSpotifyId", "USRC1");
+        var manager = new MusicServiceManager(new Mock<IConfiguration>().Object);
+
+        var result = await manager.FindSongByISRC(dms, "USRC1");
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(existing.SongId, result.SongId);
+    }
+
+    [TestMethod]
+    public async Task FindSongByISRC_NoSongHasThatIsrc_ReturnsNull()
+    {
+        var (dms, testIndex) = await CreateTestEnv("FindByISRC_NoMatch");
+        _ = await CreateAndSaveSongWithIsrc(dms, testIndex, "oldSpotifyId", "USRC1");
+        var manager = new MusicServiceManager(new Mock<IConfiguration>().Object);
+
+        var result = await manager.FindSongByISRC(dms, "USRC-UNRELATED");
+
+        Assert.IsNull(result);
+    }
+}
+

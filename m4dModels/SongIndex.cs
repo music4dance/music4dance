@@ -153,7 +153,7 @@ public class SongIndex
             songTags, playlist);
     }
 
-    public async Task<Song> GetSongFromService(MusicService service, string id)
+    public virtual async Task<Song> GetSongFromService(MusicService service, string id)
     {
         if (string.IsNullOrWhiteSpace(id))
         {

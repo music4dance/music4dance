@@ -476,7 +476,8 @@ public class MusicServiceManager(IConfiguration configuration)
         var song = await Song.UserCreateFromTrack(dms, user, track, danceId);
 
         var found = false;
-        var oldSong = await dms.SongIndex.FindMatchingSong(song);
+        var oldSong = await FindSongByISRC(dms, track.ISRC)
+            ?? await dms.SongIndex.FindMatchingSong(song);
 
         if (oldSong != null)
         {
@@ -494,6 +495,32 @@ public class MusicServiceManager(IConfiguration configuration)
         }
 
         return song;
+    }
+
+    /// <summary>
+    /// Looks up an existing catalog song by ISRC (recording code). Services — Spotify in
+    /// particular — periodically reissue a different track id for what is, recording-wise, the
+    /// same song (see AlbumDetails.AddPurchaseId), so an exact-id-match miss doesn't necessarily
+    /// mean the song is new. ISRC is a stronger identity signal than title/artist matching and is
+    /// tried first in CreateSong, ahead of SongIndex.FindMatchingSong's title-based dedup.
+    /// </summary>
+    internal async Task<Song> FindSongByISRC(DanceMusicCoreService dms, string isrc)
+    {
+        if (string.IsNullOrWhiteSpace(isrc))
+        {
+            return null;
+        }
+
+        var isrcService = MusicService.GetService(ServiceType.ISRC);
+        var match = await dms.SongIndex.GetSongFromService(isrcService, isrc);
+        if (match != null)
+        {
+            Logger.LogInformation(
+                "ISRC fallback matched existing song {SongId} for ISRC {Isrc}",
+                match.SongId, isrc);
+        }
+
+        return match;
     }
 
     private static readonly Dictionary<string, ServiceTrack> s_trackCache = [];
