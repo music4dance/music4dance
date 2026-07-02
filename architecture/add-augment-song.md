@@ -14,6 +14,11 @@ This is a different "add songs" surface than the admin playlist-import system
 ([[playlist-management]]) and different again from the read-only [[song-search-results]] flow —
 this one is anonymous-reachable for *searching*, but actually creating/editing requires sign-in.
 
+> The by-ID lookup/dedupe/create mechanism described below (`ServiceTrackController.Get` through
+> `MusicServiceManager.CreateSong`) is shared with other, more opportunistic entry points — see
+> [[service-track-lookup]] for the entry-point-agnostic version, and [[drop-target-lookup]] for the
+> pasted-ID recognition used in ordinary search boxes elsewhere on the site.
+
 ---
 
 ## Entry Point: `/song/augment`
