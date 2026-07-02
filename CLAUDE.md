@@ -65,7 +65,7 @@ Format changes only need updating in one place; manual construction breaks silen
 ## Build Commands
 
 ```txt
-dotnet build                  # server (may fail if dev server holds file locks)
+dotnet build                  # server (fails if dev server holds bin/obj locks — use `Server: Build (Unlocked)` task instead)
 yarn install && yarn build    # client (includes type checking)
 yarn lint                     # ESLint with auto-fix
 yarn type-check               # Vue TSC
@@ -82,6 +82,8 @@ yarn type-check               # Vue TSC
 | SelfCrawler (manual only)     | VS Code task: `Server: Test SelfCrawler` |
 
 **Warning**: Running `runTests` without specifying files uses VS Code test explorer and discovers SelfCrawler, causing spurious Selenium failures. Always use the tasks above, or specify explicit `.ts` file paths for client tests.
+
+**Dev server locks bin/\*.dll**: use VS Code tasks `Server: Build (Unlocked)` / `Server: Test (Unlocked)` — same commands, redirected to `local/build-out` via MSBuild `BaseOutputPath` so they don't collide with the locked files. Don't also redirect `BaseIntermediateOutputPath` — the default `obj/` still holds stale generated files that get double-compiled once `obj` is no longer excluded from the source glob.
 
 ### Server Test Patterns
 
