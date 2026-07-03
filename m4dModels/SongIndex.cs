@@ -1536,6 +1536,20 @@ public class SongIndex
             // Re-throw with a message that will be caught by upper layers
             throw new InvalidOperationException("Azure Search service is unavailable", ex);
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DoSearch failed: {ex.Message} - retrying without select");
+            parameters.Select.Clear();
+            try
+            {
+                return await Client.SearchAsync<SearchDocument>(search, parameters);
+            }
+            catch (Exception retryEx)
+            {
+                Console.WriteLine($"DoSearch retry failed: {retryEx.Message}");
+            throw;
+        }
+    }
     }
     #endregion
 
