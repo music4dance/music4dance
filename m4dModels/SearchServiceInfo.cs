@@ -208,7 +208,7 @@ public class SearchServiceInfo(string id, int version, string name,
     public async Task<Response> DeleteIndexAsync(bool isNext)
     {
         var client = GetSearchIndexClient(isNext);
-        return await client.DeleteIndexAsync(GetVersionedName(isNext));
+        return await client.DeleteIndexAsync(GetVersionedName(isNext), CancellationToken.None);
     }
 
     public async Task<Response<SearchIndex>> CreateIndexAsync(SearchIndex index, bool isNext)

@@ -29,6 +29,7 @@ using Newtonsoft.Json.Serialization;
 using System.Reflection;
 using Vite.AspNetCore;
 
+using AzureSearchExtensions = Microsoft.Extensions.Azure.SearchClientBuilderExtensions;
 
 // TODO: Figure out how to add a design time factory for the context https://learn.microsoft.com/en-us/ef/core/cli/dbcontext-creation?tabs=dotnet-core-cli#from-a-design-time-factory
 //  Or maybe implement https://learn.microsoft.com/en-us/ef/core/cli/dbcontext-creation?tabs=dotnet-core-cli#from-application-services
@@ -305,7 +306,7 @@ try
         {
             var endpoint = section["endpoint"];
             Console.WriteLine($"[Search] Registering: {section.Key} -> {endpoint}");
-            _ = clientBuilder.AddSearchClient(section).WithName(section.Key);
+            _ = AzureSearchExtensions.AddSearchClient(clientBuilder, section).WithName(section.Key);
         }
 
         // Add a single SearchIndexClient named "SongIndex"
@@ -319,7 +320,7 @@ try
             var endpoint = firstSongIndexSection["endpoint"];
 
             Console.WriteLine($"[Search] Registering SearchIndexClient: SongIndex -> {endpoint}");
-            _ = clientBuilder.AddSearchIndexClient(firstSongIndexSection).WithName("SongIndex");
+            _ = AzureSearchExtensions.AddSearchIndexClient(clientBuilder,firstSongIndexSection).WithName("SongIndex");
         }
         Console.WriteLine("[Search] All search clients registered");
     });
