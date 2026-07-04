@@ -45,9 +45,33 @@ export class SongFilter {
     filter.page = SongFilter.readNumberCell(cells, idx++);
     filter.tags = SongFilter.readCell(cells, idx++);
     filter.level = SongFilter.readNumberCell(cells, idx++);
-    filter.excludePurchase = SongFilter.readCell(cells, idx++);
 
     return filter;
+  }
+
+  // Purchase packs two independent service selections into one field: services the song
+  // must be available on, and services it must NOT be available on. 'N' (unused by any
+  // service code) separates them — "IS" means available on ITunes or Spotify, "NIS" means
+  // available on neither, "SNR" means available on Spotify but not ISRC.
+  public static splitPurchase(purchase?: string): { include?: string; exclude?: string } {
+    if (!purchase) {
+      return {};
+    }
+
+    const idx = purchase.indexOf("N");
+    if (idx === -1) {
+      return { include: purchase };
+    }
+
+    return {
+      include: purchase.slice(0, idx) || undefined,
+      exclude: purchase.slice(idx + 1) || undefined,
+    };
+  }
+
+  public static joinPurchase(include: string[], exclude: string[]): string | undefined {
+    const purchase = include.join("") + (exclude.length ? `N${exclude.join("")}` : "");
+    return purchase || undefined;
   }
 
   private static splitFilter(input: string): string[] {
@@ -82,10 +106,6 @@ export class SongFilter {
   @jsonMember(Number) public page?: number;
   @jsonMember(String) public tags?: string;
   @jsonMember(Number) public level?: number;
-  // Services to exclude — a song available on any of these is dropped from the results.
-  // Kept separate from `purchase` rather than encoded via case/symbols so the two
-  // selections stay independent (see m4dModels/SongFilter.cs ExcludePurchase).
-  @jsonMember(String) public excludePurchase?: string;
 
   public clone(): SongFilter {
     return SongFilter.buildFilter(this.query);
@@ -115,7 +135,7 @@ export class SongFilter {
       `${this.encode(this.searchString)}-${this.encode(this.purchase)}-${this.encode(this.user)}-` +
       `${tempoMin}-${tempoMax}-${lengthMin}-${lengthMax}-${this.cleanPage}-${this.encode(
         this.tags,
-      )}-${level}-${this.encode(this.excludePurchase)}`;
+      )}-${level}`;
 
     return this.trimEnd(ret, ".-");
   }
@@ -126,9 +146,7 @@ export class SongFilter {
       `${this.encode(this.searchString)}-${this.encode(this.purchase ?? "")}-${this.encode(
         this.user ?? "",
       )}-` +
-      `--${this.cleanPage}-${this.encode(this.tags)}-${this.level?.toString() ?? ""}-${this.encode(
-        this.excludePurchase,
-      )}`;
+      `--${this.cleanPage}-${this.encode(this.tags)}-${this.level?.toString() ?? ""}`;
 
     return this.trimEnd(ret, ".-");
   }
@@ -280,7 +298,7 @@ export class SongFilter {
   }
 
   private get describePurchase(): string {
-    const services = this.namesFromServiceFilter(this.purchase);
+    const services = this.namesFromServiceFilter(SongFilter.splitPurchase(this.purchase).include);
     if (!services.length) {
       return "";
     }
@@ -289,7 +307,7 @@ export class SongFilter {
   }
 
   private get describeExcludePurchase(): string {
-    const services = this.namesFromServiceFilter(this.excludePurchase);
+    const services = this.namesFromServiceFilter(SongFilter.splitPurchase(this.purchase).exclude);
     if (!services.length) {
       return "";
     }

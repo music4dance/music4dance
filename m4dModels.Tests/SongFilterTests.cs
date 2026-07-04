@@ -153,23 +153,22 @@ public class SongFilterTests
     }
 
     [TestMethod]
-    public void ExcludePurchase_RoundTrips()
+    public void PurchaseWithExclusion_RoundTrips()
     {
-        var f = SongFilter.Create(false, @"Index-.-.-.-S-.-.-.-.-.-.-R");
+        // "SNR" = available on Spotify, not available on ISRC ('N' splits include/exclude).
+        var f = SongFilter.Create(false, @"Index-.-.-.-SNR");
 
-        Assert.AreEqual("S", f.Purchase);
-        Assert.AreEqual("R", f.ExcludePurchase);
+        Assert.AreEqual("SNR", f.Purchase);
 
         var s = f.ToString();
         var reparsed = SongFilter.Create(false, s);
-        Assert.AreEqual("S", reparsed.Purchase);
-        Assert.AreEqual("R", reparsed.ExcludePurchase);
+        Assert.AreEqual("SNR", reparsed.Purchase);
     }
 
     [TestMethod]
-    public void ExcludePurchase_BuildsNegatedOdataFilter()
+    public void PurchaseWithExclusion_BuildsNegatedOdataFilter()
     {
-        var f = SongFilter.Create(false, @"Index-.-.-.-S-.-.-.-.-.-.-R");
+        var f = SongFilter.Create(false, @"Index-.-.-.-SNR");
 
         var odata = f.GetOdataFilter(null);
 
@@ -178,9 +177,21 @@ public class SongFilterTests
     }
 
     [TestMethod]
-    public void ExcludePurchase_DescribesExclusion()
+    public void ExcludeOnlyPurchase_BuildsNegatedOdataFilterWithNoPositiveClause()
     {
-        var f = SongFilter.Create(false, @"Index-.-.-.-S-.-.-.-.-.-.-R");
+        // "NIS" = no positive constraint, exclude songs available on ITunes or Spotify.
+        var f = SongFilter.Create(false, @"Index-.-.-.-NIS");
+
+        var odata = f.GetOdataFilter(null);
+
+        StringAssert.Contains(odata, "not (Purchase/any(t: t eq 'ITunes') or Purchase/any(t: t eq 'Spotify'))");
+        Assert.IsFalse(odata.Contains("() and"), "Should not emit an empty positive clause");
+    }
+
+    [TestMethod]
+    public void PurchaseWithExclusion_DescribesExclusion()
+    {
+        var f = SongFilter.Create(false, @"Index-.-.-.-SNR");
 
         StringAssert.Contains(f.Description, "available on Spotify");
         StringAssert.Contains(f.Description, "not available on ISRC");

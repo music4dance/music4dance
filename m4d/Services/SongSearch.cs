@@ -34,12 +34,6 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
             throw new RedirectException("RequiresPremium");
         }
 
-        if (!IsAdmin)
-        {
-            Filter.Purchase = StripAdminOnlyServices(Filter.Purchase);
-            Filter.ExcludePurchase = StripAdminOnlyServices(Filter.ExcludePurchase);
-        }
-
         var userQuery = Filter.UserQuery;
         var currentUser = UserName;
         if (!userQuery.IsEmpty)
@@ -157,21 +151,6 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
             pageSize,
             page,
             new Dictionary<string, IList<Azure.Search.Documents.Models.FacetResult>>());
-    }
-
-    // ISRC coverage is a batch-import diagnostic, not a purchase service — never let it
-    // leak into search results for non-admin users, even if crafted directly into the
-    // filter query string.
-    private static string StripAdminOnlyServices(string services)
-    {
-        if (string.IsNullOrEmpty(services))
-        {
-            return services;
-        }
-
-        var isrc = MusicService.GetService(ServiceType.ISRC).CID;
-        var cleaned = new string([.. services.Where(c => char.ToUpperInvariant(c) != isrc)]);
-        return string.IsNullOrEmpty(cleaned) ? null : cleaned;
     }
 
     public void Page()

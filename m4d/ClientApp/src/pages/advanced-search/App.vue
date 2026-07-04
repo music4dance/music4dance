@@ -80,8 +80,9 @@ const displayUser = ref(userQueryInit.displayName);
 
 const bonuses = ref(computeBonuses());
 const validated = ref(false);
-const services = ref(filter.purchase ? filter.purchase.trim().split("") : []);
-const excludeServices = ref(filter.excludePurchase ? filter.excludePurchase.trim().split("") : []);
+const purchaseParts = SongFilter.splitPurchase(filter.purchase);
+const services = ref(purchaseParts.include ? purchaseParts.include.split("") : []);
+const excludeServices = ref(purchaseParts.exclude ? purchaseParts.exclude.split("") : []);
 const activity = ref(userQueryInit.parts);
 
 const songFilter = computed(() => {
@@ -107,10 +108,7 @@ const songFilter = computed(() => {
   filter.dances = danceQuery.query;
   filter.sortOrder = SongSort.fromParts(sortId.value ?? undefined, sortDirection.value).query;
   filter.user = userQuery.query;
-  filter.purchase = services.value.join("");
-  filter.excludePurchase = excludeServices.value.length
-    ? excludeServices.value.join("")
-    : undefined;
+  filter.purchase = SongFilter.joinPurchase(services.value, excludeServices.value);
   filter.tempoMin = tempoMin.value === 0 ? undefined : tempoMin.value;
   filter.tempoMax = tempoMax.value >= 400 ? undefined : tempoMax.value;
   filter.lengthMin = lengthMin.value === 0 ? undefined : lengthMin.value;
