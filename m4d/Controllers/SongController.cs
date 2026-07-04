@@ -122,6 +122,7 @@ public class SongController : ContentController
         }
 
         Filter.Purchase = null;
+        Filter.ExcludePurchase = null;
         Filter.TempoMin = null;
         Filter.TempoMax = null;
 

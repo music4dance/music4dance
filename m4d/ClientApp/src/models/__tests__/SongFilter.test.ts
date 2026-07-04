@@ -236,6 +236,25 @@ describe("song filter", () => {
     expect(f.url).toMatch(/^\/song\/azuresearch\?filter=/);
   });
 
+  it("should round-trip excludePurchase through the filter string", () => {
+    const f = SongFilter.buildFilter("Advanced----S-.-.-.-.-.-.-R");
+    expect(f.purchase).toEqual("S");
+    expect(f.excludePurchase).toEqual("R");
+
+    const reparsed = SongFilter.buildFilter(f.query);
+    expect(reparsed.purchase).toEqual("S");
+    expect(reparsed.excludePurchase).toEqual("R");
+  });
+
+  it("should describe an excludePurchase filter", () => {
+    const f = SongFilter.buildFilter("Advanced----S-.-.-.-.-.-.-R");
+    expect(f.description).toEqual(
+      "All songs available on Spotify" +
+        " not available on ISRC" +
+        " sorted by Dance Rating from most popular to least popular.",
+    );
+  });
+
   it("should normalize case and spaces when checking isRaw", () => {
     const f = new SongFilter();
     f.action = "Azure Raw Lucene";

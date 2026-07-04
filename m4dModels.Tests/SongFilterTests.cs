@@ -153,6 +153,40 @@ public class SongFilterTests
     }
 
     [TestMethod]
+    public void ExcludePurchase_RoundTrips()
+    {
+        var f = SongFilter.Create(false, @"Index-.-.-.-S-.-.-.-.-.-.-R");
+
+        Assert.AreEqual("S", f.Purchase);
+        Assert.AreEqual("R", f.ExcludePurchase);
+
+        var s = f.ToString();
+        var reparsed = SongFilter.Create(false, s);
+        Assert.AreEqual("S", reparsed.Purchase);
+        Assert.AreEqual("R", reparsed.ExcludePurchase);
+    }
+
+    [TestMethod]
+    public void ExcludePurchase_BuildsNegatedOdataFilter()
+    {
+        var f = SongFilter.Create(false, @"Index-.-.-.-S-.-.-.-.-.-.-R");
+
+        var odata = f.GetOdataFilter(null);
+
+        StringAssert.Contains(odata, "Purchase/any(t: t eq 'Spotify')");
+        StringAssert.Contains(odata, "not (Purchase/any(t: t eq 'ISRC'))");
+    }
+
+    [TestMethod]
+    public void ExcludePurchase_DescribesExclusion()
+    {
+        var f = SongFilter.Create(false, @"Index-.-.-.-S-.-.-.-.-.-.-R");
+
+        StringAssert.Contains(f.Description, "available on Spotify");
+        StringAssert.Contains(f.Description, "not available on ISRC");
+    }
+
+    [TestMethod]
     public void TestEmpty()
     {
         Assert.IsTrue(SongFilter.Create(false, @"Index-ALL").IsEmpty);

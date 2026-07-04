@@ -81,6 +81,7 @@ const displayUser = ref(userQueryInit.displayName);
 const bonuses = ref(computeBonuses());
 const validated = ref(false);
 const services = ref(filter.purchase ? filter.purchase.trim().split("") : []);
+const excludeServices = ref(filter.excludePurchase ? filter.excludePurchase.trim().split("") : []);
 const activity = ref(userQueryInit.parts);
 
 const songFilter = computed(() => {
@@ -107,6 +108,9 @@ const songFilter = computed(() => {
   filter.sortOrder = SongSort.fromParts(sortId.value ?? undefined, sortDirection.value).query;
   filter.user = userQuery.query;
   filter.purchase = services.value.join("");
+  filter.excludePurchase = excludeServices.value.length
+    ? excludeServices.value.join("")
+    : undefined;
   filter.tempoMin = tempoMin.value === 0 ? undefined : tempoMin.value;
   filter.tempoMax = tempoMax.value >= 400 ? undefined : tempoMax.value;
   filter.lengthMin = lengthMin.value === 0 ? undefined : lengthMin.value;
@@ -285,6 +289,7 @@ function onReset(evt: Event): void {
   }
   displayUser.value = "";
   services.value = [];
+  excludeServices.value = [];
   sortId.value = null;
   sortDirection.value = "asc";
   bonuses.value = [];
@@ -504,6 +509,21 @@ function onReset(evt: Event): void {
           <BFormCheckboxGroup id="services" v-model="services">
             <BFormCheckbox value="I">ITunes</BFormCheckbox>
             <BFormCheckbox value="S">Spotify</BFormCheckbox>
+            <BFormCheckbox v-if="context.isAdmin" value="R">ISRC (R)</BFormCheckbox>
+          </BFormCheckboxGroup>
+        </BFormGroup>
+
+        <BFormGroup
+          v-if="context.isAdmin"
+          id="exclude-services-group"
+          class="mx-2 mb-2"
+          label="Exclude if available on:"
+          label-for="exclude-services"
+        >
+          <BFormCheckboxGroup id="exclude-services" v-model="excludeServices">
+            <BFormCheckbox value="I">ITunes</BFormCheckbox>
+            <BFormCheckbox value="S">Spotify</BFormCheckbox>
+            <BFormCheckbox value="R">ISRC (R)</BFormCheckbox>
           </BFormCheckboxGroup>
         </BFormGroup>
 
@@ -551,6 +571,7 @@ lengthMin = {{ lengthMin }}
 lengthMax = {{ lengthMax }}
 activity = {{ computedActivity }}
 services = {{ services }}
+excludeServices = {{ excludeServices }}
 sort = {{ sortId }}
 order = {{ sortDirection }}
 bonus = {{ bonuses }}

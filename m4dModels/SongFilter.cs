@@ -31,6 +31,7 @@ public class SongFilterSparse
     public int? Page { get; set; }
     public string Tags { get; set; }
     public int? Level { get; set; }
+    public string ExcludePurchase { get; set; }
 }
 
 public class SongFilter
@@ -123,6 +124,7 @@ public class SongFilter
         Page = ReadInt(cells, idx++);
         Tags = ReadCell(cells, idx++);
         Level = ReadInt(cells, idx++);
+        ExcludePurchase = ReadCell(cells, idx++);
 
         if (!IsRaw && Action.StartsWith("azure", StringComparison.OrdinalIgnoreCase))
         {
@@ -205,6 +207,11 @@ public class SongFilter
     public int? Page { get; set; }
     public string Tags { get; set; }
     public int? Level { get; set; }
+
+    // Services to exclude — a song available on any of these is dropped from the results.
+    // Kept as a separate field (rather than folding into Purchase via case/symbols) so the
+    // two selections stay independent: e.g. "available on Spotify" AND "not available on ISRC".
+    public string ExcludePurchase { get; set; }
 
     public string TargetAction => IsAzure ? "azuresearch" : Action;
 
@@ -337,6 +344,34 @@ public class SongFilter
         }
     }
 
+    public string ODataExcludePurchase
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(ExcludePurchase))
+            {
+                return null;
+            }
+
+            var services = ExcludePurchase.ToCharArray()
+                .Where(c => MusicService.GetService(c) != null)
+                .Select(c => MusicService.GetService(c).Name);
+
+            var sb = new StringBuilder();
+            foreach (var s in services)
+            {
+                if (sb.Length > 0)
+                {
+                    _ = sb.Append(" or ");
+                }
+
+                _ = sb.AppendFormat("Purchase/any(t: t eq '{0}')", s);
+            }
+
+            return sb.Length == 0 ? null : $"not ({sb})";
+        }
+    }
+
     public bool IsEmpty => EmptyExcept(["SortOrder"]);
 
     public bool IsEmptyPaged => EmptyExcept(["Page", "Action", "SortOrder"]);
@@ -415,6 +450,14 @@ public class SongFilter
                 _ = sb.AppendFormat(
                     "{0}available on {1}", separator,
                     MusicService.FormatPurchaseFilter(Purchase, " or "));
+                separator = CommaSeparator;
+            }
+
+            if (!string.IsNullOrWhiteSpace(ExcludePurchase))
+            {
+                _ = sb.AppendFormat(
+                    "{0}not available on {1}", separator,
+                    MusicService.FormatPurchaseFilter(ExcludePurchase, " or "));
                 separator = CommaSeparator;
             }
 
@@ -705,6 +748,7 @@ public class SongFilter
         }
 
         odata = CombineFilter(odata, ODataPurchase);
+        odata = CombineFilter(odata, ODataExcludePurchase);
         odata = CombineFilter(odata, TagQuery.GetODataFilter(dms));
         odata = CombineFilter(odata, GetCommentsFilter());
 
@@ -730,7 +774,7 @@ public class SongFilter
         var version = Version == 2 ? "v2-" : "";
         var length = Version == 2 ? $"{Format(LengthMin.ToString())}-{Format(LengthMax.ToString())}-" : "";
         var ret = $"{version}{Action}-{Format(Dances)}-{Format(SortOrder)}-{Format(SearchString)}-{Format(Purchase)}-{Format(User)}-" +
-            $"{Format(TempoMin.ToString())}-{Format(TempoMax.ToString())}-{length}{Format(Page.ToString())}-{Format(Tags)}-{Format(Level.ToString())}";
+            $"{Format(TempoMin.ToString())}-{Format(TempoMax.ToString())}-{length}{Format(Page.ToString())}-{Format(Tags)}-{Format(Level.ToString())}-{Format(ExcludePurchase)}";
         var clean = ret.TrimEnd(['.', '-']);
         return string.Equals(clean, "index", StringComparison.OrdinalIgnoreCase) ? "" : clean;
     }

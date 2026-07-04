@@ -45,6 +45,7 @@ export class SongFilter {
     filter.page = SongFilter.readNumberCell(cells, idx++);
     filter.tags = SongFilter.readCell(cells, idx++);
     filter.level = SongFilter.readNumberCell(cells, idx++);
+    filter.excludePurchase = SongFilter.readCell(cells, idx++);
 
     return filter;
   }
@@ -81,6 +82,10 @@ export class SongFilter {
   @jsonMember(Number) public page?: number;
   @jsonMember(String) public tags?: string;
   @jsonMember(Number) public level?: number;
+  // Services to exclude — a song available on any of these is dropped from the results.
+  // Kept separate from `purchase` rather than encoded via case/symbols so the two
+  // selections stay independent (see m4dModels/SongFilter.cs ExcludePurchase).
+  @jsonMember(String) public excludePurchase?: string;
 
   public clone(): SongFilter {
     return SongFilter.buildFilter(this.query);
@@ -110,7 +115,7 @@ export class SongFilter {
       `${this.encode(this.searchString)}-${this.encode(this.purchase)}-${this.encode(this.user)}-` +
       `${tempoMin}-${tempoMax}-${lengthMin}-${lengthMax}-${this.cleanPage}-${this.encode(
         this.tags,
-      )}-${level}`;
+      )}-${level}-${this.encode(this.excludePurchase)}`;
 
     return this.trimEnd(ret, ".-");
   }
@@ -121,7 +126,9 @@ export class SongFilter {
       `${this.encode(this.searchString)}-${this.encode(this.purchase ?? "")}-${this.encode(
         this.user ?? "",
       )}-` +
-      `--${this.cleanPage}-${this.encode(this.tags)}-${this.level?.toString() ?? ""}`;
+      `--${this.cleanPage}-${this.encode(this.tags)}-${this.level?.toString() ?? ""}-${this.encode(
+        this.excludePurchase,
+      )}`;
 
     return this.trimEnd(ret, ".-");
   }
@@ -234,6 +241,7 @@ export class SongFilter {
       : `All${this.describePart(this.danceQuery.description)}` +
           `${this.describePart(this.describeKeywords)}` +
           `${this.describePart(this.describePurchase)}` +
+          `${this.describePart(this.describeExcludePurchase)}` +
           `${this.describePart(this.tagQuery.description)}` +
           `${this.describePart(this.describeTempo)}` +
           `${this.describePart(this.describeLength)}` +
@@ -272,12 +280,32 @@ export class SongFilter {
   }
 
   private get describePurchase(): string {
-    const services = PurchaseInfo.NamesFromFilter(this.purchase);
+    const services = this.namesFromServiceFilter(this.purchase);
     if (!services.length) {
       return "";
     }
 
     return `available on ${services.join(" or ")}`;
+  }
+
+  private get describeExcludePurchase(): string {
+    const services = this.namesFromServiceFilter(this.excludePurchase);
+    if (!services.length) {
+      return "";
+    }
+
+    return `not available on ${services.join(" or ")}`;
+  }
+
+  // PurchaseInfo.NamesFromFilter only knows the storefronts that have real purchase
+  // links (Amazon/ITunes/Spotify). ISRC is a filter-only, admin-only service with no
+  // storefront, so it's layered on here rather than added to that shared enum.
+  private namesFromServiceFilter(filter: string | undefined): string[] {
+    const services = PurchaseInfo.NamesFromFilter(filter);
+    if (filter?.toUpperCase().includes("R")) {
+      services.push("ISRC");
+    }
+    return services;
   }
 
   private get describeTempo(): string {
