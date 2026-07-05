@@ -14,7 +14,7 @@ There are two structurally distinct families of list results:
    (`Filter` property, inherited from `ContentController`) and funnel through `DoAzureSearch()` →
    `SongSearch.Search()` → `SongIndex.Search`/`VoteSearch`/`PostSearch` → `FormatResults()` →
    `FormatSongList()` → `Vue3(..., new SongListModel {...})`. The result is paginated, filter-aware,
-   and rendered by the `song-index` (or `new-music`/`holiday-music`) Vue page.
+   and rendered by the `song-index` (or `new-music`) Vue page.
 2. **One-off, non-filter list results** — actions that build a list of songs by some other means
    (a Spotify playlist, an uploaded file of IDs, an in-memory merge-candidate scan, a list of GUIDs)
    and either reuse `FormatSongList()` with the ambient `Filter` just along for the ride, or render
@@ -83,8 +83,8 @@ Azure schema — has to be checked song-by-song after streaming candidates via `
   - Optionally attaches `SearchRequestDiagnostics` (raw Azure query/filter/sort) for users in the
     `DiagRole`.
   - Renders `Vue3(title, description, Filter.VueName, new SongListModel {...}, danceEnvironment: true)`.
-  - `Filter.VueName` picks the Vue page component: `new-music`, `holiday-music`, or the default
-    `song-index` for everything else (advanced search, raw search, tag browsing, plain index, etc.)
+  - `Filter.VueName` picks the Vue page component: `new-music`, or the default `song-index` for
+    everything else (advanced search, raw search, tag browsing, plain index, etc.)
     — they're all variations rendered by the same underlying list component with different
     title/filter wiring.
 
@@ -108,7 +108,7 @@ They differ only in *how* they mutate `Filter` before searching.
 | `Advanced` | `/AdvancedIndex` | anon | Alias for `Index` (TODO: confirm still reachable) |
 | `AdvancedSearch` | `/Song/AdvancedSearch` | anon | Full advanced-search form handler: searchString, dances, tags, services (→`Purchase`), tempo range, user, sort, bonus-content level — each resets `Page` to 1 if changed |
 | `RawSearch` | `/Song/RawSearch` | anon | Rebuilds `Filter` entirely from a `RawSearch` model (raw OData/Lucene query) bound from the form |
-| `FilterSearch` | `/Song/FilterSearch` | anon | No mutation — re-runs search on whatever `Filter` the query string already encodes |
+| `FilterSearch` | `/Song/FilterSearch` | anon | Sets `Page` if the `page` query param is present (needed because pagination links append `&page=n` to the filter's own URL — see below); otherwise no mutation, just re-runs search on whatever `Filter` the query string already encodes |
 | `Sort` | `/Song/Sort` | anon | Sets `SortOrder` via `SongSort` |
 | `FilterUser` | `/Song/FilterUser` | anon | Sets/clears `User` |
 | `FilterService` | `/Song/FilterService` | anon | Sets `Purchase` from selected services |
@@ -116,6 +116,18 @@ They differ only in *how* they mutate `Filter` before searching.
 | `Tags` / `AddTags` / `RemoveTags` | `/Song/Tags` etc. | anon | Set/merge/subtract `Tags` (via `TagList`) |
 | `NewMusic` | `/Song/NewMusic` | anon | Sets `Action = "newmusic"`, `SortOrder` (default `Created`), `Page`, and a fixed curator `User` query |
 | `HolidayMusic` | `/Song/HolidayMusic` | anon | Permanent redirect to `CustomSearchController` — not actually handled here |
+
+### Pagination Convention
+
+`SongFooter.vue` (the page-number widget shown under every `SongListModel` result list) doesn't
+know how to re-encode a `SongFilter`; it just appends `&page=n`/`?page=n` to whatever URL the
+current filter reports as its own (`filter.url` — `/song/{targetAction}?filter=...`). That means
+**every** action reachable via this pagination widget must declare its own `int? page` parameter
+and copy it onto the ambient `Filter` (`if (page.HasValue) { Filter.Page = page; }`), exactly as
+`Index`, `AzureSearch`, `NewMusic`, `MergeCandidates`, and `FilterSearch` do — the query-string
+`page` is otherwise silently dropped, since `GetFilterFromContext` only ever reads the `filter`
+param. Any new filter-driven action that can be reached via `SongFooter` needs this same
+boilerplate, or paging on it will silently no-op.
 
 `BulkEdit`'s default `switch` arm and `MergeCandidates` also produce song lists but **don't** go
 through `DoAzureSearch`/`SongSearch` — see below.
