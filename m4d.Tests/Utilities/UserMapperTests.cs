@@ -59,7 +59,7 @@ public class UserMapperTests
         var dict = new Dictionary<string, UserInfo>(StringComparer.OrdinalIgnoreCase);
         foreach (var user in users)
         {
-            dict[user.UserName] = new UserInfo { User = user, Roles = [], Logins = [] };
+            dict[user.UserName!] = new UserInfo { User = user, Roles = [], Logins = [] };
         }
         return dict;
     }

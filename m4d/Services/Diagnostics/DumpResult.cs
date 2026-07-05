@@ -29,11 +29,11 @@ public enum DumpType
 /// </summary>
 public record DumpResult(
     bool Success,
-    string? FilePath,
-    string? FileName,
+    string FilePath,
+    string FileName,
     long FileSizeBytes,
     DumpType DumpType,
-    string? ErrorMessage
+    string ErrorMessage
 )
 {
     /// <summary>

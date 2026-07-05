@@ -7,7 +7,7 @@ namespace m4dModels.Tests;
 /// </summary>
 public class TestSongIndex : SongIndex
 {
-    private DanceMusicCoreService? _actualService;
+    private DanceMusicCoreService _actualService;
     private readonly Dictionary<Guid, Song> _songStore = [];
 
     public List<EditSongCall> EditCalls { get; } = new();

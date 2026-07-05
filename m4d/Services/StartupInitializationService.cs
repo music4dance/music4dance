@@ -14,13 +14,13 @@ public class StartupInitializationService : BackgroundService
     private readonly ILogger<StartupInitializationService> _logger;
     private readonly ServiceHealthManager _serviceHealth;
     private readonly IConfiguration _configuration;
-    private readonly IConfigurationRefresher? _configurationRefresher;
+    private readonly IConfigurationRefresher _configurationRefresher;
 
     public StartupInitializationService(
         ILogger<StartupInitializationService> logger,
         ServiceHealthManager serviceHealth,
         IConfiguration configuration,
-        IConfigurationRefresherProvider? configRefresherProvider = null)
+        IConfigurationRefresherProvider configRefresherProvider = null)
     {
         _logger = logger;
         _serviceHealth = serviceHealth;

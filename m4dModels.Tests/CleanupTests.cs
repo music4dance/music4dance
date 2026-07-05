@@ -412,7 +412,7 @@ public class CleanupTests
 
         Assert.AreEqual(c, song.SongProperties.Count);
         await song.Load(song.SongProperties, dms);
-        Assert.AreEqual(song.Length, 125);
+        Assert.AreEqual(125, song.Length);
 
         Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
         DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
@@ -434,7 +434,7 @@ public class CleanupTests
 
         Assert.AreEqual(c, song.SongProperties.Count);
         await song.Load(song.SongProperties, dms);
-        Assert.AreEqual(song.Length, 3725);
+        Assert.AreEqual(3725, song.Length);
 
         Trace.WriteLineIf(General.TraceInfo, $"---------------Postdump for Song {song.SongId}");
         DanceMusicTester.DumpSongProperties(song, General.TraceInfo);
