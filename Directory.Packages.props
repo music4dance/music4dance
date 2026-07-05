@@ -61,5 +61,6 @@
     <PackageVersion Include="X.PagedList.Mvc.Core" Version="10.5.9" />
     <PackageVersion Include="Microsoft.Build.Tasks.Core" Version="18.7.1" />
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.7.1" />
+    <PackageVersion Include="ZstdSharp.Port" Version="0.8.8" />
   </ItemGroup>
 </Project>
