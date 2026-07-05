@@ -303,37 +303,53 @@ public class SongFilter
     public bool IsAzure =>
         Action.ToLower().StartsWith("azure", StringComparison.OrdinalIgnoreCase);
 
+    // Purchase packs two independent service selections into one field: services the song
+    // must be available on, and services it must NOT be available on. 'N' (unused by any
+    // MusicService CID) separates them — "IS" means available on ITunes or Spotify, "NIS"
+    // means available on neither, "SNR" means available on Spotify but not ISRC.
+    private const char ExcludeSplit = 'N';
+
+    private (string Include, string Exclude) SplitPurchase()
+    {
+        if (string.IsNullOrWhiteSpace(Purchase))
+        {
+            return (null, null);
+        }
+
+        var idx = Purchase.IndexOf(ExcludeSplit);
+        return idx < 0
+            ? (Purchase, null)
+            : (idx == 0 ? null : Purchase[..idx], Purchase[(idx + 1)..]);
+    }
+
+    private static string BuildServiceClause(string services)
+    {
+        if (string.IsNullOrWhiteSpace(services))
+        {
+            return null;
+        }
+
+        var names = services.ToCharArray()
+            .Where(c => MusicService.GetService(c) != null)
+            .Select(c => MusicService.GetService(c).Name)
+            .ToList();
+
+        return names.Count == 0 ? null : string.Join(" or ", names.Select(n => $"Purchase/any(t: t eq '{n}')"));
+    }
+
     public string ODataPurchase
     {
         get
         {
-            var purch = Purchase;
-            if (string.IsNullOrWhiteSpace(purch))
-            {
-                return null;
-            }
+            var (include, exclude) = SplitPurchase();
 
-            var not = "";
-            if (purch.StartsWith('!'))
-            {
-                not = "not ";
-                purch = purch[1..];
-            }
+            var includeClause = BuildServiceClause(include);
+            var excludeClause = BuildServiceClause(exclude);
 
-            var services = purch.ToCharArray().Select(c => MusicService.GetService(c).Name);
+            var includeFilter = includeClause == null ? null : $"({includeClause})";
+            var excludeFilter = excludeClause == null ? null : $"not ({excludeClause})";
 
-            var sb = new StringBuilder();
-            foreach (var s in services)
-            {
-                if (sb.Length > 0)
-                {
-                    _ = sb.Append(" or ");
-                }
-
-                _ = sb.AppendFormat("Purchase/any(t: t eq '{0}')", s);
-            }
-
-            return $"{not}({sb})";
+            return CombineFilter(includeFilter, excludeFilter);
         }
     }
 
@@ -410,11 +426,21 @@ public class SongFilter
                 separator = CommaSeparator;
             }
 
-            if (!string.IsNullOrWhiteSpace(Purchase))
+            var (purchaseInclude, purchaseExclude) = SplitPurchase();
+
+            if (!string.IsNullOrWhiteSpace(purchaseInclude))
             {
                 _ = sb.AppendFormat(
                     "{0}available on {1}", separator,
-                    MusicService.FormatPurchaseFilter(Purchase, " or "));
+                    MusicService.FormatPurchaseFilter(purchaseInclude, " or "));
+                separator = CommaSeparator;
+            }
+
+            if (!string.IsNullOrWhiteSpace(purchaseExclude))
+            {
+                _ = sb.AppendFormat(
+                    "{0}not available on {1}", separator,
+                    MusicService.FormatPurchaseFilter(purchaseExclude, " or "));
                 separator = CommaSeparator;
             }
 

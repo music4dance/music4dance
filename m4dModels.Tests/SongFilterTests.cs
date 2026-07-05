@@ -153,6 +153,51 @@ public class SongFilterTests
     }
 
     [TestMethod]
+    public void PurchaseWithExclusion_RoundTrips()
+    {
+        // "SNR" = available on Spotify, not available on ISRC ('N' splits include/exclude).
+        var f = SongFilter.Create(false, @"Index-.-.-.-SNR");
+
+        Assert.AreEqual("SNR", f.Purchase);
+
+        var s = f.ToString();
+        var reparsed = SongFilter.Create(false, s);
+        Assert.AreEqual("SNR", reparsed.Purchase);
+    }
+
+    [TestMethod]
+    public void PurchaseWithExclusion_BuildsNegatedOdataFilter()
+    {
+        var f = SongFilter.Create(false, @"Index-.-.-.-SNR");
+
+        var odata = f.GetOdataFilter(null);
+
+        StringAssert.Contains(odata, "Purchase/any(t: t eq 'Spotify')");
+        StringAssert.Contains(odata, "not (Purchase/any(t: t eq 'ISRC'))");
+    }
+
+    [TestMethod]
+    public void ExcludeOnlyPurchase_BuildsNegatedOdataFilterWithNoPositiveClause()
+    {
+        // "NIS" = no positive constraint, exclude songs available on ITunes or Spotify.
+        var f = SongFilter.Create(false, @"Index-.-.-.-NIS");
+
+        var odata = f.GetOdataFilter(null);
+
+        StringAssert.Contains(odata, "not (Purchase/any(t: t eq 'ITunes') or Purchase/any(t: t eq 'Spotify'))");
+        Assert.IsFalse(odata.Contains("() and"), "Should not emit an empty positive clause");
+    }
+
+    [TestMethod]
+    public void PurchaseWithExclusion_DescribesExclusion()
+    {
+        var f = SongFilter.Create(false, @"Index-.-.-.-SNR");
+
+        StringAssert.Contains(f.Description, "available on Spotify");
+        StringAssert.Contains(f.Description, "not available on ISRC");
+    }
+
+    [TestMethod]
     public void TestEmpty()
     {
         Assert.IsTrue(SongFilter.Create(false, @"Index-ALL").IsEmpty);

@@ -156,6 +156,21 @@ the next piece of work.
 > "add unmatched songs" table that links into the Augment flow — see [[add-augment-song]] for how
 > a track gets attached to (or created in) the catalog once a user clicks Add. This summary
 > predates those changes and describes only the original read path.
+>
+> **Update**: after the direct Spotify-id search (step 2 above), tracks that still don't match
+> are given a second chance via ISRC — the same "Spotify reissued the track id for the same
+> recording" fallback `MusicServiceManager.CreateSong`/`FindSongByISRC` uses for the single-track
+> Augment lookup (see [[add-augment-song]]), batched here instead of done per track. Every
+> `candidateTrack` that missed the id search and carries a non-empty `ISRC` (Spotify's playlist API
+> returns `external_ids.isrc` on each track already, so no extra per-track fetch is needed) is
+> looked up in one more `ServiceIds/any(...)` query, this time against `"R:{isrc}"` entries. Any
+> song that matches gets the missing Spotify id attached via the new
+> `MusicServiceManager.AttachTracksToSong` (a thin, playlist-batched wrapper around the same
+> `UpdateFromTracks` used by `CreateSong` — it does *not* run `CreateSong`'s broader
+> `UpdateSongAndServices`/`UpdateAudioData` enrichment pass, just records the id) and is folded into
+> the matched/sorted results, same as a direct id match. This still costs exactly one extra Azure
+> Search round-trip per playlist view (not one per unmatched track), and is bounded by the same
+> subscription-tier `candidateTracks` list as the primary search.
 
 ### `List(IFormFile fileUpload)` — [SongController.cs:502](../m4d/Controllers/SongController.cs#L502)
 

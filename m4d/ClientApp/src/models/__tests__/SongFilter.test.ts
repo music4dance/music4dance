@@ -236,6 +236,38 @@ describe("song filter", () => {
     expect(f.url).toMatch(/^\/song\/azuresearch\?filter=/);
   });
 
+  it("should round-trip a purchase filter with an exclusion through the filter string", () => {
+    // "SNR" = available on Spotify, not available on ISRC ('N' splits include/exclude).
+    const f = SongFilter.buildFilter("Advanced----SNR-");
+    expect(f.purchase).toEqual("SNR");
+
+    const reparsed = SongFilter.buildFilter(f.query);
+    expect(reparsed.purchase).toEqual("SNR");
+  });
+
+  it("should split a purchase filter into include/exclude parts", () => {
+    expect(SongFilter.splitPurchase(undefined)).toEqual({});
+    expect(SongFilter.splitPurchase("IS")).toEqual({ include: "IS" });
+    expect(SongFilter.splitPurchase("SNR")).toEqual({ include: "S", exclude: "R" });
+    expect(SongFilter.splitPurchase("NIS")).toEqual({ include: undefined, exclude: "IS" });
+  });
+
+  it("should join include/exclude parts into a purchase filter", () => {
+    expect(SongFilter.joinPurchase(["S"], ["R"])).toEqual("SNR");
+    expect(SongFilter.joinPurchase(["I", "S"], [])).toEqual("IS");
+    expect(SongFilter.joinPurchase([], ["I", "S"])).toEqual("NIS");
+    expect(SongFilter.joinPurchase([], [])).toBeUndefined();
+  });
+
+  it("should describe a purchase filter with an exclusion", () => {
+    const f = SongFilter.buildFilter("Advanced----SNR-");
+    expect(f.description).toEqual(
+      "All songs available on Spotify" +
+        " not available on ISRC" +
+        " sorted by Dance Rating from most popular to least popular.",
+    );
+  });
+
   it("should normalize case and spaces when checking isRaw", () => {
     const f = new SongFilter();
     f.action = "Azure Raw Lucene";

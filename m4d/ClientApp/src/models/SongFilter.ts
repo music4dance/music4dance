@@ -49,6 +49,31 @@ export class SongFilter {
     return filter;
   }
 
+  // Purchase packs two independent service selections into one field: services the song
+  // must be available on, and services it must NOT be available on. 'N' (unused by any
+  // service code) separates them — "IS" means available on ITunes or Spotify, "NIS" means
+  // available on neither, "SNR" means available on Spotify but not ISRC.
+  public static splitPurchase(purchase?: string): { include?: string; exclude?: string } {
+    if (!purchase) {
+      return {};
+    }
+
+    const idx = purchase.indexOf("N");
+    if (idx === -1) {
+      return { include: purchase };
+    }
+
+    return {
+      include: purchase.slice(0, idx) || undefined,
+      exclude: purchase.slice(idx + 1) || undefined,
+    };
+  }
+
+  public static joinPurchase(include: string[], exclude: string[]): string | undefined {
+    const purchase = include.join("") + (exclude.length ? `N${exclude.join("")}` : "");
+    return purchase || undefined;
+  }
+
   private static splitFilter(input: string): string[] {
     return input
       .replaceAll("\\-", subChar)
@@ -234,6 +259,7 @@ export class SongFilter {
       : `All${this.describePart(this.danceQuery.description)}` +
           `${this.describePart(this.describeKeywords)}` +
           `${this.describePart(this.describePurchase)}` +
+          `${this.describePart(this.describeExcludePurchase)}` +
           `${this.describePart(this.tagQuery.description)}` +
           `${this.describePart(this.describeTempo)}` +
           `${this.describePart(this.describeLength)}` +
@@ -272,12 +298,32 @@ export class SongFilter {
   }
 
   private get describePurchase(): string {
-    const services = PurchaseInfo.NamesFromFilter(this.purchase);
+    const services = this.namesFromServiceFilter(SongFilter.splitPurchase(this.purchase).include);
     if (!services.length) {
       return "";
     }
 
     return `available on ${services.join(" or ")}`;
+  }
+
+  private get describeExcludePurchase(): string {
+    const services = this.namesFromServiceFilter(SongFilter.splitPurchase(this.purchase).exclude);
+    if (!services.length) {
+      return "";
+    }
+
+    return `not available on ${services.join(" or ")}`;
+  }
+
+  // PurchaseInfo.NamesFromFilter only knows the storefronts that have real purchase
+  // links (Amazon/ITunes/Spotify). ISRC is a filter-only, admin-only service with no
+  // storefront, so it's layered on here rather than added to that shared enum.
+  private namesFromServiceFilter(filter: string | undefined): string[] {
+    const services = PurchaseInfo.NamesFromFilter(filter);
+    if (filter?.toUpperCase().includes("R")) {
+      services.push("ISRC");
+    }
+    return services;
   }
 
   private get describeTempo(): string {

@@ -153,7 +153,7 @@ public class SongIndex
             songTags, playlist);
     }
 
-    public async Task<Song> GetSongFromService(MusicService service, string id)
+    public virtual async Task<Song> GetSongFromService(MusicService service, string id)
     {
         if (string.IsNullOrWhiteSpace(id))
         {
@@ -1535,6 +1535,21 @@ public class SongIndex
         {
             // Re-throw with a message that will be caught by upper layers
             throw new InvalidOperationException("Azure Search service is unavailable", ex);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"DoSearch failed: {ex.Message} - retrying without select");
+            parameters.Select.Clear();
+            try
+            {
+                return await Client.SearchAsync<SearchDocument>(search, parameters);
+            }
+            catch (Exception retryEx)
+            {
+                throw new AggregateException(
+                    $"DoSearch failed, then retry without select also failed: {retryEx.Message}",
+                    ex, retryEx);
+            }
         }
     }
     #endregion

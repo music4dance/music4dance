@@ -196,6 +196,70 @@ public class SongController : ContentController
                 .SelectMany(x => x.matchedIds)
                 .ToHashSet();
 
+            // Fall back to ISRC for tracks the direct Spotify-id search missed — Spotify
+            // periodically reissues track ids for the same recording (see FindSongByISRC), so a
+            // ServiceIds miss on the Spotify id doesn't necessarily mean the song isn't already
+            // catalogued. Batched the same way as the id search above, and bounded by the same
+            // subscription-tier-limited candidateTracks list, so this adds one extra Azure Search
+            // round-trip per playlist view rather than one per unmatched track.
+            var isrcCandidates = candidateTracks
+                .Where(t => !matchedTrackIds.Contains(t.TrackId) && !string.IsNullOrWhiteSpace(t.ISRC))
+                .ToList();
+
+            if (isrcCandidates.Count > 0)
+            {
+                var isrcService = MusicService.GetService(ServiceType.ISRC);
+                var tracksByIsrc = isrcCandidates
+                    .GroupBy(t => t.ISRC)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                var isrcResults = await SongIndex.Search(
+                    null,
+                    new SearchOptions
+                    {
+                        QueryType = SearchQueryType.Full,
+                        SearchMode = SearchMode.All,
+                        Filter =
+                            $"ServiceIds/any(id: search.in(id, '{string.Join(',', tracksByIsrc.Keys.Select(isrc => $"R:{isrc}"))}'))",
+                        Size = tracksByIsrc.Count,
+                    },
+                    CruftFilter.NoCruft);
+
+                var songsAlreadyShown = sorted.Select(x => x.song.SongId).ToHashSet();
+
+                foreach (var song in isrcResults.Songs)
+                {
+                    var tracksToAttach = song.GetPurchaseIds(isrcService)
+                        .Where(tracksByIsrc.ContainsKey)
+                        .SelectMany(isrc => tracksByIsrc[isrc])
+                        .ToList();
+
+                    if (tracksToAttach.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    // Attach the id(s) regardless of whether the song is already shown below —
+                    // a song can already be in `sorted` via a different playlist track that
+                    // shares this ISRC, in which case we still want the new id recorded, just
+                    // not a second row for the same song.
+                    await MusicServiceManager.AttachTracksToSong(Database, song, tracksToAttach);
+
+                    var newIds = tracksToAttach.Select(t => t.TrackId).ToList();
+                    if (songsAlreadyShown.Add(song.SongId))
+                    {
+                        sorted.Add((song, newIds, newIds.Min(trackId => trackOrder[trackId])));
+                    }
+
+                    foreach (var trackId in newIds)
+                    {
+                        _ = matchedTrackIds.Add(trackId);
+                    }
+                }
+
+                sorted = [.. sorted.OrderBy(x => x.index)];
+            }
+
             var unmatched = canAddSongs
                 ? candidateTracks
                     .Where(t => !matchedTrackIds.Contains(t.TrackId))

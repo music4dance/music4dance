@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.FileProviders;
@@ -1904,13 +1905,6 @@ public class AdminController(
         bool delete = false)
     {
         var context = Database.Context;
-        var migrator = context.Database.GetService<IMigrator>();
-
-        if (delete)
-        {
-            Logger.LogInformation("Deleting Database");
-            _ = context.Database.EnsureDeleted();
-        }
 
         var useCloudDb = Configuration.GetValue<bool>("PROD_DB") || Configuration.GetValue<bool>("TEST_DB");
         if (useCloudDb)
@@ -1919,8 +1913,30 @@ public class AdminController(
         }
         else
         {
+            // Use a dedicated context (with PendingModelChangesWarning suppressed) for
+            // all migration operations below, rather than the ambient request-scoped
+            // ('Database.Context') one that doesn't have that suppression configured.
+            var migrationOptions = new DbContextOptionsBuilder<DanceMusicContext>()
+                .UseSqlServer(context.Database.GetConnectionString())
+                .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning))
+                .Options;
+            using var migrationContext = new DanceMusicContext(migrationOptions);
+            var migrator = migrationContext.Database.GetService<IMigrator>();
+
+            if (delete)
+            {
+                // Tear the schema down to empty via down-migrations instead of
+                // EnsureDeleted(): dropping and recreating the LocalDB database across
+                // two connections intermittently surfaced a misleading SQL "Login
+                // failed" error on the recreate. Migrating to "0" (EF Core's reserved
+                // target for "before any migration was applied") achieves the same
+                // empty-schema result on a single connection that's never invalidated.
+                Logger.LogInformation("Clearing database schema (migrating to empty)");
+                await migrator.MigrateAsync("0");
+            }
+
             Logger.LogInformation($"Migrating to {targetMigration}");
-            migrator.Migrate(targetMigration);
+            await migrator.MigrateAsync(targetMigration);
         }
 
         await ReseedDb(userManager, roleManager);
