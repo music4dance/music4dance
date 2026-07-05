@@ -1538,7 +1538,7 @@ public class SongIndex
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"DoSearch failed: {ex.Message} - retrying without select");
+            Trace.WriteLine($"DoSearch failed: {ex.Message} - retrying without select");
             parameters.Select.Clear();
             try
             {
@@ -1546,10 +1546,11 @@ public class SongIndex
             }
             catch (Exception retryEx)
             {
-                Console.WriteLine($"DoSearch retry failed: {retryEx.Message}");
-            throw;
+                throw new AggregateException(
+                    $"DoSearch failed, then retry without select also failed: {retryEx.Message}",
+                    ex, retryEx);
+            }
         }
-    }
     }
     #endregion
 

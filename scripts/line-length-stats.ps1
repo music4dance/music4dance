@@ -66,12 +66,19 @@ if ($totalLines -gt 0) {
 $lines.Add("")
 $lines.Add(("{0,-20}{1,10}{2,10}" -f "Bucket (chars)", "Count", "Pct"))
 
+function Format-BucketBound([int]$Value) {
+    if ($Value -ge 1000) {
+        return "{0}k" -f [math]::Round($Value / 1000, 1)
+    }
+    return "$Value"
+}
+
 foreach ($bucket in ($buckets.Keys | Sort-Object)) {
     $lo = $bucket * $BucketSize
     $hi = $lo + $BucketSize
     $count = $buckets[$bucket]
     $pct = [math]::Round((100 * $count / $totalLines), 2)
-    $label = "{0}k-{1}k" -f [int]($lo / 1000), [int]($hi / 1000)
+    $label = "{0}-{1}" -f (Format-BucketBound $lo), (Format-BucketBound $hi)
     $lines.Add(("{0,-20}{1,10}{2,9}%" -f $label, $count, $pct))
 }
 
