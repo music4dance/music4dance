@@ -223,7 +223,6 @@ public class SongFilter
             return action switch
             {
                 "newmusic" => "new-music",
-                "holidaymusic" => "holiday-music",
                 _ => "song-index",
             };
         }
@@ -295,8 +294,7 @@ public class SongFilter
         {
             var action = Action.ToLower().Replace(' ', '+');
             return action.StartsWith("azure+raw", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(action, "customsearch", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(action, "holidaymusic", StringComparison.OrdinalIgnoreCase);
+                string.Equals(action, "customsearch", StringComparison.OrdinalIgnoreCase);
         }
     }
 

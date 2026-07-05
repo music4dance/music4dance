@@ -462,8 +462,13 @@ public class SongController : ContentController
     }
 
     [AllowAnonymous]
-    public async Task<ActionResult> FilterSearch()
+    public async Task<ActionResult> FilterSearch(int? page = null)
     {
+        if (page.HasValue)
+        {
+            Filter.Page = page;
+        }
+
         return await DoAzureSearch();
     }
 
