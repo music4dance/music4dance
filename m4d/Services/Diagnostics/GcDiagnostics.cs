@@ -71,7 +71,7 @@ public static class GcDiagnostics
     /// <param name="dumpType">Type of dump to create (Mini, Heap, or Full).</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result containing the dump file path or error information.</returns>
-    public static async Task<DumpResult> CreateDumpAsync(string? dumpDirectory = null, DumpType dumpType = DumpType.Heap, CancellationToken cancellationToken = default)
+    public static async Task<DumpResult> CreateDumpAsync(string dumpDirectory = null, DumpType dumpType = DumpType.Heap, CancellationToken cancellationToken = default)
     {
         try
         {

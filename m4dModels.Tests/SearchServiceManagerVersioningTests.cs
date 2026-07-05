@@ -54,7 +54,7 @@ public class SearchServiceManagerVersioningTests
 
     private static SearchServiceManager CreateManager(bool includeVersion4, int envVersion)
     {
-        var values = new Dictionary<string, string?>
+        var values = new Dictionary<string, string>
         {
             ["SEARCHINDEX"] = "SongIndexProd",
             ["SEARCHINDEXVERSION"] = envVersion.ToString(),

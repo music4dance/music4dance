@@ -265,7 +265,7 @@ public class GetISRCDataTests
             await Task.CompletedTask;
             return isrcBySpotifyId.TryGetValue(id, out var isrc) && isrc != null
                 ? new ServiceTrack { Service = ServiceType.Spotify, TrackId = id, ISRC = isrc }
-                : null;
+                : null!;
         }
     }
 
@@ -371,7 +371,7 @@ public class GetISRCDataTests
         // null ISRC simulates a Spotify track that has no external_ids.isrc
         var manager = new FakeMusicServiceManager(new Dictionary<string, string>
         {
-            ["spotifyId1"] = null,
+            ["spotifyId1"] = null!,
         });
 
         var result = await manager.GetISRCData(dms, song);

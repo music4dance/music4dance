@@ -54,7 +54,7 @@ public class CleanUrlTests
     public void CleanUrl_Null_ReturnsHome()
     {
         var model = CreateModel();
-        Assert.AreEqual("/", model.PublicCleanUrl(null));
+        Assert.AreEqual("/", model.PublicCleanUrl(null!));
     }
 
     [TestMethod]

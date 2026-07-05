@@ -1086,7 +1086,7 @@ public class AdminController(
     private const int MinUsageBatchSize = 100;
     private const int MaxUsageBatchSize = 50000;
 
-    private static bool TryGetValidUsageBatchSize(int requested, out int validBatchSize, out string? errorMessage)
+    private static bool TryGetValidUsageBatchSize(int requested, out int validBatchSize, out string errorMessage)
     {
         if (requested < MinUsageBatchSize || requested > MaxUsageBatchSize)
         {
