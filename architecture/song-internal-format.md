@@ -15,6 +15,7 @@ This document covers:
 - How the log is structured into blocks (action + user + time + payload)
 - User identity in the log (real users, pseudo/proxy users, batch/algorithmic users)
 - The computed `Song` model that results from replaying the log
+- The compressed representation of this format used in the Azure Search index (§11)
 
 Related documents:
 
@@ -654,3 +655,143 @@ The following are enforced by `Song.CheckPropertiesInternal()`:
 3. No `DanceRating` on a song-level `batch|P` block (that is a corrupt import).
 4. No genre (`:Music`) tags directly on a `DanceRating` — those belong on the song level.
 5. No competition group IDs (e.g. `SWG`, `FXT`) as actual dance ratings — only individual dance types.
+
+---
+
+## 11. Azure Search Storage Compression
+
+The property log described in §1–§10 is the canonical format everywhere — SQL storage, admin
+preview, `ChunkedSong`, the upload pipeline. The **Azure Search index** stores an additional,
+compressed encoding of the same log in its `Properties` field, because heavily-reprocessed songs
+can produce logs large enough to exceed the field's size limit (the largest real record observed
+is 58,590 bytes — one song reprocessed hundreds of times by the automated import pipeline).
+
+### 11.1 Wire Format
+
+`m4dModels/SongPropertyCompression.cs` compresses with **ZstdSharp.Port** (pure C#, no native
+binary) using a trained dictionary, then Base64-encodes the result:
+
+```
+Base64( [1-byte dictionary version] [4-byte little-endian original length] [raw Zstd frame bytes] )
+```
+
+The length prefix avoids needing `ZSTD_getFrameContentSize`, which ZstdSharp 0.8.8 only exposes
+via an internal unsafe API.
+
+**Detecting compressed vs. legacy-uncompressed values**: a legacy (pre-compression) value is
+recognized by its `.Create=`, `.Edit=`, or `.Merge=` prefix — the start of a real edit block per
+§4. All three prefixes must be checked; a `.Create=`/`.Merge=`-only check misses records whose log
+happens to start with `.Edit=` (roughly 0.07% of the corpus, from logs with no surviving
+create/merge entry). Anything not matching one of those prefixes is treated as Base64+Zstd.
+
+**Integration points** (`m4dModels/SongIndex.cs`): compress in `DocumentFromSong` (write path);
+decompress in `CreateSong` and the streaming-export change-feed enumerator (both read paths).
+`SongProperty.Serialize`/`.Load` themselves are untouched — they're shared with SQL storage, admin
+preview, and `ChunkedSong`, none of which should ever see compressed text.
+
+### 11.2 Dictionary Versioning
+
+The 1-byte version prefix lets the dictionary be retrained later without breaking previously
+written values. `SongPropertyCompression` loads every embedded `Resources/song-properties.v*.dict`
+into a `version → dictionary bytes` map at startup; it compresses with `CurrentDictionaryVersion`'s
+dictionary and decompresses using whatever version byte is stored in the value.
+**Decompressing an unrecognized version throws `InvalidOperationException`** — a deployment
+missing an old dictionary file is treated as a bug, not silently-wrong data.
+
+To retrain: bump `DictionaryVersion` in `scripts/dict-trainer/Program.cs`, run `train` (writes a
+new `song-properties.vN.dict`, refuses to overwrite an existing version file), bump
+`CurrentDictionaryVersion` in `SongPropertyCompression.cs`, and leave all older `.dict` files
+embedded. Once a full search-and-reload pass has re-saved every row in the index (which always
+recompresses with the *current* version via `DocumentFromSong`), the old `.dict` file is safe to
+delete — keep at least the immediately-previous version as a margin until that pass is confirmed
+complete.
+
+### 11.3 How a Zstd Dictionary Actually Helps
+
+Worth having the right mental model, since it explains why the training approach below looks the
+way it does. A trained dictionary does two unrelated jobs:
+
+- **Content section — an LZ77 match source.** Compressing document `D` against the dictionary is
+  conceptually like compressing `[dictionary content][D]` and keeping only the encoding for `D`:
+  any byte sequence in `D` that also appears in the dictionary content becomes a cheap
+  `(offset, length)` back-reference instead of literal bytes. This is the classic "shared
+  substrings" mental model, and it's the only part `scripts/dict-trainer dump`/`analyze` can
+  actually see (see §11.5) — entropy tables are dense binary data with no printable structure.
+- **Entropy tables — statistical priors, closer to "seed training data."** Zstd's Huffman/FSE
+  literal encoding needs a frequency model to be efficient, and most property-log records (median
+  871 bytes) are far too small to build a good one from their own content alone. The dictionary
+  ships precomputed tables — from the *entire* training corpus, not just whatever text ends up in
+  the content section — so even a short record gets well-tuned statistical encoding from its first
+  byte.
+
+These are independent: `ZDICT_finalizeDictionary` (used by the `hybrid` method, §11.4) always
+computes entropy tables from the full sample corpus regardless of what content we hand it, so
+nothing below about curating/selecting content affects the entropy-table half.
+
+### 11.4 Training: `scripts/dict-trainer`
+
+Standalone console tool (not part of `music4dance.sln`, run by hand):
+
+```
+dotnet run -- train [--out path] [--samples N|full] [--capacity N]
+                    [--method legacy|fastcover|curated|hybrid] [--k N] [--d N] [--steps N] [--shrink]
+                    [--max-filler-line-bytes N]
+dotnet run -- analyze <dict-path>     # quantify generic-vs-overfit content, field-name coverage
+dotnet run -- dump <dict-path>        # print the readable strings a dictionary contains
+```
+
+It depends on `local/song-properties-samples.txt` (gitignored real production data, one raw
+property-log line per record) — regenerate from a fresh index export before retraining.
+
+**Why the shipped recipe is `hybrid` and not plain COVER/FastCover training.** COVER and FastCover
+(the standard zstd dictionary trainers) only ever copy contiguous literal byte spans out of real
+samples — there's no way for them to learn a "field name only" template stripped of its trailing
+value, and no amount of corpus size, capacity, or segment-length tuning changes that (five variants
+tested, all landing in the same 2.2–2.33x ratio band with the same overfit pattern). Worse: several
+genuinely valid field names — `Comment+=`, `Choreographer+=`, `StepSheetUrl+=`, `PatternName+=`,
+`.Delete=`, `.Undo=`, `.NoMerge=`, `.FailedLookup=`, etc. — are rare enough in the corpus that
+COVER/FastCover never selected them in any variant tested, so songs using those fields got zero
+dictionary benefit.
+
+`hybrid` uses `ZDICT_finalizeDictionary` (raw unsafe P/Invoke — no managed wrapper exists in
+ZstdSharp.Port 0.8.8) to build the content section from data *we* supply instead of letting the
+trainer choose it:
+
+1. `BuildCuratedContent()` — a hand-picked field-name/qualifier vocabulary pulled from §2–§3 of
+   this document, guaranteeing every known field gets at least a partial-match prefix.
+2. `BuildFillerContent()` — real sample lines filling the rest of the capacity, for the legitimate
+   cross-record redundancy (shared genre-tag lists, shared album titles, the Spotify preview-URL
+   client-id suffix) that a names-only dictionary would lose entirely. Candidate lines are deduped
+   and capped at `--max-filler-line-bytes` (default 2048, excludes roughly the top 10% of lines by
+   length) before selection, so a single heavily-reprocessed outlier record can't consume a large
+   fraction of the budget.
+
+Trade-off measured directly: pure curated-only (no filler) guarantees every field but drops the
+ratio to 1.69x; `hybrid` costs ~3% versus pure auto-training (2.25x vs. 2.30–2.33x) in exchange for
+guaranteed field coverage.
+
+### 11.5 Inspecting a Trained Dictionary: `dump` vs. `analyze`
+
+Both commands scan the dictionary's raw bytes for printable-ASCII runs (a `strings`-style scan —
+there's no public API to separate a dictionary's content section from its header/entropy tables,
+but printable runs are almost always content). They intentionally use **different** run-boundary
+rules, because they answer different questions:
+
+| Command   | Tab byte (`0x09`) treated as | Shows                                                                 | Use for                                                                 |
+| --------- | ----------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `dump`    | printable (kept in the run)   | whole concatenated record chains, since tab is both the intra-record field separator and the inter-record join byte `BuildFillerContent` uses | reading real context around any value — what actually surrounds it     |
+| `analyze` | non-printable (splits the run) | one run per individual field                                          | the "long run ≥60 chars = likely overfit" signal, which is only meaningful at field granularity — nearly every record chain trivially exceeds 60 chars once tabs stop splitting it |
+
+### 11.6 Known Corpus Quirk: Repeated `User=batch-*|P` Content
+
+Dumping the dictionary shows the literal `User=batch-s|P` (and `batch-i`/`batch-e`/`batch-a`/
+`batch-x`) repeated on the order of 200+ times. This is not a training bug — **86.7% of all
+103,627 corpus lines contain `User=batch-s|P` at least once**, because nearly every song has been
+touched by that automated enrichment pipeline stage (per §5.1, `batch-s` = Spotify import) at some
+point in its edit history. Any representative sample of records will be dominated by it. Each
+"duplicate" sits inside an otherwise-unique record (different title, artist, tags, timestamps,
+sample-URL hash), so it isn't wasted space in a meaningful sense — the redundant part is only the
+~14-byte literal itself (zstd only needs to see a byte-string once anywhere in the dictionary to
+back-reference it from any future match), which works out to roughly 3.5% of the filler budget.
+Not worth chasing further given the guaranteed field coverage `hybrid` already provides; the lever
+if it's ever revisited is capping how many filler records may share a given `User=` value.

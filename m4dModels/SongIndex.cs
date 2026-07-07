@@ -1885,7 +1885,7 @@ public class SongIndex
             [TempoTags] = tempo.ToArray(),
             [OtherTags] = other.ToArray(),
             [CommentsField] = comments.ToArray(),
-            [PropertiesField] = SongProperty.Serialize(song.SongProperties, null)
+            [PropertiesField] = SongPropertyCompression.Compress(SongProperty.Serialize(song.SongProperties, null))
         };
 
         var allOther = new HashSet<string>();
@@ -2067,7 +2067,7 @@ public class SongIndex
             {
                 yield return Song.Serialize(
                     result.Document.GetString(SongIdField),
-                    result.Document.GetString(PropertiesField));
+                    SongPropertyCompression.Decompress(result.Document.GetString(PropertiesField)));
 
                 // Track last Modified and SongId for next iteration
                 lastModified = result.Document.GetDateTimeOffset(ModifiedField);
@@ -2098,7 +2098,7 @@ public class SongIndex
             throw new ArgumentOutOfRangeException(nameof(document));
         }
 
-        return Song.Create(id, properties, DanceMusicService);
+        return Song.Create(id, SongPropertyCompression.Decompress(properties), DanceMusicService);
     }
 
     protected async Task<IEnumerable<Song>> SongsFromAzureResult(

@@ -20,4 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DanceLib\DanceLibrary.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\song-properties.v*.dict" />
+  </ItemGroup>
 </Project>
