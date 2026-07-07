@@ -285,6 +285,14 @@ if (!isDevelopment)
     }
 }
 
+// Manual-testing escape hatch: write the Azure Search Properties field uncompressed.
+// Reads always handle both formats (see SongPropertyCompression.IsCompressed), so this only
+// affects what gets written going forward. Default on; flip off via a launch profile
+// (FeatureManagement__SongPropertyCompression=false) to compare against pre-compression behavior.
+m4dModels.SongPropertyCompression.Enabled =
+    configuration.GetValue($"FeatureManagement:{FeatureFlags.SongPropertyCompression}", true);
+Console.WriteLine($"[Config] SongPropertyCompression.Enabled = {m4dModels.SongPropertyCompression.Enabled}");
+
 // Dynamically add all configuration sections with an "indexname" field
 var indexSections = configuration.GetChildren()
     .Where(s => s.GetChildren().Any(child => child.Key.Equals("indexname", StringComparison.OrdinalIgnoreCase)))

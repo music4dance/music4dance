@@ -8,5 +8,6 @@ public static class FeatureFlags
     public const string CustomerReminder = "CustomerReminder";
     public const string GoogleTagManager = "GoogleTagManager";
     public const string GoogleTags = "GoogleTags";
+    public const string SongPropertyCompression = "SongPropertyCompression";
     public const string UsageLogging = "UsageLogging";
 }

@@ -308,6 +308,76 @@ public class AdminController(
     }
 
     //
+    // POST: /Admin/ReloadAllSongs
+    // Re-loads and re-saves every song in the named index in place, streamed via composite
+    // key-set pagination (SongIndex.StreamAllSongsAsync) so it has no 100K-row limit the way
+    // BatchReloadSongs (which pages with $skip) does. Used to force every row through the write
+    // path — e.g. to pick up a new Properties-field compression format or dictionary version on
+    // rows that haven't been edited since.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult ReloadAllSongs(string idxName = "default")
+    {
+        try
+        {
+            StartAdminTask("ReloadAllSongs");
+            AdminMonitor.UpdateTask("ReloadAllSongs");
+
+            var dms = Database.GetTransientService();
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var idx = dms.GetSongIndex(idxName);
+                    var reloaded = 0;
+                    var indexBatch = new List<Song>();
+                    const int updateBatchSize = 500;
+
+                    async Task FlushBatchAsync()
+                    {
+                        if (indexBatch.Count == 0) return;
+                        await idx.UpdateAzureIndex(indexBatch, dms);
+                        indexBatch.Clear();
+                    }
+
+                    await foreach (var song in idx.StreamAllSongsAsync())
+                    {
+                        await idx.RefreshSong(song);
+                        reloaded++;
+
+                        indexBatch.Add(song);
+                        if (indexBatch.Count >= updateBatchSize)
+                            await FlushBatchAsync();
+
+                        if (reloaded % 1000 == 0)
+                            AdminMonitor.UpdateTask("Reloading", reloaded);
+                    }
+
+                    await FlushBatchAsync();
+
+                    AdminMonitor.CompleteTask(true, $"ReloadAllSongs ({idxName}): Reloaded={reloaded}");
+                }
+                catch (Exception e)
+                {
+                    AdminMonitor.CompleteTask(false, $"ReloadAllSongs ({idxName}): Failed={e.Message}");
+                }
+                finally
+                {
+                    dms.Dispose();
+                }
+            });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"ReloadAllSongs ({idxName}): {e.Message}", e);
+        }
+    }
+
+    //
     // GET: /Admin/Diagnostics
     [Authorize(Roles = "showDiagnostics")]
     public ActionResult Diagnostics()

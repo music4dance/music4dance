@@ -795,3 +795,34 @@ sample-URL hash), so it isn't wasted space in a meaningful sense — the redunda
 back-reference it from any future match), which works out to roughly 3.5% of the filler budget.
 Not worth chasing further given the guaranteed field coverage `hybrid` already provides; the lever
 if it's ever revisited is capping how many filler records may share a given `User=` value.
+
+### 11.7 Full Reindex (Picking Up a Format/Dictionary Change on Every Row)
+
+`DocumentFromSong` only recompresses a row when it's next written, so a dictionary retrain or the
+initial rollout of compression itself doesn't retroactively touch rows that haven't been edited
+since. To force every row through the write path — e.g. to validate the compressed format against
+a full-size index before shipping, or to retire an old `.dict` version per §11.2 — use the existing
+backup/restore round trip rather than `SongController.BatchReloadSongs` (`BatchProcess` streams via
+`StreamAll`, which pages with `$skip` and hits Azure Search's hard 100,000-row `$skip` limit on any
+index past that size):
+
+1. **`/Admin/IndexBackup`** (`AdminController.IndexBackup`) streams the whole index to a text file
+   using `BackupIndexStreamingAsync`'s composite key-set pagination (`Modified desc, SongId desc`
+   with filters, not `$skip`) — no row-count limit. Each line is decompressed back to the canonical
+   plain-text property log via `SongPropertyCompression.Decompress`.
+2. **`/Admin/LoadIdx`** (`AdminController.LoadIdx`, form on the `UploadBackup` view under "Reload
+   the Index") re-uploads that file with `Song.Create` + `UploadIndex`, which calls
+   `DocumentFromSong` — and therefore `SongPropertyCompression.Compress` — for every row, against
+   whichever dictionary version is current in the running build.
+
+Point this at `SongIndexTest` (the "Reload the Index" form's `SongIndexTest` submit button) to
+validate the compressed format end-to-end without touching production.
+
+**Comparing against the pre-compression format:** `SongPropertyCompression.Enabled` (default
+`true`) gates the write path only — reads already auto-detect compressed vs. legacy plain text via
+the prefix check in `IsCompressed`, so toggling it never breaks reads either way. It's driven by the
+`FeatureManagement:SongPropertyCompression` config value, set from `Program.cs` at startup (not
+re-checked per request). The `m4d-vite-no-compression` launch profile
+(`FeatureManagement__SongPropertyCompression=false`) runs the app with it off, so the same
+backup/`LoadIdx` round trip against `SongIndexTest` can be repeated with compression disabled for
+an apples-to-apples comparison.

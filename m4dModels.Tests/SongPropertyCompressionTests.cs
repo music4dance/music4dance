@@ -81,4 +81,37 @@ public class SongPropertyCompressionTests
 
         _ = Assert.ThrowsExactly<InvalidOperationException>(() => SongPropertyCompression.Decompress(tampered));
     }
+
+    [TestMethod]
+    public void Compress_PassesThroughPlainTextWhenDisabled()
+    {
+        SongPropertyCompression.Enabled = false;
+        try
+        {
+            var result = SongPropertyCompression.Compress(SampleProperties);
+
+            Assert.AreEqual(SampleProperties, result);
+            Assert.IsFalse(SongPropertyCompression.IsCompressed(result));
+        }
+        finally
+        {
+            SongPropertyCompression.Enabled = true;
+        }
+    }
+
+    [TestMethod]
+    public void Decompress_StillReadsCompressedValuesWhenDisabled()
+    {
+        var compressed = SongPropertyCompression.Compress(SampleProperties);
+
+        SongPropertyCompression.Enabled = false;
+        try
+        {
+            Assert.AreEqual(SampleProperties, SongPropertyCompression.Decompress(compressed));
+        }
+        finally
+        {
+            SongPropertyCompression.Enabled = true;
+        }
+    }
 }

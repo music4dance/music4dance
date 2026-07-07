@@ -2082,6 +2082,77 @@ public class SongIndex
             }
         }
     }
+
+    /// <summary>
+    /// Streams every full <see cref="Song"/> in this index using the same composite key-set
+    /// pagination (Modified desc, SongId desc) as <see cref="BackupIndexStreamingAsync"/>, so it
+    /// has no 100K limit on $skip the way <see cref="StreamAll"/> does. Used for full-index reload
+    /// passes (see AdminController.ReloadAllSongs) that need to re-read and re-save every row in
+    /// place — e.g. to pick up a new Properties-field compression format or dictionary version on
+    /// rows that haven't been edited since. Safe to write back to the same index while streaming:
+    /// a save advances a row's Modified time to "now", which only ever moves it *above* the
+    /// newest-to-oldest cursor's current position, so it can't be revisited or cause a skip.
+    /// </summary>
+    public async IAsyncEnumerable<Song> StreamAllSongsAsync(
+        SongFilter filter = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        filter ??= Manager.GetSongFilter();
+        var baseFilter = filter.GetOdataFilter(DanceMusicService);
+
+        DateTimeOffset? lastModified = null;
+        string lastId = null;
+        bool hasMore = true;
+
+        while (hasMore)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var parameters = new SearchOptions
+            {
+                Size = 1000,
+                Skip = null, // Key-set pagination doesn't use skip
+                IncludeTotalCount = false
+            };
+
+            parameters.OrderBy.Add($"{ModifiedField} desc");
+            parameters.OrderBy.Add($"{SongIdField} desc");
+            parameters.Select.AddRange([SongIdField, ModifiedField, PropertiesField]);
+
+            if (lastModified != null && lastId != null)
+            {
+                var modifiedStr = lastModified.Value.ToString("o");
+                var compositeFilter = $"({ModifiedField} lt {modifiedStr}) or ({ModifiedField} eq {modifiedStr} and {SongIdField} lt '{lastId}')";
+
+                parameters.Filter = string.IsNullOrEmpty(baseFilter)
+                    ? compositeFilter
+                    : $"({baseFilter}) and ({compositeFilter})";
+            }
+            else
+            {
+                parameters.Filter = baseFilter;
+            }
+
+            var searchString = string.IsNullOrWhiteSpace(filter.SearchString) ? "*" : filter.SearchString;
+
+            var response = await Client.SearchAsync<SearchDocument>(searchString, parameters, cancellationToken);
+
+            var batchCount = 0;
+            foreach (var result in response.Value.GetResults())
+            {
+                yield return await CreateSong(result.Document);
+
+                lastModified = result.Document.GetDateTimeOffset(ModifiedField);
+                lastId = result.Document.GetString(SongIdField);
+                batchCount++;
+            }
+
+            if (batchCount < 1000)
+            {
+                hasMore = false;
+            }
+        }
+    }
     #endregion
 
 

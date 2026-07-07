@@ -30,6 +30,11 @@ namespace m4dModels;
 // undecodable.
 public static class SongPropertyCompression
 {
+    // Manual-testing escape hatch (set from the "FeatureManagement:SongPropertyCompression" config
+    // value at startup, see Program.cs). Reads already handle both formats regardless of this flag,
+    // so toggling it only changes what new writes look like.
+    public static bool Enabled { get; set; } = true;
+
     private const byte CurrentDictionaryVersion = 1;
 
     private static readonly string[] LegacyPrefixes =
@@ -49,6 +54,11 @@ public static class SongPropertyCompression
 
     public static string Compress(string properties)
     {
+        if (!Enabled)
+        {
+            return properties;
+        }
+
         var source = Encoding.UTF8.GetBytes(properties);
 
         using var compressor = new Compressor();

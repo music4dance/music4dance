@@ -15,6 +15,13 @@
     @foreach (var id in SearchService.GetAvailableIds()){
         <li>
             @id: @Html.ActionLink("Reset", "ResetSearchIdx", new { id = id }, null)
+            @using (Html.BeginForm("ReloadAllSongs", "Admin", FormMethod.Post, new { style = "display:inline" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("idxName", id)
+                <input type="submit" value="Reload All Songs"
+                       onclick="return confirm('Reload every song in @id in place? This re-reads and re-saves the whole index.');" />
+            }
         </li>
     }
 
