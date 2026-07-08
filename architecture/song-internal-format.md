@@ -826,3 +826,12 @@ re-checked per request). The `m4d-vite-no-compression` launch profile
 (`FeatureManagement__SongPropertyCompression=false`) runs the app with it off, so the same
 backup/`LoadIdx` round trip against `SongIndexTest` can be repeated with compression disabled for
 an apples-to-apples comparison.
+
+The flag also has a `true` default in the base `m4d/appsettings.json` `FeatureManagement` section
+(unlike the other flags in `m4d.Utilities.FeatureFlags`, which have no base-config entry and rely
+entirely on Azure App Configuration in Production). This is what makes it enumerable by
+`IFeatureManager.GetFeatureNamesAsync()` — and therefore visible in the Features list on
+`/Admin/Diagnostics` — in every environment, even before/without a corresponding Feature Flag being
+added in Azure App Configuration's Feature Manager. If one is added there later, it takes precedence
+(Azure App Configuration is registered after the base config in `Program.cs`) and this entry becomes
+purely a fallback.
