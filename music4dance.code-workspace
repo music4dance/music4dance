@@ -119,9 +119,9 @@
         "command": "dotnet",
         "args": [
           "build",
-          "-p:BaseOutputPath=${workspaceFolder:Server (.NET)}/local/build-out/",
+          "-p:UnlockedBuildOutput=true",
         ],
-        "detail": "Builds to local/build-out instead of bin, for use while the dev server holds bin/*.dll locked. Only BaseOutputPath is redirected — also overriding BaseIntermediateOutputPath causes CS0579 duplicate-attribute errors, because the default obj/ still has stale generated files that the compile glob picks up once obj is no longer excluded.",
+        "detail": "Builds to the top-level local/build-out/<project> instead of each project's own bin, for use while the dev server holds bin/*.dll locked. See Directory.Build.props for why the path redirect lives there instead of a -p:BaseOutputPath=... override on this command line, and why it must stay outside every project's own directory.",
         "group": "build",
         "presentation": {
           "echo": true,
@@ -139,9 +139,9 @@
           "test",
           "--filter",
           "FullyQualifiedName!~SelfCrawler",
-          "-p:BaseOutputPath=${workspaceFolder:Server (.NET)}/local/build-out/",
+          "-p:UnlockedBuildOutput=true",
         ],
-        "detail": "Tests via local/build-out instead of bin, for use while the dev server holds bin/*.dll locked.",
+        "detail": "Tests via the top-level local/build-out/<project> instead of each project's own bin, for use while the dev server holds bin/*.dll locked. See Directory.Build.props for why the path redirect lives there instead of a -p:BaseOutputPath=... override on this command line.",
         "group": "test",
         "presentation": {
           "echo": true,
