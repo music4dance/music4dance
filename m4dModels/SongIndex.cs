@@ -2059,12 +2059,14 @@ public class SongIndex
 
             var searchString = string.IsNullOrWhiteSpace(filter.SearchString) ? "*" : filter.SearchString;
 
-            // Fetch next batch
-            var response = await Client.SearchAsync<SearchDocument>(searchString, parameters, cancellationToken);
+            // Fetch next batch. Routed through DoSearch (rather than calling the Search client
+            // directly) so every page of a full-index backup exercises its retry-on-failure
+            // fallback; CruftFilter.AllCruft keeps AddCruftInfo from adding an extra filter.
+            var response = await DoSearch(searchString, parameters, CruftFilter.AllCruft);
 
             // Stream results from this batch
             var batchCount = 0;
-            foreach (var result in response.Value.GetResults())
+            foreach (var result in response.GetResults())
             {
                 yield return Song.Serialize(
                     result.Document.GetString(SongIdField),
@@ -2136,10 +2138,12 @@ public class SongIndex
 
             var searchString = string.IsNullOrWhiteSpace(filter.SearchString) ? "*" : filter.SearchString;
 
-            var response = await Client.SearchAsync<SearchDocument>(searchString, parameters, cancellationToken);
+            // Routed through DoSearch (see BackupIndexStreamingAsync) so a full reindex pass also
+            // exercises its retry-on-failure fallback across every row.
+            var response = await DoSearch(searchString, parameters, CruftFilter.AllCruft);
 
             var batchCount = 0;
-            foreach (var result in response.Value.GetResults())
+            foreach (var result in response.GetResults())
             {
                 yield return await CreateSong(result.Document);
 
