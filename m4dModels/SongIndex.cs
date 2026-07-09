@@ -1538,6 +1538,7 @@ public class SongIndex
         }
         catch (Exception ex)
         {
+            DiagnosticCounters.Increment("SongIndex.DoSearch.RetryWithoutSelect");
             Trace.WriteLine($"DoSearch failed: {ex.Message} - retrying without select");
             parameters.Select.Clear();
             try
