@@ -178,4 +178,6 @@ The `Purchase` index field in Azure Search is a `Collection(Edm.String)` storing
 
 Spotify OAuth is configured in `m4d/Configuration/AuthenticationBuilderExtensions.cs` via `AddSpotifyWithResilience`. Configuration keys: `Authentication:Spotify:ClientId` and `Authentication:Spotify:ClientSecret`. Successful registration marks `SpotifyOAuth` healthy in `ServiceHealthManager`.
 
+For how the user's OAuth/refresh token is stored, resolved per-request, and renewed — including the user-facing playlist creation (`SongController.CreateSpotify`) and playlist track-add (`SpotifyPlaylistController`) entry points, and the known gap around Spotify's refresh-token expiration — see [music-service-api-calls.md § User OAuth Token Lifecycle](music-service-api-calls.md#user-oauth-token-lifecycle-spotify) and [§ Playlist Write Entry Points](music-service-api-calls.md#playlist-write-entry-points-user-facing).
+
 Batch/service-account operations use pseudo-users named `batch-s` (Spotify) and `batch-i` (iTunes) for audit trails in `EditSong` calls.

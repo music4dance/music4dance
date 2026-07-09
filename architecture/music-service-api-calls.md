@@ -36,6 +36,8 @@ All reads go through `GetMusicServiceResults`; all writes go through `MusicServi
 
 Used for Spotify write operations (create playlist, set tracks, upload image). Requires a valid `principal` with Spotify OAuth. Returns deserialized JSON or null on failure.
 
+**Failure path:** neither `GetMusicServiceResults` nor `MusicServiceAction` call `EnsureSuccessStatusCode`. On any status other than 200 or 429, `responseString` is never set, so the code falls into `if (responseString == null) throw new WebException(response.ReasonPhrase)`. This constructed `WebException` has no `Response` object, so the `catch (WebException we)` block's `we.Response is HttpWebResponse r` check is always false and the exception is simply rethrown. There is no branch anywhere in this class that inspects the status code for 401/403 and treats it as an auth failure — a bad/expired token surfaces identically to a network error or a 500 from Spotify.
+
 ### In-Process Track Cache
 
 ```csharp
@@ -43,6 +45,48 @@ private static readonly Dictionary<string, ServiceTrack> s_trackCache = [];
 ```
 
 Key: `"{CID}:{trackId}"` (e.g., `"S:3X2p7fCVH4g5ITBGH8pEtZ"`). Cleared when count exceeds 10,000.
+
+---
+
+## User OAuth Token Lifecycle (Spotify)
+
+`m4d/Utilities/AdmAuthentication.cs` resolves the `Authorization` header for every call. It distinguishes two token types:
+
+- **App-level (client-credentials)**: `SpotAuthentication` — `grant_type=client_credentials`. Used for anonymous search/track-lookup. A single static instance (`s_spotify`), lazily created.
+- **User-level (authorization-code)**: `SpotUserAuthentication : SpotAuthentication` — overrides `RequestBody` to `grant_type=refresh_token` and appends `&refresh_token={RefreshToken}`. Required for all playlist writes and any read scoped to the user's library.
+
+### Where the refresh token comes from
+
+1. `AuthenticationBuilderExtensions.AddSpotifyWithResilience` (`m4d/Configuration/AuthenticationBuilderExtensions.cs`) configures the ASP.NET `AddSpotify` OAuth handler with `SaveTokens = true` and scopes `user-read-email`, `playlist-modify-public`, `ugc-image-upload`.
+2. On the OAuth callback, `ExternalLoginModel.OnGetCallbackAsync` / `OnPostConfirmationAsync` (`m4d/Areas/Identity/Pages/Account/ExternalLogin.cshtml.cs`) build a fresh `AuthenticationProperties`, call `props.StoreTokens(info.AuthenticationTokens)` (copies `access_token`, `refresh_token`, `expires_at`), set `IsPersistent = true`, and sign the user in via `_signInManager.SignInAsync(user, props, ...)`.
+3. This means `access_token`/`refresh_token`/`expires_at` live **inside the ASP.NET Core authentication cookie**, not in the `AspNetUserTokens` Identity table and not in the database at all. They persist as long as the cookie does (subject to cookie auth's configured expiration).
+
+### Per-request resolution (`AdmAuthentication.SetupService`)
+
+```
+SetupService(configuration, serviceType, principal, authResult)
+    └─ if principal is authenticated:
+           if s_users[userName] exists → return it immediately (no re-validation)
+           else if authResult.Properties present → TryCreate(...)
+                 if TryCreate succeeds → cache in s_users[userName], return it
+    └─ else (or if TryCreate returned null) → fall back to the app-level client-credentials auth (s_spotify)
+```
+
+`s_users` is a `static Dictionary<string, AdmAuthentication>` — process-lifetime, per-username, **never expires and is never re-validated once populated**. The only way to clear it is `AdmAuthentication.Clear()`, called from the admin-only `ApplicationUsersController.ClearCache()` action, or an app restart.
+
+### `TryCreate(configuration, serviceType, authResult)`
+
+1. Reads `access_token`, `expires_at`, `refresh_token` out of `authResult.Properties` (i.e., the current request's auth cookie).
+2. If there's no `refresh_token`, returns `null` (caller falls back to app-level auth — which cannot do playlist writes).
+3. Constructs a `SpotUserAuthentication` seeded with `RefreshToken = refreshToken`.
+4. If the cookie's `expires_at` is already in the past, calls `auth.GetAccessToken()` immediately (which triggers a refresh-token POST to `https://accounts.spotify.com/api/token`) — **but does not check whether that refresh succeeded**; `auth` is returned (and cached into `s_users`) either way.
+5. Otherwise seeds `Token` directly from the cookie's `access_token`/`expires_at` and arms a `Timer` (`AccessTokenRenewer`) to null out `Token` ~60s before it expires (`AccessToken.ExpiresIn`).
+
+### Renewal (`AdmAuthentication.GetAccessToken`)
+
+`GetAccessToken()` returns the cached `Token` if non-null; otherwise calls `CreateToken()`, which POSTs the refresh request and re-arms the timer. `CreateToken()` does not call `EnsureSuccessStatusCode` either — a Spotify error response (e.g. `{"error":"invalid_grant", ...}`) deserializes into an `AccessToken` with every field default/null. The code only logs `"Failed to create Token (null token)"` and **returns that token anyway**. `GetAccessString()` then returns `"Bearer "` (empty), which Spotify's API will reject with 401 — surfacing via the generic failure path described under `MusicServiceAction` above.
+
+> See [§ Known Gap: Spotify Refresh-Token Expiration](#known-gap-spotify-refresh-token-expiration) for the end-to-end failure mode this produces.
 
 ---
 
@@ -207,6 +251,48 @@ Only runs when the song has exactly one dance rating. Uses `dance.ValidateTempo(
 `SpotifyService.GetNextRequest(last)` extracts `last.tracks.next` (or `last.next`). `NextMusicServiceResults` calls this and, if non-null, fetches the next page. This handles all paginated endpoints: search results, playlist tracks, user playlists.
 
 iTunes has no pagination — it returns up to 200 results in one response.
+
+---
+
+## Playlist Write Entry Points (User-Facing)
+
+Two user-facing paths create/modify Spotify playlists. Both require the requesting user to have a valid Spotify OAuth login (see [§ User OAuth Token Lifecycle](#user-oauth-token-lifecycle-spotify)) and both go through `MusicServiceManager`'s `principal`-scoped write methods, so both are subject to the same token-refresh behavior and failure mode.
+
+### `SongController.CreateSpotify` (`m4d/Controllers/SongController.cs`) — legacy bulk export
+
+- **`GET CreateSpotify`**: checks `_spotifyAuthService.CanSpotify(User, authResult)`. If the user is authenticated but not currently Spotify-authorized and *does* have a Spotify login on file (`HasSpotifyLogin`), redirects to `GetSpotifyOAuthRedirectUrl` to re-run the OAuth challenge. Otherwise renders the `SpotifyCreateInfo` form (title/description/count/filter) with `CanSpotify`/`IsPremium`/`SubscriptionLevel` flags for the view to gate on.
+- **`POST CreateSpotify`**: re-checks `canSpotify`; if false, shows the "Connect your account to Spotify" info view (no redirect — this is a form submission, not a fresh page load). If true:
+  1. `MusicServiceManager.CreatePlaylist(service, User, loginKey, title, description, fileProvider)` — `POST /v1/users/{key}/playlists` + `PUT /v1/playlists/{id}/images` (`loginKey` = the Spotify `ProviderKey` from `SpotifyAuthService.GetSpotifyLoginKey`, i.e. the Spotify user ID, not a token).
+  2. Loops over search results in pages of 25, calling `MusicServiceManager.SetPlaylistTracks(service, User, metadata.Id, tracks, HttpMethod.Post)` — `POST /v1/playlists/{id}/tracks` — until `info.Count` tracks are added or results run out.
+  3. Any exception (including the token-refresh failures described above) is caught by a blanket `catch (Exception e)` and rendered as a generic `"Unable to create a Spotify playlist at this time. Please report the issue. ({e.Message})"` error view — there is no branch that recognizes an auth/token failure and redirects the user to reconnect.
+
+### `SpotifyPlaylistController` (`m4d/APIControllers/SpotifyPlaylistController.cs`) — Vue "add to playlist" widget
+
+- **`GET api/spotify/playlist/user`**: `_spotifyAuthService.ValidateSpotifyAccess` (authenticated + premium + `CanSpotify`) then `MusicServiceManager.GetUserPlaylists` — `GET /v1/me/playlists` (paginated via the response's `next` URL). Validation failures map to 401/402/403 via `HandleValidationError`; any other exception is caught and returns a generic 500.
+- **`POST api/spotify/playlist/add`**: same `ValidateSpotifyAccess` gate, then resolves the song by GUID, requires it to already carry a Spotify purchase ID (`song.GetPurchaseId(ServiceType.Spotify)`), and calls `MusicServiceManager.AddTrackToPlaylist(service, User, playlistId, spotifyId)` — `POST /v1/playlists/{id}/tracks`. Logs an `ActivityLog("SpotifyAddTrack", ...)` entry when `ActivityLogging` is enabled.
+- Like the MVC path, `ValidateSpotifyAccess` only checks that the user *has* a Spotify login (cookie tokens present) — it never attempts an actual token refresh, so it cannot detect a dead refresh token. A failure during the real `AddTrackToPlaylist`/`GetUserPlaylists` call falls into the controller's blanket `catch (Exception ex)`, logged and returned as a generic 500 (`"Unable to add song to playlist. Please try again later."` / `"Unable to retrieve playlists. Please try again later."`) — again with no reconnect prompt.
+
+---
+
+## Known Gap: Spotify Refresh-Token Expiration
+
+Historically, Spotify user refresh tokens did not expire on their own (only explicit revocation invalidated them), so the failure paths above were rarely exercised. Spotify has announced that refresh tokens will begin expiring; once that lands, the following chain becomes a routine occurrence rather than an edge case:
+
+1. A user's cookie-stored Spotify access token expires (this already happens routinely — access tokens are short-lived, ~1 hour).
+2. `AdmAuthentication.TryCreate` or `GetAccessToken` attempts a refresh (`grant_type=refresh_token`). If the refresh token itself has expired/been revoked, Spotify returns an error body (e.g. `invalid_grant`), which `CreateToken()` deserializes into an `AccessToken` with a null `access_token` — logged as a warning, but **not treated as fatal**.
+3. That broken `AccessToken` gets cached as `Token` and, in the `SetupService` cache-hit path, **the resulting `SpotUserAuthentication` instance is cached in the static, process-lifetime `s_users` dictionary keyed by username** — returned unconditionally on every subsequent request for that user, without ever re-checking the current auth cookie.
+4. Every real API call made with `"Bearer "` (empty) gets a 401 from Spotify, which `GetMusicServiceResults`/`MusicServiceAction` rethrow as a bare exception (no status-code branch for auth failures).
+5. That exception is caught by a blanket `catch (Exception)` in `SongController.CreateSpotify` or `SpotifyPlaylistController`, producing a generic "please report the issue" / 500 message — **not** a prompt to reconnect Spotify.
+6. Because step 3 poisons the per-username cache for the life of the app process, **the user cannot recover by reconnecting their Spotify account** — `SetupService` returns the cached broken instance before it would ever consult the fresh tokens from a new OAuth round-trip. Only an app restart or the admin-only `ApplicationUsersController.ClearCache()` action clears it.
+
+None of `CanSpotify` / `HasAccess` / `ValidateSpotifyAccess` actually validate the refresh token — they only check that the user's auth cookie *contains* Spotify tokens (`service is SpotUserAuthentication`). So a user who connected Spotify long ago will pass every pre-flight check and only discover a problem when actually creating a playlist or adding a track, with a message that gives no indication reconnecting would help.
+
+**What would need to change**, in rough order of impact:
+
+- Detect a failed refresh (`invalid_grant` / empty `access_token` in `CreateToken()`) as an explicit, distinguishable failure instead of returning a hollow `AccessToken`.
+- On that failure, evict the entry from `s_users` (instead of caching it) so a subsequent reconnect can actually take effect.
+- Surface a distinct exception/result type through `GetMusicServiceResults`/`MusicServiceAction` for 401 responses, so callers can tell "your Spotify connection expired, please reconnect" apart from a generic server error.
+- Have `SongController.CreateSpotify` and `SpotifyPlaylistController` catch that specific case and redirect/respond with the existing reconnect flow (`GetSpotifyOAuthRedirectUrl`) rather than the generic error view/500.
 
 ---
 
