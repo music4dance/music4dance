@@ -9,21 +9,34 @@ public class SongPropertyCompressionTests
         ".Create=\tUser=dwgray\tTime=07/04/2026 09:03:55\tTitle=Test Song\tArtist=Test Artist\t" +
         "Tag+=Halloween:Other|Holiday:Other\t.Edit=\tUser=batch-s|P\tTime=07/04/2026 09:03:56\tTempo=138.0";
 
-    [TestMethod]
-    public void Compress_RoundTrips()
-    {
-        var compressed = SongPropertyCompression.Compress(SampleProperties);
-        var decompressed = SongPropertyCompression.Decompress(compressed);
+    // Comfortably over SongPropertyCompression's 10,000-char threshold.
+    private static readonly string LargeSampleProperties =
+        string.Concat(Enumerable.Repeat(SampleProperties + "\t", 200));
 
-        Assert.AreEqual(SampleProperties, decompressed);
+    [TestMethod]
+    public void Compress_LeavesSmallPropertiesAsPlainText()
+    {
+        var result = SongPropertyCompression.Compress(SampleProperties);
+
+        Assert.AreEqual(SampleProperties, result);
+        Assert.IsFalse(SongPropertyCompression.IsCompressed(result));
     }
 
     [TestMethod]
-    public void Compress_ProducesSmallerBase64ThanOriginal()
+    public void Compress_RoundTripsForLargeProperties()
     {
-        var compressed = SongPropertyCompression.Compress(SampleProperties);
+        var compressed = SongPropertyCompression.Compress(LargeSampleProperties);
+        var decompressed = SongPropertyCompression.Decompress(compressed);
 
-        Assert.IsTrue(compressed.Length < SampleProperties.Length);
+        Assert.AreEqual(LargeSampleProperties, decompressed);
+    }
+
+    [TestMethod]
+    public void Compress_ProducesSmallerBase64ThanOriginalForLargeProperties()
+    {
+        var compressed = SongPropertyCompression.Compress(LargeSampleProperties);
+
+        Assert.IsTrue(compressed.Length < LargeSampleProperties.Length);
     }
 
     [TestMethod]
@@ -40,7 +53,7 @@ public class SongPropertyCompressionTests
     [TestMethod]
     public void IsCompressed_TrueForCompressedValue()
     {
-        var compressed = SongPropertyCompression.Compress(SampleProperties);
+        var compressed = SongPropertyCompression.Compress(LargeSampleProperties);
 
         Assert.IsTrue(SongPropertyCompression.IsCompressed(compressed));
     }
@@ -73,24 +86,14 @@ public class SongPropertyCompressionTests
     }
 
     [TestMethod]
-    public void Decompress_ThrowsForUnknownDictionaryVersion()
-    {
-        var framed = Convert.FromBase64String(SongPropertyCompression.Compress(SampleProperties));
-        framed[0] = 255; // no dictionary this build ships is ever expected to reach this version
-        var tampered = Convert.ToBase64String(framed);
-
-        _ = Assert.ThrowsExactly<InvalidOperationException>(() => SongPropertyCompression.Decompress(tampered));
-    }
-
-    [TestMethod]
-    public void Compress_PassesThroughPlainTextWhenDisabled()
+    public void Compress_PassesThroughLargePropertiesWhenDisabled()
     {
         SongPropertyCompression.Enabled = false;
         try
         {
-            var result = SongPropertyCompression.Compress(SampleProperties);
+            var result = SongPropertyCompression.Compress(LargeSampleProperties);
 
-            Assert.AreEqual(SampleProperties, result);
+            Assert.AreEqual(LargeSampleProperties, result);
             Assert.IsFalse(SongPropertyCompression.IsCompressed(result));
         }
         finally
@@ -102,12 +105,12 @@ public class SongPropertyCompressionTests
     [TestMethod]
     public void Decompress_StillReadsCompressedValuesWhenDisabled()
     {
-        var compressed = SongPropertyCompression.Compress(SampleProperties);
+        var compressed = SongPropertyCompression.Compress(LargeSampleProperties);
 
         SongPropertyCompression.Enabled = false;
         try
         {
-            Assert.AreEqual(SampleProperties, SongPropertyCompression.Decompress(compressed));
+            Assert.AreEqual(LargeSampleProperties, SongPropertyCompression.Decompress(compressed));
         }
         finally
         {

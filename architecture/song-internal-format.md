@@ -662,149 +662,71 @@ The following are enforced by `Song.CheckPropertiesInternal()`:
 
 The property log described in §1–§10 is the canonical format everywhere — SQL storage, admin
 preview, `ChunkedSong`, the upload pipeline. The **Azure Search index** stores an additional,
-compressed encoding of the same log in its `Properties` field, because heavily-reprocessed songs
-can produce logs large enough to exceed the field's size limit (the largest real record observed
-is 58,590 bytes — one song reprocessed hundreds of times by the automated import pipeline).
+conditionally-compressed encoding of the same log in its `Properties` field, because
+heavily-reprocessed songs can produce logs large enough to exceed the field's size limit (the
+largest real record observed is 58,590 bytes — one song reprocessed hundreds of times by the
+automated import pipeline).
+
+Compression is deliberately **not** applied to every record — only to the rare oversized one. See
+§11.2 for why: an earlier version of this feature compressed unconditionally with a trained Zstd
+dictionary, and measurably made total index storage *worse*, not better.
 
 ### 11.1 Wire Format
 
-`m4dModels/SongPropertyCompression.cs` compresses with **ZstdSharp.Port** (pure C#, no native
-binary) using a trained dictionary, then Base64-encodes the result:
+`m4dModels/SongPropertyCompression.cs` compresses with **Brotli** (`System.IO.Compression`, built
+into .NET — no third-party package), then Base64-encodes the result. There's no custom framing
+beyond that: no version byte, no length prefix — `BrotliStream` decompresses by reading until the
+stream ends, so the original length never needs to be recorded.
 
-```
-Base64( [1-byte dictionary version] [4-byte little-endian original length] [raw Zstd frame bytes] )
-```
+**Only records over `CompressionThreshold` (10,000 chars) are compressed at all**; everything else
+is written and stored as plain text, unchanged. The threshold was picked from a corpus-wide
+line-length distribution (`scripts/line-length-stats.ps1` against a fresh index export) — a cutoff
+comfortably below the field's hard size limit and above all but a small tail of records.
 
-The length prefix avoids needing `ZSTD_getFrameContentSize`, which ZstdSharp 0.8.8 only exposes
-via an internal unsafe API.
-
-**Detecting compressed vs. legacy-uncompressed values**: a legacy (pre-compression) value is
-recognized by its `.Create=`, `.Edit=`, or `.Merge=` prefix — the start of a real edit block per
-§4. All three prefixes must be checked; a `.Create=`/`.Merge=`-only check misses records whose log
-happens to start with `.Edit=` (roughly 0.07% of the corpus, from logs with no surviving
-create/merge entry). Anything not matching one of those prefixes is treated as Base64+Zstd.
+**Detecting compressed vs. plain-text values**: a plain-text value — whether it predates
+compression entirely or is simply under the size threshold — is recognized by its `.Create=`,
+`.Edit=`, or `.Merge=` prefix — the start of a real edit block per §4. All three prefixes must be
+checked; a `.Create=`/`.Merge=`-only check misses records whose log happens to start with `.Edit=`
+(roughly 0.07% of the corpus, from logs with no surviving create/merge entry). Anything not
+matching one of those prefixes is treated as Base64+Brotli.
 
 **Integration points** (`m4dModels/SongIndex.cs`): compress in `DocumentFromSong` (write path);
 decompress in `CreateSong` and the streaming-export change-feed enumerator (both read paths).
 `SongProperty.Serialize`/`.Load` themselves are untouched — they're shared with SQL storage, admin
 preview, and `ChunkedSong`, none of which should ever see compressed text.
 
-### 11.2 Dictionary Versioning
+### 11.2 Why Gated on Size, Not Applied to Every Record
 
-The 1-byte version prefix lets the dictionary be retrained later without breaking previously
-written values. `SongPropertyCompression` loads every embedded `Resources/song-properties.v*.dict`
-into a `version → dictionary bytes` map at startup; it compresses with `CurrentDictionaryVersion`'s
-dictionary and decompresses using whatever version byte is stored in the value.
-**Decompressing an unrecognized version throws `InvalidOperationException`** — a deployment
-missing an old dictionary file is treated as a bug, not silently-wrong data.
+Azure Search's own index storage (Lucene-based) already block-compresses stored fields *across
+many documents together* — grouping documents into blocks and compressing each block jointly, so it
+naturally captures cross-record redundancy for free. This corpus has a lot of that redundancy: the
+literal `User=batch-s|P` alone appears in **86.7% of all 103,627 corpus lines**, because nearly
+every song has been touched by the automated Spotify-import enrichment pipeline stage at some point
+in its edit history (per §5.1). Shared field names, shared tag vocabularies, and the common
+Spotify-preview-URL prefix add more of the same.
 
-To retrain: bump `DictionaryVersion` in `scripts/dict-trainer/Program.cs`, run `train` (writes a
-new `song-properties.vN.dict`, refuses to overwrite an existing version file), bump
-`CurrentDictionaryVersion` in `SongPropertyCompression.cs`, and leave all older `.dict` files
-embedded. Once a full search-and-reload pass has re-saved every row in the index (which always
-recompresses with the *current* version via `DocumentFromSong`), the old `.dict` file is safe to
-delete — keep at least the immediately-previous version as a margin until that pass is confirmed
-complete.
+Compressing every record individually — even with a dictionary trained to mimic that shared
+vocabulary — defeats this: the per-record compressed output is high-entropy, so (a) it no longer
+carries the cross-record redundancy Lucene's block compression would otherwise have found and
+eliminated, and (b) Lucene can't meaningfully compress already-compressed bytes a second time. On
+top of that, Base64 encoding taxes whatever's left by ~33%. Measured in production: turning on
+unconditional per-record compression roughly **doubled** total index storage instead of shrinking
+it, despite the per-record Zstd ratio looking good (2.2–2.33x) in isolation — Lucene had simply been
+doing better than that already, for free, on the plain text.
 
-### 11.3 How a Zstd Dictionary Actually Helps
+The fix is to only compress the rare record actually at risk of the field's size limit. Those
+records are large, one-off anomalies rather than typical corpus content, so compressing them
+individually isn't competing with Lucene's cross-record compression the way compressing *every*
+record was — and it's the only thing this feature ever needed to solve in the first place.
 
-Worth having the right mental model, since it explains why the training approach below looks the
-way it does. A trained dictionary does two unrelated jobs:
+### 11.3 Full Reindex (Picking Up a Format Change on Every Row)
 
-- **Content section — an LZ77 match source.** Compressing document `D` against the dictionary is
-  conceptually like compressing `[dictionary content][D]` and keeping only the encoding for `D`:
-  any byte sequence in `D` that also appears in the dictionary content becomes a cheap
-  `(offset, length)` back-reference instead of literal bytes. This is the classic "shared
-  substrings" mental model, and it's the only part `scripts/dict-trainer dump`/`analyze` can
-  actually see (see §11.5) — entropy tables are dense binary data with no printable structure.
-- **Entropy tables — statistical priors, closer to "seed training data."** Zstd's Huffman/FSE
-  literal encoding needs a frequency model to be efficient, and most property-log records (median
-  871 bytes) are far too small to build a good one from their own content alone. The dictionary
-  ships precomputed tables — from the *entire* training corpus, not just whatever text ends up in
-  the content section — so even a short record gets well-tuned statistical encoding from its first
-  byte.
-
-These are independent: `ZDICT_finalizeDictionary` (used by the `hybrid` method, §11.4) always
-computes entropy tables from the full sample corpus regardless of what content we hand it, so
-nothing below about curating/selecting content affects the entropy-table half.
-
-### 11.4 Training: `scripts/dict-trainer`
-
-Standalone console tool (not part of `music4dance.sln`, run by hand):
-
-```
-dotnet run -- train [--out path] [--samples N|full] [--capacity N]
-                    [--method legacy|fastcover|curated|hybrid] [--k N] [--d N] [--steps N] [--shrink]
-                    [--max-filler-line-bytes N]
-dotnet run -- analyze <dict-path>     # quantify generic-vs-overfit content, field-name coverage
-dotnet run -- dump <dict-path>        # print the readable strings a dictionary contains
-```
-
-It depends on `local/song-properties-samples.txt` (gitignored real production data, one raw
-property-log line per record) — regenerate from a fresh index export before retraining.
-
-**Why the shipped recipe is `hybrid` and not plain COVER/FastCover training.** COVER and FastCover
-(the standard zstd dictionary trainers) only ever copy contiguous literal byte spans out of real
-samples — there's no way for them to learn a "field name only" template stripped of its trailing
-value, and no amount of corpus size, capacity, or segment-length tuning changes that (five variants
-tested, all landing in the same 2.2–2.33x ratio band with the same overfit pattern). Worse: several
-genuinely valid field names — `Comment+=`, `Choreographer+=`, `StepSheetUrl+=`, `PatternName+=`,
-`.Delete=`, `.Undo=`, `.NoMerge=`, `.FailedLookup=`, etc. — are rare enough in the corpus that
-COVER/FastCover never selected them in any variant tested, so songs using those fields got zero
-dictionary benefit.
-
-`hybrid` uses `ZDICT_finalizeDictionary` (raw unsafe P/Invoke — no managed wrapper exists in
-ZstdSharp.Port 0.8.8) to build the content section from data *we* supply instead of letting the
-trainer choose it:
-
-1. `BuildCuratedContent()` — a hand-picked field-name/qualifier vocabulary pulled from §2–§3 of
-   this document, guaranteeing every known field gets at least a partial-match prefix.
-2. `BuildFillerContent()` — real sample lines filling the rest of the capacity, for the legitimate
-   cross-record redundancy (shared genre-tag lists, shared album titles, the Spotify preview-URL
-   client-id suffix) that a names-only dictionary would lose entirely. Candidate lines are deduped
-   and capped at `--max-filler-line-bytes` (default 2048, excludes roughly the top 10% of lines by
-   length) before selection, so a single heavily-reprocessed outlier record can't consume a large
-   fraction of the budget.
-
-Trade-off measured directly: pure curated-only (no filler) guarantees every field but drops the
-ratio to 1.69x; `hybrid` costs ~3% versus pure auto-training (2.25x vs. 2.30–2.33x) in exchange for
-guaranteed field coverage.
-
-### 11.5 Inspecting a Trained Dictionary: `dump` vs. `analyze`
-
-Both commands scan the dictionary's raw bytes for printable-ASCII runs (a `strings`-style scan —
-there's no public API to separate a dictionary's content section from its header/entropy tables,
-but printable runs are almost always content). They intentionally use **different** run-boundary
-rules, because they answer different questions:
-
-| Command   | Tab byte (`0x09`) treated as | Shows                                                                 | Use for                                                                 |
-| --------- | ----------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `dump`    | printable (kept in the run)   | whole concatenated record chains, since tab is both the intra-record field separator and the inter-record join byte `BuildFillerContent` uses | reading real context around any value — what actually surrounds it     |
-| `analyze` | non-printable (splits the run) | one run per individual field                                          | the "long run ≥60 chars = likely overfit" signal, which is only meaningful at field granularity — nearly every record chain trivially exceeds 60 chars once tabs stop splitting it |
-
-### 11.6 Known Corpus Quirk: Repeated `User=batch-*|P` Content
-
-Dumping the dictionary shows the literal `User=batch-s|P` (and `batch-i`/`batch-e`/`batch-a`/
-`batch-x`) repeated on the order of 200+ times. This is not a training bug — **86.7% of all
-103,627 corpus lines contain `User=batch-s|P` at least once**, because nearly every song has been
-touched by that automated enrichment pipeline stage (per §5.1, `batch-s` = Spotify import) at some
-point in its edit history. Any representative sample of records will be dominated by it. Each
-"duplicate" sits inside an otherwise-unique record (different title, artist, tags, timestamps,
-sample-URL hash), so it isn't wasted space in a meaningful sense — the redundant part is only the
-~14-byte literal itself (zstd only needs to see a byte-string once anywhere in the dictionary to
-back-reference it from any future match), which works out to roughly 3.5% of the filler budget.
-Not worth chasing further given the guaranteed field coverage `hybrid` already provides; the lever
-if it's ever revisited is capping how many filler records may share a given `User=` value.
-
-### 11.7 Full Reindex (Picking Up a Format/Dictionary Change on Every Row)
-
-`DocumentFromSong` only recompresses a row when it's next written, so a dictionary retrain or the
-initial rollout of compression itself doesn't retroactively touch rows that haven't been edited
-since. To force every row through the write path — e.g. to validate the compressed format against
-a full-size index before shipping, or to retire an old `.dict` version per §11.2 — use the existing
-backup/restore round trip rather than `SongController.BatchReloadSongs` (`BatchProcess` streams via
-`StreamAll`, which pages with `$skip` and hits Azure Search's hard 100,000-row `$skip` limit on any
-index past that size):
+`DocumentFromSong` only recompresses a row when it's next written, so a rollout of a
+format/threshold change doesn't retroactively touch rows that haven't been edited since. To force
+every row through the write path — e.g. to validate the current format against a full-size index
+before shipping — use the existing backup/restore round trip rather than
+`SongController.BatchReloadSongs` (`BatchProcess` streams via `StreamAll`, which pages with `$skip`
+and hits Azure Search's hard 100,000-row `$skip` limit on any index past that size):
 
 1. **`/Admin/IndexBackup`** (`AdminController.IndexBackup`) streams the whole index to a text file
    using `BackupIndexStreamingAsync`'s composite key-set pagination (`Modified desc, SongId desc`
@@ -812,15 +734,14 @@ index past that size):
    plain-text property log via `SongPropertyCompression.Decompress`.
 2. **`/Admin/LoadIdx`** (`AdminController.LoadIdx`, form on the `UploadBackup` view under "Reload
    the Index") re-uploads that file with `Song.Create` + `UploadIndex`, which calls
-   `DocumentFromSong` — and therefore `SongPropertyCompression.Compress` — for every row, against
-   whichever dictionary version is current in the running build.
+   `DocumentFromSong` — and therefore `SongPropertyCompression.Compress` — for every row.
 
 Point this at `SongIndexTest` (the "Reload the Index" form's `SongIndexTest` submit button) to
 validate the compressed format end-to-end without touching production.
 
-**Comparing against the pre-compression format:** `SongPropertyCompression.Enabled` (default
-`true`) gates the write path only — reads already auto-detect compressed vs. legacy plain text via
-the prefix check in `IsCompressed`, so toggling it never breaks reads either way. It's driven by the
+**Comparing against the uncompressed format:** `SongPropertyCompression.Enabled` (default `true`)
+gates the write path only — reads already auto-detect compressed vs. plain text via the prefix
+check in `IsCompressed`, so toggling it never breaks reads either way. It's driven by the
 `FeatureManagement:SongPropertyCompression` config value, set from `Program.cs` at startup (not
 re-checked per request). The `m4d-vite-no-compression` launch profile
 (`FeatureManagement__SongPropertyCompression=false`) runs the app with it off, so the same

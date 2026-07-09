@@ -1,33 +1,28 @@
-using System.Buffers.Binary;
+using System.IO.Compression;
 using System.Text;
-using System.Text.RegularExpressions;
-
-using ZstdSharp;
 
 namespace m4dModels;
 
-// Compresses the Properties field stored in Azure Search: song property-log strings share
-// a lot of vocabulary across records (.Edit=, User=batch-s|P, Purchase:00:SS=, Tag+=...:Dance,
-// the Spotify preview URL prefix, etc.) that only a shared dictionary can exploit, since plain
-// per-record compression can't see redundancy across records. See
-// local/dict-trainer for how Resources/song-properties.v1.dict was trained.
+// Compresses the Properties field stored in Azure Search, but only for the rare record large
+// enough to risk exceeding the field's size limit (the largest real record observed is 58,590
+// bytes — one song reprocessed hundreds of times by the automated import pipeline). Typical
+// records are left as plain text: Azure Search's own index storage already block-compresses
+// stored fields across documents, which exploits cross-record redundancy (shared field names,
+// shared tag vocab, the common batch-import literals) far better than per-record compression can,
+// so compressing every record was a net storage *regression* — see
+// architecture/song-internal-format.md §11 for the measured numbers that motivated gating this on
+// record size instead.
 //
-// Values written before compression was added start with .Create=/.Edit=/.Merge= (the property
-// log's action markers) which can never appear at the start of Base64 output, so that prefix
-// doubles as the "is this legacy plain text" check on read.
+// Values that were left as plain text (either because compression is disabled, or because they're
+// under the size threshold) start with .Create=/.Edit=/.Merge= (the property log's action markers)
+// which can never appear at the start of Base64 output, so that prefix doubles as the
+// "is this compressed" check on read.
 //
 // A handful of rows were, due to a since-fixed bug in Song.AdminEdit(string, ...), saved with a
 // stray "SongId={guid}" property glued onto the front of the log (that method used to forget to
 // strip the id header off the full serialized-song string admins submit). That prefix is treated
-// as legacy plain text too so reads don't crash trying to Base64-decode it, and it's stripped so
-// the bogus property doesn't keep reappearing on every future write.
-//
-// The frame written into the field is [1-byte dictionary version][4-byte original length][zstd
-// bytes], Base64-encoded. The version byte lets the dictionary be retrained (e.g. after adding
-// enough new property vocabulary that the old dictionary stops paying for itself) without
-// breaking previously-written values: every dictionary version this field was ever written with
-// must stay embedded as Resources/song-properties.v<N>.dict forever, or those rows become
-// undecodable.
+// as plain text too so reads don't crash trying to Base64-decode it, and it's stripped so the
+// bogus property doesn't keep reappearing on every future write.
 public static class SongPropertyCompression
 {
     // Manual-testing escape hatch (set from the "FeatureManagement:SongPropertyCompression" config
@@ -35,7 +30,10 @@ public static class SongPropertyCompression
     // so toggling it only changes what new writes look like.
     public static bool Enabled { get; set; } = true;
 
-    private const byte CurrentDictionaryVersion = 1;
+    // Below this, Azure Search's own stored-field compression already handles it better than a
+    // per-record pass can; only records near the field's size limit are worth compressing here.
+    // Picked from a corpus-wide line-length distribution (scripts/line-length-stats.ps1).
+    private const int CompressionThreshold = 10_000;
 
     private static readonly string[] LegacyPrefixes =
     [
@@ -45,8 +43,6 @@ public static class SongPropertyCompression
         SongIndex.SongIdField + "="
     ];
 
-    private static readonly IReadOnlyDictionary<byte, byte[]> DictionariesByVersion = LoadEmbeddedDictionaries();
-
     public static bool IsCompressed(string stored)
     {
         return stored != null && Array.TrueForAll(LegacyPrefixes, p => !stored.StartsWith(p, StringComparison.Ordinal));
@@ -54,24 +50,20 @@ public static class SongPropertyCompression
 
     public static string Compress(string properties)
     {
-        if (!Enabled)
+        if (!Enabled || properties.Length <= CompressionThreshold)
         {
             return properties;
         }
 
         var source = Encoding.UTF8.GetBytes(properties);
 
-        using var compressor = new Compressor();
-        compressor.LoadDictionary(DictionariesByVersion[CurrentDictionaryVersion]);
-        var compressed = compressor.Wrap(source);
+        using var output = new MemoryStream();
+        using (var brotli = new BrotliStream(output, CompressionLevel.Optimal))
+        {
+            brotli.Write(source);
+        }
 
-        const int headerSize = sizeof(byte) + sizeof(int);
-        var framed = new byte[headerSize + compressed.Length];
-        framed[0] = CurrentDictionaryVersion;
-        BinaryPrimitives.WriteInt32LittleEndian(framed.AsSpan(sizeof(byte)), source.Length);
-        compressed.CopyTo(framed.AsSpan(headerSize));
-
-        return Convert.ToBase64String(framed);
+        return Convert.ToBase64String(output.ToArray());
     }
 
     public static string Decompress(string stored)
@@ -82,44 +74,13 @@ public static class SongPropertyCompression
             return ich > 0 ? stored[ich..] : stored;
         }
 
-        var framed = Convert.FromBase64String(stored);
-        var version = framed[0];
-        var originalLength = BinaryPrimitives.ReadInt32LittleEndian(framed.AsSpan(sizeof(byte)));
+        var compressed = Convert.FromBase64String(stored);
 
-        if (!DictionariesByVersion.TryGetValue(version, out var dictionary))
-        {
-            throw new InvalidOperationException(
-                $"Properties field was compressed with dictionary version {version}, which is not embedded in this build.");
-        }
+        using var input = new MemoryStream(compressed);
+        using var brotli = new BrotliStream(input, CompressionMode.Decompress);
+        using var output = new MemoryStream();
+        brotli.CopyTo(output);
 
-        const int headerSize = sizeof(byte) + sizeof(int);
-        using var decompressor = new Decompressor();
-        decompressor.LoadDictionary(dictionary);
-        var decompressed = decompressor.Unwrap(framed.AsSpan(headerSize), originalLength);
-
-        return Encoding.UTF8.GetString(decompressed);
-    }
-
-    private static IReadOnlyDictionary<byte, byte[]> LoadEmbeddedDictionaries()
-    {
-        var assembly = typeof(SongPropertyCompression).Assembly;
-        var result = new Dictionary<byte, byte[]>();
-
-        foreach (var name in assembly.GetManifestResourceNames())
-        {
-            var match = Regex.Match(name, @"song-properties\.v(\d+)\.dict$");
-            if (!match.Success)
-            {
-                continue;
-            }
-
-            using var stream = assembly.GetManifestResourceStream(name);
-            using var buffer = new MemoryStream();
-            stream.CopyTo(buffer);
-
-            result[byte.Parse(match.Groups[1].Value)] = buffer.ToArray();
-        }
-
-        return result;
+        return Encoding.UTF8.GetString(output.ToArray());
     }
 }
