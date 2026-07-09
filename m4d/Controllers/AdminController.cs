@@ -11,6 +11,7 @@ using m4d.ViewModels;
 using m4dModels;
 using m4dModels.Utilities;
 
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -104,6 +105,62 @@ public class AdminController(
     public ActionResult Tags()
     {
         return View();
+    }
+
+    //
+    // GET: /Admin/ExpireMySpotifyConnection
+    // Test hook for the Spotify refresh-token expiration recovery path (see
+    // architecture/music-service-api-calls.md § Spotify Refresh-Token Expiration Handling).
+    // Corrupts the current signed-in user's Spotify tokens - both the cached AdmAuthentication
+    // instance and the tokens stored in the auth cookie - so the very next real Spotify call
+    // (e.g. opening "Add to Playlist", or /song/createspotify) fails against the real Spotify
+    // token endpoint exactly the way it will once a genuine refresh token expires, letting you
+    // manually verify the reconnect UI without waiting 6 months for a real token to expire.
+    // Reconnecting Spotify afterward (the normal "Reconnect Spotify Account" link) issues a
+    // fresh cookie and clears the corruption.
+    // Blocked only in true Production - allowed in Development and Staging (the "m4d-test"
+    // cloud instance) so it can be exercised there too. Only ever touches the calling admin's
+    // own cookie; clearing AdmAuthentication's cache is harmless for other users - it just
+    // forces their next request to rebuild their cached auth from their own still-valid cookie.
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> ExpireMySpotifyConnection(
+        [FromServices] IWebHostEnvironment environment)
+    {
+        if (environment.IsProduction())
+        {
+            return NotFound();
+        }
+
+        var authResult = await HttpContext.AuthenticateAsync();
+        if (!authResult.Succeeded || authResult.Properties == null || authResult.Principal == null)
+        {
+            return BadRequest("Not signed in.");
+        }
+
+        authResult.Properties.StoreTokens(
+        [
+            new AuthenticationToken { Name = "access_token", Value = "dev-expired-access-token" },
+            new AuthenticationToken { Name = "refresh_token", Value = "dev-corrupted-refresh-token" },
+            new AuthenticationToken
+            {
+                Name = "expires_at", Value = DateTime.UtcNow.AddHours(-1).ToString("o")
+            }
+        ]);
+
+        await HttpContext.SignInAsync(
+            IdentityConstants.ApplicationScheme, authResult.Principal, authResult.Properties);
+
+        // Also forget any already-cached, still-working AdmAuthentication instance for this
+        // session - otherwise SetupService's cache-hit path would keep using it and never
+        // re-read the (now-corrupted) cookie.
+        AdmAuthentication.Clear();
+
+        ViewBag.Title = "Spotify connection expired (test)";
+        ViewBag.Message =
+            "Your Spotify connection has been corrupted for testing. The next Spotify " +
+            "action (Add to Playlist, Create Spotify Playlist, etc.) should now fail and " +
+            "show the reconnect flow.";
+        return View("Info");
     }
 
     //

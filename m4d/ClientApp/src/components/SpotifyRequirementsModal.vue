@@ -7,12 +7,17 @@ interface Props {
   isAuthenticated?: boolean;
   isPremium?: boolean;
   hasSpotifyOAuth?: boolean;
+  // True when the user previously connected Spotify but their connection has since
+  // expired/been revoked (e.g. Spotify's refresh-token expiration), rather than never
+  // having connected at all - changes the copy from "connect" to "reconnect".
+  reauthRequired?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   isAuthenticated: false,
   isPremium: false,
   hasSpotifyOAuth: false,
+  reauthRequired: false,
 });
 
 const modelValue = defineModel<boolean>({ default: false });
@@ -36,6 +41,10 @@ const nextStep = computed(() => {
 <template>
   <BModal v-model="modelValue" :title="`${featureName} Requirements`" ok-only ok-title="Close">
     <div v-if="!canUseFeature">
+      <div v-if="reauthRequired" class="alert alert-warning">
+        Your Spotify connection has expired. Please reconnect your Spotify account to continue.
+      </div>
+
       <p>
         To use <strong>{{ featureName }}</strong
         >, you must meet the following requirements:
@@ -111,7 +120,7 @@ const nextStep = computed(() => {
               <a
                 :href="`/identity/account/manage/externallogins?returnUrl=${returnUrl}`"
                 class="btn btn-sm btn-primary"
-                >Connect Spotify Account</a
+                >{{ reauthRequired ? "Reconnect Spotify Account" : "Connect Spotify Account" }}</a
               >
               <span class="ms-2 text-muted">
                 &mdash;
@@ -137,7 +146,12 @@ const nextStep = computed(() => {
         <strong>Next step:</strong> Upgrade to a premium subscription to unlock Spotify features.
       </div>
       <div v-else-if="nextStep === 'spotify'" class="alert alert-info mt-3">
-        <strong>Next step:</strong> Connect your Spotify account to enable playlist management.
+        <strong>Next step:</strong>
+        {{
+          reauthRequired
+            ? "Reconnect your Spotify account to enable playlist management."
+            : "Connect your Spotify account to enable playlist management."
+        }}
       </div>
     </div>
 

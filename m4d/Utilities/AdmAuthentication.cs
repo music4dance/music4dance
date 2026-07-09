@@ -26,6 +26,12 @@ public class AccessToken
     [DataMember]
     public string refresh_token { get; set; }
 
+    [DataMember]
+    public string error { get; set; }
+
+    [DataMember]
+    public string error_description { get; set; }
+
     public virtual TimeSpan ExpiresIn => TimeSpan.FromSeconds(int.Max(0, expires_in - 60));
 }
 
@@ -109,7 +115,16 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
             var token = JsonConvert.DeserializeObject<AccessToken>(result);
             if (string.IsNullOrWhiteSpace(token?.access_token))
             {
-                Logger.LogError("Failed to create Token (null token)");
+                Logger.LogError(
+                    "Failed to create Token: {Error} {Description}", token?.error, token?.error_description);
+
+                if (this is SpotUserAuthentication)
+                {
+                    // The user's refresh token was rejected (revoked or expired) - this is not
+                    // recoverable by retrying, the user must reconnect their Spotify account.
+                    throw new SpotifyAuthExpiredException(
+                        $"Spotify refresh token rejected: {token?.error} {token?.error_description}");
+                }
             }
 
             var refreshToken = token?.refresh_token;
@@ -139,20 +154,50 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
         AccessTokenRenewer?.Dispose();
     }
 
+    // Preflight check only (e.g. deciding whether to show the "connect Spotify" UI) - a dead
+    // refresh token is reported as "no access" rather than propagated, since no API call is
+    // being made here.
     public static async Task<bool> HasAccess(IConfiguration configuration,
         ServiceType serviceType, IPrincipal principal = null,
         AuthenticateResult authResult = null)
     {
-        var service = await SetupService(configuration, serviceType, principal, authResult);
-        return service is SpotUserAuthentication;
+        try
+        {
+            var service = await SetupService(configuration, serviceType, principal, authResult);
+            return service is SpotUserAuthentication;
+        }
+        catch (SpotifyAuthExpiredException)
+        {
+            EvictUser(principal);
+            return false;
+        }
     }
 
     public static async Task<string> GetServiceAuthorization(IConfiguration configuration,
         ServiceType serviceType, IPrincipal principal = null,
         AuthenticateResult authResult = null)
     {
-        var service = await SetupService(configuration, serviceType, principal, authResult);
-        return service == null ? null : await service.GetAccessString();
+        try
+        {
+            var service = await SetupService(configuration, serviceType, principal, authResult);
+            return service == null ? null : await service.GetAccessString();
+        }
+        catch (SpotifyAuthExpiredException)
+        {
+            // Evict so a subsequent reconnect (fresh tokens in the auth cookie) isn't
+            // masked by the now-permanently-broken cached instance.
+            EvictUser(principal);
+            throw;
+        }
+    }
+
+    private static void EvictUser(IPrincipal principal)
+    {
+        var userName = principal?.Identity?.Name;
+        if (!string.IsNullOrWhiteSpace(userName))
+        {
+            s_users.Remove(userName);
+        }
     }
 
     private static async Task<AdmAuthentication> SetupService(IConfiguration configuration,

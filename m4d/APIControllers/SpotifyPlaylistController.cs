@@ -68,6 +68,17 @@ public class SpotifyPlaylistController : DanceMusicApiController
 
             return JsonCamelCase(playlists);
         }
+        catch (SpotifyAuthExpiredException ex)
+        {
+            Logger.LogWarning(ex, "Spotify auth expired for {User} while retrieving playlists", User.Identity?.Name);
+            return StatusCode(StatusCodes.Status403Forbidden,
+                new
+                {
+                    message = "Your Spotify connection has expired. Please reconnect your account.",
+                    connectUrl = "/identity/account/manage/externallogins",
+                    reauthRequired = true
+                });
+        }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error retrieving user playlists");
@@ -183,6 +194,22 @@ public class SpotifyPlaylistController : DanceMusicApiController
             }
 
             return JsonCamelCase(AddToPlaylistResult.CreateSuccess(snapshotId));
+        }
+        catch (SpotifyAuthExpiredException ex)
+        {
+            Logger.LogWarning(ex, "Spotify auth expired for {User} while adding song {SongId} to playlist {PlaylistId}",
+                User.Identity?.Name, request.SongId, request.PlaylistId);
+            // Plain anonymous object (not AddToPlaylistResult) so the lowercase field names
+            // survive serialization - this response bypasses JsonCamelCase, and the app's
+            // default Newtonsoft contract resolver is PascalCase, not camelCase.
+            return StatusCode(StatusCodes.Status403Forbidden,
+                new
+                {
+                    success = false,
+                    message = "Your Spotify connection has expired. Please reconnect your account.",
+                    connectUrl = "/identity/account/manage/externallogins",
+                    reauthRequired = true
+                });
         }
         catch (Exception ex)
         {

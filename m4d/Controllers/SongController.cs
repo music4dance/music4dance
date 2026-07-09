@@ -1324,6 +1324,16 @@ public class SongController : ContentController
                 search.Page();
             }
         }
+        catch (SpotifyAuthExpiredException ex)
+        {
+            Logger.LogWarning(
+                ex, "Spotify auth expired for {User} while creating playlist", User.Identity?.Name);
+            ViewBag.Title = "Reconnect your Spotify account";
+            ViewBag.Message =
+                "Your Spotify connection has expired. Please reconnect your Spotify account to " +
+                $"continue: <a href='{_spotifyAuthService.GetSpotifyOAuthRedirectUrl(Request.Path + Request.QueryString)}'>Reconnect Spotify</a>.";
+            return View("Info");
+        }
         catch (Exception e)
         {
             var metaString = LogMetaData(metadata);

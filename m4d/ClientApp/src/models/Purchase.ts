@@ -234,7 +234,10 @@ export class PurchaseEncoded {
     if (!existing) {
       return;
     }
-    this._ids.set(key, existing.filter((x) => x !== id));
+    this._ids.set(
+      key,
+      existing.filter((x) => x !== id),
+    );
   }
 
   private cleanId(id: string): string | undefined {

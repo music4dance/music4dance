@@ -36,7 +36,7 @@ All reads go through `GetMusicServiceResults`; all writes go through `MusicServi
 
 Used for Spotify write operations (create playlist, set tracks, upload image). Requires a valid `principal` with Spotify OAuth. Returns deserialized JSON or null on failure.
 
-**Failure path:** neither `GetMusicServiceResults` nor `MusicServiceAction` call `EnsureSuccessStatusCode`. On any status other than 200 or 429, `responseString` is never set, so the code falls into `if (responseString == null) throw new WebException(response.ReasonPhrase)`. This constructed `WebException` has no `Response` object, so the `catch (WebException we)` block's `we.Response is HttpWebResponse r` check is always false and the exception is simply rethrown. There is no branch anywhere in this class that inspects the status code for 401/403 and treats it as an auth failure — a bad/expired token surfaces identically to a network error or a 500 from Spotify.
+**Failure path:** neither `GetMusicServiceResults` nor `MusicServiceAction` call `EnsureSuccessStatusCode`. On any status other than 200 or 429, `responseString` is never set, so the code falls into `if (responseString == null) throw new WebException(response.ReasonPhrase)`. This constructed `WebException` has no `Response` object, so the `catch (WebException we)` block's `we.Response is HttpWebResponse r` check is always false and the exception is simply rethrown. There is no branch in this class that inspects an actual Spotify *data*-API response status for 401/403 and treats it as an auth failure — a token that was valid when fetched but rejected by the data endpoint itself would still surface identically to a network error or a 500. In practice this residual gap rarely matters: a dead refresh token is now caught one layer up, in `AdmAuthentication.GetServiceAuthorization` (called to build the `Authorization` header before the request is even sent) — see [§ Spotify Refresh-Token Expiration Handling](#spotify-refresh-token-expiration-handling).
 
 ### In-Process Track Cache
 
@@ -84,9 +84,9 @@ SetupService(configuration, serviceType, principal, authResult)
 
 ### Renewal (`AdmAuthentication.GetAccessToken`)
 
-`GetAccessToken()` returns the cached `Token` if non-null; otherwise calls `CreateToken()`, which POSTs the refresh request and re-arms the timer. `CreateToken()` does not call `EnsureSuccessStatusCode` either — a Spotify error response (e.g. `{"error":"invalid_grant", ...}`) deserializes into an `AccessToken` with every field default/null. The code only logs `"Failed to create Token (null token)"` and **returns that token anyway**. `GetAccessString()` then returns `"Bearer "` (empty), which Spotify's API will reject with 401 — surfacing via the generic failure path described under `MusicServiceAction` above.
+`GetAccessToken()` returns the cached `Token` if non-null; otherwise calls `CreateToken()`, which POSTs the refresh request and re-arms the timer. `CreateToken()` does not call `EnsureSuccessStatusCode` — a Spotify error response (e.g. `{"error":"invalid_grant", ...}`) deserializes into an `AccessToken` with every field default/null. For a `SpotUserAuthentication` (user refresh-token) instance, a missing `access_token` is treated as fatal: `CreateToken()` throws `SpotifyAuthExpiredException` rather than returning a hollow token.
 
-> See [§ Known Gap: Spotify Refresh-Token Expiration](#known-gap-spotify-refresh-token-expiration) for the end-to-end failure mode this produces.
+> See [§ Spotify Refresh-Token Expiration Handling](#spotify-refresh-token-expiration-handling) for how that exception is caught, how the per-user auth cache is evicted, and how the two playlist-write entry points surface a reconnect prompt instead of a generic error.
 
 ---
 
@@ -274,25 +274,46 @@ Two user-facing paths create/modify Spotify playlists. Both require the requesti
 
 ---
 
-## Known Gap: Spotify Refresh-Token Expiration
+## Spotify Refresh-Token Expiration Handling
 
-Historically, Spotify user refresh tokens did not expire on their own (only explicit revocation invalidated them), so the failure paths above were rarely exercised. Spotify has announced that refresh tokens will begin expiring; once that lands, the following chain becomes a routine occurrence rather than an edge case:
+Historically, Spotify user refresh tokens did not expire on their own (only explicit revocation invalidated them). Per Spotify's [refresh-token-expiration announcement](https://developer.spotify.com/blog/2026-06-18-refresh-token-expiration), refresh tokens now expire 6 months after the user's *original* authorization (refreshing the access token does not reset the timer) — new apps are affected immediately, existing apps from **2026-07-20**. Once that lands, the following chain would otherwise become a routine occurrence rather than an edge case:
 
 1. A user's cookie-stored Spotify access token expires (this already happens routinely — access tokens are short-lived, ~1 hour).
-2. `AdmAuthentication.TryCreate` or `GetAccessToken` attempts a refresh (`grant_type=refresh_token`). If the refresh token itself has expired/been revoked, Spotify returns an error body (e.g. `invalid_grant`), which `CreateToken()` deserializes into an `AccessToken` with a null `access_token` — logged as a warning, but **not treated as fatal**.
-3. That broken `AccessToken` gets cached as `Token` and, in the `SetupService` cache-hit path, **the resulting `SpotUserAuthentication` instance is cached in the static, process-lifetime `s_users` dictionary keyed by username** — returned unconditionally on every subsequent request for that user, without ever re-checking the current auth cookie.
-4. Every real API call made with `"Bearer "` (empty) gets a 401 from Spotify, which `GetMusicServiceResults`/`MusicServiceAction` rethrow as a bare exception (no status-code branch for auth failures).
-5. That exception is caught by a blanket `catch (Exception)` in `SongController.CreateSpotify` or `SpotifyPlaylistController`, producing a generic "please report the issue" / 500 message — **not** a prompt to reconnect Spotify.
-6. Because step 3 poisons the per-username cache for the life of the app process, **the user cannot recover by reconnecting their Spotify account** — `SetupService` returns the cached broken instance before it would ever consult the fresh tokens from a new OAuth round-trip. Only an app restart or the admin-only `ApplicationUsersController.ClearCache()` action clears it.
+2. `AdmAuthentication.TryCreate` or `GetAccessToken` attempts a refresh (`grant_type=refresh_token`). If the refresh token itself has expired/been revoked, Spotify returns an error body (e.g. `invalid_grant`).
+3. Without special handling, the broken result would get cached in the static, process-lifetime `s_users` dictionary and returned unconditionally on every subsequent request for that user — surfacing only as a generic error, with no way to recover short of an app restart.
 
-None of `CanSpotify` / `HasAccess` / `ValidateSpotifyAccess` actually validate the refresh token — they only check that the user's auth cookie *contains* Spotify tokens (`service is SpotUserAuthentication`). So a user who connected Spotify long ago will pass every pre-flight check and only discover a problem when actually creating a playlist or adding a track, with a message that gives no indication reconnecting would help.
+**This is now handled explicitly:**
 
-**What would need to change**, in rough order of impact:
+- `AccessToken` carries the `error`/`error_description` fields from Spotify's token-error response.
+- `CreateToken()` (`m4d/Utilities/AdmAuthentication.cs`) checks for a missing `access_token` on a `SpotUserAuthentication` (user-scoped, refresh-grant) instance and throws `SpotifyAuthExpiredException` (`m4d/Utilities/SpotifyAuthExpiredException.cs`) instead of returning a hollow token. App-level (client-credentials) failures are unaffected — that's a server-configuration problem, not a user-reconnect scenario.
+- `AdmAuthentication.GetServiceAuthorization` and `HasAccess` both catch `SpotifyAuthExpiredException` and call `EvictUser` to remove the poisoned entry from `s_users`, so a subsequent request (in particular, after the user reconnects Spotify and gets a fresh cookie) re-runs `TryCreate` from scratch instead of returning the dead cached instance.
+  - `HasAccess` (used by `CanSpotify`/`ValidateSpotifyAccess` preflight checks) swallows the exception and returns `false` — these are advisory checks, not the API call itself, and returning `false` triggers the existing "reconnect via OAuth" UI paths that already exist for "no Spotify login".
+  - `GetServiceAuthorization` (used by the actual API calls in `MusicServiceManager`) rethrows after evicting, since neither `GetMusicServiceResults` nor `MusicServiceAction` wrap that call in a try/catch — the exception propagates naturally out of `CreatePlaylist`/`SetPlaylistTracks`/`AddTrackToPlaylist`/`GetUserPlaylists` to the controllers.
+- `SongController.CreateSpotify` (POST) catches `SpotifyAuthExpiredException` ahead of the generic `catch (Exception)` and shows the `Info` view with a "reconnect your Spotify account" message/link (`_spotifyAuthService.GetSpotifyOAuthRedirectUrl`) instead of the generic "please report the issue" error.
+- `SpotifyPlaylistController` (`GetUserPlaylists`, `AddTrackToPlaylist`) catches the same exception and returns 403 with `{ message, connectUrl, reauthRequired: true }` — a plain anonymous object, not the `AddToPlaylistResult` model, since this controller's non-success responses bypass the app's `JsonCamelCase()` helper and the default Newtonsoft contract resolver configured in `Program.cs` is PascalCase, not camelCase. (`AddToPlaylistResult.CreateFailure(...)` returned bare via `StatusCode`/`NotFound`/`BadRequest` elsewhere in `AddTrackToPlaylist` has this same PascalCase-vs-camelCase mismatch pre-existing — the client silently falls back to its default toast text for those paths. Out of scope for this fix, but worth knowing if `message` ever appears to be ignored client-side.)
 
-- Detect a failed refresh (`invalid_grant` / empty `access_token` in `CreateToken()`) as an explicit, distinguishable failure instead of returning a hollow `AccessToken`.
-- On that failure, evict the entry from `s_users` (instead of caching it) so a subsequent reconnect can actually take effect.
-- Surface a distinct exception/result type through `GetMusicServiceResults`/`MusicServiceAction` for 401 responses, so callers can tell "your Spotify connection expired, please reconnect" apart from a generic server error.
-- Have `SongController.CreateSpotify` and `SpotifyPlaylistController` catch that specific case and redirect/respond with the existing reconnect flow (`GetSpotifyOAuthRedirectUrl`) rather than the generic error view/500.
+Note this only covers the *user-token* refresh path (`SpotUserAuthentication`). `CanSpotify`/`HasAccess`/`ValidateSpotifyAccess` still only check that the auth cookie *contains* Spotify tokens up front — they don't proactively validate the refresh token before the real API call is made. The fix is reactive: the first write/read that actually hits a dead refresh token discovers it, evicts the cache, and reports "please reconnect" — rather than the previous behavior of a permanently poisoned per-user cache entry surfaced only as a generic error.
+
+### Client-side handling (Vue)
+
+`AddToPlaylistButton.vue`'s `handleError` already routed any 401/402/403 to `SpotifyRequirementsModal` (a checklist of sign-in/premium/Spotify-connection requirements). That modal's `hasSpotifyOAuth` prop is always `false` in practice (`menuContext.hasRole('canSpotify')` — `"canSpotify"` isn't a real seeded Identity role, so the checklist always renders as if Spotify were never connected), which made the existing "connect" messaging technically applicable but potentially confusing for a user who previously connected successfully. The reauth-required case is now distinguished explicitly:
+
+- The 403 response body's `reauthRequired: true` flag (set only for `SpotifyAuthExpiredException`, absent/falsy for the plain "never connected" `NoSpotifyOAuth` case) is read in `handleError` and stored in a `spotifyReauthRequired` ref, passed to `SpotifyRequirementsModal` as `:reauth-required`.
+- `SpotifyRequirementsModal` shows an `alert-warning` banner ("Your Spotify connection has expired...") and swaps the CTA button/next-step copy from "Connect Spotify Account" to "Reconnect Spotify Account" when `reauthRequired` is true — same underlying link (`/identity/account/manage/externallogins`), different framing.
+
+### Testing
+
+Spotify provides no sandbox/dev-mode way to force a refresh token to expire on demand; their own guidance is to handle `invalid_grant` defensively and test the reauthorization flow directly. `SelfCrawler/SpotifyAuthRecoveryTests.cs` does exactly that: it calls `AdmAuthentication.TryCreate`/`GetServiceAuthorization` directly against the **real** `https://accounts.spotify.com/api/token` endpoint with a deliberately-invalid refresh token (and fake `ClientId`/`ClientSecret` — no real Spotify app credentials needed, since *any* rejection with no `access_token` in the body exercises the same code path a genuine `invalid_grant` would). One test asserts `SpotifyAuthExpiredException` is thrown; a second (the regression test for the cache-poisoning bug) asserts that a subsequent call for the *same* username with fresh tokens succeeds afterward, proving the `s_users` eviction actually unblocks a reconnect. These are real network calls, so — like the rest of `SelfCrawler` — they're excluded from `Server: Test`/CI (`FullyQualifiedName!~SelfCrawler`) and only run via the `Server: Test SelfCrawler` task.
+
+**Note:** these are calls straight into `AdmAuthentication`, independent of the web app — they don't launch the dev server and don't care which `launchSettings.json` profile (e.g. `m4d-spotify`) it would otherwise run under.
+
+### Manually Testing the Reconnect UI
+
+To click through the actual reconnect user journey (the `SpotifyRequirementsModal` banner, the `SongController.CreateSpotify` "Info" view, the API 403s) against a real signed-in, Spotify-connected account, without waiting for a real token to expire: `AdminController.ExpireMySpotifyConnection` (`dbAdmin`-only; linked from the Admin Diagnostics page's Status section) corrupts the current user's Spotify tokens in both places they live — the in-memory `AdmAuthentication.s_users` cache (via `AdmAuthentication.Clear()`) and the auth cookie itself (re-signs in with a garbage `refresh_token` and an already-past `expires_at` via `HttpContext.SignInAsync`). The next real Spotify action (opening "Add to Playlist", visiting `/song/createspotify`) then fails against Spotify's real token endpoint exactly as it will once a genuine refresh token expires — this exercises the actual production code path, not a mock. Reconnecting Spotify afterward (the normal "Reconnect Spotify Account" link) issues a fresh cookie and clears the corruption, so the same click-through also verifies recovery.
+
+Gated on `IWebHostEnvironment.IsProduction()` (returns 404 there) rather than `IsDevelopment()`, so it also works on the Staging/`m4d-test` cloud instance — allowed everywhere except true production. This is safe to allow broadly: it only ever touches the calling admin's own auth cookie, and `AdmAuthentication.Clear()` clears the process-wide cache for *all* users, but that's harmless for everyone else — it just forces their next request to rebuild their own cached auth from their own still-valid cookie, it doesn't corrupt or reveal anything about their session.
+
+Since Spotify's local OAuth redirect requires `http://127.0.0.1:<port>` rather than `https://localhost:<port>` (Spotify's registered redirect URI only accepts the loopback IP literal over http for local dev, not the `localhost` hostname), driving this manually needs the app running under the `m4d-spotify` launch profile (`applicationUrl: http://127.0.0.1:5000`, `DISABLE_HTTPS_REDIRECT=true`).
 
 ---
 
