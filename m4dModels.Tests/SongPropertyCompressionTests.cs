@@ -14,6 +14,14 @@ public class SongPropertyCompressionTests
         string.Concat(Enumerable.Repeat(SampleProperties + "\t", 200));
 
     [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    public void Decompress_PassesThroughNullOrEmpty(string stored)
+    {
+        Assert.AreEqual(stored, SongPropertyCompression.Decompress(stored));
+    }
+
+    [TestMethod]
     public void Compress_LeavesSmallPropertiesAsPlainText()
     {
         var result = SongPropertyCompression.Compress(SampleProperties);

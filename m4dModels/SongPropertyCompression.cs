@@ -68,6 +68,11 @@ public static class SongPropertyCompression
 
     public static string Decompress(string stored)
     {
+        if (string.IsNullOrEmpty(stored))
+        {
+            return stored;
+        }
+
         if (!IsCompressed(stored))
         {
             var ich = Song.TryParseId(stored, out _);
