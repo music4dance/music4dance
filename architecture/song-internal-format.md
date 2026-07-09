@@ -15,6 +15,7 @@ This document covers:
 - How the log is structured into blocks (action + user + time + payload)
 - User identity in the log (real users, pseudo/proxy users, batch/algorithmic users)
 - The computed `Song` model that results from replaying the log
+- The compressed representation of this format used in the Azure Search index (§11)
 
 Related documents:
 
@@ -654,3 +655,104 @@ The following are enforced by `Song.CheckPropertiesInternal()`:
 3. No `DanceRating` on a song-level `batch|P` block (that is a corrupt import).
 4. No genre (`:Music`) tags directly on a `DanceRating` — those belong on the song level.
 5. No competition group IDs (e.g. `SWG`, `FXT`) as actual dance ratings — only individual dance types.
+
+---
+
+## 11. Azure Search Storage Compression
+
+The property log described in §1–§10 is the canonical format everywhere — SQL storage, admin
+preview, `ChunkedSong`, the upload pipeline. The **Azure Search index** stores an additional,
+conditionally-compressed encoding of the same log in its `Properties` field, because
+heavily-reprocessed songs can produce logs large enough to exceed the field's size limit (the
+largest real record observed is 58,590 bytes — one song reprocessed hundreds of times by the
+automated import pipeline).
+
+Compression is deliberately **not** applied to every record — only to the rare oversized one. See
+§11.2 for why: an earlier version of this feature compressed unconditionally with a trained Zstd
+dictionary, and measurably made total index storage *worse*, not better.
+
+### 11.1 Wire Format
+
+`m4dModels/SongPropertyCompression.cs` compresses with **Brotli** (`System.IO.Compression`, built
+into .NET — no third-party package), then Base64-encodes the result. There's no custom framing
+beyond that: no version byte, no length prefix — `BrotliStream` decompresses by reading until the
+stream ends, so the original length never needs to be recorded.
+
+**Only records over `CompressionThreshold` (10,000 chars) are compressed at all**; everything else
+is written and stored as plain text, unchanged. The threshold was picked from a corpus-wide
+line-length distribution (`scripts/line-length-stats.ps1` against a fresh index export) — a cutoff
+comfortably below the field's hard size limit and above all but a small tail of records.
+
+**Detecting compressed vs. plain-text values**: a plain-text value — whether it predates
+compression entirely or is simply under the size threshold — is recognized by its `.Create=`,
+`.Edit=`, or `.Merge=` prefix — the start of a real edit block per §4. All three prefixes must be
+checked; a `.Create=`/`.Merge=`-only check misses records whose log happens to start with `.Edit=`
+(roughly 0.07% of the corpus, from logs with no surviving create/merge entry). Anything not
+matching one of those prefixes is treated as Base64+Brotli.
+
+**Integration points** (`m4dModels/SongIndex.cs`): compress in `DocumentFromSong` (write path);
+decompress in `CreateSong` and the streaming-export change-feed enumerator (both read paths).
+`SongProperty.Serialize`/`.Load` themselves are untouched — they're shared with SQL storage, admin
+preview, and `ChunkedSong`, none of which should ever see compressed text.
+
+### 11.2 Why Gated on Size, Not Applied to Every Record
+
+Azure Search's own index storage (Lucene-based) already block-compresses stored fields *across
+many documents together* — grouping documents into blocks and compressing each block jointly, so it
+naturally captures cross-record redundancy for free. This corpus has a lot of that redundancy: the
+literal `User=batch-s|P` alone appears in **86.7% of all 103,627 corpus lines**, because nearly
+every song has been touched by the automated Spotify-import enrichment pipeline stage at some point
+in its edit history (per §5.1). Shared field names, shared tag vocabularies, and the common
+Spotify-preview-URL prefix add more of the same.
+
+Compressing every record individually — even with a dictionary trained to mimic that shared
+vocabulary — defeats this: the per-record compressed output is high-entropy, so (a) it no longer
+carries the cross-record redundancy Lucene's block compression would otherwise have found and
+eliminated, and (b) Lucene can't meaningfully compress already-compressed bytes a second time. On
+top of that, Base64 encoding taxes whatever's left by ~33%. Measured in production: turning on
+unconditional per-record compression roughly **doubled** total index storage instead of shrinking
+it, despite the per-record Zstd ratio looking good (2.2–2.33x) in isolation — Lucene had simply been
+doing better than that already, for free, on the plain text.
+
+The fix is to only compress the rare record actually at risk of the field's size limit. Those
+records are large, one-off anomalies rather than typical corpus content, so compressing them
+individually isn't competing with Lucene's cross-record compression the way compressing *every*
+record was — and it's the only thing this feature ever needed to solve in the first place.
+
+### 11.3 Full Reindex (Picking Up a Format Change on Every Row)
+
+`DocumentFromSong` only recompresses a row when it's next written, so a rollout of a
+format/threshold change doesn't retroactively touch rows that haven't been edited since. To force
+every row through the write path — e.g. to validate the current format against a full-size index
+before shipping — use the existing backup/restore round trip rather than
+`SongController.BatchReloadSongs` (`BatchProcess` streams via `StreamAll`, which pages with `$skip`
+and hits Azure Search's hard 100,000-row `$skip` limit on any index past that size):
+
+1. **`/Admin/IndexBackup`** (`AdminController.IndexBackup`) streams the whole index to a text file
+   using `BackupIndexStreamingAsync`'s composite key-set pagination (`Modified desc, SongId desc`
+   with filters, not `$skip`) — no row-count limit. Each line is decompressed back to the canonical
+   plain-text property log via `SongPropertyCompression.Decompress`.
+2. **`/Admin/LoadIdx`** (`AdminController.LoadIdx`, form on the `UploadBackup` view under "Reload
+   the Index") re-uploads that file with `Song.Create` + `UploadIndex`, which calls
+   `DocumentFromSong` — and therefore `SongPropertyCompression.Compress` — for every row.
+
+Point this at `SongIndexTest` (the "Reload the Index" form's `SongIndexTest` submit button) to
+validate the compressed format end-to-end without touching production.
+
+**Comparing against the uncompressed format:** `SongPropertyCompression.Enabled` (default `true`)
+gates the write path only — reads already auto-detect compressed vs. plain text via the prefix
+check in `IsCompressed`, so toggling it never breaks reads either way. It's driven by the
+`FeatureManagement:SongPropertyCompression` config value, set from `Program.cs` at startup (not
+re-checked per request). The `m4d-vite-no-compression` launch profile
+(`FeatureManagement__SongPropertyCompression=false`) runs the app with it off, so the same
+backup/`LoadIdx` round trip against `SongIndexTest` can be repeated with compression disabled for
+an apples-to-apples comparison.
+
+The flag also has a `true` default in the base `m4d/appsettings.json` `FeatureManagement` section
+(unlike the other flags in `m4d.Utilities.FeatureFlags`, which have no base-config entry and rely
+entirely on Azure App Configuration in Production). This is what makes it enumerable by
+`IFeatureManager.GetFeatureNamesAsync()` — and therefore visible in the Features list on
+`/Admin/Diagnostics` — in every environment, even before/without a corresponding Feature Flag being
+added in Azure App Configuration's Feature Manager. If one is added there later, it takes precedence
+(Azure App Configuration is registered after the base config in `Program.cs`) and this entry becomes
+purely a fallback.

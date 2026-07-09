@@ -310,6 +310,26 @@ else
 </ul>
 
 <hr />
+<h3>Diagnostic Counters</h3>
+<p class="text-muted">Named event counts since server start (@GlobalState.UpTime.ToString()) — see <code>m4dModels.DiagnosticCounters</code>.</p>
+@{
+    var diagnosticCounters = DiagnosticCounters.Snapshot();
+}
+@if (diagnosticCounters.Count > 0)
+{
+    <ul>
+        @foreach (var counter in diagnosticCounters)
+        {
+            <li>@counter.Key = @counter.Value</li>
+        }
+    </ul>
+}
+else
+{
+    <p class="text-muted">No diagnostic counters recorded yet.</p>
+}
+
+<hr />
 <h3>History</h3>
 <ul>
     <li>

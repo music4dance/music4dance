@@ -2089,6 +2089,16 @@ public class Song : TaggableObject
 
     internal async Task<bool> AdminEdit(string properties, DanceMusicCoreService database)
     {
+        // Callers (e.g. AdminUpdate's batch admin-edit lines) pass the full serialized song,
+        // which - like the output of Serialize()/ToString() - starts with "SongId={guid}\t".
+        // Strip it the same way Create(string, ...) does; otherwise it gets parsed as a bogus
+        // "SongId" SongProperty that then re-appears at the front of every future serialization.
+        var ich = TryParseId(properties, out _);
+        if (ich > 0)
+        {
+            properties = properties[ich..];
+        }
+
         var props = new List<SongProperty>();
         SongProperty.Load(properties, props);
         return await AdminEdit(props, database);

@@ -1,0 +1,39 @@
+<Project>
+  <!--
+    Opt-in output redirect for the "Server: Build (Unlocked)" / "Server: Test (Unlocked)" tasks in
+    music4dance.code-workspace, used while the dev server holds a project's bin/*.dll locked.
+
+    This has to live here (not as a command-line -p:BaseOutputPath=... override) because
+    $(MSBuildProjectName) needs to be evaluated separately for each project. Command-line -p:
+    properties are opaque literal strings — MSBuild never expands MSBuild references embedded
+    inside them — so passing "-p:BaseOutputPath=local/build-out/$(MSBuildProjectName)/" directly
+    makes every project write into one folder literally named "$(MSBuildProjectName)".
+
+    The output must also stay outside every project's own directory tree. Redirecting a project's
+    BaseOutputPath to somewhere inside itself (e.g. m4d/local/build-out) lets that project's own
+    content glob (e.g. m4d's static-web-assets glob over ClientApp) pick up the previous build's
+    own output as new source content and copy it into itself one level deeper on every subsequent
+    build, silently consuming disk space until it runs out. $(MSBuildThisFileDirectory) below is
+    this file's own directory (the repo root), which is a sibling of every project directory, not
+    an ancestor or descendant of any of them.
+  -->
+  <PropertyGroup Condition="'$(UnlockedBuildOutput)' == 'true'">
+    <BaseOutputPath>$(MSBuildThisFileDirectory)local\build-out\$(MSBuildProjectName)\</BaseOutputPath>
+  </PropertyGroup>
+
+  <!--
+    Unconditional, regardless of the redirect above: never let bin/, obj/, or local/ be globbed as
+    project content/compile/none items. The SDK normally excludes bin/ and obj/ automatically, but
+    that default exclude is computed FROM the current $(BaseOutputPath)/$(BaseIntermediateOutputPath)
+    values — so the moment those are redirected elsewhere (as above), the SDK stops excluding
+    whatever the OLD default bin/ folder was. This is exactly how the disk-filling bug happened: an
+    old bin/ that had accumulated a stray copy of local/build-out from an earlier broken config
+    stopped being excluded once BaseOutputPath moved, got swept up as ordinary project content, and
+    was copied wholesale (poison and all) into every subsequent build's output, nesting one level
+    deeper each time. Excluding these three literally, independent of property values, closes that
+    off for good.
+  -->
+  <PropertyGroup>
+    <DefaultItemExcludes>$(DefaultItemExcludes);bin\**;obj\**;local\**</DefaultItemExcludes>
+  </PropertyGroup>
+</Project>
