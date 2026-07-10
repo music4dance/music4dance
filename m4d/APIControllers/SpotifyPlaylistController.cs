@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using m4d.Services;
+using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 using m4dModels;
 
@@ -29,8 +30,10 @@ public class SpotifyPlaylistController : DanceMusicApiController
         IConfiguration configuration,
         ILogger<SpotifyPlaylistController> logger,
         SpotifyAuthService spotifyAuthService,
-        IFeatureManager featureManager)
-        : base(context, userManager, searchService, danceStatsManager, configuration, logger)
+        IFeatureManager featureManager,
+        ServiceHealthManager serviceHealth)
+        : base(context, userManager, searchService, danceStatsManager, configuration, logger,
+            serviceHealth: serviceHealth)
     {
         _spotifyAuthService = spotifyAuthService ?? throw new ArgumentNullException(nameof(spotifyAuthService));
         _featureManager = featureManager ?? throw new ArgumentNullException(nameof(featureManager));
