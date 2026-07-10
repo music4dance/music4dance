@@ -23,5 +23,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\m4dModels\m4dModels.csproj" />
+    <ProjectReference Include="..\m4d\m4d.csproj" />
   </ItemGroup>
 </Project>

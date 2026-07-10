@@ -11,10 +11,20 @@ ViewData["Title"] = "Log in";
 @if (Model.Provider == "Spotify")
 {
     <div class="alert alert-primary" role="alert">
-        You have been redirected to this page because you are asking music4dance to communicate with Spotify,
-        but you aren't signed in through Spotify. Please click the "Sign in with Spotify" button below and accept
-        the Spotify permissions requested (if asked). You should then be redirected back to the music4dance ation
-        that you were attempting (e.g. create a Spotify playlist).
+        @if (Model.Reason == "expired")
+        {
+            <text>Your Spotify sign-in has expired or was revoked, so music4dance can no longer act on your
+            behalf. Please click the "Sign in with Spotify" button below to reconnect and accept the Spotify
+            permissions requested. You should then be redirected back to the music4dance action that you were
+            attempting (e.g. create a Spotify playlist).</text>
+        }
+        else
+        {
+            <text>You have been redirected to this page because you are asking music4dance to communicate with Spotify,
+            but you aren't signed in through Spotify. Please click the "Sign in with Spotify" button below and accept
+            the Spotify permissions requested (if asked). You should then be redirected back to the music4dance action
+            that you were attempting (e.g. create a Spotify playlist).</text>
+        }
     </div>
 }
 

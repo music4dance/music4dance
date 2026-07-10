@@ -364,6 +364,10 @@ else
     <li>iTunes Calls = @MusicServiceManager.iTunesCalls</li>
     <li>spotify Calls = @MusicServiceManager.spotifyCalls</li>
     <li>@Html.ActionLink("Dump Cleanup Count", "DumpCleanupCount", "Admin")</li>
+    <li>
+        @Html.ActionLink("Expire My Spotify Connection", "ExpireMySpotifyConnection", "Admin")
+        <span class="text-muted">— corrupts your own Spotify tokens to test the reconnect flow (blocked in Production)</span>
+    </li>
 </ul>
 
 <hr />

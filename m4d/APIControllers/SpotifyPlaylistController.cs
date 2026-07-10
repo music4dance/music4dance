@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using m4d.Services;
+using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 using m4dModels;
 
@@ -29,8 +30,10 @@ public class SpotifyPlaylistController : DanceMusicApiController
         IConfiguration configuration,
         ILogger<SpotifyPlaylistController> logger,
         SpotifyAuthService spotifyAuthService,
-        IFeatureManager featureManager)
-        : base(context, userManager, searchService, danceStatsManager, configuration, logger)
+        IFeatureManager featureManager,
+        ServiceHealthManager serviceHealth)
+        : base(context, userManager, searchService, danceStatsManager, configuration, logger,
+            serviceHealth: serviceHealth)
     {
         _spotifyAuthService = spotifyAuthService ?? throw new ArgumentNullException(nameof(spotifyAuthService));
         _featureManager = featureManager ?? throw new ArgumentNullException(nameof(featureManager));
@@ -67,6 +70,17 @@ public class SpotifyPlaylistController : DanceMusicApiController
             var playlists = await MusicServiceManager.GetUserPlaylists(service, User);
 
             return JsonCamelCase(playlists);
+        }
+        catch (SpotifyAuthExpiredException ex)
+        {
+            Logger.LogWarning(ex, "Spotify auth expired for {User} while retrieving playlists", User.Identity?.Name);
+            return StatusCode(StatusCodes.Status403Forbidden,
+                new
+                {
+                    message = "Your Spotify connection has expired. Please reconnect your account.",
+                    connectUrl = GetSpotifyReconnectUrl(reauthRequired: true),
+                    reauthRequired = true
+                });
         }
         catch (Exception ex)
         {
@@ -184,6 +198,22 @@ public class SpotifyPlaylistController : DanceMusicApiController
 
             return JsonCamelCase(AddToPlaylistResult.CreateSuccess(snapshotId));
         }
+        catch (SpotifyAuthExpiredException ex)
+        {
+            Logger.LogWarning(ex, "Spotify auth expired for {User} while adding song {SongId} to playlist {PlaylistId}",
+                User.Identity?.Name, request.SongId, request.PlaylistId);
+            // Plain anonymous object (not AddToPlaylistResult) so the lowercase field names
+            // survive serialization - this response bypasses JsonCamelCase, and the app's
+            // default Newtonsoft contract resolver is PascalCase, not camelCase.
+            return StatusCode(StatusCodes.Status403Forbidden,
+                new
+                {
+                    success = false,
+                    message = "Your Spotify connection has expired. Please reconnect your account.",
+                    connectUrl = GetSpotifyReconnectUrl(reauthRequired: true),
+                    reauthRequired = true
+                });
+        }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error adding song {SongId} to playlist {PlaylistId}",
@@ -206,9 +236,32 @@ public class SpotifyPlaylistController : DanceMusicApiController
             SpotifyAuthErrorType.NotPremium => StatusCode(StatusCodes.Status402PaymentRequired,
                 new { message = validation.ErrorMessage, upgradeUrl = "/home/contribute" }),
             SpotifyAuthErrorType.NoSpotifyOAuth => StatusCode(StatusCodes.Status403Forbidden,
-                new { message = validation.ErrorMessage, connectUrl = "/identity/account/manage/externallogins" }),
+                new
+                {
+                    message = validation.ErrorMessage,
+                    connectUrl = GetSpotifyReconnectUrl(validation.ReauthRequired),
+                    reauthRequired = validation.ReauthRequired
+                }),
             _ => StatusCode(StatusCodes.Status500InternalServerError,
                 new { message = "Unexpected validation error" })
         };
+    }
+
+    /// <summary>
+    /// The URL a non-Vue client (or a future refactor) should follow to fix a Spotify access
+    /// problem. "Manage external logins" only lets you link a provider that isn't linked yet -
+    /// useless for a rejected refresh token, since the login is already linked. In that case,
+    /// re-running the OAuth challenge via the sign-in page is what actually refreshes the tokens.
+    /// </summary>
+    private string GetSpotifyReconnectUrl(bool reauthRequired)
+    {
+        if (!reauthRequired)
+        {
+            return "/identity/account/manage/externallogins";
+        }
+
+        var referer = Request.Headers.Referer.ToString();
+        var returnUrl = string.IsNullOrWhiteSpace(referer) ? "/" : referer;
+        return _spotifyAuthService.GetSpotifyOAuthRedirectUrl(returnUrl, expired: true);
     }
 }

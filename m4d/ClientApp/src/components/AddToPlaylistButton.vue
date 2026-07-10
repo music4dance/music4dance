@@ -47,6 +47,7 @@ const playlists = ref<PlaylistMetadata[]>([]);
 const loading = ref(false);
 const playlistsCached = ref(false);
 const showRequirementsModal = ref(false);
+const spotifyReauthRequired = ref(false);
 
 const spotifyInfo = computed(() =>
   props.purchaseInfos.find((p) => p.service === ServiceType.Spotify),
@@ -189,16 +190,21 @@ const addToPlaylist = async (playlistId: string, playlistName: string) => {
 const handleError = async (error: unknown, context: string) => {
   const status = (
     error as {
-      response?: { status?: number; data?: { message?: string } };
+      response?: {
+        status?: number;
+        data?: { message?: string; reauthRequired?: boolean };
+      };
     }
   ).response?.status;
-  const data = (error as { response?: { data?: { message?: string } } }).response?.data;
+  const data = (error as { response?: { data?: { message?: string; reauthRequired?: boolean } } })
+    .response?.data;
 
   switch (status) {
     case 401: // Unauthorized
     case 402: // Payment Required (not premium)
-    case 403: // Forbidden (no Spotify OAuth)
-      // Show requirements modal for all auth-related errors
+    case 403: // Forbidden (no Spotify OAuth, or a previously-connected Spotify account
+      // whose token/refresh-token has expired and needs reconnecting)
+      spotifyReauthRequired.value = status === 403 && data?.reauthRequired === true;
       showRequirementsModal.value = true;
       break;
 
@@ -302,6 +308,7 @@ const refreshPlaylists = async () => {
       :is-authenticated="menuContext.isAuthenticated"
       :is-premium="menuContext.isPremium"
       :has-spotify-o-auth="menuContext.hasRole('canSpotify')"
+      :reauth-required="spotifyReauthRequired"
     />
   </div>
 </template>

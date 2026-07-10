@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using m4dModels;
 using m4d.Utilities;
 using System.Security.Claims;
@@ -33,6 +34,23 @@ public class SpotifyAuthService
     public async Task<bool> CanSpotify(ClaimsPrincipal user, AuthenticateResult authResult)
     {
         return await AdmAuthentication.HasAccess(_configuration, ServiceType.Spotify, user, authResult);
+    }
+
+    /// <summary>
+    /// Same check as <see cref="CanSpotify"/>, but also reports whether a "no access" result
+    /// was specifically caused by Spotify rejecting a refresh (e.g. an expired/revoked refresh
+    /// token) rather than the user simply never having done the Spotify OAuth handshake this
+    /// session. Use this instead of a separate <see cref="CanSpotify"/> call when the caller
+    /// needs to show a distinct "reconnect" message - calling both would trigger the refresh
+    /// attempt against Spotify twice.
+    /// </summary>
+    /// <param name="user">The current user's claims principal</param>
+    /// <param name="authResult">The authentication result from HttpContext</param>
+    /// <returns>Whether the user currently has Spotify access, and whether a rejection caused the lack of it</returns>
+    public async Task<(bool CanSpotify, bool WasRejected)> CheckSpotifyAccess(
+        ClaimsPrincipal user, AuthenticateResult authResult)
+    {
+        return await AdmAuthentication.CheckAccess(_configuration, ServiceType.Spotify, user, authResult);
     }
 
     /// <summary>
@@ -83,10 +101,21 @@ public class SpotifyAuthService
     /// Generates the OAuth redirect URL for Spotify authentication.
     /// </summary>
     /// <param name="returnUrl">The URL to return to after OAuth completion</param>
+    /// <param name="expired">
+    /// True if the redirect is happening because a previously-working Spotify connection was
+    /// rejected (expired/revoked refresh token), rather than the user never having connected -
+    /// the login page shows a distinct message for this case.
+    /// </param>
     /// <returns>The Spotify OAuth redirect URL</returns>
-    public string GetSpotifyOAuthRedirectUrl(string returnUrl)
+    public string GetSpotifyOAuthRedirectUrl(string returnUrl, bool expired = false)
     {
-        return $"/Identity/Account/Login?provider=Spotify&returnUrl={returnUrl}";
+        // QueryHelpers.AddQueryString percent-encodes both the key and value, so a returnUrl
+        // containing '&', '?', '<', '"', etc. (e.g. Request.Path + Request.QueryString) can't
+        // break out of the query string or, when later dropped into an href attribute, escape
+        // the attribute/HTML context.
+        var url = QueryHelpers.AddQueryString("/Identity/Account/Login", "provider", "Spotify");
+        url = QueryHelpers.AddQueryString(url, "returnUrl", returnUrl ?? string.Empty);
+        return expired ? QueryHelpers.AddQueryString(url, "reason", "expired") : url;
     }
 
     /// <summary>
@@ -125,9 +154,10 @@ public class SpotifyAuthService
         }
 
         // Check Spotify OAuth
-        if (!await CanSpotify(user, authResult))
+        var (canSpotify, wasRejected) = await CheckSpotifyAccess(user, authResult);
+        if (!canSpotify)
         {
-            return SpotifyAuthValidationResult.NoSpotifyOAuth();
+            return SpotifyAuthValidationResult.NoSpotifyOAuth(wasRejected);
         }
 
         return SpotifyAuthValidationResult.Success();
@@ -143,11 +173,21 @@ public class SpotifyAuthValidationResult
     public string ErrorMessage { get; private set; }
     public SpotifyAuthErrorType ErrorType { get; private set; }
 
-    private SpotifyAuthValidationResult(bool isValid, SpotifyAuthErrorType errorType, string errorMessage = null)
+    /// <summary>
+    /// True when <see cref="SpotifyAuthErrorType.NoSpotifyOAuth"/> was caused by Spotify
+    /// rejecting a refresh (expired/revoked refresh token) rather than the user simply never
+    /// having connected Spotify - callers can use this to show a "reconnect" message instead of
+    /// a "connect" message.
+    /// </summary>
+    public bool ReauthRequired { get; private set; }
+
+    private SpotifyAuthValidationResult(bool isValid, SpotifyAuthErrorType errorType, string errorMessage = null,
+        bool reauthRequired = false)
     {
         IsValid = isValid;
         ErrorType = errorType;
         ErrorMessage = errorMessage;
+        ReauthRequired = reauthRequired;
     }
 
     public static SpotifyAuthValidationResult Success() =>
@@ -159,8 +199,12 @@ public class SpotifyAuthValidationResult
     public static SpotifyAuthValidationResult NotPremium() =>
         new(false, SpotifyAuthErrorType.NotPremium, "Premium subscription required");
 
-    public static SpotifyAuthValidationResult NoSpotifyOAuth() =>
-        new(false, SpotifyAuthErrorType.NoSpotifyOAuth, "Spotify account not connected");
+    public static SpotifyAuthValidationResult NoSpotifyOAuth(bool reauthRequired = false) =>
+        new(false, SpotifyAuthErrorType.NoSpotifyOAuth,
+            reauthRequired
+                ? "Your Spotify connection has expired. Please reconnect your account."
+                : "Spotify account not connected",
+            reauthRequired);
 }
 
 /// <summary>

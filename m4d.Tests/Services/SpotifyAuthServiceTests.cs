@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -249,12 +250,27 @@ public class SpotifyAuthServiceTests
 
     #region GetSpotifyOAuthRedirectUrl Tests
 
+    // The exact percent-encoding is an implementation detail (QueryHelpers.AddQueryString) -
+    // these assert on the decoded query values instead of a hardcoded encoded string, so they
+    // don't need updating if the encoding style ever changes.
+    private static Dictionary<string, string> ParseQuery(string url)
+    {
+        var queryString = url[url.IndexOf('?')..];
+        return QueryHelpers.ParseQuery(queryString)
+            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString());
+    }
+
     [TestMethod]
     public void GetSpotifyOAuthRedirectUrl_ValidReturnUrl_ReturnsCorrectUrl()
     {
         var returnUrl = "/Song/CreateSpotify";
         var result = _service.GetSpotifyOAuthRedirectUrl(returnUrl);
-        Assert.AreEqual("/Identity/Account/Login?provider=Spotify&returnUrl=/Song/CreateSpotify", result);
+
+        Assert.IsTrue(result.StartsWith("/Identity/Account/Login?"));
+        var query = ParseQuery(result);
+        Assert.AreEqual("Spotify", query["provider"]);
+        Assert.AreEqual(returnUrl, query["returnUrl"]);
+        Assert.IsFalse(query.ContainsKey("reason"));
     }
 
     [TestMethod]
@@ -262,14 +278,56 @@ public class SpotifyAuthServiceTests
     {
         var returnUrl = "/Song/Details?id=123&filter=cha";
         var result = _service.GetSpotifyOAuthRedirectUrl(returnUrl);
-        Assert.AreEqual("/Identity/Account/Login?provider=Spotify&returnUrl=/Song/Details?id=123&filter=cha", result);
+
+        // The '?' and '&' from returnUrl must round-trip through decoding intact - not be
+        // parsed as extra top-level query parameters (which would mean they leaked in unescaped).
+        var query = ParseQuery(result);
+        Assert.AreEqual(2, query.Count);
+        Assert.AreEqual("Spotify", query["provider"]);
+        Assert.AreEqual(returnUrl, query["returnUrl"]);
     }
 
     [TestMethod]
     public void GetSpotifyOAuthRedirectUrl_EmptyReturnUrl_ReturnsValidUrl()
     {
         var result = _service.GetSpotifyOAuthRedirectUrl("");
-        Assert.AreEqual("/Identity/Account/Login?provider=Spotify&returnUrl=", result);
+        var query = ParseQuery(result);
+        Assert.AreEqual("Spotify", query["provider"]);
+        Assert.AreEqual("", query["returnUrl"]);
+    }
+
+    [TestMethod]
+    public void GetSpotifyOAuthRedirectUrl_Expired_AppendsReasonExpired()
+    {
+        var result = _service.GetSpotifyOAuthRedirectUrl("/Song/CreateSpotify", expired: true);
+        var query = ParseQuery(result);
+        Assert.AreEqual("expired", query["reason"]);
+    }
+
+    [TestMethod]
+    public void GetSpotifyOAuthRedirectUrl_NotExpired_OmitsReason()
+    {
+        var result = _service.GetSpotifyOAuthRedirectUrl("/Song/CreateSpotify", expired: false);
+        var query = ParseQuery(result);
+        Assert.IsFalse(query.ContainsKey("reason"));
+    }
+
+    [TestMethod]
+    public void GetSpotifyOAuthRedirectUrl_ReturnUrlWithHtmlAndQuoteCharacters_IsFullyEscaped()
+    {
+        // Guards against HTML/attribute injection when this URL is later interpolated into an
+        // href attribute and rendered via Html.Raw (SongController.CreateSpotify) - none of
+        // these characters should survive unescaped in the returned URL.
+        var returnUrl = "/Song/CreateSpotify?x=\"><script>alert(1)</script>&y='";
+        var result = _service.GetSpotifyOAuthRedirectUrl(returnUrl);
+
+        foreach (var dangerous in new[] { "\"", "'", "<", ">" })
+        {
+            Assert.IsFalse(result.Contains(dangerous), $"Result should not contain unescaped '{dangerous}': {result}");
+        }
+
+        var query = ParseQuery(result);
+        Assert.AreEqual(returnUrl, query["returnUrl"]);
     }
 
     #endregion
@@ -412,6 +470,18 @@ public class SpotifyAuthServiceTests
         Assert.IsFalse(result.IsValid);
         Assert.AreEqual(SpotifyAuthErrorType.NoSpotifyOAuth, result.ErrorType);
         Assert.AreEqual("Spotify account not connected", result.ErrorMessage);
+        Assert.IsFalse(result.ReauthRequired);
+    }
+
+    [TestMethod]
+    public void SpotifyAuthValidationResult_NoSpotifyOAuthReauthRequired_HasCorrectProperties()
+    {
+        var result = SpotifyAuthValidationResult.NoSpotifyOAuth(reauthRequired: true);
+
+        Assert.IsFalse(result.IsValid);
+        Assert.AreEqual(SpotifyAuthErrorType.NoSpotifyOAuth, result.ErrorType);
+        Assert.AreEqual("Your Spotify connection has expired. Please reconnect your account.", result.ErrorMessage);
+        Assert.IsTrue(result.ReauthRequired);
     }
 
     #endregion

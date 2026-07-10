@@ -264,4 +264,71 @@ describe("AddToPlaylistButton.vue", () => {
       (wrapper.vm as unknown as { showRequirementsModal: boolean }).showRequirementsModal,
     ).toBe(true);
   });
+
+  describe("Spotify reauth-required handling", () => {
+    interface VmWithFetch {
+      fetchPlaylists: (forceRefresh?: boolean) => Promise<void>;
+      showRequirementsModal: boolean;
+      spotifyReauthRequired: boolean;
+    }
+
+    test("flags reauthRequired and opens modal when the server reports an expired Spotify connection", async () => {
+      const getMock = vi.fn().mockRejectedValue({
+        response: {
+          status: 403,
+          data: {
+            message: "Your Spotify connection has expired. Please reconnect your account.",
+            connectUrl: "/identity/account/manage/externallogins",
+            reauthRequired: true,
+          },
+        },
+      });
+      mockGetMenuContext.mockReturnValue({
+        userId: "test-user-123",
+        isPremium: true,
+        isAuthenticated: true,
+        hasRole: (role: string) => role === "canSpotify",
+        axiosXsrf: { get: getMock, post: vi.fn() },
+        getAccountLink: (page: string) => `/identity/account/${page}`,
+      });
+
+      const wrapper = mount(AddToPlaylistButton, {
+        props: { purchaseInfos: mockPurchaseInfos, songId: "test-song-id" },
+      });
+
+      await (wrapper.vm as unknown as VmWithFetch).fetchPlaylists();
+
+      expect((wrapper.vm as unknown as VmWithFetch).spotifyReauthRequired).toBe(true);
+      expect((wrapper.vm as unknown as VmWithFetch).showRequirementsModal).toBe(true);
+    });
+
+    test("does not flag reauthRequired for a plain never-connected 403", async () => {
+      const getMock = vi.fn().mockRejectedValue({
+        response: {
+          status: 403,
+          data: {
+            message: "Spotify account not connected",
+            connectUrl: "/identity/account/manage/externallogins",
+          },
+        },
+      });
+      mockGetMenuContext.mockReturnValue({
+        userId: "test-user-123",
+        isPremium: true,
+        isAuthenticated: true,
+        hasRole: (role: string) => role === "canSpotify",
+        axiosXsrf: { get: getMock, post: vi.fn() },
+        getAccountLink: (page: string) => `/identity/account/${page}`,
+      });
+
+      const wrapper = mount(AddToPlaylistButton, {
+        props: { purchaseInfos: mockPurchaseInfos, songId: "test-song-id" },
+      });
+
+      await (wrapper.vm as unknown as VmWithFetch).fetchPlaylists();
+
+      expect((wrapper.vm as unknown as VmWithFetch).spotifyReauthRequired).toBe(false);
+      expect((wrapper.vm as unknown as VmWithFetch).showRequirementsModal).toBe(true);
+    });
+  });
 });

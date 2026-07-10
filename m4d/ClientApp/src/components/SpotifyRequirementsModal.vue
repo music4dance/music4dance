@@ -7,12 +7,17 @@ interface Props {
   isAuthenticated?: boolean;
   isPremium?: boolean;
   hasSpotifyOAuth?: boolean;
+  // True when the user previously connected Spotify but their connection has since
+  // expired/been revoked (e.g. Spotify's refresh-token expiration), rather than never
+  // having connected at all - changes the copy from "connect" to "reconnect".
+  reauthRequired?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   isAuthenticated: false,
   isPremium: false,
   hasSpotifyOAuth: false,
+  reauthRequired: false,
 });
 
 const modelValue = defineModel<boolean>({ default: false });
@@ -20,6 +25,16 @@ const menuContext = getMenuContext();
 
 // Compute return URL for links
 const returnUrl = computed(() => encodeURIComponent(window.location.pathname));
+
+// "Manage external logins" only lets you add a login that isn't linked yet - for a rejected
+// refresh token the Spotify login is already linked, so re-running the OAuth challenge from
+// the sign-in page (which re-authorizes an already-linked provider and refreshes the tokens)
+// is the only thing that actually fixes it.
+const spotifyConnectHref = computed(() =>
+  props.reauthRequired
+    ? `/Identity/Account/Login?provider=Spotify&returnUrl=${returnUrl.value}&reason=expired`
+    : `/identity/account/manage/externallogins?returnUrl=${returnUrl.value}`,
+);
 
 const canUseFeature = computed(
   () => props.isAuthenticated && props.isPremium && props.hasSpotifyOAuth,
@@ -36,6 +51,10 @@ const nextStep = computed(() => {
 <template>
   <BModal v-model="modelValue" :title="`${featureName} Requirements`" ok-only ok-title="Close">
     <div v-if="!canUseFeature">
+      <div v-if="reauthRequired" class="alert alert-warning">
+        Your Spotify connection has expired. Please reconnect your Spotify account to continue.
+      </div>
+
       <p>
         To use <strong>{{ featureName }}</strong
         >, you must meet the following requirements:
@@ -109,9 +128,9 @@ const nextStep = computed(() => {
             <strong>Have associated a Spotify account with your music4dance account</strong>
             <div v-if="!hasSpotifyOAuth && isAuthenticated" class="mt-1">
               <a
-                :href="`/identity/account/manage/externallogins?returnUrl=${returnUrl}`"
+                :href="spotifyConnectHref"
                 class="btn btn-sm btn-primary"
-                >Connect Spotify Account</a
+                >{{ reauthRequired ? "Reconnect Spotify Account" : "Connect Spotify Account" }}</a
               >
               <span class="ms-2 text-muted">
                 &mdash;
@@ -137,7 +156,12 @@ const nextStep = computed(() => {
         <strong>Next step:</strong> Upgrade to a premium subscription to unlock Spotify features.
       </div>
       <div v-else-if="nextStep === 'spotify'" class="alert alert-info mt-3">
-        <strong>Next step:</strong> Connect your Spotify account to enable playlist management.
+        <strong>Next step:</strong>
+        {{
+          reauthRequired
+            ? "Reconnect your Spotify account to enable playlist management."
+            : "Connect your Spotify account to enable playlist management."
+        }}
       </div>
     </div>
 
