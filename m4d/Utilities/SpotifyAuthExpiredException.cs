@@ -5,7 +5,6 @@ namespace m4d.Utilities;
 /// Distinguishes this from generic HTTP failures so callers can prompt the user to
 /// reconnect their Spotify account instead of showing a generic error.
 /// </summary>
-[Serializable]
 public class SpotifyAuthExpiredException : Exception
 {
     public SpotifyAuthExpiredException()

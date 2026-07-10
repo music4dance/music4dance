@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using m4dModels;
 using m4d.Utilities;
 using System.Security.Claims;
@@ -108,8 +109,13 @@ public class SpotifyAuthService
     /// <returns>The Spotify OAuth redirect URL</returns>
     public string GetSpotifyOAuthRedirectUrl(string returnUrl, bool expired = false)
     {
-        var url = $"/Identity/Account/Login?provider=Spotify&returnUrl={returnUrl}";
-        return expired ? $"{url}&reason=expired" : url;
+        // QueryHelpers.AddQueryString percent-encodes both the key and value, so a returnUrl
+        // containing '&', '?', '<', '"', etc. (e.g. Request.Path + Request.QueryString) can't
+        // break out of the query string or, when later dropped into an href attribute, escape
+        // the attribute/HTML context.
+        var url = QueryHelpers.AddQueryString("/Identity/Account/Login", "provider", "Spotify");
+        url = QueryHelpers.AddQueryString(url, "returnUrl", returnUrl ?? string.Empty);
+        return expired ? QueryHelpers.AddQueryString(url, "reason", "expired") : url;
     }
 
     /// <summary>

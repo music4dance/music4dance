@@ -2,6 +2,7 @@
 
 using Newtonsoft.Json;
 
+using System.Collections.Concurrent;
 using System.Runtime.Serialization;
 using System.Security.Principal;
 using System.Text;
@@ -209,7 +210,7 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
         var userName = principal?.Identity?.Name;
         if (!string.IsNullOrWhiteSpace(userName))
         {
-            s_users.Remove(userName);
+            s_users.TryRemove(userName, out _);
         }
     }
 
@@ -326,5 +327,7 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
 
     private static AdmAuthentication s_spotify;
 
-    private static readonly Dictionary<string, AdmAuthentication> s_users = [];
+    // ConcurrentDictionary: SetupService/EvictUser/Clear are all hit concurrently by different
+    // requests, and a plain Dictionary isn't safe for concurrent read/write.
+    private static readonly ConcurrentDictionary<string, AdmAuthentication> s_users = new();
 }

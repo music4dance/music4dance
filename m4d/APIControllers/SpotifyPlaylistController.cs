@@ -78,7 +78,7 @@ public class SpotifyPlaylistController : DanceMusicApiController
                 new
                 {
                     message = "Your Spotify connection has expired. Please reconnect your account.",
-                    connectUrl = "/identity/account/manage/externallogins",
+                    connectUrl = GetSpotifyReconnectUrl(reauthRequired: true),
                     reauthRequired = true
                 });
         }
@@ -210,7 +210,7 @@ public class SpotifyPlaylistController : DanceMusicApiController
                 {
                     success = false,
                     message = "Your Spotify connection has expired. Please reconnect your account.",
-                    connectUrl = "/identity/account/manage/externallogins",
+                    connectUrl = GetSpotifyReconnectUrl(reauthRequired: true),
                     reauthRequired = true
                 });
         }
@@ -239,11 +239,29 @@ public class SpotifyPlaylistController : DanceMusicApiController
                 new
                 {
                     message = validation.ErrorMessage,
-                    connectUrl = "/identity/account/manage/externallogins",
+                    connectUrl = GetSpotifyReconnectUrl(validation.ReauthRequired),
                     reauthRequired = validation.ReauthRequired
                 }),
             _ => StatusCode(StatusCodes.Status500InternalServerError,
                 new { message = "Unexpected validation error" })
         };
+    }
+
+    /// <summary>
+    /// The URL a non-Vue client (or a future refactor) should follow to fix a Spotify access
+    /// problem. "Manage external logins" only lets you link a provider that isn't linked yet -
+    /// useless for a rejected refresh token, since the login is already linked. In that case,
+    /// re-running the OAuth challenge via the sign-in page is what actually refreshes the tokens.
+    /// </summary>
+    private string GetSpotifyReconnectUrl(bool reauthRequired)
+    {
+        if (!reauthRequired)
+        {
+            return "/identity/account/manage/externallogins";
+        }
+
+        var referer = Request.Headers.Referer.ToString();
+        var returnUrl = string.IsNullOrWhiteSpace(referer) ? "/" : referer;
+        return _spotifyAuthService.GetSpotifyOAuthRedirectUrl(returnUrl, expired: true);
     }
 }
