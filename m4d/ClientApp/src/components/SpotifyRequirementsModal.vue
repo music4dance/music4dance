@@ -26,6 +26,16 @@ const menuContext = getMenuContext();
 // Compute return URL for links
 const returnUrl = computed(() => encodeURIComponent(window.location.pathname));
 
+// "Manage external logins" only lets you add a login that isn't linked yet - for a rejected
+// refresh token the Spotify login is already linked, so re-running the OAuth challenge from
+// the sign-in page (which re-authorizes an already-linked provider and refreshes the tokens)
+// is the only thing that actually fixes it.
+const spotifyConnectHref = computed(() =>
+  props.reauthRequired
+    ? `/Identity/Account/Login?provider=Spotify&returnUrl=${returnUrl.value}&reason=expired`
+    : `/identity/account/manage/externallogins?returnUrl=${returnUrl.value}`,
+);
+
 const canUseFeature = computed(
   () => props.isAuthenticated && props.isPremium && props.hasSpotifyOAuth,
 );
@@ -118,7 +128,7 @@ const nextStep = computed(() => {
             <strong>Have associated a Spotify account with your music4dance account</strong>
             <div v-if="!hasSpotifyOAuth && isAuthenticated" class="mt-1">
               <a
-                :href="`/identity/account/manage/externallogins?returnUrl=${returnUrl}`"
+                :href="spotifyConnectHref"
                 class="btn btn-sm btn-primary"
                 >{{ reauthRequired ? "Reconnect Spotify Account" : "Connect Spotify Account" }}</a
               >

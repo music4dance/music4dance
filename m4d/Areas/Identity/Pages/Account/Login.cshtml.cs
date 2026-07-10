@@ -74,6 +74,12 @@ public class LoginModel : LoginModelBase
     public string Provider { get; set; }
 
     /// <summary>
+    /// Optional reason the user was redirected here (e.g. "expired" when a previously-working
+    /// Spotify connection was rejected, rather than the user never having connected).
+    /// </summary>
+    public string Reason { get; set; }
+
+    /// <summary>
     ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
@@ -117,7 +123,7 @@ public class LoginModel : LoginModelBase
     public async Task<bool> UseCaptcha() =>
         await _featureManager.IsEnabledAsync(FeatureFlags.Captcha);
 
-    public async Task OnGetAsync(string returnUrl = null, string provider = null)
+    public async Task OnGetAsync(string returnUrl = null, string provider = null, string reason = null)
     {
         if (!string.IsNullOrEmpty(ErrorMessage))
         {
@@ -143,6 +149,7 @@ public class LoginModel : LoginModelBase
         ViewData["SpotifyAvailable"] = _serviceHealth.IsServiceHealthy("SpotifyOAuth");
 
         Provider = provider;
+        Reason = reason;
     }
 
     public async Task<IActionResult> OnPostAsync(string returnUrl = null)

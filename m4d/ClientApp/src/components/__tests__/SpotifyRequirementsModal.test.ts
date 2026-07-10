@@ -215,9 +215,15 @@ describe("SpotifyRequirementsModal", () => {
 
       expect(wrapper.text()).toContain("Your Spotify connection has expired");
 
-      const spotifyLink = wrapper.find('a[href*="externallogins"]');
+      // Reconnecting a rejected refresh token needs a fresh OAuth round-trip via the sign-in
+      // page (the login is already linked, so "manage external logins" has nothing to offer).
+      const spotifyLink = wrapper.find('a[href*="/Identity/Account/Login"]');
       expect(spotifyLink.exists()).toBe(true);
+      expect(spotifyLink.attributes("href")).toContain("provider=Spotify");
+      expect(spotifyLink.attributes("href")).toContain("reason=expired");
       expect(spotifyLink.text()).toBe("Reconnect Spotify Account");
+
+      expect(wrapper.find('a[href*="externallogins"]').exists()).toBe(false);
 
       expect(wrapper.text()).toContain(
         "Reconnect your Spotify account to enable playlist management",

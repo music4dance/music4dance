@@ -1203,7 +1203,7 @@ public class SongController : ContentController
         HelpPage = "spotify-playlist";
 
         var authResult = await HttpContext.AuthenticateAsync();
-        var canSpotify = await _spotifyAuthService.CanSpotify(User, authResult);
+        var (canSpotify, spotifyAuthRejected) = await _spotifyAuthService.CheckSpotifyAccess(User, authResult);
 
         var applicationUser = await GetApplicationUser();
         if (!canSpotify && applicationUser != null)
@@ -1211,7 +1211,8 @@ public class SongController : ContentController
             if (await _spotifyAuthService.HasSpotifyLogin(applicationUser))
             {
                 var returnUrl = Request.Path + Request.QueryString;
-                var redirectUrl = _spotifyAuthService.GetSpotifyOAuthRedirectUrl(returnUrl);
+                var redirectUrl = _spotifyAuthService.GetSpotifyOAuthRedirectUrl(
+                    returnUrl, expired: spotifyAuthRejected);
                 return LocalRedirect(redirectUrl);
             }
         }

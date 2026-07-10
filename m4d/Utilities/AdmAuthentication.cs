@@ -161,15 +161,28 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
         ServiceType serviceType, IPrincipal principal = null,
         AuthenticateResult authResult = null)
     {
+        var (hasAccess, _) = await CheckAccess(configuration, serviceType, principal, authResult);
+        return hasAccess;
+    }
+
+    // Same preflight check as HasAccess, but also reports whether the "no access" outcome was
+    // specifically caused by Spotify rejecting a refresh (WasRejected) rather than the user
+    // simply never having done the Spotify OAuth handshake this session - callers that want to
+    // show a distinct "your connection expired, please reconnect" message need this distinction;
+    // HasAccess alone can't provide it without a second (redundant) network round-trip.
+    public static async Task<(bool HasAccess, bool WasRejected)> CheckAccess(IConfiguration configuration,
+        ServiceType serviceType, IPrincipal principal = null,
+        AuthenticateResult authResult = null)
+    {
         try
         {
             var service = await SetupService(configuration, serviceType, principal, authResult);
-            return service is SpotUserAuthentication;
+            return (service is SpotUserAuthentication, false);
         }
         catch (SpotifyAuthExpiredException)
         {
             EvictUser(principal);
-            return false;
+            return (false, true);
         }
     }
 

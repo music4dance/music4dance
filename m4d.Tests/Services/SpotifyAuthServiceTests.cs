@@ -272,6 +272,21 @@ public class SpotifyAuthServiceTests
         Assert.AreEqual("/Identity/Account/Login?provider=Spotify&returnUrl=", result);
     }
 
+    [TestMethod]
+    public void GetSpotifyOAuthRedirectUrl_Expired_AppendsReasonExpired()
+    {
+        var result = _service.GetSpotifyOAuthRedirectUrl("/Song/CreateSpotify", expired: true);
+        Assert.AreEqual(
+            "/Identity/Account/Login?provider=Spotify&returnUrl=/Song/CreateSpotify&reason=expired", result);
+    }
+
+    [TestMethod]
+    public void GetSpotifyOAuthRedirectUrl_NotExpired_OmitsReason()
+    {
+        var result = _service.GetSpotifyOAuthRedirectUrl("/Song/CreateSpotify", expired: false);
+        Assert.AreEqual("/Identity/Account/Login?provider=Spotify&returnUrl=/Song/CreateSpotify", result);
+    }
+
     #endregion
 
     #region GetSubscriptionLevel Tests
@@ -412,6 +427,18 @@ public class SpotifyAuthServiceTests
         Assert.IsFalse(result.IsValid);
         Assert.AreEqual(SpotifyAuthErrorType.NoSpotifyOAuth, result.ErrorType);
         Assert.AreEqual("Spotify account not connected", result.ErrorMessage);
+        Assert.IsFalse(result.ReauthRequired);
+    }
+
+    [TestMethod]
+    public void SpotifyAuthValidationResult_NoSpotifyOAuthReauthRequired_HasCorrectProperties()
+    {
+        var result = SpotifyAuthValidationResult.NoSpotifyOAuth(reauthRequired: true);
+
+        Assert.IsFalse(result.IsValid);
+        Assert.AreEqual(SpotifyAuthErrorType.NoSpotifyOAuth, result.ErrorType);
+        Assert.AreEqual("Your Spotify connection has expired. Please reconnect your account.", result.ErrorMessage);
+        Assert.IsTrue(result.ReauthRequired);
     }
 
     #endregion

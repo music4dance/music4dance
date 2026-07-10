@@ -233,7 +233,12 @@ public class SpotifyPlaylistController : DanceMusicApiController
             SpotifyAuthErrorType.NotPremium => StatusCode(StatusCodes.Status402PaymentRequired,
                 new { message = validation.ErrorMessage, upgradeUrl = "/home/contribute" }),
             SpotifyAuthErrorType.NoSpotifyOAuth => StatusCode(StatusCodes.Status403Forbidden,
-                new { message = validation.ErrorMessage, connectUrl = "/identity/account/manage/externallogins" }),
+                new
+                {
+                    message = validation.ErrorMessage,
+                    connectUrl = "/identity/account/manage/externallogins",
+                    reauthRequired = validation.ReauthRequired
+                }),
             _ => StatusCode(StatusCodes.Status500InternalServerError,
                 new { message = "Unexpected validation error" })
         };
