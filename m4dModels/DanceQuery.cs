@@ -1,7 +1,6 @@
 ﻿using DanceLibrary;
 
 using System.Diagnostics;
-using System.Text;
 
 namespace m4dModels;
 
@@ -84,27 +83,26 @@ public class DanceQuery
             return null;
         }
 
-        var sb = new StringBuilder();
         var con = IsExclusive ? "and" : "or";
+        var groupFilters = new List<string>();
 
-        foreach (var d in dances)
+        foreach (var item in Items)
         {
-            if (sb.Length > 0)
+            // Dances belonging to the same selected item (e.g. all the sub-styles a
+            // "Waltz" group expands into) are combined with 'or' - a song only needs to
+            // match one of them. Separately selected items are combined with the query's
+            // overall connector ('and' for exclusive/"all", 'or' for inclusive/"any").
+            var matches = dances.Where(d =>
+                d.Id == item.Id ||
+                ((d as DanceType)?.Groups?.Any(g => g.Id == item.Id) ?? false)).ToList();
+
+            if (matches.Count == 0)
             {
-                _ = sb.Append($" {con} ");
+                Trace.WriteLine($"Invalid DanceQuery = {Query}, Dance = {item.Id}");
+                continue;
             }
 
-            var item = Items.FirstOrDefault(dt => dt.Id == d.Id);
-            if (item == null)
-            {
-                var groups = (d as DanceType)?.Groups;
-                if (groups != null)
-                {
-                    item = Items.FirstOrDefault(dt => groups.Any(g => g.Id == dt.Id));
-                }
-            }
-
-            if (item != null)
+            var subFilters = matches.Select(d =>
             {
                 var danceField = $"dance_{d.Id}";
                 var filterParts = new List<string>
@@ -122,17 +120,13 @@ public class DanceQuery
                     }
                 }
 
-                _ = sb.Append('(');
-                _ = sb.Append(string.Join(" and ", filterParts));
-                _ = sb.Append(')');
-            }
-            else
-            {
-                Trace.WriteLine($"Invalid DanceQuery = {Query}, Dance = {d.Id}");
-            }
+                return $"({string.Join(" and ", filterParts)})";
+            }).ToList();
+
+            groupFilters.Add(subFilters.Count == 1 ? subFilters[0] : $"({string.Join(" or ", subFilters)})");
         }
 
-        return $"({sb})";
+        return $"({string.Join($" {con} ", groupFilters)})";
     }
 
     public virtual IList<string> ODataSort(string order)
