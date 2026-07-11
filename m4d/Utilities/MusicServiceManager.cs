@@ -1195,6 +1195,7 @@ public class MusicServiceManager(IConfiguration configuration)
         }
 
         var retries = 5;
+        var authRetries = 2;
         while (true)
         {
             string responseString = null;
@@ -1254,6 +1255,25 @@ public class MusicServiceManager(IConfiguration configuration)
                         TraceLevels.General.TraceInfo,
                         "Exceeded EchoNest Limits: Caught");
                     Thread.Sleep(15 * 1000);
+                    continue;
+                }
+                else if (response.StatusCode == HttpStatusCode.Unauthorized && authRetries-- > 0)
+                {
+                    // The data API rejected a token we believed was still valid (e.g. Spotify
+                    // returning "access token expired" before our locally-tracked expiry, or
+                    // under burst-traffic conditions). Force a refresh and retry rather than
+                    // rethrowing - otherwise every remaining item in a long-running batch would
+                    // keep sending the same dead token until the internal expiry Timer happens
+                    // to fire.
+                    Logger.LogWarning(
+                        "{Service} rejected access token as expired/invalid ({Reason}); forcing refresh and retrying",
+                        service?.Id, response.ReasonPhrase);
+                    if (service != null)
+                    {
+                        await AdmAuthentication.InvalidateServiceAuthorization(
+                            Configuration, service.Id, principal);
+                    }
+
                     continue;
                 }
 
