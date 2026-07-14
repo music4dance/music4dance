@@ -138,6 +138,20 @@ describe("tempo-list App.vue", () => {
     ]);
   });
 
+  test("a dance's reported Type narrows to the selected group(s), like Styles/BPM/MPM already do", () => {
+    // Viennese Waltz belongs to both the Waltz and Country groups. Before the fix, its Type
+    // column always showed every group it belongs to ("Waltz, Country") regardless of which
+    // Type checkboxes were selected - unlike Styles/BPM/MPM, which already narrow correctly
+    // because they're derived from the (filter-narrowed) instances list.
+    const wrapper = mountTempoList();
+    wrapper.vm.types = ["waltz"];
+
+    const viennese = wrapper.vm.dances.find(
+      (d: { name: string }) => d.name === "Viennese Waltz",
+    ) as { groups: { name: string }[] };
+    expect(viennese.groups.map((g) => g.name)).toEqual(["Waltz"]);
+  });
+
   test("filters by meter", () => {
     const wrapper = mountTempoList();
     wrapper.vm.meters = [new Meter(3, 4)];
@@ -238,6 +252,11 @@ describe("tempo-list App.vue", () => {
     expect(rowText).toContain("Tango Vals");
     expect(rowText).toContain("Viennese Waltz");
     expect(rowText).not.toContain("Cha Cha");
+
+    // TempoList's fields are [name, meter, bpm, mpm, groupName (Type), styles] in that order.
+    const viennesRow = rows.find((r) => r.text().includes("Viennese Waltz"))!;
+    const typeCell = viennesRow.findAll("td")[4]!;
+    expect(typeCell.text()).toBe("Waltz");
   });
 
   test("empty selection renders the TempoList empty-state caption", async () => {

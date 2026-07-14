@@ -144,6 +144,19 @@ Sorting on BPM/MPM sorts by `tempoRange.min` (zero-padded to 4 integer digits vi
 `sortByFormatted`), not by the displayed string, so ranges sort numerically rather than
 lexicographically.
 
+**BPM/MPM/Styles react to the current filter selection; Type now does too.** All three of
+BPM/MPM/Styles are derived from `dance.instances` (`tempoRange` and `styles` are getters that
+fold/map over `this.instances`), and `DanceFilter.reduce()` narrows `instances` to just the
+selected styles before returning a dance — so e.g. with only "American Rhythm" selected, Rumba's
+BPM/MPM/Styles columns show just that one instance's range and style, not the union across all its
+instances. `Type`, by contrast, is a plain `dance.groups` field that `DanceType.reduce()` used to
+clone unchanged (via `assign()`), so a dance in multiple groups (e.g. Viennese Waltz, in both Waltz
+and Country) always showed every group it belongs to regardless of the Type selection.
+`DanceFilter.reduce()` (`DanceFilter.ts:18-35`) now narrows `.groups` the same way it narrows
+`.instances`: after building the reduced `DanceType`, it filters `.groups` down to the ones that
+are also in `this.groups` (when a group filter is set), so Viennese Waltz's Type column shows just
+"Waltz" once the Type filter is narrowed to Waltz.
+
 ## Testing
 
 - `m4d/ClientApp/src/pages/tempo-list/__tests__/App.test.ts` — mounts the real page (via
@@ -153,9 +166,10 @@ lexicographically.
   through genuine DOM checkbox interaction (`input.setValue(true/false)` — `trigger("click")`
   does not reliably flip a `BFormCheckboxGroup` checkbox in jsdom, which is why the equivalent
   interaction test in `CheckedList.test.ts` was previously left `test.skip`). Includes regression
-  tests for all three fixes below: the tempo-based exclusion (Performance dances *and* Pattern),
-  the dropped "Performance" Type option, and both the "select all organizations" case and a
-  deliberate narrow organization selection (to prove the fix didn't broaden the latter).
+  tests for all four fixes below: the tempo-based exclusion (Performance dances *and* Pattern),
+  the dropped "Performance" Type option, both the "select all organizations" case and a
+  deliberate narrow organization selection (to prove the fix didn't broaden the latter), and the
+  Type column narrowing to the selected group(s).
 - `m4d/ClientApp/src/pages/tempo-list/components/__tests__/TempoList.test.ts` — unit tests for the
   results table: column content/links for a known dance, the empty-selection caption, and default
   sort order.
@@ -167,7 +181,12 @@ lexicographically.
   `DanceDatabase.test.ts` — unaffected by the fixes above (re-verified): the `matchOrganizations`
   fix lives in `App.vue`, not `DanceFilter`, specifically so these fixtures' narrow,
   single-organization selections keep excluding organization-less dances as before; the
-  `DanceDatabase.filter()` groups fix only changes which *groups* come back, not which *dances* do.
+  `DanceDatabase.filter()` groups fix only changes which *groups* come back, not which *dances* do;
+  and none of those fixtures pass a `groups` criterion, so the `.groups`-narrowing fix doesn't
+  touch them either.
+- `m4d/ClientApp/src/models/DanceDatabase/__tests__/DanceFilter.test.ts` — unit-level coverage for
+  the `.groups`-narrowing fix directly: narrows to the selected group(s), doesn't mutate the
+  original dance's `.groups` array, and leaves `.groups` untouched when no group filter is set.
 
 ## Known Gaps / Follow-ups
 
@@ -197,6 +216,10 @@ callers:
    silently hides every organization-less "Social" dance. `DanceFilter.matchOrganizations` itself
    was deliberately left unchanged (a narrow, specific organization selection should still exclude
    unaffiliated dances).
+
+A fourth bug, found separately afterward: `DanceFilter.reduce()`'s `.groups` narrowing (see
+"TempoList.vue" above) — the Type column didn't shrink to the selected group(s) the way
+BPM/MPM/Styles already shrank to the selected style(s).
 
 ## Related Code
 

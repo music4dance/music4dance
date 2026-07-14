@@ -24,7 +24,18 @@ export class DanceFilter {
     const instances = this.getMatchingInstances(type).map((inst) =>
       inst.reduceExceptions(coversOrgs ? undefined : this.organizations),
     );
-    return instances.length > 0 ? type.reduce(instances) : null;
+    if (instances.length === 0) {
+      return null;
+    }
+
+    const reduced = type.reduce(instances);
+    // type.reduce() clones .groups as-is (every group the dance belongs to), unlike .instances,
+    // which it narrows to the matched set - narrow .groups the same way so a dance's reported
+    // Type reflects only the selected group(s), not every group it happens to belong to.
+    if (this.groups !== undefined) {
+      reduced.groups = reduced.groups.filter((g) => this.groups!.includes(g.name));
+    }
+    return reduced;
   }
 
   public filter(types: DanceType[]): DanceType[] {
