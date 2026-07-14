@@ -118,4 +118,54 @@ describe("TempoList.vue", () => {
     expect(wrapper.text()).toContain("Please select at least one item from every drop-down");
     expect(wrapper.findAll("tbody tr").length).toBe(0);
   });
+
+  describe("column chooser", () => {
+    function mountList() {
+      return mount(TempoList, { props: { dances: [buildDance()] } });
+    }
+
+    function columnCheckbox(wrapper: ReturnType<typeof mountList>, label: string) {
+      const match = wrapper
+        .find("#column-group")
+        .findAll(".form-check")
+        .find((fc) => fc.text() === label);
+      if (!match) {
+        throw new Error(`No checkbox labeled "${label}" found in #column-group`);
+      }
+      return match.find("input");
+    }
+
+    test("every optional column is visible by default", () => {
+      const wrapper = mountList();
+      const headerText = wrapper.find("thead").text();
+
+      expect(headerText).toContain("Meter");
+      expect(headerText).toContain("BPM");
+      expect(headerText).toContain("MPM");
+      expect(headerText).toContain("Type");
+      expect(headerText).toContain("Styles");
+    });
+
+    test("the Name column is always shown and isn't offered as a choice", () => {
+      const wrapper = mountList();
+      const labels = wrapper
+        .find("#column-group")
+        .findAll(".form-check")
+        .map((fc) => fc.text());
+
+      expect(labels).toEqual(["Meter", "BPM", "MPM", "Type", "Styles"]);
+    });
+
+    test("unchecking a column in the chooser removes it from the table", async () => {
+      const wrapper = mountList();
+
+      await columnCheckbox(wrapper, "BPM").setValue(false);
+
+      expect(wrapper.find("thead").text()).not.toContain("BPM");
+      // 80-90 is the BPM cell's content; MPM (a different formatted value) still shows.
+      expect(wrapper.find("tbody tr").text()).not.toContain("80-90");
+      const link = wrapper.find("a[href='/dances/slow-waltz']");
+      expect(link.exists()).toBe(true);
+    });
+  });
 });

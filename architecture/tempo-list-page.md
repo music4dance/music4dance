@@ -64,6 +64,23 @@ placeholder range — `TempoRange.isInfinite` — as every Performance dance). F
 `tempoRange.isInfinite` catches both categories directly instead of relying on group membership as
 a proxy.
 
+### Name filter (`NameFilterInput.vue`)
+
+A fifth filter row, directly below the four `CheckedList` dropdowns: a free-text box (search-icon
+`BInputGroup`) bound to a `nameFilter` ref. `App.vue`'s `dances` computed applies it last, via
+`DanceDatabase.filterByName(danceDatabase.filter(filter).dances, nameFilter.value)` — the
+`DanceFilter` pass narrows by style/type/meter/organization first, then the name filter narrows
+the *result* by substring match against each dance's `hasString()` (id, name, synonyms,
+searchonyms, case-insensitive, letters-only normalized), same as it ANDs with everything else.
+
+`NameFilterInput.vue` (`m4d/ClientApp/src/components/`) is a small shared component — just the
+`BInputGroup`/`BFormInput`/search-icon markup behind a `v-model` — extracted from this same
+pattern in `dance-index`'s `DanceTable.vue`. It does not call `DanceDatabase.filterByName` itself;
+per the project's filter-construction convention, each page still owns the call to the class
+library's static method and decides what to filter. `DanceChooser.vue` has a near-identical inline
+input but was left as-is since it's a modal with its own layout constraints, not currently sharing
+a component tree with either page above.
+
 ### Filter state (`CheckedList.vue`)
 
 Each of the four dropdowns is a `CheckedList` bound with `v-model` to an array of selected values:
@@ -157,22 +174,47 @@ and Country) always showed every group it belongs to regardless of the Type sele
 are also in `this.groups` (when a group filter is set), so Viennese Waltz's Type column shows just
 "Waltz" once the Type filter is narrowed to Waltz.
 
+### Column chooser
+
+Below the `BTable`, `TempoList.vue` renders a second, small `CheckedList` (reusing the same
+dropdown-with-checkboxes component the four page-level filters use, via `type="Column"`,
+`variant="outline-secondary"`, `size="sm"` so it reads as a secondary/advanced control rather than
+another primary filter) bound to a `visibleColumns` ref. Name is not offered as a choice — it's
+`stickyColumn: true` and always rendered — but Meter, BPM, MPM, Type, and Styles all are, driven by
+a `chooseableColumns: { key, label, defaultVisible }[]` array local to the component. The `fields`
+passed to `BTable` is a `computed` that filters the full field-definition list (`allFields`) down
+to `name` plus whatever's in `visibleColumns`. All five are `defaultVisible: true` today, so the
+table's appearance is unchanged for anyone who doesn't open the chooser; a future optional column
+(the motivating case for building this) should be added to `chooseableColumns` and `allFields` with
+`defaultVisible: false` so it doesn't change the table casual users already know. The selection is
+plain component-local `ref` state — it resets on page reload, there's no persistence (localStorage,
+query string, etc.) — and isn't wired to `App.vue` at all, since it only affects how `TempoList`
+renders columns it already receives via `props.dances`.
+
+`CheckedList.vue` gained two optional props to support this second use, both defaulting to the
+original behavior so the four page-level filters render unchanged: `variant` (`ButtonVariant`,
+default `"primary"`) and `size` (`Size`, default unset/normal), both passed straight through to the
+underlying `BDropdown`.
+
 ## Testing
 
 - `m4d/ClientApp/src/pages/tempo-list/__tests__/App.test.ts` — mounts the real page (via
   `loadTestPage`, real `bootstrap-vue-next` components, real dance content JSON as test data — see
   [[testing-patterns]] "Client-Side Testing Patterns") and exercises the filter pipeline both
-  programmatically (assigning to the exposed `styles`/`types`/`meters`/`organizations` refs) and
-  through genuine DOM checkbox interaction (`input.setValue(true/false)` — `trigger("click")`
+  programmatically (assigning to the exposed `styles`/`types`/`meters`/`organizations`/`nameFilter`
+  refs) and through genuine DOM checkbox interaction (`input.setValue(true/false)` — `trigger("click")`
   does not reliably flip a `BFormCheckboxGroup` checkbox in jsdom, which is why the equivalent
   interaction test in `CheckedList.test.ts` was previously left `test.skip`). Includes regression
   tests for all four fixes below: the tempo-based exclusion (Performance dances *and* Pattern),
   the dropped "Performance" Type option, both the "select all organizations" case and a
   deliberate narrow organization selection (to prove the fix didn't broaden the latter), and the
-  Type column narrowing to the selected group(s).
+  Type column narrowing to the selected group(s). Also covers the name filter, including that it
+  ANDs with the other filters (a group match whose name doesn't satisfy the text filter is
+  excluded).
 - `m4d/ClientApp/src/pages/tempo-list/components/__tests__/TempoList.test.ts` — unit tests for the
-  results table: column content/links for a known dance, the empty-selection caption, and default
-  sort order.
+  results table: column content/links for a known dance, the empty-selection caption, default sort
+  order, and the column chooser (every optional column visible by default, Name not offered as a
+  choice, unchecking a column removes its header and cell content from the table).
 - `m4d/ClientApp/src/pages/tempo-list/components/__tests__/CheckedList.test.ts` — pre-existing;
   covers the dropdown label logic. Two interaction tests remain `test.skip` there for the same
   `trigger("click")` reason above; they were not converted to `setValue` as part of this pass since
@@ -225,11 +267,12 @@ BPM/MPM/Styles already shrank to the selected style(s).
 
 | File | Purpose |
 | --- | --- |
-| `m4d/ClientApp/src/pages/tempo-list/App.vue` | Page: builds filter option lists, holds selection state, computes `dances` |
-| `m4d/ClientApp/src/pages/tempo-list/components/CheckedList.vue` | Reusable multi-select dropdown used for all four filters |
-| `m4d/ClientApp/src/pages/tempo-list/components/TempoList.vue` | Results table |
+| `m4d/ClientApp/src/pages/tempo-list/App.vue` | Page: builds filter option lists, holds selection state (including `nameFilter`), computes `dances` |
+| `m4d/ClientApp/src/pages/tempo-list/components/CheckedList.vue` | Reusable multi-select dropdown used for the four page-level filters and (via `variant`/`size`) the column chooser |
+| `m4d/ClientApp/src/pages/tempo-list/components/TempoList.vue` | Results table; owns the column chooser and `visibleColumns` state |
+| `m4d/ClientApp/src/components/NameFilterInput.vue` | Shared name-filter text input (search icon + `BInputGroup`), used here and by `dance-index`'s `DanceTable.vue` |
 | `m4d/ClientApp/src/models/DanceDatabase/DanceFilter.ts` | Filter matching logic shared with other dance-filtering pages |
-| `m4d/ClientApp/src/models/DanceDatabase/DanceDatabase.ts` | Dance/group/style/organization aggregation, `.filter()` |
+| `m4d/ClientApp/src/models/DanceDatabase/DanceDatabase.ts` | Dance/group/style/organization aggregation, `.filter()`, `.filterByName()` (name-filter matching, shared across pages) |
 | `m4d/ClientApp/src/models/CheckboxTypes.ts` | `CheckboxOption`/value conversion helpers (`optionsFromText`, `valuesFromOptions`, `textFromValues`) |
 | `m4d/Controllers/HomeController.cs` | `Tempi` action |
 | `m4d/ViewModels/TempoListModel.cs` | Server-side model matching the client `TempoListModel` interface |

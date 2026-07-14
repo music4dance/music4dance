@@ -19,16 +19,7 @@ const filteredDances = computed(() => {
 
 <template>
   <div>
-    <BInputGroup class="mb-2">
-      <BFormInput
-        id="bvt-dance-filter"
-        v-model="nameFilter"
-        type="text"
-        placeholder="Filter Dances"
-        autofocus
-      />
-      <span><IBiSearch /></span>
-    </BInputGroup>
+    <NameFilterInput id="bvt-dance-filter" v-model="nameFilter" placeholder="Filter Dances" />
     <DanceList
       :dances="filteredDances"
       :flush="false"

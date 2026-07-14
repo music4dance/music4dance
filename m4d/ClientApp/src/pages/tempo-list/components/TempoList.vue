@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defaultTempoLink } from "@/helpers/LinkHelpers";
 import { wordsToKebab } from "@/helpers/StringHelpers";
-import type { TableFieldRaw, BTableSortBy } from "bootstrap-vue-next";
+import type { TableFieldRaw, BTableSortBy, CheckboxOption } from "bootstrap-vue-next";
 import { computed, ref } from "vue";
 import type { DanceType } from "@/models/DanceDatabase/DanceType";
 
@@ -16,7 +16,33 @@ const emptyTable = computed(() => {
   return props.dances.length === 0 ? "Please select at least one item from every drop-down" : "";
 });
 
-const fields: Exclude<TableFieldRaw<DanceType>, string>[] = [
+// Columns an advanced user can hide - "name" is always shown and isn't offered here. New optional
+// columns should be added to this list with `defaultVisible: false` so casual users don't see
+// their table layout change out from under them.
+interface ChooseableColumn {
+  key: string;
+  label: string;
+  defaultVisible: boolean;
+}
+
+const chooseableColumns: ChooseableColumn[] = [
+  { key: "meter", label: "Meter", defaultVisible: true },
+  { key: "bpm", label: "BPM", defaultVisible: true },
+  { key: "mpm", label: "MPM", defaultVisible: true },
+  { key: "groupName", label: "Type", defaultVisible: true },
+  { key: "styles", label: "Styles", defaultVisible: true },
+];
+
+const columnOptions: CheckboxOption[] = chooseableColumns.map((c) => ({
+  text: c.label,
+  value: c.key,
+}));
+
+const visibleColumns = ref<string[]>(
+  chooseableColumns.filter((c) => c.defaultVisible).map((c) => c.key),
+);
+
+const allFields: Exclude<TableFieldRaw<DanceType>, string>[] = [
   {
     key: "name",
     sortable: true,
@@ -80,6 +106,10 @@ const fields: Exclude<TableFieldRaw<DanceType>, string>[] = [
   },
 ];
 
+const fields = computed(() =>
+  allFields.filter((f) => f.key === "name" || visibleColumns.value.includes(f.key as string)),
+);
+
 function groupLink(dance: DanceType): string {
   return m4dLink(dance.groups?.[0]?.name || "");
 }
@@ -142,5 +172,15 @@ function formatType(dance: DanceType): string {
         </span>
       </template>
     </BTable>
+    <div class="d-flex align-items-center gap-2">
+      <span class="text-muted small">Columns:</span>
+      <CheckedList
+        v-model="visibleColumns"
+        type="Column"
+        :options="columnOptions"
+        variant="outline-secondary"
+        size="sm"
+      />
+    </div>
   </div>
 </template>

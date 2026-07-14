@@ -199,6 +199,26 @@ describe("tempo-list App.vue", () => {
     ]);
   });
 
+  test("filters by dance name", () => {
+    const wrapper = mountTempoList();
+    wrapper.vm.nameFilter = "waltz";
+
+    expect(danceNames(wrapper)).toEqual(["Cross-step Waltz", "Slow Waltz", "Viennese Waltz"]);
+  });
+
+  test("name filter combines with the other filters (AND across dimensions)", () => {
+    const wrapper = mountTempoList();
+    wrapper.vm.types = ["waltz"];
+    // The Waltz group alone also includes "Tango Vals" (see "filters by type" above), but its
+    // name doesn't contain "waltz", so the name filter narrows it out.
+    wrapper.vm.nameFilter = "waltz";
+
+    expect(danceNames(wrapper)).toEqual(["Cross-step Waltz", "Slow Waltz", "Viennese Waltz"]);
+
+    wrapper.vm.nameFilter = "cross";
+    expect(danceNames(wrapper)).toEqual(["Cross-step Waltz"]);
+  });
+
   test("deselecting every style empties the results, not 'show everything'", () => {
     const wrapper = mountTempoList();
     wrapper.vm.styles = [];

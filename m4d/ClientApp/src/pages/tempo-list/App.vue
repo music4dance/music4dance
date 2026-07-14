@@ -6,6 +6,7 @@ import { computed, ref } from "vue";
 import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { DanceFilter } from "@/models/DanceDatabase/DanceFilter";
 import { Meter } from "@/models/DanceDatabase/Meter";
+import type { DanceType } from "@/models/DanceDatabase/DanceType";
 
 // TODO: Clean up the CheckboxOptions structures
 // Consider disabling checkboxes that don't make sense for the current selection
@@ -50,6 +51,8 @@ const { options: organizationOptions, values: organizations } = buildList(
   model.organizations,
 );
 
+const nameFilter = ref("");
+
 function buildList(values: string[], current?: string[]) {
   const options = optionsFromText(values);
   const all = valuesFromOptions(options);
@@ -79,7 +82,10 @@ const dances = computed(() => {
         ? undefined
         : selectedOrganizations,
   });
-  return danceDatabase.filter(filter).dances;
+  return DanceDatabase.filterByName(
+    danceDatabase.filter(filter).dances,
+    nameFilter.value,
+  ) as DanceType[];
 });
 
 // Exposed for testing
@@ -91,6 +97,7 @@ defineExpose({
   meters,
   organizations,
   organizationOptions,
+  nameFilter,
   dances,
 });
 </script>
@@ -111,6 +118,14 @@ defineExpose({
         class="col-md"
         type="Organization"
         :options="organizationOptions"
+      />
+    </div>
+    <div class="row">
+      <NameFilterInput
+        id="tempo-name-filter"
+        v-model="nameFilter"
+        class="col-md"
+        placeholder="Filter Dances"
       />
     </div>
     <div class="row">
