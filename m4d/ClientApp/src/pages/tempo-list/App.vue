@@ -65,6 +65,18 @@ const dances = computed(() => {
   });
   return danceDatabase.filter(filter).dances;
 });
+
+// Exposed for testing
+defineExpose({
+  styles,
+  styleOptions,
+  types,
+  typeOptions,
+  meters,
+  organizations,
+  organizationOptions,
+  dances,
+});
 </script>
 
 <template>

@@ -127,11 +127,9 @@ const nextStep = computed(() => {
           <div class="requirement-content">
             <strong>Have associated a Spotify account with your music4dance account</strong>
             <div v-if="!hasSpotifyOAuth && isAuthenticated" class="mt-1">
-              <a
-                :href="spotifyConnectHref"
-                class="btn btn-sm btn-primary"
-                >{{ reauthRequired ? "Reconnect Spotify Account" : "Connect Spotify Account" }}</a
-              >
+              <a :href="spotifyConnectHref" class="btn btn-sm btn-primary">{{
+                reauthRequired ? "Reconnect Spotify Account" : "Connect Spotify Account"
+              }}</a>
               <span class="ms-2 text-muted">
                 &mdash;
                 <a
