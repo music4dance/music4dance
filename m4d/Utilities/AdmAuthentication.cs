@@ -89,6 +89,19 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
         renewer.Dispose();
     }
 
+    // Forces the next GetAccessToken() call to fetch a fresh token, for use when the data API
+    // (not the token endpoint) rejects a token we believed was still valid - e.g. Spotify
+    // returning 401 "access token expired" earlier than our locally-tracked expiry. Cheaper than
+    // discarding the whole AdmAuthentication instance since it preserves any RefreshToken.
+    public void InvalidateToken()
+    {
+        Logger.LogInformation("Invalidating Access Token after data-API rejection");
+        var renewer = AccessTokenRenewer;
+        AccessTokenRenewer = null;
+        Token = null;
+        renewer?.Dispose();
+    }
+
     protected AccessToken Token { get; set; }
 
     private async Task<AccessToken> CreateToken()
@@ -203,6 +216,18 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
             EvictUser(principal);
             throw;
         }
+    }
+
+    // Called by MusicServiceManager when a data-API call comes back 401 with a token that was
+    // valid by our own bookkeeping - resolves to the same cached instance that produced the
+    // rejected token (app-level singleton or per-user cache entry) and forces it to refresh on
+    // the next GetAccessToken() call, rather than rethrowing until the internal expiry Timer
+    // eventually catches up.
+    public static async Task InvalidateServiceAuthorization(IConfiguration configuration,
+        ServiceType serviceType, IPrincipal principal = null)
+    {
+        var service = await SetupService(configuration, serviceType, principal, null);
+        service?.InvalidateToken();
     }
 
     private static void EvictUser(IPrincipal principal)
