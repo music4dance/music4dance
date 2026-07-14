@@ -3,6 +3,7 @@ import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { type CheckboxOption, type CheckboxValue } from "bootstrap-vue-next";
 import { optionsFromText, valuesFromOptions, textFromValues } from "@/models/CheckboxTypes";
 import { computed, ref } from "vue";
+import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { DanceFilter } from "@/models/DanceDatabase/DanceFilter";
 import { Meter } from "@/models/DanceDatabase/Meter";
 
@@ -19,8 +20,14 @@ declare const model_: TempoListModel;
 const model = model_ || {};
 
 const fullDB = safeDanceDatabase();
-const groups = fullDB.groups.map((g) => g.name).filter((n) => n !== "Performance");
-const danceDatabase = fullDB.filter(new DanceFilter({ groups: groups }));
+// Performance dances (and the occasional non-Performance-group dance like Pattern) have no real
+// tempo - their instances carry a placeholder range rather than an actual BPM/MPM band - so they
+// can never usefully appear on this page. Filtering by tempoRange.isInfinite (rather than by
+// group name) catches all of them, not just the ones grouped under "Performance".
+const timedDances = fullDB.dances.filter((d) => !d.tempoRange.isInfinite);
+const danceDatabase = new DanceDatabase({ dances: timedDances, groups: fullDB.groups }).filter(
+  new DanceFilter({}),
+);
 
 const { options: styleOptions, values: styles } = buildList(danceDatabase.styles, model.styles);
 
@@ -57,11 +64,20 @@ function filterValid(all: string[], selected?: string[]): string[] {
 }
 
 const dances = computed(() => {
+  const selectedOrganizations = textFromValues(organizations.value, organizationOptions.value);
   const filter = new DanceFilter({
     styles: textFromValues(styles.value, styleOptions.value),
     groups: textFromValues(types.value, typeOptions.value),
     meters: meters.value,
-    organizations: textFromValues(organizations.value, organizationOptions.value),
+    // "Every organization selected" must mean "no organization restriction" (like DanceFilter's
+    // undefined), not "match only dances affiliated with one of these organizations" - the
+    // latter incorrectly excludes dances with no organization affiliation at all (e.g. Social
+    // dances like Lindy Hop), since DanceFilter.matchOrganizations can never match an empty list
+    // against anything.
+    organizations:
+      selectedOrganizations.length === organizationOptions.value.length
+        ? undefined
+        : selectedOrganizations,
   });
   return danceDatabase.filter(filter).dances;
 });

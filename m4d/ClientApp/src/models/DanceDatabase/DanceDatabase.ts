@@ -116,7 +116,7 @@ export class DanceDatabase {
   public filter(filter: DanceFilter): DanceDatabase {
     const dances = filter.filter(this.dances);
     const groups = [
-      ...this.dances.reduce((acc, x) => {
+      ...dances.reduce((acc, x) => {
         x.groups.forEach((g) => acc.add(g.name));
         return acc;
       }, new Set<string>()),

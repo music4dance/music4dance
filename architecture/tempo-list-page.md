@@ -30,9 +30,10 @@ the filter client-side against `DanceFilter`.
 ```text
 window.danceDatabaseJson ──▶ safeDanceDatabase() ──▶ fullDB: DanceDatabase
                                                           │
-                                          groups = fullDB.groups minus "Performance"
+                                    timedDances = fullDB.dances without tempoRange.isInfinite
                                                           │
-                                          danceDatabase = fullDB.filter({ groups })
+                          danceDatabase = new DanceDatabase({ dances: timedDances, groups: fullDB.groups })
+                                                .filter(new DanceFilter({}))   // recomputes .groups
                                                           │
                         ┌───────────────┬─────────────────┼───────────────┐
                         ▼               ▼                 ▼               ▼
@@ -42,21 +43,26 @@ window.danceDatabaseJson ──▶ safeDanceDatabase() ──▶ fullDB: DanceDa
                                                           all selected)
                         └───────────────┴─────────────────┴───────────────┘
                                                           │
-                                    dances = computed(() => danceDatabase.filter(
-                                      new DanceFilter({ styles, groups: types, meters, organizations })
-                                    ).dances)
+                        dances = computed(() => danceDatabase.filter(new DanceFilter({
+                          styles, groups: types, meters,
+                          organizations: selectedOrgs.length === organizationOptions.length
+                            ? undefined       // "every org checked" == "no restriction"
+                            : selectedOrgs,
+                        })).dances)
                                                           │
                                                           ▼
                                               <TempoList :dances="dances" />
 ```
 
-`fullDB` unconditionally drops the "Performance" group (Jazz, Contemporary, Ballet, Broadway, Tap,
-Hip-Hop, Bollywood, Disco, Freestyle) before anything else happens — those dances never appear on
-this page regardless of filter selection. **The Type dropdown still lists a "Performance"
-checkbox anyway**: `DanceDatabase.filter()` rebuilds its `.groups` getter by scanning
-`this.dances` — the *original*, unfiltered dance list — instead of the `dances` it just computed
-two lines above (`DanceDatabase.ts:116-125`), so the group list doesn't actually reflect what was
-filtered out. Checking only "Performance" always yields zero rows.
+`fullDB.dances` is filtered down to `timedDances` by `!d.tempoRange.isInfinite` before anything
+else happens, so any dance with no real tempo never appears on this page regardless of filter
+selection. This used to be done by dropping the "Performance" *group* instead — which happened to
+exclude the 9 actual Performance dances (Jazz, Contemporary, Ballet, Broadway, Tap, Hip-Hop,
+Bollywood, Disco, Freestyle) but missed **Pattern** (`PTN`), a "Social"-style dance filed under the
+"Other" group that also has no real tempo (its one instance carries the same `{min: 1, max: 500}`
+placeholder range — `TempoRange.isInfinite` — as every Performance dance). Filtering by
+`tempoRange.isInfinite` catches both categories directly instead of relying on group membership as
+a proxy.
 
 ### Filter state (`CheckedList.vue`)
 
@@ -66,7 +72,7 @@ Each of the four dropdowns is a `CheckedList` bound with `v-model` to an array o
 | --- | --- | --- | --- |
 | Style | `"Style"` | `danceDatabase.styles` (unique instance styles) | kebab-case string (`optionsFromText`/`wordsToKebab`) |
 | Type | `"Type"` | `danceDatabase.groups` names | kebab-case string |
-| Meter | `"Meter"` | hard-coded `[2/4, 3/4, 4/4]` | `Meter` instance (compared via `.equals()`, cast through `unknown` because `CheckboxValue` doesn't include arbitrary objects — see `INT-TODO` at `App.vue:32`) |
+| Meter | `"Meter"` | hard-coded `[2/4, 3/4, 4/4]` | `Meter` instance (compared via `.equals()`, cast through `unknown` because `CheckboxValue` doesn't include arbitrary objects — see `INT-TODO` at `App.vue:39`) |
 | Organization | `"Organization"` | `danceDatabase.organizations` | kebab-case string |
 
 `CheckedList` shows a dropdown button whose label is "All \<Type\>s" / "No \<Type\>s" / the single
@@ -75,7 +81,7 @@ selected item's text / "`N` \<Type\>s", derived from comparing `model.value.leng
 (`indeterminate` when some but not all options are checked).
 
 Style/Type/Organization option lists are seeded from the server-provided `model_` values via
-`buildList()` → `filterValid()` (`App.vue:46-57`), which silently drops any server-provided value
+`buildList()` → `filterValid()` (`App.vue:53-64`), which silently drops any server-provided value
 that isn't a valid kebab option (e.g. stale query-string values from a bookmarked link) rather than
 erroring. **The Meter dropdown does not read `model.meters` at all** — `meters` is always
 initialized to all three hard-coded options regardless of the `meters` query-string parameter, even
@@ -93,7 +99,9 @@ this page hand-rolls filter matching. For each `DanceType`:
 2. `matchGroups` — the dance must belong to at least one selected group ("some", not "every" — a
    dance like Viennese Waltz that's in both the Waltz and Country groups matches if either is
    selected).
-3. `matchOrganizations` — same "some" semantics against the dance's instances' organizations.
+3. `matchOrganizations` — same "some" semantics against the dance's instances' organizations (see
+   below for why this page normalizes "every organization checked" to `undefined` before this
+   step runs, rather than passing the full option list through).
 4. If all three pass, instances are narrowed to those whose `style` is in the selected `styles`
    list (`getMatchingInstances`); if the resulting instance list is empty, the whole dance is
    dropped (`type.reduce(instances)` is only called when `instances.length > 0`).
@@ -103,15 +111,20 @@ deselecting every style, group, meter, or organization checkbox produces an **em
 not "show everything" — `TempoList.vue`'s `emptyTable` computed then renders the caption "Please
 select at least one item from every drop-down" (`TempoList.vue:15-17`).
 
-`matchOrganizations` (`DanceFilter.ts:44-49`) is `type.organizations.some((o) => this.organizations!.includes(o))`
-whenever `this.organizations` is defined — which it always is on this page, since App.vue always
-passes a `organizations` array (initially "every option"). `.some()` on an **empty** array is
-always `false`, so any dance with no organization affiliation on any instance (most "Social"-style
-dances: Cross-step Waltz, Lindy Hop, Argentine Tango, Bossa Nova, Charleston, etc.) is filtered out
-even when every organization checkbox is checked. In the shipped content this drops the page's
-default result set from all 41 non-Performance dances down to 23 — the "Select All" state for
-Organization silently means "all dances that have at least one organization," not "all dances."
-See the `"organization-less dances are hidden..."` test in `App.test.ts` for a pinned example.
+`matchOrganizations` (`DanceFilter.ts:44-47`) is `type.organizations.some((o) => this.organizations!.includes(o))`
+whenever `this.organizations` is defined. `.some()` on an **empty** array is always `false`, so a
+dance with no organization affiliation on any instance (most "Social"-style dances: Cross-step
+Waltz, Lindy Hop, Argentine Tango, Bossa Nova, Charleston, etc.) can never match a *defined*
+`organizations` filter, no matter what it contains — this is intentional/correct behavior for a
+deliberate, narrow selection (e.g. "NDCA only" genuinely shouldn't surface un-sanctioned dances),
+but it breaks if the caller passes the full option list to mean "no restriction," since a fully
+populated array is still a *defined* filter. App.vue's `dances` computed handles this by
+normalizing "every organization checkbox is checked" to `organizations: undefined` before building
+the `DanceFilter`, rather than passing the explicit list through — see the comment there. This fix
+is deliberately scoped to the page, not `DanceFilter` itself: `DanceFilter` is shared with
+`DanceDeltas.vue` and the `DanceDatabaseFiltering.test.ts` fixtures, which rely on a *specific*
+organization selection genuinely excluding unaffiliated dances (e.g. `organizations: ["NDCA"]`
+should not surface a Social-only dance just because it has no organization at all).
 
 ## `TempoList.vue` (results table)
 
@@ -139,7 +152,10 @@ lexicographically.
   programmatically (assigning to the exposed `styles`/`types`/`meters`/`organizations` refs) and
   through genuine DOM checkbox interaction (`input.setValue(true/false)` — `trigger("click")`
   does not reliably flip a `BFormCheckboxGroup` checkbox in jsdom, which is why the equivalent
-  interaction test in `CheckedList.test.ts` was previously left `test.skip`).
+  interaction test in `CheckedList.test.ts` was previously left `test.skip`). Includes regression
+  tests for all three fixes below: the tempo-based exclusion (Performance dances *and* Pattern),
+  the dropped "Performance" Type option, and both the "select all organizations" case and a
+  deliberate narrow organization selection (to prove the fix didn't broaden the latter).
 - `m4d/ClientApp/src/pages/tempo-list/components/__tests__/TempoList.test.ts` — unit tests for the
   results table: column content/links for a known dance, the empty-selection caption, and default
   sort order.
@@ -147,26 +163,40 @@ lexicographically.
   covers the dropdown label logic. Two interaction tests remain `test.skip` there for the same
   `trigger("click")` reason above; they were not converted to `setValue` as part of this pass since
   `CheckedList.vue` itself was out of scope for this round of coverage.
+- `m4d/ClientApp/src/models/DanceDatabase/__tests__/DanceDatabaseFiltering.test.ts` and
+  `DanceDatabase.test.ts` — unaffected by the fixes above (re-verified): the `matchOrganizations`
+  fix lives in `App.vue`, not `DanceFilter`, specifically so these fixtures' narrow,
+  single-organization selections keep excluding organization-less dances as before; the
+  `DanceDatabase.filter()` groups fix only changes which *groups* come back, not which *dances* do.
 
 ## Known Gaps / Follow-ups
 
-- **"Select All" on Organization doesn't mean "all dances."** `DanceFilter.matchOrganizations`'s
-  `.some()` over an empty `organizations` array is always `false`, so every organization-less
-  "Social" dance is hidden by default. This is the single biggest gap in the page's *current*
-  behavior — it silently cuts the default result set from 41 dances to 23 — and would need a fix
-  in the shared `DanceFilter` class (e.g. treat "every option selected" as equivalent to
-  `undefined`, or special-case an empty `type.organizations`), not just in this page.
-- **The Type dropdown offers a "Performance" option that always yields zero rows**, because
-  `DanceDatabase.filter()`'s `.groups` getter is computed from the pre-filter dance list (see
-  above). Also shared logic — a fix belongs in `DanceDatabase.ts`, not `App.vue`.
 - Meter query-string parameter (`?meters=3%2F4`) is silently ignored client-side (see above) — a
   bookmarked/shared link with a meter filter loses that part of the selection on load.
 - `CheckedList.test.ts` has two `test.skip`ped interaction tests with a TODO blaming
   model/event handling; `setValue(true)` (proven out in this page's tests) resolves the same
   symptom and could unblock them.
-- `App.vue:9-10` has a standing `TODO` to clean up the `CheckboxOptions` structures and consider
+- `App.vue:10-11` has a standing `TODO` to clean up the `CheckboxOptions` structures and consider
   disabling checkboxes that can't produce any results given the current selection (e.g. disable an
   organization once no dance in the current style/type/meter selection offers it).
+
+## Fixed (2026-07-14)
+
+Three bugs found while first documenting this page (see git history for this file/commit) were
+fixed together, since the first two were both in `DanceFilter`/`DanceDatabase`, shared with other
+callers:
+
+1. Dances with no real tempo (Performance dances, and Pattern) are now excluded by
+   `tempoRange.isInfinite` rather than by "Performance" group membership — see the data-flow
+   section above.
+2. `DanceDatabase.filter()`'s `.groups` getter now derives from the dances it just filtered,
+   not the pre-filter list, so a filtered-out group (like "Performance," before fix #1 subsumed
+   it) no longer lingers as a dead dropdown option.
+3. `App.vue`'s `dances` computed normalizes "every organization checkbox checked" to
+   `organizations: undefined` before building its `DanceFilter`, so the default view no longer
+   silently hides every organization-less "Social" dance. `DanceFilter.matchOrganizations` itself
+   was deliberately left unchanged (a narrow, specific organization selection should still exclude
+   unaffiliated dances).
 
 ## Related Code
 

@@ -17,13 +17,9 @@ vi.mock("@/helpers/GetMenuContext", () => ({
   getMenuContext: () => mockContext,
 }));
 
-// Dances shown with every filter checkbox selected. This is NOT all 41 non-Performance dances:
-// DanceFilter.matchOrganizations uses `type.organizations.some(...)`, which is false for any
-// dance whose instances list no organizations at all (e.g. "Social"-only dances like Cross-step
-// Waltz or Lindy Hop) regardless of which organizations are selected. So "select all" silently
-// hides every organization-less dance — see the dedicated test below and the architecture doc's
-// "Known Gaps" section.
-const DEFAULT_FILTERED_COUNT = 23;
+// Dances shown with every filter checkbox selected: every dance except the 9 "Performance" group
+// dances and Pattern, none of which have a real tempo (see the "tempo-based exclusion" test).
+const TIMED_DANCE_COUNT = 40;
 
 function mountTempoList(
   model: Record<string, string[]> = {},
@@ -52,7 +48,7 @@ describe("tempo-list App.vue", () => {
     mockResizObserver();
   });
 
-  test("defaults to every filter selected and shows every non-Performance dance", () => {
+  test("defaults to every filter selected and shows every timed, non-Performance dance", () => {
     const wrapper = mountTempoList();
 
     expect(wrapper.vm.styles.length).toBe(wrapper.vm.styleOptions.length);
@@ -60,35 +56,59 @@ describe("tempo-list App.vue", () => {
     expect(wrapper.vm.organizations.length).toBe(wrapper.vm.organizationOptions.length);
     expect(wrapper.vm.meters.length).toBe(3);
 
-    expect(wrapper.vm.dances.length).toBe(DEFAULT_FILTERED_COUNT);
+    expect(wrapper.vm.dances.length).toBe(TIMED_DANCE_COUNT);
     expect(danceNames(wrapper)).toContain("Cha Cha");
-    expect(danceNames(wrapper)).not.toContain("Jazz");
+    // Organization-less "Social" dances are included once every organization is selected.
+    expect(danceNames(wrapper)).toContain("Cross-step Waltz");
+    expect(danceNames(wrapper)).toContain("Lindy Hop");
   });
 
-  test("the Type dropdown still lists 'Performance' even though no Performance dance can ever show", () => {
-    // DanceDatabase.filter() rebuilds its `groups` list by scanning `this.dances` — the
-    // *original*, pre-filter dance list — instead of the `dances` it just filtered
-    // (DanceDatabase.ts:119). So even though App.vue filters "Performance" out of
-    // danceDatabase.dances up front, danceDatabase.groups (and therefore the Type dropdown)
-    // still contains a "Performance" checkbox. Selecting only it yields zero results, because
-    // there are no Performance dances left to match.
+  test("Performance dances, and any other dance with no real tempo, are excluded", () => {
+    // App.vue used to exclude dances by group name ("Performance"), which missed Pattern - a
+    // "Social"-style, "Other"-group dance that (like every Performance dance) has no actual
+    // tempo: its only instance carries the same {min:1, max:500} placeholder range used to mark
+    // "no meaningful tempo" (TempoRange.isInfinite). Filtering by tempoRange.isInfinite instead
+    // catches both.
     const wrapper = mountTempoList();
 
-    expect(wrapper.vm.typeOptions.map((o: { text: string }) => o.text)).toContain("Performance");
-
-    wrapper.vm.types = ["performance"];
-    expect(wrapper.vm.dances).toEqual([]);
+    const names = danceNames(wrapper);
+    expect(names).not.toContain("Jazz");
+    expect(names).not.toContain("Contemporary");
+    expect(names).not.toContain("Pattern");
   });
 
-  test("organization-less dances are hidden even with every organization selected", () => {
-    // Cross-step Waltz and Lindy Hop are "Social"-style dances with no organization affiliation
-    // in the content data. Because DanceFilter.matchOrganizations checks
-    // `type.organizations.some(...)`, an empty organizations array can never match, even though
-    // every organization checkbox is checked. This is the reason DEFAULT_FILTERED_COUNT (23) is
-    // well under the 41 non-Performance dances that exist.
+  test("the Type dropdown no longer offers a dead 'Performance' option", () => {
+    // DanceDatabase.filter() used to rebuild its `groups` list by scanning the *original*,
+    // pre-filter dance list instead of the dances it had just filtered, so "Performance" lingered
+    // as a Type checkbox even though no Performance dance could ever be selected. Now that
+    // App.vue excludes those dances by tempo up front and DanceDatabase.filter() derives groups
+    // from the surviving dances, the option is gone entirely.
+    const wrapper = mountTempoList();
+
+    expect(wrapper.vm.typeOptions.map((o: { text: string }) => o.text)).not.toContain(
+      "Performance",
+    );
+  });
+
+  test("organization-less dances are shown when every organization is selected", () => {
+    // Cross-step Waltz has no organization affiliation in the content data.
+    // DanceFilter.matchOrganizations can never match an empty organizations list against
+    // anything, so App.vue now normalizes "every organization checked" to `undefined` (no
+    // restriction) rather than passing the full explicit list through - see the "combo" comment
+    // in App.vue's `dances` computed.
     const wrapper = mountTempoList();
 
     expect(wrapper.vm.organizations.length).toBe(wrapper.vm.organizationOptions.length);
+    expect(danceNames(wrapper)).toContain("Cross-step Waltz");
+  });
+
+  test("a deliberate, narrow organization selection still excludes organization-less dances", () => {
+    // The "select all -> undefined" normalization only applies when every option is checked.
+    // Selecting one specific organization must still mean "only dances affiliated with it" -
+    // an organization-less dance shouldn't appear just because the filter isn't empty.
+    const wrapper = mountTempoList();
+    wrapper.vm.organizations = ["ucwdc"];
+
     expect(danceNames(wrapper)).not.toContain("Cross-step Waltz");
     expect(danceNames(wrapper)).not.toContain("Lindy Hop");
   });
@@ -110,17 +130,24 @@ describe("tempo-list App.vue", () => {
     const wrapper = mountTempoList();
     wrapper.vm.types = ["waltz"];
 
-    // Cross-step Waltz and Tango Vals are also in the Waltz group but have no organization
-    // affiliation, so the (default, "all selected") organizations filter excludes them — see
-    // "organization-less dances are hidden" above.
-    expect(danceNames(wrapper)).toEqual(["Slow Waltz", "Viennese Waltz"]);
+    expect(danceNames(wrapper)).toEqual([
+      "Cross-step Waltz",
+      "Slow Waltz",
+      "Tango Vals",
+      "Viennese Waltz",
+    ]);
   });
 
   test("filters by meter", () => {
     const wrapper = mountTempoList();
     wrapper.vm.meters = [new Meter(3, 4)];
 
-    expect(danceNames(wrapper)).toEqual(["Slow Waltz", "Viennese Waltz"]);
+    expect(danceNames(wrapper)).toEqual([
+      "Cross-step Waltz",
+      "Slow Waltz",
+      "Tango Vals",
+      "Viennese Waltz",
+    ]);
   });
 
   test("filters by organization", () => {
@@ -171,7 +198,7 @@ describe("tempo-list App.vue", () => {
     const wrapper = mountTempoList({ meters: ["3/4"] });
 
     expect(wrapper.vm.meters.length).toBe(3);
-    expect(wrapper.vm.dances.length).toBe(DEFAULT_FILTERED_COUNT);
+    expect(wrapper.vm.dances.length).toBe(TIMED_DANCE_COUNT);
   });
 
   test("seeds style selection from the server-provided model", () => {
@@ -205,8 +232,10 @@ describe("tempo-list App.vue", () => {
     const rows = wrapper.findAll("tbody tr");
     const rowText = rows.map((r) => r.text()).join(" | ");
 
-    expect(rows.length).toBe(2);
+    expect(rows.length).toBe(4);
+    expect(rowText).toContain("Cross-step Waltz");
     expect(rowText).toContain("Slow Waltz");
+    expect(rowText).toContain("Tango Vals");
     expect(rowText).toContain("Viennese Waltz");
     expect(rowText).not.toContain("Cha Cha");
   });
