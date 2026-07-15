@@ -17,6 +17,10 @@ function getTextForParent(wrapper: VueWrapper, selector: string): string {
   return allParent!.textContent ?? "";
 }
 
+function checkboxGroup(wrapper: VueWrapper) {
+  return wrapper.find("#test-group").findAll(".form-check");
+}
+
 describe("CheckedList.vue", () => {
   beforeAll(() => {
     mockResizObserver();
@@ -93,5 +97,44 @@ describe("CheckedList.vue", () => {
       propsData: { type: "test", options: optionsA, modelValue: [] },
     });
     expect(wrapper.html()).toMatchSnapshot();
+  });
+
+  test("without a counts prop, option text is unannotated", () => {
+    const wrapper = mount(CheckedList, {
+      propsData: { type: "test", options: optionsA, modelValue: valuesA },
+    });
+    const items = checkboxGroup(wrapper);
+    expect(items.map((i) => i.text())).toEqual(textA);
+    expect(wrapper.find("#test-group").classes("text-muted")).toBe(false);
+  });
+
+  test("with a counts prop, each option is annotated with its count", () => {
+    const wrapper = mount(CheckedList, {
+      propsData: { type: "test", options: optionsA, modelValue: valuesA, counts: [5, 0, 1] },
+    });
+    const items = checkboxGroup(wrapper);
+    expect(items.map((i) => i.text())).toEqual([
+      "First Option (5)",
+      "Second Option (0)",
+      "Third Option (1)",
+    ]);
+  });
+
+  test("a zero-count option is grayed out but stays checkable", async () => {
+    const wrapper = mount(CheckedList, {
+      propsData: { type: "test", options: optionsA, modelValue: [], counts: [5, 0, 1] },
+    });
+    const items = checkboxGroup(wrapper);
+
+    // "Second Option" has a count of 0: its label wrapper should be muted...
+    expect(items[1]!.find(".form-check-label > span").classes("text-muted")).toBe(true);
+    // ...while a nonzero-count option's label wrapper isn't.
+    expect(items[0]!.find(".form-check-label > span").classes("text-muted")).toBe(false);
+
+    // Graying out is purely visual - the zero-count checkbox is still fully checkable.
+    const checkbox = items[1]!.find("input").element as HTMLInputElement;
+    expect(checkbox.disabled).toBe(false);
+    await items[1]!.find("input").setValue(true);
+    expect(checkbox.checked).toBe(true);
   });
 });

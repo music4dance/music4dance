@@ -39,7 +39,12 @@ function checkboxGroup(wrapper: ReturnType<typeof mountTempoList>, groupId: stri
 }
 
 function findCheckbox(wrapper: ReturnType<typeof mountTempoList>, groupId: string, label: string) {
-  const match = checkboxGroup(wrapper, groupId).find((fc) => fc.text() === label);
+  // The four page-level dropdowns render a "(N)" result count after each option's text (see
+  // App.vue's `counts` props), so match the label with any trailing " (N)" stripped rather than
+  // requiring an exact match.
+  const match = checkboxGroup(wrapper, groupId).find(
+    (fc) => fc.text().replace(/\s*\(\d+\)$/, "") === label,
+  );
   if (!match) {
     throw new Error(`No checkbox labeled "${label}" found in #${groupId}`);
   }
@@ -306,6 +311,68 @@ describe("tempo-list App.vue", () => {
     const viennesRow = rows.find((r) => r.text().includes("Viennese Waltz"))!;
     const typeCell = viennesRow.findAll("td")[4]!;
     expect(typeCell.text()).toBe("Waltz");
+  });
+
+  test("per-option counts reflect the other filters' current selection, independent of this facet's own selection", () => {
+    const wrapper = mountTempoList();
+    wrapper.vm.types = ["waltz"];
+
+    const styleOptions = wrapper.vm.styleOptions as { text: string; value: string }[];
+    const styleCounts = wrapper.vm.styleCounts as number[];
+    const indexOf = (value: string) => styleOptions.findIndex((o) => o.value === value);
+
+    // With Type narrowed to Waltz: International Standard has Waltz-group dances (Slow Waltz,
+    // Viennese Waltz), but American Rhythm (all Latin/Rhythm dances) has none - even though
+    // "american-rhythm" isn't itself checked, proving the count for each style option is computed
+    // independently of what's currently checked within the Style dropdown.
+    expect(styleCounts[indexOf("international-standard")]).toBeGreaterThan(0);
+    expect(styleCounts[indexOf("american-rhythm")]).toBe(0);
+  });
+
+  test("the default (everything selected) view gives every option a nonzero count", () => {
+    // Every option is derived from the (already tempo-filtered) dance set, so with no other
+    // restriction, every option must have at least one match.
+    const wrapper = mountTempoList();
+
+    expect(wrapper.vm.styleCounts as number[]).toSatisfy((c: number[]) => c.every((n) => n > 0));
+    expect(wrapper.vm.typeCounts as number[]).toSatisfy((c: number[]) => c.every((n) => n > 0));
+    expect(wrapper.vm.meterCounts as number[]).toSatisfy((c: number[]) => c.every((n) => n > 0));
+    expect(wrapper.vm.organizationCounts as number[]).toSatisfy((c: number[]) =>
+      c.every((n) => n > 0),
+    );
+  });
+
+  test("organization counts use the strict single-organization count, not the 'select all' normalization", () => {
+    // App.vue normalizes "every organization checked" to `undefined` for the *displayed* dances
+    // (so organization-less dances like Cross-step Waltz show up by default), but each
+    // organization's own count should still answer "how many dances are affiliated with just
+    // this one" - matching the "filters by organization" test's 8-dance UCWDC result exactly.
+    const wrapper = mountTempoList();
+
+    const organizationOptions = wrapper.vm.organizationOptions as { text: string; value: string }[];
+    const organizationCounts = wrapper.vm.organizationCounts as number[];
+    const ucwdcIndex = organizationOptions.findIndex((o) => o.value === "ucwdc");
+
+    expect(organizationCounts[ucwdcIndex]).toBe(8);
+  });
+
+  test("real DOM: the Style dropdown grays out a zero-count option once Type narrows to Waltz", async () => {
+    const wrapper = mountTempoList();
+    wrapper.vm.types = ["waltz"];
+    await nextTick();
+
+    const americanRhythmRow = checkboxGroup(wrapper, "style-group").find((fc) =>
+      fc.text().startsWith("American Rhythm"),
+    )!;
+    expect(americanRhythmRow.text()).toBe("American Rhythm (0)");
+    expect(americanRhythmRow.find(".form-check-label > span").classes("text-muted")).toBe(true);
+
+    const internationalStandardRow = checkboxGroup(wrapper, "style-group").find((fc) =>
+      fc.text().startsWith("International Standard"),
+    )!;
+    expect(internationalStandardRow.find(".form-check-label > span").classes("text-muted")).toBe(
+      false,
+    );
   });
 
   test("empty selection renders the TempoList empty-state caption", async () => {

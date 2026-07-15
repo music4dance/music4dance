@@ -106,6 +106,52 @@ hard-coded option's `text`, then returns the corresponding `Meter` instances rat
 (so equality later goes through `Meter.equals()`, not string comparison) — same "silently drop
 anything invalid" behavior as the other three filters.
 
+### Result counts / cross-filtering (`counts` prop)
+
+Each dropdown's options are annotated with a live result count (`"Waltz (12)"`) and zero-count
+options are grayed out — but stay fully checkable, rather than being `disabled`. This is the
+faceted-search pattern (Amazon/Etsy/Google Shopping-style: show the count, mute what's currently
+empty) chosen over hard-disabling unavailable options, since disabling hides the "why," while a
+`(0)` explains it and still lets a user build up a selection in any order.
+
+`App.vue` computes four count arrays — `styleCounts`, `typeCounts`, `meterCounts`,
+`organizationCounts` — each parallel to its option list. For each option, the count answers "how
+many dances would match if I additionally applied *just this option*ʼs facet, holding the other
+three facets at their current selection" — via `countMatching()`, which re-runs
+`danceDatabase.filter()` (then `filterByName()`, so the name filter narrows counts too) with a
+`DanceFilter` built from the other three facets' current selection plus this one option alone.
+Deliberately **not** dependent on what else is checked within the *same* facet — checking/
+unchecking a second Style doesn't change any Style option's own count, only the other three
+dropdowns'. This means one extra `danceDatabase.filter()` pass per option (a few dozen per
+keystroke), which is cheap at this dataset's size; there's no memoization beyond each count array's
+own `computed`.
+
+Two gotchas the counts computeds have to account for that the main `dances` computed already
+handled correctly:
+
+- **Text vs. kebab value.** `DanceFilter.styles`/`.groups`/`.organizations` compare against the
+  original display text (e.g. `"International Standard"`), not the kebab `CheckboxOption.value`
+  (`"international-standard"`) used for `v-model`/URL round-tripping — the same distinction
+  `textFromValues()` already resolves for the *selected* arrays. `Meter` is the exception: its
+  options were never kebab-encoded, so `option.value` is already the real `Meter` instance to
+  filter on. (Building `styleCounts`/`typeCounts`/`organizationCounts` off `option.value` instead
+  of `option.text` was an actual bug caught by the "per-option counts" test below — every count
+  came back `0` because no dance's style/group/organization text ever equals a kebab string.)
+- **Organization counts use the strict per-organization count, not the "select all → `undefined`"
+  normalization** the main `dances` computed applies (see below) — an organization's count answers
+  "how many dances are affiliated with just this one," which needs the narrow, defined-list
+  semantics, not "no restriction."
+
+`CheckedList.vue` takes the count array as an optional `counts?: number[]` prop (parallel to
+`options`, omitted entirely by the column chooser use in `TempoList.vue`, which renders unchanged).
+When present, it overrides `BFormCheckboxGroup`'s `#option` scoped slot (`{ text, value, disabled }`
+— bootstrap-vue-next renders this in place of each option's default label content, so the
+checkbox/input/model wiring is untouched) to render `text` plus a muted `"(N)"` suffix, and applies
+`text-muted` to the whole label when that option's count is `0`. The slot only hands back `value`,
+not an index, so `CheckedList` recovers the count by `options.findIndex((o) => o.value === value)`
+— safe by reference equality, since the slot's `value` is always the exact object `App.vue` put in
+`options[i].value` (kebab string or, for Meter, the literal `Meter` instance), never a clone.
+
 ### Filtering logic (`DanceFilter.reduce`, `DanceDatabase.ts`)
 
 `DanceFilter` (`m4d/ClientApp/src/models/DanceDatabase/DanceFilter.ts`) is the single source of
@@ -218,7 +264,10 @@ underlying `BDropdown`.
   choice, unchecking a column removes its header and cell content from the table).
 - `m4d/ClientApp/src/pages/tempo-list/components/__tests__/CheckedList.test.ts` — pre-existing;
   covers the dropdown label logic, including real checkbox interaction (`setValue`, not
-  `trigger("click")` — see "Fixed (2026-07-15)" below).
+  `trigger("click")` — see "Fixed (2026-07-15)" below); also covers the `counts` prop in isolation
+  (no prop → unannotated options, same markup as before; with it → `"(N)"` per option, zero-count
+  options muted via the label's wrapping `<span>`, and a zero-count checkbox is still checkable, not
+  `disabled`).
 - `m4d/ClientApp/src/models/DanceDatabase/__tests__/DanceDatabaseFiltering.test.ts` and
   `DanceDatabase.test.ts` — unaffected by the fixes above (re-verified): the `matchOrganizations`
   fix lives in `App.vue`, not `DanceFilter`, specifically so these fixtures' narrow,
@@ -229,13 +278,19 @@ underlying `BDropdown`.
 - `m4d/ClientApp/src/models/DanceDatabase/__tests__/DanceFilter.test.ts` — unit-level coverage for
   the `.groups`-narrowing fix directly: narrows to the selected group(s), doesn't mutate the
   original dance's `.groups` array, and leaves `.groups` untouched when no group filter is set.
+- `App.test.ts` also covers the counts feature end-to-end: per-option counts reflect the *other*
+  three facets' current selection independent of the facet's own selection (narrowing Type to
+  Waltz zeroes American Rhythm's style count without American Rhythm itself being checked), the
+  default (everything selected) view gives every option a nonzero count, organization counts use
+  the strict single-organization count rather than the "select all" normalization (verified against
+  the exact 8-dance UCWDC count from the "filters by organization" test), and a real-DOM check that
+  the Style dropdown visibly grays out a zero-count option once Type is narrowed.
 
 ## Known Gaps / Follow-ups
 
-- `App.vue:10-11` has a standing `TODO` to clean up the `CheckboxOptions` structures and consider
-  disabling checkboxes that can't produce any results given the current selection (e.g. disable an
-  organization once no dance in the current style/type/meter selection offers it). See "Checkbox
-  cross-filtering" below for a proposed direction.
+- `App.vue:11` has a standing `TODO` to clean up the `CheckboxOptions` structures generally
+  (unrelated to filtering behavior — the "disable checkboxes with no results" half of that TODO is
+  resolved, see "Checkbox cross-filtering" above and "Fixed (2026-07-15)" below).
 
 ## Fixed (2026-07-15)
 
@@ -257,6 +312,10 @@ underlying `BDropdown`.
      just a `bootstrap-vue-next` markup drift since the snapshot was last recorded) and one of the
      same `.attributes("checked")` assertions; both are fixed and re-enabled alongside the
      interaction test.
+3. Added the per-option result counts / cross-filtering feature — see "Result counts /
+   cross-filtering" above. Resolves the `App.vue` TODO's "consider disabling checkboxes that can't
+   produce any results" in favor of the more common faceted-search pattern (count + gray-out,
+   still checkable) rather than actually disabling options.
 
 ## Fixed (2026-07-14)
 

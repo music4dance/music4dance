@@ -9,7 +9,6 @@ import { Meter } from "@/models/DanceDatabase/Meter";
 import type { DanceType } from "@/models/DanceDatabase/DanceType";
 
 // TODO: Clean up the CheckboxOptions structures
-// Consider disabling checkboxes that don't make sense for the current selection
 interface TempoListModel {
   styles?: string[];
   types?: string[];
@@ -73,21 +72,27 @@ function filterValidMeters(options: CheckboxOption[], selected?: string[]): Mete
   return matching.map((o) => o.value as unknown as Meter);
 }
 
+const selectedStyles = computed(() => textFromValues(styles.value, styleOptions.value));
+const selectedTypes = computed(() => textFromValues(types.value, typeOptions.value));
+const selectedOrganizations = computed(() =>
+  textFromValues(organizations.value, organizationOptions.value),
+);
+// "Every organization selected" must mean "no organization restriction" (like DanceFilter's
+// undefined), not "match only dances affiliated with one of these organizations" - the latter
+// incorrectly excludes dances with no organization affiliation at all (e.g. Social dances like
+// Lindy Hop), since DanceFilter.matchOrganizations can never match an empty list against anything.
+const normalizedOrganizations = computed(() =>
+  selectedOrganizations.value.length === organizationOptions.value.length
+    ? undefined
+    : selectedOrganizations.value,
+);
+
 const dances = computed(() => {
-  const selectedOrganizations = textFromValues(organizations.value, organizationOptions.value);
   const filter = new DanceFilter({
-    styles: textFromValues(styles.value, styleOptions.value),
-    groups: textFromValues(types.value, typeOptions.value),
+    styles: selectedStyles.value,
+    groups: selectedTypes.value,
     meters: meters.value,
-    // "Every organization selected" must mean "no organization restriction" (like DanceFilter's
-    // undefined), not "match only dances affiliated with one of these organizations" - the
-    // latter incorrectly excludes dances with no organization affiliation at all (e.g. Social
-    // dances like Lindy Hop), since DanceFilter.matchOrganizations can never match an empty list
-    // against anything.
-    organizations:
-      selectedOrganizations.length === organizationOptions.value.length
-        ? undefined
-        : selectedOrganizations,
+    organizations: normalizedOrganizations.value,
   });
   return DanceDatabase.filterByName(
     danceDatabase.filter(filter).dances,
@@ -95,15 +100,87 @@ const dances = computed(() => {
   ) as DanceType[];
 });
 
+// Result counts per dropdown, used to annotate/gray out options that can't produce any results
+// given the *other three* filters' current selection - each option is counted independently of
+// what else is checked in its own dropdown (unlike `dances`, which ANDs every dropdown's full
+// selection together). Deliberately not memoized beyond the per-dropdown computed: re-filtering
+// a few dozen times per keystroke is cheap at this dataset's size.
+function countMatching(filter: DanceFilter): number {
+  return DanceDatabase.filterByName(danceDatabase.filter(filter).dances, nameFilter.value).length;
+}
+
+// Options' `.value` is a kebab id (e.g. "international-standard"); DanceFilter.styles/groups/
+// organizations compare against the original display text (e.g. "International Standard") - the
+// same text that textFromValues() above already resolves for the *selected* arrays. Meter is the
+// exception: its options were never kebab-encoded, so `.value` is already the real Meter to match.
+const styleCounts = computed(() =>
+  styleOptions.value.map(({ text }) =>
+    countMatching(
+      new DanceFilter({
+        styles: [text],
+        groups: selectedTypes.value,
+        meters: meters.value,
+        organizations: normalizedOrganizations.value,
+      }),
+    ),
+  ),
+);
+
+const typeCounts = computed(() =>
+  typeOptions.value.map(({ text }) =>
+    countMatching(
+      new DanceFilter({
+        styles: selectedStyles.value,
+        groups: [text],
+        meters: meters.value,
+        organizations: normalizedOrganizations.value,
+      }),
+    ),
+  ),
+);
+
+const meterCounts = computed(() =>
+  meterOptions.map(({ value }) =>
+    countMatching(
+      new DanceFilter({
+        styles: selectedStyles.value,
+        groups: selectedTypes.value,
+        meters: [value as unknown as Meter],
+        organizations: normalizedOrganizations.value,
+      }),
+    ),
+  ),
+);
+
+const organizationCounts = computed(() =>
+  organizationOptions.value.map(({ text }) =>
+    countMatching(
+      new DanceFilter({
+        styles: selectedStyles.value,
+        groups: selectedTypes.value,
+        meters: meters.value,
+        // Deliberately the strict single-organization count, not the "all selected" undefined
+        // normalization above - this answers "how many dances are affiliated with just this
+        // organization," which is what the count next to its checkbox should mean.
+        organizations: [text],
+      }),
+    ),
+  ),
+);
+
 // Exposed for testing
 defineExpose({
   styles,
   styleOptions,
+  styleCounts,
   types,
   typeOptions,
+  typeCounts,
   meters,
+  meterCounts,
   organizations,
   organizationOptions,
+  organizationCounts,
   nameFilter,
   dances,
 });
@@ -112,19 +189,33 @@ defineExpose({
 <template>
   <PageFrame id="app">
     <div class="row">
-      <CheckedList v-model="styles" class="col-md" type="Style" :options="styleOptions" />
-      <CheckedList v-model="types" class="col-md" type="Type" :options="typeOptions" />
+      <CheckedList
+        v-model="styles"
+        class="col-md"
+        type="Style"
+        :options="styleOptions"
+        :counts="styleCounts"
+      />
+      <CheckedList
+        v-model="types"
+        class="col-md"
+        type="Type"
+        :options="typeOptions"
+        :counts="typeCounts"
+      />
       <CheckedList
         v-model="meters as unknown as CheckboxValue[]"
         class="col-md"
         type="Meter"
         :options="meterOptions"
+        :counts="meterCounts"
       />
       <CheckedList
         v-model="organizations"
         class="col-md"
         type="Organization"
         :options="organizationOptions"
+        :counts="organizationCounts"
       />
     </div>
     <div class="row">
