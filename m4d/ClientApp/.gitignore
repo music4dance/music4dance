@@ -27,7 +27,7 @@ coverage
 *.sln
 *.sw?
 
-.vite-inspect/*
+.vite-inspect/
 
 # yarn
 .pnp.*

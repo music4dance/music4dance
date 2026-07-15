@@ -157,7 +157,7 @@ const isGroup = (dance: NamedObject) => {
     </BButton>
     <BInputGroup class="mb-2">
       <BFormInput v-model="nameFilter" type="text" placeholder="Filter Dances" autofocus />
-      <span><IBiSearch /></span>
+      <BInputGroupText><IBiSearch /></BInputGroupText>
     </BInputGroup>
     <div v-if="allStyleFamilies.length > 0" class="mb-2">
       <div class="small text-muted mb-1">Filter by:</div>

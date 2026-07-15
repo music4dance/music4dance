@@ -1,14 +1,24 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { type CheckboxValue, type CheckboxOption } from "bootstrap-vue-next";
+import {
+  type CheckboxValue,
+  type CheckboxOption,
+  type ButtonVariant,
+  type Size,
+} from "bootstrap-vue-next";
 import { valuesFromOptions, isComparable } from "@/models/CheckboxTypes";
 import { wordsToKebab } from "@/helpers/StringHelpers";
 
 const model = defineModel<CheckboxValue[]>({ required: true });
-const props = defineProps<{
-  type: string;
-  options: CheckboxOption[];
-}>();
+const props = withDefaults(
+  defineProps<{
+    type: string;
+    options: CheckboxOption[];
+    variant?: ButtonVariant;
+    size?: Size;
+  }>(),
+  { variant: "primary", size: undefined },
+);
 
 const title = computed(() => {
   if (allSelected.value) {
@@ -77,10 +87,11 @@ function toggleAll(checked: CheckboxValue | readonly CheckboxValue[] | undefined
 
 <template>
   <BDropdown
-    id="dropdown-form"
+    :id="computedId + '-dropdown'"
     ref="dropdown"
     :text="title"
-    variant="primary"
+    :variant="props.variant"
+    :size="props.size"
     style="margin-bottom: 8px"
     auto-close="outside"
   >
