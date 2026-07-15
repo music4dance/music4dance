@@ -4,6 +4,8 @@ import type { VueWrapper } from "@vue/test-utils";
 import App from "../App.vue";
 import { loadTestPage } from "@/helpers/TestPageSnapshot";
 import { mockResizObserver } from "@/helpers/TestHelpers";
+import { loadTestDances } from "@/helpers/LoadTestDances";
+import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { Meter } from "@/models/DanceDatabase/Meter";
 import { MenuContext } from "@/models/MenuContext";
 
@@ -19,8 +21,9 @@ vi.mock("@/helpers/GetMenuContext", () => ({
 
 // Dances shown with every filter checkbox selected: every dance except the 9 "Performance" group
 // dances and Pattern, none of which have a real tempo (see the "tempo-based exclusion" test).
-const TIMED_DANCE_COUNT = 40;
-
+const TIMED_DANCE_COUNT = DanceDatabase.load(loadTestDances()).dances.filter(
+  (d) => !d.tempoRange.isInfinite,
+).length;
 function mountTempoList(
   model: Record<string, string[]> = {},
 ): VueWrapper<InstanceType<typeof App>> {
