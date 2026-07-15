@@ -100,10 +100,11 @@ selected item's text / "`N` \<Type\>s", derived from comparing `model.value.leng
 Style/Type/Organization option lists are seeded from the server-provided `model_` values via
 `buildList()` → `filterValid()` (`App.vue:53-64`), which silently drops any server-provided value
 that isn't a valid kebab option (e.g. stale query-string values from a bookmarked link) rather than
-erroring. **The Meter dropdown does not read `model.meters` at all** — `meters` is always
-initialized to all three hard-coded options regardless of the `meters` query-string parameter, even
-though the server-side `TempoListModel.Meters` is populated and available on `model_`. This is a
-gap relative to the other three filters, not an intentional design choice.
+erroring. The Meter dropdown is seeded the same way via `filterValidMeters()`, a `Meter`-specific
+sibling of `filterValid()`: it matches server-provided strings (e.g. `"3/4"`) against each
+hard-coded option's `text`, then returns the corresponding `Meter` instances rather than strings
+(so equality later goes through `Meter.equals()`, not string comparison) — same "silently drop
+anything invalid" behavior as the other three filters.
 
 ### Filtering logic (`DanceFilter.reduce`, `DanceDatabase.ts`)
 
@@ -216,9 +217,8 @@ underlying `BDropdown`.
   order, and the column chooser (every optional column visible by default, Name not offered as a
   choice, unchecking a column removes its header and cell content from the table).
 - `m4d/ClientApp/src/pages/tempo-list/components/__tests__/CheckedList.test.ts` — pre-existing;
-  covers the dropdown label logic. Two interaction tests remain `test.skip` there for the same
-  `trigger("click")` reason above; they were not converted to `setValue` as part of this pass since
-  `CheckedList.vue` itself was out of scope for this round of coverage.
+  covers the dropdown label logic, including real checkbox interaction (`setValue`, not
+  `trigger("click")` — see "Fixed (2026-07-15)" below).
 - `m4d/ClientApp/src/models/DanceDatabase/__tests__/DanceDatabaseFiltering.test.ts` and
   `DanceDatabase.test.ts` — unaffected by the fixes above (re-verified): the `matchOrganizations`
   fix lives in `App.vue`, not `DanceFilter`, specifically so these fixtures' narrow,
@@ -232,14 +232,31 @@ underlying `BDropdown`.
 
 ## Known Gaps / Follow-ups
 
-- Meter query-string parameter (`?meters=3%2F4`) is silently ignored client-side (see above) — a
-  bookmarked/shared link with a meter filter loses that part of the selection on load.
-- `CheckedList.test.ts` has two `test.skip`ped interaction tests with a TODO blaming
-  model/event handling; `setValue(true)` (proven out in this page's tests) resolves the same
-  symptom and could unblock them.
 - `App.vue:10-11` has a standing `TODO` to clean up the `CheckboxOptions` structures and consider
   disabling checkboxes that can't produce any results given the current selection (e.g. disable an
-  organization once no dance in the current style/type/meter selection offers it).
+  organization once no dance in the current style/type/meter selection offers it). See "Checkbox
+  cross-filtering" below for a proposed direction.
+
+## Fixed (2026-07-15)
+
+1. The Meter dropdown now reads `model.meters` on load, via `filterValidMeters()`
+   (`App.vue`) — see the "Filter state" section above. Previously `meters` was always initialized
+   to all three hard-coded options regardless of the `?meters=` query-string parameter, even though
+   the server-side `TempoListModel.Meters` was populated and available on `model_`.
+2. `CheckedList.test.ts`'s interaction test (`"handle checking a single item"`) is un-skipped.
+   Two independent bugs in the test, not `CheckedList.vue`, were masking it:
+   - `trigger("click")` doesn't reliably flip a `BFormCheckboxGroup` checkbox in jsdom;
+     `setValue(true)` does (same fix already used by `App.test.ts`'s real-interaction tests).
+   - The test's mock update handler was keyed `"onUpdate:model-value"` (hyphenated), which never
+     matches Vue's emitted `update:modelValue` event — the model prop was never actually being
+     written back, independent of the click/jsdom issue.
+   - Separately, `.attributes("checked")` never reflects a checkbox's true state in Vue 3: Vue
+     patches `checked` on an `<input>` as a DOM *property* (`element.checked`), not an HTML
+     attribute, so an assertion against the attribute is always falsy regardless of actual state.
+     The two `toMatchSnapshot` tests in the same file had a stale snapshot (unrelated to the above —
+     just a `bootstrap-vue-next` markup drift since the snapshot was last recorded) and one of the
+     same `.attributes("checked")` assertions; both are fixed and re-enabled alongside the
+     interaction test.
 
 ## Fixed (2026-07-14)
 

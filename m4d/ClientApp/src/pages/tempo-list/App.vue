@@ -43,8 +43,7 @@ const meterOptions: CheckboxOption[] = [
   { text: "3/4", value: new Meter(3, 4) as unknown as CheckboxValue },
   { text: "4/4", value: new Meter(4, 4) as unknown as CheckboxValue },
 ];
-const meterValues = valuesFromOptions(meterOptions) as unknown[] as Meter[];
-const meters = ref<Meter[]>(meterValues);
+const meters = ref<Meter[]>(filterValidMeters(meterOptions, model.meters));
 
 const { options: organizationOptions, values: organizations } = buildList(
   danceDatabase.organizations,
@@ -64,6 +63,14 @@ function buildList(values: string[], current?: string[]) {
 
 function filterValid(all: string[], selected?: string[]): string[] {
   return selected ? selected.filter((s) => all.find((a) => a === s)) : all;
+}
+
+// Mirrors filterValid()'s "silently drop anything that isn't a valid option" behavior, but for
+// the hard-coded Meter options: matches server-provided strings (e.g. "3/4") against each
+// option's text, then returns the corresponding Meter instances rather than strings.
+function filterValidMeters(options: CheckboxOption[], selected?: string[]): Meter[] {
+  const matching = selected ? options.filter((o) => selected.includes(o.text)) : options;
+  return matching.map((o) => o.value as unknown as Meter);
 }
 
 const dances = computed(() => {

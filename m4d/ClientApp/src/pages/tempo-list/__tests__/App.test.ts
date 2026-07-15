@@ -66,6 +66,19 @@ describe("tempo-list App.vue", () => {
     expect(danceNames(wrapper)).toContain("Lindy Hop");
   });
 
+  test("real checkbox interaction: unchecking then re-checking 'select all' on the meter dropdown restores every dance", async () => {
+    // The Meter dropdown is the only one of the four whose option values are objects (Meter
+    // instances) rather than strings - unlike the other three filters' real-interaction coverage,
+    // this exercises BFormCheckboxGroup's v-model round-trip for an object-valued checkbox group.
+    const wrapper = mountTempoList();
+
+    await wrapper.find("#meter-all").setValue(false);
+    expect(wrapper.vm.dances).toEqual([]);
+
+    await wrapper.find("#meter-all").setValue(true);
+    expect(wrapper.vm.dances.length).toBe(TIMED_DANCE_COUNT);
+  });
+
   test("Performance dances, and any other dance with no real tempo, are excluded", () => {
     // App.vue used to exclude dances by group name ("Performance"), which missed Pattern - a
     // "Social"-style, "Other"-group dance that (like every Performance dance) has no actual
@@ -229,13 +242,26 @@ describe("tempo-list App.vue", () => {
     expect(wrapper.vm.dances).toEqual([]);
   });
 
-  test("the meter filter ignores the server-provided model (known gap)", () => {
-    // TempoListModel.Meters is populated server-side from the ?meters= query param, but
-    // App.vue's meters ref is seeded from a hard-coded option list and never reads model.meters.
+  test("seeds meter selection from the server-provided model", () => {
+    // TempoListModel.Meters is populated server-side from the ?meters= query param; App.vue's
+    // meters ref now reads model.meters the same way styles/types/organizations already do.
     const wrapper = mountTempoList({ meters: ["3/4"] });
 
-    expect(wrapper.vm.meters.length).toBe(3);
-    expect(wrapper.vm.dances.length).toBe(TIMED_DANCE_COUNT);
+    expect(wrapper.vm.meters).toEqual([new Meter(3, 4)]);
+    expect(danceNames(wrapper)).toEqual([
+      "Cross-step Waltz",
+      "Slow Waltz",
+      "Tango Vals",
+      "Viennese Waltz",
+    ]);
+  });
+
+  test("an invalid server-provided meter is dropped rather than applied", () => {
+    const wrapper = mountTempoList({ meters: ["5/4"] });
+
+    // filterValidMeters() drops values that don't match a known option, leaving nothing selected.
+    expect(wrapper.vm.meters).toEqual([]);
+    expect(wrapper.vm.dances).toEqual([]);
   });
 
   test("seeds style selection from the server-provided model", () => {

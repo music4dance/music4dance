@@ -49,33 +49,33 @@ describe("CheckedList.vue", () => {
     });
   });
 
-  test.skip("handle checking a single item", async () => {
-    // TODO: Get this test working - I suspect I'm doing something wrong with
-    //  handing of models/events especially as they work with respect to checkbox controls
+  test("handle checking a single item", async () => {
+    // trigger("click") doesn't reliably flip a BFormCheckboxGroup checkbox in jsdom (see
+    // App.test.ts's real-interaction tests, which use setValue for the same reason); switching
+    // to setValue, plus listening for the camelCase "update:modelValue" event (the previous
+    // hyphenated "onUpdate:model-value" key never matched Vue's emitted event name), unblocks it.
     const wrapper = mount(CheckedList, {
       attachTo: document.body,
-      propsData: { type: "test", options: optionsA, modelValue: [] },
-      "onUpdate:model-value": (e: CheckboxValue[]) => {
-        //console.log("onUpdate:modelValue", JSON.stringify(e));
-        wrapper.setProps({ modelValue: e });
+      props: {
+        type: "test",
+        options: optionsA,
+        modelValue: [],
+        "onUpdate:modelValue": (e: CheckboxValue[]) => wrapper.setProps({ modelValue: e }),
       },
     });
 
-    //const all = wrapper.get("input[data-test='select-all']");
-    //console.log("Initial classes:", all.classes().join(", "));
-
+    // Vue patches "checked" on a checkbox <input> as a DOM property, not an attribute, so
+    // `.attributes("checked")` never reflects a true state - only `.element.checked` does.
     const items = wrapper.findAll("#test-group input");
-    expect(items[0]?.attributes("checked")).toBeFalsy();
-    await items[0]?.trigger("click");
-    //const emits = wrapper.emitted("update:modelValue");
-    //console.log("Emits:", JSON.stringify(emits));
-    expect(items[0]?.attributes("checked")).toBeTruthy();
+    const checkbox = items[0]!.element as HTMLInputElement;
+    expect(checkbox.checked).toBe(false);
+    await items[0]?.setValue(true);
+    expect(checkbox.checked).toBe(true);
 
     expect(getTextForParent(wrapper, "input[data-test='select-all']")).toBe("Select All");
-    //const items = wrapper.findAll("#test-group input");
   });
 
-  test.skip("renders a simple checked list with all values checked (snapshot)", () => {
+  test("renders a simple checked list with all values checked (snapshot)", () => {
     const wrapper = mount(CheckedList, {
       propsData: { type: "test", options: optionsA, modelValue: valuesA },
     });
@@ -84,11 +84,11 @@ describe("CheckedList.vue", () => {
     expect(items).toBeDefined();
     expect(items.length).toBe(3);
     items.forEach((item) => {
-      expect(item.attributes("checked")).toBeTruthy();
+      expect((item.element as HTMLInputElement).checked).toBe(true);
     });
   });
 
-  test.skip("renders a simple checked list with no values checked (snapshot)", () => {
+  test("renders a simple checked list with no values checked (snapshot)", () => {
     const wrapper = mount(CheckedList, {
       propsData: { type: "test", options: optionsA, modelValue: [] },
     });
