@@ -87,7 +87,7 @@ function toggleAll(checked: CheckboxValue | readonly CheckboxValue[] | undefined
 
 <template>
   <BDropdown
-    id="dropdown-form"
+    :id="computedId + '-dropdown'"
     ref="dropdown"
     :text="title"
     :variant="props.variant"
