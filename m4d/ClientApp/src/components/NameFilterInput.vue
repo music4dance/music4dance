@@ -13,6 +13,6 @@ const modelValue = defineModel<string>({ required: true });
 <template>
   <BInputGroup class="mb-2">
     <BFormInput :id="id" v-model="modelValue" type="text" :placeholder="placeholder" autofocus />
-    <span><IBiSearch /></span>
+    <BInputGroupText><IBiSearch /></BInputGroupText>
   </BInputGroup>
 </template>
