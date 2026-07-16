@@ -14,11 +14,25 @@ const props = withDefaults(
   defineProps<{
     type: string;
     options: CheckboxOption[];
+    // Result count per option, same order as `options` - when given, each option is annotated
+    // with "(N)"; a nonzero option is bolded and a zero-count one is grayed out (but stays
+    // checkable) once it can't produce any results given the rest of the current selection.
+    // Emphasizing the available options reads more clearly than only muting the unavailable ones.
+    // Omit entirely to render options exactly as before.
+    counts?: number[];
     variant?: ButtonVariant;
     size?: Size;
   }>(),
-  { variant: "primary", size: undefined },
+  { variant: "primary", size: undefined, counts: undefined },
 );
+
+// The `#option` scoped slot only gives us back the option's `value`, not its index, so recover it
+// by identity - `value` here is always the exact same object App.vue put in `options[i].value`,
+// never a clone, so `===` is safe even for the non-primitive Meter values the Meter dropdown uses.
+function countFor(value: CheckboxValue): number {
+  const index = props.options.findIndex((o) => o.value === value);
+  return index === -1 || !props.counts ? 0 : (props.counts[index] ?? 0);
+}
 
 const title = computed(() => {
   if (allSelected.value) {
@@ -116,7 +130,14 @@ function toggleAll(checked: CheckboxValue | readonly CheckboxValue[] | undefined
           name="temp"
           stacked
           data-test="checkbox-group"
-        />
+        >
+          <template v-if="counts" #option="{ text, value }">
+            <span :class="countFor(value) === 0 ? 'text-muted' : 'fw-semibold'">
+              {{ text }}
+              <span class="text-muted small fw-normal">({{ countFor(value) }})</span>
+            </span>
+          </template>
+        </BFormCheckboxGroup>
       </BFormGroup>
     </BDropdownForm>
   </BDropdown>

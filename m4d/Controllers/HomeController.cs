@@ -108,8 +108,13 @@ public class HomeController(
             danceEnvironment: true);
     }
 
+    // `columns` seeds which optional columns TempoList.vue's column chooser shows (instead of
+    // each column's own default), letting a custom view be linked to directly. Column keys are
+    // TempoList.vue's `chooseableColumns` keys: meter, bpm, mpm, groupName (Type), styles,
+    // validationRange (Range). E.g. to show only Meter, BPM, and Range:
+    // /Home/Tempi?columns=meter&columns=bpm&columns=validationRange
     public IActionResult Tempi(List<string> styles, List<string> types,
-        List<string> organizations, List<string> meters)
+        List<string> organizations, List<string> meters, List<string> columns)
     {
         return Vue3(
             "Tempos",
@@ -121,6 +126,7 @@ public class HomeController(
                 Types = ConvertParameter(types),
                 Organizations = ConvertParameter(organizations),
                 Meters = ConvertParameter(meters),
+                Columns = ConvertParameter(columns),
             },
             "dance-tempi",
             danceEnvironment: true);

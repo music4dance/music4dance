@@ -12,17 +12,26 @@ const props = withDefaults(
     showSynonyms?: boolean;
     multiLine?: boolean;
     hideLink?: boolean;
+    showBlogLink?: boolean;
   }>(),
   {
     showTempo: TempoType.None,
     showSynonyms: false,
     multiLine: false,
     hideLink: false,
+    showBlogLink: false,
   },
 );
 
 const danceLink = computed(() => {
   return `/dances/${props.dance.seoName}`;
+});
+
+// blogTag lives on both DanceObject (DanceType/DanceInstance) and DanceGroup independently -
+// NamedObject itself doesn't declare it, so narrow with a cast rather than importing both types.
+const blogLink = computed(() => {
+  const blogTag = (props.dance as { blogTag?: string }).blogTag;
+  return blogTag ? `https://music4dance.blog/tag/${blogTag}` : undefined;
 });
 
 const canShowTempo = computed(() => {
@@ -48,7 +57,7 @@ const synonymText = computed(() => {
 });
 
 // Exposed for testing
-defineExpose({ danceLink, canShowTempo, tempoText, synonymText });
+defineExpose({ danceLink, blogLink, canShowTempo, tempoText, synonymText });
 </script>
 
 <template>
@@ -61,6 +70,14 @@ defineExpose({ danceLink, canShowTempo, tempoText, synonymText });
     </span>
     <span v-if="showTempo && canShowTempo" style="font-size: 0.8rem" class="ms-2">
       {{ tempoText }}</span
-    >
+    ><a
+      v-if="showBlogLink && blogLink"
+      :href="blogLink"
+      target="_blank"
+      rel="noopener noreferrer"
+      title="Blog Posts"
+      class="ms-1"
+      ><IBiNewspaper
+    /></a>
   </span>
 </template>

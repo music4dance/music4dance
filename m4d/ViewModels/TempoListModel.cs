@@ -6,4 +6,5 @@ public class TempoListModel
     public List<string> Types { get; set; }
     public List<string> Meters { get; set; }
     public List<string> Organizations { get; set; }
+    public List<string> Columns { get; set; }
 }

@@ -921,6 +921,7 @@
       "numerator": 4,
       "denominator": 4
     },
+    "blogTag": "night-club-two-step",
     "searchonyms": ["club two step"],
     "synonyms": ["Night Club"],
     "instances": [
@@ -1252,6 +1253,7 @@
       "numerator": 4,
       "denominator": 4
     },
+    "blogTag": "jump-swing",
     "instances": [
       {
         "style": "Social",
@@ -1304,6 +1306,7 @@
       "numerator": 4,
       "denominator": 4
     },
+    "blogTag": "balboa",
     "instances": [
       {
         "style": "Social",
@@ -1375,6 +1378,7 @@
       "numerator": 1,
       "denominator": 1
     },
+    "blogTag": "ballet",
     "instances": [
       {
         "style": "Performance",
@@ -1392,6 +1396,7 @@
       "numerator": 1,
       "denominator": 1
     },
+    "blogTag": "broadway",
     "instances": [
       {
         "style": "Performance",
@@ -1409,6 +1414,7 @@
       "numerator": 1,
       "denominator": 1
     },
+    "blogTag": "tap",
     "instances": [
       {
         "style": "Performance",
@@ -1460,6 +1466,7 @@
       "numerator": 1,
       "denominator": 1
     },
+    "blogTag": "disco",
     "instances": [
       {
         "style": "Performance",
@@ -1491,6 +1498,7 @@
     "id": "PTN",
     "name": "Pattern",
     "meter": { "numerator": 1, "denominator": 1 },
+    "blogTag": "pattern",
     "synonyms": ["Line Dance", "Choreographed Partner Dance", "Sequence Dance"],
     "instances": [
       {

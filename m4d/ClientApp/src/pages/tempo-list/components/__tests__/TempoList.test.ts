@@ -49,6 +49,28 @@ function buildOtherDance(): DanceType {
   });
 }
 
+function buildSalsa(): DanceType {
+  return new DanceType({
+    internalId: "SLS",
+    internalName: "Salsa",
+    meter: new Meter(4, 4),
+    blogTag: "salsa",
+    instances: [
+      new DanceInstance({
+        style: "American Rhythm",
+        tempoRange: new TempoRange(200, 200),
+        organizations: [],
+      }),
+      new DanceInstance({
+        style: "Social",
+        tempoRange: new TempoRange(160, 220),
+        organizations: [],
+        validation: { doubleTempoIfBelow: 120, halveTempoIfAbove: 250 },
+      }),
+    ],
+  });
+}
+
 describe("TempoList.vue", () => {
   test("renders one row per dance, sorted by name ascending by default", () => {
     const wrapper = mount(TempoList, {
@@ -153,7 +175,7 @@ describe("TempoList.vue", () => {
         .findAll(".form-check")
         .map((fc) => fc.text());
 
-      expect(labels).toEqual(["Meter", "BPM", "MPM", "Type", "Styles"]);
+      expect(labels).toEqual(["Meter", "BPM", "MPM", "Type", "Styles", "Range"]);
     });
 
     test("unchecking a column in the chooser removes it from the table", async () => {
@@ -166,6 +188,80 @@ describe("TempoList.vue", () => {
       expect(wrapper.find("tbody tr").text()).not.toContain("80-90");
       const link = wrapper.find("a[href='/dances/slow-waltz']");
       expect(link.exists()).toBe(true);
+    });
+
+    test("the Range column is hidden by default", () => {
+      const wrapper = mountList();
+
+      expect(wrapper.find("thead").text()).not.toContain("Range");
+    });
+
+    test("checking the Range column shows the validation-derived range, blank for dances without one", async () => {
+      const wrapper = mount(TempoList, { props: { dances: [buildDance(), buildSalsa()] } });
+
+      await columnCheckbox(wrapper, "Range").setValue(true);
+
+      expect(wrapper.find("thead").text()).toContain("Range");
+      const rows = wrapper.findAll("tbody tr");
+      const salsaRow = rows.find((r) => r.text().includes("Salsa"))!;
+      const waltzRow = rows.find((r) => r.text().includes("Slow Waltz"))!;
+      expect(salsaRow.text()).toContain("120-250");
+      // Slow Waltz has no validation data on either instance, so its Range cell is blank.
+      expect(waltzRow.findAll("td").at(-1)!.text()).toBe("");
+    });
+
+    test("a footnote explaining Range only appears once that column is visible", async () => {
+      const wrapper = mountList();
+
+      expect(wrapper.text()).not.toContain("broadest tempo range");
+
+      await columnCheckbox(wrapper, "Range").setValue(true);
+
+      expect(wrapper.text()).toContain("broadest tempo range");
+    });
+  });
+
+  describe("initialColumns", () => {
+    function columnLabels(wrapper: ReturnType<typeof mount>) {
+      return wrapper
+        .find("#column-group")
+        .findAll(".form-check input")
+        .filter((i) => (i.element as HTMLInputElement).checked)
+        .map((i) => i.element.closest(".form-check")?.textContent);
+    }
+
+    test("seeds the visible columns from the prop instead of each column's own default", () => {
+      const wrapper = mount(TempoList, {
+        props: { dances: [buildDance()], initialColumns: ["mpm", "validationRange"] },
+      });
+
+      expect(columnLabels(wrapper)).toEqual(["MPM", "Range"]);
+      expect(wrapper.find("thead").text()).not.toContain("BPM");
+      expect(wrapper.find("thead").text()).toContain("Range");
+    });
+
+    test("unknown column keys are silently dropped", () => {
+      const wrapper = mount(TempoList, {
+        props: { dances: [buildDance()], initialColumns: ["mpm", "not-a-real-column"] },
+      });
+
+      expect(columnLabels(wrapper)).toEqual(["MPM"]);
+    });
+  });
+
+  describe("blog link", () => {
+    test("a dance with a blogTag gets a 'Blog Posts' icon link next to its name", () => {
+      const wrapper = mount(TempoList, { props: { dances: [buildSalsa()] } });
+
+      const link = wrapper.find("a[title='Blog Posts']");
+      expect(link.exists()).toBe(true);
+      expect(link.attributes("href")).toBe("https://music4dance.blog/tag/salsa");
+    });
+
+    test("a dance with no blogTag gets no blog link", () => {
+      const wrapper = mount(TempoList, { props: { dances: [buildDance()] } });
+
+      expect(wrapper.find("a[title='Blog Posts']").exists()).toBe(false);
     });
   });
 });

@@ -714,6 +714,7 @@
     {
       "danceId": "NC2",
       "danceName": "Night Club Two Step",
+      "blogTag": "night-club-two-step",
       "songIds": [
         "0d10f028-cc7e-4292-858f-8187313175db",
         "9c5cafb2-e669-4247-b970-048496cfe25f",
@@ -1179,6 +1180,7 @@
     {
       "danceId": "JSW",
       "danceName": "Jump Swing",
+      "blogTag": "jump-swing",
       "songIds": [
         "1fe2522b-e960-479c-8bdf-cd6ac1c8e17a",
         "72eae7ff-6f50-4fed-b4d5-c684b57783da",
@@ -1269,6 +1271,7 @@
     {
       "danceId": "BBA",
       "danceName": "Balboa",
+      "blogTag": "balboa",
       "songIds": [
         "c3637295-237f-4d08-b47c-92389ebf50cd",
         "44475734-0aff-490d-877c-3a3e1aaad297",
@@ -1389,6 +1392,7 @@
     {
       "danceId": "BLT",
       "danceName": "Ballet",
+      "blogTag": "ballet",
       "songIds": [],
       "songTags": "",
       "danceTags": "",
@@ -1398,6 +1402,7 @@
     {
       "danceId": "BDW",
       "danceName": "Broadway",
+      "blogTag": "broadway",
       "songIds": [],
       "songTags": "",
       "danceTags": "",
@@ -1407,6 +1412,7 @@
     {
       "danceId": "TAP",
       "danceName": "Tap",
+      "blogTag": "tap",
       "songIds": [],
       "songTags": "",
       "danceTags": "",
@@ -1438,6 +1444,7 @@
     {
       "danceId": "DSC",
       "danceName": "Disco",
+      "blogTag": "disco",
       "songIds": [],
       "songTags": "",
       "danceTags": "",

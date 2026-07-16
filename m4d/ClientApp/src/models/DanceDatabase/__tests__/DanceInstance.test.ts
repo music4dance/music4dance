@@ -62,4 +62,27 @@ describe("DanceInstance.ts", () => {
     ]);
     expect(inst.filteredTempo(["NDCA"])).toEqual(new TempoRange(90.0, 94.0));
   });
+
+  test("validationRange is undefined with no validation data", () => {
+    const inst = buildInstance();
+    expect(inst.validationRange).toBeUndefined();
+  });
+
+  test("validationRange spans doubleTempoIfBelow to halveTempoIfAbove", () => {
+    const inst = new DanceInstance({
+      style: "Social",
+      tempoRange: new TempoRange(160.0, 220.0),
+      validation: { doubleTempoIfBelow: 120.0, halveTempoIfAbove: 250.0 },
+    });
+    expect(inst.validationRange).toEqual(new TempoRange(120.0, 250.0));
+  });
+
+  test("validationRange is undefined when only one threshold is set", () => {
+    const inst = new DanceInstance({
+      style: "Social",
+      tempoRange: new TempoRange(160.0, 220.0),
+      validation: { doubleTempoIfBelow: 120.0 },
+    });
+    expect(inst.validationRange).toBeUndefined();
+  });
 });

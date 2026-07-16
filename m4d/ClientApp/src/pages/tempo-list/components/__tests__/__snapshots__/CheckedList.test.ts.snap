@@ -1,55 +1,55 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`CheckedList.vue > renders a simple checked list with all values checked (snapshot) 1`] = `
-"<div class=\\"btn-group\\" style=\\"margin-bottom: 8px;\\"><button class=\\"btn btn-md btn-primary dropdown-toggle\\" type=\\"button\\" id=\\"dropdown-form\\" aria-expanded=\\"false\\" aria-haspopup=\\"menu\\">All tests</button>
+"<div class="dropdown" style="margin-bottom: 8px;"><button class="btn btn-primary dropdown-toggle" type="button" id="test-dropdown" aria-expanded="false" aria-haspopup="menu">All tests</button>
   <!---->
-  <ul style=\\"position: absolute; left: 0px; top: 0px; display: none;\\" class=\\"dropdown-menu show\\" aria-labelledby=\\"dropdown-form\\" role=\\"menu\\">
-    <li role=\\"presentation\\">
-      <form class=\\"px-4 py-3\\">
-        <div class=\\"form-check\\"><input id=\\"test-all\\" aria-describedby=\\"selected\\" aria-controls=\\"selected\\" data-test=\\"select-all\\" class=\\"form-check-input\\" type=\\"checkbox\\" value=\\"true\\"><label for=\\"test-all\\" class=\\"form-check-label\\">Un-select All</label></div>
-        <hr>
-        <fieldset class=\\"\\" id=\\"__BVID__843474___BV___\\">
-          <!---->
-          <div class=\\"\\">
-            <div id=\\"test-group\\" role=\\"group\\" class=\\"btn-group-md bv-no-focus-ring\\" tabindex=\\"-1\\" data-test=\\"checkbox-group\\">
-              <div class=\\"form-check\\"><input id=\\"__BVID__016026___BV_form-check__\\" class=\\"form-check-input\\" type=\\"checkbox\\" name=\\"temp\\" value=\\"first-option\\"><label for=\\"__BVID__016026___BV_form-check__\\" class=\\"form-check-label\\"><span>First Option</span></label></div>
-              <div class=\\"form-check\\"><input id=\\"__BVID__092157___BV_form-check__\\" class=\\"form-check-input\\" type=\\"checkbox\\" name=\\"temp\\" value=\\"second-option\\"><label for=\\"__BVID__092157___BV_form-check__\\" class=\\"form-check-label\\"><span>Second Option</span></label></div>
-              <div class=\\"form-check\\"><input id=\\"__BVID__753942___BV_form-check__\\" class=\\"form-check-input\\" type=\\"checkbox\\" name=\\"temp\\" value=\\"third-option\\"><label for=\\"__BVID__753942___BV_form-check__\\" class=\\"form-check-label\\"><span>Third Option</span></label></div>
+  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+    <ul id="test-dropdown-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto b-floating-size fade" aria-labelledby="test-dropdown" role="menu">
+      <li role="presentation">
+        <form class="dropdown-item-text">
+          <div class="form-check"><input id="test-all" class="form-check-input" type="checkbox" true-value="true" false-value="false" aria-describedby="selected" aria-controls="selected" data-test="select-all" value="true"><label for="test-all" class="form-check-label">Un-select All</label></div>
+          <hr>
+          <fieldset id="BootstrapVueNext__ID__v-2__" class="b-form-group">
+            <!---->
+            <div id="test-group" role="group" class="bv-no-focus-ring" tabindex="-1" data-test="checkbox-group">
+              <div class="form-check"><input id="BootstrapVueNext__ID__v-9__form-check___" class="form-check-input" type="checkbox" name="temp" true-value="first-option" false-value="false" text="First Option" value="first-option"><label for="BootstrapVueNext__ID__v-9__form-check___" class="form-check-label">First Option</label></div>
+              <div class="form-check"><input id="BootstrapVueNext__ID__v-10__form-check___" class="form-check-input" type="checkbox" name="temp" true-value="second-option" false-value="false" text="Second Option" value="second-option"><label for="BootstrapVueNext__ID__v-10__form-check___" class="form-check-label">Second Option</label></div>
+              <div class="form-check"><input id="BootstrapVueNext__ID__v-11__form-check___" class="form-check-input" type="checkbox" name="temp" true-value="third-option" false-value="false" text="Third Option" value="third-option"><label for="BootstrapVueNext__ID__v-11__form-check___" class="form-check-label">Third Option</label></div>
             </div>
             <!---->
             <!---->
             <!---->
-          </div>
-        </fieldset>
-      </form>
-    </li>
-  </ul>
+          </fieldset>
+        </form>
+      </li>
+    </ul>
+  </transition-stub>
 </div>"
 `;
 
 exports[`CheckedList.vue > renders a simple checked list with no values checked (snapshot) 1`] = `
-"<div class=\\"btn-group\\" style=\\"margin-bottom: 8px;\\"><button class=\\"btn btn-md btn-primary dropdown-toggle\\" type=\\"button\\" id=\\"dropdown-form\\" aria-expanded=\\"false\\" aria-haspopup=\\"menu\\">No tests</button>
+"<div class="dropdown" style="margin-bottom: 8px;"><button class="btn btn-primary dropdown-toggle" type="button" id="test-dropdown" aria-expanded="false" aria-haspopup="menu">No tests</button>
   <!---->
-  <ul style=\\"position: absolute; left: 0px; top: 0px; display: none;\\" class=\\"dropdown-menu show\\" aria-labelledby=\\"dropdown-form\\" role=\\"menu\\">
-    <li role=\\"presentation\\">
-      <form class=\\"px-4 py-3\\">
-        <div class=\\"form-check\\"><input id=\\"test-all\\" aria-describedby=\\"selected\\" aria-controls=\\"selected\\" data-test=\\"select-all\\" class=\\"form-check-input\\" type=\\"checkbox\\" value=\\"true\\"><label for=\\"test-all\\" class=\\"form-check-label\\">Select All</label></div>
-        <hr>
-        <fieldset class=\\"\\" id=\\"__BVID__373777___BV___\\">
-          <!---->
-          <div class=\\"\\">
-            <div id=\\"test-group\\" role=\\"group\\" class=\\"btn-group-md bv-no-focus-ring\\" tabindex=\\"-1\\" data-test=\\"checkbox-group\\">
-              <div class=\\"form-check\\"><input id=\\"__BVID__487684___BV_form-check__\\" class=\\"form-check-input\\" type=\\"checkbox\\" name=\\"temp\\" value=\\"first-option\\"><label for=\\"__BVID__487684___BV_form-check__\\" class=\\"form-check-label\\"><span>First Option</span></label></div>
-              <div class=\\"form-check\\"><input id=\\"__BVID__392589___BV_form-check__\\" class=\\"form-check-input\\" type=\\"checkbox\\" name=\\"temp\\" value=\\"second-option\\"><label for=\\"__BVID__392589___BV_form-check__\\" class=\\"form-check-label\\"><span>Second Option</span></label></div>
-              <div class=\\"form-check\\"><input id=\\"__BVID__672126___BV_form-check__\\" class=\\"form-check-input\\" type=\\"checkbox\\" name=\\"temp\\" value=\\"third-option\\"><label for=\\"__BVID__672126___BV_form-check__\\" class=\\"form-check-label\\"><span>Third Option</span></label></div>
+  <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
+    <ul id="test-dropdown-menu" style="position: absolute; left: 0px; top: 0px; display: none;" class="dropdown-menu overflow-auto b-floating-size fade" aria-labelledby="test-dropdown" role="menu">
+      <li role="presentation">
+        <form class="dropdown-item-text">
+          <div class="form-check"><input id="test-all" class="form-check-input" type="checkbox" true-value="true" false-value="false" aria-describedby="selected" aria-controls="selected" data-test="select-all" value="true"><label for="test-all" class="form-check-label">Select All</label></div>
+          <hr>
+          <fieldset id="BootstrapVueNext__ID__v-2__" class="b-form-group">
+            <!---->
+            <div id="test-group" role="group" class="bv-no-focus-ring" tabindex="-1" data-test="checkbox-group">
+              <div class="form-check"><input id="BootstrapVueNext__ID__v-9__form-check___" class="form-check-input" type="checkbox" name="temp" true-value="first-option" false-value="false" text="First Option" value="first-option"><label for="BootstrapVueNext__ID__v-9__form-check___" class="form-check-label">First Option</label></div>
+              <div class="form-check"><input id="BootstrapVueNext__ID__v-10__form-check___" class="form-check-input" type="checkbox" name="temp" true-value="second-option" false-value="false" text="Second Option" value="second-option"><label for="BootstrapVueNext__ID__v-10__form-check___" class="form-check-label">Second Option</label></div>
+              <div class="form-check"><input id="BootstrapVueNext__ID__v-11__form-check___" class="form-check-input" type="checkbox" name="temp" true-value="third-option" false-value="false" text="Third Option" value="third-option"><label for="BootstrapVueNext__ID__v-11__form-check___" class="form-check-label">Third Option</label></div>
             </div>
             <!---->
             <!---->
             <!---->
-          </div>
-        </fieldset>
-      </form>
-    </li>
-  </ul>
+          </fieldset>
+        </form>
+      </li>
+    </ul>
+  </transition-stub>
 </div>"
 `;

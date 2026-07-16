@@ -63,6 +63,17 @@ export class DanceType extends DanceObject {
     return this.instances.map((d) => d.tempoRange).reduce((acc, inst) => acc.include(inst));
   }
 
+  // Broadest validation range across every instance that defines one (e.g. Salsa's "Social"
+  // instance but not its "American Rhythm" instance) - undefined if none do.
+  public get validationRange(): TempoRange | undefined {
+    return this.instances
+      .map((inst) => inst.validationRange)
+      .reduce(
+        (acc: TempoRange | undefined, range) => (range ? (acc ? acc.include(range) : range) : acc),
+        undefined,
+      );
+  }
+
   public inGroup(group: string): boolean {
     return this.groups.find((g) => g.name === group) !== undefined;
   }

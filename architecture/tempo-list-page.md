@@ -11,8 +11,8 @@ the filter client-side against `DanceFilter`.
 
 ## Server-Side Wiring
 
-- `HomeController.Tempi(styles, types, organizations, meters)`
-  (`m4d/Controllers/HomeController.cs:111-127`) reads four `List<string>` query-string parameters
+- `HomeController.Tempi(styles, types, organizations, meters, columns)`
+  (`m4d/Controllers/HomeController.cs:111-127`) reads five `List<string>` query-string parameters
   and renders the generic Vue3 host view (`m4d/Views/Shared/Vue3.cshtml`) with:
   - component name `"tempo-list"` (resolves to this `App.vue`)
   - a `TempoListModel` (`m4d/ViewModels/TempoListModel.cs`) built from the query params via
@@ -23,7 +23,13 @@ the filter client-side against `DanceFilter`.
   `_jsonCamelCase` and assigns the *object itself* (not a JSON string) to the global `model_` — this
   page reads `model_` directly rather than calling `TypedJSON.parse(model_, ...)` the way most other
   Vue3 pages do.
-- No `[Route]` attribute; the URL is the default MVC route, `/Home/Tempi?styles=...&types=...&meters=...&organizations=...`.
+- No `[Route]` attribute; the URL is the default MVC route, `/Home/Tempi?styles=...&types=...&meters=...&organizations=...&columns=...`.
+  `columns` seeds `TempoList.vue`'s column chooser (see "Column chooser" below) rather than the four
+  page-level filters — it's forwarded through `App.vue` as `model.columns` → `TempoList`'s
+  `initial-columns` prop, letting a custom column set (e.g. the normally-hidden Range column) be
+  linked to directly. Column keys are `TempoList.vue`'s `chooseableColumns` keys: `meter`, `bpm`,
+  `mpm`, `groupName` (Type), `styles`, `validationRange` (Range). E.g. to show only Meter, BPM, and
+  Range: `/Home/Tempi?columns=meter&columns=bpm&columns=validationRange`.
 
 ## Client-Side Data Flow
 
@@ -100,10 +106,57 @@ selected item's text / "`N` \<Type\>s", derived from comparing `model.value.leng
 Style/Type/Organization option lists are seeded from the server-provided `model_` values via
 `buildList()` → `filterValid()` (`App.vue:53-64`), which silently drops any server-provided value
 that isn't a valid kebab option (e.g. stale query-string values from a bookmarked link) rather than
-erroring. **The Meter dropdown does not read `model.meters` at all** — `meters` is always
-initialized to all three hard-coded options regardless of the `meters` query-string parameter, even
-though the server-side `TempoListModel.Meters` is populated and available on `model_`. This is a
-gap relative to the other three filters, not an intentional design choice.
+erroring. The Meter dropdown is seeded the same way via `filterValidMeters()`, a `Meter`-specific
+sibling of `filterValid()`: it matches server-provided strings (e.g. `"3/4"`) against each
+hard-coded option's `text`, then returns the corresponding `Meter` instances rather than strings
+(so equality later goes through `Meter.equals()`, not string comparison) — same "silently drop
+anything invalid" behavior as the other three filters.
+
+### Result counts / cross-filtering (`counts` prop)
+
+Each dropdown's options are annotated with a live result count (`"Waltz (12)"`) and zero-count
+options are grayed out — but stay fully checkable, rather than being `disabled`. This is the
+faceted-search pattern (Amazon/Etsy/Google Shopping-style: show the count, mute what's currently
+empty) chosen over hard-disabling unavailable options, since disabling hides the "why," while a
+`(0)` explains it and still lets a user build up a selection in any order.
+
+`App.vue` computes four count arrays — `styleCounts`, `typeCounts`, `meterCounts`,
+`organizationCounts` — each parallel to its option list. For each option, the count answers "how
+many dances would match if I additionally applied *just this option*ʼs facet, holding the other
+three facets at their current selection" — via `countMatching()`, which re-runs
+`danceDatabase.filter()` (then `filterByName()`, so the name filter narrows counts too) with a
+`DanceFilter` built from the other three facets' current selection plus this one option alone.
+Deliberately **not** dependent on what else is checked within the *same* facet — checking/
+unchecking a second Style doesn't change any Style option's own count, only the other three
+dropdowns'. This means one extra `danceDatabase.filter()` pass per option (a few dozen per
+keystroke), which is cheap at this dataset's size; there's no memoization beyond each count array's
+own `computed`.
+
+Two gotchas the counts computeds have to account for that the main `dances` computed already
+handled correctly:
+
+- **Text vs. kebab value.** `DanceFilter.styles`/`.groups`/`.organizations` compare against the
+  original display text (e.g. `"International Standard"`), not the kebab `CheckboxOption.value`
+  (`"international-standard"`) used for `v-model`/URL round-tripping — the same distinction
+  `textFromValues()` already resolves for the *selected* arrays. `Meter` is the exception: its
+  options were never kebab-encoded, so `option.value` is already the real `Meter` instance to
+  filter on. (Building `styleCounts`/`typeCounts`/`organizationCounts` off `option.value` instead
+  of `option.text` was an actual bug caught by the "per-option counts" test below — every count
+  came back `0` because no dance's style/group/organization text ever equals a kebab string.)
+- **Organization counts use the strict per-organization count, not the "select all → `undefined`"
+  normalization** the main `dances` computed applies (see below) — an organization's count answers
+  "how many dances are affiliated with just this one," which needs the narrow, defined-list
+  semantics, not "no restriction."
+
+`CheckedList.vue` takes the count array as an optional `counts?: number[]` prop (parallel to
+`options`, omitted entirely by the column chooser use in `TempoList.vue`, which renders unchanged).
+When present, it overrides `BFormCheckboxGroup`'s `#option` scoped slot (`{ text, value, disabled }`
+— bootstrap-vue-next renders this in place of each option's default label content, so the
+checkbox/input/model wiring is untouched) to render `text` plus a muted `"(N)"` suffix, and applies
+`text-muted` to the whole label when that option's count is `0`. The slot only hands back `value`,
+not an index, so `CheckedList` recovers the count by `options.findIndex((o) => o.value === value)`
+— safe by reference equality, since the slot's `value` is always the exact object `App.vue` put in
+`options[i].value` (kebab string or, for Meter, the literal `Meter` instance), never a clone.
 
 ### Filtering logic (`DanceFilter.reduce`, `DanceDatabase.ts`)
 
@@ -150,12 +203,13 @@ A `BTable` over `props.dances: DanceType[]`, sorted by name ascending by default
 
 | Column | Content |
 | --- | --- |
-| Name | `<DanceName>` (links to `/dances/{seoName}`, shows synonyms) |
+| Name | `<DanceName>` (links to `/dances/{seoName}`, shows synonyms, `show-blog-link` renders a "Blog Posts" icon link — see "Blog link" below) |
 | Meter | `dance.meter.toString()`, e.g. `"3/4"` |
 | BPM | `dance.tempoRange.toString()`, linked to `/song/advancedsearch?dances={id}&tempomin=...&tempomax=...&sortorder=Dances` (`defaultTempoLink`) |
 | MPM | `dance.tempoRange.mpm(dance.meter.numerator)`, same tempo-search link |
 | Type | Comma-joined group names, each linked to `/dances/{groupName}` — only the *first* group is used to build the link even when a dance belongs to multiple groups (`groupLink` reads `dance.groups?.[0]`) |
 | Styles | Comma-joined style names; a style is only linked to `/dances/{kebab-style}` if its name contains a space (`style.indexOf(" ") !== -1`) — a quirk that means single-word styles like "Social" or "Country" render as plain text while "American Rhythm" links |
+| Range (hidden by default) | `dance.validationRange?.toString()` — see "Range column / DanceValidation" below |
 
 Sorting on BPM/MPM sorts by `tempoRange.min` (zero-padded to 4 integer digits via
 `sortByFormatted`), not by the displayed string, so ranges sort numerically rather than
@@ -174,25 +228,72 @@ and Country) always showed every group it belongs to regardless of the Type sele
 are also in `this.groups` (when a group filter is set), so Viennese Waltz's Type column shows just
 "Waltz" once the Type filter is narrowed to Waltz.
 
+### Range column / `DanceValidation`
+
+`DanceValidation` (`m4d/ClientApp/src/models/DanceDatabase/DanceValidation.ts`) mirrors
+`DanceLib/DanceValidation.cs` — the `doubleTempoIfBelow`/`halveTempoIfAbove` sanity-check
+thresholds documented in `architecture/tempo-validation-rules.md`, used server-side to catch
+Spotify/EchoNest half-time/double-time tempo detection errors. It's currently only populated on
+Salsa's `"Social"` instance in `dances.json` (`doubleTempoIfBelow: 120`, `halveTempoIfAbove: 250`),
+but more dances are expected to gain it over time.
+
+`DanceInstance.validationRange` turns the two thresholds into a `TempoRange(doubleTempoIfBelow,
+halveTempoIfAbove)` — only when *both* are set; a dance with just one threshold defined shows no
+Range today (no real data exercises that case yet). `DanceType.validationRange` takes the broadest
+range (`.include()`) across every instance that defines one, ignoring instances that don't — e.g.
+Salsa's `"American Rhythm"` instance (no validation data) doesn't affect the dance-level Range,
+only `"Social"` does.
+
+The Range column's label and footnote intentionally frame it as "the broadest tempo range we
+consider plausible for this dance style" rather than exposing the "double/halve" internals — the
+raw thresholds are an implementation detail of tempo-detection-error correction, but the range they
+imply is a reasonable thing for a visitor to see.
+
+### Blog link
+
+`DanceName.vue` gained an optional `showBlogLink` prop (default `false`, so every other caller
+renders unchanged): when true and the dance's `blogTag` is set (`DanceObject.blogTag`, populated
+from `dances.json`), it renders a small `IBiNewspaper` icon link right after the name, linking to
+`https://music4dance.blog/tag/{blogTag}` with `title="Blog Posts"` as the tooltip/alt text — the
+same URL pattern `dance-details/components/DanceContents.vue` already uses for its own blog link.
+`blogTag` lives on `DanceObject` and `DanceGroup` independently (not on the common `NamedObject`
+base both extend), so `blogLink` narrows via a cast (`(props.dance as { blogTag?: string }).blogTag`)
+rather than importing and branching on both concrete types. `TempoList.vue` passes `show-blog-link`
+unconditionally on its Name cell; dances without a `blogTag` simply render no icon.
+
 ### Column chooser
 
 Below the `BTable`, `TempoList.vue` renders a second, small `CheckedList` (reusing the same
 dropdown-with-checkboxes component the four page-level filters use, via `type="Column"`,
 `variant="outline-secondary"`, `size="sm"` so it reads as a secondary/advanced control rather than
 another primary filter) bound to a `visibleColumns` ref. Name is not offered as a choice — it's
-`stickyColumn: true` and always rendered — but Meter, BPM, MPM, Type, and Styles all are, driven by
-a `chooseableColumns: { key, label, defaultVisible }[]` array local to the component. The `fields`
-passed to `BTable` is a `computed` that filters the full field-definition list (`allFields`) down
-to `name` plus whatever's in `visibleColumns`. All five are `defaultVisible: true` today, so the
-table's appearance is unchanged for anyone who doesn't open the chooser; a future optional column
-(the motivating case for building this) should be added to `chooseableColumns` and `allFields` with
-`defaultVisible: false` so it doesn't change the table casual users already know. The selection is
-plain component-local `ref` state — it resets on page reload, there's no persistence (localStorage,
-query string, etc.) — and isn't wired to `App.vue` at all, since it only affects how `TempoList`
-renders columns it already receives via `props.dances`.
+`stickyColumn: true` and always rendered — but Meter, BPM, MPM, Type, Styles, and Range all are,
+driven by a `chooseableColumns: { key, label, defaultVisible }[]` array local to the component. The
+`fields` passed to `BTable` is a `computed` that filters the full field-definition list
+(`allFields`) down to `name` plus whatever's in `visibleColumns`. Meter/BPM/MPM/Type/Styles are
+`defaultVisible: true`; Range is `defaultVisible: false` (per `dances.json`'s "Known Gaps"-era
+convention of adding new optional columns hidden, so the table's appearance doesn't change for
+anyone who doesn't open the chooser). A `<p>` footnote below the chooser explains what Range means,
+shown only when `visibleColumns` includes `"validationRange"`.
 
-`CheckedList.vue` gained two optional props to support this second use, both defaulting to the
-original behavior so the four page-level filters render unchanged: `variant` (`ButtonVariant`,
+The selection can be seeded two ways, in addition to each column's own `defaultVisible`:
+
+- `TempoList`'s optional `initialColumns?: string[]` prop, sourced from `App.vue`'s
+  `model.columns` (see "Server-Side Wiring" above) — when given, `visibleColumns` is
+  `filterValid(allColumnKeys, initialColumns)` instead of the default-visible set; an
+  `initialColumns` containing only invalid keys yields an empty column set (Name still always
+  shows), same "silently drop what's invalid" behavior the four page-level filters already use.
+- Manual interaction with the chooser itself, which is plain component-local `ref` state — it
+  resets on page reload (aside from whatever `initialColumns` re-seeds from the URL); there's no
+  localStorage persistence.
+
+`filterValid` (`m4d/ClientApp/src/models/CheckboxTypes.ts`) was promoted from an `App.vue`-local
+function to a shared export specifically so `TempoList.vue` could reuse the same "seed from a
+server/query value, drop anything invalid" logic for `initialColumns` — `App.vue`'s four filters
+and this prop now share one implementation.
+
+`CheckedList.vue` gained two optional props to support the column-chooser use, both defaulting to
+the original behavior so the four page-level filters render unchanged: `variant` (`ButtonVariant`,
 default `"primary"`) and `size` (`Size`, default unset/normal), both passed straight through to the
 underlying `BDropdown`.
 
@@ -213,12 +314,18 @@ underlying `BDropdown`.
   excluded).
 - `m4d/ClientApp/src/pages/tempo-list/components/__tests__/TempoList.test.ts` — unit tests for the
   results table: column content/links for a known dance, the empty-selection caption, default sort
-  order, and the column chooser (every optional column visible by default, Name not offered as a
-  choice, unchecking a column removes its header and cell content from the table).
+  order, and the column chooser (every optional column visible by default except Range, Name not
+  offered as a choice, unchecking a column removes its header and cell content from the table).
+  Also covers: Range hidden by default but showing the validation-derived range (blank for dances
+  without one) once checked, the Range footnote appearing only once that column is visible,
+  `initialColumns` seeding a custom set (and silently dropping unknown keys), and the blog-link icon
+  appearing only for a dance with a `blogTag`.
 - `m4d/ClientApp/src/pages/tempo-list/components/__tests__/CheckedList.test.ts` — pre-existing;
-  covers the dropdown label logic. Two interaction tests remain `test.skip` there for the same
-  `trigger("click")` reason above; they were not converted to `setValue` as part of this pass since
-  `CheckedList.vue` itself was out of scope for this round of coverage.
+  covers the dropdown label logic, including real checkbox interaction (`setValue`, not
+  `trigger("click")` — see "Fixed (2026-07-15)" below); also covers the `counts` prop in isolation
+  (no prop → unannotated options, same markup as before; with it → `"(N)"` per option, zero-count
+  options muted via the label's wrapping `<span>`, and a zero-count checkbox is still checkable, not
+  `disabled`).
 - `m4d/ClientApp/src/models/DanceDatabase/__tests__/DanceDatabaseFiltering.test.ts` and
   `DanceDatabase.test.ts` — unaffected by the fixes above (re-verified): the `matchOrganizations`
   fix lives in `App.vue`, not `DanceFilter`, specifically so these fixtures' narrow,
@@ -229,17 +336,69 @@ underlying `BDropdown`.
 - `m4d/ClientApp/src/models/DanceDatabase/__tests__/DanceFilter.test.ts` — unit-level coverage for
   the `.groups`-narrowing fix directly: narrows to the selected group(s), doesn't mutate the
   original dance's `.groups` array, and leaves `.groups` untouched when no group filter is set.
+- `App.test.ts` also covers the counts feature end-to-end: per-option counts reflect the *other*
+  three facets' current selection independent of the facet's own selection (narrowing Type to
+  Waltz zeroes American Rhythm's style count without American Rhythm itself being checked), the
+  default (everything selected) view gives every option a nonzero count, organization counts use
+  the strict single-organization count rather than the "select all" normalization (verified against
+  the exact 8-dance UCWDC count from the "filters by organization" test), and a real-DOM check that
+  the Style dropdown visibly grays out a zero-count option once Type is narrowed. A further test
+  seeds `model.columns` and checks the rendered `<thead>` reflects it end-to-end through
+  `TempoList`'s `initial-columns` prop.
+- `m4d/ClientApp/src/models/DanceDatabase/__tests__/DanceInstance.test.ts` and `DanceType.test.ts` —
+  cover `validationRange`: undefined with no validation data, undefined when only one of the two
+  thresholds is set, the instance-level range spanning `doubleTempoIfBelow`–`halveTempoIfAbove`, and
+  the dance-level aggregate taking the broadest range across only the instances that define one
+  (mirroring Salsa's real "Social"-only data).
+- `m4d/ClientApp/src/components/__tests__/DanceName.test.ts` — covers `blogLink` (derived from
+  `blogTag`, undefined without one) and `showBlogLink` (no icon without a `blogTag` even when true,
+  no icon with a `blogTag` but the prop left at its `false` default, icon + correct `href`/`title`
+  when both are present).
 
 ## Known Gaps / Follow-ups
 
-- Meter query-string parameter (`?meters=3%2F4`) is silently ignored client-side (see above) — a
-  bookmarked/shared link with a meter filter loses that part of the selection on load.
-- `CheckedList.test.ts` has two `test.skip`ped interaction tests with a TODO blaming
-  model/event handling; `setValue(true)` (proven out in this page's tests) resolves the same
-  symptom and could unblock them.
-- `App.vue:10-11` has a standing `TODO` to clean up the `CheckboxOptions` structures and consider
-  disabling checkboxes that can't produce any results given the current selection (e.g. disable an
-  organization once no dance in the current style/type/meter selection offers it).
+- `App.vue:11` has a standing `TODO` to clean up the `CheckboxOptions` structures generally
+  (unrelated to filtering behavior — the "disable checkboxes with no results" half of that TODO is
+  resolved, see "Checkbox cross-filtering" above and "Fixed (2026-07-15)" below).
+
+## Added (2026-07-15 follow-up 2)
+
+Surfaced three pieces of `dances.json` data this page wasn't showing yet:
+
+1. A hidden-by-default **Range** column, backed by the new `DanceValidation` model and
+   `DanceInstance`/`DanceType.validationRange` getters — see "Range column / `DanceValidation`"
+   above. Currently only populated for Salsa.
+2. A `?columns=` query-string parameter (`HomeController.Tempi`, `TempoListModel.Columns`,
+   `App.vue`'s `model.columns` → `TempoList`'s `initial-columns` prop) so a custom column set can be
+   linked to directly — see "Column chooser" above. `CheckboxTypes.ts`'s `filterValid` was promoted
+   from an `App.vue`-local function to a shared export to back this.
+3. A "Blog Posts" icon link (`DanceName.vue`'s new `showBlogLink` prop) next to each dance's name,
+   linking to that dance's `blogTag` on `https://music4dance.blog` — see "Blog link" above.
+
+## Fixed (2026-07-15)
+
+1. The Meter dropdown now reads `model.meters` on load, via `filterValidMeters()`
+   (`App.vue`) — see the "Filter state" section above. Previously `meters` was always initialized
+   to all three hard-coded options regardless of the `?meters=` query-string parameter, even though
+   the server-side `TempoListModel.Meters` was populated and available on `model_`.
+2. `CheckedList.test.ts`'s interaction test (`"handle checking a single item"`) is un-skipped.
+   Two independent bugs in the test, not `CheckedList.vue`, were masking it:
+   - `trigger("click")` doesn't reliably flip a `BFormCheckboxGroup` checkbox in jsdom;
+     `setValue(true)` does (same fix already used by `App.test.ts`'s real-interaction tests).
+   - The test's mock update handler was keyed `"onUpdate:model-value"` (hyphenated), which never
+     matches Vue's emitted `update:modelValue` event — the model prop was never actually being
+     written back, independent of the click/jsdom issue.
+   - Separately, `.attributes("checked")` never reflects a checkbox's true state in Vue 3: Vue
+     patches `checked` on an `<input>` as a DOM *property* (`element.checked`), not an HTML
+     attribute, so an assertion against the attribute is always falsy regardless of actual state.
+     The two `toMatchSnapshot` tests in the same file had a stale snapshot (unrelated to the above —
+     just a `bootstrap-vue-next` markup drift since the snapshot was last recorded) and one of the
+     same `.attributes("checked")` assertions; both are fixed and re-enabled alongside the
+     interaction test.
+3. Added the per-option result counts / cross-filtering feature — see "Result counts /
+   cross-filtering" above. Resolves the `App.vue` TODO's "consider disabling checkboxes that can't
+   produce any results" in favor of the more common faceted-search pattern (count + gray-out,
+   still checkable) rather than actually disabling options.
 
 ## Fixed (2026-07-14)
 
@@ -273,7 +432,8 @@ BPM/MPM/Styles already shrank to the selected style(s).
 | `m4d/ClientApp/src/components/NameFilterInput.vue` | Shared name-filter text input (search icon + `BInputGroup`), used here and by `dance-index`'s `DanceTable.vue` |
 | `m4d/ClientApp/src/models/DanceDatabase/DanceFilter.ts` | Filter matching logic shared with other dance-filtering pages |
 | `m4d/ClientApp/src/models/DanceDatabase/DanceDatabase.ts` | Dance/group/style/organization aggregation, `.filter()`, `.filterByName()` (name-filter matching, shared across pages) |
-| `m4d/ClientApp/src/models/CheckboxTypes.ts` | `CheckboxOption`/value conversion helpers (`optionsFromText`, `valuesFromOptions`, `textFromValues`) |
+| `m4d/ClientApp/src/models/DanceDatabase/DanceValidation.ts` | `doubleTempoIfBelow`/`halveTempoIfAbove` thresholds; mirrors `DanceLib/DanceValidation.cs` |
+| `m4d/ClientApp/src/models/CheckboxTypes.ts` | `CheckboxOption`/value conversion helpers (`optionsFromText`, `valuesFromOptions`, `textFromValues`, `filterValid`) |
 | `m4d/Controllers/HomeController.cs` | `Tempi` action |
 | `m4d/ViewModels/TempoListModel.cs` | Server-side model matching the client `TempoListModel` interface |
 | `m4d/Views/Shared/Vue3.cshtml`, `_environmentWriter.cshtml` | Generic Vue3 page host; emits `model_` and `window.danceDatabaseJson` |
