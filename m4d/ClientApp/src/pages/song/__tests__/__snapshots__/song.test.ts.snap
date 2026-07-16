@@ -99,7 +99,8 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
                     </div>
                     <!--teleport start-->
                     <!--teleport end-->
-                  </div><a data-v-713e0d4a="" href="/dances/east-coast-swing"><span data-v-713e0d4a=""><a href="/dances/east-coast-swing">East Coast Swing</a><!--v-if--><span><!--v-if--> (Triple Swing, East Coast) </span>
+                  </div><a data-v-713e0d4a="" href="/dances/east-coast-swing"><span data-v-713e0d4a=""><a href="/dances/east-coast-swing">East Coast Swing</a><span><!--v-if--> (Triple Swing, East Coast) </span>
+                    <!--v-if-->
                     <!--v-if--></span>
                   </a><span data-v-713e0d4a="" class="ms-2 small"><!-- View mode (all users): show effective tempo, style by inherited vs override --><span data-v-713e0d4a="" class="text-muted" title="Inherited from song tempo">151.7 BPM<svg data-v-713e0d4a="" viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 0.75em; opacity: 0.6;"><g fill="currentColor"><path d="M4.715 6.542L3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199a2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"></path><path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z"></path></g></svg></span><a data-v-4d7308ba="" data-v-713e0d4a="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" rel="noopener noreferrer" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
                       <g fill="currentColor">
@@ -148,7 +149,8 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
                     </div>
                     <!--teleport start-->
                     <!--teleport end-->
-                  </div><a data-v-713e0d4a="" href="/dances/slow-foxtrot"><span data-v-713e0d4a=""><a href="/dances/slow-foxtrot">Slow Foxtrot</a><!--v-if--><span><!--v-if--> (Foxtrot) </span>
+                  </div><a data-v-713e0d4a="" href="/dances/slow-foxtrot"><span data-v-713e0d4a=""><a href="/dances/slow-foxtrot">Slow Foxtrot</a><span><!--v-if--> (Foxtrot) </span>
+                    <!--v-if-->
                     <!--v-if--></span>
                   </a><span data-v-713e0d4a="" class="ms-2 small"><!-- View mode (all users): show effective tempo, style by inherited vs override --><span data-v-713e0d4a="" class="text-muted" title="Inherited from song tempo">151.7 BPM<svg data-v-713e0d4a="" viewBox="0 0 16 16" width="1.2em" height="1.2em" class="ms-1" style="font-size: 0.75em; opacity: 0.6;"><g fill="currentColor"><path d="M4.715 6.542L3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199a2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"></path><path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z"></path></g></svg></span><a data-v-4d7308ba="" data-v-713e0d4a="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" rel="noopener noreferrer" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
                       <g fill="currentColor">
