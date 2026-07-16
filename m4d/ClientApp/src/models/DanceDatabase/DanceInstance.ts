@@ -2,6 +2,7 @@ import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { DanceException } from "./DanceException";
 import { DanceObject } from "./DanceObject";
 import { TempoRange } from "./TempoRange";
+import { DanceValidation } from "./DanceValidation";
 import type { DanceType } from "./DanceType";
 import { assign } from "@/helpers/ObjectHelpers";
 import type { Meter } from "./Meter";
@@ -13,7 +14,18 @@ export class DanceInstance extends DanceObject {
   @jsonMember(Number) public competitionOrder!: number;
   @jsonArrayMember(DanceException) public exceptions: DanceException[] = [];
   @jsonArrayMember(String) public organizations: string[] = [];
+  @jsonMember(DanceValidation) public validation?: DanceValidation;
   public danceType!: DanceType;
+
+  // The broadest tempo range we consider plausible for this instance before assuming a reported
+  // tempo is a half-time/double-time detection error rather than the dance's real tempo. Only
+  // meaningful when both validation thresholds are set - partial validation data isn't used today.
+  public get validationRange(): TempoRange | undefined {
+    const { doubleTempoIfBelow, halveTempoIfAbove } = this.validation ?? {};
+    return doubleTempoIfBelow != null && halveTempoIfAbove != null
+      ? new TempoRange(doubleTempoIfBelow, halveTempoIfAbove)
+      : undefined;
+  }
 
   public static excludeKeys = ["danceType"];
 

@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { type CheckboxOption, type CheckboxValue } from "bootstrap-vue-next";
-import { optionsFromText, valuesFromOptions, textFromValues } from "@/models/CheckboxTypes";
+import {
+  optionsFromText,
+  valuesFromOptions,
+  textFromValues,
+  filterValid,
+} from "@/models/CheckboxTypes";
 import { computed, ref } from "vue";
 import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { DanceFilter } from "@/models/DanceDatabase/DanceFilter";
@@ -14,6 +19,7 @@ interface TempoListModel {
   types?: string[];
   meters?: string[];
   organizations?: string[];
+  columns?: string[];
 }
 
 declare const model_: TempoListModel;
@@ -58,10 +64,6 @@ function buildList(values: string[], current?: string[]) {
     options: ref<CheckboxOption[]>(options),
     values: ref<string[]>(filterValid(all as string[], current)),
   };
-}
-
-function filterValid(all: string[], selected?: string[]): string[] {
-  return selected ? selected.filter((s) => all.find((a) => a === s)) : all;
 }
 
 // Mirrors filterValid()'s "silently drop anything that isn't a valid option" behavior, but for
@@ -227,12 +229,12 @@ defineExpose({
       />
     </div>
     <div class="row">
-      <TempoList class="col-md" :dances="dances" />
+      <TempoList class="col-md" :dances="dances" :initial-columns="model.columns" />
     </div>
     <div class="row">
       <div class="col">
-        <p>
-          Dancesport Tempi are pulled from the WDSF rulles:
+        <p class="mb-2">
+          <strong>Dancesport</strong> Tempi are pulled from the WDSF rules:
           <a href="http://www.worlddancesport.org/Rule/Athlete/Competition" target="_blank">
             http://www.worlddancesport.org/Rule/Athlete/Competition</a
           >
@@ -242,7 +244,7 @@ defineExpose({
           >
         </p>
         <p>
-          NDCA (National Dance Council of America) Tempi are pulled from here:
+          <strong>NDCA</strong> (National Dance Council of America) Tempi are pulled from here:
           <a href="https://www.ndca.org/pages/ndca_rule_book/Default.asp" target="_blank"
             >http://ndca.org/pages/ndca_rule_book/</a
           >

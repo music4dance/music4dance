@@ -26,3 +26,10 @@ export function textFromValues(values: CheckboxValue[], all: CheckboxOption[]): 
 export function optionsFromText(text: string[]): CheckboxOption[] {
   return text.map((t) => ({ text: t, value: wordsToKebab(t) }));
 }
+
+// Silently drops anything in `selected` that isn't in `all`, rather than erroring - used to seed
+// checkbox/column state from server- or query-string-provided values that may be stale or invalid.
+// With no `selected` given at all, every valid value is used.
+export function filterValid(all: string[], selected?: string[]): string[] {
+  return selected ? selected.filter((s) => all.includes(s)) : all;
+}

@@ -108,5 +108,51 @@ describe("DanceType.ts", () => {
     expect(dance.styleFamilies).toEqual(["American"]);
   });
 
+  test("validationRange is undefined when no instance defines validation data", () => {
+    const dance = buildDance();
+    expect(dance.validationRange).toBeUndefined();
+  });
+
+  test("validationRange only counts instances that define it, like Salsa's Social-only rule", () => {
+    const dance = new DanceType({
+      internalId: "SLS",
+      internalName: "Salsa",
+      meter: new Meter(4, 4),
+      instances: [
+        new DanceInstance({
+          style: "American Rhythm",
+          tempoRange: new TempoRange(200.0, 200.0),
+        }),
+        new DanceInstance({
+          style: "Social",
+          tempoRange: new TempoRange(160.0, 220.0),
+          validation: { doubleTempoIfBelow: 120.0, halveTempoIfAbove: 250.0 },
+        }),
+      ],
+    });
+    expect(dance.validationRange).toEqual(new TempoRange(120.0, 250.0));
+  });
+
+  test("validationRange is the broadest range across every instance that defines one", () => {
+    const dance = new DanceType({
+      internalId: "SLS",
+      internalName: "Salsa",
+      meter: new Meter(4, 4),
+      instances: [
+        new DanceInstance({
+          style: "Social",
+          tempoRange: new TempoRange(160.0, 220.0),
+          validation: { doubleTempoIfBelow: 120.0, halveTempoIfAbove: 250.0 },
+        }),
+        new DanceInstance({
+          style: "NDCA",
+          tempoRange: new TempoRange(150.0, 230.0),
+          validation: { doubleTempoIfBelow: 110.0, halveTempoIfAbove: 240.0 },
+        }),
+      ],
+    });
+    expect(dance.validationRange).toEqual(new TempoRange(110.0, 250.0));
+  });
+
   // INT-TODO: Add tests for filtering once I figure out which direction I want to go with that
 });

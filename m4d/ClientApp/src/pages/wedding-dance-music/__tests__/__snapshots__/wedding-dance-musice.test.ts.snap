@@ -41,7 +41,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-group"><a data-v-3bbd14d4="" href="/dances/swing"><span data-v-3bbd14d4=""><a href="/dances/swing">Swing</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-group"><a data-v-3bbd14d4="" href="/dances/swing"><span data-v-3bbd14d4=""><a href="/dances/swing">Swing</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class=""></td>
                   <td class=""></td>
@@ -52,7 +52,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/balboa"><span data-v-3bbd14d4=""><a href="/dances/balboa">Balboa</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/balboa"><span data-v-3bbd14d4=""><a href="/dances/balboa">Balboa</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,BBA-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">1</a>
@@ -67,7 +67,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/carolina-shag"><span data-v-3bbd14d4=""><a href="/dances/carolina-shag">Carolina Shag</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/carolina-shag"><span data-v-3bbd14d4=""><a href="/dances/carolina-shag">Carolina Shag</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,CSG-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">17</a>
@@ -86,7 +86,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/charleston"><span data-v-3bbd14d4=""><a href="/dances/charleston">Charleston</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/charleston"><span data-v-3bbd14d4=""><a href="/dances/charleston">Charleston</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,CST-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">3</a>
@@ -101,7 +101,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/east-coast-swing"><span data-v-3bbd14d4=""><a href="/dances/east-coast-swing">East Coast Swing</a><span><br> (Triple Swing, East Coast) </span>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/east-coast-swing"><span data-v-3bbd14d4=""><a href="/dances/east-coast-swing">East Coast Swing</a><!--v-if--><span><br> (Triple Swing, East Coast) </span>
                         <!--v-if--></span>
                       </a></div>
                   </td>
@@ -122,7 +122,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/hustle"><span data-v-3bbd14d4=""><a href="/dances/hustle">Hustle</a><span><br> (Street Swing, Disco Fox) </span>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/hustle"><span data-v-3bbd14d4=""><a href="/dances/hustle">Hustle</a><!--v-if--><span><br> (Street Swing, Disco Fox) </span>
                         <!--v-if--></span>
                       </a></div>
                   </td>
@@ -143,7 +143,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/jive"><span data-v-3bbd14d4=""><a href="/dances/jive">Jive</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/jive"><span data-v-3bbd14d4=""><a href="/dances/jive">Jive</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,JIV-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">38</a>
@@ -162,7 +162,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/jump-swing"><span data-v-3bbd14d4=""><a href="/dances/jump-swing">Jump Swing</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/jump-swing"><span data-v-3bbd14d4=""><a href="/dances/jump-swing">Jump Swing</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,JSW-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">2</a>
@@ -177,7 +177,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/west-coast-swing"><span data-v-3bbd14d4=""><a href="/dances/west-coast-swing">West Coast Swing</a><span><br> (West Coast) </span>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/west-coast-swing"><span data-v-3bbd14d4=""><a href="/dances/west-coast-swing">West Coast Swing</a><!--v-if--><span><br> (West Coast) </span>
                         <!--v-if--></span>
                       </a></div>
                   </td>
@@ -198,7 +198,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/lindy-hop"><span data-v-3bbd14d4=""><a href="/dances/lindy-hop">Lindy Hop</a><span><br> (Swing, Jitterbug) </span>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/lindy-hop"><span data-v-3bbd14d4=""><a href="/dances/lindy-hop">Lindy Hop</a><!--v-if--><span><br> (Swing, Jitterbug) </span>
                         <!--v-if--></span>
                       </a></div>
                   </td>
@@ -219,7 +219,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/single-swing"><span data-v-3bbd14d4=""><a href="/dances/single-swing">Single Swing</a><span><br> (Single-time Swing, East Coast Single Swing, Jitterbug) </span>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/single-swing"><span data-v-3bbd14d4=""><a href="/dances/single-swing">Single Swing</a><!--v-if--><span><br> (Single-time Swing, East Coast Single Swing, Jitterbug) </span>
                         <!--v-if--></span>
                       </a></div>
                   </td>
@@ -236,7 +236,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-group"><a data-v-3bbd14d4="" href="/dances/tango"><span data-v-3bbd14d4=""><a href="/dances/tango">Tango</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-group"><a data-v-3bbd14d4="" href="/dances/tango"><span data-v-3bbd14d4=""><a href="/dances/tango">Tango</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class=""></td>
                   <td class=""></td>
@@ -247,7 +247,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/tango-(ballroom)"><span data-v-3bbd14d4=""><a href="/dances/tango-(ballroom)">Tango (Ballroom)</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/tango-(ballroom)"><span data-v-3bbd14d4=""><a href="/dances/tango-(ballroom)">Tango (Ballroom)</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,TGO-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">15</a>
@@ -262,7 +262,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/argentine-tango"><span data-v-3bbd14d4=""><a href="/dances/argentine-tango">Argentine Tango</a><span><br> (Tango Argentino) </span>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/argentine-tango"><span data-v-3bbd14d4=""><a href="/dances/argentine-tango">Argentine Tango</a><!--v-if--><span><br> (Tango Argentino) </span>
                         <!--v-if--></span>
                       </a></div>
                   </td>
@@ -279,7 +279,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/neo-tango"><span data-v-3bbd14d4=""><a href="/dances/neo-tango">Neo Tango</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/neo-tango"><span data-v-3bbd14d4=""><a href="/dances/neo-tango">Neo Tango</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,NTN-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">2</a>
@@ -294,7 +294,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/milonga"><span data-v-3bbd14d4=""><a href="/dances/milonga">Milonga</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/milonga"><span data-v-3bbd14d4=""><a href="/dances/milonga">Milonga</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,MGA-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">1</a>
@@ -313,7 +313,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/tango-vals"><span data-v-3bbd14d4=""><a href="/dances/tango-vals">Tango Vals</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/tango-vals"><span data-v-3bbd14d4=""><a href="/dances/tango-vals">Tango Vals</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">2</a>
@@ -328,7 +328,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-group"><a data-v-3bbd14d4="" href="/dances/waltz"><span data-v-3bbd14d4=""><a href="/dances/waltz">Waltz</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-group"><a data-v-3bbd14d4="" href="/dances/waltz"><span data-v-3bbd14d4=""><a href="/dances/waltz">Waltz</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class=""></td>
                   <td class=""></td>
@@ -339,7 +339,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/cross-step-waltz"><span data-v-3bbd14d4=""><a href="/dances/cross-step-waltz">Cross-step Waltz</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/cross-step-waltz"><span data-v-3bbd14d4=""><a href="/dances/cross-step-waltz">Cross-step Waltz</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,CSW-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">4</a>
@@ -358,7 +358,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/slow-waltz"><span data-v-3bbd14d4=""><a href="/dances/slow-waltz">Slow Waltz</a><span><br> (Waltz) </span>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/slow-waltz"><span data-v-3bbd14d4=""><a href="/dances/slow-waltz">Slow Waltz</a><!--v-if--><span><br> (Waltz) </span>
                         <!--v-if--></span>
                       </a></div>
                   </td>
@@ -379,7 +379,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/viennese-waltz"><span data-v-3bbd14d4=""><a href="/dances/viennese-waltz">Viennese Waltz</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/viennese-waltz"><span data-v-3bbd14d4=""><a href="/dances/viennese-waltz">Viennese Waltz</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,VWZ-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">108</a>
@@ -398,7 +398,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/tango-vals"><span data-v-3bbd14d4=""><a href="/dances/tango-vals">Tango Vals</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/tango-vals"><span data-v-3bbd14d4=""><a href="/dances/tango-vals">Tango Vals</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,TGV-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">2</a>
@@ -413,7 +413,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-group"><a data-v-3bbd14d4="" href="/dances/foxtrot"><span data-v-3bbd14d4=""><a href="/dances/foxtrot">Foxtrot</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-group"><a data-v-3bbd14d4="" href="/dances/foxtrot"><span data-v-3bbd14d4=""><a href="/dances/foxtrot">Foxtrot</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class=""></td>
                   <td class=""></td>
@@ -424,7 +424,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/castle-foxtrot"><span data-v-3bbd14d4=""><a href="/dances/castle-foxtrot">Castle Foxtrot</a><span><br> (Slow Dance) </span>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/castle-foxtrot"><span data-v-3bbd14d4=""><a href="/dances/castle-foxtrot">Castle Foxtrot</a><!--v-if--><span><br> (Slow Dance) </span>
                         <!--v-if--></span>
                       </a></div>
                   </td>
@@ -445,7 +445,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/slow-foxtrot"><span data-v-3bbd14d4=""><a href="/dances/slow-foxtrot">Slow Foxtrot</a><span><br> (Foxtrot) </span>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/slow-foxtrot"><span data-v-3bbd14d4=""><a href="/dances/slow-foxtrot">Slow Foxtrot</a><!--v-if--><span><br> (Foxtrot) </span>
                         <!--v-if--></span>
                       </a></div>
                   </td>
@@ -466,7 +466,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/quickstep"><span data-v-3bbd14d4=""><a href="/dances/quickstep">Quickstep</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/quickstep"><span data-v-3bbd14d4=""><a href="/dances/quickstep">Quickstep</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,QST-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">17</a>
@@ -481,7 +481,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/peabody"><span data-v-3bbd14d4=""><a href="/dances/peabody">Peabody</a><span><br> (One Step) </span>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/peabody"><span data-v-3bbd14d4=""><a href="/dances/peabody">Peabody</a><!--v-if--><span><br> (One Step) </span>
                         <!--v-if--></span>
                       </a></div>
                   </td>
@@ -498,7 +498,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-group"><a data-v-3bbd14d4="" href="/dances/latin"><span data-v-3bbd14d4=""><a href="/dances/latin">Latin</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-group"><a data-v-3bbd14d4="" href="/dances/latin"><span data-v-3bbd14d4=""><a href="/dances/latin">Latin</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class=""></td>
                   <td class=""></td>
@@ -509,7 +509,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/bolero"><span data-v-3bbd14d4=""><a href="/dances/bolero">Bolero</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/bolero"><span data-v-3bbd14d4=""><a href="/dances/bolero">Bolero</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,BOL-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">72</a>
@@ -528,7 +528,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/cha-cha"><span data-v-3bbd14d4=""><a href="/dances/cha-cha">Cha Cha</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/cha-cha"><span data-v-3bbd14d4=""><a href="/dances/cha-cha">Cha Cha</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,CHA-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">155</a>
@@ -547,7 +547,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/mambo"><span data-v-3bbd14d4=""><a href="/dances/mambo">Mambo</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/mambo"><span data-v-3bbd14d4=""><a href="/dances/mambo">Mambo</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,MBO-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">14</a>
@@ -562,7 +562,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/rumba"><span data-v-3bbd14d4=""><a href="/dances/rumba">Rumba</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/rumba"><span data-v-3bbd14d4=""><a href="/dances/rumba">Rumba</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,RMB-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">264</a>
@@ -581,7 +581,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/paso-doble"><span data-v-3bbd14d4=""><a href="/dances/paso-doble">Paso Doble</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/paso-doble"><span data-v-3bbd14d4=""><a href="/dances/paso-doble">Paso Doble</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,PDL-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">3</a>
@@ -594,7 +594,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/samba"><span data-v-3bbd14d4=""><a href="/dances/samba">Samba</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/samba"><span data-v-3bbd14d4=""><a href="/dances/samba">Samba</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,SMB-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">17</a>
@@ -613,7 +613,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/salsa"><span data-v-3bbd14d4=""><a href="/dances/salsa">Salsa</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/salsa"><span data-v-3bbd14d4=""><a href="/dances/salsa">Salsa</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,SLS-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">21</a>
@@ -628,7 +628,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/bachata"><span data-v-3bbd14d4=""><a href="/dances/bachata">Bachata</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/bachata"><span data-v-3bbd14d4=""><a href="/dances/bachata">Bachata</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,BCH-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">5</a>
@@ -647,7 +647,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/cumbia"><span data-v-3bbd14d4=""><a href="/dances/cumbia">Cumbia</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/cumbia"><span data-v-3bbd14d4=""><a href="/dances/cumbia">Cumbia</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,CMB-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">3</a>
@@ -666,7 +666,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/merengue"><span data-v-3bbd14d4=""><a href="/dances/merengue">Merengue</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/merengue"><span data-v-3bbd14d4=""><a href="/dances/merengue">Merengue</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,MRG-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">9</a>
@@ -685,7 +685,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-group"><a data-v-3bbd14d4="" href="/dances/other"><span data-v-3bbd14d4=""><a href="/dances/other">Other</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-group"><a data-v-3bbd14d4="" href="/dances/other"><span data-v-3bbd14d4=""><a href="/dances/other">Other</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class=""></td>
                   <td class=""></td>
@@ -696,7 +696,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/blues"><span data-v-3bbd14d4=""><a href="/dances/blues">Blues</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/blues"><span data-v-3bbd14d4=""><a href="/dances/blues">Blues</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,BLU-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">28</a>
@@ -715,7 +715,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/country-two-step"><span data-v-3bbd14d4=""><a href="/dances/country-two-step">Country Two Step</a><span><br> (Two Step) </span>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/country-two-step"><span data-v-3bbd14d4=""><a href="/dances/country-two-step">Country Two Step</a><!--v-if--><span><br> (Two Step) </span>
                         <!--v-if--></span>
                       </a></div>
                   </td>
@@ -734,7 +734,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/motown"><span data-v-3bbd14d4=""><a href="/dances/motown">Motown</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/motown"><span data-v-3bbd14d4=""><a href="/dances/motown">Motown</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,MWT-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">17</a>
@@ -753,7 +753,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/night-club-two-step"><span data-v-3bbd14d4=""><a href="/dances/night-club-two-step">Night Club Two Step</a><span><br> (Night Club) </span>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/night-club-two-step"><span data-v-3bbd14d4=""><a href="/dances/night-club-two-step">Night Club Two Step</a><!--v-if--><span><br> (Night Club) </span>
                         <!--v-if--></span>
                       </a></div>
                   </td>
@@ -774,7 +774,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/polka"><span data-v-3bbd14d4=""><a href="/dances/polka">Polka</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/polka"><span data-v-3bbd14d4=""><a href="/dances/polka">Polka</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,PLK-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">1</a>
@@ -789,7 +789,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-group"><a data-v-3bbd14d4="" href="/dances/performance"><span data-v-3bbd14d4=""><a href="/dances/performance">Performance</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-group"><a data-v-3bbd14d4="" href="/dances/performance"><span data-v-3bbd14d4=""><a href="/dances/performance">Performance</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class=""></td>
                   <td class=""></td>
@@ -800,7 +800,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/contemporary"><span data-v-3bbd14d4=""><a href="/dances/contemporary">Contemporary</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/contemporary"><span data-v-3bbd14d4=""><a href="/dances/contemporary">Contemporary</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,CNT-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">12</a>
@@ -819,7 +819,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/freestyle"><span data-v-3bbd14d4=""><a href="/dances/freestyle">Freestyle</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/freestyle"><span data-v-3bbd14d4=""><a href="/dances/freestyle">Freestyle</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,FST-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">6</a>
@@ -834,7 +834,7 @@ exports[`CompetitionCategory > Renders the wedding dance page 1`] = `
                 <tr class="">
                   <td class="b-table-sticky-column">
                     <!---->
-                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/jazz"><span data-v-3bbd14d4=""><a href="/dances/jazz">Jazz</a><!--v-if--><!--v-if--></span></a></div>
+                    <div data-v-3bbd14d4="" class="tag-matrix-item"><a data-v-3bbd14d4="" href="/dances/jazz"><span data-v-3bbd14d4=""><a href="/dances/jazz">Jazz</a><!--v-if--><!--v-if--><!--v-if--></span></a></div>
                   </td>
                   <td class="">
                     <!----><a data-v-3bbd14d4="" class="btn btn-sm btn-primary" href="/Song/?filter=Index-OOX,JAZ-Dances-.-.-.-.-.-.-+Wedding:Other" role="button">7</a>

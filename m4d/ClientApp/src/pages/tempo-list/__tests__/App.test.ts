@@ -290,6 +290,17 @@ describe("tempo-list App.vue", () => {
     expect(wrapper.vm.dances).toEqual([]);
   });
 
+  test("seeds the visible TempoList columns from the server-provided ?columns= model", () => {
+    // TempoListModel.Columns is populated server-side from the ?columns= query param, letting a
+    // custom column set (e.g. the normally-hidden Range column) be linked to directly.
+    const wrapper = mountTempoList({ columns: ["mpm", "validationRange"] });
+
+    const headerText = wrapper.find("thead").text();
+    expect(headerText).toContain("MPM");
+    expect(headerText).toContain("Range");
+    expect(headerText).not.toContain("BPM");
+  });
+
   test("real checkbox interaction: unchecking 'select all' then checking 'Waltz' filters the table", async () => {
     const wrapper = mountTempoList();
 

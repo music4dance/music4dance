@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { defaultTempoLink } from "@/helpers/LinkHelpers";
 import { wordsToKebab } from "@/helpers/StringHelpers";
+import { filterValid } from "@/models/CheckboxTypes";
 import type { TableFieldRaw, BTableSortBy, CheckboxOption } from "bootstrap-vue-next";
 import { computed, ref } from "vue";
 import type { DanceType } from "@/models/DanceDatabase/DanceType";
@@ -8,6 +9,10 @@ import type { DanceType } from "@/models/DanceDatabase/DanceType";
 const props = defineProps<{
   dances: DanceType[];
   hideNameLink?: boolean;
+  // Seeds the column chooser from a server-provided `?columns=` query string (see App.vue's
+  // TempoListModel.columns) so a custom column set can be linked to directly. Unknown keys are
+  // silently dropped; omit entirely to fall back to each column's own `defaultVisible`.
+  initialColumns?: string[];
 }>();
 
 const sortBy = ref<BTableSortBy[]>([{ key: "name", order: "asc" }]);
@@ -31,6 +36,7 @@ const chooseableColumns: ChooseableColumn[] = [
   { key: "mpm", label: "MPM", defaultVisible: true },
   { key: "groupName", label: "Type", defaultVisible: true },
   { key: "styles", label: "Styles", defaultVisible: true },
+  { key: "validationRange", label: "Range", defaultVisible: false },
 ];
 
 const columnOptions: CheckboxOption[] = chooseableColumns.map((c) => ({
@@ -39,7 +45,12 @@ const columnOptions: CheckboxOption[] = chooseableColumns.map((c) => ({
 }));
 
 const visibleColumns = ref<string[]>(
-  chooseableColumns.filter((c) => c.defaultVisible).map((c) => c.key),
+  props.initialColumns
+    ? filterValid(
+        chooseableColumns.map((c) => c.key),
+        props.initialColumns,
+      )
+    : chooseableColumns.filter((c) => c.defaultVisible).map((c) => c.key),
 );
 
 const allFields: Exclude<TableFieldRaw<DanceType>, string>[] = [
@@ -104,6 +115,21 @@ const allFields: Exclude<TableFieldRaw<DanceType>, string>[] = [
       return item?.styles?.join(", ") ?? "";
     },
   },
+  {
+    key: "validationRange",
+    label: "Range",
+    sortable: true,
+    sortByFormatted: ({ item }: { value: unknown; key: string; item: DanceType }) => {
+      return (
+        item?.validationRange?.min.toLocaleString("en", {
+          minimumIntegerDigits: 4,
+        }) ?? ""
+      );
+    },
+    formatter: ({ item }: { value: unknown; key: string; item: DanceType }) => {
+      return item?.validationRange?.toString() ?? "";
+    },
+  },
 ];
 
 const fields = computed(() =>
@@ -149,7 +175,7 @@ function formatType(dance: DanceType): string {
       responsive
     >
       <template #cell(name)="data">
-        <DanceName :dance="data.item" :show-synonyms="true" />
+        <DanceName :dance="data.item" :show-synonyms="true" show-blog-link />
       </template>
       <template #cell(groupName)="data">
         <a :href="groupLink(data.item)">{{ formatType(data.item) }}</a>
@@ -182,5 +208,10 @@ function formatType(dance: DanceType): string {
         size="sm"
       />
     </div>
+    <p v-if="visibleColumns.includes('validationRange')" class="text-muted small mt-2 mb-2">
+      <strong>Range</strong> is the broadest tempo range we consider plausible for this dance style
+      before assuming a reported tempo is a half-time/double-time detection error - not the dance's
+      typical tempo.
+    </p>
   </div>
 </template>

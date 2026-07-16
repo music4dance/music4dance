@@ -13,6 +13,12 @@ const dance = new DanceType({
   meter: new Meter(4, 4),
 });
 const infiniteDance = new DanceType({ name: "test-dance", tempoRange: new TempoRange(0, 10000) });
+const blogTaggedDance = new DanceType({
+  name: "test-dance",
+  tempoRange: new TempoRange(100, 110),
+  meter: new Meter(4, 4),
+  blogTag: "test-tag",
+});
 
 describe("DanceName.vue", () => {
   test("computes danceLink correctly", () => {
@@ -98,5 +104,38 @@ describe("DanceName.vue", () => {
     });
 
     expect(wrapper.html()).toMatchSnapshot();
+  });
+
+  test("computes blogLink from the dance's blogTag", () => {
+    const wrapper = mount(DanceName, { props: { dance: blogTaggedDance } });
+
+    expect(wrapper.vm.blogLink).toBe("https://music4dance.blog/tag/test-tag");
+  });
+
+  test("computes blogLink as undefined when the dance has no blogTag", () => {
+    const wrapper = mount(DanceName, { props: { dance: dance } });
+
+    expect(wrapper.vm.blogLink).toBeUndefined();
+  });
+
+  test("showBlogLink alone doesn't render an icon for a dance with no blogTag", () => {
+    const wrapper = mount(DanceName, { props: { dance: dance, showBlogLink: true } });
+
+    expect(wrapper.find("a[title='Blog Posts']").exists()).toBe(false);
+  });
+
+  test("showBlogLink renders a 'Blog Posts' icon link for a dance with a blogTag", () => {
+    const wrapper = mount(DanceName, { props: { dance: blogTaggedDance, showBlogLink: true } });
+
+    const link = wrapper.find("a[title='Blog Posts']");
+    expect(link.exists()).toBe(true);
+    expect(link.attributes("href")).toBe("https://music4dance.blog/tag/test-tag");
+    expect(link.attributes("target")).toBe("_blank");
+  });
+
+  test("a blogTag without showBlogLink renders no icon", () => {
+    const wrapper = mount(DanceName, { props: { dance: blogTaggedDance } });
+
+    expect(wrapper.find("a[title='Blog Posts']").exists()).toBe(false);
   });
 });
