@@ -283,9 +283,14 @@ function mergeUrl(userName: string): string {
             >Clear Cache</a
           >
         </p>
-        <p class="mb-0">
+        <p class="mb-2">
           <a href="/ApplicationUsers/VotingResults" class="btn btn-primary" role="button"
             >Voting Results</a
+          >
+        </p>
+        <p class="mb-0">
+          <a href="/ApplicationUsers/DeleteUnconfirmed" class="btn btn-danger" role="button"
+            >Delete Unconfirmed</a
           >
         </p>
       </div>

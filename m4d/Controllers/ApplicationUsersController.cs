@@ -24,6 +24,7 @@ public class ApplicationUsersController(
     ServiceHealthManager serviceHealth) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
         fileProvider, backroundTaskQueue, featureManager, logger, serviceHealth)
 {
+    private const int UnconfirmedRetentionDays = 90;
 
 
     //public ApplicationUsersController()
@@ -395,7 +396,7 @@ public class ApplicationUsersController(
 
         // Reassign all song contributions (votes, tags, edits) from the deleted user's name
         // to their GUID ID, so they appear as Anonymous rather than being lost.
-        if (!ServiceHealth.IsServiceAvailable("SearchService"))
+        if (!ServiceHealth.IsServiceHealthy("SearchService"))
         {
             Logger.LogError("Cannot delete user {UserId}: Azure Search is unavailable. " +
                 "Delete aborted to avoid losing song contributions.", id);
@@ -428,6 +429,71 @@ public class ApplicationUsersController(
         _ = await Context.SaveChangesAsync();
         UserMapper.Clear();
         return RedirectToAction("Index");
+    }
+
+    // GET: ApplicationUsers/DeleteUnconfirmed
+    public async Task<ActionResult> DeleteUnconfirmed()
+    {
+        var users = await UnconfirmedUsersOlderThanRetention().OrderBy(u => u.StartDate)
+            .ToListAsync();
+        return View(users);
+    }
+
+    // POST: ApplicationUsers/DeleteUnconfirmed
+    [HttpPost]
+    [ActionName("DeleteUnconfirmed")]
+    [ValidateAntiForgeryToken]
+    public async Task<ActionResult> DeleteUnconfirmedConfirmed()
+    {
+        // Reassign all song contributions (votes, tags, edits) from each deleted user's name
+        // to their GUID ID, so they appear as Anonymous rather than being lost.
+        if (!ServiceHealth.IsServiceHealthy("SearchService"))
+        {
+            Logger.LogError("Cannot bulk-delete unconfirmed users: Azure Search is unavailable. " +
+                "Delete aborted to avoid losing song contributions.");
+            return StatusCode((int)HttpStatusCode.ServiceUnavailable,
+                "Azure Search is currently unavailable. User deletion requires the search index " +
+                "to be reachable so that song contributions can be anonymized before the accounts " +
+                "are removed. Please try again once the search service has recovered.");
+        }
+
+        var users = await UnconfirmedUsersOlderThanRetention().ToListAsync();
+
+        foreach (var user in users)
+        {
+            try
+            {
+                await Database.ChangeUserName(user.DecoratedName, user.Id);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to anonymize song contributions for user {UserId} " +
+                    "({UserName}) during bulk delete of unconfirmed users. Skipping this user.",
+                    user.Id, user.UserName);
+                continue;
+            }
+
+            var searches = Context.Searches.Where(s => s.ApplicationUserId == user.Id);
+            foreach (var search in searches)
+            {
+                _ = Context.Searches.Remove(search);
+            }
+
+            _ = Context.Users.Remove(user);
+        }
+
+        _ = await Context.SaveChangesAsync();
+        UserMapper.Clear();
+        return RedirectToAction("Index");
+    }
+
+    // Pseudo/service users are always created with EmailConfirmed = true (see
+    // DanceMusicService.FindOrAddUser), so this can never match one - no need to filter IsPseudo
+    // separately.
+    private IQueryable<ApplicationUser> UnconfirmedUsersOlderThanRetention()
+    {
+        var cutoff = DateTime.Now.AddDays(-UnconfirmedRetentionDays);
+        return Context.Users.Where(u => !u.EmailConfirmed && u.StartDate < cutoff);
     }
 
     protected override void Dispose(bool disposing)

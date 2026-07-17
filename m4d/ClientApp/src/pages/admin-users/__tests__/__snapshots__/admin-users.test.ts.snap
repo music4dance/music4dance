@@ -29,7 +29,8 @@ exports[`admin-users page > renders the admin users page 1`] = `
         <div class="col-md-3">
           <p class="mb-2"><a href="/ApplicationUsers/Create" class="btn btn-primary" role="button">New Pseudo User</a></p>
           <p class="mb-2"><a href="/ApplicationUsers/ClearCache" class="btn btn-secondary" role="button">Clear Cache</a></p>
-          <p class="mb-0"><a href="/ApplicationUsers/VotingResults" class="btn btn-primary" role="button">Voting Results</a></p>
+          <p class="mb-2"><a href="/ApplicationUsers/VotingResults" class="btn btn-primary" role="button">Voting Results</a></p>
+          <p class="mb-0"><a href="/ApplicationUsers/DeleteUnconfirmed" class="btn btn-danger" role="button">Delete Unconfirmed</a></p>
         </div>
         <div class="col-md-3">
           <p class="mb-1"><strong>Show users:</strong></p>
