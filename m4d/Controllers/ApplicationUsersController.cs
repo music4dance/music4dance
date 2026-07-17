@@ -84,11 +84,6 @@ public class ApplicationUsersController(
         return View(user);
     }
 
-    public async Task<ActionResult> PremiumUsers()
-    {
-        return View(await UserMapper.GetPremiumUsers(UserManager, ServiceHealth));
-    }
-
     // GET: ApplicationUsers/Create
     public ActionResult Create()
     {

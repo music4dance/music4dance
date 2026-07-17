@@ -23,16 +23,6 @@ public static class UserMapper
         return s_cachedUsers;
     }
 
-    public static async Task<List<UserInfo>> GetPremiumUsers(
-        UserManager<ApplicationUser> userManager, ServiceHealthManager serviceHealth = null)
-    {
-        var dict = await GetUserNameDictionary(userManager, serviceHealth);
-
-        return [.. dict.Values.Where(u =>
-            u.Roles.Contains(DanceMusicCoreService.PremiumRole) ||
-            u.User.LifetimePurchased > 0)];
-    }
-
     public static async Task<IReadOnlyDictionary<string, UserInfo>> GetUserIdDictionary(
         UserManager<ApplicationUser> userManager, ServiceHealthManager serviceHealth = null)
     {

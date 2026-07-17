@@ -9,10 +9,28 @@ declare const model_: string;
 const model: AdminUsersModel = TypedJSON.parse(model_, AdminUsersModel)!;
 
 // --- Filter state ---
+// Each user falls into exactly one of these categories; "Basic" is whatever's
+// left over once Unconfirmed/Pseudo/Premium are excluded. Every category has
+// its own show/hide checkbox, so unchecking "Basic" isolates whichever special
+// categories remain checked (e.g. Pseudo alone, or Premium alone).
+const showBasic = ref(true);
 const showUnconfirmed = ref(false);
 const showPseudo = ref(false);
+const showPremium = ref(true);
 const hidePrivate = ref(false);
 const userSearch = ref("");
+
+// Mirrors UserMapper.GetPremiumUsers: premium role or a positive lifetime purchase total.
+const PREMIUM_ROLE = "premium";
+function isPremiumUser(u: AdminUserSummary): boolean {
+  return u.roles.includes(PREMIUM_ROLE) || u.lifetimePurchased > 0;
+}
+function isUnconfirmedUser(u: AdminUserSummary): boolean {
+  return !u.isPseudo && !u.emailConfirmed;
+}
+function isBasicUser(u: AdminUserSummary): boolean {
+  return !u.isPseudo && !isUnconfirmedUser(u) && !isPremiumUser(u);
+}
 
 // --- Pagination ---
 const perPage = ref(50);
@@ -42,14 +60,16 @@ const allUsers = computed(() => model.users ?? []);
 
 // --- Computed: filtered users for the table ---
 const filteredUsers = computed(() => {
-  const su = showUnconfirmed.value;
-  const sp = showPseudo.value;
   const hp = hidePrivate.value;
   const q = userSearch.value.trim().toLowerCase();
 
   return allUsers.value.filter((u) => {
-    if (!u.emailConfirmed && !u.isPseudo && !su) return false;
-    if (u.isPseudo && !sp) return false;
+    const inCategory =
+      (showBasic.value && isBasicUser(u)) ||
+      (showUnconfirmed.value && isUnconfirmedUser(u)) ||
+      (showPseudo.value && u.isPseudo) ||
+      (showPremium.value && isPremiumUser(u));
+    if (!inCategory) return false;
     if (hp && u.privacy !== 255) return false;
     if (q && !u.userName.toLowerCase().includes(q) && !(u.email ?? "").toLowerCase().includes(q))
       return false;
@@ -228,21 +248,21 @@ function mergeUrl(userName: string): string {
   <PageFrame id="app" title="User Administrator">
     <!-- Summary row -->
     <div class="row mb-3">
-      <div class="col-md-3">
+      <div class="col-md-2">
         <p><strong>Total Users:</strong> {{ totalUsers }}</p>
         <p><strong>Registered Users:</strong> {{ registeredUsers }}</p>
         <p><strong>Confirmed Users:</strong> {{ confirmedUsers }}</p>
         <p><strong>Deleted Users:</strong> {{ deletedUsers }}</p>
       </div>
 
-      <div class="col-md-3">
+      <div class="col-md-2">
         <p v-for="{ role, count } in roleStats" :key="role">
           <b>{{ role }}</b
           >: {{ count }}
         </p>
       </div>
 
-      <div class="col-md-3">
+      <div class="col-md-2">
         <p v-for="{ login, count } in loginStats" :key="login">
           <b>{{ login }}</b
           >: {{ count }}
@@ -250,57 +270,40 @@ function mergeUrl(userName: string): string {
       </div>
 
       <div class="col-md-3">
-        <p>
+        <p class="mb-2">
           <a href="/ApplicationUsers/Create" class="btn btn-primary" role="button"
             >New Pseudo User</a
           >
         </p>
-        <p>
-          <BButton
-            :variant="showUnconfirmed ? 'secondary' : 'primary'"
-            @click="
-              showUnconfirmed = !showUnconfirmed;
-              currentPage = 1;
-            "
-          >
-            {{ showUnconfirmed ? "Hide Unconfirmed" : "Show Unconfirmed" }}
-          </BButton>
-        </p>
-        <p>
-          <BButton
-            :variant="showPseudo ? 'secondary' : 'primary'"
-            @click="
-              showPseudo = !showPseudo;
-              currentPage = 1;
-            "
-          >
-            {{ showPseudo ? "Hide Pseudo" : "Show Pseudo" }}
-          </BButton>
-        </p>
-        <p>
-          <BButton
-            :variant="hidePrivate ? 'secondary' : 'primary'"
-            @click="
-              hidePrivate = !hidePrivate;
-              currentPage = 1;
-            "
-          >
-            {{ hidePrivate ? "Show Private" : "Hide Private" }}
-          </BButton>
-        </p>
-        <p>
+        <p class="mb-2">
           <a href="/ApplicationUsers/ClearCache" class="btn btn-secondary" role="button"
             >Clear Cache</a
           >
         </p>
-        <p>
+        <p class="mb-0">
           <a href="/ApplicationUsers/VotingResults" class="btn btn-primary" role="button"
             >Voting Results</a
           >
         </p>
-        <p>
-          <a href="/ApplicationUsers/PremiumUsers" class="btn btn-primary" role="button">Premium</a>
-        </p>
+      </div>
+
+      <div class="col-md-3">
+        <p class="mb-1"><strong>Show users:</strong></p>
+        <BFormCheckbox v-model="showBasic" @update:model-value="currentPage = 1">
+          Basic
+        </BFormCheckbox>
+        <BFormCheckbox v-model="showUnconfirmed" @update:model-value="currentPage = 1">
+          Unconfirmed
+        </BFormCheckbox>
+        <BFormCheckbox v-model="showPseudo" @update:model-value="currentPage = 1">
+          Pseudo
+        </BFormCheckbox>
+        <BFormCheckbox v-model="showPremium" @update:model-value="currentPage = 1">
+          Premium
+        </BFormCheckbox>
+        <BFormCheckbox v-model="hidePrivate" @update:model-value="currentPage = 1">
+          Hide Private
+        </BFormCheckbox>
       </div>
     </div>
 
