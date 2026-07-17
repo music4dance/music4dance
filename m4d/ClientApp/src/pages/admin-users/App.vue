@@ -13,11 +13,14 @@ const model: AdminUsersModel = TypedJSON.parse(model_, AdminUsersModel)!;
 // left over once Unconfirmed/Pseudo/Premium are excluded. Every category has
 // its own show/hide checkbox, so unchecking "Basic" isolates whichever special
 // categories remain checked (e.g. Pseudo alone, or Premium alone).
+// "Private" is a separate AND-filter (not a category) that narrows the above
+// by the privacy flag; checked (default) shows everyone, unchecked hides
+// anyone whose privacy isn't fully public (255).
 const showBasic = ref(true);
+const showPremium = ref(true);
+const showPrivate = ref(true);
 const showUnconfirmed = ref(false);
 const showPseudo = ref(false);
-const showPremium = ref(true);
-const hidePrivate = ref(false);
 const userSearch = ref("");
 
 // Mirrors UserMapper.GetPremiumUsers: premium role or a positive lifetime purchase total.
@@ -60,7 +63,7 @@ const allUsers = computed(() => model.users ?? []);
 
 // --- Computed: filtered users for the table ---
 const filteredUsers = computed(() => {
-  const hp = hidePrivate.value;
+  const sp = showPrivate.value;
   const q = userSearch.value.trim().toLowerCase();
 
   return allUsers.value.filter((u) => {
@@ -70,7 +73,7 @@ const filteredUsers = computed(() => {
       (showPseudo.value && u.isPseudo) ||
       (showPremium.value && isPremiumUser(u));
     if (!inCategory) return false;
-    if (hp && u.privacy !== 255) return false;
+    if (!sp && u.privacy !== 255) return false;
     if (q && !u.userName.toLowerCase().includes(q) && !(u.email ?? "").toLowerCase().includes(q))
       return false;
     return true;
@@ -292,17 +295,17 @@ function mergeUrl(userName: string): string {
         <BFormCheckbox v-model="showBasic" @update:model-value="currentPage = 1">
           Basic
         </BFormCheckbox>
+        <BFormCheckbox v-model="showPremium" @update:model-value="currentPage = 1">
+          Premium
+        </BFormCheckbox>
+        <BFormCheckbox v-model="showPrivate" @update:model-value="currentPage = 1">
+          Private
+        </BFormCheckbox>
         <BFormCheckbox v-model="showUnconfirmed" @update:model-value="currentPage = 1">
           Unconfirmed
         </BFormCheckbox>
         <BFormCheckbox v-model="showPseudo" @update:model-value="currentPage = 1">
           Pseudo
-        </BFormCheckbox>
-        <BFormCheckbox v-model="showPremium" @update:model-value="currentPage = 1">
-          Premium
-        </BFormCheckbox>
-        <BFormCheckbox v-model="hidePrivate" @update:model-value="currentPage = 1">
-          Hide Private
         </BFormCheckbox>
       </div>
     </div>

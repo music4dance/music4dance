@@ -11,10 +11,10 @@ Merge, etc.) remain plain Razor views — there's no benefit to converting singl
 
 ## Two paging strategies
 
-| Strategy                | Pages                                      | How it works                                                                                    |
-| ------------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| **Client paging**        | `ApplicationUsers/Index`, `PlayList/Index` | Controller sends the full dataset as JSON once; Vue does all filtering/sorting/paging in-browser |
-| **Server paging**        | `Searches/Index`, `ActivityLog/Index`      | Controller pages at the DB level (`Skip`/`Take`); each page/sort/filter change navigates the browser to a new URL |
+| Strategy | Pages | How it works |
+| --- | --- | --- |
+| **Client paging** | `ApplicationUsers/Index`, `PlayList/Index` | Controller sends the full dataset as JSON once; Vue does all filtering/sorting/paging in-browser |
+| **Server paging** | `Searches/Index`, `ActivityLog/Index` | Controller pages at the DB level (`Skip`/`Take`); each page/sort/filter change navigates the browser to a new URL |
 
 Client paging is used where the underlying table is small enough to ship in one payload (users,
 playlists). Server paging is used where the table can be very large (searches, activity log).
@@ -40,12 +40,12 @@ entity is never serialized.
 The table shows one row per user. Filtering is entirely client-side and built around **mutually
 exclusive categories**, each with its own checkbox:
 
-| Category      | Membership rule                                              | Default |
-| ------------- | ------------------------------------------------------------- | ------- |
-| Basic         | not Pseudo, not Unconfirmed, not Premium (whatever's left)   | shown   |
-| Unconfirmed   | `!isPseudo && !emailConfirmed`                                | hidden  |
-| Pseudo        | `isPseudo`                                                    | hidden  |
-| Premium       | `roles.includes("premium") \|\| lifetimePurchased > 0` (mirrors the old `UserMapper.GetPremiumUsers` rule) | shown   |
+| Category | Membership rule | Default |
+| --- | --- | --- |
+| Basic | not Pseudo, not Unconfirmed, not Premium (whatever's left) | shown |
+| Unconfirmed | `!isPseudo && !emailConfirmed` | hidden |
+| Pseudo | `isPseudo` | hidden |
+| Premium | `roles.includes("premium") \|\| lifetimePurchased > 0` (mirrors the old `UserMapper.GetPremiumUsers` rule) | shown |
 
 A user is visible if **any** of their matching category checkboxes is checked (an OR across
 categories). Because Basic is defined as "none of the others," unchecking Basic isolates
@@ -55,8 +55,12 @@ accounts, or only Premium to see just paying/premium-role users. This replaced a
 user list; that page and `UserMapper.GetPremiumUsers` were removed once Premium became a filter
 here.
 
-`Hide Private` is a separate, independent AND-filter (`privacy !== 255`), not a category — it
-narrows whatever the category checkboxes already produced.
+`Private` is a separate, independent AND-filter (`privacy === 255`), not a category — it narrows
+whatever the category checkboxes already produced. Checked (default) shows everyone regardless of
+privacy; unchecked hides anyone whose privacy isn't fully public (255).
+
+The checkbox list is ordered with the three on-by-default filters first (Basic, Premium, Private),
+followed by the off-by-default ones (Unconfirmed, Pseudo).
 
 A free-text search box filters the category-filtered set further by username or email substring.
 
@@ -107,7 +111,7 @@ loads playlists of the given `type` (optionally scoped to `user`) and returns th
   (requires a user filter + active rows + count > 0), BulkCreate (SpotifyFromSearch only),
   Statistics.
 
-See `architecture/playlist-management.md` — _Vue Index Page_ section — for full detail on the
+See `architecture/playlist-management.md` — **Vue Index Page** section — for full detail on the
 playlist domain model itself.
 
 ---
@@ -122,7 +126,7 @@ and returns `Vue3("My Searches", "Search history", "searches", model)`.
 
 **Vue page**: `m4d/ClientApp/src/pages/searches/App.vue`, model in `SearchesPageModel.ts`.
 
-### Controls
+### Searches controls
 
 - **Pagination**: each page click navigates the browser to `/Searches/Index?...&page=N` — there's
   no client-side page state to preserve.
@@ -169,21 +173,21 @@ Same `BPagination` + page-jump pattern as Searches; no client-side filtering.
 
 ## Column Definitions (Admin Users Table)
 
-| Column                   | Meaning                   | Notes                                                                                                                                                                                       |
-| ------------------------ | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `EC`                     | Email Confirmed           | Check icon means the user has confirmed email; hollow circle means not confirmed.                                                                                                           |
-| `UserName / Email`       | User identity             | Username link opens user details; email shown below username. Pseudo users are italicized.                                                                                                  |
-| `Signed Up`              | Account creation date     | `StartDate` value, rendered as local date (`M/D/YYYY`).                                                                                                                                     |
-| `Signed In`              | Last active date          | `LastActive` value, rendered as local date. `1900-01-01` sentinel is displayed as `Never`.                                                                                                  |
-| `PRV`                    | Privacy flag              | Numeric privacy byte (`0` = private / anonymous behavior, `255` = fully public).                                                                                                            |
-| `Contact Prefs`          | Communication permissions | Human-readable decoding of `CanContact` bit flags (not raw numbers): `music4dance promo`, `partner promo`, `surveys/blog`, or combinations. `None` means no communication consent selected. |
-| `Services`               | Music service interests   | Human-readable service names decoded from `ServicePreference` CIDs (for example Spotify, YouTube, Apple Music). `None` means no service preference selected.                                |
-| `CCF`                    | Credit card failures      | `FailedCardAttempts` count.                                                                                                                                                                 |
-| `$`                      | Lifetime purchases        | Total amount purchased by the user.                                                                                                                                                         |
-| `HC`                     | Hit count                 | Total tracked user requests/activity count.                                                                                                                                                 |
-| `Roles`                  | Identity roles            | ASP.NET Identity roles assigned to the user.                                                                                                                                                |
-| `Logins`                 | External login providers  | Linked provider list (for example Microsoft, Google, Spotify, Facebook).                                                                                                                    |
-| `(blank actions column)` | Admin actions             | Links for songs/searches/usage/playlists plus role, edit, delete, and premium reset actions.                                                                                                |
+| Column | Meaning | Notes |
+| --- | --- | --- |
+| `EC` | Email Confirmed | Check icon means the user has confirmed email; hollow circle means not confirmed. |
+| `UserName / Email` | User identity | Username link opens user details; email shown below username. Pseudo users are italicized. |
+| `Signed Up` | Account creation date | `StartDate` value, rendered as local date (`M/D/YYYY`). |
+| `Signed In` | Last active date | `LastActive` value, rendered as local date. `1900-01-01` sentinel is displayed as `Never`. |
+| `PRV` | Privacy flag | Numeric privacy byte (`0` = private / anonymous behavior, `255` = fully public). |
+| `Contact Prefs` | Communication permissions | Human-readable decoding of `CanContact` bit flags (not raw numbers): `music4dance promo`, `partner promo`, `surveys/blog`, or combinations. `None` means no communication consent selected. |
+| `Services` | Music service interests | Human-readable service names decoded from `ServicePreference` CIDs (for example Spotify, YouTube, Apple Music). `None` means no service preference selected. |
+| `CCF` | Credit card failures | `FailedCardAttempts` count. |
+| `$` | Lifetime purchases | Total amount purchased by the user. |
+| `HC` | Hit count | Total tracked user requests/activity count. |
+| `Roles` | Identity roles | ASP.NET Identity roles assigned to the user. |
+| `Logins` | External login providers | Linked provider list (for example Microsoft, Google, Spotify, Facebook). |
+| `(blank actions column)` | Admin actions | Links for songs/searches/usage/playlists plus role, edit, delete, and premium reset actions. |
 
 ### Communication Preference Encoding Reference
 

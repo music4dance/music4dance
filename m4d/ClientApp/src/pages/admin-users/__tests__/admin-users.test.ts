@@ -99,13 +99,13 @@ describe("admin-users page", () => {
       expect(rows[0]!.text()).toContain("carol");
     });
 
-    test("hide private hides users with privacy != 255", async () => {
+    test("unchecking Private hides users with privacy != 255", async () => {
       // carol has privacy=0; show pseudo so she's a candidate, then hide private
       const wrapper = loadTestPage(App, model);
       await findCheckbox(wrapper, "Pseudo").setValue(true);
       expect(wrapper.find("#users-table").findAll("tbody tr").length).toBe(3);
 
-      await findCheckbox(wrapper, "Hide Private").setValue(true);
+      await findCheckbox(wrapper, "Private").setValue(false);
       // carol (privacy=0) is now hidden → 2 rows remain (alice, DEL:dave)
       expect(wrapper.find("#users-table").findAll("tbody tr").length).toBe(2);
     });
