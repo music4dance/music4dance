@@ -9,31 +9,54 @@ exports[`admin-users page > renders the admin users page 1`] = `
     <div>
       <!-- Summary row -->
       <div class="row mb-3">
-        <div class="col-md-3">
+        <div class="col-md-2">
           <p><strong>Total Users:</strong> 4</p>
           <p><strong>Registered Users:</strong> 3</p>
           <p><strong>Confirmed Users:</strong> 2</p>
           <p><strong>Deleted Users:</strong> 1</p>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
           <p><b>dbAdmin</b>: 0</p>
           <p><b>premium</b>: 1</p>
           <p><b>trial</b>: 0</p>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
           <p><b>Microsoft</b>: 1</p>
           <p><b>Spotify</b>: 2</p>
           <p><b>Facebook</b>: 0</p>
           <p><b>Google</b>: 1</p>
         </div>
-        <div class="col-md-3">
-          <p><a href="/ApplicationUsers/Create" class="btn btn-primary" role="button">New Pseudo User</a></p>
-          <p><button class="btn btn-primary" type="button">Show Unconfirmed</button></p>
-          <p><button class="btn btn-primary" type="button">Show Pseudo</button></p>
-          <p><button class="btn btn-primary" type="button">Hide Private</button></p>
-          <p><a href="/ApplicationUsers/ClearCache" class="btn btn-secondary" role="button">Clear Cache</a></p>
-          <p><a href="/ApplicationUsers/VotingResults" class="btn btn-primary" role="button">Voting Results</a></p>
-          <p><a href="/ApplicationUsers/PremiumUsers" class="btn btn-primary" role="button">Premium</a></p>
+        <div class="col-md-2">
+          <p class="mb-2"><a href="/ApplicationUsers/Create" class="btn btn-primary" role="button">New Pseudo User</a></p>
+          <p class="mb-2"><a href="/ApplicationUsers/ClearCache" class="btn btn-secondary" role="button">Clear Cache</a></p>
+          <p class="mb-2"><a href="/ApplicationUsers/VotingResults" class="btn btn-primary" role="button">Voting Results</a></p>
+          <p class="mb-0"><a href="/ApplicationUsers/DeleteUnconfirmed" class="btn btn-danger" role="button">Delete Unconfirmed</a></p>
+        </div>
+        <div class="col-md-2">
+          <p class="mb-1"><strong>Filter by role:</strong></p>
+          <div id="roles-filter" role="group" class="bv-no-focus-ring" tabindex="-1">
+            <div class="form-check"><input id="BootstrapVueNext__ID__v-2__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-1__checkbox___" true-value="dbAdmin" false-value="false" text="dbAdmin" value="dbAdmin"><label for="BootstrapVueNext__ID__v-2__form-check___" class="form-check-label">dbAdmin</label></div>
+            <div class="form-check"><input id="BootstrapVueNext__ID__v-3__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-1__checkbox___" true-value="premium" false-value="false" text="premium" value="premium"><label for="BootstrapVueNext__ID__v-3__form-check___" class="form-check-label">premium</label></div>
+            <div class="form-check"><input id="BootstrapVueNext__ID__v-4__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-1__checkbox___" true-value="trial" false-value="false" text="trial" value="trial"><label for="BootstrapVueNext__ID__v-4__form-check___" class="form-check-label">trial</label></div>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <p class="mb-1"><strong>Filter by flag:</strong></p>
+          <div class="mb-2"><label for="filter-private" class="mb-0 small d-block">Private</label><select id="filter-private" class="form-select form-select-sm">
+              <option selected="" value="any">Any</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select></div>
+          <div class="mb-2"><label for="filter-unconfirmed" class="mb-0 small d-block">Unconfirmed</label><select id="filter-unconfirmed" class="form-select form-select-sm">
+              <option value="any">Any</option>
+              <option value="yes">Yes</option>
+              <option selected="" value="no">No</option>
+            </select></div>
+          <div class="mb-0"><label for="filter-pseudo" class="mb-0 small d-block">Pseudo</label><select id="filter-pseudo" class="form-select form-select-sm">
+              <option value="any">Any</option>
+              <option value="yes">Yes</option>
+              <option selected="" value="no">No</option>
+            </select></div>
         </div>
       </div><!-- Service preference table -->
       <table class="table table-striped mb-3">
@@ -68,7 +91,7 @@ exports[`admin-users page > renders the admin users page 1`] = `
       </table>
       <hr>
       <h3>Users (2)</h3><!-- Text search -->
-      <div class="mb-2" style="max-width: 24rem;"><input id="BootstrapVueNext__ID__v-0__input___" class="form-control form-control-sm" type="text" placeholder="Filter by name or email…" clearable="" value=""></div><!-- Pagination controls (top) -->
+      <div class="mb-2" style="max-width: 24rem;"><input id="BootstrapVueNext__ID__v-8__input___" class="form-control form-control-sm" type="text" placeholder="Filter by name or email…" clearable="" value=""></div><!-- Pagination controls (top) -->
       <div class="d-flex align-items-center gap-3 mb-2">
         <ul class="pagination justify-content-start pagination-sm mb-0" role="menubar" aria-disabled="false" aria-label="Pagination">
           <li class="page-item disabled" role="presentation" data-display-name="0"><span is="span" class="page-link text-center" aria-label="Go to first page" aria-disabled="true" role="menuitem">«</span></li>
@@ -77,7 +100,7 @@ exports[`admin-users page > renders the admin users page 1`] = `
           <li class="page-item disabled" role="presentation" data-display-name="3"><span is="span" class="page-link text-center" aria-label="Go to next page" aria-disabled="true" role="menuitem">›</span></li>
           <li class="page-item disabled" role="presentation" data-display-name="4"><span is="span" class="page-link text-center" aria-label="Go to last page" aria-disabled="true" role="menuitem">»</span></li>
         </ul>
-        <div class="d-flex align-items-center gap-2"><label class="mb-0 small">Per page:</label><select id="BootstrapVueNext__ID__v-1__input___" class="form-select form-select-sm" style="width: auto;">
+        <div class="d-flex align-items-center gap-2"><label class="mb-0 small">Per page:</label><select id="BootstrapVueNext__ID__v-9__input___" class="form-select form-select-sm" style="width: auto;">
             <option value="25">25</option>
             <option selected="" value="50">50</option>
             <option value="100">100</option>

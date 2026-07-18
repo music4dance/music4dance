@@ -1,7 +1,23 @@
 import { describe, test, expect, beforeEach } from "vitest";
+import type { VueWrapper } from "@vue/test-utils";
 import { loadTestPage, testPageSnapshot } from "@/helpers/TestPageSnapshot";
 import App from "../App.vue";
 import { model } from "./model";
+
+function findRoleCheckbox(wrapper: VueWrapper, role: string) {
+  const group = wrapper
+    .find("#roles-filter")
+    .findAll(".form-check")
+    .find((c) => c.text().trim() === role);
+  if (!group) {
+    throw new Error(`Role checkbox "${role}" not found`);
+  }
+  return group.find('input[type="checkbox"]');
+}
+
+function setTriState(wrapper: VueWrapper, id: string, value: "any" | "yes" | "no") {
+  return wrapper.find(`#${id}`).setValue(value);
+}
 
 describe("admin-users page", () => {
   test("renders the admin users page", () => {
@@ -47,62 +63,81 @@ describe("admin-users page", () => {
   });
 
   describe("filter logic", () => {
-    test("by default, unconfirmed non-pseudo users are hidden", () => {
+    test("by default, unconfirmed and pseudo users are hidden, roles and privacy unfiltered", () => {
+      // alice: confirmed, premium role (visible); bob: unconfirmed (hidden);
+      // carol: pseudo (hidden); DEL:dave: plain confirmed non-pseudo (visible)
       const wrapper = loadTestPage(App, model);
-      // bob is unconfirmed and non-pseudo; alice is confirmed; carol is pseudo (hidden); DEL:dave is confirmed
-      // Default: showUnconfirmed=false, showPseudo=false
-      // Visible: alice, DEL:dave (confirmed non-pseudo); bob hidden; carol hidden
       const rows = wrapper.find("#users-table").findAll("tbody tr");
       expect(rows.length).toBe(2);
     });
 
-    test("show unconfirmed toggle reveals unconfirmed non-pseudo users", async () => {
+    test("setting Unconfirmed filter to Yes isolates unconfirmed non-pseudo users", async () => {
       const wrapper = loadTestPage(App, model);
-      const btn = wrapper.findAll("button").find((b) => b.text().includes("Show Unconfirmed"));
-      expect(btn).toBeDefined();
-      await btn!.trigger("click");
-      // Now: alice, bob (unconfirmed), DEL:dave visible; carol (pseudo) still hidden
+      await setTriState(wrapper, "filter-unconfirmed", "yes");
+      // bob is the only unconfirmed user; carol (pseudo) is always confirmed
+      const rows = wrapper.find("#users-table").findAll("tbody tr");
+      expect(rows.length).toBe(1);
+      expect(rows[0]!.text()).toContain("bob");
+    });
+
+    test("setting Unconfirmed filter to Any reveals unconfirmed users alongside the default set", async () => {
+      const wrapper = loadTestPage(App, model);
+      await setTriState(wrapper, "filter-unconfirmed", "any");
+      // alice, DEL:dave (default) plus bob (unconfirmed); carol still hidden (pseudo=No)
       const rows = wrapper.find("#users-table").findAll("tbody tr");
       expect(rows.length).toBe(3);
     });
 
-    test("show pseudo toggle reveals pseudo users", async () => {
+    test("setting Pseudo filter to Yes isolates pseudo users", async () => {
       const wrapper = loadTestPage(App, model);
-      // First show unconfirmed too so carol (isPseudo + !emailConfirmed) appears
-      const unconfBtn = wrapper
-        .findAll("button")
-        .find((b) => b.text().includes("Show Unconfirmed"));
-      await unconfBtn!.trigger("click");
-      const pseudoBtn = wrapper.findAll("button").find((b) => b.text().includes("Show Pseudo"));
-      await pseudoBtn!.trigger("click");
+      await setTriState(wrapper, "filter-pseudo", "yes");
       const rows = wrapper.find("#users-table").findAll("tbody tr");
-      expect(rows.length).toBe(4);
+      expect(rows.length).toBe(1);
+      expect(rows[0]!.text()).toContain("carol");
     });
 
-    test("hide private hides users with privacy != 255", async () => {
-      // carol has privacy=0; after show-pseudo + hide-private carol should be filtered
+    test("checking a role isolates users with that role", async () => {
       const wrapper = loadTestPage(App, model);
-      const pseudoBtn = wrapper.findAll("button").find((b) => b.text().includes("Show Pseudo"));
-      const unconfBtn = wrapper
-        .findAll("button")
-        .find((b) => b.text().includes("Show Unconfirmed"));
-      await unconfBtn!.trigger("click");
-      await pseudoBtn!.trigger("click");
-      // All 4 visible
-      expect(wrapper.find("#users-table").findAll("tbody tr").length).toBe(4);
+      await findRoleCheckbox(wrapper, "premium").setValue(true);
+      // Only alice has the premium role
+      const rows = wrapper.find("#users-table").findAll("tbody tr");
+      expect(rows.length).toBe(1);
+      expect(rows[0]!.text()).toContain("alice");
+    });
 
-      const privBtn = wrapper.findAll("button").find((b) => b.text().includes("Hide Private"));
-      await privBtn!.trigger("click");
-      // carol (privacy=0) is now hidden → 3 rows
+    test("checking a role no one in the default view has hides everyone", async () => {
+      const wrapper = loadTestPage(App, model);
+      await findRoleCheckbox(wrapper, "dbAdmin").setValue(true);
+      const rows = wrapper.find("#users-table").findAll("tbody tr");
+      expect(rows.length).toBe(0);
+    });
+
+    test("setting Private filter to No hides users with privacy != 255", async () => {
+      // carol has privacy=0; reveal her via Pseudo=Any, then exclude non-public via Private=No
+      const wrapper = loadTestPage(App, model);
+      await setTriState(wrapper, "filter-pseudo", "any");
       expect(wrapper.find("#users-table").findAll("tbody tr").length).toBe(3);
+
+      await setTriState(wrapper, "filter-private", "no");
+      // carol (privacy=0) is now hidden → 2 rows remain (alice, DEL:dave)
+      expect(wrapper.find("#users-table").findAll("tbody tr").length).toBe(2);
     });
 
-    test("toggle buttons reflect current state label", async () => {
+    test("setting Private filter to Yes isolates non-public users", async () => {
       const wrapper = loadTestPage(App, model);
-      const btn = wrapper.findAll("button").find((b) => b.text().includes("Show Unconfirmed"))!;
-      expect(btn.text()).toBe("Show Unconfirmed");
-      await btn.trigger("click");
-      expect(btn.text()).toBe("Hide Unconfirmed");
+      await setTriState(wrapper, "filter-pseudo", "any");
+      await setTriState(wrapper, "filter-private", "yes");
+      const rows = wrapper.find("#users-table").findAll("tbody tr");
+      expect(rows.length).toBe(1);
+      expect(rows[0]!.text()).toContain("carol");
+    });
+
+    test("tri-state select reflects current value", async () => {
+      const wrapper = loadTestPage(App, model);
+      const select = wrapper.find("#filter-unconfirmed");
+      expect((select.element as HTMLSelectElement).value).toBe("no");
+      await select.setValue("yes");
+      expect((select.element as HTMLSelectElement).value).toBe("yes");
     });
 
     test("text search filters by userName", async () => {
@@ -120,10 +155,7 @@ describe("admin-users page", () => {
     test("text search filters by email", async () => {
       const wrapper = loadTestPage(App, model);
       // Show unconfirmed so bob is visible, then search by email domain
-      const unconfBtn = wrapper
-        .findAll("button")
-        .find((b) => b.text().includes("Show Unconfirmed"))!;
-      await unconfBtn.trigger("click");
+      await setTriState(wrapper, "filter-unconfirmed", "any");
       const input = wrapper.find("input[placeholder*='Filter']");
       await input.setValue("example.com");
       // alice, bob, DEL:dave all have @example.com
@@ -140,20 +172,16 @@ describe("admin-users page", () => {
     });
 
     test("pseudo user name is rendered in italic", () => {
-      // carol is pseudo but filtered out by default — show pseudo first
+      // carol is pseudo but filtered out by default — just verify the page renders without errors
       const wrapper = loadTestPage(App, model);
-      // Enable both pseudo and unconfirmed to see carol
-      // (uses loadTestPage directly so we can check DOM)
       const html = wrapper.html();
-      // carol is hidden by default; we just verify the page renders without errors
       expect(html).toBeTruthy();
     });
 
     test("Never is shown for lastActive = 1900", async () => {
       const wrapper = loadTestPage(App, model);
-      // bob has lastActive in 1900 (never active) but is unconfirmed — show him first
-      const btn = wrapper.findAll("button").find((b) => b.text().includes("Show Unconfirmed"))!;
-      await btn.trigger("click");
+      // bob has lastActive in 1900 (never active) but is unconfirmed — reveal him first
+      await setTriState(wrapper, "filter-unconfirmed", "any");
       expect(wrapper.text()).toContain("Never");
     });
 

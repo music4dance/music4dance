@@ -1,0 +1,50 @@
+@using m4d.ViewModels
+@model List<m4dModels.ApplicationUser>
+
+@{
+    ViewBag.Title = "Delete Unconfirmed Users";
+ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
+}
+
+<h2>@ViewBag.Title</h2>
+<hr/>
+
+<h3>Are you sure you want to delete @Model.Count unconfirmed user(s) who signed up more than 90 days ago?</h3>
+
+@if (Model.Count > 0)
+{
+    <table class="table table-striped">
+        <tr>
+            <th>UserName</th>
+            <th>Email</th>
+            <th>Signed Up</th>
+        </tr>
+
+        @foreach (var user in Model)
+    {
+        <tr>
+                <td>@user.UserName</td>
+                <td>@user.Email</td>
+                <td>@user.StartDate.ToString("d")</td>
+            </tr>
+    }
+    </table>
+
+    @using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @foreach (var user in Model)
+    {
+        <input type="hidden" name="userIds" value="@user.Id"/>
+    }
+
+    <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-danger"/> |
+            @Html.ActionLink("Cancel", "Index")
+        </div>
+}
+}
+else
+{
+    <p>@Html.ActionLink("Back to List", "Index")</p>
+}

@@ -9,10 +9,36 @@ declare const model_: string;
 const model: AdminUsersModel = TypedJSON.parse(model_, AdminUsersModel)!;
 
 // --- Filter state ---
-const showUnconfirmed = ref(false);
-const showPseudo = ref(false);
-const hidePrivate = ref(false);
+// Four independent filters, AND-combined:
+//  - Roles: any combination of roles, OR'd together. Empty selection = unfiltered (show all).
+//  - Private / Unconfirmed / Pseudo: each is a tri-state (Any / Yes / No), independently
+//    defaulted below rather than sharing one "on by default" convention.
+type TriState = "any" | "yes" | "no";
+const triStateOptions: { value: TriState; text: string }[] = [
+  { value: "any", text: "Any" },
+  { value: "yes", text: "Yes" },
+  { value: "no", text: "No" },
+];
+
+const selectedRoles = ref<string[]>([]);
+const privateFilter = ref<TriState>("any");
+const unconfirmedFilter = ref<TriState>("no");
+const pseudoFilter = ref<TriState>("no");
 const userSearch = ref("");
+
+function matchesTriState(state: TriState, value: boolean): boolean {
+  return state === "any" || (state === "yes") === value;
+}
+
+// Mirrors the site-wide notion of "private": not fully public.
+function isPrivateUser(u: AdminUserSummary): boolean {
+  return u.privacy !== 255;
+}
+// Pseudo/service users are always created with EmailConfirmed = true, so this only ever
+// matches real accounts.
+function isUnconfirmedUser(u: AdminUserSummary): boolean {
+  return !u.emailConfirmed;
+}
 
 // --- Pagination ---
 const perPage = ref(50);
@@ -42,15 +68,14 @@ const allUsers = computed(() => model.users ?? []);
 
 // --- Computed: filtered users for the table ---
 const filteredUsers = computed(() => {
-  const su = showUnconfirmed.value;
-  const sp = showPseudo.value;
-  const hp = hidePrivate.value;
+  const roles = selectedRoles.value;
   const q = userSearch.value.trim().toLowerCase();
 
   return allUsers.value.filter((u) => {
-    if (!u.emailConfirmed && !u.isPseudo && !su) return false;
-    if (u.isPseudo && !sp) return false;
-    if (hp && u.privacy !== 255) return false;
+    if (roles.length > 0 && !u.roles.some((r) => roles.includes(r))) return false;
+    if (!matchesTriState(privateFilter.value, isPrivateUser(u))) return false;
+    if (!matchesTriState(unconfirmedFilter.value, isUnconfirmedUser(u))) return false;
+    if (!matchesTriState(pseudoFilter.value, u.isPseudo)) return false;
     if (q && !u.userName.toLowerCase().includes(q) && !(u.email ?? "").toLowerCase().includes(q))
       return false;
     return true;
@@ -228,79 +253,93 @@ function mergeUrl(userName: string): string {
   <PageFrame id="app" title="User Administrator">
     <!-- Summary row -->
     <div class="row mb-3">
-      <div class="col-md-3">
+      <div class="col-md-2">
         <p><strong>Total Users:</strong> {{ totalUsers }}</p>
         <p><strong>Registered Users:</strong> {{ registeredUsers }}</p>
         <p><strong>Confirmed Users:</strong> {{ confirmedUsers }}</p>
         <p><strong>Deleted Users:</strong> {{ deletedUsers }}</p>
       </div>
 
-      <div class="col-md-3">
+      <div class="col-md-2">
         <p v-for="{ role, count } in roleStats" :key="role">
           <b>{{ role }}</b
           >: {{ count }}
         </p>
       </div>
 
-      <div class="col-md-3">
+      <div class="col-md-2">
         <p v-for="{ login, count } in loginStats" :key="login">
           <b>{{ login }}</b
           >: {{ count }}
         </p>
       </div>
 
-      <div class="col-md-3">
-        <p>
+      <div class="col-md-2">
+        <p class="mb-2">
           <a href="/ApplicationUsers/Create" class="btn btn-primary" role="button"
             >New Pseudo User</a
           >
         </p>
-        <p>
-          <BButton
-            :variant="showUnconfirmed ? 'secondary' : 'primary'"
-            @click="
-              showUnconfirmed = !showUnconfirmed;
-              currentPage = 1;
-            "
-          >
-            {{ showUnconfirmed ? "Hide Unconfirmed" : "Show Unconfirmed" }}
-          </BButton>
-        </p>
-        <p>
-          <BButton
-            :variant="showPseudo ? 'secondary' : 'primary'"
-            @click="
-              showPseudo = !showPseudo;
-              currentPage = 1;
-            "
-          >
-            {{ showPseudo ? "Hide Pseudo" : "Show Pseudo" }}
-          </BButton>
-        </p>
-        <p>
-          <BButton
-            :variant="hidePrivate ? 'secondary' : 'primary'"
-            @click="
-              hidePrivate = !hidePrivate;
-              currentPage = 1;
-            "
-          >
-            {{ hidePrivate ? "Show Private" : "Hide Private" }}
-          </BButton>
-        </p>
-        <p>
+        <p class="mb-2">
           <a href="/ApplicationUsers/ClearCache" class="btn btn-secondary" role="button"
             >Clear Cache</a
           >
         </p>
-        <p>
+        <p class="mb-2">
           <a href="/ApplicationUsers/VotingResults" class="btn btn-primary" role="button"
             >Voting Results</a
           >
         </p>
-        <p>
-          <a href="/ApplicationUsers/PremiumUsers" class="btn btn-primary" role="button">Premium</a>
+        <p class="mb-0">
+          <a href="/ApplicationUsers/DeleteUnconfirmed" class="btn btn-danger" role="button"
+            >Delete Unconfirmed</a
+          >
         </p>
+      </div>
+
+      <div class="col-md-2">
+        <p class="mb-1"><strong>Filter by role:</strong></p>
+        <BFormCheckboxGroup
+          id="roles-filter"
+          v-model="selectedRoles"
+          :options="model.allRoles ?? []"
+          stacked
+          @update:model-value="currentPage = 1"
+        />
+      </div>
+
+      <div class="col-md-2">
+        <p class="mb-1"><strong>Filter by flag:</strong></p>
+        <div class="mb-2">
+          <label for="filter-private" class="mb-0 small d-block">Private</label>
+          <BFormSelect
+            id="filter-private"
+            v-model="privateFilter"
+            :options="triStateOptions"
+            size="sm"
+            @change="currentPage = 1"
+          />
+        </div>
+        <div class="mb-2">
+          <label for="filter-unconfirmed" class="mb-0 small d-block">Unconfirmed</label>
+          <BFormSelect
+            id="filter-unconfirmed"
+            v-model="unconfirmedFilter"
+            :options="triStateOptions"
+            size="sm"
+            @change="currentPage = 1"
+          />
+        </div>
+        <div class="mb-0">
+          <label for="filter-pseudo" class="mb-0 small d-block">Pseudo</label>
+          <BFormSelect
+            id="filter-pseudo"
+            v-model="pseudoFilter"
+            :options="triStateOptions"
+            size="sm"
+            @change="currentPage = 1"
+          />
+        </div>
       </div>
     </div>
 
