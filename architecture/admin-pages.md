@@ -37,32 +37,31 @@ entity is never serialized.
 
 ### Filtering
 
-The table shows one row per user. Filtering is entirely client-side and built around **mutually
-exclusive categories**, each with its own checkbox:
+The table shows one row per user. Filtering is entirely client-side and built around **four
+independent, AND-combined filters** rather than mutually exclusive categories:
 
-| Category | Membership rule | Default |
-| --- | --- | --- |
-| Basic | not Pseudo, not Unconfirmed, not Premium (whatever's left) | shown |
-| Unconfirmed | `!isPseudo && !emailConfirmed` | hidden |
-| Pseudo | `isPseudo` | hidden |
-| Premium | `roles.includes("premium") \|\| lifetimePurchased > 0` (mirrors the old `UserMapper.GetPremiumUsers` rule) | shown |
+| Filter | Kind | Default | Rule |
+| --- | --- | --- | --- |
+| Roles | multi-select checkboxes, OR'd together | unfiltered (all roles shown) | Visible if the user has **any** checked role, or if no roles are checked at all |
+| Private | tri-state (Any / Yes / No) | Any | "Yes" means `privacy !== 255`; "No" means `privacy === 255` |
+| Unconfirmed | tri-state (Any / Yes / No) | No | "Yes" means `!emailConfirmed`. Pseudo/service users are always created with `EmailConfirmed = true`, so this can never spuriously match one |
+| Pseudo | tri-state (Any / Yes / No) | No | "Yes" means `isPseudo` |
 
-A user is visible if **any** of their matching category checkboxes is checked (an OR across
-categories). Because Basic is defined as "none of the others," unchecking Basic isolates
-whichever special categories remain checked — e.g. check only Pseudo to see just service/pseudo
-accounts, or only Premium to see just paying/premium-role users. This replaced a separate
-`/ApplicationUsers/PremiumUsers` Razor page that existed only to show the premium-role-or-paid
-user list; that page and `UserMapper.GetPremiumUsers` were removed once Premium became a filter
-here.
+Each of the four filters narrows the set independently (AND across filters); "Any" on a tri-state
+filter means it imposes no constraint. The role list comes from `model.allRoles` (all roles known
+to the DB), rendered as a stacked checkbox group — leaving every role unchecked is the same as not
+filtering by role at all. This replaced an earlier design built around mutually-exclusive
+categories (Basic/Unconfirmed/Pseudo/Premium as one OR'd group, Private as a separate boolean
+AND-filter), which couldn't express "any combination of roles" or isolate on privacy/unconfirmed/
+pseudo independently of each other.
 
-`Private` is a separate, independent AND-filter (`privacy === 255`), not a category — it narrows
-whatever the category checkboxes already produced. Checked (default) shows everyone regardless of
-privacy; unchecked hides anyone whose privacy isn't fully public (255).
+There is no dedicated "Premium" filter — a `/ApplicationUsers/PremiumUsers` Razor page that used to
+show the premium-role-or-paid-lifetime-total user list, and `UserMapper.GetPremiumUsers`, were both
+removed; checking the `premium` role in the Roles filter covers the role-based case directly (the
+old `lifetimePurchased > 0` fallback for users without the role isn't reproduced by the current
+filter set).
 
-The checkbox list is ordered with the three on-by-default filters first (Basic, Premium, Private),
-followed by the off-by-default ones (Unconfirmed, Pseudo).
-
-A free-text search box filters the category-filtered set further by username or email substring.
+A free-text search box filters the already-filtered set further by username or email substring.
 
 ### Other page features
 
@@ -74,7 +73,30 @@ A free-text search box filters the category-filtered set further by username or 
 - Per-row action links (plain `<a>`, no fetch) to the Razor auxiliary pages: Details, Edit,
   Delete, ChangeRoles, ClearPremium, Merge (pseudo users only), plus cross-page links to
   `Song/FilterUser`, `Searches/Index`, `UsageLog/UserLog`, `PlayList/Index` for that user
-- Top-of-page links: New Pseudo User (`Create`), Clear Cache, Voting Results
+- Top-of-page links: New Pseudo User (`Create`), Clear Cache, Voting Results, Delete Unconfirmed
+
+### Delete Unconfirmed
+
+`/ApplicationUsers/DeleteUnconfirmed` bulk-deletes users who have never confirmed their email and
+signed up more than 90 days ago (`UnconfirmedRetentionDays` in `ApplicationUsersController`). The
+GET action queries `Context.Users.Where(u => !u.EmailConfirmed && u.StartDate < cutoff)` and shows
+a Razor confirm page listing each matching user; POST performs the delete.
+
+Deletion follows the same anonymize-then-remove sequence as the single-user `DeleteConfirmed`
+action: for each user, `Database.ChangeUserName(user.DecoratedName, user.Id)` reassigns their song
+contributions (votes/tags/edits) to their GUID `Id` so they read as Anonymous instead of vanishing,
+their searches are removed, then the user row itself is removed. If anonymization throws for a
+given user, that user is skipped (logged, not deleted) and the batch continues — one bad record
+shouldn't block the rest.
+
+Both this action and the single-user `DeleteConfirmed` guard on `ServiceHealth.IsServiceHealthy
+("SearchService")` before doing anything, returning a 503 if search is down — anonymization needs a
+reachable search index to find the user's song contributions. This must be the optimistic
+`IsServiceHealthy` (defaults to healthy for a service with no recorded status), not the pessimistic
+`IsServiceAvailable` (defaults to unavailable) — nothing in production ever calls
+`MarkHealthy("SearchService")`, so `IsServiceAvailable` would treat search as permanently
+unavailable and block every delete unconditionally. Every other search-health check in the
+codebase already uses `IsServiceHealthy`.
 
 ### Notes
 

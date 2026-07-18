@@ -9,30 +9,35 @@ declare const model_: string;
 const model: AdminUsersModel = TypedJSON.parse(model_, AdminUsersModel)!;
 
 // --- Filter state ---
-// Each user falls into exactly one of these categories; "Basic" is whatever's
-// left over once Unconfirmed/Pseudo/Premium are excluded. Every category has
-// its own show/hide checkbox, so unchecking "Basic" isolates whichever special
-// categories remain checked (e.g. Pseudo alone, or Premium alone).
-// "Private" is a separate AND-filter (not a category) that narrows the above
-// by the privacy flag; checked (default) shows everyone, unchecked hides
-// anyone whose privacy isn't fully public (255).
-const showBasic = ref(true);
-const showPremium = ref(true);
-const showPrivate = ref(true);
-const showUnconfirmed = ref(false);
-const showPseudo = ref(false);
+// Four independent filters, AND-combined:
+//  - Roles: any combination of roles, OR'd together. Empty selection = unfiltered (show all).
+//  - Private / Unconfirmed / Pseudo: each is a tri-state (Any / Yes / No), independently
+//    defaulted below rather than sharing one "on by default" convention.
+type TriState = "any" | "yes" | "no";
+const triStateOptions: { value: TriState; text: string }[] = [
+  { value: "any", text: "Any" },
+  { value: "yes", text: "Yes" },
+  { value: "no", text: "No" },
+];
+
+const selectedRoles = ref<string[]>([]);
+const privateFilter = ref<TriState>("any");
+const unconfirmedFilter = ref<TriState>("no");
+const pseudoFilter = ref<TriState>("no");
 const userSearch = ref("");
 
-// Mirrors UserMapper.GetPremiumUsers: premium role or a positive lifetime purchase total.
-const PREMIUM_ROLE = "premium";
-function isPremiumUser(u: AdminUserSummary): boolean {
-  return u.roles.includes(PREMIUM_ROLE) || u.lifetimePurchased > 0;
+function matchesTriState(state: TriState, value: boolean): boolean {
+  return state === "any" || (state === "yes") === value;
 }
+
+// Mirrors the site-wide notion of "private": not fully public.
+function isPrivateUser(u: AdminUserSummary): boolean {
+  return u.privacy !== 255;
+}
+// Pseudo/service users are always created with EmailConfirmed = true, so this only ever
+// matches real accounts.
 function isUnconfirmedUser(u: AdminUserSummary): boolean {
-  return !u.isPseudo && !u.emailConfirmed;
-}
-function isBasicUser(u: AdminUserSummary): boolean {
-  return !u.isPseudo && !isUnconfirmedUser(u) && !isPremiumUser(u);
+  return !u.emailConfirmed;
 }
 
 // --- Pagination ---
@@ -63,17 +68,14 @@ const allUsers = computed(() => model.users ?? []);
 
 // --- Computed: filtered users for the table ---
 const filteredUsers = computed(() => {
-  const sp = showPrivate.value;
+  const roles = selectedRoles.value;
   const q = userSearch.value.trim().toLowerCase();
 
   return allUsers.value.filter((u) => {
-    const inCategory =
-      (showBasic.value && isBasicUser(u)) ||
-      (showUnconfirmed.value && isUnconfirmedUser(u)) ||
-      (showPseudo.value && u.isPseudo) ||
-      (showPremium.value && isPremiumUser(u));
-    if (!inCategory) return false;
-    if (!sp && u.privacy !== 255) return false;
+    if (roles.length > 0 && !u.roles.some((r) => roles.includes(r))) return false;
+    if (!matchesTriState(privateFilter.value, isPrivateUser(u))) return false;
+    if (!matchesTriState(unconfirmedFilter.value, isUnconfirmedUser(u))) return false;
+    if (!matchesTriState(pseudoFilter.value, u.isPseudo)) return false;
     if (q && !u.userName.toLowerCase().includes(q) && !(u.email ?? "").toLowerCase().includes(q))
       return false;
     return true;
@@ -272,7 +274,7 @@ function mergeUrl(userName: string): string {
         </p>
       </div>
 
-      <div class="col-md-3">
+      <div class="col-md-2">
         <p class="mb-2">
           <a href="/ApplicationUsers/Create" class="btn btn-primary" role="button"
             >New Pseudo User</a
@@ -295,23 +297,49 @@ function mergeUrl(userName: string): string {
         </p>
       </div>
 
-      <div class="col-md-3">
-        <p class="mb-1"><strong>Show users:</strong></p>
-        <BFormCheckbox v-model="showBasic" @update:model-value="currentPage = 1">
-          Basic
-        </BFormCheckbox>
-        <BFormCheckbox v-model="showPremium" @update:model-value="currentPage = 1">
-          Premium
-        </BFormCheckbox>
-        <BFormCheckbox v-model="showPrivate" @update:model-value="currentPage = 1">
-          Private
-        </BFormCheckbox>
-        <BFormCheckbox v-model="showUnconfirmed" @update:model-value="currentPage = 1">
-          Unconfirmed
-        </BFormCheckbox>
-        <BFormCheckbox v-model="showPseudo" @update:model-value="currentPage = 1">
-          Pseudo
-        </BFormCheckbox>
+      <div class="col-md-2">
+        <p class="mb-1"><strong>Filter by role:</strong></p>
+        <BFormCheckboxGroup
+          id="roles-filter"
+          v-model="selectedRoles"
+          :options="model.allRoles ?? []"
+          stacked
+          @update:model-value="currentPage = 1"
+        />
+      </div>
+
+      <div class="col-md-2">
+        <p class="mb-1"><strong>Filter by flag:</strong></p>
+        <div class="mb-2">
+          <label for="filter-private" class="mb-0 small d-block">Private</label>
+          <BFormSelect
+            id="filter-private"
+            v-model="privateFilter"
+            :options="triStateOptions"
+            size="sm"
+            @change="currentPage = 1"
+          />
+        </div>
+        <div class="mb-2">
+          <label for="filter-unconfirmed" class="mb-0 small d-block">Unconfirmed</label>
+          <BFormSelect
+            id="filter-unconfirmed"
+            v-model="unconfirmedFilter"
+            :options="triStateOptions"
+            size="sm"
+            @change="currentPage = 1"
+          />
+        </div>
+        <div class="mb-0">
+          <label for="filter-pseudo" class="mb-0 small d-block">Pseudo</label>
+          <BFormSelect
+            id="filter-pseudo"
+            v-model="pseudoFilter"
+            :options="triStateOptions"
+            size="sm"
+            @change="currentPage = 1"
+          />
+        </div>
       </div>
     </div>
 

@@ -44,7 +44,7 @@ export const model = {
       id: "user-3",
       userName: "carol|P",
       email: "carol@music4dance.net",
-      emailConfirmed: false,
+      emailConfirmed: true,
       isPseudo: true,
       startDate: "2021-01-10T00:00:00",
       lastActive: "2024-12-01T09:15:00",
