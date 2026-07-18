@@ -33,6 +33,10 @@ ViewBag.BreadCrumbs = BreadCrumbItem.BuildUsersTrail(ViewBag.Title);
     @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
+    @foreach (var user in Model)
+    {
+        <input type="hidden" name="userIds" value="@user.Id"/>
+    }
 
     <div class="form-actions no-color">
             <input type="submit" value="Delete" class="btn btn-danger"/> |

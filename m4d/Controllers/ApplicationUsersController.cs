@@ -419,11 +419,9 @@ public class ApplicationUsersController(
                 "Please check the search service and try again.");
         }
 
-        var searches = Context.Searches.Where(s => s.ApplicationUserId == applicationUser.Id);
-        foreach (var search in searches)
-        {
-            _ = Context.Searches.Remove(search);
-        }
+        var searches = await Context.Searches.Where(s => s.ApplicationUserId == applicationUser.Id)
+            .ToListAsync();
+        Context.Searches.RemoveRange(searches);
 
         _ = Context.Users.Remove(applicationUser);
         _ = await Context.SaveChangesAsync();
@@ -440,10 +438,13 @@ public class ApplicationUsersController(
     }
 
     // POST: ApplicationUsers/DeleteUnconfirmed
+    // Only deletes users both shown on the confirm page (userIds) and still matching the
+    // unconfirmed/retention rule at submit time - re-validated server-side in case a user's
+    // state changed (e.g. confirmed their email) between the GET and this POST.
     [HttpPost]
     [ActionName("DeleteUnconfirmed")]
     [ValidateAntiForgeryToken]
-    public async Task<ActionResult> DeleteUnconfirmedConfirmed()
+    public async Task<ActionResult> DeleteUnconfirmedConfirmed(List<string> userIds)
     {
         // Reassign all song contributions (votes, tags, edits) from each deleted user's name
         // to their GUID ID, so they appear as Anonymous rather than being lost.
@@ -457,7 +458,9 @@ public class ApplicationUsersController(
                 "are removed. Please try again once the search service has recovered.");
         }
 
-        var users = await UnconfirmedUsersOlderThanRetention().ToListAsync();
+        var users = await UnconfirmedUsersOlderThanRetention()
+            .Where(u => userIds.Contains(u.Id))
+            .ToListAsync();
 
         foreach (var user in users)
         {
@@ -473,11 +476,9 @@ public class ApplicationUsersController(
                 continue;
             }
 
-            var searches = Context.Searches.Where(s => s.ApplicationUserId == user.Id);
-            foreach (var search in searches)
-            {
-                _ = Context.Searches.Remove(search);
-            }
+            var searches = await Context.Searches.Where(s => s.ApplicationUserId == user.Id)
+                .ToListAsync();
+            Context.Searches.RemoveRange(searches);
 
             _ = Context.Users.Remove(user);
         }

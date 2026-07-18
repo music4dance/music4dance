@@ -42,6 +42,11 @@ public class ApplicationUsersControllerTests
     private static ApplicationUsersController CreateController(
         DanceMusicService dms, ServiceHealthManager serviceHealth = null!)
     {
+        // Default to a fresh (unmarked, optimistically-healthy) ServiceHealthManager rather than
+        // null, so a future test that exercises an action's health check without explicitly
+        // passing one gets realistic behavior instead of a NullReferenceException.
+        serviceHealth ??= new ServiceHealthManager(NullLogger<ServiceHealthManager>.Instance);
+
         var danceStatsField = typeof(DanceMusicCoreService)
             .GetField("<DanceStatsManager>k__BackingField",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
@@ -126,13 +131,13 @@ public class ApplicationUsersControllerTests
         // DeleteUnconfirmedConfirmed: one user's anonymization failure must not crash the batch
         // or delete that user, and the action must still redirect normally.
         var dms = await DanceMusicTester.CreateServiceWithUsers("DeleteUnconfirmed_Post");
-        await MakeUnconfirmed(dms, "dwgray", daysOld: 120);
-        await MakeUnconfirmed(dms, "ohdwg", daysOld: 10);
+        var dwgray = await MakeUnconfirmed(dms, "dwgray", daysOld: 120);
+        var ohdwg = await MakeUnconfirmed(dms, "ohdwg", daysOld: 10);
 
         var controller = CreateController(dms, CreateHealthySearchService());
 
         // Act
-        var result = await controller.DeleteUnconfirmedConfirmed();
+        var result = await controller.DeleteUnconfirmedConfirmed([dwgray.Id, ohdwg.Id]);
 
         // Assert — redirects back to Index without throwing
         Assert.IsInstanceOfType<RedirectToActionResult>(result);
@@ -150,17 +155,41 @@ public class ApplicationUsersControllerTests
         // (matching every other caller in the app), so the guard must be tested by explicitly
         // marking the service unavailable, not just leaving it unmarked.
         var dms = await DanceMusicTester.CreateServiceWithUsers("DeleteUnconfirmed_Unavailable");
-        await MakeUnconfirmed(dms, "dwgray", daysOld: 120);
+        var dwgray = await MakeUnconfirmed(dms, "dwgray", daysOld: 120);
 
         var unhealthy = new ServiceHealthManager(NullLogger<ServiceHealthManager>.Instance);
         unhealthy.MarkUnavailable("SearchService", "test: search index unreachable");
         var controller = CreateController(dms, unhealthy);
 
         // Act
-        var result = await controller.DeleteUnconfirmedConfirmed() as ObjectResult;
+        var result = await controller.DeleteUnconfirmedConfirmed([dwgray.Id]) as ObjectResult;
 
         // Assert
         Assert.AreEqual(503, result!.StatusCode);
         Assert.IsNotNull(await dms.FindUser("dwgray"), "User should not be deleted when search is unavailable");
+    }
+
+    [TestMethod]
+    public async Task DeleteUnconfirmedConfirmed_UserConfirmedEmailAfterConfirmPage_IsNotDeleted()
+    {
+        // Arrange — dwgray qualified and was posted back as a selected userId (as if shown on
+        // the confirm page), but confirmed their email before this POST ran. The action must
+        // re-validate against current DB state rather than trusting the posted IDs outright.
+        var dms = await DanceMusicTester.CreateServiceWithUsers("DeleteUnconfirmed_Revalidate");
+        var dwgray = await MakeUnconfirmed(dms, "dwgray", daysOld: 120);
+        var userIds = new List<string> { dwgray.Id };
+
+        dwgray.EmailConfirmed = true;
+        _ = await dms.Context.SaveChangesAsync();
+
+        var controller = CreateController(dms);
+
+        // Act
+        var result = await controller.DeleteUnconfirmedConfirmed(userIds);
+
+        // Assert
+        Assert.IsInstanceOfType<RedirectToActionResult>(result);
+        Assert.IsNotNull(await dms.FindUser("dwgray"),
+            "User should be kept once they've confirmed their email, even if posted as a userId");
     }
 }
