@@ -81,29 +81,31 @@ if (!song.hasMeterTag(3)) {
 
 ### Case 3 — "Bad 4/4 tag + bad tempo" (meter and tempo both wrong)
 
-> The algorithm identified the beat correctly but counted 4 beats per measure instead of 3, so the reported BPM is 4/3 × the correct value. Correcting requires adjusting the tempo as well as the meter tag.
+> A mis-tracked beat doesn't just corrupt the meter tag — it corrupts the BPM too, and it can be wrong in more than one way depending on what the algorithm actually locked onto (quarter notes, half notes, a tripled or thirded pulse, etc). Manually counting the true beat and comparing against each candidate correction is the standard workflow; this case surfaces every known ratio at once so that comparison happens on-screen instead of on a calculator.
 
 **Mutations:**
-Same as Case 2, plus:
+Same meter-tag change as Case 2 (remove `4/4:Tempo`, add `3/4:Tempo` if absent) in every sub-case, plus a tempo change whose ratio depends on which sub-case is selected:
 
-- Multiply the current tempo by 3/4 and round to nearest integer:
-  ```
-  Tempo = round(song.tempo × 3 / 4)
-  ```
-  Using `editor.modifyProperty(PropertyType.tempoField, correctedTempo.toString())`.
-
-```typescript
-editor.addProperty(PropertyType.removedTags, "4/4:Tempo");
-if (!song.hasMeterTag(3)) {
-  editor.addProperty(PropertyType.addedTags, "3/4:Tempo");
-}
-const correctedTempo = Math.round((song.tempo! * 3) / 4);
-editor.modifyProperty(PropertyType.tempoField, correctedTempo.toString());
+```txt
+Tempo = round(song.tempo × numerator / denominator)
 ```
 
-**Example:** A song at 120 BPM tagged 4/4 is likely a 90 BPM waltz. After correction: 90 BPM, `3/4:Tempo`.
+**Correction ratios (extensible table):**
 
-**Result after save:** Both the meter tag and the BPM value are corrected.
+| id       | What the algorithm likely did                        | Ratio (new/old) |
+| -------- | ---------------------------------------------------- | --------------- |
+| `4-to-3` | Counted 4 beats/measure (quarter notes) instead of 3 | 3 / 4           |
+| `2-to-3` | Counted 2 beats/measure (half notes) instead of 3    | 3 / 2           |
+| `div-3`  | Tripled the true tempo                               | 1 / 3           |
+| `mul-3`  | Reported one-third of the true tempo                 | 3 / 1           |
+| `double` | Reported half the true tempo                         | 2 / 1           |
+| `halve`  | Reported double the true tempo                       | 1 / 2           |
+
+This table is a plain data array (`TEMPO_CORRECTION_CASES`, see component section below), not one-off code per case. Adding a newly-observed failure mode (e.g. a compound-meter miscount) is a one-line entry — no template or handler changes required.
+
+**Example:** A song at 120 BPM tagged 4/4 shows all six candidates at once: 90 BPM (`4-to-3`), 180 BPM (`2-to-3`), 40 BPM (`div-3`), 360 BPM (`mul-3`), 240 BPM (`double`), 60 BPM (`halve`). The user picks whichever matches the tempo they counted by hand.
+
+**Result after save:** The meter tag is corrected (as in Case 2) and the BPM is set to the corrected value for whichever ratio was applied.
 
 ---
 
@@ -185,15 +187,83 @@ const showCard = computed(
 );
 ```
 
-**Template:** A `<BCard>` with `border-variant="warning"` and a brief explanatory paragraph, followed by four `<BButton>` elements (one per case). Each button calls its handler, then emits `'edit'`.
+**Tempo correction ratios (data, not code):** the config for Case 3 lives as a plain array local to the component. Adding a newly-observed miscount pattern means adding an entry here — nothing else in the component changes.
 
-**Button labels (suggested):**
-| Button | Label | Variant |
-|--------|-------|---------|
-| Case 1 | "Performer dances Waltz to 4/4 (Fake)" | `outline-secondary` |
-| Case 2 | "Meter tag wrong — correct 4/4 → 3/4" | `outline-warning` |
-| Case 3 | "Meter + tempo wrong — correct 4/4 → 3/4 and adjust BPM" | `outline-danger` |
-| Case 4 | "Song has compound time — 4/4 feel with underlying waltz triple feel" | `outline-info` |
+```typescript
+interface TempoCorrectionCase {
+  id: string;
+  label: string; // what the algorithm likely did
+  numerator: number;
+  denominator: number;
+}
+
+const TEMPO_CORRECTION_CASES: TempoCorrectionCase[] = [
+  {
+    id: "4-to-3",
+    label: "Counted 4 beats/measure (quarter notes) instead of 3",
+    numerator: 3,
+    denominator: 4,
+  },
+  {
+    id: "2-to-3",
+    label: "Counted 2 beats/measure (half notes) instead of 3",
+    numerator: 3,
+    denominator: 2,
+  },
+  { id: "div-3", label: "Tripled the true tempo", numerator: 1, denominator: 3 },
+  {
+    id: "mul-3",
+    label: "Reported one-third of the true tempo",
+    numerator: 3,
+    denominator: 1,
+  },
+];
+
+const tempoCorrectionOptions = computed(() =>
+  TEMPO_CORRECTION_CASES.map((c) => {
+    const correctedTempo = Math.round(
+      (props.song.tempo! * c.numerator) / c.denominator,
+    );
+    return {
+      ...c,
+      correctedTempo,
+      math: `${props.song.tempo} × ${c.numerator}/${c.denominator} = ${correctedTempo} BPM`,
+    };
+  }),
+);
+```
+
+**Template:** A `<BCard>` with `border-variant="warning"` and a brief explanatory paragraph. Cases 1, 2, and 4 are each a single `<BButton>`. Case 3 instead renders a small table — one row per entry in `tempoCorrectionOptions`, showing the label, the math string, and an "Apply" button — so all candidate corrections are visible side by side for comparison against the manually-counted tempo:
+
+```html
+<table class="table table-sm mb-0">
+  <tbody>
+    <tr v-for="opt in tempoCorrectionOptions" :key="opt.id">
+      <td>{{ opt.label }}</td>
+      <td class="text-nowrap">{{ opt.math }}</td>
+      <td>
+        <BButton
+          size="sm"
+          variant="outline-danger"
+          @click="applyTempoCorrection(opt)"
+        >
+          Apply
+        </BButton>
+      </td>
+    </tr>
+  </tbody>
+</table>
+```
+
+**Button labels (Cases 1, 2, 4):**
+| Button | Label                                                                 | Variant             |
+| ------ | --------------------------------------------------------------------- | ------------------- |
+| Case 1 | "Performer dances Waltz to 4/4 (Fake)"                                | `outline-secondary` |
+| Case 2 | "Meter tag wrong — correct 4/4 → 3/4"                                 | `outline-warning`   |
+| Case 4 | "Song has compound time — 4/4 feel with underlying waltz triple feel" | `outline-info`      |
+
+Case 3 has no single button/label — see the table above; each row's "Apply" button carries its own math as the label.
+
 **Handler sketch:**
 
 ```typescript
@@ -212,20 +282,19 @@ const applyBad44 = () => {
   if (!props.song.hasMeterTag(3)) {
     props.editor!.addProperty(PropertyType.addedTags, "3/4:Tempo");
   }
-  emit("edit");
 };
 
-const applyBad44AndTempo = () => {
+const applyTempoCorrection = (opt: { correctedTempo: number }) => {
   applyBad44();
-  const correctedTempo = Math.round((props.song.tempo! * 3) / 4);
   props.editor!.modifyProperty(
     PropertyType.tempoField,
-    correctedTempo.toString(),
+    opt.correctedTempo.toString(),
   );
+  emit("edit");
 };
 ```
 
-(Note: `applyBad44AndTempo` calls `applyBad44` which already emits `'edit'`, so no duplicate emit needed.)
+(Note: `applyBad44` no longer emits `'edit'` itself — Case 2's button and `applyTempoCorrection` each emit after calling it, since Case 3 has additional work to do first.)
 
 ---
 
@@ -265,5 +334,6 @@ No model changes are required. All mutations use existing `SongEditor` public AP
 ## Open Questions / Future Work
 
 - **Per-waltz granularity:** If a song has multiple waltz ratings (e.g., both SWZ and VWZ), Case 1 applies `Fake:Tempo` to all of them. If individual waltz tagging is needed later, the card could be expanded to show one row per waltz.
-- **Tempo display preview:** A future enhancement could show the computed corrected tempo (e.g., "120 BPM → 90 BPM") inline in the Case 3 button so users can verify before applying.
 - **Undo:** All changes go through `SongEditor` and are reversible via "Cancel" before saving, or via "Undo My Changes" after saving.
+- **Plausible-range filtering:** `TEMPO_CORRECTION_CASES` currently shows all four ratios unconditionally, even when a candidate's `correctedTempo` falls well outside any real waltz range. A future enhancement could dim or hide implausible rows using the WLZ dances' tempo ranges as a sanity check — purely a display filter, since the user's manual count is the real source of truth.
+- **New failure modes:** If another miscount pattern turns up (e.g. a compound-meter mistake), add it to `TEMPO_CORRECTION_CASES` — no other code changes needed.
