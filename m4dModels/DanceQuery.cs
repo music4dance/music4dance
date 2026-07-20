@@ -132,12 +132,12 @@ public class DanceQuery
     public virtual IList<string> ODataSort(string order)
     {
         var dances = DanceLibrary.Dances.Instance.ExpandGroups(Dances).ToList();
-        if (dances.Count == 0)
+        // Only sort by a single dance if there is one, otherwise sort by the overall votes for all dances
+        if (dances.Count == 1)
         {
-            return [$"dance_ALL/Votes {order}"];
+            return [$"dance_{dances[0].Id}/Votes {order}"];
         }
-
-        return [$"dance_{dances[0].Id}/Votes {order}"];
+        return [$"dance_ALL/Votes {order}"];
     }
     public string ShortDescription => string.Join(", ", Items.Select(dt => dt.ShortDescription));
 

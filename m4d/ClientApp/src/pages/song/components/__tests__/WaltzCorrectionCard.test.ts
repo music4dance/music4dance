@@ -92,6 +92,26 @@ function getButton(wrapper: ReturnType<typeof mountCard>["wrapper"], index: numb
   return button;
 }
 
+/** Get a button by (partial) visible text; stable against buttons being added/reordered elsewhere */
+function getButtonByText(wrapper: ReturnType<typeof mountCard>["wrapper"], text: string) {
+  const button = wrapper.findAll("button").find((b) => b.text().includes(text));
+  if (!button) throw new Error(`No button found with text containing "${text}"`);
+  return button;
+}
+
+/**
+ * Get the "Apply" button for a tempo-correction table row by its position in
+ * TEMPO_CORRECTION_CASES (0 = 4-to-3, 1 = 2-to-3, 2 = div-3, 3 = mul-3, 4 = double, 5 = halve).
+ */
+function getTempoCorrectionButton(wrapper: ReturnType<typeof mountCard>["wrapper"], index: number) {
+  const rows = wrapper.findAll("table tbody tr");
+  const row = rows[index];
+  if (!row) throw new Error(`No tempo-correction row at index ${index}`);
+  const button = row.find("button");
+  if (!button.exists()) throw new Error(`No Apply button in tempo-correction row ${index}`);
+  return button;
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -260,10 +280,15 @@ describe("WaltzCorrectionCard.vue", () => {
   });
 
   describe("Case 3 — Bad meter + tempo (both meter and BPM are wrong)", () => {
-    it("removes 4/4:Tempo, adds 3/4:Tempo, adjusts tempo to ¾ × original, and emits edit", async () => {
+    it("renders one table row per tempo-correction case", () => {
+      const { wrapper } = mountCard();
+      expect(wrapper.findAll("table tbody tr")).toHaveLength(6);
+    });
+
+    it("removes 4/4:Tempo, adds 3/4:Tempo, adjusts tempo to ¾ × original (4-to-3), and emits edit", async () => {
       // 120 BPM → 90 BPM after correction (120 × 3/4 = 90)
       const { wrapper, editor } = mountCard();
-      await getButton(wrapper, 2).trigger("click");
+      await getTempoCorrectionButton(wrapper, 0).trigger("click");
 
       const removeProp = findEditProp(editor, PropertyType.removedTags);
       const addProp = findEditProp(editor, PropertyType.addedTags);
@@ -283,7 +308,7 @@ describe("WaltzCorrectionCard.vue", () => {
         tempo: "100",
       });
       const { wrapper, editor } = mountCard({ history });
-      await getButton(wrapper, 2).trigger("click");
+      await getTempoCorrectionButton(wrapper, 0).trigger("click");
 
       const tempoProp = findEditProp(editor, PropertyType.tempoField);
       expect(tempoProp?.value).toBe("75");
@@ -297,7 +322,7 @@ describe("WaltzCorrectionCard.vue", () => {
         tempo: "101",
       });
       const { wrapper, editor } = mountCard({ history });
-      await getButton(wrapper, 2).trigger("click");
+      await getTempoCorrectionButton(wrapper, 0).trigger("click");
 
       const tempoProp = findEditProp(editor, PropertyType.tempoField);
       expect(tempoProp?.value).toBe("76");
@@ -306,15 +331,36 @@ describe("WaltzCorrectionCard.vue", () => {
     it("marks the editor as modified", async () => {
       const { wrapper, editor } = mountCard();
       expect(editor.modified).toBe(false);
-      await getButton(wrapper, 2).trigger("click");
+      await getTempoCorrectionButton(wrapper, 0).trigger("click");
       expect(editor.modified).toBe(true);
+    });
+
+    it.each([
+      // [row index, id, expected corrected tempo for a 120 BPM song]
+      [1, "2-to-3", "180"],
+      [2, "div-3", "40"],
+      [3, "mul-3", "360"],
+      [4, "double", "240"],
+      [5, "halve", "60"],
+    ])("row %i applies the %s ratio and sets tempo to %s", async (row, _id, expected) => {
+      const { wrapper, editor } = mountCard();
+      await getTempoCorrectionButton(wrapper, row as number).trigger("click");
+
+      const removeProp = findEditProp(editor, PropertyType.removedTags);
+      const addProp = findEditProp(editor, PropertyType.addedTags);
+      const tempoProp = findEditProp(editor, PropertyType.tempoField);
+
+      expect(removeProp?.value).toBe("4/4:Tempo");
+      expect(addProp?.value).toBe("3/4:Tempo");
+      expect(tempoProp?.value).toBe(expected);
+      expect(wrapper.emitted("edit")).toBeTruthy();
     });
   });
 
   describe("Case 4 — Compound time (4/4 feel with underlying waltz triple time)", () => {
     it("adds 12/8:Tempo song-level tag and Compound Time:Tempo dance tag, emits edit", async () => {
       const { wrapper, editor } = mountCard();
-      await getButton(wrapper, 3).trigger("click");
+      await getButtonByText(wrapper, "Song has compound time").trigger("click");
 
       const addedProps = findAllEditProps(editor, PropertyType.addedTags);
       const has128 = addedProps.some((p) => p.value === "12/8:Tempo");
@@ -331,7 +377,7 @@ describe("WaltzCorrectionCard.vue", () => {
         danceRatings: ["SWZ+1"],
       });
       const { wrapper, editor } = mountCard({ history });
-      await getButton(wrapper, 3).trigger("click");
+      await getButtonByText(wrapper, "Song has compound time").trigger("click");
 
       const addedProps = findAllEditProps(editor, PropertyType.addedTags);
       const added128 = addedProps.filter((p) => p.value === "12/8:Tempo");
@@ -348,7 +394,7 @@ describe("WaltzCorrectionCard.vue", () => {
         danceRatings: ["SWZ+1", "VWZ+1"],
       });
       const { wrapper, editor } = mountCard({ history });
-      await getButton(wrapper, 3).trigger("click");
+      await getButtonByText(wrapper, "Song has compound time").trigger("click");
 
       expect(findEditProp(editor, "Tag+:SWZ")?.value).toBe("Compound Time:Tempo");
       expect(findEditProp(editor, "Tag+:VWZ")?.value).toBe("Compound Time:Tempo");
@@ -360,14 +406,14 @@ describe("WaltzCorrectionCard.vue", () => {
         danceRatings: ["TGV+1"],
       });
       const { wrapper, editor } = mountCard({ history });
-      await getButton(wrapper, 3).trigger("click");
+      await getButtonByText(wrapper, "Song has compound time").trigger("click");
 
       expect(findEditProp(editor, "Tag+:TGV")?.value).toBe("Compound Time:Tempo");
     });
 
     it("does NOT remove or change the 4/4:Tempo tag", async () => {
       const { wrapper, editor } = mountCard();
-      await getButton(wrapper, 3).trigger("click");
+      await getButtonByText(wrapper, "Song has compound time").trigger("click");
 
       const removeProp = findEditProp(editor, PropertyType.removedTags);
       expect(removeProp).toBeUndefined();
@@ -375,7 +421,7 @@ describe("WaltzCorrectionCard.vue", () => {
 
     it("does NOT modify the tempo BPM value", async () => {
       const { wrapper, editor } = mountCard();
-      await getButton(wrapper, 3).trigger("click");
+      await getButtonByText(wrapper, "Song has compound time").trigger("click");
 
       const tempoProps = findAllEditProps(editor, PropertyType.tempoField);
       expect(tempoProps).toHaveLength(0);
