@@ -217,6 +217,8 @@ const TEMPO_CORRECTION_CASES: TempoCorrectionCase[] = [
     numerator: 3,
     denominator: 1,
   },
+  { id: "double", label: "Reported half the true tempo", numerator: 2, denominator: 1 },
+  { id: "halve", label: "Reported double the true tempo", numerator: 1, denominator: 2 },
 ];
 
 const tempoCorrectionOptions = computed(() =>
@@ -335,5 +337,5 @@ No model changes are required. All mutations use existing `SongEditor` public AP
 
 - **Per-waltz granularity:** If a song has multiple waltz ratings (e.g., both SWZ and VWZ), Case 1 applies `Fake:Tempo` to all of them. If individual waltz tagging is needed later, the card could be expanded to show one row per waltz.
 - **Undo:** All changes go through `SongEditor` and are reversible via "Cancel" before saving, or via "Undo My Changes" after saving.
-- **Plausible-range filtering:** `TEMPO_CORRECTION_CASES` currently shows all four ratios unconditionally, even when a candidate's `correctedTempo` falls well outside any real waltz range. A future enhancement could dim or hide implausible rows using the WLZ dances' tempo ranges as a sanity check — purely a display filter, since the user's manual count is the real source of truth.
+- **Plausible-range filtering:** `TEMPO_CORRECTION_CASES` currently shows all six ratios unconditionally, even when a candidate's `correctedTempo` falls well outside any real waltz range. A future enhancement could dim or hide implausible rows using the WLZ dances' tempo ranges as a sanity check — purely a display filter, since the user's manual count is the real source of truth.
 - **New failure modes:** If another miscount pattern turns up (e.g. a compound-meter mistake), add it to `TEMPO_CORRECTION_CASES` — no other code changes needed.

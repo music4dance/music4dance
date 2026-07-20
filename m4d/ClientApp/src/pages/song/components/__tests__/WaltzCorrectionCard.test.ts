@@ -92,6 +92,13 @@ function getButton(wrapper: ReturnType<typeof mountCard>["wrapper"], index: numb
   return button;
 }
 
+/** Get a button by (partial) visible text; stable against buttons being added/reordered elsewhere */
+function getButtonByText(wrapper: ReturnType<typeof mountCard>["wrapper"], text: string) {
+  const button = wrapper.findAll("button").find((b) => b.text().includes(text));
+  if (!button) throw new Error(`No button found with text containing "${text}"`);
+  return button;
+}
+
 /**
  * Get the "Apply" button for a tempo-correction table row by its position in
  * TEMPO_CORRECTION_CASES (0 = 4-to-3, 1 = 2-to-3, 2 = div-3, 3 = mul-3, 4 = double, 5 = halve).
@@ -335,7 +342,7 @@ describe("WaltzCorrectionCard.vue", () => {
       [3, "mul-3", "360"],
       [4, "double", "240"],
       [5, "halve", "60"],
-    ])("applies the %s ratio (row %i) and sets tempo to %s", async (row, _id, expected) => {
+    ])("row %i applies the %s ratio and sets tempo to %s", async (row, _id, expected) => {
       const { wrapper, editor } = mountCard();
       await getTempoCorrectionButton(wrapper, row as number).trigger("click");
 
@@ -353,7 +360,7 @@ describe("WaltzCorrectionCard.vue", () => {
   describe("Case 4 — Compound time (4/4 feel with underlying waltz triple time)", () => {
     it("adds 12/8:Tempo song-level tag and Compound Time:Tempo dance tag, emits edit", async () => {
       const { wrapper, editor } = mountCard();
-      await getButton(wrapper, wrapper.findAll("button").length - 1).trigger("click");
+      await getButtonByText(wrapper, "Song has compound time").trigger("click");
 
       const addedProps = findAllEditProps(editor, PropertyType.addedTags);
       const has128 = addedProps.some((p) => p.value === "12/8:Tempo");
@@ -370,7 +377,7 @@ describe("WaltzCorrectionCard.vue", () => {
         danceRatings: ["SWZ+1"],
       });
       const { wrapper, editor } = mountCard({ history });
-      await getButton(wrapper, wrapper.findAll("button").length - 1).trigger("click");
+      await getButtonByText(wrapper, "Song has compound time").trigger("click");
 
       const addedProps = findAllEditProps(editor, PropertyType.addedTags);
       const added128 = addedProps.filter((p) => p.value === "12/8:Tempo");
@@ -387,7 +394,7 @@ describe("WaltzCorrectionCard.vue", () => {
         danceRatings: ["SWZ+1", "VWZ+1"],
       });
       const { wrapper, editor } = mountCard({ history });
-      await getButton(wrapper, wrapper.findAll("button").length - 1).trigger("click");
+      await getButtonByText(wrapper, "Song has compound time").trigger("click");
 
       expect(findEditProp(editor, "Tag+:SWZ")?.value).toBe("Compound Time:Tempo");
       expect(findEditProp(editor, "Tag+:VWZ")?.value).toBe("Compound Time:Tempo");
@@ -399,14 +406,14 @@ describe("WaltzCorrectionCard.vue", () => {
         danceRatings: ["TGV+1"],
       });
       const { wrapper, editor } = mountCard({ history });
-      await getButton(wrapper, wrapper.findAll("button").length - 1).trigger("click");
+      await getButtonByText(wrapper, "Song has compound time").trigger("click");
 
       expect(findEditProp(editor, "Tag+:TGV")?.value).toBe("Compound Time:Tempo");
     });
 
     it("does NOT remove or change the 4/4:Tempo tag", async () => {
       const { wrapper, editor } = mountCard();
-      await getButton(wrapper, wrapper.findAll("button").length - 1).trigger("click");
+      await getButtonByText(wrapper, "Song has compound time").trigger("click");
 
       const removeProp = findEditProp(editor, PropertyType.removedTags);
       expect(removeProp).toBeUndefined();
@@ -414,7 +421,7 @@ describe("WaltzCorrectionCard.vue", () => {
 
     it("does NOT modify the tempo BPM value", async () => {
       const { wrapper, editor } = mountCard();
-      await getButton(wrapper, wrapper.findAll("button").length - 1).trigger("click");
+      await getButtonByText(wrapper, "Song has compound time").trigger("click");
 
       const tempoProps = findAllEditProps(editor, PropertyType.tempoField);
       expect(tempoProps).toHaveLength(0);
