@@ -72,13 +72,24 @@ visible sort order elsewhere.
      tooling that computes this; it's done by eyeballing the previous highest number.
    - Leave `OneTime` blank, or put any text in it, to suppress the post from the home page
      rotation.
-3. Build the server project (or wait for the next CI/deploy build) so the `assets` MSBuild target
-   copies the edited file into `wwwroot/content/`.
-4. In production, the parsed tree is cached in a static field
-   (`SiteMapInfo.Categories`, see `SiteMapInfo.cs`) after first load, so a redeploy is required —
-   or an admin can hit **Admin ▸ Initialization Tasks ▸ "Update Sitemap"**
+3. Get the edited file onto the server, via either path:
+   - **Normal path**: commit the change, build/deploy as usual — the `assets` MSBuild target
+     copies `ClientApp/src/assets/content/*` into `wwwroot/content/` as part of the build.
+   - **Fast path (skip the full build/deploy)**: FTP/FTPS the edited `blogmap.txt` and/or
+     `helpmap.txt` directly to the App Service, overwriting the file(s) at
+     `/site/wwwroot/m4d/wwwroot/content/` (using the site's FTPS deployment credentials — see
+     [`SELF_CONTAINED_DEPLOYMENT.md`](SELF_CONTAINED_DEPLOYMENT.md) for the app's layout on the App
+     Service; the startup command runs `/home/site/wwwroot/m4d`, and `wwwroot/content/` sits
+     alongside it). This bypasses source control entirely, so **remember to also commit the same
+     change to `ClientApp/src/assets/content/` in the repo** — otherwise the next normal deploy
+     silently overwrites the live file with the stale, un-updated one from source.
+4. In production, the parsed tree is cached in a static field (`SiteMapInfo.Categories`, see
+   `SiteMapInfo.cs`) after first load, so either path above requires forcing a reload: an admin
+   hits **Admin ▸ Initialization Tasks ▸ "Update Sitemap"**
    (`AdminController.UpdateSitemap`, calls `SiteMapInfo.ReloadCategories`) to force a re-read of the
-   file from disk without restarting the app.
+   file from disk without restarting the app. This is what makes the FTP fast path useful — a typo
+   fix or new post can go live without a full build/deploy cycle, at the cost of the repo/server
+   drift risk noted above.
 
 ## Where the parsed data is consumed
 
