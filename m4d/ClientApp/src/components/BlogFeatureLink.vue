@@ -18,7 +18,7 @@ defineProps<{
       <a :href="entry.fullPath" style="margin-left: 0.5em">[Read more]</a>
     </div>
     <div v-if="entry.children">
-      <BlogFeatureLink v-for="child in entry.children" :key="child.order" :entry="child" />
+      <BlogFeatureLink v-for="child in entry.children" :key="child.reference" :entry="child" />
     </div>
   </div>
 </template>

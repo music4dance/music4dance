@@ -147,7 +147,7 @@ const blogEntries: SiteMapEntry[] =
   model.blogEntries?.flatMap((entry) => entry.children ?? []) ?? [];
 
 const newestEntry: SiteMapEntry = blogEntries.reduce((acc, curr) =>
-  (acc.order ?? 0) > (curr.order ?? 0) ? acc : curr,
+  (acc.date ?? "") > (curr.date ?? "") ? acc : curr,
 );
 
 const headLinks: Link[] = computeHeadLinks();

@@ -7,7 +7,7 @@ export class SiteMapEntry {
   @jsonMember(String) public reference!: string;
   @jsonMember(String) public description!: string;
   @jsonMember(Boolean) public oneTime?: boolean;
-  @jsonMember(Number) public order?: number;
+  @jsonMember(String) public date?: string;
   @jsonArrayMember(SiteMapEntry) public children?: SiteMapEntry[];
 
   public get link(): Link {
