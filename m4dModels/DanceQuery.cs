@@ -66,6 +66,14 @@ public class DanceQuery
     public IEnumerable<string> DanceIds => Items.Select(d => d.Id);
     public IEnumerable<DanceObject> Dances => Items.Select(d => d.Dance);
 
+    // Explicit override for which dance's rating/tempo fields to use when more than one
+    // dance is selected (see DanceQueryItem.IsPrimary). Null for groups, since they have no
+    // per-dance rating/tempo fields of their own - same restriction as the implicit
+    // single-dance case (SongFilter.SingleDanceId).
+    public string PrimaryDanceId => Items
+        .FirstOrDefault(i => i.IsPrimary && i.Dance is not DanceLibrary.DanceGroup)
+        ?.Id;
+
     public bool IsExclusive
     {
         get
@@ -131,6 +139,11 @@ public class DanceQuery
 
     public virtual IList<string> ODataSort(string order)
     {
+        if (PrimaryDanceId != null)
+        {
+            return [$"dance_{PrimaryDanceId}/Votes {order}"];
+        }
+
         var dances = DanceLibrary.Dances.Instance.ExpandGroups(Dances).ToList();
         // Only sort by a single dance if there is one, otherwise sort by the overall votes for all dances
         if (dances.Count == 1)

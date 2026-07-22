@@ -1,3 +1,5 @@
+import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
+import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { DanceQueryBase } from "./DanceQueryBase";
 import { DanceQueryItem } from "./DanceQueryItem";
 
@@ -59,6 +61,15 @@ export class DanceQuery extends DanceQueryBase {
   public get isExclusive(): boolean {
     // Exclusive if starts with AND and more than one dance
     return this.startsWith(and) && this.data.indexOf(",", and.length + 1) !== -1;
+  }
+
+  public override get primaryDanceId(): string | undefined {
+    const item = this.danceQueryItems.find((i) => i.primary);
+    if (!item) {
+      return undefined;
+    }
+    const dance = safeDanceDatabase().fromId(item.id);
+    return dance && !DanceGroup.isGroup(dance) ? item.id : undefined;
   }
 
   public get description(): string {

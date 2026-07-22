@@ -265,7 +265,8 @@ export class SongFilter {
           `${this.describePart(this.describeLength)}` +
           `${this.describePart(this.userQuery.description)}` +
           `${this.describePart(this.describeComments)}` +
-          `${this.describePart(this.describeSort)}.`;
+          `${this.describePart(this.describeSort)}.` +
+          this.describeScopeDance;
   }
 
   public extractDefault(user?: string): SongFilter {
@@ -326,9 +327,20 @@ export class SongFilter {
     return services;
   }
 
+  // The dance whose tempo/rating fields are in effect - either because exactly one
+  // (non-group) dance is selected, or because one of several selected dances is explicitly
+  // marked as the scope dance (DanceQueryBase.primaryDanceId). Mirrors SongFilter.SingleDanceId
+  // (m4dModels/SongFilter.cs).
+  private get scopeDanceName(): string | undefined {
+    if (this.singleDance) {
+      return this.danceQuery.dances[0]?.name;
+    }
+    const primaryId = this.danceQuery.primaryDanceId;
+    return primaryId ? this.danceQuery.database.fromId(primaryId)?.name : undefined;
+  }
+
   private get describeTempo(): string {
-    const singleDanceName = this.singleDance ? this.danceQuery.dances[0]?.name : undefined;
-    const qualifier = singleDanceName ? `for ${singleDanceName} ` : "";
+    const qualifier = this.scopeDanceName ? `for ${this.scopeDanceName} ` : "";
     if (this.tempoMin && this.tempoMax) {
       return `having ${qualifier}tempo between ${this.tempoMin} and ${this.tempoMax} beats per minute`;
     } else if (this.tempoMin) {
@@ -360,6 +372,24 @@ export class SongFilter {
 
   private get describeSort(): string {
     return this.sort.description;
+  }
+
+  // Only called out when a scope dance is explicitly picked among several selected dances -
+  // the implicit single-dance case is already obvious from the "All X songs" prefix, and
+  // describeTempo already names it when a tempo range is set, so this only fills the gap for
+  // an unscoped rating/tempo sort. Mirrors the equivalent block in SongFilter.Description
+  // (m4dModels/SongFilter.cs).
+  private get describeScopeDance(): string {
+    const primaryId = this.danceQuery.primaryDanceId;
+    if (!primaryId) {
+      return "";
+    }
+    const resolvedId = this.sort.resolvedId;
+    if (resolvedId !== SortOrder.Dances && resolvedId !== SortOrder.Tempo) {
+      return "";
+    }
+    const name = this.danceQuery.database.fromId(primaryId)?.name;
+    return name ? ` Using ${name} for rating and tempo.` : "";
   }
 
   private isDefaultUser(user?: string): boolean {

@@ -3,14 +3,19 @@ import type { NamedObject } from "./DanceDatabase/NamedObject";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { TagQuery } from "./TagQuery";
 
+const primaryMarker = "*";
+
 @jsonObject
 export class DanceQueryItem {
   @jsonMember(String) public id!: string;
   @jsonMember(Number) public threshold!: number;
   @jsonMember(String) public tags?: string;
+  // Marks this dance as the explicit target for dance-rating sort, tempo sort, and the
+  // tempo range filter when more than one dance is selected - see DanceQuery.primaryDanceId.
+  @jsonMember(Boolean) public primary?: boolean;
 
   public static fromValue(value: string): DanceQueryItem {
-    const regex = /^([a-zA-Z0-9]+)([+-]?)(\d*)\|?(.*)?$/;
+    const regex = /^([a-zA-Z0-9]+)(\*?)([+-]?)(\d*)\|?(.*)?$/;
     const match = value.match(regex);
     if (!match) {
       throw new Error(`Invalid value format: ${value}`);
@@ -21,12 +26,13 @@ export class DanceQueryItem {
       throw new Error(`Couldn't find dance ${match[1]}`);
     }
 
-    const weight = match[3] ? parseInt(match[3]) : 1;
-    const tags = match[4] ?? undefined;
+    const weight = match[4] ? parseInt(match[4]) : 1;
+    const tags = match[5] ?? undefined;
 
     return new DanceQueryItem({
       id: dance.id,
-      threshold: match[2] === "-" ? -weight : weight,
+      primary: match[2] === primaryMarker ? true : undefined,
+      threshold: match[3] === "-" ? -weight : weight,
       tags: tags ? tags : undefined,
     });
   }
@@ -51,7 +57,7 @@ export class DanceQueryItem {
   }
 
   public toString(): string {
-    const baseStr = `${this.id}${this.threshold !== 1 ? (this.threshold < 0 ? "-" : "+") + Math.abs(this.threshold) : ""}`;
+    const baseStr = `${this.id}${this.primary ? primaryMarker : ""}${this.threshold !== 1 ? (this.threshold < 0 ? "-" : "+") + Math.abs(this.threshold) : ""}`;
     if (this.tags && this.tags.length > 0) {
       return `${baseStr}|${this.tags}`;
     }

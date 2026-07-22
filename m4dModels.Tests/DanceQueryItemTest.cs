@@ -126,4 +126,48 @@ public class DanceQueryItemTest
         Assert.AreEqual(expectedDesc, item.Description);
         Assert.AreEqual(expectedShort, item.ShortDescription);
     }
+
+    [TestMethod]
+    public void FromValue_ParsesPrimaryMarker()
+    {
+        var item = DanceQueryItem.FromValue("CHA*+2|Fast:Tempo");
+        Assert.AreEqual("CHA", item.Id);
+        Assert.IsTrue(item.IsPrimary);
+        Assert.AreEqual(2, item.Threshold);
+        Assert.IsTrue(item.TagQuery.TagList.Tags.Contains("Fast:Tempo"));
+    }
+
+    [TestMethod]
+    public void FromValue_NoPrimaryMarker_DefaultsFalse()
+    {
+        var item = DanceQueryItem.FromValue("CHA+2");
+        Assert.IsFalse(item.IsPrimary);
+    }
+
+    [TestMethod]
+    public void ToString_RoundTripsPrimaryMarker()
+    {
+        var item = DanceQueryItem.FromValue("CHA*-3|Fast:Tempo");
+        Assert.AreEqual("CHA*-3|Fast:Tempo", item.ToString());
+
+        var reparsed = DanceQueryItem.FromValue(item.ToString());
+        Assert.IsTrue(reparsed.IsPrimary);
+        Assert.AreEqual(-3, reparsed.Threshold);
+    }
+
+    [TestMethod]
+    public void ToString_PrimaryMarker_PrecedesThresholdSign()
+    {
+        var item = DanceQueryItem.FromValue("CHA*");
+        Assert.AreEqual("CHA*", item.ToString());
+    }
+
+    [TestMethod]
+    public void IsSimple_PrimaryMarker_IsNotSimple()
+    {
+        var plain = DanceQueryItem.FromValue("CHA");
+        var primary = DanceQueryItem.FromValue("CHA*");
+        Assert.IsTrue(plain.IsSimple);
+        Assert.IsFalse(primary.IsSimple);
+    }
 }

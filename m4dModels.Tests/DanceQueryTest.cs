@@ -185,4 +185,58 @@ public class DanceQueryTest
         q = new DanceQuery("ALL");
         Assert.IsTrue(q.All);
     }
+
+    [TestMethod]
+    public void PrimaryDanceId_NoMarker_IsNull()
+    {
+        var q = new DanceQuery("CHA,RMB");
+        Assert.IsNull(q.PrimaryDanceId);
+    }
+
+    [TestMethod]
+    public void PrimaryDanceId_MarkedItem_IsReturned()
+    {
+        var q = new DanceQuery("CHA,RMB*");
+        Assert.AreEqual("RMB", q.PrimaryDanceId);
+    }
+
+    [TestMethod]
+    public void PrimaryDanceId_MarkedGroup_IsIgnored()
+    {
+        // WLZ is a dance group (CSW, SWZ, VWZ, TGV) - groups have no per-dance rating/tempo
+        // fields of their own, so a marker on one is not a valid scope target.
+        var q = new DanceQuery("WLZ*,BOL");
+        Assert.IsNull(q.PrimaryDanceId);
+    }
+
+    [TestMethod]
+    public void PrimaryDanceId_MultipleMarkers_FirstWins()
+    {
+        var q = new DanceQuery("CHA*,RMB*");
+        Assert.AreEqual("CHA", q.PrimaryDanceId);
+    }
+
+    [TestMethod]
+    public void ODataSort_PrimaryDance_UsesThatDancesVotesField()
+    {
+        var q = new DanceQuery("CHA,RMB*");
+        var sort = q.ODataSort("desc");
+        CollectionAssert.AreEqual(new[] { "dance_RMB/Votes desc" }, (System.Collections.ICollection)sort);
+    }
+
+    [TestMethod]
+    public void ODataSort_NoPrimary_MultiDance_UsesAggregate()
+    {
+        var q = new DanceQuery("CHA,RMB");
+        var sort = q.ODataSort("desc");
+        CollectionAssert.AreEqual(new[] { "dance_ALL/Votes desc" }, (System.Collections.ICollection)sort);
+    }
+
+    [TestMethod]
+    public void ODataSort_NoPrimary_SingleDance_UsesThatDance()
+    {
+        var q = new DanceQuery("CHA");
+        var sort = q.ODataSort("asc");
+        CollectionAssert.AreEqual(new[] { "dance_CHA/Votes asc" }, (System.Collections.ICollection)sort);
+    }
 }

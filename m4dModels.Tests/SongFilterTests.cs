@@ -324,6 +324,81 @@ public class SongFilterTests
             "Single-dance tempo sort should not prefilter on top-level Tempo");
     }
 
+    [TestMethod]
+    public void GetOdataFilter_MultiDanceNoPrimaryMarker_TempoSort_UsesSongTempoField()
+    {
+        var filter = SongFilter.Create(false, @"Index-CHA,RMB-Tempo-.-.-.-.-.-1");
+
+        var odata = filter.GetOdataFilter(null);
+
+        StringAssert.Contains(odata, "(Tempo ne null) and (Tempo ne 0)");
+        Assert.IsFalse(odata.Contains("dance_CHA/Tempo"));
+        Assert.IsFalse(odata.Contains("dance_RMB/Tempo"));
+    }
+
+    [TestMethod]
+    public void GetOdataFilter_MultiDanceWithPrimaryMarker_TempoSort_UsesMarkedDancesTempoField()
+    {
+        var filter = SongFilter.Create(false, @"Index-CHA,RMB*-Tempo-.-.-.-.-.-1");
+
+        var odata = filter.GetOdataFilter(null);
+
+        StringAssert.Contains(odata, "(dance_RMB/Tempo ne null) and (dance_RMB/Tempo ne 0)");
+        Assert.IsFalse(odata.Contains("(Tempo ne null) and (Tempo ne 0)"),
+            "Explicit scope dance should prefilter on its own Tempo field, not top-level Tempo");
+    }
+
+    [TestMethod]
+    public void GetOdataFilter_MultiDanceWithPrimaryMarker_TempoRangeFilter_UsesMarkedDancesTempoField()
+    {
+        var filter = SongFilter.Create(false, @"Index-CHA,RMB*-.-.-.-.-100-150-1");
+
+        var odata = filter.GetOdataFilter(null);
+
+        StringAssert.Contains(odata, "(dance_RMB/Tempo ge 99.5)");
+        StringAssert.Contains(odata, "(dance_RMB/Tempo le 150.5)");
+        Assert.IsFalse(odata.Contains("(Tempo ge"));
+        Assert.IsFalse(odata.Contains("(Tempo le"));
+    }
+
+    [TestMethod]
+    public void GetOdataFilter_MultiDanceWithPrimaryMarker_DanceRatingSort_UsesMarkedDancesVotesField()
+    {
+        var filter = SongFilter.Create(false, @"Index-CHA,RMB*-.-.-.-.-.-.-1");
+
+        Assert.IsTrue(filter.ODataSort.Contains("dance_RMB/Votes desc"));
+    }
+
+    [TestMethod]
+    public void FilterDescription_MultiDanceWithPrimaryMarker_TempoUsesMarkedDanceName()
+    {
+        var f = SongFilter.Create(false, @"Index-CHA,RMB*-.-.-.-.-100-150-1");
+        StringAssert.Contains(f.Description, "having for Rumba tempo between 100 and 150 beats per minute");
+    }
+
+    [TestMethod]
+    public void FilterDescription_MultiDanceWithPrimaryMarker_DanceRatingSort_NotesScopeDance()
+    {
+        var f = SongFilter.Create(false, @"Index-CHA,RMB*-.-.-.-.-.-.-1");
+        StringAssert.Contains(f.Description, "Sorted by Dance Rating from most popular to least popular.");
+        StringAssert.Contains(f.Description, "Using Rumba for rating and tempo.");
+    }
+
+    [TestMethod]
+    public void FilterDescription_MultiDanceWithPrimaryMarker_TempoSort_NotesScopeDance()
+    {
+        var f = SongFilter.Create(false, @"Index-CHA,RMB*-Tempo-.-.-.-.-.-1");
+        StringAssert.Contains(f.Description, "Sorted by Tempo from slowest to fastest.");
+        StringAssert.Contains(f.Description, "Using Rumba for rating and tempo.");
+    }
+
+    [TestMethod]
+    public void FilterDescription_MultiDanceNoPrimaryMarker_DoesNotNoteScopeDance()
+    {
+        var f = SongFilter.Create(false, @"Index-CHA,RMB-.-.-.-.-.-.-1");
+        Assert.IsFalse(f.Description.Contains("Using "), $"Unexpected scope note: {f.Description}");
+    }
+
     private const string F1 = @"Index-SWG-Album-Goodman-X-.-50-150-1-+Pop:Music";
     private const string F2 = @"Index-SWG-.-.-I";
     private const string F1V2 = @"v2-Index-SWG-Album-Goodman-I-.-50-150-30-90-1-+Pop:Music";

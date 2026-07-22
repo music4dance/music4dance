@@ -80,7 +80,7 @@ Azure query.
 | Field          | Class (server / client)                                               | Cell syntax                                                                                           | Responsibility                                                                                                                                                                                                                                                                   |
 | -------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | `Dances`       | `DanceQuery` / `DanceQuery.ts`                                        | `AND,` prefix (optional) + comma-separated `DanceQueryItem` values, e.g. `AND,WCS+2,CHA-1\|GenreTags` | Which dances, combined `and`/`or`; each item can carry a vote threshold and a dance-scoped `TagQuery`                                                                                                                                                                            |
-| —              | `DanceQueryItem` / `DanceQueryItem.ts`                                | `{danceId}[+\|-]{threshold}[\|{tagQuery}]` — regex `^([a-zA-Z0-9]+)([+-]?)(\d*)\|?(.*)?$`             | One dance selection: id, vote threshold (`+n`/`-n`, default `1`), optional nested tag filter scoped to that dance                                                                                                                                                                |
+| —              | `DanceQueryItem` / `DanceQueryItem.ts`                                | `{danceId}[*][+\|-]{threshold}[\|{tagQuery}]` — regex `^([a-zA-Z0-9]+)(\*?)([+-]?)(\d*)\|?(.*)?$`     | One dance selection: id, optional `*` "scope dance" marker (see below), vote threshold (`+n`/`-n`, default `1`), optional nested tag filter scoped to that dance                                                                                                                |
 | `Tags`         | `TagQuery` / `TagQuery.ts`                                            | `^` prefix (optional, "exclude dance_ALL tags") + `TagList` syntax (`+`/`-` qualified, `              | `-delimited)                                                                                                                                                                                                                                                                     | Song-level (and optionally dance-level) tag include/exclude, classified into Music/Style/Tempo/Other with different OData shapes per class |
 | `User`         | `UserQuery` / `UserQuery.ts`                                          | `[+\|-]{userName}\|[l\|h\|d\|x\|a]`                                                                   | Identity/named-user scoping: include vs. exclude, and a modifier — `l`=liked, `h`=disliked/blocked, `d`=up-voted, `x`=down-voted, `a`=any opinion. See [[song-search-service]] for how `d`/`x` get diverted to `VoteSearch`'s in-memory path since votes aren't OData-filterable |
 | `SearchString` | `KeywordQuery` / `KeywordQuery.ts`                                    | plain text, or `` `Field:(value) ... `` (Lucene, leading backtick) for per-field search               | Free-text search; a leading backtick switches Azure `QueryType` to `Full` (Lucene) and enables per-field (`Title:`/`Artist:`/`Albums:`) syntax via `KeywordQuery.Update`/`Fields`                                                                                                |
@@ -95,6 +95,64 @@ in a publisher catalog" / "not categorized by dance") are plain scalar cells wit
 owns which field. `DanceQueryItem.fromValue`/`FromValue` and `TagQuery`'s `TagList` parsing in
 particular have escaping/regex edge cases (threshold sign, `|`-delimited nested tag queries) that
 are easy to get subtly wrong by hand.
+
+### Explicit dance scoping (`*` marker) for rating sort, tempo sort, and tempo filter
+
+Three behaviors read from a single dance's fields instead of the song's own overall ones
+whenever exactly one non-group dance is selected — `SongFilter.SingleDanceId` (server) /
+`SongFilter.scopeDanceName`-and-friends (client) is the shared chokepoint all three consult. The
+"overall" values are not derived from the dances currently selected in the query — `dance_ALL/Votes`
+is the sum of the song's vote weight across **every** dance it's rated for (`SongIndex.CreateSongDoc`),
+and the tempo default is simply `Song.Tempo`, the song's own tempo attribute:
+
+| Behavior | 1 dance selected | 2+ dances, no scope marker | 2+ dances, one marked `*` |
+| -------- | ----------------- | --------------------------- | --------------------------- |
+| Sort by Dance Rating | `dance_{id}/Votes` | `dance_ALL/Votes` (song's overall rating) | `dance_{markedId}/Votes` |
+| Sort by Tempo | `dance_{id}/Tempo` | `Song.Tempo` (song's own tempo) | `dance_{markedId}/Tempo` |
+| Tempo range filter | `dance_{id}/Tempo` | `Song.Tempo` (song's own tempo) | `dance_{markedId}/Tempo` |
+
+When more than one dance is selected, exactly one `DanceQueryItem` can carry the `*` marker (right
+after the dance id, before the threshold sign — see the table above) to opt into the same
+per-dance behavior explicitly, without changing which dances are actually being searched for.
+`DanceQuery.PrimaryDanceId` (server) / `primaryDanceId` (client, `DanceQueryBase`/`DanceQuery.ts`)
+resolves the marked item's id, but returns `null`/`undefined` if that item is a dance _group_ —
+groups have no per-dance `Votes`/`Tempo` fields of their own, the same restriction the implicit
+single-dance case already has. If more than one item is marked (a hand-built/corrupted filter),
+the first marked item wins.
+
+`SongFilter.SingleDanceId` folds this in as a fallback: the implicit single-dance id if there's
+exactly one dance, otherwise the explicit `PrimaryDanceId`. Everything downstream — `ODataSort`'s
+tempo-sort dispatch, `GetOdataFilter`'s tempo-field selection, `DanceQuery.ODataSort`'s rating-sort
+dispatch — reads through that one property, so the marker "just works" for all three behaviors at
+once rather than needing three separate wire-format fields. `Description`/`description` call out
+the scope dance in two places: the existing tempo-range qualifier (`"having for {Dance} tempo
+between..."`) now fires for the explicit case too (previously implicit-single-dance only), and a
+new trailing sentence (`"Using {Dance} for rating and tempo."`) covers the case where the sort is
+Dance Rating or Tempo but no tempo range is set, so the scope choice wouldn't otherwise appear in
+the description at all. Since the server's `Description` is what's persisted for saved searches and
+used for page titles (see [[song-search-service]]'s `LogSearch`), the client's `SongFilter.ts`
+`description` getter reimplements the same two additions independently — they're expected to
+produce identical text for the same filter string, but there's no shared code enforcing that
+(same caveat as every other client/server description pair in this doc).
+
+On **Advanced Search**, the scope choice is a "Sort and Filter by:" dropdown
+(`m4d/ClientApp/src/pages/advanced-search/App.vue`) that only renders once two or more non-group
+dances are selected, defaulting to "Overall" (no marker — today's song-level behavior described
+above). Picking a dance flags the matching `DanceQueryItem` before serialization; a `watch` on the
+selected dance list clears the choice back to "Overall" if that dance is later deselected, so the
+filter never round-trips a marker pointing at a dance no longer in the query. The existing "Tempo
+range for {dance} (BPM):" label (previously single-dance-only) now reflects the explicit scope
+choice too. The default option's value is `null`, not `undefined` — matching the existing
+`sortId`/`sortOptions` pattern in the same file, since `BFormSelect` doesn't reliably render a
+default-selected option bound to `undefined`.
+
+The "Sort By:" dropdown's "Dance Rating" option is similarly disambiguated: a `danceRatingLabel`
+computed appends the scope dance's name (`"Dance Rating (Balboa)"`) whenever `scopeDanceName` is
+set — implicit single-dance or explicit marker, same as everywhere else on this page — and falls
+back to the plain `"Dance Rating"` label otherwise. `computedDefault()` (the "Default: ..." option
+at the top of the list) reuses the same label, so the default-sort text stays consistent with the
+explicit option below it — it joins with a colon (`"Default: Dance Rating (Balboa)"`) rather than
+wrapping in another layer of parens, since `danceRatingLabel` may already be parenthesized.
 
 ---
 
@@ -138,7 +196,14 @@ change (`m4d/ClientApp/src/pages/advanced-search/App.vue:88-121`):
 ```ts
 const songFilter = computed(() => {
   const danceQuery = DanceQuery.fromParts(
-    danceQueryItems.value.map((t) => t.toString()),
+    danceQueryItems.value.map((t) =>
+      new DanceQueryItem({
+        id: t.id,
+        threshold: t.threshold,
+        tags: t.tags,
+        primary: t.id === scopeDanceId.value || undefined,
+      }).toString(),
+    ),
     danceConnector.value === "all",
   );
   const userQuery = UserQuery.fromParts(
@@ -186,6 +251,10 @@ Notable details for anyone adding a new advanced-search field:
 - The `showDiagnostics` query param (`?showDiagnostics=1`) reveals a raw dump of every ref plus
   `songFilter` and `songFilter.query`, useful for debugging a filter that isn't matching what the
   form shows.
+- The "Sort and Filter by:" scope-dance selector (`scopeDanceId` ref, rendered when 2+
+  non-group dances are selected) is a UI-only choice, not a new filter field — it's applied by
+  flagging the matching `DanceQueryItem` with the `*` marker at assembly time, see "Explicit dance
+  scoping" above.
 
 ### Submission
 
