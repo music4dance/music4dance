@@ -89,6 +89,89 @@ describe("AdvancedSearch.vue", () => {
     expect(options.map((o) => o.text())).toEqual(["Overall (default)", "Bolero", "Rumba"]);
   });
 
+  test("expands a selected group into its member dances for the scope-dance selector", () => {
+    // LTN (Latin) is a dance group, not an individual dance - it has no per-dance rating/tempo
+    // fields of its own, so selecting only it should still surface its members (Cha Cha,
+    // Rumba, Bolero, etc.) as scope choices rather than hiding the selector entirely.
+    const filter = new SongFilter();
+    filter.action = "advanced";
+    filter.dances = "LTN";
+
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      enumerable: true,
+      value: new URL(
+        `https://localhost:5001/song/advancedsearchform?filter=${filter.encodedQuery}`,
+      ),
+    });
+
+    const wrapper = loadTestPage(App);
+    expect(wrapper.find("#scope-dance-group").exists()).toBe(true);
+
+    const options = wrapper.find("#scope-dance").findAll("option");
+    const texts = options.map((o) => o.text());
+    expect(texts).toContain("Cha Cha");
+    expect(texts).toContain("Rumba");
+    expect(texts).toContain("Bolero");
+  });
+
+  test("dedupes a group's member from the scope-dance selector when also selected directly", () => {
+    const filter = new SongFilter();
+    filter.action = "advanced";
+    filter.dances = "CHA,LTN";
+
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      enumerable: true,
+      value: new URL(
+        `https://localhost:5001/song/advancedsearchform?filter=${filter.encodedQuery}`,
+      ),
+    });
+
+    const wrapper = loadTestPage(App);
+    const options = wrapper.find("#scope-dance").findAll("option");
+    const texts = options.map((o) => o.text());
+    expect(texts.filter((t) => t === "Cha Cha")).toHaveLength(1);
+  });
+
+  test("lets the user scope to a member of a selected group", async () => {
+    const filter = new SongFilter();
+    filter.action = "advanced";
+    filter.dances = "LTN";
+
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      enumerable: true,
+      value: new URL(
+        `https://localhost:5001/song/advancedsearchform?filter=${filter.encodedQuery}&showDiagnostics=1`,
+      ),
+    });
+
+    const wrapper = loadTestPage(App);
+    await wrapper.find("#scope-dance").setValue("CHA");
+
+    expect(wrapper.text()).toContain("Tempo range for Cha Cha (BPM):");
+    expect(wrapper.find("pre").text()).toContain("LTN*CHA");
+  });
+
+  test("initializes the scope-dance selector from a marked group-member target in the filter", () => {
+    const filter = new SongFilter();
+    filter.action = "advanced";
+    filter.dances = "LTN*CHA";
+
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      enumerable: true,
+      value: new URL(
+        `https://localhost:5001/song/advancedsearchform?filter=${filter.encodedQuery}`,
+      ),
+    });
+
+    const wrapper = loadTestPage(App);
+    expect((wrapper.find("#scope-dance").element as HTMLSelectElement).value).toEqual("CHA");
+    expect(wrapper.text()).toContain("Tempo range for Cha Cha (BPM):");
+  });
+
   test("initializes the scope-dance selector from an explicitly marked dance in the filter", () => {
     const filter = new SongFilter();
     filter.action = "advanced";

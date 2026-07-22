@@ -183,6 +183,20 @@ describe("song filter", () => {
     expect(f.description).not.toContain("Using ");
   });
 
+  it("should note the scope dance for a group marked with an explicit member target", () => {
+    // LTN (Latin) is a dance group - it has no per-dance rating/tempo fields of its own, so
+    // the group is marked with CHA (Cha Cha) as the explicit target member.
+    const f = SongFilter.buildFilter("Advanced-LTN*CHA-------");
+    expect(f.description).toContain(
+      "sorted by Dance Rating from most popular to least popular. Using Cha Cha for rating and tempo.",
+    );
+  });
+
+  it("should not note a scope dance for a group marked with an invalid member target", () => {
+    const f = SongFilter.buildFilter("Advanced-LTN*WCS-------");
+    expect(f.description).not.toContain("Using ");
+  });
+
   it("should describe a full purchase filter", () => {
     const f = SongFilter.buildFilter("Advanced----AIS-");
     expect(f).toBeDefined();

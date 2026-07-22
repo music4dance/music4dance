@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DanceType } from "@/models/DanceDatabase/DanceType";
+import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
 import { DanceQuery } from "@/models/DanceQuery";
 import { SongFilter } from "@/models/SongFilter";
 import { SongSort, SortOrder } from "@/models/SongSort";
@@ -44,34 +44,53 @@ const showDanceDetails = ref(hasDanceDetails.value);
 const tags: Tag[] = tagDatabase.tags;
 
 // Which selected dance's rating/tempo fields to use instead of the song's overall ones,
-// when more than one dance is selected. Only offered for non-group dances (groups have no
-// per-dance rating/tempo fields of their own). Uses null (not undefined) for "no scope
-// dance chosen" so the <select> below matches the same pattern as sortId/sortOptions -
-// BFormSelect doesn't reliably show a default-selected option bound to undefined.
+// when more than one dance is selected. Groups have no per-dance rating/tempo fields of
+// their own, so a selected group is expanded into its member dances here rather than
+// offered directly - e.g. selecting just "Latin" still surfaces Cha Cha, Rumba, etc. so the
+// user can scope to one of them. Uses null (not undefined) for "no scope dance chosen" so
+// the <select> below matches the same pattern as sortId/sortOptions - BFormSelect doesn't
+// reliably show a default-selected option bound to undefined.
 const scopeDanceId = ref<string | null>(danceQueryInit.primaryDanceId ?? null);
 const scopeDanceOptions = computed(() => {
-  // danceFromId (unlike fromId) resolves only actual dances, not groups - groups have no
-  // per-dance rating/tempo fields of their own, so they're excluded here for free.
-  return dances.value
-    .map((id) => danceDB.danceFromId(id))
-    .filter((dance): dance is DanceType => !!dance)
-    .map((dance) => ({ text: dance.name, value: dance.id }));
+  const seen = new Set<string>();
+  const options: { text: string; value: string }[] = [];
+  for (const id of dances.value) {
+    const obj = danceDB.fromId(id);
+    if (!obj) {
+      continue;
+    }
+    const members = DanceGroup.isGroup(obj) ? obj.dances : [obj];
+    for (const member of members) {
+      if (!seen.has(member.id)) {
+        seen.add(member.id);
+        options.push({ text: member.name, value: member.id });
+      }
+    }
+  }
+  return options;
 });
-watch(dances, (ids) => {
-  // Clear whenever the scoped dance itself was deselected, or whenever fewer than two
-  // scopable dances remain (the selector that lets the user pick "Overall (default)"
-  // again is hidden in that case, so a stale marker would be stuck on with no UI path
-  // back to the default).
+watch(dances, () => {
+  // Clear whenever the scoped dance itself is no longer reachable (deselected directly, or
+  // its owning group was deselected), or whenever fewer than two scopable dances remain (the
+  // selector that lets the user pick "Overall (default)" again is hidden in that case, so a
+  // stale marker would be stuck on with no UI path back to the default).
   if (
     scopeDanceId.value &&
-    (!ids.includes(scopeDanceId.value) || scopeDanceOptions.value.length <= 1)
+    (!scopeDanceOptions.value.some((o) => o.value === scopeDanceId.value) ||
+      scopeDanceOptions.value.length <= 1)
   ) {
     scopeDanceId.value = null;
   }
 });
 const scopeDanceName = computed(() => {
+  // A lone selection only counts as the implicit single dance if it's a real dance - a lone
+  // selected group (e.g. just "Latin") has no name of its own to fall back to here, so fall
+  // through to the explicit scope marker instead (e.g. "Latin" marked for its "Cha Cha" member).
   if (dances.value.length === 1) {
-    return danceDB.danceFromId(dances.value[0])?.name;
+    const onlyDance = danceDB.danceFromId(dances.value[0]);
+    if (onlyDance) {
+      return onlyDance.name;
+    }
   }
   return scopeDanceId.value ? danceDB.danceFromId(scopeDanceId.value)?.name : undefined;
 });
@@ -120,15 +139,18 @@ const excludeServices = ref(purchaseParts.exclude ? purchaseParts.exclude.split(
 const activity = ref(userQueryInit.parts);
 
 const songFilter = computed(() => {
+  const scopeId = scopeDanceId.value;
   const danceQuery = DanceQuery.fromParts(
-    danceQueryItems.value.map((t) =>
-      new DanceQueryItem({
+    danceQueryItems.value.map((t) => {
+      const match = scopeId ? matchScope(t.id, scopeId) : { primary: false };
+      return new DanceQueryItem({
         id: t.id,
         threshold: t.threshold,
         tags: t.tags,
-        primary: t.id === scopeDanceId.value || undefined,
-      }).toString(),
-    ),
+        primary: match.primary || undefined,
+        primaryTargetId: match.target,
+      }).toString();
+    }),
     danceConnector.value === "all",
   );
   const userQuery = UserQuery.fromParts(
@@ -247,6 +269,20 @@ const computedActivity = computed({
 const isAnonymous = computed(() => {
   return displayUser.value === "Anonymous";
 });
+
+// Whether the given top-level dance-query item is the current scope dance's owner, and (if
+// it's a group) the specific member id to record as its primaryTargetId. A plain dance owns
+// the scope by matching its own id directly; a group owns it when scopeId is one of its
+// expanded members (see scopeDanceOptions).
+function matchScope(itemId: string, scopeId: string): { primary: boolean; target?: string } {
+  const dance = danceDB.fromId(itemId);
+  if (dance && DanceGroup.isGroup(dance)) {
+    return dance.dances.some((d) => d.id === scopeId)
+      ? { primary: true, target: scopeId }
+      : { primary: false };
+  }
+  return { primary: itemId === scopeId };
+}
 
 function getQueryFilter(): SongFilter {
   const params = new URLSearchParams(window.location.search);

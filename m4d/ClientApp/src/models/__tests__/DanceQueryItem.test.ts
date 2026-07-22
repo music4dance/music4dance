@@ -62,4 +62,27 @@ describe("DanceQueryItem", () => {
   it("throws on an invalid format", () => {
     expect(() => DanceQueryItem.fromValue("!invalid")).toThrow();
   });
+
+  it("parses a primary marker with an explicit group-member target", () => {
+    const item = DanceQueryItem.fromValue("LTN*CHA-1");
+    expect(item.id).toEqual("LTN");
+    expect(item.primary).toBe(true);
+    expect(item.primaryTargetId).toEqual("CHA");
+    expect(item.threshold).toEqual(-1);
+  });
+
+  it("leaves primaryTargetId undefined for a plain primary marker", () => {
+    const item = DanceQueryItem.fromValue("CHA*-3|Fast:Tempo");
+    expect(item.primaryTargetId).toBeUndefined();
+  });
+
+  it("round-trips a primary marker with an explicit group-member target", () => {
+    const item = DanceQueryItem.fromValue("LTN*CHA-1");
+    expect(item.toString()).toEqual("LTN*CHA-1");
+
+    const reparsed = DanceQueryItem.fromValue(item.toString());
+    expect(reparsed.primary).toBe(true);
+    expect(reparsed.primaryTargetId).toEqual("CHA");
+    expect(reparsed.threshold).toEqual(-1);
+  });
 });

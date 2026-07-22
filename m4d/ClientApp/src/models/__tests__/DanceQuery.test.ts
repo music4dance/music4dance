@@ -39,4 +39,22 @@ describe("DanceQuery", () => {
     const q = new DanceQuery("ATN*,BBA*");
     expect(q.primaryDanceId).toEqual("ATN");
   });
+
+  it("resolves a marked group's explicit member target", () => {
+    // LTN (Latin) is a dance group containing CHA - marking the group with an explicit
+    // target lets the scope chooser point at a member dance without that member ever
+    // being a separately selected top-level item.
+    const q = new DanceQuery("LTN*CHA");
+    expect(q.primaryDanceId).toEqual("CHA");
+  });
+
+  it("ignores a marked group's target when it isn't one of the group's members", () => {
+    const q = new DanceQuery("LTN*WCS");
+    expect(q.primaryDanceId).toBeUndefined();
+  });
+
+  it("takes a valid group target over a later plain marker", () => {
+    const q = new DanceQuery("LTN*CHA,RMB*");
+    expect(q.primaryDanceId).toEqual("CHA");
+  });
 });

@@ -67,12 +67,39 @@ public class DanceQuery
     public IEnumerable<DanceObject> Dances => Items.Select(d => d.Dance);
 
     // Explicit override for which dance's rating/tempo fields to use when more than one
-    // dance is selected (see DanceQueryItem.IsPrimary). Null for groups, since they have no
-    // per-dance rating/tempo fields of their own - same restriction as the implicit
-    // single-dance case (SongFilter.SingleDanceId).
-    public string PrimaryDanceId => Items
-        .FirstOrDefault(i => i.IsPrimary && i.Dance is not DanceLibrary.DanceGroup)
-        ?.Id;
+    // dance is selected (see DanceQueryItem.IsPrimary). A marked plain dance is its own
+    // target; a marked DanceGroup has no per-dance rating/tempo fields of its own, so it
+    // only resolves when DanceQueryItem.PrimaryTargetId names one of the group's members
+    // (this is how selecting a group's member dance in the scope chooser is represented,
+    // even though that member was never itself a top-level selected item).
+    public string PrimaryDanceId
+    {
+        get
+        {
+            foreach (var item in Items)
+            {
+                if (!item.IsPrimary)
+                {
+                    continue;
+                }
+
+                if (item.Dance is DanceLibrary.DanceGroup group)
+                {
+                    var targetId = item.PrimaryTargetId;
+                    if (targetId != null && group.Members.Any(m =>
+                        string.Equals(m.Id, targetId, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return targetId;
+                    }
+                    continue;
+                }
+
+                return item.Id;
+            }
+
+            return null;
+        }
+    }
 
     public bool IsExclusive
     {

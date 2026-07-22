@@ -217,6 +217,31 @@ public class DanceQueryTest
     }
 
     [TestMethod]
+    public void PrimaryDanceId_MarkedGroupWithValidTarget_ResolvesToMember()
+    {
+        // LTN (Latin) is a dance group containing CHA - marking the group with an explicit
+        // target lets the scope chooser point at a member dance without that member ever
+        // being a separately selected top-level item.
+        var q = new DanceQuery("LTN*CHA");
+        Assert.AreEqual("CHA", q.PrimaryDanceId);
+    }
+
+    [TestMethod]
+    public void PrimaryDanceId_MarkedGroupWithInvalidTarget_IsIgnored()
+    {
+        // WCS is not a member of LTN (Latin) - an invalid/stale target should not resolve.
+        var q = new DanceQuery("LTN*WCS");
+        Assert.IsNull(q.PrimaryDanceId);
+    }
+
+    [TestMethod]
+    public void PrimaryDanceId_MarkedGroupTarget_TakesPrecedenceOverLaterPlainMarker()
+    {
+        var q = new DanceQuery("LTN*CHA,RMB*");
+        Assert.AreEqual("CHA", q.PrimaryDanceId);
+    }
+
+    [TestMethod]
     public void ODataSort_PrimaryDance_UsesThatDancesVotesField()
     {
         var q = new DanceQuery("CHA,RMB*");

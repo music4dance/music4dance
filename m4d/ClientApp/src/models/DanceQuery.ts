@@ -63,13 +63,30 @@ export class DanceQuery extends DanceQueryBase {
     return this.startsWith(and) && this.data.indexOf(",", and.length + 1) !== -1;
   }
 
+  // A marked plain dance is its own target; a marked DanceGroup has no per-dance
+  // rating/tempo fields of its own, so it only resolves when the item's primaryTargetId
+  // names one of the group's members (this is how selecting a group's member dance in
+  // the scope chooser is represented, even though that member was never itself a
+  // top-level selected item). Mirrors DanceQuery.PrimaryDanceId (m4dModels/DanceQuery.cs).
   public override get primaryDanceId(): string | undefined {
-    const item = this.danceQueryItems.find((i) => i.primary);
-    if (!item) {
-      return undefined;
+    for (const item of this.danceQueryItems) {
+      if (!item.primary) {
+        continue;
+      }
+      // Lazy: only touch the database once an actual marked item is found, so filters with
+      // no marker never require a dance database to be loaded (e.g. in tests that construct
+      // a SongFilter without one).
+      const dance = safeDanceDatabase().fromId(item.id);
+      if (dance && DanceGroup.isGroup(dance)) {
+        const targetId = item.primaryTargetId;
+        if (targetId && dance.dances.some((d) => d.id === targetId)) {
+          return targetId;
+        }
+        continue;
+      }
+      return item.id;
     }
-    const dance = safeDanceDatabase().fromId(item.id);
-    return dance && !DanceGroup.isGroup(dance) ? item.id : undefined;
+    return undefined;
   }
 
   public get description(): string {

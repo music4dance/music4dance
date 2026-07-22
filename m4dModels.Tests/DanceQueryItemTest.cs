@@ -170,4 +170,33 @@ public class DanceQueryItemTest
         Assert.IsTrue(plain.IsSimple);
         Assert.IsFalse(primary.IsSimple);
     }
+
+    [TestMethod]
+    public void FromValue_ParsesPrimaryMarkerWithGroupTarget()
+    {
+        var item = DanceQueryItem.FromValue("LTN*CHA-1");
+        Assert.AreEqual("LTN", item.Id);
+        Assert.IsTrue(item.IsPrimary);
+        Assert.AreEqual("CHA", item.PrimaryTargetId);
+        Assert.AreEqual(-1, item.Threshold);
+    }
+
+    [TestMethod]
+    public void FromValue_PrimaryMarkerWithoutTarget_TargetIsNull()
+    {
+        var item = DanceQueryItem.FromValue("CHA*-3|Fast:Tempo");
+        Assert.IsNull(item.PrimaryTargetId);
+    }
+
+    [TestMethod]
+    public void ToString_RoundTripsPrimaryMarkerWithGroupTarget()
+    {
+        var item = DanceQueryItem.FromValue("LTN*CHA-1");
+        Assert.AreEqual("LTN*CHA-1", item.ToString());
+
+        var reparsed = DanceQueryItem.FromValue(item.ToString());
+        Assert.IsTrue(reparsed.IsPrimary);
+        Assert.AreEqual("CHA", reparsed.PrimaryTargetId);
+        Assert.AreEqual(-1, reparsed.Threshold);
+    }
 }
