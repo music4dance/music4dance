@@ -53,6 +53,14 @@ describe("DanceQuery", () => {
     expect(q.primaryDanceId).toBeUndefined();
   });
 
+  it("resolves a differently-cased group target to the canonical member id", () => {
+    // A differently-cased target should still match, and resolve to the canonical (indexed)
+    // casing - not the raw string from the filter - since downstream OData field paths like
+    // dance_{id}/Votes must match the indexed field name exactly.
+    const q = new DanceQuery("LTN*cha");
+    expect(q.primaryDanceId).toEqual("CHA");
+  });
+
   it("takes a valid group target over a later plain marker", () => {
     const q = new DanceQuery("LTN*CHA,RMB*");
     expect(q.primaryDanceId).toEqual("CHA");

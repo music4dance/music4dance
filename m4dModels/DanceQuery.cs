@@ -86,10 +86,16 @@ public class DanceQuery
                 if (item.Dance is DanceLibrary.DanceGroup group)
                 {
                     var targetId = item.PrimaryTargetId;
-                    if (targetId != null && group.Members.Any(m =>
-                        string.Equals(m.Id, targetId, StringComparison.OrdinalIgnoreCase)))
+                    var member = targetId != null
+                        ? group.Members.FirstOrDefault(m =>
+                            string.Equals(m.Id, targetId, StringComparison.OrdinalIgnoreCase))
+                        : null;
+                    if (member != null)
                     {
-                        return targetId;
+                        // Return the canonical member id, not the raw (possibly differently
+                        // cased) target from the filter string - downstream OData field paths
+                        // like dance_{id}/Votes must match the indexed field name exactly.
+                        return member.Id;
                     }
                     continue;
                 }

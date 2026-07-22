@@ -79,8 +79,14 @@ export class DanceQuery extends DanceQueryBase {
       const dance = safeDanceDatabase().fromId(item.id);
       if (dance && DanceGroup.isGroup(dance)) {
         const targetId = item.primaryTargetId;
-        if (targetId && dance.dances.some((d) => d.id === targetId)) {
-          return targetId;
+        const member = targetId
+          ? dance.dances.find((d) => d.id.toUpperCase() === targetId.toUpperCase())
+          : undefined;
+        if (member) {
+          // Return the canonical member id, not the raw (possibly differently cased) target
+          // from the filter string - downstream OData field paths like dance_{id}/Votes must
+          // match the indexed field name exactly. Mirrors DanceQuery.PrimaryDanceId.
+          return member.id;
         }
         continue;
       }

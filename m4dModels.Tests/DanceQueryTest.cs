@@ -235,6 +235,16 @@ public class DanceQueryTest
     }
 
     [TestMethod]
+    public void PrimaryDanceId_MarkedGroupWithDifferentlyCasedTarget_ResolvesToCanonicalId()
+    {
+        // A differently-cased target should still match, and resolve to the canonical
+        // (indexed) casing - not the raw string from the filter - since downstream OData
+        // field paths like dance_{id}/Votes must match the indexed field name exactly.
+        var q = new DanceQuery("LTN*cha");
+        Assert.AreEqual("CHA", q.PrimaryDanceId);
+    }
+
+    [TestMethod]
     public void PrimaryDanceId_MarkedGroupTarget_TakesPrecedenceOverLaterPlainMarker()
     {
         var q = new DanceQuery("LTN*CHA,RMB*");
