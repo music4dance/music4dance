@@ -42,7 +42,7 @@ nextVersion, ...)` picks `SongFilterNext` vs `SongFilter` based on
   `ISearchServiceManager.NextVersion` (index schema version), not client choice.
 - **Cell escaping**: literal `-` inside a cell (e.g. a dance-group tag name) is escaped as `\-`
   before joining, then unescaped after splitting — both client and server use the same substitute
-  character trick (server: ``→now `~`; client: ``) to avoid corrupting on a stray
+  character trick (server: `U+001A`→now `~`; client: `U+001A`) to avoid corrupting on a stray
   hyphen. A cell value of `.` or empty means "not set" (`ReadCell`/`readCell` both special-case it).
 - **Trimming**: trailing `.`/`-` cells are stripped from the output — an all-default filter
   serializes to `""` (or literally `"index"`, which is also collapsed to empty).
