@@ -215,6 +215,78 @@ change beyond the string-vs-integer comparison):
   itself wrong (see above) and a blind number-preserving rename would have kept that error baked
   into the test data.
 
+## Displaying the post date (2026-07-21)
+
+`Date` was previously stored but not shown anywhere except as an internal sort key. It's now
+rendered in parentheses after the post title, formatted as `MMM d, yyyy` (e.g. `Jul 21, 2026`), in
+the two places that list individual posts by title:
+
+- [`BlogFeatureLink.vue`](../m4d/ClientApp/src/components/BlogFeatureLink.vue) — the "Info" section
+  post listing on the home page. Formatted client-side with `date-fns`' `format(parseISO(date), ...)`
+  (`parseISO`, not `new Date(...)`, because a bare `YYYY-MM-DD` string passed to the `Date`
+  constructor is parsed as UTC midnight and can display as the previous day in negative-offset time
+  zones; `parseISO` treats a date-only ISO string as local midnight instead).
+- [`_SiteMapEntry.cshtml`](../m4d/Views/Home/_SiteMapEntry.cshtml) — the `/Home/SiteMap` page.
+  Formatted server-side via a new `SiteMapEntry.FormattedDate` computed property in
+  [`SiteMapInfo.cs`](../m4d/ViewModels/SiteMapInfo.cs) (`DateTime.TryParseExact` on `"yyyy-MM-dd"`,
+  `null` if `Date` is unset — most `SiteMapEntry`s aren't blog posts and have no `Date`).
+
+Deliberately **not** shown on the rotating "featured post" card at the top of the home page
+(`funCard` / `InfoCard.vue`) — that card renders plain `{ text, link }` pairs via `SiteMapEntry.link`,
+not the full entry, and stays as-is.
+
+## Detecting and adding new posts automatically (2026-07-21)
+
+[`scripts/add-new-blog-posts.mjs`](../scripts/add-new-blog-posts.mjs) is a step toward closing the
+gap between "I published a post on WordPress" and "it shows up in `blogmap.txt`". It does not fully
+automate the workflow in
+[How a new post/article actually gets linked in today](#how-a-new-postarticle-actually-gets-linked-in-today)
+— it still leaves the `Description` as a rough, unedited draft for hand-tweaking before it's
+really "live" in spirit — but it removes the copy/paste/lookup steps.
+
+**What it does**, given the N most recent posts from the WordPress.com REST API (default `N=3`):
+
+1. Skips any post whose slug already has a row in `blogmap.txt` (same slug-from-`Reference`
+   matching as the `Date` migration script).
+2. For each new post, matches it to a `blogmap.txt` category by comparing the post's WordPress
+   category slugs against the categories' `blog/category/<slug>` references (see
+   [File format](#file-format)) — the API's `categories` field and blogmap's depth-0 rows happen to
+   share the same slug (e.g. `music-and-dance`). Posts whose category doesn't match any existing
+   blogmap category are reported and skipped rather than guessed at.
+3. Builds a description by stripping the post's HTML content down to plain text plus `<a href="...">`
+   links (dropping `target`/`rel` and other attributes, to match the existing hand-written rows),
+   decoding HTML entities, and truncating to ~100 words with a trailing `...` (closing a link tag
+   that got cut mid-word). This is a **best-effort teaser, not the final copy** — the whole point is
+   still to hand-edit it before publishing, same as today.
+4. Inserts the new row at the end of the matched category's block (i.e., immediately before the
+   next category header, or end-of-file for the last category) — new posts are always the most
+   recent in their category, so appending keeps the existing ascending-by-date ordering intact.
+5. Writes `blogmap.txt` **in place** by default (unlike the `Date` migration script, which wrote to
+   a throwaway file for review — this script only ever adds new rows, never touches existing ones,
+   so `git diff` after running is the review step, and `git checkout -- <file>` reverts it).
+
+Unlike the `Date` migration script (a one-off, `local/`-scoped tool), this one is meant to be run
+repeatedly as part of the regular publishing workflow, so it lives in the checked-in
+[`scripts/`](../scripts/) directory alongside the repo's other maintenance scripts (e.g.
+`update-blog-tags.mjs`) and follows their conventions: ES module (`.mjs`), `--flag`-style args, a
+`repoRoot`-relative default path so it runs the same regardless of cwd.
+
+**Usage** (from the repo root):
+
+```sh
+node scripts/add-new-blog-posts.mjs                  # check the 3 newest posts, write blogmap.txt
+node scripts/add-new-blog-posts.mjs --count 10        # check more posts
+node scripts/add-new-blog-posts.mjs --dry-run         # report what would be added, don't write
+node scripts/add-new-blog-posts.mjs --blogmap <path>  # override the blogmap.txt path (testing)
+```
+
+After running, review the added row(s) with `git diff`, rewrite the `Description` to taste, and
+commit — no separate copy step needed.
+
+**Known limitation**: a post that doesn't map to exactly one of the five existing WordPress
+categories (new category, uncategorized, or multiple categories where more than one matches) is
+skipped with a message rather than placed automatically — categorization stays a manual decision.
+
 ## Related
 
 - [`SiteMapInfo.cs`](../m4d/ViewModels/SiteMapInfo.cs) — server-side parser/tree + static cache
@@ -222,3 +294,4 @@ change beyond the string-vs-integer comparison):
 - [`BlogFeatureLink.vue`](../m4d/ClientApp/src/components/BlogFeatureLink.vue) — recursive blog-tree renderer used on the home page
 - [`HomeModel.cs`](../m4d/ViewModels/HomeModel.cs) / [`HomeModel.ts`](../m4d/ClientApp/src/pages/home/HomeModel.ts)
 - [`Views/Home/SiteMap.cshtml`](../m4d/Views/Home/SiteMap.cshtml) / [`_SiteMapEntry.cshtml`](../m4d/Views/Home/_SiteMapEntry.cshtml)
+- [`scripts/add-new-blog-posts.mjs`](../scripts/add-new-blog-posts.mjs) — detects and inserts rows for new posts (see above)

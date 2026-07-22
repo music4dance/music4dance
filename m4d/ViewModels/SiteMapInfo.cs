@@ -1,4 +1,6 @@
-﻿using DanceLibrary;
+﻿using System.Globalization;
+
+using DanceLibrary;
 
 using Microsoft.Extensions.FileProviders;
 
@@ -15,6 +17,11 @@ public class SiteMapEntry
     public virtual string Date { get; set; }
 
     public string FullPath => MakeFullPath(Reference);
+
+    public string FormattedDate =>
+        DateTime.TryParseExact(Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)
+            ? date.ToString("MMM d, yyyy", CultureInfo.InvariantCulture)
+            : null;
 
     protected string MakeFullPath(string rel)
     {
