@@ -58,7 +58,14 @@ const scopeDanceOptions = computed(() => {
     .map((dance) => ({ text: dance.name, value: dance.id }));
 });
 watch(dances, (ids) => {
-  if (scopeDanceId.value && !ids.includes(scopeDanceId.value)) {
+  // Clear whenever the scoped dance itself was deselected, or whenever fewer than two
+  // scopable dances remain (the selector that lets the user pick "Overall (default)"
+  // again is hidden in that case, so a stale marker would be stuck on with no UI path
+  // back to the default).
+  if (
+    scopeDanceId.value &&
+    (!ids.includes(scopeDanceId.value) || scopeDanceOptions.value.length <= 1)
+  ) {
     scopeDanceId.value = null;
   }
 });

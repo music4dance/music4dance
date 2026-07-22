@@ -375,11 +375,15 @@ export class SongFilter {
   }
 
   // Only called out when a scope dance is explicitly picked among several selected dances -
-  // the implicit single-dance case is already obvious from the "All X songs" prefix, and
-  // describeTempo already names it when a tempo range is set, so this only fills the gap for
-  // an unscoped rating/tempo sort. Mirrors the equivalent block in SongFilter.Description
+  // the implicit single-dance case is already obvious from the "All X songs" prefix (guarded
+  // by !this.singleDance), and describeTempo already names it when a tempo range is set
+  // (guarded by !tempoMin/!tempoMax), so this only fills the gap for an unscoped rating/tempo
+  // sort with 2+ dances selected. Mirrors the equivalent block in SongFilter.Description
   // (m4dModels/SongFilter.cs).
   private get describeScopeDance(): string {
+    if (this.singleDance || this.tempoMin || this.tempoMax) {
+      return "";
+    }
     const primaryId = this.danceQuery.primaryDanceId;
     if (!primaryId) {
       return "";

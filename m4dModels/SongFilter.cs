@@ -507,10 +507,12 @@ public class SongFilter
 
             // Only called out when a scope dance is explicitly picked among several selected
             // dances - the implicit single-dance case is already obvious from the "All X songs"
-            // prefix above, and the tempo qualifier above already names it when a tempo range
-            // is set, so this only fills the gap for an unscoped rating/tempo sort.
-            var scopeDanceId = DanceQuery?.PrimaryDanceId;
-            if (scopeDanceId != null && SongSort.Id is SongSort.Dances or SongSort.Tempo)
+            // prefix above (guarded by !IsSingleDance), and the tempo qualifier above already
+            // names it when a tempo range is set (guarded by !TempoMin/!TempoMax), so this only
+            // fills the gap for an unscoped rating/tempo sort with 2+ dances selected.
+            var scopeDanceId = !IsSingleDance ? DanceQuery?.PrimaryDanceId : null;
+            if (scopeDanceId != null && !TempoMin.HasValue && !TempoMax.HasValue &&
+                SongSort.Id is SongSort.Dances or SongSort.Tempo)
             {
                 var scopeDanceName = DanceLibrary.Dances.Instance.DanceFromId(scopeDanceId)?.Name;
                 if (scopeDanceName != null)

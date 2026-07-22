@@ -107,6 +107,34 @@ describe("AdvancedSearch.vue", () => {
     expect(wrapper.text()).toContain("Tempo range for Rumba (BPM):");
   });
 
+  test("clears the scope-dance selection when dropping back below two dances", async () => {
+    const filter = new SongFilter();
+    filter.action = "advanced";
+    filter.dances = "BOL,RMB*";
+
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      enumerable: true,
+      value: new URL(
+        `https://localhost:5001/song/advancedsearchform?filter=${filter.encodedQuery}&showDiagnostics=1`,
+      ),
+    });
+
+    const wrapper = loadTestPage(App);
+    expect((wrapper.find("#scope-dance").element as HTMLSelectElement).value).toEqual("RMB");
+
+    // Deselect Bolero, leaving only the scoped dance (Rumba) selected - the scope selector
+    // should hide again, and the stale '*' marker must be cleared along with it, or the
+    // user would have no UI path back to "Overall (default)".
+    await wrapper.find('button[aria-label="Remove tag"]').trigger("click");
+
+    expect(wrapper.find("#scope-dance-group").exists()).toBe(false);
+    // scopeDanceId is null (renders as empty in the diagnostics block); the assembled filter
+    // no longer carries the '*' marker now that the scope selector is unavailable.
+    expect(wrapper.find("pre").text()).toContain("query = v2-advanced-RMB");
+    expect(wrapper.find("pre").text()).not.toContain("RMB*");
+  });
+
   test("selecting a scope dance marks it as primary in the assembled filter", async () => {
     const filter = new SongFilter();
     filter.action = "advanced";

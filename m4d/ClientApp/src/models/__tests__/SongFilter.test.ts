@@ -169,6 +169,20 @@ describe("song filter", () => {
     expect(f.description).not.toContain("Using ");
   });
 
+  it("should not note a scope dance for a single-dance filter with a stale marker", () => {
+    // Mirrors a leftover '*' from deselecting the other dances after marking one - already
+    // covered by the "All Balboa songs" prefix, so the trailing note would be redundant.
+    const f = SongFilter.buildFilter("Advanced-BBA*-------");
+    expect(f.singleDance).toBe(true);
+    expect(f.description).not.toContain("Using ");
+  });
+
+  it("should not duplicate the scope note when a tempo range already names the dance", () => {
+    const f = SongFilter.buildFilter("Advanced-ATN,BBA*-----100-150--");
+    expect(f.description).toContain("having for Balboa tempo between 100 and 150 beats per minute");
+    expect(f.description).not.toContain("Using ");
+  });
+
   it("should describe a full purchase filter", () => {
     const f = SongFilter.buildFilter("Advanced----AIS-");
     expect(f).toBeDefined();

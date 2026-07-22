@@ -399,6 +399,27 @@ public class SongFilterTests
         Assert.IsFalse(f.Description.Contains("Using "), $"Unexpected scope note: {f.Description}");
     }
 
+    [TestMethod]
+    public void FilterDescription_SingleDanceWithStalePrimaryMarker_DoesNotNoteScopeDance()
+    {
+        // A leftover '*' on a filter that now resolves to a single selected dance (e.g. the
+        // user deselected the other dances after marking one) is already covered by the
+        // "All Rumba songs" prefix, so the trailing scope note would be redundant.
+        var f = SongFilter.Create(false, @"Index-RMB*-.-.-.-.-.-.-1");
+        Assert.IsFalse(f.Description.Contains("Using "), $"Unexpected scope note: {f.Description}");
+    }
+
+    [TestMethod]
+    public void FilterDescription_MultiDanceWithPrimaryMarker_TempoRangeSet_DoesNotDuplicateScopeNote()
+    {
+        // With a tempo range set, the "having for Rumba tempo..." qualifier already names the
+        // scope dance, so the trailing "Using Rumba for rating and tempo." note is redundant
+        // even though sort is Dances/Tempo.
+        var f = SongFilter.Create(false, @"Index-CHA,RMB*-.-.-.-.-100-150-1");
+        StringAssert.Contains(f.Description, "having for Rumba tempo between 100 and 150 beats per minute");
+        Assert.IsFalse(f.Description.Contains("Using "), $"Unexpected scope note: {f.Description}");
+    }
+
     private const string F1 = @"Index-SWG-Album-Goodman-X-.-50-150-1-+Pop:Music";
     private const string F2 = @"Index-SWG-.-.-I";
     private const string F1V2 = @"v2-Index-SWG-Album-Goodman-I-.-50-150-30-90-1-+Pop:Music";
