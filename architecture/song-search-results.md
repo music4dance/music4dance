@@ -39,7 +39,9 @@ search actions only need to mutate a few fields on it before re-running the sear
 `SongFilter` carries the full query state: `Dances`, `SearchString`, `Tags`, `User` (a serialized
 `UserQuery`, supports identity/vote queries), `Purchase` (service filter), `TempoMin/Max`,
 `LengthMin/Max`, `Page`, `Level` (bonus-content bitmask), `SortOrder`, plus `Action` (drives
-`VueName`/help-page selection) and `CruftFilter`.
+`VueName`/help-page selection) and `CruftFilter`. See [[song-filter]] for the wire format, the
+per-field sub-query classes (`DanceQuery`, `TagQuery`, `UserQuery`, ...), how the Advanced Search
+page builds one, and how it's compiled into an Azure OData filter/`SearchOptions`.
 
 ---
 
