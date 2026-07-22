@@ -38,8 +38,18 @@ export class DanceQueryBase {
     const c = this.danceQueryItems.length;
     return (
       c === 0 ||
-      (c === 1 && this.danceQueryItems[0]?.threshold === 1 && !this.danceQueryItems[0]?.tags)
+      (c === 1 &&
+        this.danceQueryItems[0]?.threshold === 1 &&
+        !this.danceQueryItems[0]?.tags &&
+        !this.danceQueryItems[0]?.primary)
     );
+  }
+
+  // Explicit override for which dance's rating/tempo fields to use when more than one
+  // dance is selected (see DanceQueryItem.primary). Overridden by DanceQuery; base default
+  // (and RawDanceQuery) is "no override" - raw filters don't carry this concept.
+  public get primaryDanceId(): string | undefined {
+    return undefined;
   }
 
   public get description(): string {

@@ -145,6 +145,58 @@ describe("song filter", () => {
     );
   });
 
+  it("should describe a multi-dance tempo filter using the marked scope dance's name", () => {
+    const f = SongFilter.buildFilter("Advanced-ATN,BBA*-----100-150--");
+    expect(f.description).toContain("having for Balboa tempo between 100 and 150 beats per minute");
+  });
+
+  it("should note the scope dance for a dance-rating sort when explicitly marked", () => {
+    const f = SongFilter.buildFilter("Advanced-ATN,BBA*-------");
+    expect(f.description).toContain(
+      "sorted by Dance Rating from most popular to least popular. Using Balboa for rating and tempo.",
+    );
+  });
+
+  it("should note the scope dance for a tempo sort when explicitly marked", () => {
+    const f = SongFilter.buildFilter("Advanced-ATN,BBA*-Tempo------");
+    expect(f.description).toContain(
+      "sorted by Tempo from slowest to fastest. Using Balboa for rating and tempo.",
+    );
+  });
+
+  it("should not note a scope dance when no item is marked", () => {
+    const f = SongFilter.buildFilter("Advanced-ATN,BBA-------");
+    expect(f.description).not.toContain("Using ");
+  });
+
+  it("should not note a scope dance for a single-dance filter with a stale marker", () => {
+    // Mirrors a leftover '*' from deselecting the other dances after marking one - already
+    // covered by the "All Balboa songs" prefix, so the trailing note would be redundant.
+    const f = SongFilter.buildFilter("Advanced-BBA*-------");
+    expect(f.singleDance).toBe(true);
+    expect(f.description).not.toContain("Using ");
+  });
+
+  it("should not duplicate the scope note when a tempo range already names the dance", () => {
+    const f = SongFilter.buildFilter("Advanced-ATN,BBA*-----100-150--");
+    expect(f.description).toContain("having for Balboa tempo between 100 and 150 beats per minute");
+    expect(f.description).not.toContain("Using ");
+  });
+
+  it("should note the scope dance for a group marked with an explicit member target", () => {
+    // LTN (Latin) is a dance group - it has no per-dance rating/tempo fields of its own, so
+    // the group is marked with CHA (Cha Cha) as the explicit target member.
+    const f = SongFilter.buildFilter("Advanced-LTN*CHA-------");
+    expect(f.description).toContain(
+      "sorted by Dance Rating from most popular to least popular. Using Cha Cha for rating and tempo.",
+    );
+  });
+
+  it("should not note a scope dance for a group marked with an invalid member target", () => {
+    const f = SongFilter.buildFilter("Advanced-LTN*WCS-------");
+    expect(f.description).not.toContain("Using ");
+  });
+
   it("should describe a full purchase filter", () => {
     const f = SongFilter.buildFilter("Advanced----AIS-");
     expect(f).toBeDefined();

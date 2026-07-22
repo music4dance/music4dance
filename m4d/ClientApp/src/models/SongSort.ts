@@ -43,6 +43,12 @@ export class SongSort {
     return this.data ? this.data.split("_")[0] : undefined;
   }
 
+  // The effective sort field, including the default (Dances, or Match when there's a
+  // keyword search) applied when no explicit sort is set - unlike `id`, never undefined.
+  public get resolvedId(): string {
+    return this.computedId;
+  }
+
   private get computedId(): string {
     return this.data
       ? (this.data.split("_")[0] ?? "")

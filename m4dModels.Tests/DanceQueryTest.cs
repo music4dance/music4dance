@@ -185,4 +185,93 @@ public class DanceQueryTest
         q = new DanceQuery("ALL");
         Assert.IsTrue(q.All);
     }
+
+    [TestMethod]
+    public void PrimaryDanceId_NoMarker_IsNull()
+    {
+        var q = new DanceQuery("CHA,RMB");
+        Assert.IsNull(q.PrimaryDanceId);
+    }
+
+    [TestMethod]
+    public void PrimaryDanceId_MarkedItem_IsReturned()
+    {
+        var q = new DanceQuery("CHA,RMB*");
+        Assert.AreEqual("RMB", q.PrimaryDanceId);
+    }
+
+    [TestMethod]
+    public void PrimaryDanceId_MarkedGroup_IsIgnored()
+    {
+        // WLZ is a dance group (CSW, SWZ, VWZ, TGV) - groups have no per-dance rating/tempo
+        // fields of their own, so a marker on one is not a valid scope target.
+        var q = new DanceQuery("WLZ*,BOL");
+        Assert.IsNull(q.PrimaryDanceId);
+    }
+
+    [TestMethod]
+    public void PrimaryDanceId_MultipleMarkers_FirstWins()
+    {
+        var q = new DanceQuery("CHA*,RMB*");
+        Assert.AreEqual("CHA", q.PrimaryDanceId);
+    }
+
+    [TestMethod]
+    public void PrimaryDanceId_MarkedGroupWithValidTarget_ResolvesToMember()
+    {
+        // LTN (Latin) is a dance group containing CHA - marking the group with an explicit
+        // target lets the scope chooser point at a member dance without that member ever
+        // being a separately selected top-level item.
+        var q = new DanceQuery("LTN*CHA");
+        Assert.AreEqual("CHA", q.PrimaryDanceId);
+    }
+
+    [TestMethod]
+    public void PrimaryDanceId_MarkedGroupWithInvalidTarget_IsIgnored()
+    {
+        // WCS is not a member of LTN (Latin) - an invalid/stale target should not resolve.
+        var q = new DanceQuery("LTN*WCS");
+        Assert.IsNull(q.PrimaryDanceId);
+    }
+
+    [TestMethod]
+    public void PrimaryDanceId_MarkedGroupWithDifferentlyCasedTarget_ResolvesToCanonicalId()
+    {
+        // A differently-cased target should still match, and resolve to the canonical
+        // (indexed) casing - not the raw string from the filter - since downstream OData
+        // field paths like dance_{id}/Votes must match the indexed field name exactly.
+        var q = new DanceQuery("LTN*cha");
+        Assert.AreEqual("CHA", q.PrimaryDanceId);
+    }
+
+    [TestMethod]
+    public void PrimaryDanceId_MarkedGroupTarget_TakesPrecedenceOverLaterPlainMarker()
+    {
+        var q = new DanceQuery("LTN*CHA,RMB*");
+        Assert.AreEqual("CHA", q.PrimaryDanceId);
+    }
+
+    [TestMethod]
+    public void ODataSort_PrimaryDance_UsesThatDancesVotesField()
+    {
+        var q = new DanceQuery("CHA,RMB*");
+        var sort = q.ODataSort("desc");
+        CollectionAssert.AreEqual(new[] { "dance_RMB/Votes desc" }, (System.Collections.ICollection)sort);
+    }
+
+    [TestMethod]
+    public void ODataSort_NoPrimary_MultiDance_UsesAggregate()
+    {
+        var q = new DanceQuery("CHA,RMB");
+        var sort = q.ODataSort("desc");
+        CollectionAssert.AreEqual(new[] { "dance_ALL/Votes desc" }, (System.Collections.ICollection)sort);
+    }
+
+    [TestMethod]
+    public void ODataSort_NoPrimary_SingleDance_UsesThatDance()
+    {
+        var q = new DanceQuery("CHA");
+        var sort = q.ODataSort("asc");
+        CollectionAssert.AreEqual(new[] { "dance_CHA/Votes asc" }, (System.Collections.ICollection)sort);
+    }
 }

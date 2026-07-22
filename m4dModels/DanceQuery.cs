@@ -66,6 +66,47 @@ public class DanceQuery
     public IEnumerable<string> DanceIds => Items.Select(d => d.Id);
     public IEnumerable<DanceObject> Dances => Items.Select(d => d.Dance);
 
+    // Explicit override for which dance's rating/tempo fields to use when more than one
+    // dance is selected (see DanceQueryItem.IsPrimary). A marked plain dance is its own
+    // target; a marked DanceGroup has no per-dance rating/tempo fields of its own, so it
+    // only resolves when DanceQueryItem.PrimaryTargetId names one of the group's members
+    // (this is how selecting a group's member dance in the scope chooser is represented,
+    // even though that member was never itself a top-level selected item).
+    public string PrimaryDanceId
+    {
+        get
+        {
+            foreach (var item in Items)
+            {
+                if (!item.IsPrimary)
+                {
+                    continue;
+                }
+
+                if (item.Dance is DanceLibrary.DanceGroup group)
+                {
+                    var targetId = item.PrimaryTargetId;
+                    var member = targetId != null
+                        ? group.Members.FirstOrDefault(m =>
+                            string.Equals(m.Id, targetId, StringComparison.OrdinalIgnoreCase))
+                        : null;
+                    if (member != null)
+                    {
+                        // Return the canonical member id, not the raw (possibly differently
+                        // cased) target from the filter string - downstream OData field paths
+                        // like dance_{id}/Votes must match the indexed field name exactly.
+                        return member.Id;
+                    }
+                    continue;
+                }
+
+                return item.Id;
+            }
+
+            return null;
+        }
+    }
+
     public bool IsExclusive
     {
         get
@@ -131,6 +172,11 @@ public class DanceQuery
 
     public virtual IList<string> ODataSort(string order)
     {
+        if (PrimaryDanceId != null)
+        {
+            return [$"dance_{PrimaryDanceId}/Votes {order}"];
+        }
+
         var dances = DanceLibrary.Dances.Instance.ExpandGroups(Dances).ToList();
         // Only sort by a single dance if there is one, otherwise sort by the overall votes for all dances
         if (dances.Count == 1)

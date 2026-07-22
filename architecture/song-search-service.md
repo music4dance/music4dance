@@ -8,7 +8,8 @@ calls `Search()`; see [[song-search-results]] for how the controller actions get
 happens to the result afterward (`FormatSongList`, `SongListModel`, Vue rendering). This document
 covers what `SongSearch` itself does: premium gating, user-query resolution/anonymization, search
 logging, and the three search strategies it can dispatch to (direct Azure query, `VoteSearch`,
-`EditedBySearch`).
+`EditedBySearch`). For how `Filter` itself is built (Advanced Search form → wire format → OData
+filter/`SearchOptions`), see [[song-filter]].
 
 `SongSearch` is constructed fresh per call (primary constructor, not a singleton/scoped service):
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { DanceGroup } from "@/models/DanceDatabase/DanceGroup";
 import { DanceQuery } from "@/models/DanceQuery";
 import { SongFilter } from "@/models/SongFilter";
 import { SongSort, SortOrder } from "@/models/SongSort";
@@ -7,7 +8,7 @@ import { UserQuery } from "@/models/UserQuery";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { safeTagDatabase } from "@/helpers/TagEnvironmentManager";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { DanceQueryItem } from "@/models/DanceQueryItem";
 import TagQuerySelector from "./components/TagQuerySelector.vue";
@@ -41,6 +42,58 @@ const hasDanceDetails = computed(() => {
 });
 const showDanceDetails = ref(hasDanceDetails.value);
 const tags: Tag[] = tagDatabase.tags;
+
+// Which selected dance's rating/tempo fields to use instead of the song's overall ones,
+// when more than one dance is selected. Groups have no per-dance rating/tempo fields of
+// their own, so a selected group is expanded into its member dances here rather than
+// offered directly - e.g. selecting just "Latin" still surfaces Cha Cha, Rumba, etc. so the
+// user can scope to one of them. Uses null (not undefined) for "no scope dance chosen" so
+// the <select> below matches the same pattern as sortId/sortOptions - BFormSelect doesn't
+// reliably show a default-selected option bound to undefined.
+const scopeDanceId = ref<string | null>(danceQueryInit.primaryDanceId ?? null);
+const scopeDanceOptions = computed(() => {
+  const seen = new Set<string>();
+  const options: { text: string; value: string }[] = [];
+  for (const id of dances.value) {
+    const obj = danceDB.fromId(id);
+    if (!obj) {
+      continue;
+    }
+    const members = DanceGroup.isGroup(obj) ? obj.dances : [obj];
+    for (const member of members) {
+      if (!seen.has(member.id)) {
+        seen.add(member.id);
+        options.push({ text: member.name, value: member.id });
+      }
+    }
+  }
+  return options;
+});
+watch(dances, () => {
+  // Clear whenever the scoped dance itself is no longer reachable (deselected directly, or
+  // its owning group was deselected), or whenever fewer than two scopable dances remain (the
+  // selector that lets the user pick "Overall (default)" again is hidden in that case, so a
+  // stale marker would be stuck on with no UI path back to the default).
+  if (
+    scopeDanceId.value &&
+    (!scopeDanceOptions.value.some((o) => o.value === scopeDanceId.value) ||
+      scopeDanceOptions.value.length <= 1)
+  ) {
+    scopeDanceId.value = null;
+  }
+});
+const scopeDanceName = computed(() => {
+  // A lone selection only counts as the implicit single dance if it's a real dance - a lone
+  // selected group (e.g. just "Latin") has no name of its own to fall back to here, so fall
+  // through to the explicit scope marker instead (e.g. "Latin" marked for its "Cha Cha" member).
+  if (dances.value.length === 1) {
+    const onlyDance = danceDB.danceFromId(dances.value[0]);
+    if (onlyDance) {
+      return onlyDance.name;
+    }
+  }
+  return scopeDanceId.value ? danceDB.danceFromId(scopeDanceId.value)?.name : undefined;
+});
 
 // Initialize tagString and excludeDanceTags from filter
 let initialTagString = filter.tags ?? "";
@@ -86,8 +139,18 @@ const excludeServices = ref(purchaseParts.exclude ? purchaseParts.exclude.split(
 const activity = ref(userQueryInit.parts);
 
 const songFilter = computed(() => {
+  const scopeId = scopeDanceId.value;
   const danceQuery = DanceQuery.fromParts(
-    danceQueryItems.value.map((t) => t.toString()),
+    danceQueryItems.value.map((t) => {
+      const match = scopeId ? matchScope(t.id, scopeId) : { primary: false };
+      return new DanceQueryItem({
+        id: t.id,
+        threshold: t.threshold,
+        tags: t.tags,
+        primary: match.primary || undefined,
+        primaryTargetId: match.target,
+      }).toString();
+    }),
     danceConnector.value === "all",
   );
   const userQuery = UserQuery.fromParts(
@@ -120,9 +183,16 @@ const songFilter = computed(() => {
   return filter;
 });
 
+// "Dance Rating" alone is ambiguous once a scope dance is in effect (see scopeDanceName) -
+// name it explicitly, whether that's because it's the only dance selected or because it was
+// chosen via the "Sort and Filter by:" selector.
+const danceRatingLabel = computed(() => {
+  return scopeDanceName.value ? `Dance Rating (${scopeDanceName.value})` : "Dance Rating";
+});
+
 const sortOptions = computed(() => [
   { text: computedDefault(), value: null },
-  { text: "Dance Rating", value: SortOrder.Dances },
+  { text: danceRatingLabel.value, value: SortOrder.Dances },
   { text: "Closest Match", value: SortOrder.Match },
   { text: "Title", value: SortOrder.Title },
   { text: "Artist", value: SortOrder.Artist },
@@ -149,13 +219,6 @@ const danceNames = computed(() => {
   return dances.value
     .map((danceId) => danceDB.fromId(danceId)?.name)
     .filter((name): name is string => !!name);
-});
-
-const singleDanceName = computed(() => {
-  if (dances.value.length !== 1) {
-    return undefined;
-  }
-  return danceDB.danceFromId(dances.value[0])?.name;
 });
 
 const activities = computed(() => {
@@ -207,6 +270,20 @@ const isAnonymous = computed(() => {
   return displayUser.value === "Anonymous";
 });
 
+// Whether the given top-level dance-query item is the current scope dance's owner, and (if
+// it's a group) the specific member id to record as its primaryTargetId. A plain dance owns
+// the scope by matching its own id directly; a group owns it when scopeId is one of its
+// expanded members (see scopeDanceOptions).
+function matchScope(itemId: string, scopeId: string): { primary: boolean; target?: string } {
+  const dance = danceDB.fromId(itemId);
+  if (dance && DanceGroup.isGroup(dance)) {
+    return dance.dances.some((d) => d.id === scopeId)
+      ? { primary: true, target: scopeId }
+      : { primary: false };
+  }
+  return { primary: itemId === scopeId };
+}
+
 function getQueryFilter(): SongFilter {
   const params = new URLSearchParams(window.location.search);
   const filterString = params.get("filter");
@@ -222,8 +299,10 @@ function getShowDiagnostics(): boolean {
 }
 
 const computedDefault = (): string => {
-  const value = !!keyWords.value ? "Closest Match" : "Dance Rating";
-  return `Default (${value})`;
+  // Colon rather than "Default (...)" - danceRatingLabel can itself already be parenthesized
+  // (e.g. "Dance Rating (Balboa)"), and nesting parens there would read poorly.
+  const value = !!keyWords.value ? "Closest Match" : danceRatingLabel.value;
+  return `Default: ${value}`;
 };
 
 function computeBonuses(): string[] {
@@ -296,6 +375,7 @@ function onReset(evt: Event): void {
 
   // Reset danceQueryItems to empty
   danceQueryItems.value = [];
+  scopeDanceId.value = null;
 
   validated.value = false;
 }
@@ -343,6 +423,25 @@ function onReset(evt: Event): void {
                 Show Dance Details
               </BFormCheckbox>
             </div>
+            <BFormGroup
+              v-if="scopeDanceOptions.length > 1"
+              id="scope-dance-group"
+              label="Sort and Filter by:"
+              label-for="scope-dance"
+              class="mx-3 mb-2"
+            >
+              <BFormSelect
+                id="scope-dance"
+                v-model="scopeDanceId"
+                :options="[{ text: 'Overall (default)', value: null }, ...scopeDanceOptions]"
+                size="sm"
+              />
+              <small class="text-muted">
+                By default, dance rating sort uses the song's cumulative rating across every dance
+                it's rated for (not just the dances selected above), and tempo sort/filtering use
+                the song's own tempo. Pick a dance to use that dance's own rating and tempo instead.
+              </small>
+            </BFormGroup>
             <div v-if="showDanceDetails" class="mx-3 mb-2">
               <div
                 v-for="item in danceQueryItems"
@@ -428,7 +527,7 @@ function onReset(evt: Event): void {
         <BFormGroup
           id="tempo-range-group"
           :label="
-            singleDanceName ? `Tempo range for ${singleDanceName} (BPM):` : 'Tempo range (BPM):'
+            scopeDanceName ? `Tempo range for ${scopeDanceName} (BPM):` : 'Tempo range (BPM):'
           "
           label-for="tempo-range"
         >
@@ -562,6 +661,7 @@ searchString = {{ keyWords }}
 dances = {{ dances }}
 danceQueryItems = {{ danceQueryItems }}
 danceConnector = {{ danceConnector }}
+scopeDanceId = {{ scopeDanceId }}
 excludeDanceTags = {{ excludeDanceTags }}
 tempoMin = {{ tempoMin }}
 tempoMax = {{ tempoMax }}

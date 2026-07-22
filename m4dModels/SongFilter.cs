@@ -236,9 +236,14 @@ public class SongFilter
     public virtual TagQuery TagQuery => new(Tags);
     public virtual SongSort SongSort => new(SortOrder, TextSearch);
 
-    protected string SingleDanceId => IsSingleDance
-        ? DanceQuery?.DanceIds.FirstOrDefault()
-        : null;
+    // The dance whose rating/tempo fields should be used instead of the aggregate/song-level
+    // ones - either because exactly one (non-group) dance is selected, or because one of
+    // several selected dances is explicitly marked as the target (DanceQuery.PrimaryDanceId).
+    protected string SingleDanceId => IsRaw
+        ? null
+        : IsSingleDance
+            ? DanceQuery?.DanceIds.FirstOrDefault()
+            : DanceQuery?.PrimaryDanceId;
 
     public CruftFilter CruftFilter =>
         !Action.StartsWith("merge", StringComparison.OrdinalIgnoreCase) && Level.HasValue
@@ -444,26 +449,27 @@ public class SongFilter
 
             _ = sb.Append(TagQuery.Description(ref separator));
 
+            var tempoDanceName = SingleDanceId != null
+                ? DanceLibrary.Dances.Instance.DanceFromId(SingleDanceId)?.Name
+                : null;
+
             if (TempoMin.HasValue && TempoMax.HasValue)
             {
-                var danceQualifier = IsSingleDance
-                    ? $"for {DanceQuery.Dances.First().Name} " : "";
+                var danceQualifier = tempoDanceName != null ? $"for {tempoDanceName} " : "";
                 _ = sb.AppendFormat(
                     "{0}having {1}tempo between {2} and {3} beats per minute",
                     separator, danceQualifier, TempoMin.Value, TempoMax.Value);
             }
             else if (TempoMin.HasValue)
             {
-                var danceQualifier = IsSingleDance
-                    ? $"for {DanceQuery.Dances.First().Name} " : "";
+                var danceQualifier = tempoDanceName != null ? $"for {tempoDanceName} " : "";
                 _ = sb.AppendFormat(
                     "{0}having {1}tempo greater than {2} beats per minute", separator,
                     danceQualifier, TempoMin.Value);
             }
             else if (TempoMax.HasValue)
             {
-                var danceQualifier = IsSingleDance
-                    ? $"for {DanceQuery.Dances.First().Name} " : "";
+                var danceQualifier = tempoDanceName != null ? $"for {tempoDanceName} " : "";
                 _ = sb.AppendFormat(
                     "{0}having {1}tempo less than {2} beats per minute", separator,
                     danceQualifier, TempoMax.Value);
@@ -498,6 +504,22 @@ public class SongFilter
             _ = sb.Append('.');
 
             _ = sb.Append(SongSort.Description);
+
+            // Only called out when a scope dance is explicitly picked among several selected
+            // dances - the implicit single-dance case is already obvious from the "All X songs"
+            // prefix above (guarded by !IsSingleDance), and the tempo qualifier above already
+            // names it when a tempo range is set (guarded by !TempoMin/!TempoMax), so this only
+            // fills the gap for an unscoped rating/tempo sort with 2+ dances selected.
+            var scopeDanceId = !IsSingleDance ? DanceQuery?.PrimaryDanceId : null;
+            if (scopeDanceId != null && !TempoMin.HasValue && !TempoMax.HasValue &&
+                SongSort.Id is SongSort.Dances or SongSort.Tempo)
+            {
+                var scopeDanceName = DanceLibrary.Dances.Instance.DanceFromId(scopeDanceId)?.Name;
+                if (scopeDanceName != null)
+                {
+                    _ = sb.AppendFormat(" Using {0} for rating and tempo.", scopeDanceName);
+                }
+            }
 
             return sb.ToString().Trim();
         }
