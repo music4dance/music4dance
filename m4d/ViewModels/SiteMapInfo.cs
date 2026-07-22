@@ -1,4 +1,6 @@
-﻿using DanceLibrary;
+﻿using System.Globalization;
+
+using DanceLibrary;
 
 using Microsoft.Extensions.FileProviders;
 
@@ -12,9 +14,14 @@ public class SiteMapEntry
     public virtual bool OneTime { get; set; }
     public virtual bool Crawl { get; set; }
     public virtual IEnumerable<SiteMapEntry> Children { get; set; }
-    public virtual int Order { get; set; }
+    public virtual string Date { get; set; }
 
     public string FullPath => MakeFullPath(Reference);
+
+    public string FormattedDate =>
+        DateTime.TryParseExact(Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)
+            ? date.ToString("MMM d, yyyy", CultureInfo.InvariantCulture)
+            : null;
 
     protected string MakeFullPath(string rel)
     {
@@ -90,10 +97,6 @@ public sealed class SiteMapFile : SiteMapEntry
                 _ = depths.Pop();
             }
 
-            if (parts.Count <= 4 || !int.TryParse(parts[4], out var order))
-            {
-                order = 0;
-            }
             family.Peek().Add(
                 new SiteMapEntry
                 {
@@ -101,7 +104,7 @@ public sealed class SiteMapFile : SiteMapEntry
                     Reference = parts.Count > 1 ? parts[1] : null,
                     Description = parts.Count > 2 ? parts[2] : null,
                     OneTime = parts.Count > 3 && !string.IsNullOrWhiteSpace(parts[3]),
-                    Order = order
+                    Date = parts.Count > 4 ? parts[4] : null
                 });
         }
 
