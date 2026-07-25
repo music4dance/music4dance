@@ -236,51 +236,55 @@ Only runs when the song has exactly one dance rating. Uses `dance.ValidateTempo(
 
 ## Playlist Lookup
 
-### `LookupPlaylist(service, url, oldTrackList?, principal?)`
+### `LookupPlaylist(service, url, oldTrackList?, principal?, includeGenres = true, maxTracks = null)`
 
 1. Calls `service.BuildLookupRequest(url)` to translate a user-facing URL to an API URL.
    - Spotify album URL → `GET /v1/albums/{id}`
    - Spotify playlist URL → `GET /v1/playlists/{id}` (or `/v1/users/{user}/playlists/{id}`)
-2. Parses name, description, owner from top-level response.
-3. Calls `service.ParseSearchResults` for the track list (items array), filtering out `oldTrackList` IDs.
-4. Paginates via `NextMusicServiceResults` → `service.GetNextRequest(last)` → Spotify's `tracks.next`.
+2. Parses name, description, owner (or, for albums, the contributing artist(s) as a fallback) from
+   the top-level response, plus `TotalCount` from the response's own paging metadata
+   (`tracks.total`/`total`) — this is the *true* track count, independent of `maxTracks` below.
+3. Calls `service.ParseSearchResults` for the track list (items array), filtering out `oldTrackList`
+   IDs and passing `includeGenres` through to `ParseTrackResults`.
+4. Paginates via `NextMusicServiceResults` → `service.GetNextRequest(last)` → Spotify's `tracks.next`,
+   stopping early once `tracks.Count >= maxTracks` (when `maxTracks` is given) rather than always
+   fetching every page.
 5. Calls `ComputeTrackPurchaseInfo` to add purchase links.
 
-`LookupPlaylistWithAudioData` extends this by calling `FillEchoTracks` for Spotify playlists.
+`LookupPlaylistWithAudioData` extends this by calling `FillEchoTracks` for Spotify playlists, and
+forwards `includeGenres`/`maxTracks` unchanged.
 
-### Known Performance Issue: Per-Track Genre Enrichment
+### Per-Track Genre Enrichment (previously a performance problem — now fixed)
 
 `SongController.Playlist` (the read-only playlist/album viewer — see
 [[song-search-results]] § "Playlist") calls `LookupPlaylist` directly and only ever reads
 `TrackId`/`Name`/`Artist`/`ISRC` off the returned tracks to build its `ServiceIds/any(...)` catalog
-match. In practice, viewing a playlist of even moderate size can take multiple *minutes* — far more
-than the "one paginated fetch + one Azure Search round-trip" the feature should cost. Tracing the
-call chain:
+match. Viewing a playlist of even moderate size used to take multiple *minutes* — far more than the
+"one paginated fetch + one Azure Search round-trip" the feature should cost. Tracing the call chain:
 
 1. `service.ParseSearchResults` (`SpotifyService.cs`) parses each page's tracks in a `foreach` loop,
    `await`-ing `ParseTrackResults` **one track at a time** — no batching or parallelism.
-2. `ParseTrackResults` calls `BuildGenres(track, getResult)` for **every track**, which:
+2. `ParseTrackResults` called `BuildGenres(track, getResult)` for **every track**, which:
    - fetches the track's album via `GenresFromReference(track.album, getResult)` — one live
      `GET` to the album's `href` — to read its genre list, and
    - fetches **every artist on the track** the same way, one `GET` per artist.
    - Genres are never present inline on a track/playlist/album response; they only exist on the
      album/artist resources, so this is unavoidable *if genres are needed*.
 3. The cache that's supposed to dedupe repeated album/artist lookups
-   (`SpotifyService.s_results`, keyed by URL) is **dead code** — `GetResults` only ever reads it
-   (`s_results.TryGetValue`); nothing in the class ever writes to it. So even a 12-track album by one
-   artist, or a playlist full of tracks from the same album, re-fetches that album's/artist's genres
+   (`SpotifyService.s_results`, keyed by URL) was **dead code** — `GetResults` only ever read it
+   (`s_results.TryGetValue`); nothing in the class ever wrote to it. So even a 12-track album by one
+   artist, or a playlist full of tracks from the same album, re-fetched that album's/artist's genres
    from scratch on every track instead of once.
-4. Each of those calls goes through `GetMusicServiceManager.GetMusicServiceResults`, which retries
-   on `401`/`429` with a **blocking `Thread.Sleep(15_000)`** (rate-limited) or
-   `Thread.Sleep(3_000)` (pre-emptive throttle) — not `Task.Delay` — so once the inflated call
-   volume from (1)-(3) trips Spotify's per-app rate limit, a handful of tracks can each add a
-   synchronous 15-second stall. This is the likely source of the multi-*minute* outlier cases (as
-   opposed to the tens-of-seconds cost the uncached-but-not-rate-limited case would already imply).
+4. Each of those calls goes through `MusicServiceManager.GetMusicServiceResults`, which retries
+   on `401`/`429` with a **blocking `Thread.Sleep`** (15s rate-limited, 3s pre-emptive throttle,
+   60s iTunes-specific) — not `Task.Delay` — so once the inflated call volume from (1)-(3) tripped
+   Spotify's per-app rate limit, a handful of tracks could each add a synchronous multi-second
+   stall on a thread-pool thread. Likely source of the multi-*minute* outlier cases.
 5. `SongController.Playlist` bounds how many *displayed* tracks it wants via
-   `MatchLimitForSubscription` (10-500 depending on tier) — but that `.Take(matchLimit)` happens
-   **after** `LookupPlaylist` has already paginated through and genre-enriched the *entire*
-   playlist/album. A 2,000-track playlist costs the same to load as it would for a Gold-tier viewer
-   even when an anonymous visitor will only ever see 10 of those tracks.
+   `MatchLimitForSubscription` (10-500 depending on tier) — but that `.Take(matchLimit)` happened
+   **after** `LookupPlaylist` had already paginated through and genre-enriched the *entire*
+   playlist/album. A 2,000-track playlist cost the same to load as it would for a Gold-tier viewer
+   even when an anonymous visitor would only ever see 10 of those tracks.
 
 None of this enrichment is needed for the playlist-viewer's job (matching by Spotify id, falling
 back to ISRC — both already present inline on each track item with zero extra calls, per the
@@ -290,25 +294,31 @@ also used by genuinely genre-consuming paths — song creation/import
 `MusicServiceManager.cs:241`, as does `SongController.cs:1934` for the admin track-import flow) and
 the admin `PlayList` sync (`PlayListController.LoadServicePlaylist` also calls `LookupPlaylist`
 directly, likely for the same reason) — so trimming genre-fetching out of `ParseTrackResults`
-globally would regress those.
+globally would have regressed those.
 
-**Proposed fix** (not yet implemented — pending review):
+**Fix (implemented):**
 
-- Give `LookupPlaylist`/`ParseSearchResults`/`ParseTrackResults` a way to skip genre enrichment
-  (e.g. a `bool includeGenres = true` parameter threaded down to `BuildGenres`, or a cheaper
-  sibling method), and have `SongController.Playlist`'s call opt out of it — the two other callers
-  (`PlayListController.LoadServicePlaylist`, `ServicePlaylistController`'s
-  `LookupPlaylistWithAudioData`) keep the current behavior.
-- Fix `SpotifyService.s_results` to actually be written to in `GetResults`, so that even where
-  genre enrichment *is* requested, repeated albums/artists within one playlist are fetched once.
-  (Low-risk, purely additive — worth doing regardless of the above.)
-- Bound `LookupPlaylist`'s pagination/enrichment to `matchLimit` for the viewer path, so
-  `SongController.Playlist` never fetches or enriches tracks past what it's actually going to
-  display, instead of paginating the whole playlist and discarding the tail with `.Take`.
-- Lower priority: replace the `Thread.Sleep` retries in `GetMusicServiceResults` with `await
-  Task.Delay`, since a blocking sleep inside an `async` method ties up a thread-pool thread for the
-  duration — a pre-existing issue independent of this feature, but one the reduced call volume
-  above would make far less likely to matter in practice.
+- `ParseSearchResults`/`ParseTrackResults` (`MusicService` base, `SpotifyService`, `ITunesService`,
+  `ISRCService`) take an `includeGenres = true` parameter; `SpotifyService.ParseTrackResults` only
+  calls `BuildGenres` when it's true. `SongController.Playlist`'s call passes
+  `includeGenres: false`; the other two callers (`PlayListController.LoadServicePlaylist`,
+  `ServicePlaylistController`'s `LookupPlaylistWithAudioData`) keep the default, so genre tagging
+  for song creation/import and admin playlist sync is unaffected.
+- `SpotifyService.s_results` is now actually written to in `GetResults` (guarded by a
+  `s_resultsLock` around every read/write/eviction, since `Dictionary<>` isn't thread-safe and this
+  is hit concurrently by ASP.NET requests), so repeated albums/artists within one playlist are
+  fetched once — same unbounded-but-cleared-at-10k shape as `MusicServiceManager.s_trackCache`. A
+  failed/null lookup is never cached, so a transient Spotify error doesn't get memoized as
+  "no data" until the next eviction.
+- `LookupPlaylist` takes `maxTracks`, and `SongController.Playlist` passes its `matchLimit`, so
+  pagination (and therefore genre-fetching, when enabled) stops once enough tracks exist for the
+  viewer's subscription tier — instead of fetching/enriching the whole playlist and discarding the
+  tail with `.Take`. The true total is preserved separately as `GenericPlaylist.TotalCount`
+  (`PlaylistViewerModel.TotalCount` on the client), read from the response's paging metadata rather
+  than `Tracks.Count`.
+- The `Thread.Sleep` retries in `GetMusicServiceResults` (3s/15s/15s/60s) are now `await
+  Task.Delay`, so a throttled request no longer parks a thread-pool thread for the wait — this
+  benefits every caller, not just the playlist viewer.
 
 ---
 

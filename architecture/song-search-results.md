@@ -205,11 +205,16 @@ the next piece of work.
 > end-anchored regex by coincidence) worked. `checkServiceAndAdd` now calls `checkService`
 > unconditionally first, regardless of whether the input also matches a track-id pattern.
 >
-> **Update**: `LookupPlaylist`'s per-track genre enrichment (`SpotifyService.BuildGenres`, via
-> `ParseTrackResults`) issues a live Spotify API call per track album and per track artist, awaited
-> sequentially, and the cache meant to dedupe those (`SpotifyService.s_results`) is never written to
-> — see [[music-service-api-calls]] § "Known Performance Issue: Per-Track Genre Enrichment" for the
-> full investigation into why this view can take minutes for larger playlists. Not yet fixed.
+> **Update**: this view used to take minutes for larger playlists — `LookupPlaylist`'s per-track
+> genre enrichment (`SpotifyService.BuildGenres`, via `ParseTrackResults`) issued a live Spotify API
+> call per track album and per track artist, awaited sequentially, and the cache meant to dedupe
+> those (`SpotifyService.s_results`) was never written to. Fixed: this action now calls
+> `LookupPlaylist` with `includeGenres: false` (genres were never used here — only id/ISRC/name/
+> artist are), and passes `maxTracks: matchLimit` so pagination stops once enough tracks exist for
+> the viewer's subscription tier instead of fetching/enriching the whole playlist first and
+> discarding the tail with `.Take`. See [[music-service-api-calls]] § "Per-Track Genre Enrichment"
+> for the full investigation and the (now-implemented) fix, including the `s_results` cache fix and
+> the `Thread.Sleep` → `Task.Delay` change that benefits the callers that still request genres.
 
 ### `List(IFormFile fileUpload)` — [SongController.cs:502](../m4d/Controllers/SongController.cs#L502)
 
