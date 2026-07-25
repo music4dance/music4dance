@@ -20,6 +20,7 @@ public class CustomSearchModel : SongListModel
 public class PlaylistViewerModel
 {
     public string Id { get; set; }
+    public bool IsAlbum { get; set; }
     public List<SongHistory> Histories { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }

@@ -129,21 +129,24 @@ public class SongController : ContentController
     }
 
     [AllowAnonymous]
-    public async Task<ActionResult> Playlist(string id)
+    public async Task<ActionResult> Playlist(string id, string type = "playlist")
     {
         if (string.IsNullOrWhiteSpace(id))
         {
             return ReturnError(HttpStatusCode.NotFound, "Playlist id is empty.");
         }
 
+        var isAlbum = string.Equals(type, "album", StringComparison.OrdinalIgnoreCase);
+        var kind = isAlbum ? "album" : "playlist";
+
         var spotify = MusicService.GetService(ServiceType.Spotify);
         var playlist = await MusicServiceManager.LookupPlaylist(
-                spotify, $"/playlist/{id}");
+                spotify, $"/{kind}/{id}");
 
         if (playlist == null)
         {
             return ReturnError(HttpStatusCode.NotFound,
-                $"Playlist {id} doesn't exist or is empty.");
+                $"{(isAlbum ? "Album" : "Playlist")} {id} doesn't exist or is empty.");
         }
 
         var canAddSongs = Identity.IsAuthenticated;
@@ -270,6 +273,7 @@ public class SongController : ContentController
             var model = new PlaylistViewerModel
             {
                 Id = id,
+                IsAlbum = isAlbum,
                 Histories = await AnonymizeSongs(sorted.Select(x => x.song).ToList()),
                 Name = playlist.Name,
                 Description = playlist.Description,

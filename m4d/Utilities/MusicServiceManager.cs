@@ -550,9 +550,32 @@ public class MusicServiceManager(IConfiguration configuration)
         }
 
         var name = results.name.ToString();
-        var description = results.description.ToString();
+        var description = results.description?.ToString();
         var ownerId = results.owner?.id?.ToString();
         var ownerName = results.owner?.display_name?.ToString();
+
+        if (string.IsNullOrEmpty(ownerName))
+        {
+            // Albums have no "owner" the way playlists do; fall back to the contributing
+            // artist(s) so the viewer has someone to attribute/link the album to.
+            var artistNames = new List<string>();
+            string firstArtistId = null;
+            dynamic artists = results.artists;
+            if (artists != null)
+            {
+                foreach (var artist in artists)
+                {
+                    firstArtistId ??= (string)artist.id;
+                    artistNames.Add((string)artist.name);
+                }
+            }
+
+            if (artistNames.Count > 0)
+            {
+                ownerId = firstArtistId;
+                ownerName = string.Join(", ", artistNames);
+            }
+        }
 
         IList<ServiceTrack> tracks = await service.ParseSearchResults(
             results,
@@ -584,6 +607,7 @@ public class MusicServiceManager(IConfiguration configuration)
             Description = description,
             OwnerId = ownerId,
             OwnerName = ownerName,
+            IsAlbum = url.Contains("/album/"),
             Tracks = tracks
         };
     }

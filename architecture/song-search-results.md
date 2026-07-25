@@ -140,15 +140,24 @@ through `DoAzureSearch`/`SongSearch` — see below.
 
 These return song lists but bypass `SongSearch` (and in some cases bypass Azure Search entirely).
 
-### `Playlist(string id)` — [SongController.cs:132](../m4d/Controllers/SongController.cs#L132)
+### `Playlist(string id, string type = "playlist")` — [SongController.cs:132](../m4d/Controllers/SongController.cs#L132)
 
 The endpoint this document was requested to set up for generalization. **Distinct from the admin
 playlist CRUD system** documented in [[playlist-management]] — that system manages persisted
 `PlayList` rows and periodic Spotify sync; this action is a stateless, anonymous, read-only viewer
-for an *arbitrary* Spotify playlist URL, matched on the fly:
+for an *arbitrary* Spotify playlist or album URL, matched on the fly:
 
-1. Looks up the Spotify playlist by ID via `MusicServiceManager.LookupPlaylist(spotify, "/playlist/{id}")`
-   (live Spotify API call, not the catalog).
+1. Looks up the Spotify playlist/album by ID via
+   `MusicServiceManager.LookupPlaylist(spotify, "/playlist/{id}")` or `"/album/{id}"` depending on
+   `type` (live Spotify API call, not the catalog). `SpotifyService.BuildLookupRequest` already
+   branched on `/album/` vs `/playlist/` before this was wired up here; the client-side matcher
+   (`ServiceMatcher.parseAlbum`, [ServiceMatcher.ts](../m4d/ClientApp/src/helpers/ServiceMatcher.ts))
+   and `useDropTarget`'s `checkService` route album links to `/song/playlist?id={id}&type=album`.
+   Since Spotify albums have no `owner`, `LookupPlaylist` falls back to the contributing artist(s)
+   for `OwnerName`/`OwnerId` when `owner` is absent, and stamps `GenericPlaylist.IsAlbum` from the
+   URL so `PlaylistViewerModel.IsAlbum` can drive the client's link-building
+   (`open.spotify.com/album/…`, `/embed/album/…`, `/artist/…` instead of `/playlist/…`,
+   `/embed/playlist/…`, `/user/…`).
 2. Builds an OData filter directly (`ServiceIds/any(id: search.in(id, 'S:track1,S:track2,...'))`)
    matching catalog songs whose Spotify service ID appears in the playlist's track list.
 3. Calls `SongIndex.Search(null, options, CruftFilter.NoCruft)` directly — no `SongFilter`, no
@@ -185,6 +194,22 @@ the next piece of work.
 > the matched/sorted results, same as a direct id match. This still costs exactly one extra Azure
 > Search round-trip per playlist view (not one per unmatched track), and is bounded by the same
 > subscription-tier `candidateTracks` list as the primary search.
+>
+> **Update**: `useDropTarget.checkServiceAndAdd` used to gate its call into `checkService` (the
+> function that actually recognizes playlist/album URLs) behind `ServiceMatcher.match`, which only
+> matches single-*track* id patterns anchored to the end of the string. A playlist/album URL copied
+> via Spotify's "Copy Link" share action carries a trailing `?si=...` tracking parameter, so it
+> never matched `match`'s end-anchored regex and the function returned before `checkService` (and
+> therefore `parsePlaylist`) ever ran — pasting such a link silently did nothing, while a
+> drag-and-dropped link (typically without the `?si=` suffix, so it happened to satisfy the
+> end-anchored regex by coincidence) worked. `checkServiceAndAdd` now calls `checkService`
+> unconditionally first, regardless of whether the input also matches a track-id pattern.
+>
+> **Update**: `LookupPlaylist`'s per-track genre enrichment (`SpotifyService.BuildGenres`, via
+> `ParseTrackResults`) issues a live Spotify API call per track album and per track artist, awaited
+> sequentially, and the cache meant to dedupe those (`SpotifyService.s_results`) is never written to
+> — see [[music-service-api-calls]] § "Known Performance Issue: Per-Track Genre Enrichment" for the
+> full investigation into why this view can take minutes for larger playlists. Not yet fixed.
 
 ### `List(IFormFile fileUpload)` — [SongController.cs:502](../m4d/Controllers/SongController.cs#L502)
 

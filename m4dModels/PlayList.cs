@@ -119,6 +119,7 @@ public class GenericPlaylist
     public string Description { get; set; }
     public string OwnerId { get; set; }
     public string OwnerName { get; set; }
+    public bool IsAlbum { get; set; }
     public IList<ServiceTrack> Tracks { get; set; }
 }
 

@@ -6,6 +6,7 @@ import {
   emptyPlaylistModel,
   noMatchesModel,
   anonymousUnmatchedModel,
+  albumModel,
 } from "./model";
 import App from "../App.vue";
 
@@ -37,5 +38,9 @@ describe("Playlist Viewer", () => {
 
   test("renders a sign-in call to action with returnUrl for anonymous viewers", () => {
     testPageSnapshot(App, anonymousUnmatchedModel);
+  }, 50000);
+
+  test("renders a Spotify album with artist attribution and album links", () => {
+    testPageSnapshot(App, albumModel);
   }, 50000);
 });

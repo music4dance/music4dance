@@ -8,8 +8,10 @@ declare const model_: string;
 const model = TypedJSON.parse(model_, PlaylistViewerModel)!;
 
 const hiddenColumns = ["length", "track"];
-const userLink = `https://open.spotify.com/user/${model.ownerId}`;
-const playlistLink = `https://open.spotify.com/playlist/${model.id}`;
+const kind = model.isAlbum ? "album" : "playlist";
+const typeParam = model.isAlbum ? "&type=album" : "";
+const userLink = `https://open.spotify.com/${model.isAlbum ? "artist" : "user"}/${model.ownerId}`;
+const playlistLink = `https://open.spotify.com/${kind}/${model.id}`;
 
 // We only checked part of the playlist, bounded by the viewer's subscription tier.
 const isPartial = computed(() => model.checkedCount < model.totalCount);
@@ -24,7 +26,8 @@ const unmatchedFields = [{ key: "title" }, { key: "artist" }, { key: "add", labe
 
 const addSongLink = (trackId: string): string => `/song/augment?id=${trackId}`;
 const loginLink = computed(
-  () => `/Identity/Account/Login?ReturnUrl=${encodeURIComponent(`/song/playlist?id=${model.id}`)}`,
+  () =>
+    `/Identity/Account/Login?ReturnUrl=${encodeURIComponent(`/song/playlist?id=${model.id}${typeParam}`)}`,
 );
 </script>
 
@@ -32,7 +35,7 @@ const loginLink = computed(
   <PageFrame id="app">
     <BAlert v-if="isPartial" show variant="info"
       >We checked the first {{ model.checkedCount }} of {{ model.totalCount }} songs in this
-      playlist for music4dance matches. <a href="/Home/Contribute">Upgrade your membership</a> to
+      {{ kind }} for music4dance matches. <a href="/Home/Contribute">Upgrade your membership</a> to
       have us check more. See our
       <a
         href="https://music4dance.blog/music4dance-help/subscriptions/"
@@ -50,7 +53,7 @@ const loginLink = computed(
       <a href="https://music4dance.blog/feedback/" target="_blank" rel="noopener noreferrer"
         >contact us</a
       >
-      if you would like us to support a specific playlist.</BAlert
+      if you would like us to support a specific {{ kind }}.</BAlert
     >
     <h1>
       <BLink
@@ -68,10 +71,10 @@ const loginLink = computed(
     </h1>
     <p v-html="model.description" />
     <BAlert v-if="isEmptyPlaylist" show variant="warning"
-      >This Spotify playlist doesn't have any tracks.</BAlert
+      >This Spotify {{ kind }} doesn't have any tracks.</BAlert
     >
     <BAlert v-else-if="noMatches" show variant="warning"
-      >None of the songs in this playlist are in the music4dance catalog yet.</BAlert
+      >None of the songs in this {{ kind }} are in the music4dance catalog yet.</BAlert
     >
     <SongTable
       v-else
@@ -80,7 +83,7 @@ const loginLink = computed(
       :hide-sort="true"
       :hidden-columns="hiddenColumns"
     />
-    <SpotifyPlayer v-if="!isEmptyPlaylist" :playlist="model.id" />
+    <SpotifyPlayer v-if="!isEmptyPlaylist" :playlist="model.id" :is-album="model.isAlbum" />
     <p>
       by
       <BLink :href="userLink" target="_blank" rel="noopener noreferrer">{{
@@ -92,8 +95,8 @@ const loginLink = computed(
       <p>
         {{
           noMatches
-            ? "None of the songs in this playlist are in music4dance yet"
-            : "These songs from the playlist aren't in music4dance yet"
+            ? `None of the songs in this ${kind} are in music4dance yet`
+            : `These songs from the ${kind} aren't in music4dance yet`
         }}
         &mdash; add them so you (and everyone else) can dance to them.
       </p>
