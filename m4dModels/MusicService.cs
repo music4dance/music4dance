@@ -150,13 +150,13 @@ public class MusicService
 
     public virtual Task<IList<ServiceTrack>> ParseSearchResults(
         dynamic results, Func<string, Task<dynamic>> getResult,
-        IEnumerable<string> excludeTracks)
+        IEnumerable<string> excludeTracks, bool includeGenres = true)
     {
         throw new NotImplementedException();
     }
 
     public virtual Task<ServiceTrack> ParseTrackResults(dynamic results,
-        Func<string, Task<dynamic>> getResult)
+        Func<string, Task<dynamic>> getResult, bool includeGenres = true)
     {
         throw new NotImplementedException();
     }

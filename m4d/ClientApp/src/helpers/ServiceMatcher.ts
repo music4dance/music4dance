@@ -59,6 +59,11 @@ export class ServiceMatcher {
     return this.parse(patterns, id);
   }
 
+  public parseAlbum(id: string): string | null {
+    const patterns = [/https:\/\/open\.spotify\.com\/album\/([a-z0-9]{22})/gi];
+    return this.parse(patterns, id);
+  }
+
   public parseUser(id: string): string | null {
     const patterns = [/https:\/\/open\.spotify\.com\/user\/([^?/]*)/gi];
     return this.parse(patterns, id);

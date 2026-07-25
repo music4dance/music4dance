@@ -4438,6 +4438,18 @@ export const anonymousUnmatchedModel = {
   unmatched: [],
 };
 
+// Variant for a Spotify album instead of a playlist — exercises the artist/album-specific
+// wording and link targets (open.spotify.com/album/... and /artist/... rather than
+// /playlist/... and /user/...).
+export const albumModel = {
+  ...model,
+  isAlbum: true,
+  name: "Nine Sinatra Songs (Music From The Ballet)",
+  description: undefined,
+  ownerId: "1Mxqyy3pSjf8kZZL4QVxS0",
+  ownerName: "Frank Sinatra",
+};
+
 // Variant where every checked track is missing from the catalog (signed in, so the
 // add-songs table covers all of them).
 export const noMatchesModel = {

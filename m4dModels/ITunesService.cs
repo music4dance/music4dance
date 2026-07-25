@@ -24,7 +24,7 @@ public class ITunesService : MusicService
 
     public override async Task<IList<ServiceTrack>> ParseSearchResults(
         dynamic results, Func<string, Task<dynamic>> getResult,
-        IEnumerable<string> excludeTracks)
+        IEnumerable<string> excludeTracks, bool includeGenres = true)
     {
         var ret = new List<ServiceTrack>();
 
@@ -46,7 +46,7 @@ public class ITunesService : MusicService
     }
 
     public override Task<ServiceTrack> ParseTrackResults(dynamic results,
-        Func<string, Task<dynamic>> getResult)
+        Func<string, Task<dynamic>> getResult, bool includeGenres = true)
     {
         if (results == null)
         {

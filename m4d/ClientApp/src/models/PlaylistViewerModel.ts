@@ -5,6 +5,7 @@ import { UnmatchedTrack } from "./UnmatchedTrack";
 @jsonObject
 export class PlaylistViewerModel {
   @jsonMember(String) public id!: string;
+  @jsonMember(Boolean) public isAlbum?: boolean;
   @jsonArrayMember(SongHistory) public histories!: SongHistory[];
   @jsonMember(String) public name!: string;
   @jsonMember(String) public description?: string;

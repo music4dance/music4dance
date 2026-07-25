@@ -129,30 +129,35 @@ public class SongController : ContentController
     }
 
     [AllowAnonymous]
-    public async Task<ActionResult> Playlist(string id)
+    public async Task<ActionResult> Playlist(string id, string type = "playlist")
     {
         if (string.IsNullOrWhiteSpace(id))
         {
             return ReturnError(HttpStatusCode.NotFound, "Playlist id is empty.");
         }
 
-        var spotify = MusicService.GetService(ServiceType.Spotify);
-        var playlist = await MusicServiceManager.LookupPlaylist(
-                spotify, $"/playlist/{id}");
-
-        if (playlist == null)
-        {
-            return ReturnError(HttpStatusCode.NotFound,
-                $"Playlist {id} doesn't exist or is empty.");
-        }
+        var isAlbum = string.Equals(type, "album", StringComparison.OrdinalIgnoreCase);
+        var kind = isAlbum ? "album" : "playlist";
 
         var canAddSongs = Identity.IsAuthenticated;
         var matchLimit = MatchLimitForSubscription(await GetSubscriptionLevel());
 
+        var spotify = MusicService.GetService(ServiceType.Spotify);
+
         // Matching costs an Azure Search round-trip sized to the number of tracks in the
-        // filter, so only check as many playlist tracks (in playlist order) as this viewer's
-        // subscription tier will actually display, rather than matching the whole playlist
-        // and discarding the rest.
+        // filter, so only fetch as many playlist/album tracks (in order) as this viewer's
+        // subscription tier will actually display, rather than paging through (and, worse,
+        // genre-enriching - see MusicServiceManager.LookupPlaylist) a large playlist just to
+        // discard everything past matchLimit.
+        var playlist = await MusicServiceManager.LookupPlaylist(
+                spotify, $"/{kind}/{id}", includeGenres: false, maxTracks: matchLimit);
+
+        if (playlist == null)
+        {
+            return ReturnError(HttpStatusCode.NotFound,
+                $"{(isAlbum ? "Album" : "Playlist")} {id} doesn't exist or is empty.");
+        }
+
         var candidateTracks = playlist.Tracks.Take(matchLimit).ToList();
 
         try
@@ -270,12 +275,13 @@ public class SongController : ContentController
             var model = new PlaylistViewerModel
             {
                 Id = id,
+                IsAlbum = isAlbum,
                 Histories = await AnonymizeSongs(sorted.Select(x => x.song).ToList()),
                 Name = playlist.Name,
                 Description = playlist.Description,
                 OwnerId = playlist.OwnerId,
                 OwnerName = playlist.OwnerName,
-                TotalCount = playlist.Tracks.Count(),
+                TotalCount = playlist.TotalCount,
                 CheckedCount = candidateTracks.Count,
                 MatchedCount = matchedTrackIds.Count,
                 CanAddSongs = canAddSongs,

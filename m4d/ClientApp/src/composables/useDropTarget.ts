@@ -11,28 +11,33 @@ export function useDropTarget() {
     warn?: boolean,
     danceId?: string,
   ): Promise<void> {
+    // Playlist/album links are checked first, and unconditionally, since a URL with a Spotify
+    // share-link tracking suffix (`?si=...`) won't also match the single-track id patterns
+    // `matcher.match` looks for below.
+    const found = await checkService(input);
+    if (found) {
+      return;
+    }
+
     const service = matcher.match(input);
     if (!service) {
       return;
     }
-    const found = await checkService(input);
 
-    if (!found) {
-      let okay = false;
-      if (warn) {
-        const result = await create({
-          body: `It looks like you may have tried to search by ${service.name} id for a song not in the music4dance catalog. Would you like to add the song?`,
-          title: "Song not found",
-          okTitle: "Yes",
-          cancelTitle: "No",
-        }).show();
-        okay = typeof result === "boolean" ? result : ((result as BvTriggerableEvent)?.ok ?? false);
-      }
-      if (okay) {
-        const id = matcher.parseId(input, service);
-        const danceParam = danceId ? `&dance=${danceId}` : "";
-        window.location.href = `/song/augment?id=${id}${danceParam}`;
-      }
+    let okay = false;
+    if (warn) {
+      const result = await create({
+        body: `It looks like you may have tried to search by ${service.name} id for a song not in the music4dance catalog. Would you like to add the song?`,
+        title: "Song not found",
+        okTitle: "Yes",
+        cancelTitle: "No",
+      }).show();
+      okay = typeof result === "boolean" ? result : ((result as BvTriggerableEvent)?.ok ?? false);
+    }
+    if (okay) {
+      const id = matcher.parseId(input, service);
+      const danceParam = danceId ? `&dance=${danceId}` : "";
+      window.location.href = `/song/augment?id=${id}${danceParam}`;
     }
   }
 
@@ -44,6 +49,12 @@ export function useDropTarget() {
     const playlistId = matcher.parsePlaylist(input);
     if (playlistId) {
       window.location.href = `/song/playlist?id=${playlistId}`;
+      return true;
+    }
+
+    const albumId = matcher.parseAlbum(input);
+    if (albumId) {
+      window.location.href = `/song/playlist?id=${albumId}&type=album`;
       return true;
     }
 

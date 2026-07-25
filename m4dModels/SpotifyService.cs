@@ -10,6 +10,10 @@ internal class SpotifyService : MusicService
     private static readonly Dictionary<string, dynamic> s_results =
         [];
 
+    // Dictionary<> isn't thread-safe and this is hit concurrently by ASP.NET requests -
+    // guards every read/write/eviction of s_results.
+    private static readonly object s_resultsLock = new();
+
     private static readonly TextInfo s_textInfo = CultureInfo.CurrentCulture.TextInfo;
 
     public SpotifyService() :
@@ -74,7 +78,7 @@ internal class SpotifyService : MusicService
 
     public override async Task<IList<ServiceTrack>> ParseSearchResults(
         dynamic results, Func<string, Task<dynamic>> getResult,
-        IEnumerable<string> excludeTracks)
+        IEnumerable<string> excludeTracks, bool includeGenres = true)
     {
         var excludeMap = new HashSet<string>(excludeTracks ?? []);
 
@@ -115,7 +119,7 @@ internal class SpotifyService : MusicService
             string trackId = trackT.id;
             if (trackId != null && !excludeMap.Contains(trackId))
             {
-                ret.Add(await ParseTrackResults(trackT, getResult));
+                ret.Add(await ParseTrackResults(trackT, getResult, includeGenres));
             }
         }
 
@@ -142,7 +146,7 @@ internal class SpotifyService : MusicService
     }
 
     public override async Task<ServiceTrack> ParseTrackResults(dynamic track,
-        Func<string, Task<dynamic>> getResult)
+        Func<string, Task<dynamic>> getResult, bool includeGenres = true)
     {
         if (track == null)
         {
@@ -219,7 +223,7 @@ internal class SpotifyService : MusicService
                 CollectionId = album?.id,
                 ImageUrl = imageUrl,
                 //ReleaseDate = track.ReleaseDate,
-                Genres = await BuildGenres(track, getResult),
+                Genres = includeGenres ? await BuildGenres(track, getResult) : null,
                 Duration = (track.duration_ms + 500) / 1000,
                 TrackNumber = trackNum,
                 IsPlayable = isPlayable,
@@ -303,9 +307,12 @@ internal class SpotifyService : MusicService
 
     private async Task<dynamic> GetResults(string url, Func<string, Task<dynamic>> getResult)
     {
-        if (s_results.TryGetValue(url, out var result))
+        lock (s_resultsLock)
         {
-            return result;
+            if (s_results.TryGetValue(url, out var cached))
+            {
+                return cached;
+            }
         }
 
         if (getResult == null)
@@ -313,9 +320,11 @@ internal class SpotifyService : MusicService
             return null;
         }
 
+        dynamic result;
         try
         {
-            return await getResult(url);
+            // Await the live call without holding the lock - it's a network round-trip.
+            result = await getResult(url);
         }
         catch (Exception e)
         {
@@ -324,6 +333,28 @@ internal class SpotifyService : MusicService
                 $"Error attempting to call Spotify: {e.Message}");
             return null;
         }
+
+        // Don't memoize a miss/failure as "no data" - only cache a result we actually got,
+        // so a transient Spotify error just means the next lookup retries instead of being
+        // stuck returning null until the cache clears.
+        if (result != null)
+        {
+            lock (s_resultsLock)
+            {
+                // Same unbounded-but-periodically-cleared cache shape as
+                // MusicServiceManager.s_trackCache - a handful of tracks sharing the same
+                // album/artist (common within one playlist) would otherwise re-fetch that
+                // album's/artist's genres from scratch on every track.
+                if (s_results.Count > 10000)
+                {
+                    s_results.Clear();
+                }
+
+                s_results[url] = result;
+            }
+        }
+
+        return result;
     }
 
     private static string CleanupGenre(string genre)

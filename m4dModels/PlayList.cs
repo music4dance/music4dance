@@ -119,6 +119,11 @@ public class GenericPlaylist
     public string Description { get; set; }
     public string OwnerId { get; set; }
     public string OwnerName { get; set; }
+    public bool IsAlbum { get; set; }
+
+    /// <summary>The playlist/album's true track count, from the API's own paging metadata -
+    /// independent of how many tracks were actually fetched (see LookupPlaylist's maxTracks).</summary>
+    public int TotalCount { get; set; }
     public IList<ServiceTrack> Tracks { get; set; }
 }
 
