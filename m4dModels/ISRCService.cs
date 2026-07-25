@@ -23,6 +23,6 @@ public class ISRCService() : MusicService(ServiceType.ISRC, 'R', "ISRC", null, n
 
     public override Task<IList<ServiceTrack>> ParseSearchResults(
         dynamic results, Func<string, Task<dynamic>> getResult,
-        IEnumerable<string> excludeTracks)
+        IEnumerable<string> excludeTracks, bool includeGenres = true)
         => Task.FromResult<IList<ServiceTrack>>([]);
 }

@@ -540,7 +540,8 @@ public class MusicServiceManager(IConfiguration configuration)
     private static readonly Dictionary<string, ServiceTrack> s_trackCache = [];
 
     public async Task<GenericPlaylist> LookupPlaylist(MusicService service, string url,
-        IEnumerable<string> oldTrackList = null, IPrincipal principal = null)
+        IEnumerable<string> oldTrackList = null, IPrincipal principal = null,
+        bool includeGenres = true, int? maxTracks = null)
     {
         var results =
             await GetMusicServiceResults(service.BuildLookupRequest(url), service, principal);
@@ -553,6 +554,7 @@ public class MusicServiceManager(IConfiguration configuration)
         var description = results.description?.ToString();
         var ownerId = results.owner?.id?.ToString();
         var ownerName = results.owner?.display_name?.ToString();
+        int? totalTracks = (int?)(results.tracks?.total ?? results.total);
 
         if (string.IsNullOrEmpty(ownerName))
         {
@@ -581,8 +583,15 @@ public class MusicServiceManager(IConfiguration configuration)
             results,
             (Func<string, Task<dynamic>>)(req => GetMusicServiceResults(req, service)),
             // ReSharper disable once PossibleMultipleEnumeration
-            oldTrackList);
-        while ((results = await NextMusicServiceResults(results, service, principal)) != null)
+            oldTrackList,
+            includeGenres);
+
+        // Once the caller has as many tracks as it will ever use (e.g. the playlist viewer's
+        // subscription-tier match limit), stop paginating - fetching (and, if includeGenres,
+        // genre-enriching) the rest of a large playlist/album is otherwise pure waste. TotalCount
+        // (captured above, from the API's own paging metadata) still reflects the true size.
+        while ((maxTracks == null || tracks.Count < maxTracks.Value) &&
+               (results = await NextMusicServiceResults(results, service, principal)) != null)
         {
             var t = tracks as List<ServiceTrack> ?? [.. tracks];
             t.AddRange(
@@ -590,7 +599,8 @@ public class MusicServiceManager(IConfiguration configuration)
                     results,
                     (Func<string, Task<dynamic>>)(req => GetMusicServiceResults(req, service)),
                     // ReSharper disable once PossibleMultipleEnumeration
-                    oldTrackList));
+                    oldTrackList,
+                    includeGenres));
             tracks = t;
         }
 
@@ -608,14 +618,16 @@ public class MusicServiceManager(IConfiguration configuration)
             OwnerId = ownerId,
             OwnerName = ownerName,
             IsAlbum = url.Contains("/album/"),
+            TotalCount = totalTracks ?? tracks.Count,
             Tracks = tracks
         };
     }
 
     public async Task<GenericPlaylist> LookupPlaylistWithAudioData(MusicService service, string url,
-        IEnumerable<string> oldTrackList = null, IPrincipal principal = null)
+        IEnumerable<string> oldTrackList = null, IPrincipal principal = null,
+        bool includeGenres = true, int? maxTracks = null)
     {
-        var playlist = await LookupPlaylist(service, url, oldTrackList, principal);
+        var playlist = await LookupPlaylist(service, url, oldTrackList, principal, includeGenres, maxTracks);
         if (playlist != null && service.Id == ServiceType.Spotify)
         {
             await FillEchoTracks(playlist);
@@ -1269,7 +1281,7 @@ public class MusicServiceManager(IConfiguration configuration)
                         Trace.WriteLineIf(
                             TraceLevels.General.TraceInfo,
                             $"Excedeed EchoNest Limits: Pre-emptive {remaining} - used = {GetRateInfo(response.Headers, "X-RateLimit-Used")} - limit = {GetRateInfo(response.Headers, "X-RateLimit-Limit")}");
-                        Thread.Sleep(3 * 1000);
+                        await Task.Delay(3 * 1000);
                     }
                 }
                 else if ((int)response.StatusCode == 429 /*HttpStatusCode.TooManyRequests*/)
@@ -1278,7 +1290,7 @@ public class MusicServiceManager(IConfiguration configuration)
                     Trace.WriteLineIf(
                         TraceLevels.General.TraceInfo,
                         "Exceeded EchoNest Limits: Caught");
-                    Thread.Sleep(15 * 1000);
+                    await Task.Delay(15 * 1000);
                     continue;
                 }
                 else if (response.StatusCode == HttpStatusCode.Unauthorized && authRetries-- > 0)
@@ -1314,7 +1326,7 @@ public class MusicServiceManager(IConfiguration configuration)
                     if (statusCode == 429)
                     {
                         Logger.LogInformation("Exceeded EchoNest Limits: Caught");
-                        Thread.Sleep(15 * 1000);
+                        await Task.Delay(15 * 1000);
                         continue;
                     }
 
@@ -1327,7 +1339,7 @@ public class MusicServiceManager(IConfiguration configuration)
                                 $"Exceeded " +
                                 $"Itunes" +
                                 $" Limits: {5 - retries} {req.RequestUri}");
-                            Thread.Sleep(60 * 1000);
+                            await Task.Delay(60 * 1000);
                             continue;
                         }
 
