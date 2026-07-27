@@ -81,8 +81,6 @@ public class SongController : ContentController
             Filter.Page = page;
         }
 
-        Filter.User = new UserQuery("dgsnure", false).Query;
-
         return await DoAzureSearch();
     }
 
