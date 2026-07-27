@@ -184,9 +184,16 @@ unconfirmed-only songs too.
 if ((cruft & CruftFilter.UnconfirmedDances) != CruftFilter.UnconfirmedDances)
 {
     if (extra.Length > 0) { _ = extra.Append(" and "); }
-    _ = extra.Append("dance_ALL/Votes ne null");
+    _ = extra.Append("(not DanceTags/any() or dance_ALL/Votes ne null)");
 }
 ```
+
+The `not DanceTags/any() or ...` guard keeps this clause independent of `NoDances`: a song with no
+dance tags at all also has a null `dance_ALL/Votes` (there's nothing to aggregate), so without the
+guard this clause would re-exclude exactly the uncategorized songs that the `NoDances` bit is
+supposed to opt back in. The guard lets those through unconditionally and reserves the
+`dance_ALL/Votes ne null` check for songs that *do* have dance tags but whose only votes are
+unconfirmed.
 
 Same bit semantics as the other two: bit **unset** (default) → the restrictive clause is added →
 unconfirmed-only songs are hidden from a general/keyword browse. Bit **set** → clause omitted →
@@ -257,6 +264,17 @@ Rendered in `m4d/Views/Song/RawSearchForm.cshtml` alongside `ExcludePublishers`/
 (Note: as with those two, the property name and its `HasFlag` semantics read backwards from each
 other — `true` means the bit that *stops* the restriction from being added, i.e. cruft is
 *shown*. Pre-existing quirk in the admin form, not specific to this feature.)
+
+The `Song/RawSearch` GET action model-binds with a restrictive allow-list
+(`SongController.cs:438-439`) rather than binding the whole `RawSearch` model, so a new checkbox
+property has to be added to that `[Bind("...")]` list explicitly or it silently posts as its
+default (`false`) and can never be toggled on from the form:
+
+```csharp
+[Bind(
+    "SearchText,ODataFilter,SortFields,SearchFields,Description,IsLucene,ExcludePublishers,ExcludeDances,ExcludeUnconfirmedDances")]
+RawSearch rawSearch
+```
 
 ### Advanced Search checkbox
 

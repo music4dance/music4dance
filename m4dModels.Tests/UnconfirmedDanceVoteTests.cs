@@ -205,6 +205,20 @@ public class UnconfirmedDanceVoteTests
     }
 
     [TestMethod]
+    public void AddCruftInfo_NoDancesBitSetWithoutUnconfirmedBit_DoesNotReExcludeUncategorizedSongs()
+    {
+        // NoDances opted-in (show songs with no dance tags at all) but UnconfirmedDances still
+        // defaulted (hide unconfirmed-only songs). The unconfirmed clause must not re-exclude
+        // songs that have no DanceTags whatsoever - that's NoDances's job, not this bit's.
+        var options = new SearchOptions();
+        var result = SongIndex.AddCruftInfo(options, CruftFilter.NoDances);
+
+        Assert.AreEqual(
+            "Purchase/any() and (not DanceTags/any() or dance_ALL/Votes ne null)",
+            result.Filter);
+    }
+
+    [TestMethod]
     public void AddCruftInfo_UnconfirmedDancesBitSet_OmitsClause()
     {
         var options = new SearchOptions();

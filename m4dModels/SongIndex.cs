@@ -1498,7 +1498,7 @@ public class SongIndex
                 _ = extra.Append(" and ");
             }
 
-            _ = extra.Append("dance_ALL/Votes ne null");
+            _ = extra.Append("(not DanceTags/any() or dance_ALL/Votes ne null)");
         }
 
         if (parameters.Filter == null)
