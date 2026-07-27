@@ -1491,6 +1491,16 @@ public class SongIndex
             _ = extra.Append("DanceTags/any()");
         }
 
+        if ((cruft & CruftFilter.UnconfirmedDances) != CruftFilter.UnconfirmedDances)
+        {
+            if (extra.Length > 0)
+            {
+                _ = extra.Append(" and ");
+            }
+
+            _ = extra.Append("dance_ALL/Votes ne null");
+        }
+
         if (parameters.Filter == null)
         {
             parameters.Filter = extra.ToString();
@@ -1908,7 +1918,13 @@ public class SongIndex
             var oneOther = dr.TagSummary.GetTagSet("Other");
             doc[BuildDanceFieldName(dr.DanceId)] = new Dictionary<string, object>
                 {
-                    { Votes, dr.Weight },
+                    // -1 is a sentinel for "every vote on this dance came from an unconfirmed
+                    // source" (see Song.IsUnconfirmedSource) - never a legitimate value, since a
+                    // DanceRating is removed rather than allowed to go negative (see
+                    // EditDanceRating/SoftUpdateDanceRating). Keeps unconfirmed-only dances out of
+                    // dance_{id}/Votes threshold comparisons by default; see CruftFilter.UnconfirmedDances
+                    // and DanceQuery.GetODataFilter for the opt-in path back in.
+                    { Votes, dr.IsUnconfirmedOnly ? -1 : dr.Weight },
                     { DanceTempoSubField, CleanNumber((float?)(dr.Tempo ?? song.Tempo)) },
                     { TempoTags, oneTempo.ToArray() },
                     { StyleTags, oneStyle.ToArray() },
@@ -1925,7 +1941,9 @@ public class SongIndex
             allStyle.UnionWith(oneStyle);
         }
 
-        var all = song.DanceRatings.Sum(dr => dr.Weight);
+        // Excludes unconfirmed-only dances, so "does this song have any confirmed dance rating
+        // at all" can be answered with "dance_ALL/Votes ne null" - see CruftFilter.UnconfirmedDances.
+        var all = song.DanceRatings.Where(dr => !dr.IsUnconfirmedOnly).Sum(dr => dr.Weight);
         doc["dance_ALL"] = new Dictionary<string, object>
             {
                 { Votes, all == 0 ? null : all },

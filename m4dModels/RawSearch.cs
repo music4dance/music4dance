@@ -78,6 +78,15 @@ public class RawSearch
             : CruftFilter & ~CruftFilter.NoDances;
     }
 
+    [Display(Name = @"Exclude songs with unconfirmed-only dance votes")]
+    public bool ExcludeUnconfirmedDances
+    {
+        get => CruftFilter.HasFlag(CruftFilter.UnconfirmedDances);
+        set => CruftFilter = value
+            ? CruftFilter | CruftFilter.UnconfirmedDances
+            : CruftFilter & ~CruftFilter.UnconfirmedDances;
+    }
+
     public string Flags { get; set; }
 
     [Display(Name = @"Flags")]

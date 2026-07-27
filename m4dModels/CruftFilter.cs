@@ -6,5 +6,6 @@ public enum CruftFilter
     NoCruft = 0x00,
     NoPublishers = 0x01,
     NoDances = 0x02,
-    AllCruft = 0x03
+    UnconfirmedDances = 0x04,
+    AllCruft = 0x07
 }

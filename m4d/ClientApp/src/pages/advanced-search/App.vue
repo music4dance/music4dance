@@ -165,6 +165,9 @@ const songFilter = computed(() => {
   if (bonuses.value.indexOf("D") !== -1) {
     level += 2;
   }
+  if (bonuses.value.indexOf("U") !== -1) {
+    level += 4;
+  }
 
   filter.action = "advanced";
   filter.searchString = keyWords.value;
@@ -312,6 +315,9 @@ function computeBonuses(): string[] {
   }
   if (filter.level && filter.level & 2) {
     bonuses.push("D");
+  }
+  if (filter.level && filter.level & 4) {
+    bonuses.push("U");
   }
   return bonuses;
 }
@@ -628,6 +634,7 @@ function onReset(evt: Event): void {
           <BFormCheckboxGroup id="bonuses" v-model="bonuses">
             <BFormCheckbox value="P">Not found in any publisher catalog</BFormCheckbox>
             <BFormCheckbox value="D">Not categorized by dance</BFormCheckbox>
+            <BFormCheckbox value="U">Not confirmed by a dancer</BFormCheckbox>
           </BFormCheckboxGroup>
           <template #description>
             <a href="https://music4dance.blog/music4dance-help/subscriptions/">Premium content</a>

@@ -761,7 +761,7 @@ public class SongFilter
     {
         return IsRaw
             ? RawDanceQuery?.GetODataFilter(dms)
-            : DanceQuery?.GetODataFilter(dms);
+            : DanceQuery?.GetODataFilter(dms, CruftFilter.HasFlag(CruftFilter.UnconfirmedDances));
     }
 
     private static string CombineFilter(string existing, string newData)
