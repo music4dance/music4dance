@@ -1584,6 +1584,11 @@ public class Song : TaggableObject
         // Batch and service accounts (batch*, tempo-bot) are exempt and may use any delta.
         var userDanceContributions = new Dictionary<(string, string), int>();
 
+        // Track net contribution per dance from confirmed (non-unconfirmed-source) voters, so
+        // a dance whose entire current weight traces back to an unconfirmed source (see
+        // IsUnconfirmedSource) can be flagged after the replay completes.
+        var confirmedNet = new Dictionary<string, int>();
+
         foreach (var prop in properties)
         {
             var bn = prop.BaseName;
@@ -1604,6 +1609,12 @@ public class Song : TaggableObject
                         if (TryGetCappedDelta(drd, user, userDanceContributions, out var effective))
                         {
                             var del = SoftUpdateDanceRating(effective);
+                            if (!IsUnconfirmedSource(user))
+                            {
+                                confirmedNet[effective.DanceId] =
+                                    confirmedNet.GetValueOrDefault(effective.DanceId) + effective.Delta;
+                            }
+
                             if (del != null)
                             {
                                 drDelete.Add(del);
@@ -1796,6 +1807,11 @@ public class Song : TaggableObject
                     null, new TagList(
                         $"{danceName}:Dance|!{danceName}:Dance"));
             }
+        }
+
+        foreach (var dr in DanceRatings)
+        {
+            dr.IsUnconfirmedOnly = confirmedNet.GetValueOrDefault(dr.DanceId) <= 0;
         }
 
         if (deleted)
@@ -4257,6 +4273,10 @@ public class Song : TaggableObject
         var userDanceContributions = new Dictionary<(string, string), int>();
         string user = null;
 
+        // See LoadProperties - net contribution per dance from confirmed (non-unconfirmed-source)
+        // voters, used to flag a dance whose entire current weight is unconfirmed-source-only.
+        var confirmedNet = new Dictionary<string, int>();
+
         foreach (var prop in SongProperties)
         {
             switch (prop.BaseName)
@@ -4271,6 +4291,12 @@ public class Song : TaggableObject
                     if (TryGetCappedDelta(drd, user, userDanceContributions, out var effective))
                     {
                         var rating = SoftUpdateDanceRating(effective);
+                        if (!IsUnconfirmedSource(user))
+                        {
+                            confirmedNet[effective.DanceId] =
+                                confirmedNet.GetValueOrDefault(effective.DanceId) + effective.Delta;
+                        }
+
                         if (rating != null)
                         {
                             _ = DanceRatings.Remove(rating);
@@ -4279,6 +4305,11 @@ public class Song : TaggableObject
                     break;
                 }
             }
+        }
+
+        foreach (var dr in DanceRatings)
+        {
+            dr.IsUnconfirmedOnly = confirmedNet.GetValueOrDefault(dr.DanceId) <= 0;
         }
     }
 
@@ -4314,6 +4345,19 @@ public class Song : TaggableObject
         contributions[key] = effectiveNet;
         effective = new DanceRatingDelta(drd.DanceId, effectiveDelta);
         return true;
+    }
+
+    // Users whose dance votes are applied in bulk by an automated process rather than a person
+    // judging the song (e.g. Spotify-playlist auto-import) - not the same axis as IsPseudo, which
+    // marks trusted batch/system accounts exempt from the ±1 cap above. An unconfirmed source is
+    // still subject to that cap; it's just not treated as a real dancer's opinion for the purposes
+    // of DanceRating.IsUnconfirmedOnly (see LoadProperties/SetRatingsFromProperties).
+    private static readonly HashSet<string> s_unconfirmedVoteSources =
+        new(StringComparer.OrdinalIgnoreCase) { "dgsnure" };
+
+    private static bool IsUnconfirmedSource(string user)
+    {
+        return user != null && s_unconfirmedVoteSources.Contains(user);
     }
 
     public static string TagsFromDances(IEnumerable<string> dances)

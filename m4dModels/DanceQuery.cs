@@ -116,7 +116,12 @@ public class DanceQuery
         }
     }
 
-    public virtual string GetODataFilter(DanceMusicCoreService dms)
+    // includeUnconfirmed opts a dance-scoped query back into unconfirmed-only matches for that
+    // dance (CruftFilter.UnconfirmedDances) - see SongFilter.GetDanceODataFilter, the only caller
+    // that passes true. It can't respect item.Threshold (the -1 sentinel carries no magnitude,
+    // only "unconfirmed-only" - see SongIndex.DocumentFromSong), so opting in surfaces every
+    // unconfirmed-only match for the dance regardless of the requested threshold.
+    public virtual string GetODataFilter(DanceMusicCoreService dms, bool includeUnconfirmed = false)
     {
         var dances = DanceLibrary.Dances.Instance.ExpandGroups(Dances).ToList();
         if (dances.Count == 0)
@@ -146,10 +151,14 @@ public class DanceQuery
             var subFilters = matches.Select(d =>
             {
                 var danceField = $"dance_{d.Id}";
-                var filterParts = new List<string>
-                    {
-                        $"{danceField}/Votes {(item.Threshold > 0 ? "ge" : "le")} {Math.Abs(item.Threshold)}"
-                    };
+                var voteClause =
+                    $"{danceField}/Votes {(item.Threshold > 0 ? "ge" : "le")} {Math.Abs(item.Threshold)}";
+                if (includeUnconfirmed)
+                {
+                    voteClause = $"({voteClause} or {danceField}/Votes eq -1)";
+                }
+
+                var filterParts = new List<string> { voteClause };
 
                 // Use generalized TagQuery OData for this dance field (with tag ring expansion)
                 if (item.TagQuery != null && item.TagQuery.TagList != null && !item.TagQuery.TagList.IsEmpty)

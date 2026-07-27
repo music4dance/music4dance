@@ -78,6 +78,12 @@ public class DanceRating : TaggableObject
     [DataMember]
     public decimal? Tempo { get; set; }
 
+    // Computed during property replay (Song.LoadProperties / Song.SetRatingsFromProperties);
+    // never persisted - no [DataMember], so it's excluded from DataContract serialization and
+    // doesn't round-trip through SongProperties. True when every unit of this dance's current
+    // Weight traces back to an unconfirmed vote source (see Song.IsUnconfirmedSource).
+    public bool IsUnconfirmedOnly { get; set; }
+
     protected override HashSet<string> ValidClasses => s_validClasses;
 
     public static Dictionary<string, string> DanceMap

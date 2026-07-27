@@ -88,7 +88,9 @@ Azure query.
 | `Purchase`     | (no class — `SongFilter.SplitPurchase`/`splitPurchase` static helper) | service-code letters, optionally split by a literal `N`: `{include}[N{exclude}]`                                             | Which `MusicService` codes (`I`=ITunes, `S`=Spotify, `R`=ISRC/admin-only, etc.) a song must/must-not be available on                                                                                                                                                             |
 
 `TempoMin`/`TempoMax`, `LengthMin`/`LengthMax`, `Page`, and `Level` (a `CruftFilter` bitmask — "not
-in a publisher catalog" / "not categorized by dance") are plain scalar cells with no sub-class.
+in a publisher catalog" / "not categorized by dance" / "not confirmed by a dancer") are plain
+scalar cells with no sub-class. See [[unconfirmed-dance-votes]] for the third `CruftFilter` bit
+(songs whose only dance votes come from an unconfirmed/auto-import source).
 
 **Always go through these classes to build or parse a filter field** — this is the same rule as
 [[../CLAUDE.md]]'s "Filter / Tag Construction" guidance, and this table is the map of which class

@@ -288,11 +288,12 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
             <div id="bonuses" role="group" class="bv-no-focus-ring" tabindex="-1">
               <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-111__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-110__checkbox___" true-value="P" false-value="false" value="P"><label for="BootstrapVueNext__ID__v-111__form-check___" class="form-check-label">Not found in any publisher catalog</label></div>
               <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-112__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-110__checkbox___" true-value="D" false-value="false" value="D"><label for="BootstrapVueNext__ID__v-112__form-check___" class="form-check-label">Not categorized by dance</label></div>
+              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-113__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-110__checkbox___" true-value="U" false-value="false" value="U"><label for="BootstrapVueNext__ID__v-113__form-check___" class="form-check-label">Not confirmed by a dancer</label></div>
             </div>
             <!---->
             <!----><small id="BootstrapVueNext__ID__v-108___BV_description____" class="text-body-secondary form-text"><a href="https://music4dance.blog/music4dance-help/subscriptions/">Premium content</a></small>
           </fieldset>
-          <fieldset id="sort-group" class="b-form-group"><label id="BootstrapVueNext__ID__v-114___BV_label____" for="sort" class="form-label d-block">Sort By:</label><select id="sort" class="form-select" required="" aria-required="true">
+          <fieldset id="sort-group" class="b-form-group"><label id="BootstrapVueNext__ID__v-115___BV_label____" for="sort" class="form-label d-block">Sort By:</label><select id="sort" class="form-select" required="" aria-required="true">
               <option selected="">Default: Closest Match</option>
               <option value="Dances">Dance Rating</option>
               <option value="Closest">Closest Match</option>
@@ -309,8 +310,8 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
               <option value="Comments">Comments</option>
             </select>
             <div id="sort-order" role="radiogroup" class="bv-no-focus-ring my-2" tabindex="-1">
-              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-121__form-check___" class="form-check-input" type="radio" name="sort-order" value="asc"><label for="BootstrapVueNext__ID__v-121__form-check___" class="form-check-label">Ascending (A-Z, Slow-Fast, Newest-Oldest, Shortest-Longest)</label></div>
-              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-122__form-check___" class="form-check-input" type="radio" name="sort-order" value="desc"><label for="BootstrapVueNext__ID__v-122__form-check___" class="form-check-label">Descending (Z-A, Fast-Slow, Oldest-Newest, Longest-Shortest)</label></div>
+              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-122__form-check___" class="form-check-input" type="radio" name="sort-order" value="asc"><label for="BootstrapVueNext__ID__v-122__form-check___" class="form-check-label">Ascending (A-Z, Slow-Fast, Newest-Oldest, Shortest-Longest)</label></div>
+              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-123__form-check___" class="form-check-input" type="radio" name="sort-order" value="desc"><label for="BootstrapVueNext__ID__v-123__form-check___" class="form-check-label">Descending (Z-A, Fast-Slow, Oldest-Newest, Longest-Shortest)</label></div>
             </div>
             <!---->
             <!---->
