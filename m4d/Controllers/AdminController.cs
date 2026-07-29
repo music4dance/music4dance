@@ -733,6 +733,29 @@ public class AdminController(
     }
 
     //
+    // Get: //ExportDanceFallback
+    //
+    // Writes the current in-memory dance stats (DanceStatsManager.Instance) over the
+    // checked-in cold-start snapshot at ClientApp/src/assets/content/dance-environment-fallback.json.
+    // Run ClearSongCache?reloadFromStore=true first against a production-like DB/index so the
+    // snapshot reflects real song counts, not a sparse local dev dataset.
+    [Authorize(Roles = "showDiagnostics")]
+    public ActionResult ExportDanceFallback([FromServices] IWebHostEnvironment environment)
+    {
+        ViewBag.Name = "ExportDanceFallback";
+
+        var path = Path.Combine(
+            environment.ContentRootPath, "ClientApp", "src", "assets", "content",
+            "dance-environment-fallback.json");
+        System.IO.File.WriteAllText(path, DanceStatsManager.Instance.SaveToJson(), Encoding.UTF8);
+
+        ViewBag.Success = true;
+        ViewBag.Message = $"Wrote dance stats snapshot to {path}";
+
+        return View("Results");
+    }
+
+    //
     // Get: //ThrowException
     [AllowAnonymous]
     public ActionResult ThrowException()
