@@ -5,9 +5,16 @@ import { Song } from "./Song";
 import { SongChange } from "./SongChange";
 import { SongEditor } from "./SongEditor";
 import { PropertyType, SongProperty } from "./SongProperty";
+import { TagList } from "./TagList";
 import { TrackModel } from "./TrackModel";
 import { UserQuery } from "./UserQuery";
+import type { DanceRating } from "./DanceRating";
 import { formatNow } from "@/helpers/timeHelpers";
+
+export interface DanceVoters {
+  up: string[];
+  down: string[];
+}
 
 interface SongRef {
   song: Song;
@@ -271,6 +278,52 @@ export class SongHistory {
    */
   public get inclusiveChanges(): SongChange[] {
     return this.filterChanges(this.changes, false);
+  }
+
+  /**
+   * Users who currently have an active up/down vote on the given dance, derived by
+   * replaying each user's tag additions/removals (dance votes are plain Tag+/Tag- entries,
+   * not dance-qualified) and keeping only their most recent vote for this dance.
+   */
+  public danceVoters(rating: DanceRating): DanceVoters {
+    const posKey = rating.positiveTag.key;
+    const negKey = rating.negativeTag.key;
+    const votes = new Map<string, boolean>();
+
+    for (const change of this.userChanges) {
+      if (!change.user) {
+        continue;
+      }
+      for (const property of change.properties) {
+        const isAdd = property.baseName === PropertyType.addedTags;
+        const isRemove = property.baseName === PropertyType.removedTags;
+        if (!isAdd && !isRemove) {
+          continue;
+        }
+        const keys = new TagList(property.value).tags.map((t) => t.key);
+        if (keys.includes(posKey)) {
+          if (isAdd) {
+            votes.set(change.user, true);
+          } else {
+            votes.delete(change.user);
+          }
+        }
+        if (keys.includes(negKey)) {
+          if (isAdd) {
+            votes.set(change.user, false);
+          } else {
+            votes.delete(change.user);
+          }
+        }
+      }
+    }
+
+    const up: string[] = [];
+    const down: string[] = [];
+    for (const [user, isUp] of votes) {
+      (isUp ? up : down).push(user);
+    }
+    return { up, down };
   }
 
   /**
