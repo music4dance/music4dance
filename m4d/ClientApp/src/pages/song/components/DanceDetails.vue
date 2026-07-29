@@ -3,6 +3,7 @@ import { DanceRating } from "@/models/DanceRating";
 import { Song } from "@/models/Song";
 import { SongEditor } from "@/models/SongEditor";
 import { SongFilter } from "@/models/SongFilter";
+import type { DanceVoters, SongHistory } from "@/models/SongHistory";
 import { computed } from "vue";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import type { NamedObject } from "@/models/DanceDatabase/NamedObject";
@@ -23,6 +24,7 @@ const props = defineProps<{
   user?: string;
   editor?: SongEditor;
   edit?: boolean;
+  history?: SongHistory;
 }>();
 
 const emit = defineEmits<{
@@ -38,6 +40,14 @@ const danceRatingsFiltered = computed(() => {
 const hasDances = computed(() => {
   return danceRatingsFiltered.value.length > 0;
 });
+
+const danceVotersById = computed(
+  (): Map<string, DanceVoters> =>
+    props.history?.danceVotersMap(danceRatingsFiltered.value) ?? new Map(),
+);
+
+const votersFor = (dr: DanceRating): DanceVoters =>
+  danceVotersById.value.get(dr.danceId) ?? { up: [], down: [] };
 
 const danceFromRating = (dr: DanceRating): NamedObject => {
   return danceDB.fromId(dr.danceId)!;
@@ -99,13 +109,35 @@ const onEditDanceTempo = (dr: DanceRating): void => {
           @click="$emit('delete-dance', dr)"
           ><IBiX variant="danger"
         /></BCloseButton>
-        <DanceVote
-          :vote="song.danceVote(dr.danceId)"
-          :dance-rating="dr"
-          :authenticated="!!user"
-          :filter-family-tag="filterFamilyTag"
-          v-bind="$attrs"
-        />
+        <div class="d-flex align-items-start gap-2">
+          <DanceVote
+            :vote="song.danceVote(dr.danceId)"
+            :dance-rating="dr"
+            :authenticated="!!user"
+            :filter-family-tag="filterFamilyTag"
+            v-bind="$attrs"
+          />
+          <div v-if="votersFor(dr).up.length || votersFor(dr).down.length" class="small">
+            <div v-if="votersFor(dr).up.length">
+              <IBiHandThumbsUp class="me-1 text-success" /><template
+                v-for="(u, i) in votersFor(dr).up"
+                :key="u"
+                ><UserLink :user="u" /><span v-if="i < votersFor(dr).up.length - 1"
+                  >,
+                </span></template
+              >
+            </div>
+            <div v-if="votersFor(dr).down.length">
+              <IBiHandThumbsDown class="me-1 text-danger" /><template
+                v-for="(u, i) in votersFor(dr).down"
+                :key="u"
+                ><UserLink :user="u" /><span v-if="i < votersFor(dr).down.length - 1"
+                  >,
+                </span></template
+              >
+            </div>
+          </div>
+        </div>
         <a :href="danceLink(dr)"
           ><DanceName :dance="danceFromRating(dr)" :show-synonyms="true"
         /></a>

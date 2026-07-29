@@ -1,6 +1,10 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { SongHistory } from "../SongHistory";
 import { SongProperty } from "../SongProperty";
+import { DanceRating } from "../DanceRating";
+import { setupTestEnvironment } from "@/helpers/TestHelpers";
+
+setupTestEnvironment();
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -923,6 +927,107 @@ describe("SongHistory", () => {
       const propNames = anonChanges[0]!.properties.map((p) => p.name);
       expect(propNames).toContain("Like");
       expect(propNames).toContain("Tag+");
+    });
+
+    it("danceVoters resolves the current up/down voters for Lindy Hop (LHP)", () => {
+      const h = new SongHistory({
+        id: "candyman",
+        properties: candymanFullProps.map(
+          (p) => new SongProperty({ name: p.name, value: p.value }),
+        ),
+      });
+      const voters = h.danceVoters(new DanceRating({ danceId: "LHP" }));
+      // Up: original adds that were never retracted, plus Carmichael's later re-add.
+      expect(voters.up).toEqual([
+        "EthanH|P",
+        "LincolnA|P",
+        "rhettbot|P",
+        "MaggieHaggerty|P",
+        "Arthur Murray Carmichael|P",
+      ]);
+      // Down: the three explicit negative votes (roblosapiens, annebaaner, Jazzup'n'Dance).
+      expect(voters.down).toEqual(["roblosapiens", "annebaaner", "Jazzup'n'Dance"]);
+    });
+  });
+
+  describe("danceVoters", () => {
+    const lhp = new DanceRating({ danceId: "LHP" });
+
+    it("returns empty up/down when no one has voted", () => {
+      const h = humanCreate("EthanH|P", "East Coast Swing:Dance");
+      const voters = h.danceVoters(lhp);
+      expect(voters.up).toHaveLength(0);
+      expect(voters.down).toHaveLength(0);
+    });
+
+    it("clears a user's vote once they remove the tag", () => {
+      const h = makeHistory([
+        { name: ".Create", value: "" },
+        { name: "User", value: "EthanH|P" },
+        { name: "Time", value: "1/1/2020 10:00:00 AM" },
+        { name: "Tag+", value: "Lindy Hop:Dance" },
+        { name: ".Edit", value: "" },
+        { name: "User", value: "EthanH|P" },
+        { name: "Time", value: "1/2/2020 10:00:00 AM" },
+        { name: "Tag-", value: "Lindy Hop:Dance" },
+      ]);
+      const voters = h.danceVoters(lhp);
+      expect(voters.up).toHaveLength(0);
+      expect(voters.down).toHaveLength(0);
+    });
+
+    it("flips a user from up to down when they change their vote", () => {
+      const h = makeHistory([
+        { name: ".Create", value: "" },
+        { name: "User", value: "EthanH|P" },
+        { name: "Time", value: "1/1/2020 10:00:00 AM" },
+        { name: "Tag+", value: "Lindy Hop:Dance" },
+        { name: ".Edit", value: "" },
+        { name: "User", value: "EthanH|P" },
+        { name: "Time", value: "1/2/2020 10:00:00 AM" },
+        { name: "Tag-", value: "Lindy Hop:Dance" },
+        { name: "Tag+", value: "!Lindy Hop:Dance" },
+      ]);
+      const voters = h.danceVoters(lhp);
+      expect(voters.up).toHaveLength(0);
+      expect(voters.down).toEqual(["EthanH|P"]);
+    });
+
+    it("excludes batch/algorithmic voters", () => {
+      const h = makeHistory([...algoTag("batch-i|P", "Lindy Hop:Dance")]);
+      const voters = h.danceVoters(lhp);
+      expect(voters.up).toHaveLength(0);
+    });
+  });
+
+  describe("danceVotersMap", () => {
+    it("resolves voters for multiple dances in a single pass, matching danceVoters per-dance", () => {
+      const ecs = new DanceRating({ danceId: "ECS" });
+      const lhp = new DanceRating({ danceId: "LHP" });
+      const h = makeHistory([
+        { name: ".Create", value: "" },
+        { name: "User", value: "EthanH|P" },
+        { name: "Time", value: "1/1/2020 10:00:00 AM" },
+        { name: "Tag+", value: "East Coast Swing:Dance|Lindy Hop:Dance" },
+        { name: ".Edit", value: "" },
+        { name: "User", value: "JuliaS|P" },
+        { name: "Time", value: "1/2/2020 10:00:00 AM" },
+        { name: "Tag+", value: "!Lindy Hop:Dance" },
+      ]);
+
+      const map = h.danceVotersMap([ecs, lhp]);
+
+      expect(map.get("ECS")).toEqual({ up: ["EthanH|P"], down: [] });
+      expect(map.get("LHP")).toEqual({ up: ["EthanH|P"], down: ["JuliaS|P"] });
+      // Single-dance convenience wrapper should agree with the batched result.
+      expect(h.danceVoters(ecs)).toEqual(map.get("ECS"));
+      expect(h.danceVoters(lhp)).toEqual(map.get("LHP"));
+    });
+
+    it("returns empty voters for a dance with no votes in the history", () => {
+      const h = humanCreate("EthanH|P", "East Coast Swing:Dance");
+      const map = h.danceVotersMap([new DanceRating({ danceId: "LHP" })]);
+      expect(map.get("LHP")).toEqual({ up: [], down: [] });
     });
   });
 

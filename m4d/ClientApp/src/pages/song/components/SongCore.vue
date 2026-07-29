@@ -466,6 +466,7 @@ onBeforeUnmount(() => {
           :filter="model.filter"
           :editor="editor as SongEditor"
           :edit="edit"
+          :history="history as SongHistory"
           @dance-vote="onDanceVote($event)"
           @update-song="updateSong"
           @edit="requestEdit"

@@ -5,9 +5,16 @@ import { Song } from "./Song";
 import { SongChange } from "./SongChange";
 import { SongEditor } from "./SongEditor";
 import { PropertyType, SongProperty } from "./SongProperty";
+import { TagList } from "./TagList";
 import { TrackModel } from "./TrackModel";
 import { UserQuery } from "./UserQuery";
+import type { DanceRating } from "./DanceRating";
 import { formatNow } from "@/helpers/timeHelpers";
+
+export interface DanceVoters {
+  up: string[];
+  down: string[];
+}
 
 interface SongRef {
   song: Song;
@@ -271,6 +278,69 @@ export class SongHistory {
    */
   public get inclusiveChanges(): SongChange[] {
     return this.filterChanges(this.changes, false);
+  }
+
+  /**
+   * Users who currently have an active up/down vote on the given dance. Convenience wrapper
+   * around danceVotersMap for a single dance — prefer danceVotersMap when resolving voters for
+   * several dances on the same history, since it only replays the history once.
+   */
+  public danceVoters(rating: DanceRating): DanceVoters {
+    return this.danceVotersMap([rating]).get(rating.danceId)!;
+  }
+
+  /**
+   * Users who currently have an active up/down vote on each of the given dances, derived by
+   * replaying each user's tag additions/removals once (dance votes are plain Tag+/Tag- entries,
+   * not dance-qualified) and keeping only their most recent vote per dance. Doing this as a
+   * single pass over history keyed by tag avoids re-scanning the full history per dance.
+   */
+  public danceVotersMap(ratings: DanceRating[]): Map<string, DanceVoters> {
+    const danceIdByKey = new Map<string, string>();
+    for (const rating of ratings) {
+      danceIdByKey.set(rating.positiveTag.key, rating.danceId);
+      danceIdByKey.set(rating.negativeTag.key, rating.danceId);
+    }
+
+    // danceId -> user -> vote (true = up, false = down)
+    const votesByDance = new Map<string, Map<string, boolean>>();
+
+    for (const change of this.userChanges) {
+      if (!change.user) {
+        continue;
+      }
+      for (const property of change.properties) {
+        const isAdd = property.baseName === PropertyType.addedTags;
+        const isRemove = property.baseName === PropertyType.removedTags;
+        if (!isAdd && !isRemove) {
+          continue;
+        }
+        for (const tag of new TagList(property.value).tags) {
+          const danceId = danceIdByKey.get(tag.key);
+          if (!danceId) {
+            continue;
+          }
+          const votes = votesByDance.get(danceId) ?? new Map<string, boolean>();
+          if (isAdd) {
+            votes.set(change.user, tag.positive);
+          } else {
+            votes.delete(change.user);
+          }
+          votesByDance.set(danceId, votes);
+        }
+      }
+    }
+
+    const result = new Map<string, DanceVoters>();
+    for (const rating of ratings) {
+      const up: string[] = [];
+      const down: string[] = [];
+      for (const [user, isUp] of votesByDance.get(rating.danceId) ?? []) {
+        (isUp ? up : down).push(user);
+      }
+      result.set(rating.danceId, { up, down });
+    }
+    return result;
   }
 
   /**

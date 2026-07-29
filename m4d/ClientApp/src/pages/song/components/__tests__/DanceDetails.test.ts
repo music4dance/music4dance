@@ -103,7 +103,12 @@ const STUBS = {
 
 function mountDetails(
   song: Song,
-  { edit = false, user, editor }: { edit?: boolean; user?: string; editor?: SongEditor } = {},
+  {
+    edit = false,
+    user,
+    editor,
+    history,
+  }: { edit?: boolean; user?: string; editor?: SongEditor; history?: SongHistory } = {},
 ) {
   return mount(DanceDetails, {
     props: {
@@ -114,9 +119,16 @@ function mountDetails(
       user,
       editor: editor ?? (user ? new SongEditor(undefined, user, makeHistory()) : undefined),
       edit,
+      history,
     },
     global: {
-      stubs: STUBS,
+      stubs: {
+        ...STUBS,
+        UserLink: {
+          props: ["user"],
+          template: "<a class='user-link-stub'>{{ user }}</a>",
+        },
+      },
       components: { BCard, BListGroup, BListGroupItem, BButton },
     },
   });
@@ -196,6 +208,65 @@ describe("DanceDetails.vue — tempo display (all users)", () => {
     // Override is active: view span shows text only, no SVG icon
     const viewSpan = wrapper.find("span.ms-2.small");
     expect(viewSpan.find("svg").exists()).toBe(false);
+  });
+});
+
+describe("DanceDetails.vue — dance voters", () => {
+  function makeVoteHistory(): SongHistory {
+    return new SongHistory({
+      id: "00000000-0000-0000-0000-000000000001",
+      properties: [
+        new SongProperty({ name: ".Create", value: "" }),
+        new SongProperty({ name: "User", value: "alice" }),
+        new SongProperty({ name: "Time", value: "01/01/2024 12:00:00 PM" }),
+        new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+        new SongProperty({ name: "Tag+", value: "Cha Cha:Dance" }),
+        new SongProperty({ name: ".Edit", value: "" }),
+        new SongProperty({ name: "User", value: "bob" }),
+        new SongProperty({ name: "Time", value: "01/02/2024 12:00:00 PM" }),
+        new SongProperty({ name: "DanceRating", value: "CHA+1" }),
+        new SongProperty({ name: "Tag+", value: "Cha Cha:Dance" }),
+      ],
+    });
+  }
+
+  it("shows up-voters but no down-voters row when no one voted against", () => {
+    setRoles([]);
+    const history = makeVoteHistory();
+    const song = Song.fromHistory(history);
+    const wrapper = mountDetails(song, { history });
+
+    expect(wrapper.find(".text-success").exists()).toBe(true);
+    expect(wrapper.text()).toContain("alice");
+    expect(wrapper.text()).toContain("bob");
+    expect(wrapper.find(".text-danger").exists()).toBe(false);
+  });
+
+  it("shows both up and down voter rows when both exist", () => {
+    setRoles([]);
+    const history = makeVoteHistory();
+    history.properties.push(
+      new SongProperty({ name: ".Edit", value: "" }),
+      new SongProperty({ name: "User", value: "carol" }),
+      new SongProperty({ name: "Time", value: "01/03/2024 12:00:00 PM" }),
+      new SongProperty({ name: "DanceRating", value: "CHA-1" }),
+      new SongProperty({ name: "Tag+", value: "!Cha Cha:Dance" }),
+    );
+    const song = Song.fromHistory(history);
+    const wrapper = mountDetails(song, { history });
+
+    expect(wrapper.find(".text-success").exists()).toBe(true);
+    expect(wrapper.find(".text-danger").exists()).toBe(true);
+    expect(wrapper.text()).toContain("carol");
+  });
+
+  it("renders no voter block when history is not provided", () => {
+    setRoles([]);
+    const song = makeSong();
+    const wrapper = mountDetails(song);
+
+    expect(wrapper.find(".text-success").exists()).toBe(false);
+    expect(wrapper.find(".text-danger").exists()).toBe(false);
   });
 });
 
