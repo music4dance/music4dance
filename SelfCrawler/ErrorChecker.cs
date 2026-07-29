@@ -18,7 +18,8 @@ public class ErrorChecker : PageChecker, IDisposable
         @"Third-party cookie will be blocked",
         @"CSS Hot Reload ignoring",
         @"Ads running",
-        @"Ads are"
+        @"Ads are",
+        @"Usage tracking:",
     ];
 
     [TestMethod]
