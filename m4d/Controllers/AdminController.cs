@@ -733,6 +733,46 @@ public class AdminController(
     }
 
     //
+    // Post: //ExportDanceFallback
+    //
+    // Writes the current in-memory dance stats (DanceStatsManager.Instance) over the
+    // checked-in cold-start snapshot at ClientApp/src/assets/content/dance-environment-fallback.json.
+    // Run ClearSongCache?reloadFromStore=true first against a production-like DB/index so the
+    // snapshot reflects real song counts, not a sparse local dev dataset.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "showDiagnostics")]
+    public ActionResult ExportDanceFallback([FromServices] IWebHostEnvironment environment)
+    {
+        ViewBag.Name = "ExportDanceFallback";
+
+        var path = Path.Combine(
+            environment.ContentRootPath, "ClientApp", "src", "assets", "content",
+            "dance-environment-fallback.json");
+
+        if (!System.IO.File.Exists(path))
+        {
+            ViewBag.Success = false;
+            ViewBag.Message = $"Fallback snapshot not found at {path}";
+            return View("Results");
+        }
+
+        try
+        {
+            System.IO.File.WriteAllText(path, DanceStatsManager.Instance.SaveToJson(), Encoding.UTF8);
+            ViewBag.Success = true;
+            ViewBag.Message = $"Wrote dance stats snapshot to {path}";
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            ViewBag.Success = false;
+            ViewBag.Message = $"Failed to write dance stats snapshot to {path}: {ex.Message}";
+        }
+
+        return View("Results");
+    }
+
+    //
     // Get: //ThrowException
     [AllowAnonymous]
     public ActionResult ThrowException()

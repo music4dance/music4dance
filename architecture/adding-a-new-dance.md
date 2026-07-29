@@ -266,6 +266,36 @@ JSON cache are both cleared on startup.
 
 ---
 
+### Step 8 — Update the checked-in cold-start fallback
+
+**File:** `m4d/ClientApp/src/assets/content/dance-environment-fallback.json`
+
+This is a separate, source-controlled snapshot of `DanceStatsInstance` (same JSON shape as the
+runtime cache) used when the app starts with **no** runtime cache and **no** database — see
+[service-resilience-plan.md](service-resilience-plan.md). It is not regenerated automatically,
+so a new dance is missing from it until someone exports a fresh snapshot. Left stale, the new
+dance won't appear in this cold-start scenario, and `stats.FromName(dance)` in
+`DanceController.Index()` will 404 on its detail page — even though the runtime cache is fine.
+
+To regenerate it:
+
+1. Run the dev server with the `m4d-prod-db` launch profile (`m4d/Properties/launchSettings.json`)
+   instead of the default — it sets `PROD_DB=true` and `SEARCHINDEX=SongIndexProd` so the
+   snapshot reflects real song counts, not a sparse local dev dataset.
+2. On the **Admin > Initialization Tasks** page, click **Reload Song Stats > From Store** (or hit
+   `/Admin/ClearSongCache?reloadFromStore=true`) to load a fresh `DanceStatsManager.Instance` from
+   that store.
+3. Click **Export Dance Fallback** on the same page (or hit `/Admin/ExportDanceFallback`; also
+   requires the `showDiagnostics` role). This writes `DanceStatsManager.Instance.SaveToJson()`
+   directly over `ClientApp/src/assets/content/dance-environment-fallback.json`.
+4. Review the diff (it should be additive/incremental — spot-check that only expected dances
+   changed) and commit it.
+
+> The `wwwroot/content/` copy of this file is build output (gitignored, regenerated from
+> `ClientApp/src/assets/content/` on every `dotnet build`) — never edit it directly.
+
+---
+
 ### Zero-song dances and the `emptydance` view
 
 After the cache reload, the new dance will be visible in navigation and the sitemap, but the
@@ -315,6 +345,8 @@ The following are fully driven by the JSON data and require no manual updates:
 - [ ] _(If new group)_ Added menu link to `MainMenu.vue`
 - [ ] _(If writing tests)_ Updated test JSON data files
 - [ ] Ran `/Admin/ClearSongCache` (or restarted the app in dev) to reload the dance library
+- [ ] Regenerated `dance-environment-fallback.json` via `/Admin/ExportDanceFallback` against a
+      production-like DB/index and committed the diff
 
 ---
 

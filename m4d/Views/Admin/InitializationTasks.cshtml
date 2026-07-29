@@ -46,6 +46,14 @@
         </ul>
     </li>
     <li>@Html.ActionLink("Reload Dances", "ReloadDances")</li>
+    <li>
+        @using (Html.BeginForm("ExportDanceFallback", "Admin", FormMethod.Post, new { style = "display:inline" }))
+        {
+            @Html.AntiForgeryToken()
+            <input type="submit" value="Export Dance Fallback"
+                   onclick="return confirm('Overwrite the checked-in dance-environment-fallback.json with the current in-memory dance stats?');" />
+        }
+    </li>
     <li>@Html.ActionLink("Update Sitemap", "UpdateSitemap")</li>
 </ul>
 
