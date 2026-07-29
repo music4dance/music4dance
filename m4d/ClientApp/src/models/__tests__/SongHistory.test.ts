@@ -1000,6 +1000,37 @@ describe("SongHistory", () => {
     });
   });
 
+  describe("danceVotersMap", () => {
+    it("resolves voters for multiple dances in a single pass, matching danceVoters per-dance", () => {
+      const ecs = new DanceRating({ danceId: "ECS" });
+      const lhp = new DanceRating({ danceId: "LHP" });
+      const h = makeHistory([
+        { name: ".Create", value: "" },
+        { name: "User", value: "EthanH|P" },
+        { name: "Time", value: "1/1/2020 10:00:00 AM" },
+        { name: "Tag+", value: "East Coast Swing:Dance|Lindy Hop:Dance" },
+        { name: ".Edit", value: "" },
+        { name: "User", value: "JuliaS|P" },
+        { name: "Time", value: "1/2/2020 10:00:00 AM" },
+        { name: "Tag+", value: "!Lindy Hop:Dance" },
+      ]);
+
+      const map = h.danceVotersMap([ecs, lhp]);
+
+      expect(map.get("ECS")).toEqual({ up: ["EthanH|P"], down: [] });
+      expect(map.get("LHP")).toEqual({ up: ["EthanH|P"], down: ["JuliaS|P"] });
+      // Single-dance convenience wrapper should agree with the batched result.
+      expect(h.danceVoters(ecs)).toEqual(map.get("ECS"));
+      expect(h.danceVoters(lhp)).toEqual(map.get("LHP"));
+    });
+
+    it("returns empty voters for a dance with no votes in the history", () => {
+      const h = humanCreate("EthanH|P", "East Coast Swing:Dance");
+      const map = h.danceVotersMap([new DanceRating({ danceId: "LHP" })]);
+      expect(map.get("LHP")).toEqual({ up: [], down: [] });
+    });
+  });
+
   describe("fromString", () => {
     it("parses tab-delimited properties", () => {
       const s = ".Create=\tUser=EthanH|P\tTime=3/17/2014 5:46:07 PM\tTag+=East Coast Swing:Dance";

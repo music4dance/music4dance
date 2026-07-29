@@ -41,15 +41,10 @@ const hasDances = computed(() => {
   return danceRatingsFiltered.value.length > 0;
 });
 
-const danceVotersById = computed(() => {
-  const map = new Map<string, DanceVoters>();
-  if (props.history) {
-    for (const dr of danceRatingsFiltered.value) {
-      map.set(dr.danceId, props.history.danceVoters(dr));
-    }
-  }
-  return map;
-});
+const danceVotersById = computed(
+  (): Map<string, DanceVoters> =>
+    props.history?.danceVotersMap(danceRatingsFiltered.value) ?? new Map(),
+);
 
 const votersFor = (dr: DanceRating): DanceVoters =>
   danceVotersById.value.get(dr.danceId) ?? { up: [], down: [] };
