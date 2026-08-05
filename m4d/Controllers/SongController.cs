@@ -1867,6 +1867,20 @@ public class SongController : ContentController
             });
     }
 
+    // Re-checks tempo/meter against dance-specific validation rules (see DanceValidation in
+    // DanceLib) for songs already carrying a tempo, not just newly-imported ones. Filter the
+    // song list down to the dance being rolled out (e.g. dance:Quickstep) before running this.
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult BatchValidateTempo()
+    {
+        UseVue = UseVue.No;
+        return BatchProcess(
+            async (dms, song) =>
+                await MusicServiceManager.ValidateAndCorrectTempo(dms, song)
+                    ? song
+                    : null);
+    }
+
     #endregion
 
     private async Task<ActionResult> Delete(IEnumerable<Song> songs, SongFilter filter)
