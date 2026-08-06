@@ -904,29 +904,16 @@ public class MusicServiceManager(IConfiguration configuration)
     }
 
     /// <summary>
-    /// Validates tempo against dance-specific rules and corrects if needed.
-    /// Only runs validation if the song has exactly one dance (first dance scenario).
+    /// Validates tempo against dance-specific rules and corrects if needed. Runs
+    /// independently per dance rating - each dance's effective tempo (its own override,
+    /// or the song-level tempo if it has none) is checked against that dance's rules, and
+    /// only the dances that fail validation get an override applied. If every dance ends
+    /// up agreeing on the same effective tempo afterward and that differs from the
+    /// song-level tempo, the song-level tempo is promoted to match.
     /// </summary>
     internal async Task<bool> ValidateAndCorrectTempo(DanceMusicCoreService dms, Song song)
     {
-        // Only validate if exactly one dance (first dance scenario)
-        if (song.DanceRatings.Count != 1)
-        {
-            // Multiple dances or no dances - skip validation
-            return false;
-        }
-
-        var danceId = song.DanceRatings[0].DanceId;
-        var dance = Dances.Instance.DanceFromId(danceId);
-
-        if (dance == null)
-        {
-            return false;
-        }
-
-        var currentTempo = song.Tempo;
-
-        if (!currentTempo.HasValue)
+        if (song.DanceRatings.Count == 0)
         {
             return false;
         }
@@ -935,10 +922,44 @@ public class MusicServiceManager(IConfiguration configuration)
         var tempoTags = song.TagSummary.GetTagSet("Tempo");
         var meter = tempoTags.FirstOrDefault(t => MeterRegex.IsMatch(t));
 
-        // Validate tempo against dance rules
-        var validation = dance.ValidateTempo(currentTempo.Value, meter);
+        var corrections = new Dictionary<string, decimal>();
+        var meterFlagged = false;
+        string meterFlagReason = null;
 
-        if (!validation.RequiresCorrection && !validation.RequiresMeterFlag)
+        foreach (var dr in song.DanceRatings)
+        {
+            var effectiveTempo = dr.Tempo ?? song.Tempo;
+            if (!effectiveTempo.HasValue)
+            {
+                continue;
+            }
+
+            var dance = Dances.Instance.DanceFromId(dr.DanceId);
+            if (dance == null)
+            {
+                continue;
+            }
+
+            var validation = dance.ValidateTempo(effectiveTempo.Value, meter);
+
+            if (validation.RequiresCorrection)
+            {
+                corrections[dr.DanceId] = validation.CorrectedTempo.Value;
+
+                Logger.LogInformation(
+                    "Tempo-bot corrected {Title} by {Artist} ({DanceId}): {Original} -> {Corrected} BPM. Reason: {Reason}",
+                    song.Title, song.Artist, dr.DanceId, effectiveTempo.Value, validation.CorrectedTempo,
+                    validation.CorrectionReason);
+            }
+
+            if (validation.RequiresMeterFlag && !meterFlagged)
+            {
+                meterFlagged = true;
+                meterFlagReason = validation.MeterFlagReason;
+            }
+        }
+
+        if (corrections.Count == 0 && !meterFlagged)
         {
             // No corrections needed
             return false;
@@ -949,24 +970,37 @@ public class MusicServiceManager(IConfiguration configuration)
         var edit = await Song.Create(song, dms);
         var tags = edit.GetUserTags(tempoBot.UserName);
 
-        if (validation.RequiresCorrection)
+        foreach (var (danceId, correctedTempo) in corrections)
         {
-            // Apply tempo correction
-            edit.Tempo = validation.CorrectedTempo;
-
-            Logger.LogInformation(
-                "Tempo-bot corrected {Title} by {Artist}: {Original} -> {Corrected} BPM. Reason: {Reason}",
-                song.Title, song.Artist, currentTempo.Value, validation.CorrectedTempo, validation.CorrectionReason);
+            var editDr = edit.DanceRatings.FirstOrDefault(d => d.DanceId == danceId);
+            if (editDr != null)
+            {
+                editDr.Tempo = correctedTempo;
+            }
         }
 
-        if (validation.RequiresMeterFlag)
+        // If every dance now agrees on the same effective tempo, promote it to the
+        // song-level tempo too.
+        var effectiveTempos = song.DanceRatings
+            .Select(dr => corrections.TryGetValue(dr.DanceId, out var corrected)
+                ? corrected
+                : dr.Tempo ?? song.Tempo)
+            .ToList();
+
+        if (effectiveTempos.TrueForAll(t => t.HasValue) &&
+            effectiveTempos.Distinct().Count() == 1 && effectiveTempos[0] != song.Tempo)
+        {
+            edit.Tempo = effectiveTempos[0];
+        }
+
+        if (meterFlagged)
         {
             // Add check-accuracy:Tempo tag for manual review
             tags = tags.Add("check-accuracy:Tempo");
 
             Logger.LogWarning(
                 "Flagged {Title} by {Artist} for meter review: {Reason}",
-                song.Title, song.Artist, validation.MeterFlagReason);
+                song.Title, song.Artist, meterFlagReason);
         }
 
         // Commit changes as tempo-bot

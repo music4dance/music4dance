@@ -3,6 +3,7 @@ import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { DanceInstance } from "./DanceInstance";
 import { DanceObject } from "./DanceObject";
 import { TempoRange } from "./TempoRange";
+import { DanceValidation } from "./DanceValidation";
 import { assign } from "@/helpers/ObjectHelpers";
 import type { DanceGroup } from "./DanceGroup";
 
@@ -10,6 +11,7 @@ import type { DanceGroup } from "./DanceGroup";
 export class DanceType extends DanceObject {
   @jsonMember(String) public link!: string;
   @jsonArrayMember(DanceInstance) public instances: DanceInstance[] = [];
+  @jsonMember(DanceValidation) public validation?: DanceValidation;
   public groups: DanceGroup[] = [];
 
   public static excludeKeys = ["groups"];
@@ -63,15 +65,14 @@ export class DanceType extends DanceObject {
     return this.instances.map((d) => d.tempoRange).reduce((acc, inst) => acc.include(inst));
   }
 
-  // Broadest validation range across every instance that defines one (e.g. Salsa's "Social"
-  // instance but not its "American Rhythm" instance) - undefined if none do.
+  // The broadest tempo range we consider plausible for this dance before assuming a reported
+  // tempo is a half-time/double-time detection error rather than the dance's real tempo. Only
+  // meaningful when both validation thresholds are set - partial validation data isn't used today.
   public get validationRange(): TempoRange | undefined {
-    return this.instances
-      .map((inst) => inst.validationRange)
-      .reduce(
-        (acc: TempoRange | undefined, range) => (range ? (acc ? acc.include(range) : range) : acc),
-        undefined,
-      );
+    const { doubleTempoIfBelow, halveTempoIfAbove } = this.validation ?? {};
+    return doubleTempoIfBelow != null && halveTempoIfAbove != null
+      ? new TempoRange(doubleTempoIfBelow, halveTempoIfAbove)
+      : undefined;
   }
 
   public inGroup(group: string): boolean {

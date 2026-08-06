@@ -27,27 +27,15 @@ public static class DanceValidationExtensions
     /// <param name="meter">The meter string (e.g., "4/4", "3/4") from external source</param>
     /// <returns>Validation result with any corrections or flags</returns>
     public static TempoValidationResult ValidateTempo(
-        this DanceObject dance, 
-        decimal tempo, 
+        this DanceObject dance,
+        decimal tempo,
         string meter)
     {
         var result = new TempoValidationResult();
-        
-        // Get validation rules - try DanceInstance first, then fall back to DanceType
-        DanceValidation validation = null;
-        if (dance is DanceInstance instance)
-        {
-            validation = instance.Validation;
-        }
-        else if (dance is DanceType danceType && danceType.Instances.Count > 0)
-        {
-            // For DanceType, check if any instance has validation rules
-            // Prefer Social style, or use first instance with validation
-            var socialInstance = danceType.Instances.FirstOrDefault(i => i.Style == "Social");
-            validation = socialInstance?.Validation ?? 
-                         danceType.Instances.FirstOrDefault(i => i.Validation != null)?.Validation;
-        }
-        
+
+        // Validation rules live on DanceType, not per style/instance - see DanceType.Validation.
+        var validation = (dance as DanceType)?.Validation;
+
         if (validation == null)
         {
             return result; // No validation rules for this dance

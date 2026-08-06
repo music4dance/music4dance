@@ -60,8 +60,6 @@ public class DanceInstance : DanceObject
 
     public List<string> Organizations { get; set; }
 
-    public DanceValidation Validation { get; set; }
-
     [JsonIgnore]
     public string ShortStyle
     {

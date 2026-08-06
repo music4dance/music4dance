@@ -22,14 +22,16 @@ public class DanceType : DanceObject
         Synonyms = other.Synonyms;
         Searchonyms = other.Searchonyms;
         Groups = other.Groups;
+        Validation = other.Validation;
     }
 
     [JsonConstructor]
-    public DanceType(string name, Meter meter, DanceInstance[] instances) : this()
+    public DanceType(string name, Meter meter, DanceInstance[] instances, DanceValidation validation = null) : this()
     {
         Name = name;
         Meter = meter;
         Instances = [.. instances];
+        Validation = validation;
 
         foreach (var instance in instances)
         {
@@ -95,6 +97,13 @@ public class DanceType : DanceObject
     }
 
     public List<DanceInstance> Instances { get; set; }
+
+    // Tempo/meter auto-correction rules for imported songs (see DanceValidationExtensions).
+    // Scoped to the dance as a whole rather than per style/instance: DanceRating never
+    // references a specific style, and style tags are freeform crowd tags with no reliable
+    // mapping to a DanceInstance.Style, so there's no trustworthy way to pick "the right"
+    // instance's rules for a given song.
+    public DanceValidation Validation { get; set; }
 
     // Virtual for Moq
     [JsonIgnore]

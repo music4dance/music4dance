@@ -55,6 +55,7 @@ function buildSalsa(): DanceType {
     internalName: "Salsa",
     meter: new Meter(4, 4),
     blogTag: "salsa",
+    validation: { doubleTempoIfBelow: 120, halveTempoIfAbove: 250 },
     instances: [
       new DanceInstance({
         style: "American Rhythm",
@@ -65,7 +66,6 @@ function buildSalsa(): DanceType {
         style: "Social",
         tempoRange: new TempoRange(160, 220),
         organizations: [],
-        validation: { doubleTempoIfBelow: 120, halveTempoIfAbove: 250 },
       }),
     ],
   });

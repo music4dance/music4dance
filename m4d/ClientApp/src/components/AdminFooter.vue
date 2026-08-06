@@ -93,6 +93,9 @@ const onBulkEdit = (submit: HTMLInputElement | null): void => {
           <BDropdownItem :href="batchUrlBase('batchEchoNest', -1)">EchoNest</BDropdownItem>
           <BDropdownItem :href="batchUrlBase('batchISRC', -1)">ISRC</BDropdownItem>
           <BDropdownItem :href="batchUrlBase('batchSamples', -1)">Samples</BDropdownItem>
+          <BDropdownItem :href="batchUrlBase('batchValidateTempo', -1)"
+            >Validate Tempo</BDropdownItem
+          >
           <BDropdownItem>User Tags (deprecated)</BDropdownItem>
           <BDropdownItem>Tags (deprecated)</BDropdownItem>
           <BDropdownItem>Tag Summaries</BDropdownItem>
