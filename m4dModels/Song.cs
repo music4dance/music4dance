@@ -1691,23 +1691,36 @@ public class Song : TaggableObject
                         if (!string.IsNullOrWhiteSpace(danceQual))
                         {
                             // Per-dance tempo: Tempo:DanceId=value; empty value clears override.
+                            // Guarded the same way as song-level tempo below: once a real user
+                            // has set this dance's tempo, a later pseudo-user edit (e.g.
+                            // tempo-bot) is ignored rather than silently overwriting it.
                             var dr = FindRating(danceQual);
                             if (dr != null)
                             {
-                                if (string.IsNullOrWhiteSpace(prop.Value))
+                                var isUserDance = !currentModified?.ApplicationUser?.IsPseudo ?? false;
+                                var danceTempoKey = $"{TempoField}:{danceQual}";
+                                if (!(isUserModified.Contains(danceTempoKey) && !isUserDance))
                                 {
-                                    dr.Tempo = null; // clear override
-                                }
-                                else if (decimal.TryParse(prop.Value, out var dt))
-                                {
-                                    dr.Tempo = dt;
-                                    // Promote: if no song-level tempo has been set yet, infer it
-                                    // from this dance override. This preserves the semantic that
-                                    // the user is expressing a dance preference, not a song one —
-                                    // other users remain free to set song.Tempo independently.
-                                    if (Tempo == null)
+                                    if (string.IsNullOrWhiteSpace(prop.Value))
                                     {
-                                        Tempo = dt;
+                                        dr.Tempo = null; // clear override
+                                    }
+                                    else if (decimal.TryParse(prop.Value, out var dt))
+                                    {
+                                        dr.Tempo = dt;
+                                        // Promote: if no song-level tempo has been set yet, infer it
+                                        // from this dance override. This preserves the semantic that
+                                        // the user is expressing a dance preference, not a song one —
+                                        // other users remain free to set song.Tempo independently.
+                                        if (Tempo == null)
+                                        {
+                                            Tempo = dt;
+                                        }
+                                    }
+
+                                    if (isUserDance)
+                                    {
+                                        _ = isUserModified.Add(danceTempoKey);
                                     }
                                 }
                             }
@@ -2020,6 +2033,8 @@ public class Song : TaggableObject
         var modified = ScalarFields.Aggregate(
             false,
             (current, field) => current | UpdateProperty(edit, field));
+
+        modified |= UpdateDanceTempos(edit);
 
         var oldAlbums = BuildAlbumInfo(this);
 
@@ -2767,6 +2782,30 @@ public class Song : TaggableObject
         _ = CreateProperty(name, eP);
 
         return true;
+    }
+
+    // Diffs DanceRating.Tempo between `this` and `edit`, mirroring UpdateProperty's scalar
+    // diff but scoped to per-dance overrides. Uses the Tempo:{danceId} qualified property
+    // name so the change round-trips through the same replay logic as a serialized
+    // "Tempo:{danceId}=value" edit (see the TempoField case in LoadProperties).
+    private bool UpdateDanceTempos(Song edit)
+    {
+        var modified = false;
+
+        foreach (var dr in DanceRatings)
+        {
+            var editTempo = edit.DanceRatings.FirstOrDefault(d => d.DanceId == dr.DanceId)?.Tempo;
+            if (editTempo == dr.Tempo)
+            {
+                continue;
+            }
+
+            dr.Tempo = editTempo;
+            _ = CreateProperty($"{TempoField}:{dr.DanceId}", editTempo);
+            modified = true;
+        }
+
+        return modified;
     }
 
     // Only update if the old song didn't have this property

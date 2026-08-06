@@ -95,7 +95,7 @@ public class MusicServiceManagerIntegrationTests
     }
 
     [TestMethod]
-    public async Task ValidateAndCorrectTempo_MultipleDances_ReturnsFalse()
+    public async Task ValidateAndCorrectTempo_MultipleDances_NeitherHasValidationRules_ReturnsFalse()
     {
         // Arrange
         var dms = await DanceMusicTester.CreateServiceWithUsers("TestDb_MultipleDances");
@@ -106,14 +106,14 @@ public class MusicServiceManagerIntegrationTests
             Artist = "Test Artist",
             Tempo = 100
         };
-        song.DanceRatings.Add(new DanceRating { DanceId = "SLS", Weight = 1 });
+        song.DanceRatings.Add(new DanceRating { DanceId = "WLZ", Weight = 1 });
         song.DanceRatings.Add(new DanceRating { DanceId = "CHA", Weight = 1 });
 
         // Act
         var result = await _manager.ValidateAndCorrectTempo(dms, song);
 
         // Assert
-        Assert.IsFalse(result, "Should return false when song has multiple dances");
+        Assert.IsFalse(result, "Should return false when neither dance has validation rules");
     }
 
     [TestMethod]
@@ -263,6 +263,128 @@ public class MusicServiceManagerIntegrationTests
         var call = testIndex.EditCalls[0];
         Assert.AreEqual("tempo-bot", call.User.UserName, "Should use tempo-bot user");
         Assert.AreEqual(150m, call.Edit.Tempo, "Tempo should be halved from 300 to 150");
+    }
+
+    [TestMethod]
+    public async Task ValidateAndCorrectTempo_MultipleDances_OnlyDanceWithRuleIsCorrected()
+    {
+        // Arrange: SLS has validation rules and an out-of-range effective tempo (inherited
+        // from song.Tempo, no override of its own); CHA has no validation rules at all.
+        var dms = await CreateServiceWithTestIndex("TestDb_MultiDance_OnlyOneCorrected");
+        var testIndex = (TestSongIndex)dms.SongIndex;
+
+        var songData = @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Two Dance Salsa	Artist=Test Artist	Tempo=100.0	Tag+=Salsa:Dance|Cha Cha:Dance	DanceRating=SLS+1	DanceRating=CHA+1";
+        var song = await Song.Create(songData, dms);
+
+        // Act
+        var result = await _manager.ValidateAndCorrectTempo(dms, song);
+
+        // Assert
+        Assert.IsTrue(result, "Should return true when at least one dance is corrected");
+        Assert.AreEqual(1, testIndex.EditCalls.Count, "EditSong should have been called once");
+
+        var slsRating = song.DanceRatings.First(dr => dr.DanceId == "SLS");
+        Assert.AreEqual(200m, slsRating.Tempo, "SLS should get its own corrected tempo override");
+
+        var chaRating = song.DanceRatings.First(dr => dr.DanceId == "CHA");
+        Assert.IsNull(chaRating.Tempo, "CHA has no validation rules and should be left untouched");
+
+        Assert.AreEqual(
+            100m, song.Tempo,
+            "Song-level tempo should be unchanged since the dances don't converge on one value");
+    }
+
+    [TestMethod]
+    public async Task ValidateAndCorrectTempo_MultipleDances_ConvergingCorrections_PromoteSongTempo()
+    {
+        // Arrange: SLS and QST both have validation rules with the same thresholds, and both
+        // inherit the same out-of-range song-level tempo, so both get doubled to the same value.
+        // The song's tempo is attributed to the "batch" pseudo user (mirroring a Spotify-style
+        // service import) rather than a real user - song-level Tempo has a guard that keeps
+        // pseudo users like tempo-bot from silently overwriting a value a real user explicitly
+        // set, so promotion wouldn't be observable here if the tempo already carried a real
+        // user's fingerprint.
+        var dms = await CreateServiceWithTestIndex("TestDb_MultiDance_Converge");
+        var testIndex = (TestSongIndex)dms.SongIndex;
+
+        var songData = @".Create=	User=batch|P	Time=00/00/0000 0:00:00 PM	Title=Converging Dances	Artist=Test Artist	Tempo=100.0	Tag+=Salsa:Dance|Quickstep:Dance	DanceRating=SLS+1	DanceRating=QST+1";
+        var song = await Song.Create(songData, dms);
+
+        // Act
+        var result = await _manager.ValidateAndCorrectTempo(dms, song);
+
+        // Assert
+        Assert.IsTrue(result, "Should return true when corrections are made");
+        Assert.AreEqual(1, testIndex.EditCalls.Count, "EditSong should have been called once");
+
+        var call = testIndex.EditCalls[0];
+        Assert.AreEqual(
+            200m, call.Edit.Tempo,
+            "Song-level tempo should be promoted once every dance converges on 200");
+
+        Assert.AreEqual(200m, song.DanceRatings.First(dr => dr.DanceId == "SLS").Tempo);
+        Assert.AreEqual(200m, song.DanceRatings.First(dr => dr.DanceId == "QST").Tempo);
+        Assert.AreEqual(200m, song.Tempo, "Song-level tempo should be promoted to match");
+    }
+
+    [TestMethod]
+    public async Task ValidateAndCorrectTempo_ConvergingCorrections_RealUserTempo_SongLevelNotOverwritten()
+    {
+        // Arrange: same convergence scenario as above, but the song's tempo was set by a real
+        // user (dwgray) rather than a service/pseudo account. Song-level Tempo has a guard
+        // (Song.LoadProperties) that keeps pseudo users like tempo-bot from silently
+        // overwriting a value a real user explicitly set. Neither SLS nor QST has an explicit
+        // per-dance override of its own here (only the song-level tempo was set), so the
+        // equivalent per-dance guard never engages and the per-dance corrections still apply.
+        var dms = await CreateServiceWithTestIndex("TestDb_MultiDance_ConvergeRealUser");
+        var testIndex = (TestSongIndex)dms.SongIndex;
+
+        var songData = @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Converging Dances Real User	Artist=Test Artist	Tempo=100.0	Tag+=Salsa:Dance|Quickstep:Dance	DanceRating=SLS+1	DanceRating=QST+1";
+        var song = await Song.Create(songData, dms);
+
+        // Act
+        var result = await _manager.ValidateAndCorrectTempo(dms, song);
+
+        // Assert
+        Assert.IsTrue(result, "Should return true when corrections are made");
+        Assert.AreEqual(1, testIndex.EditCalls.Count, "EditSong should have been called once");
+
+        Assert.AreEqual(200m, song.DanceRatings.First(dr => dr.DanceId == "SLS").Tempo,
+            "Per-dance override should still apply regardless of who set the song tempo");
+        Assert.AreEqual(200m, song.DanceRatings.First(dr => dr.DanceId == "QST").Tempo,
+            "Per-dance override should still apply regardless of who set the song tempo");
+        Assert.AreEqual(100m, song.Tempo,
+            "Song-level tempo should NOT be overwritten - a real user already set it explicitly");
+    }
+
+    [TestMethod]
+    public async Task ValidateAndCorrectTempo_RealUserDanceTempoOverride_NotOverwritten()
+    {
+        // Arrange: a real user (dwgray) has explicitly set SLS's own per-dance tempo override
+        // to an out-of-range value. Per-dance Tempo is guarded the same way as song-level
+        // Tempo (Song.LoadProperties), so tempo-bot's correction for SLS should be absorbed on
+        // replay, while CHA - which has no validation rules - is untouched either way.
+        var dms = await CreateServiceWithTestIndex("TestDb_RealUserDanceOverride");
+        var testIndex = (TestSongIndex)dms.SongIndex;
+
+        var songData = @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Explicit Dance Override	Artist=Test Artist	Tag+=Salsa:Dance|Cha Cha:Dance	DanceRating=SLS+1	DanceRating=CHA+1	Tempo:SLS=100.0";
+        var song = await Song.Create(songData, dms);
+
+        // Sanity check: the per-dance override promoted the song-level tempo since none was set.
+        Assert.AreEqual(100m, song.Tempo);
+        Assert.AreEqual(100m, song.DanceRatings.First(dr => dr.DanceId == "SLS").Tempo);
+
+        // Act
+        var result = await _manager.ValidateAndCorrectTempo(dms, song);
+
+        // Assert: EditSong still reports a change (the meter-free tempo correction is attempted
+        // and the property gets appended to history), but the real user's explicit SLS override
+        // survives the replay unchanged.
+        Assert.IsTrue(result, "Should return true - a correction is attempted even though it's absorbed on replay");
+        Assert.AreEqual(1, testIndex.EditCalls.Count, "EditSong should have been called once");
+
+        Assert.AreEqual(100m, song.DanceRatings.First(dr => dr.DanceId == "SLS").Tempo,
+            "A real user's explicit per-dance override should not be overwritten by tempo-bot");
     }
 
     [TestMethod]
