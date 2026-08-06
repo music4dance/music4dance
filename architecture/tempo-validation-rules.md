@@ -10,13 +10,13 @@ Corrections are committed as a second edit under the `tempo-bot` pseudo-user, so
 
 ## Data Model
 
-`DanceInstance` carries an optional `Validation` property (`DanceLib/DanceInstance.cs:63`):
+`DanceType` carries an optional `Validation` property (`DanceLib/DanceType.cs`):
 
 ```csharp
 public DanceValidation Validation { get; set; }
 ```
 
-`DanceValidation` (`DanceLib/DanceValidation.cs`) holds three optional rules, deserialized from the `validation` block on a dance instance in `dances.json`:
+`DanceValidation` (`DanceLib/DanceValidation.cs`) holds three optional rules, deserialized from the top-level `validation` block on a dance in `dances.json`:
 
 ```csharp
 public class DanceValidation
@@ -27,29 +27,32 @@ public class DanceValidation
 }
 ```
 
-For example, Salsa's Social style (`m4d/ClientApp/src/assets/content/dances.json`) — see "Current Scope" below for which dances currently have a `validation` block:
+For example, Salsa (`m4d/ClientApp/src/assets/content/dances.json`) — see "Current Scope" below for which dances currently have a `validation` block:
 
 ```json
 {
-  "style": "Social",
-  "tempoRange": { "min": 160.0, "max": 220.0 },
+  "id": "SLS",
+  "name": "Salsa",
   "validation": {
     "doubleTempoIfBelow": 120.0,
     "halveTempoIfAbove": 250.0,
     "flagInvalidMeters": ["3/4", "6/8"]
-  }
+  },
+  "instances": [ /* American Rhythm, Social, ... */ ]
 }
 ```
 
-A TypeScript mirror exists at `m4d/ClientApp/src/models/DanceDatabase/DanceValidation.ts` for client-side deserialization of `dances.json`. **Note**: it currently only mirrors `doubleTempoIfBelow`/`halveTempoIfAbove` — `flagInvalidMeters` isn't on the TS type. This is harmless today since nothing on the client reads it, but keep it in mind if a client feature ever needs meter-flag data.
+**Validation is scoped to the dance as a whole, not to a specific style/instance.** It was originally placed on `DanceInstance` (one style of a dance, e.g. Salsa's "Social" style vs. its "American Rhythm" competition style), with `ValidateTempo` falling back through a `DanceType`'s instances (preferring "Social", else the first instance with rules) whenever it was called with a `DanceType` rather than a specific instance. That fallback was doing real work silently: `DanceRating.DanceId` (what a song's dance rating actually stores) resolves through `Dances.Instance.DanceFromId` to a `DanceType`, never a specific instance, so every real caller was hitting the fallback heuristic regardless of which style a given song was actually tagged with. Moving `Validation` onto `DanceType` makes that the explicit, only behavior instead of an implicit one. Per-style validation was considered and rejected: there's no reliable way to resolve "which style is this song" today — a song's style tag (e.g. `Tag+:QST=International:Style`) is freeform crowd-tagged text with no controlled mapping to `DanceInstance.Style` strings — and the actual failure mode being caught (a raw Spotify tempo-detection error) doesn't depend on competitive style anyway.
 
-Each `DanceRating` also carries an optional `decimal? Tempo` (`m4dModels/DanceRating.cs:79`) — a per-dance tempo override, independent of the validation feature (it predates this correction logic; see "per-dance tempo" in the broader song model). A dance's *effective tempo* is `DanceRating.Tempo ?? Song.Tempo`. Corrections write to this field via a dance-qualified `Tempo:{danceId}=value` property rather than the song-level `Tempo` field — see "Per-Dance Tempo Edits" below.
+A TypeScript mirror exists at `m4d/ClientApp/src/models/DanceDatabase/DanceValidation.ts`, referenced from `DanceType.ts` (not `DanceInstance.ts`) the same way. **Note**: it currently only mirrors `doubleTempoIfBelow`/`halveTempoIfAbove` — `flagInvalidMeters` isn't on the TS type. This is harmless for `flagInvalidMeters` specifically (nothing on the client reads it), but `doubleTempoIfBelow`/`halveTempoIfAbove` **are** read client-side: the admin Tempo List page's optional "Range" column (`m4d/ClientApp/src/pages/tempo-list`) shows `DanceType.validationRange`, the span between those two thresholds, as a sanity-check display alongside each dance's normal tempo range.
+
+Each `DanceRating` also carries an optional `decimal? Tempo` (`m4dModels/DanceRating.cs:79`) — a per-dance tempo override, independent of the validation feature (it predates this correction logic; see "per-dance tempo" in the broader song model). A dance's *effective tempo* is `DanceRating.Tempo ?? Song.Tempo`. Corrections write to this field via a dance-qualified `Tempo:{danceId}=value` property rather than the song-level `Tempo` field — see "Per-Dance Tempo Edits" below. This is a separate axis from the type-vs-instance question above: `DanceRating.Tempo` is per-*dance* (keyed by `DanceId`, the same `DanceType`-level ID `Validation` now lives on), not per-style.
 
 ## Validation Logic
 
 `DanceValidationExtensions.ValidateTempo(this DanceObject dance, decimal tempo, string meter)` (`DanceLib/DanceValidationExtensions.cs`):
 
-- Resolves validation rules from the dance: if called on a `DanceInstance`, uses its own `Validation`; if called on a `DanceType`, prefers the `Social` instance's rules, falling back to the first instance that has any.
+- Resolves validation rules via `(dance as DanceType)?.Validation` — a no-op if `dance` isn't a `DanceType` (e.g. a bare `DanceInstance`) or the `DanceType` has no `Validation` set.
 - If `tempo < DoubleTempoIfBelow`, doubles it. Else if `tempo > HalveTempoIfAbove`, halves it. (The two checks are mutually exclusive via `else if` — a dance can't trigger both in one call.)
 - If `meter` is non-empty and appears in `FlagInvalidMeters`, sets `RequiresMeterFlag` independent of the tempo outcome.
 - Returns a `TempoValidationResult` (`RequiresCorrection`, `CorrectedTempo`, `CorrectionReason`, `RequiresMeterFlag`, `MeterFlagReason`); all false/null when the dance has no validation rules.
@@ -106,9 +109,9 @@ Both tempo corrections and a meter flag can fire on the same edit — they aren'
 | Double if tempo below | 120 BPM |
 | Halve if tempo above | 250 BPM |
 | Flag meters | `3/4`, `6/8` |
-| Typical valid range | 160–220 BPM (Social style) |
+| Typical valid range | 160–220 BPM (Salsa's Social-style tempo range, for reference — the rule itself applies to Salsa as a whole, not just that style) |
 
-Quickstep's International Standard style also now has a `validation` block. The thresholds happen to match Salsa's numerically, but that's coincidental, not copy-paste — they've been validated as reasonable for Quickstep's own range (200–208 BPM, 200 flat under NDCA) independently. No other dance currently has a `validation` block, so `ValidateTempo` is a no-op for every other dance today.
+Quickstep also has a `validation` block (same dance-level scoping as Salsa). The thresholds happen to match Salsa's numerically, but that's coincidental, not copy-paste — they've been validated as reasonable for Quickstep's own range (200–208 BPM, 200 flat under NDCA) independently. No other dance currently has a `validation` block, so `ValidateTempo` is a no-op for every other dance today.
 
 ## Running Against the Existing Catalog
 
@@ -122,9 +125,10 @@ Songs with a suspicious meter are tagged `check-accuracy:Tempo` and otherwise le
 
 ## Test Coverage
 
-- `DanceTests/DanceValidationTests.cs` — unit tests for `ValidateTempo` itself: no-rules no-op, tempo doubling/halving at and around thresholds, meter flagging (including null/valid meter), both-at-once, and `DanceType` instance-resolution (prefers Social, falls back to first instance with rules).
+- `DanceTests/DanceValidationTests.cs` — unit tests for `ValidateTempo` itself: no-rules no-op, tempo doubling/halving at and around thresholds, meter flagging (including null/valid meter), both-at-once, that resolution is unaffected by which/how-many instances a `DanceType` has (no more style-based fallback to reason about), and that calling `ValidateTempo` directly on a bare `DanceInstance` is always a no-op now.
 - `m4d.Tests/Utilities/MusicServiceManagerIntegrationTests.cs` — integration tests for `ValidateAndCorrectTempo` against a real `TestSongIndex`: zero dance ratings, missing tempo, unknown dance ID, dance with no validation rules (Waltz), boundary tempos (120, 250 — inclusive, no correction), valid tempo/meter (no-op), invalid meter alone (tag added, tempo untouched), and combined tempo + meter correction in one edit. Multi-dance coverage: a dance with rules gets corrected independently of a sibling dance with none; two dances that converge on the same corrected tempo promote the song-level tempo; the same convergence scenario with a real-user-set song tempo instead leaves the song-level tempo untouched while the per-dance overrides still apply; a real user's explicit per-dance override is likewise left untouched by a would-be correction to that same dance (see "Per-Dance Tempo Edits" above for both guards). Assertions check both the `tempo-bot` attribution and the exact `EditSong` payload.
 - `m4dModels.Tests/PerDanceTempoTests.cs` exercises the underlying per-dance tempo data model and property replay independent of this feature (i.e., the `Tempo:{danceId}=value` format and effective-tempo semantics `ValidateAndCorrectTempo` builds on).
+- `m4d/ClientApp/src/models/DanceDatabase/__tests__/DanceType.test.ts` and `.../DanceInstance.test.ts` cover the TypeScript `validationRange` getter's new home on `DanceType`; `m4d/ClientApp/src/pages/tempo-list/components/__tests__/TempoList.test.ts` covers the admin Tempo List page's "Range" column that reads it.
 - No test yet exercises the real `GetEchoData` → `UpdateAudioData` → `ValidateAndCorrectTempo` chain end-to-end against live or recorded Spotify data — coverage stops at calling `ValidateAndCorrectTempo` directly with a pre-built `Song`.
 
 ## Open Follow-Ups

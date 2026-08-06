@@ -243,6 +243,31 @@ public class MusicServiceManagerIntegrationTests
     }
 
     [TestMethod]
+    public async Task ValidateAndCorrectTempo_Quickstep_LowTempo_DoublesTo200()
+    {
+        // Regression test: a single-dance Quickstep song with a too-low tempo (mirrors the
+        // catalog scenario reported after Validation moved from DanceInstance to DanceType -
+        // see ProductionDanceDataTests in DanceTests for the equivalent check against the real
+        // production dances.json rather than this fixture).
+        var dms = await CreateServiceWithTestIndex("TestDb_QuickstepLowTempo");
+        var testIndex = (TestSongIndex)dms.SongIndex;
+
+        var songData = @".Create=	User=dwgray	Time=00/00/0000 0:00:00 PM	Title=Low Tempo Quickstep	Artist=Test Artist	Tempo=100.0	Tag+=Quickstep:Dance	DanceRating=QST+1";
+        var song = await Song.Create(songData, dms);
+
+        // Act
+        var result = await _manager.ValidateAndCorrectTempo(dms, song);
+
+        // Assert
+        Assert.IsTrue(result, "Should return true when tempo is corrected");
+        Assert.AreEqual(1, testIndex.EditCalls.Count, "EditSong should have been called once");
+
+        var call = testIndex.EditCalls[0];
+        Assert.AreEqual("tempo-bot", call.User.UserName, "Should use tempo-bot user");
+        Assert.AreEqual(200m, call.Edit.Tempo, "Tempo should be doubled from 100 to 200");
+    }
+
+    [TestMethod]
     public async Task ValidateAndCorrectTempo_HighTempo_HalvesTo150()
     {
         // Arrange
