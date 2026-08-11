@@ -1,6 +1,7 @@
 ﻿using m4d.Services;
 using m4d.Services.ServiceHealth;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -56,10 +57,21 @@ public class PageUsageModel
     public BotFilter BotFilter { get; set; }
 }
 
+// Internal usage reporting only - the underlying queries scan the full
+// UsageLog table and are expensive, so this must stay admin-only.
+[Authorize(Roles = "showDiagnostics")]
 public class UsageLogController : DanceMusicController
 {
     // Cached model for default Index view (static for cross-request caching)
     private static UsageModel s_model;
+
+    // Guards against piling up concurrent/repeated runs of the expensive
+    // Index query - a prior failure (e.g. a timeout) blocks retries for a
+    // cooldown period instead of every request re-running the full scan.
+    private static readonly Lock s_refreshLock = new();
+    private static bool s_isRefreshing;
+    private static DateTime s_retryAfterUtc = DateTime.MinValue;
+    private static readonly TimeSpan RetryCooldown = TimeSpan.FromMinutes(15);
 
     // Bot detection patterns - centralized to avoid duplication
     private static readonly string[] BotPatterns = ["bot", "spider", "crawler", "slurp", "Mediapartners"];
@@ -103,24 +115,53 @@ public class UsageLogController : DanceMusicController
             return View(s_model);
         }
 
-        // Build bot filter SQL using shared helper
-        var botSqlFilter = GetBotFilterSql(botFilter);
-
-        var sql = $"""
-            SELECT [UsageId], MAX([UserName]) as UserName, MIN([Date]) as MinDate, MAX([Date]) as MaxDate, COUNT(*) as Hits 
-            FROM dbo.UsageLog 
-            WHERE 1=1 {botSqlFilter}
-            GROUP BY [UsageId] 
-            HAVING COUNT(*) > 5 
-            ORDER BY Hits DESC
-            """;
-
-        var model = new UsageModel
+        // The query below scans the full UsageLog table and can take minutes
+        // (or time out outright). Don't let a burst of requests - or repeated
+        // requests after a failure - pile up concurrent runs of it.
+        lock (s_refreshLock)
         {
-            Summaries = [.. Context.Database.SqlQueryRaw<UsageSummary>(sql)],
-            LastUpdate = DateTime.Now,
-            BotFilter = botFilter,
-        };
+            if (s_isRefreshing || DateTime.UtcNow < s_retryAfterUtc)
+            {
+                return View(s_model ?? new UsageModel { Summaries = [], LastUpdate = DateTime.Now, BotFilter = botFilter });
+            }
+
+            s_isRefreshing = true;
+        }
+
+        UsageModel model;
+        try
+        {
+            // Build bot filter SQL using shared helper
+            var botSqlFilter = GetBotFilterSql(botFilter);
+
+            var sql = $"""
+                SELECT [UsageId], MAX([UserName]) as UserName, MIN([Date]) as MinDate, MAX([Date]) as MaxDate, COUNT(*) as Hits
+                FROM dbo.UsageLog
+                WHERE 1=1 {botSqlFilter}
+                GROUP BY [UsageId]
+                HAVING COUNT(*) > 5
+                ORDER BY Hits DESC
+                """;
+
+            model = new UsageModel
+            {
+                Summaries = [.. Context.Database.SqlQueryRaw<UsageSummary>(sql)],
+                LastUpdate = DateTime.Now,
+                BotFilter = botFilter,
+            };
+        }
+        catch
+        {
+            s_retryAfterUtc = DateTime.UtcNow.Add(RetryCooldown);
+            throw;
+        }
+        finally
+        {
+            lock (s_refreshLock)
+            {
+                s_isRefreshing = false;
+            }
+        }
 
         // Cache only the default view
         if (botFilter == BotFilter.ExcludeBots)
@@ -182,6 +223,7 @@ public class UsageLogController : DanceMusicController
     public IActionResult ClearCache()
     {
         s_model = null;
+        s_retryAfterUtc = DateTime.MinValue;
         return RedirectToAction("Index");
     }
 
