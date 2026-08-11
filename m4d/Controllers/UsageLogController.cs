@@ -122,7 +122,11 @@ public class UsageLogController : DanceMusicController
         {
             if (s_isRefreshing || DateTime.UtcNow < s_retryAfterUtc)
             {
-                return View(s_model ?? new UsageModel { Summaries = [], LastUpdate = DateTime.Now, BotFilter = botFilter });
+                // s_model only ever holds ExcludeBots data - don't surface it
+                // under a different filter, or the page would show data that
+                // doesn't match the highlighted filter button.
+                var fallback = botFilter == BotFilter.ExcludeBots ? s_model : null;
+                return View(fallback ?? new UsageModel { Summaries = [], LastUpdate = DateTime.Now, BotFilter = botFilter });
             }
 
             s_isRefreshing = true;
@@ -152,7 +156,11 @@ public class UsageLogController : DanceMusicController
         }
         catch
         {
-            s_retryAfterUtc = DateTime.UtcNow.Add(RetryCooldown);
+            lock (s_refreshLock)
+            {
+                s_retryAfterUtc = DateTime.UtcNow.Add(RetryCooldown);
+            }
+
             throw;
         }
         finally
@@ -222,8 +230,12 @@ public class UsageLogController : DanceMusicController
     // GET: UsageLogs/ClearCache
     public IActionResult ClearCache()
     {
-        s_model = null;
-        s_retryAfterUtc = DateTime.MinValue;
+        lock (s_refreshLock)
+        {
+            s_model = null;
+            s_retryAfterUtc = DateTime.MinValue;
+        }
+
         return RedirectToAction("Index");
     }
 
