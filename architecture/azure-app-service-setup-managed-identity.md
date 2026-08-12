@@ -1033,15 +1033,18 @@ The application uses an optimized `DefaultAzureCredential` chain that excludes s
 
 This reduces credential acquisition time from ~17s to ~2-3s.
 
-### Fast Health Check Endpoint
+### Health Check Endpoints
 
-The application exposes `/health/startup` which responds immediately after the app starts accepting requests, before all services (App Configuration, Search, etc.) are fully initialized.
+The application exposes two health endpoints, and they serve different purposes:
+
+- **`/health/startup`** - responds `200 healthy` immediately once the process is listening, regardless of whether the database or other services have finished initializing. Useful for confirming the container itself booted, but do **not** point Azure's Health check at this - it will report healthy even while the database is mid-migration or unavailable, which lets real traffic reach the app before it can actually serve requests (this caused a production incident: unhandled exceptions from early requests hitting a not-ready database, compounded by a separate .NET issue where formatting those exceptions for the console logger throws a second exception - see the Change Log entry below).
+- **`/health/ready`** - reflects live Database health via `ServiceHealthManager`. Returns `503` while the database is unavailable (startup migration in progress, or a later outage) and `200 ready` otherwise.
 
 **Azure health probe configuration**:
 
-- Set health check path to `/health/startup` for fastest response
-- Portal → App Service → Health check → Path: `/health/startup`
-- This allows Azure to mark the app as healthy before slow service initialization completes
+- Set health check path to `/health/ready`
+- **Automatically configured by the pipeline** - the `Configure health check path` step in `azure-pipelines.yml` sets this on every deploy. No manual configuration needed.
+- To set manually (e.g., for a new instance created outside the pipeline, or if the pipeline step fails): Portal → App Service → Health check → Path: `/health/ready`
 
 ### Deferred Service Initialization
 
@@ -1157,6 +1160,7 @@ Simply use any other launch profile (e.g., `m4d-vite`, `m4d-build`). The product
 
 | Date       | Change                                                 | Author                                               |
 | ---------- | ------------------------------------------------------ | ---------------------------------------------------- |
+| 2026-08-11 | Added `/health/ready`, corrected health check guidance | Fixed incident where `/health/startup` let traffic reach an unready DB |
 | 2026-04-08 | Local dev prod DB: user secrets + auto migration guard | PROD_DB flag, no connection string in source control |
 | 2026-01-06 | Added performance optimization section                 | Startup timeout troubleshooting                      |
 | 2025-12-31 | Initial version based on troubleshooting experience    | Extracted from managed-identity plan                 |
