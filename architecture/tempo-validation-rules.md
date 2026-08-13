@@ -6,7 +6,7 @@ Spotify/EchoNest tempo detection sometimes reports half-time or double-time erro
 
 Corrections are committed as a second edit under the `tempo-bot` pseudo-user, so the audit trail shows the algorithmic Spotify import separately from the bot's correction.
 
-**Status**: Implemented and covered by unit/integration tests, scoped to Salsa and Quickstep. Not yet exercised against real Spotify imports or run retroactively against the existing catalog (see "Running Against the Existing Catalog" below).
+**Status**: Implemented and covered by unit/integration tests, scoped to Salsa, Quickstep, and 10 additional dances (see "Current Scope" below). Not yet exercised against real Spotify imports or run retroactively against the existing catalog for any of them (see "Running Against the Existing Catalog" below).
 
 ## Data Model
 
@@ -102,16 +102,26 @@ Both tempo corrections and a meter flag can fire on the same edit — they aren'
 
 `tempo-bot` is a pseudo `ApplicationUser` (`IsPseudo == true`), the same pattern already used by `SongController.BatchCorrectTempo` for manual retroactive corrections. No new user, role, or database change was needed — `SongIndex.EditSong` and `SongProperties` already support attributing an edit to any `ApplicationUser`.
 
-## Current Scope: Salsa and Quickstep
+## Current Scope
 
-| Rule | Value |
-| --- | --- |
-| Double if tempo below | 120 BPM |
-| Halve if tempo above | 250 BPM |
-| Flag meters | `3/4`, `6/8` |
-| Typical valid range | 160–220 BPM (Salsa's Social-style tempo range, for reference — the rule itself applies to Salsa as a whole, not just that style) |
+Twelve dances currently have a `validation` block. All of them share the same `flagInvalidMeters` rule (`3/4`, `6/8`); `doubleTempoIfBelow`/`halveTempoIfAbove` are tuned per dance:
 
-Quickstep also has a `validation` block (same dance-level scoping as Salsa). The thresholds happen to match Salsa's numerically, but that's coincidental, not copy-paste — they've been validated as reasonable for Quickstep's own range (200–208 BPM, 200 flat under NDCA) independently. No other dance currently has a `validation` block, so `ValidateTempo` is a no-op for every other dance today.
+| Dance | ID | Double if below | Halve if above |
+| --- | --- | --- | --- |
+| Salsa | SLS | 120 BPM | 250 BPM |
+| Quickstep | QST | 120 BPM | 250 BPM |
+| Peabody | PBD | 145 BPM | 500 BPM |
+| Charleston | CST | 150 BPM | 500 BPM |
+| Bolero | BOL | 50 BPM | 150 BPM |
+| Jump Swing | JSW | 125 BPM | 300 BPM |
+| Balboa | BBA | 140 BPM | 500 BPM |
+| Jive | JIV | 100 BPM | 230 BPM |
+| Night Club Two Step | NC2 | 25 BPM | 140 BPM |
+| Bachata | BCH | 100 BPM | 190 BPM |
+| East Coast Swing | ECS | 80 BPM | 175 BPM |
+| Single Swing | SSW | 110 BPM | 240 BPM |
+
+Salsa and Quickstep's thresholds happen to match each other numerically, but that's coincidental, not copy-paste — each dance's thresholds are validated against its own typical tempo range (Salsa: 160–220 BPM Social-style; Quickstep: 200–208 BPM, 200 flat under NDCA). No other dance currently has a `validation` block, so `ValidateTempo` is a no-op for every other dance today.
 
 ## Running Against the Existing Catalog
 
@@ -134,7 +144,7 @@ Songs with a suspicious meter are tagged `check-accuracy:Tempo` and otherwise le
 ## Open Follow-Ups
 
 1. Test against real Salsa imports from Spotify playlists (no live/recorded-fixture test exists yet).
-2. Run "Validate Tempo" (filtered to Quickstep) against the existing catalog as a first trial of the batch path on a dance other than Salsa; review the results before adding more dances.
+2. Run "Validate Tempo" (filtered to Quickstep) against the existing catalog as a first trial of the batch path on a dance other than Salsa; review the results. The 10 dances added after Quickstep (see "Current Scope") were configured without waiting on this trial — extend the review to them once results come in, filtering the song list to each dance in turn.
 3. Periodically search for `check-accuracy:Tempo` and review flagged songs.
-4. Monitor false positive/negative rate before extending thresholds to other dances (Waltz, East Coast Swing, Cha Cha are plausible next candidates based on the same half/double-time failure mode).
+4. Monitor false positive/negative rate on the 10 newly added dances. Waltz and Cha Cha remain plausible next candidates for extension based on the same half/double-time failure mode.
 5. On songs where a real user already set the song-level tempo (or a given dance's own override), the corresponding correction/promotion step is a guaranteed no-op (see "Per-Dance Tempo Edits" above). That's likely fine for most catalog songs, but hasn't been evaluated against how much of the catalog's tempo data traces back to real users versus service imports; worth checking before relying on the correction/promotion behavior at scale.
