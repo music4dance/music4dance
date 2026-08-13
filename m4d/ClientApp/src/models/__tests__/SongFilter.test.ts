@@ -326,4 +326,49 @@ describe("song filter", () => {
 
     expect(f.isRaw).toBe(true);
   });
+
+  it("should sort ascending by a new column when changing sort", () => {
+    const f = SongFilter.buildFilter(simple);
+    expect(f.sortOrder).toEqual("Modified");
+
+    const changed = f.changeSort("Title");
+
+    expect(changed.sortOrder).toEqual("Title");
+  });
+
+  it("should flip to descending when re-clicking the currently ascending column", () => {
+    const f = new SongFilter();
+    f.sortOrder = "Title";
+
+    const changed = f.changeSort("Title");
+
+    expect(changed.sortOrder).toEqual("Title_desc");
+  });
+
+  it("should flip back to ascending when re-clicking the currently descending column", () => {
+    const f = new SongFilter();
+    f.sortOrder = "Title_desc";
+
+    const changed = f.changeSort("Title");
+
+    expect(changed.sortOrder).toEqual("Title");
+  });
+
+  it("should reset to ascending when switching from a descending column to a different one", () => {
+    const f = new SongFilter();
+    f.sortOrder = "Tempo_desc";
+
+    const changed = f.changeSort("Artist");
+
+    expect(changed.sortOrder).toEqual("Artist");
+  });
+
+  it("should not mutate the original filter when changing sort", () => {
+    const f = new SongFilter();
+    f.sortOrder = "Title";
+
+    f.changeSort("Title");
+
+    expect(f.sortOrder).toEqual("Title");
+  });
 });
