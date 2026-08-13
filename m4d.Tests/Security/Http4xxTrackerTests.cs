@@ -125,7 +125,7 @@ public class Http4xxTrackerTests
         var tracker = new Http4xxTracker();
 
         // Act
-        tracker.RecordEvent(null, 404);
+        tracker.RecordEvent(null!, 404);
 
         // Assert
         var stats = tracker.GetStats();
