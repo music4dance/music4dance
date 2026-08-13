@@ -81,6 +81,60 @@ All three consult `SpiderManager`, but check different lists and produce differe
    `CheckAnySpiders` to skip writing a `UsageLog` row for bot traffic, independent of whether the
    request is otherwise short-circuited.
 
+---
+
+## Related Mechanism: 4xx-by-URL Tracking
+
+Added Aug 12, 2026, in response to a spike of 4xx (mostly 400/404) responses in production
+logs. `app.UseHttpLogging()` doesn't surface the request URL by default, and turning up log
+verbosity to get it would clutter the logs further, so this adds a bounded, in-process
+aggregate view instead: an admin-visible table of the URLs generating the most 4xx responses,
+independent of both `SpiderManager` (§ above, keyed by user-agent, not URL/status) and
+`RateLimitingTracker` (keyed by IP, scoped to `/identity/*`, and already covers 429s).
+
+### 4xx Tracking Components
+
+**`Http4xxTracker`** (`m4d/Security/Http4xxTracker.cs`) — DI singleton, same shape as
+`RateLimitingTracker`: a `CircularBuffer<Http4xxEvent>` (10,000 capacity, reusing the
+`CircularBuffer<T>` already defined in `RateLimitingTracker.cs`) behind a `lock`.
+`RecordEvent(url, statusCode)` appends an event; `GetStats(topN = 100)` groups by
+`(Url, StatusCode)`, orders by count descending, and returns the top N as `Http4xxUrlStats`
+(URL, status, count, last-seen timestamp) plus `TotalEventsTracked` / `LastHourCount`.
+
+**`Http4xxTrackingMiddleware`** (`m4d/Middleware/Http4xxTrackingMiddleware.cs`) — registered
+in `Program.cs` immediately after `app.UseRouting()`, before the DB-recovery and
+`RateLimitingMiddleware` blocks. Runs for every request, calls `await next(context)`, and if
+the final `context.Response.StatusCode` is in `[400, 500)` and not `429` (429s are already
+tracked in detail by `RateLimitingTracker` — excluded here to avoid duplicating that data),
+records `Path + QueryString` (truncated to 512 chars to bound memory against adversarially
+long URLs) and the status code.
+
+Placement matters: it sits *inside* (later-registered than) `UseStatusCodePagesWithReExecute`
+(registered earlier, in the non-dev branch around line 734). For a real 404, the first pass
+through the middleware sees the original path with status 404 and records it;
+`UseStatusCodePagesWithReExecute` then re-executes the pipeline against `/Error/404` to render
+the error body, which re-enters the middleware a second time — but that second pass sees
+status 200 (the `ErrorController` view rendering successfully), which falls outside the
+`[400, 500)` check and is correctly skipped. No double-counting.
+
+**Admin wiring**: `AdminController` takes `Http4xxTracker` as a constructor-injected singleton
+(alongside `AuthenticationTracker`/`RateLimitingTracker`), and `Diagnostics()` sets
+`ViewBag.Http4xxStats = _http4xxTracker.GetStats(100)`. Rendered in
+`Views/Admin/Diagnostics.cshtml` under "HTTP 4xx Errors" (between "Authentication Security" and
+"Bot Stats"), as a card + table following the same convention as the Rate Limiting/Auth
+sections — one row per (URL, status code), sorted by count.
+
+**Test coverage**: `m4d.Tests/Security/Http4xxTrackerTests.cs` (aggregation, top-N ordering,
+top-N limit, empty/null handling) and `m4d.Tests/Middleware/Http4xxTrackingMiddlewareTests.cs`
+(records 4xx, ignores 2xx/5xx/429, includes query string, truncates long URLs).
+
+**Limitations (by design, consistent with the other trackers on this page)**: in-memory only,
+resets on app restart; single-instance in-process (see
+[[project_single_instance_deployment]] — no cross-instance aggregation, which is fine at
+current scale); no automated alerting, admin must check `/Admin/Diagnostics` manually.
+
+---
+
 ### Bug found during this investigation (Aug 12, 2026): missing view for `CustomSearchController`
 
 `BotFilter.cshtml` had only ever existed at `Views/Song/BotFilter.cshtml`, created in 2016

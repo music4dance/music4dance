@@ -554,6 +554,7 @@ services.AddScoped<m4d.Services.SpotifyAuthService>();
 // Security trackers for Phase 1 - singletons for in-memory tracking
 services.AddSingleton<m4d.Security.AuthenticationTracker>();
 services.AddSingleton<m4d.Security.RateLimitingTracker>();
+services.AddSingleton<m4d.Security.Http4xxTracker>();
 
 services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 services.AddHostedService<BackgroundQueueHostedService>();
@@ -766,6 +767,11 @@ else
 
 app.UseHttpLogging();
 app.UseRouting();
+
+// Track 4xx responses (by URL + status code) for the admin diagnostics page. Placed right
+// after routing so it sees the final status code for every request, including ones that
+// never match a route (404s) — default ASP.NET Core logging doesn't surface the URL for these.
+app.UseMiddleware<m4d.Middleware.Http4xxTrackingMiddleware>();
 
 // Database recovery: when the DB was unavailable at startup (e.g., Azure on-demand SQL still
 // waking up), attempt a reconnection on user requests.  The attempt is fire-and-forget and

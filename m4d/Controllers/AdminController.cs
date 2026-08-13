@@ -82,12 +82,14 @@ public class AdminController(
     IOptionsMonitor<LoggerFilterOptions> loggerFilterOptions,
     ServiceHealthManager serviceHealth,
     AuthenticationTracker authTracker,
-    RateLimitingTracker rateLimitingTracker
+    RateLimitingTracker rateLimitingTracker,
+    Http4xxTracker http4xxTracker
 ) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
     fileProvider, backroundTaskQueue, featureManager, logger, serviceHealth)
 {
     private readonly AuthenticationTracker _authTracker = authTracker;
     private readonly RateLimitingTracker _rateLimitingTracker = rateLimitingTracker;
+    private readonly Http4xxTracker _http4xxTracker = http4xxTracker;
 
     #region Commands
 
@@ -443,6 +445,7 @@ public class AdminController(
         // Add security stats for Phase 1
         ViewBag.AuthStats = _authTracker.GetStats();
         ViewBag.RateLimitStats = _rateLimitingTracker.GetStats();
+        ViewBag.Http4xxStats = _http4xxTracker.GetStats(100);
         return View();
     }
 
