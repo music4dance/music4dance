@@ -20,6 +20,97 @@ All Phase 1 components have been implemented, tested, and verified:
 
 ---
 
+## Related Pre-Existing Mechanism: General Bot Short-Circuit & Tracking
+
+This mechanism predates the Phase 1 work above and addresses a different threat model: not
+brute-force/credential-stuffing against `/Identity/*`, but **search-engine and scraper crawlers
+generating expensive, repetitive load against the SQL/Azure-Search-backed catalog pages**
+(`/song/*`, `/customsearch/*`). It was introduced in 2016 (`7e8bdc20`, "Create bot-friendly stubs
+for search results ... to remove load from the SQL database") and extended incrementally since,
+most recently when `CustomSearchController` picked up the same check in September 2024
+(`07ba2607`). It shares no code with Phase 1's rate limiting/CAPTCHA/`AuthenticationTracker` —
+the only overlap is the general philosophy of distinguishing bots from humans and being lenient
+with well-behaved crawlers.
+
+### Components
+
+**`SpiderManager`** (`m4d/Utilities/SpiderManager.cs`) is a static classifier + in-memory counter:
+
+- `BotFilterInfo` binds to the `Configuration:BotFilter` section (Azure App Configuration/Key
+  Vault in production — not checked into `appsettings.json`) and exposes three `;`-delimited
+  lists:
+  - `ExcludeTokens` — exact user-agent match (e.g. `alwayson`, a synthetic-monitoring UA)
+  - `ExcludeFragments` — substring match (e.g. `spider`, `bot`) — the broad "this is some kind of
+    crawler" set
+  - `BadFragments` — substring match against a narrower, known-hostile subset of the exclude set
+    (e.g. `baiduspider`)
+- `CheckAnySpiders(userAgent, config)` → `true` if the UA is empty/whitespace (counted separately
+  via `EmptyAgents`) or matches any `ExcludeToken`/`ExcludeFragment`. Every positive match
+  increments an in-memory `Dictionary<string, long>` keyed by lowercased UA.
+- `CheckBadSpiders(userAgent, config)` → same matching pass, but only returns `true` for UAs that
+  also match `BadFragments` — i.e. "is a spider" is necessary but not sufficient; used where the
+  intent is to actually block/redirect rather than just to suppress logging.
+- `CreateBotReport()` snapshots the hit dictionary (+ `EmptyAgents`, `UpTime`) into
+  `IEnumerable<BotHitModel>` (agent, hit count, hits/sec), rendered at `/Admin/Diagnostics` via
+  `Views/Shared/_botreport.cshtml` (`ViewData["BotReport"]`, set in `AdminController.cs:2127`).
+  This is the entirety of the "tracking" half — an in-memory, per-instance, reset-on-restart
+  hit-count-by-user-agent table for manual review, not a security event log like Phase 1's
+  `RateLimitingTracker`.
+
+### Three independent short-circuit call sites
+
+All three consult `SpiderManager`, but check different lists and produce different results:
+
+1. **Search-result stub** — `SongController.DoAzureSearch()` and
+   `CustomSearchController.Index()` call the broad `CheckAnySpiders` (search-engine bots *should*
+   get a response here, just a cheap static one) and, if positive and the current filter isn't
+   already the degenerate stub filter (`SongFilter.IsEmptyBot` — prevents a redirect loop once the
+   bot lands on the stub itself), throw `RedirectException("BotFilter", Filter)`. Caught by
+   `ContentController.HandleRedirect`, which renders `View("BotFilter", Filter)`: a static page
+   describing the filter in prose and pointing crawlers at the plain `/song` catalog instead of
+   letting them re-crawl every filter permutation of the paginated, Azure-Search-backed results.
+
+2. **Full-page block** — `DMController.CheckSpiders()` (called from `SongController.Details`,
+   `Album`, `Artist`) uses the narrower `CheckBadSpiders` and, only for that hostile subset,
+   returns `View("BotWarning")` (`Views/Shared/BotWarning.cshtml`) instead of running the action.
+   Ordinary search-engine crawlers are deliberately *not* blocked here — they're allowed to index
+   detail pages normally; only known-abusive scrapers are turned away.
+
+3. **Usage-log suppression** — the legacy server-side tracking path in
+   `DanceMusicController.OnActionExecutionAsync` (see [[client-side-usage-logging]] §4.2) calls
+   `CheckAnySpiders` to skip writing a `UsageLog` row for bot traffic, independent of whether the
+   request is otherwise short-circuited.
+
+### Bug found during this investigation (Aug 12, 2026): missing view for `CustomSearchController`
+
+`BotFilter.cshtml` had only ever existed at `Views/Song/BotFilter.cshtml`, created in 2016
+alongside `SongController`'s original use of it. When `CustomSearchController.Index()` picked up
+the same `RedirectException("BotFilter", Filter)` call in September 2024, no corresponding view
+was added for that controller. Razor's `View(name, model)` lookup order is
+`Views/{CurrentController}/`, then `Views/Shared/`, then `Pages/Shared/` — since
+`CustomSearchController` isn't `SongController`, the view was never found:
+
+```
+The view 'BotFilter' was not found. Searched locations:
+/Views/CustomSearch/BotFilter.cshtml
+/Views/Shared/BotFilter.cshtml
+/Pages/Shared/BotFilter.cshtml
+```
+
+`ViewResultExecutor` throws `InvalidOperationException` while executing the *result* of
+`HandleRedirect` — after `CustomSearchController.Index`'s own `catch (RedirectException)` block
+has already returned that result — so nothing in the action catches it, and the request 500s
+instead of showing the bot stub. Any bot-classified user agent hitting a `/customsearch/*` page
+(`halloween`, `holiday`, `christmas`, `broadway`) hit this 500 instead of the intended stub page.
+Contrast with `DMController.CheckSpiders()`'s `View("BotWarning")`, which has always resolved
+correctly because `BotWarning.cshtml` was placed in `Views/Shared/` from the start.
+
+**Fix**: moved `BotFilter.cshtml` to `Views/Shared/`, matching the existing `BotWarning.cshtml`
+convention — the standard Razor fallback then resolves it for any current or future
+`ContentController`-derived controller that throws this redirect, not just `SongController`.
+
+---
+
 ## Attack Analysis
 
 ### Timeline: March 5, 2026 17:36-17:38 UTC
