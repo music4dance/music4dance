@@ -61,6 +61,18 @@ export class SongSort {
     return this.data && this.data.endsWith("_desc") ? "desc" : "asc";
   }
 
+  // Clicking the currently-sorted column should flip its direction; clicking a
+  // different column should switch to it with the default (ascending) direction.
+  public change(order: string): SongSort {
+    const sorder = toTitleCase(order);
+    if (sorder === this.id) {
+      const direction = this.direction === "desc" ? undefined : "desc";
+      return SongSort.fromParts(this.id, direction, this.hasQuery);
+    } else {
+      return new SongSort(order, this.hasQuery);
+    }
+  }
+
   public get friendlyName(): string {
     switch (this.computedId) {
       case SortOrder.Dances:

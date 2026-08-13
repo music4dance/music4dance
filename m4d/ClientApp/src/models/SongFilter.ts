@@ -281,8 +281,7 @@ export class SongFilter {
 
   public changeSort(order: string): SongFilter {
     const clone = this.clone();
-    const newSort = new SongSort(order, this.TextSearch);
-    clone.sortOrder = newSort.query;
+    clone.sortOrder = this.sort.change(order).query;
     return clone;
   }
 
