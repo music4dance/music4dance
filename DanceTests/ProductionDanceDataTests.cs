@@ -76,6 +76,27 @@ public class ProductionDanceDataTests
     }
 
     [TestMethod]
+    [DataRow("PBD", 145.0, 500.0)]
+    [DataRow("CST", 150.0, 500.0)]
+    [DataRow("BOL", 50.0, 150.0)]
+    [DataRow("JSW", 125.0, 300.0)]
+    [DataRow("BBA", 140.0, 500.0)]
+    [DataRow("JIV", 100.0, 230.0)]
+    [DataRow("NC2", 25.0, 140.0)]
+    [DataRow("BCH", 100.0, 190.0)]
+    [DataRow("ECS", 80.0, 175.0)]
+    [DataRow("SSW", 110.0, 240.0)]
+    public void NewlyAddedDance_HasValidationRules(string danceId, double doubleBelow, double halveAbove)
+    {
+        var dance = s_dances.DanceFromId(danceId) as DanceType;
+        Assert.IsNotNull(dance, $"{danceId} should exist in production dances.json as a DanceType");
+        Assert.IsNotNull(dance.Validation, $"{danceId} should have a validation block");
+        Assert.AreEqual((decimal)doubleBelow, dance.Validation.DoubleTempoIfBelow);
+        Assert.AreEqual((decimal)halveAbove, dance.Validation.HalveTempoIfAbove);
+        CollectionAssert.AreEquivalent(new[] { "3/4", "6/8" }, dance.Validation.FlagInvalidMeters);
+    }
+
+    [TestMethod]
     public void SlowWaltz_HasNoValidationRules()
     {
         // Sanity check against the opposite mistake: a copy-paste that gives every dance a
