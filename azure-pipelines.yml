@@ -141,5 +141,5 @@ steps:
         if [ -z "$APP_ID" ]; then
           echo "##vso[task.logissue type=warning]Could not find app '$(appName)' to configure health check path"
         else
-          az webapp config set --ids "$APP_ID" --health-check-path /health/ready
+          az webapp config set --ids "$APP_ID" --generic-configurations '{"healthCheckPath": "/health/ready"}'
         fi
