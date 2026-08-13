@@ -1033,15 +1033,28 @@ The application uses an optimized `DefaultAzureCredential` chain that excludes s
 
 This reduces credential acquisition time from ~17s to ~2-3s.
 
-### Fast Health Check Endpoint
+### Health Check Endpoints
 
-The application exposes `/health/startup` which responds immediately after the app starts accepting requests, before all services (App Configuration, Search, etc.) are fully initialized.
+The application exposes two health endpoints, and they serve different purposes:
+
+- **`/health/startup`** - responds `200 healthy` immediately once the process is listening, regardless of whether the database or other services have finished initializing. Useful for confirming the container itself booted, but do **not** point Azure's Health check at this - it will report healthy even while the database is mid-migration or unavailable, which lets real traffic reach the app before it can actually serve requests (this caused a production incident: unhandled exceptions from early requests hitting a not-ready database, compounded by a separate .NET issue where formatting those exceptions for the console logger throws a second exception - see the Change Log entry below).
+- **`/health/ready`** - reflects live Database health via `ServiceHealthManager`. Returns `503` while the database is unavailable (startup migration in progress, or a later outage) and `200 ready` otherwise.
 
 **Azure health probe configuration**:
 
-- Set health check path to `/health/startup` for fastest response
-- Portal → App Service → Health check → Path: `/health/startup`
-- This allows Azure to mark the app as healthy before slow service initialization completes
+- Set health check path to `/health/ready`
+- **Automatically configured by the pipeline** - the `Configure health check path` step in `azure-pipelines.yml` sets this on every deploy. No manual configuration needed.
+- To set manually (e.g., for a new instance created outside the pipeline, or if the pipeline step fails): Portal → App Service → Health check → Path: `/health/ready`
+- **Changing the Health check path restarts the app.** The pipeline step re-applies the same path on every deploy, but deploys already restart the app anyway, so this shouldn't add a visible extra restart in practice.
+
+#### What Happens When the Health Check Fails
+
+Azure pings the Health check path every 1 minute. After `WEBSITE_HEALTHCHECK_MAXPINGFAILURES` consecutive failures (app setting, allowed range 2-10, **default 10** - i.e. ~10 minutes of continuous failure by default), the instance is marked unhealthy.
+
+- **Multi-instance plan**: the unhealthy instance is pulled out of load-balancer rotation (stops receiving traffic) and continues to be pinged; it's added back automatically once it responds healthy again.
+- **Single-instance plan - which is what `m4d-test` and `msc4dnc` currently run (cost-driven; see below)**: Azure does **not** pull the instance from rotation, since that would take the entire site down - it keeps serving traffic while unhealthy. The only automatic recovery is a forced worker replacement after **one continuous hour** of failed pings.
+
+**Why single instance**: no SLA is currently offered and the paid subscriber base is small, so the cost of a second instance for load-balanced health-check protection isn't justified yet. The 1-hour auto-replace is still a meaningful improvement over the pre-`/health/ready` state, which had no automatic recovery at all and required a manual restart (see Change Log). Revisit if the paid subscriber base or SLA commitments grow enough to justify scaling out.
 
 ### Deferred Service Initialization
 
@@ -1051,7 +1064,7 @@ The application uses a "fast startup" mode to minimize time to first health chec
 
 - **App Configuration**: Registered but connection deferred - uses local appsettings.json until middleware loads remote config on first request
 - **Search clients**: Registered but connections are lazy-loaded only when first accessed
-- **Database migrations**: Run in background hosted service after app starts accepting requests
+- **Database migrations**: Run synchronously in `Program.cs` before `app.Run()` is called - Kestrel does not start accepting connections until the migration attempt completes (or fails gracefully and marks `Database` unavailable via `ServiceHealthManager`). This is intentionally blocking so the DB schema exists before any hosted service runs (see comment at the migration call site). It is **not** deferred to a background service - `StartupInitializationService` only handles App Configuration refresh, not migrations.
 - **OAuth providers**: Credentials validated at startup, but authentication handlers lazy-load on first use
 
 **Fast Startup Flow**:
@@ -1157,6 +1170,7 @@ Simply use any other launch profile (e.g., `m4d-vite`, `m4d-build`). The product
 
 | Date       | Change                                                 | Author                                               |
 | ---------- | ------------------------------------------------------ | ---------------------------------------------------- |
+| 2026-08-11 | Added `/health/ready`; corrected health check + migration-timing guidance | Fixed incident where `/health/startup` let traffic reach an unready DB; documented single-instance failure behavior and fixed stale "migrations run in background" claim |
 | 2026-04-08 | Local dev prod DB: user secrets + auto migration guard | PROD_DB flag, no connection string in source control |
 | 2026-01-06 | Added performance optimization section                 | Startup timeout troubleshooting                      |
 | 2025-12-31 | Initial version based on troubleshooting experience    | Extracted from managed-identity plan                 |

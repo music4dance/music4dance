@@ -620,6 +620,25 @@ app.MapGet("/health/startup", () => Results.Json(new
     message = "Application is accepting requests"
 })).AllowAnonymous();
 
+// Readiness endpoint - unlike /health/startup (always healthy once the process is listening),
+// this reflects live Database health via ServiceHealthManager. Mapped directly on the pipeline
+// (like /health/startup) rather than reusing HealthController's /api/health, so Azure's probe
+// doesn't depend on MVC routing/DI being intact. Azure's Health check path should point here,
+// so the platform stops routing traffic to an instance whose database is unavailable - whether
+// that's during startup migration or a later outage - rather than letting requests hit a
+// not-ready dependency and fail.
+app.MapGet("/health/ready", () =>
+{
+    var isReady = serviceHealth.IsServiceHealthy("Database");
+
+    return Results.Json(new
+    {
+        status = isReady ? "ready" : "unavailable",
+        database = serviceHealth.GetServiceStatus("Database").Status.ToString(),
+        timestamp = DateTime.UtcNow
+    }, statusCode: isReady ? StatusCodes.Status200OK : StatusCodes.Status503ServiceUnavailable);
+}).AllowAnonymous();
+
 if (!isDevelopment)
 {
     // Add custom exception logging middleware BEFORE UseExceptionHandler
