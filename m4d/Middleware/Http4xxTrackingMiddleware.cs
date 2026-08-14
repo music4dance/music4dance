@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Diagnostics;
+
 using m4d.Security;
 
 namespace m4d.Middleware;
@@ -17,6 +19,16 @@ public class Http4xxTrackingMiddleware(RequestDelegate next, Http4xxTracker trac
     public async Task InvokeAsync(HttpContext context)
     {
         await next(context);
+
+        // UseStatusCodePagesWithReExecute re-invokes the entire downstream pipeline
+        // (including this middleware) a second time with the path rewritten to
+        // /Error/{status} whenever the first pass produced an empty 4xx response. That
+        // first pass already recorded the real request URL, so skip the re-executed
+        // pass here to avoid logging every 404 a second time under "/Error/404".
+        if (context.Features.Get<IStatusCodeReExecuteFeature>() != null)
+        {
+            return;
+        }
 
         var statusCode = context.Response.StatusCode;
         if (statusCode is >= 400 and < 500 and not 429)
