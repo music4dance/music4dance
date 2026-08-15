@@ -11,15 +11,15 @@ request into a design that can onboard any number of third-party developers.
 
 ## Executive Summary
 
-Music4dance should expose a **versioned, read-only public API** protected by
-**OAuth 2.0 Authorization Code flow with PKCE**, issuing **opaque, revocable reference
-tokens**. Access is metered in three tiers:
+Music4dance should expose a **versioned public API** protected by **OAuth 2.0 Authorization
+Code flow with PKCE**, issuing **revocable tokens**, with metering designed to convert
+trial users into subscribers quickly.
 
-| Tier | Who | Auth | Data | Quota (starting point) |
-| --- | --- | --- | --- | --- |
-| **0 — Trial** | Anyone, no m4d account | Device-bound anonymous token | Reduced (top dance matches only) | ~25 lookups/device/day, hard per-app ceiling |
-| **1 — Free account** | Registered m4d user | User token, no premium role | Standard | ~200 lookups/day |
-| **2 — Subscriber** | Premium / Trial role | Same token, role checked per request | Full (tags, tempo detail, ratings) | ~2000 lookups/day |
+Two metering models are specified below. **Model A** (the contributor's proposal — a small
+*lifetime* free allowance, then a paid account) is the recommended default. **Model B** adds
+an intermediate free-registered tier. The design deliberately makes the choice **a
+configuration decision rather than an architectural one**, so it can be changed — or A/B
+tested — without a schema or code change.
 
 Three properties drive the whole design:
 
@@ -38,98 +38,242 @@ Three properties drive the whole design:
 
 | Asset | Location | Verdict |
 | --- | --- | --- |
-| `TokenAuthorization` policy | [TokenRequirement.cs](../m4d/Utilities/TokenRequirement.cs) | **Not reusable.** A single shared secret from config (`Authentication:RecomputeJob:Key`) compared against a base64 header, held in a `static` field. Fine for an internal cron job; it has no concept of a user, cannot be revoked per-client, and has no expiry. |
-| `/api/*` controllers | [m4d/APIControllers/](../m4d/APIControllers/) | **Not reusable as-is.** Every one is decorated `[ValidateAntiForgeryToken]` — they are first-party endpoints for our own Vue frontend, authenticated by session cookie. A third-party app cannot supply an antiforgery token, and loosening these endpoints would weaken the site. |
-| Subscription model | `ApplicationUser.SubscriptionLevel` / `SubscriptionEnd`, `PremiumRole` | **Reusable directly.** Tier 2 is exactly `User.IsInRole(PremiumRole) \|\| User.IsInRole(TrialRole)`, the same test used in [ContentController.cs:55](../m4d/Controllers/ContentController.cs#L55). |
-| `RateLimitingMiddleware` | [RateLimitingMiddleware.cs](../m4d/Middleware/RateLimitingMiddleware.cs) | **Reusable with changes.** Keys on IP via `GetClientIdentifier`. API traffic must key on token/client instead — a whole office behind one NAT would otherwise share a bucket. |
-| `UsageLog` | [UsageLog.cs](../m4dModels/UsageLog.cs) | **Extend.** Add client attribution so API traffic is separable from site traffic in analytics. |
+| `TokenAuthorization` policy | [TokenRequirement.cs](../m4d/Utilities/TokenRequirement.cs) | **Not reusable.** A single shared secret from config compared against a base64 header, held in a `static` field. Fine for an internal cron job; no concept of a user, no per-client revocation, no expiry. |
+| `/api/*` controllers | [m4d/APIControllers/](../m4d/APIControllers/) | **Not reusable as-is.** Every one is `[ValidateAntiForgeryToken]` — first-party endpoints for our Vue frontend, authenticated by session cookie. A third-party app cannot supply an antiforgery token. |
+| `POST /api/song/` | [SongController.cs:173](../m4d/APIControllers/SongController.cs#L173) | **Must not be exposed.** Accepts an arbitrary `SongHistory` of property deltas into `CreateOrMergeSong` — full edit power. The voting API below is deliberately far narrower. |
+| Subscription model | `ApplicationUser.SubscriptionLevel` / `SubscriptionEnd`, `PremiumRole` | **Reusable directly.** Paid tier is `IsInRole(PremiumRole) \|\| IsInRole(TrialRole)`, the same test as [ContentController.cs:55](../m4d/Controllers/ContentController.cs#L55). |
+| ISRC + iTunes service IDs | [ISRCService.cs](../m4dModels/ISRCService.cs), [ITunesService.cs](../m4dModels/ITunesService.cs) | **Reusable and important** — see [Song Resolution](#song-resolution-isrc-and-apple-music-ids). |
+| `TryGetCappedDelta` | [Song.cs:4358](../m4dModels/Song.cs#L4358) | **Reusable — and it is what makes a write API safe.** Enforces ±1 per user per dance. |
+| `RateLimitingMiddleware` | [RateLimitingMiddleware.cs](../m4d/Middleware/RateLimitingMiddleware.cs) | **Reusable with changes.** Keys on IP; API traffic must key on token/client. |
+| `UsageLog` | [UsageLog.cs](../m4dModels/UsageLog.cs) | **Extend** with client attribution. |
 
-**Key decision that follows:** the public API gets its own route prefix (`/v1/…`), its own
-authentication scheme, and its own controllers. It does not share the `/api/*` surface.
+**Key decision:** the public API gets its own route prefix (`/v1/…`), its own authentication
+scheme, and its own controllers. It does not share the `/api/*` surface.
 
 ---
 
 ## Protocol Choice
 
-### Recommendation: OAuth 2.0 Authorization Code + PKCE
+### OAuth 2.0 Authorization Code + PKCE
 
-This is the settled, boring answer for "native app, user authorizes once, revocable
-credential, no password sharing." It is what Apple, Google, Spotify, and every other
-service the app already talks to use, and it is what App Store reviewers expect.
+The settled answer for "native app, user authorizes once, revocable credential, no password
+sharing." What Apple, Google, and Spotify all use, and what App Store reviewers expect.
 
-**Do not** accept a bespoke token scheme, even a simple one. Custom auth is where security
-bugs live, and this is the one part of the system where a bug is a breach.
+**Do not** accept a bespoke token scheme. Custom auth is where security bugs live, and this
+is the one part of the system where a bug is a breach.
+
+### PKCE has no relationship to deployment topology
+
+Correcting the earlier draft, which muddied this: **PKCE is entirely orthogonal to how many
+instances we run.** It solves a problem that lives on the *device* — on mobile, the redirect
+back to the app (`danzq://auth/callback`) can in principle be intercepted by another app
+that registered the same URI scheme. PKCE means an intercepted authorization code is
+useless without the `code_verifier`, which never left the legitimate app.
+
+That is a client-side threat model. It would be exactly as necessary with a hundred
+instances behind a load balancer as with one. **No dependency created.**
+
+### Token format: opaque vs. JWT
+
+The earlier draft listed single-instance deployment as a reason to prefer opaque reference
+tokens. That was a weak argument and worth retracting: **reference tokens do not depend on
+single-instance either.** They need a *shared token store*, which is the SQL database we
+already share. Multi-instance reference tokens are what every large OAuth provider runs.
+
+The reasons that actually stand, independent of topology:
+
+- **Revocation is the contributor's own stated goal.** A self-contained JWT stays valid
+  until it expires regardless of what we do; a reference token dies the moment the row is
+  marked revoked.
+- **We query the database anyway** to check `PremiumRole` per request, so the JWT saves no
+  round trip. Its main selling point doesn't apply here.
+
+If the site ever scales out, the mitigation is a short-TTL per-instance cache with bounded
+revocation lag — which is precisely the tradeoff JWTs force on you anyway, except with a
+JWT you can't opt out of it.
+
+### If the developer prefers JWTs (1b)
+
+Mostly a category error worth resolving gently, because the underlying want is legitimate.
+
+**Access tokens are opaque to the client by specification** —
+[RFC 6749 §1.4](https://datatracker.ietf.org/doc/html/rfc6749#section-1.4). A client is not
+supposed to parse an access token; the format is the authorization server's private
+business. So "I'd prefer a JWT" almost always means something more specific:
+
+> *"I want to know who the user is and what tier they're on without an extra round trip."*
+
+The standard answer to that is **OpenID Connect**: issue a JWT **`id_token`** alongside the
+opaque access token. The `id_token` is *designed* to be read by the client, carries signed
+claims (`sub`, `preferred_username`, and a custom `m4d_tier`), and gives him exactly the
+ergonomics he's after. OpenIddict does OIDC natively, so this costs us nothing.
+
+**Recommendation: give him OIDC id_tokens, keep access tokens opaque.** That is the
+conventional split, and it satisfies the real requirement.
+
+If he still wants JWT *access* tokens, it's a cheap concession rather than a fight — set a
+short TTL (5–10 min) plus refresh, and revocation lag stays bounded. Two things to weigh
+before agreeing:
+
+- It buys nothing measurable, since we hit the database for subscription state regardless.
+- It adds **signing key management** — a JWKS endpoint, key rotation, and key persistence
+  that interacts with the Data Protection key ring setup in
+  [Program.cs](../m4d/Program.cs#L431). That's new operational surface for no gain.
+
+Worth saying plainly to him: the format question is ours, the ergonomics question is his,
+and OIDC gives him the ergonomics.
 
 ### Reference documentation
 
 | Spec | What it gives you |
 | --- | --- |
-| [RFC 6749](https://datatracker.ietf.org/doc/html/rfc6749) | OAuth 2.0 core — the Authorization Code grant |
-| [RFC 7636](https://datatracker.ietf.org/doc/html/rfc7636) | **PKCE** — mandatory here; it is what makes a secret-less mobile client safe |
-| [RFC 8252](https://datatracker.ietf.org/doc/html/rfc8252) | **OAuth 2.0 for Native Apps** (BCP 212) — the doc the iOS developer is implicitly citing. Requires an *external* user-agent (`ASWebAuthenticationSession`), never an embedded webview |
-| [RFC 6750](https://datatracker.ietf.org/doc/html/rfc6750) | Bearer token usage — `Authorization: Bearer <token>` |
+| [RFC 6749](https://datatracker.ietf.org/doc/html/rfc6749) | OAuth 2.0 core — Authorization Code grant |
+| [RFC 7636](https://datatracker.ietf.org/doc/html/rfc7636) | **PKCE** — mandatory here |
+| [RFC 8252](https://datatracker.ietf.org/doc/html/rfc8252) | **OAuth for Native Apps** (BCP 212) — requires an external user-agent, never an embedded webview |
+| [OpenID Connect Core](https://openid.net/specs/openid-connect-core-1_0.html) | `id_token` — the client-readable JWT discussed above |
+| [RFC 6750](https://datatracker.ietf.org/doc/html/rfc6750) | Bearer token usage |
 | [RFC 7009](https://datatracker.ietf.org/doc/html/rfc7009) | Token revocation endpoint |
-| [RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414) | Authorization Server Metadata — the `/.well-known` discovery doc that lets a new developer self-configure |
-| [RFC 9700](https://datatracker.ietf.org/doc/html/rfc9700) | **OAuth 2.0 Security Best Current Practice** (BCP 240, Jan 2025) — the current checklist; read this one before reviewing the PR |
-| [OAuth 2.1 draft](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1) | Consolidates the above and drops the unsafe grants. Still a draft, but following it is a good filter for design choices |
-| [RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628) | Device Authorization Grant — not needed now; relevant if anyone builds for Apple TV / watchOS |
+| [RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414) | AS metadata — the `/.well-known` doc that lets a new developer self-configure |
+| [RFC 9700](https://datatracker.ietf.org/doc/html/rfc9700) | **OAuth Security BCP** (BCP 240, Jan 2025) — the review checklist |
+| [RFC 9068](https://datatracker.ietf.org/doc/html/rfc9068) | JWT profile for access tokens, if we ever go that way |
 
 Apple-side: [`ASWebAuthenticationSession`](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession)
-is the required browser surface, and [App Attest](https://developer.apple.com/documentation/devicecheck)
-is the mechanism for the anonymous tier hardening described below.
+for the browser surface, and [DeviceCheck / App Attest](https://developer.apple.com/documentation/devicecheck)
+for the trial metering discussed next.
 
-### Implementation: OpenIddict, not hand-rolled
+### Implementation: OpenIddict
 
 | Option | Assessment |
 | --- | --- |
-| **OpenIddict** ✅ | MIT licensed (matches the contributor's offer), ASP.NET Core native, EF Core storage, designed to layer on top of `AddDefaultIdentity<ApplicationUser>()` which we already call in [Program.cs:435](../m4d/Program.cs#L435). **Recommended.** |
-| Duende IdentityServer | Commercial license above a revenue threshold. Overkill for our scale and an ongoing licensing question — verify current terms before considering. |
-| Hand-rolled endpoints | What the contributor proposed by default. Smaller diff, but we would own the correctness of PKCE verification, redirect-URI matching, code replay prevention, and token rotation forever. **Not recommended.** |
+| **OpenIddict** ✅ | MIT licensed, ASP.NET Core native, EF Core storage, layers onto the `AddDefaultIdentity<ApplicationUser>()` already in [Program.cs:435](../m4d/Program.cs#L435). Supports OIDC out of the box. **Recommended.** |
+| Duende IdentityServer | Commercial licensing — the cost concern raised is well founded, and it's the reason OpenIddict is the recommendation. |
+| Hand-rolled | We'd own PKCE verification, redirect-URI matching, code replay prevention, and rotation correctness forever. **Not recommended.** |
 
-The tradeoff is honest: OpenIddict is a real dependency with real ceremony for what starts
-as one endpoint serving one app. It earns its place the moment there is a second developer,
-and it means the security-critical paths are maintained by someone else.
+---
 
-### Token format: opaque reference tokens, not JWTs
+## Access Tiers and Metering
 
-Store tokens server-side and look them up per request. Rationale specific to us:
+### The conversion goal drives the design
 
-- **Revocation is the point.** The contributor's own framing is "revocable by you." A
-  self-contained JWT is valid until it expires no matter what we do; a reference token dies
-  the instant the row is marked revoked.
-- **We hit the database anyway** to check `PremiumRole`, so there is no lookup to save.
-- **We run a single instance** (see [SELF_CONTAINED_DEPLOYMENT.md](SELF_CONTAINED_DEPLOYMENT.md)),
-  so there is no distributed-validation problem that JWTs would solve.
+The stated goal is to move people into a paid account quickly if they find the app useful.
+That argues for allowances small enough that an engaged user hits the wall in the first
+session or two — while they still remember why they wanted it.
 
-If the API ever fans out to multiple services, revisit with [RFC 9068](https://datatracker.ietf.org/doc/html/rfc9068).
+### Model A — Lifetime trial, then paid (the contributor's proposal, recommended)
+
+| Tier | Who | Allowance | Data |
+| --- | --- | --- | --- |
+| **Trial** | Anyone, no account | **~15 lookups, lifetime** | Reduced: top 3 dance matches |
+| **Subscriber** | Paid m4d account | Unmetered (fair-use ceiling) | Full |
+
+Simple to explain, simple to build, and the strongest conversion pressure. An engaged user
+exhausts 15 lookups in one sitting and gets a single clear ask.
+
+**The risk to watch:** a hard paywall at lookup 15, for someone who installed a free app
+ten minutes ago, is a steep first ask. Model A's conversion rate is worth measuring rather
+than assuming.
+
+### Model B — Lifetime trial, free account, then paid
+
+| Tier | Who | Allowance | Data |
+| --- | --- | --- | --- |
+| **Trial** | Anyone, no account | **~15 lookups, lifetime** | Reduced: top 3 dance matches |
+| **Free account** | Registered m4d user | **~10 lookups/day** | Standard, no premium fields |
+| **Subscriber** | Paid m4d account | Unmetered (fair-use ceiling) | Full |
+
+The middle tier is a conversion *leak* against the stated goal — but it buys something real:
+an email address and a user record, which drops the person into the engagement funnel
+already built in [visitor-engagement-monetization.md](visitor-engagement-monetization.md).
+Registration is itself a conversion step; Model A skips it entirely.
+
+A middle option worth considering: keep the free-registered tier but make it **time-boxed**
+(a 14-day trial allowance rather than a perpetual daily one), so it captures the email
+without becoming a permanent free ride.
+
+### Recommendation: build for both, ship Model A
+
+Do not hardcode the tier count. Express metering as a policy table:
+
+```csharp
+public class ApiTierPolicy
+{
+    public string Name { get; set; }            // "trial", "free", "subscriber"
+    public int Allowance { get; set; }          // count
+    public AllowancePeriod Period { get; set; } // Lifetime, Daily, Monthly
+    public PayloadShape Payload { get; set; }   // Reduced, Standard, Full
+    public bool RequiresAccount { get; set; }
+    public bool RequiresSubscription { get; set; }
+}
+```
+
+Seed it from configuration. Switching Model A → Model B, or retuning 15 → 8, becomes a
+config change. Given that the right numbers here are genuinely unknown until real users hit
+them, **the ability to retune without a deploy is worth more than picking correctly now.**
+
+### Enforcing a *lifetime* cap is much harder than a daily one
+
+This deserves emphasis because it's the one place Model A is materially harder to build.
+
+**A daily cap is self-healing.** Someone who defeats it gains one extra day's allowance;
+tomorrow the bucket resets for everyone anyway. Evasion is barely worth the effort.
+
+**A lifetime cap is not.** If the cap is 15-lookups-forever and it's keyed on something the
+user can reset, a reinstall loop yields *unlimited* free access. Device persistence stops
+being a nice-to-have and becomes the load-bearing element.
+
+Mechanisms, weakest to strongest:
+
+1. **`UserDefaults` / app storage — useless here.** Wiped on app deletion. Reinstall resets
+   the counter.
+2. **iOS Keychain — the correct local store.** Keychain items *survive app deletion* by
+   default, unlike `UserDefaults`. With iCloud Keychain sync they follow the user across
+   devices. Defeated by a full device wipe or a deliberate Keychain reset, but it handles
+   the accidental and casual cases correctly.
+3. **Apple DeviceCheck — the right answer, and purpose-built for this.** DeviceCheck gives
+   two bits of per-device storage held *on Apple's servers*, scoped to the developer's team,
+   which **persist across app deletion and device reset**. Apple documents this for exactly
+   our use case: identifying devices that have already taken a promotional offer. One bit
+   is "trial consumed." This is the mechanism to specify.
+4. **App Attest** — proves the request came from a genuine, unmodified build on real
+   hardware. Complements DeviceCheck (which answers *"has this device already tried?"*)
+   by answering *"is this a real client at all?"*. Add if abuse appears.
+
+**Design note:** DeviceCheck is per-Apple-developer-team, so the *client app* owns those
+bits, not us. That means the trial-consumed check is partly enforced on the developer's
+side — which is fine for honest clients but not a security boundary. Our backstop stays a
+**hard per-client daily ceiling**: regardless of how many device identities appear,
+`danzq-ios` gets N anonymous calls per day total. Worst case is bounded and known, and the
+ceiling doubles as the abuse alarm.
+
+Combined with the reduced Tier-0 payload (top 3 dances, no tags or tempo detail), the value
+of defeating the cap stays low even when it's possible.
 
 ---
 
 ## User Experience
 
-### Flow A — Anonymous trial (no registration)
+### Flow A — Trial (no registration)
 
 ```plaintext
 User installs DanzQ
   │
-  ├─> First launch: app generates a random device ID, stores it in the iOS Keychain
+  ├─> First launch: device identity established
+  │     ├─> Keychain: persistent install UUID (survives reinstall)
+  │     └─> DeviceCheck: query "trial consumed" bit
   │   └─> POST /oauth/token
   │         grant_type=urn:m4d:params:oauth:grant-type:anonymous
-  │         client_id=danzq-ios
-  │         device_id=<uuid>
-  │       → { access_token, expires_in: 86400, scope: "songs:read", tier: "trial" }
+  │         client_id=danzq-ios & device_id=<uuid>
+  │       → { access_token, scope: "songs:read", tier: "trial",
+  │           allowance_remaining: 15 }
   │
-  ├─> User searches "Blue Bayou" → GET /v1/songs?title=…&artist=…
-  │   └─> Returns top 3 dance matches. No tags, no per-dance tempo detail.
-  │       Response header: X-M4D-Quota-Remaining: 24
+  ├─> User Shazams a track → GET /v1/songs/resolve?isrc=…&appleMusicId=…
+  │   └─> Top 3 dance matches. No tags, no per-dance tempo detail.
+  │       X-M4D-Allowance-Remaining: 14
   │
-  └─> Quota exhausted (or user taps a locked field)
-      └─> App shows: "Connect your free music4dance account for more lookups"
-          → Flow B
+  └─> Allowance exhausted
+      └─> "You've used your 15 free lookups. Subscribe to music4dance to
+           keep identifying dances." → Flow B
 ```
-
-No registration, no friction, works on first launch. The reduced payload is deliberate: it
-caps the scraping value of the unauthenticated tier *and* creates the upgrade prompt.
 
 ### Flow B — Connecting an m4d account
 
@@ -139,126 +283,127 @@ User taps "Connect music4dance account"
   ├─> App generates code_verifier + code_challenge (PKCE)
   ├─> App opens ASWebAuthenticationSession →
   │     https://www.music4dance.net/oauth/authorize
-  │       ?client_id=danzq-ios
-  │       &redirect_uri=danzq://auth/callback
-  │       &response_type=code
-  │       &scope=songs:read+dances:read+profile:read
+  │       ?client_id=danzq-ios&redirect_uri=danzq://auth/callback
+  │       &response_type=code&scope=openid+songs:read+dances:read
   │       &code_challenge=<S256>&code_challenge_method=S256&state=<nonce>
   │
-  ├─> [music4dance.net, real browser, real URL bar]
-  │     ├─> Not signed in? → normal m4d login page
-  │     │     └─> incl. "Create an account" — sign-up happens here, in our funnel
+  ├─> [music4dance.net — real browser, real URL bar]
+  │     ├─> Not signed in? → m4d login, incl. "Create an account"
+  │     │     └─> sign-up and subscription both happen in our funnel
   │     └─> Consent screen:
   │           "DanzQ wants to:
   │              • Look up songs and dance matches
   │              • See your username and subscription status
-  │            DanzQ will not be able to see your password or change your data.
-  │            You can disconnect it any time from Account → Connected Apps."
-  │           [ Allow ]  [ Cancel ]
+  │            DanzQ cannot see your password or change your data.
+  │            Disconnect any time from Account → Connected Apps."
   │
   ├─> Allow → 302 danzq://auth/callback?code=<one-time>&state=<nonce>
-  │     └─> iOS hands control back to the app; browser sheet closes
   │
-  ├─> App: POST /oauth/token
-  │         grant_type=authorization_code, code, code_verifier, client_id, redirect_uri
-  │       → { access_token, refresh_token, expires_in: 3600, … }
+  ├─> App: POST /oauth/token (code + code_verifier)
+  │       → { access_token (opaque), id_token (JWT), refresh_token }
+  │         id_token claims: sub, preferred_username, m4d_tier
   │
   └─> App shows "Connected as dwgray · Premium until 2027-03-14"
 ```
 
-The user types their password only on our domain, in a browser they can inspect. That is
-exactly the property the developer asked for, and the one Apple looks for.
+The user types their password only on our domain, in a browser they can inspect — exactly
+the property the developer asked for, and the one Apple looks for.
 
 ### Flow C — Ongoing use and revocation
 
-- Access token expires hourly; the app silently refreshes. **Refresh tokens rotate** on
-  every use (a replayed refresh token revokes the whole chain — RFC 9700 §4.14).
-- User revokes from **Account → Connected Apps** on the site: name, connection date, last
-  used, scopes, `[Disconnect]`. New page under the existing account-management area.
-- App revokes on sign-out: `POST /oauth/revoke`.
-- We revoke an entire client from the admin area if a developer misbehaves — every token
-  issued to that `client_id` dies at once.
+- Access token expires hourly; silent refresh. **Refresh tokens rotate** on every use;
+  a replayed refresh token revokes the chain (RFC 9700 §4.14).
+- User revokes at **Account → Connected Apps**: app name, connection date, last used,
+  scopes, `[Disconnect]`.
+- App revokes on sign-out via `POST /oauth/revoke`.
+- We revoke a whole client from the admin area — every token for that `client_id` dies.
 
-### Upgrade path to subscription
-
-When a Tier 1 user requests premium data, return `403` with a machine-readable body:
+### Upgrade prompt
 
 ```json
 {
   "error": "subscription_required",
-  "message": "Tempo detail and dance tags require a music4dance subscription.",
+  "message": "You've used all 15 free lookups.",
   "upgrade_url": "https://www.music4dance.net/commerce/subscribe?ref=danzq-ios"
 }
 ```
 
-The `ref` parameter attributes the conversion, which is what makes third-party apps worth
-supporting at all. Note Apple's in-app-purchase rules constrain how an app may *present*
-an external subscription link — that is the developer's problem to solve, but worth raising
-early so it doesn't derail the integration late.
+The `ref` attributes the conversion, which is what makes supporting third-party apps
+worthwhile. **Raise Apple's IAP rules with the developer early** — they constrain how an app
+may present an external subscription link, and it's better to learn the constraints before
+the flow is built than after.
 
 ---
 
-## Access Tiers in Detail
+## Song Resolution: ISRC and Apple Music IDs
 
-### Tier 0 — Anonymous, unregistered
+Confirmed in the codebase, and the answer to whether we can look up by ISRC is **yes**:
 
-The hard question: how do you meter someone who hasn't identified themselves?
+- **ISRC is already a first-class pseudo-service.** `ServiceType.ISRC`, prefix `R:`, stored
+  in the Azure Search `ServiceIds` field as `R:USRC17607839`
+  ([ISRCService.cs](../m4dModels/ISRCService.cs)).
+- **Apple/iTunes track IDs are stored too.** `ServiceType.ITunes`, prefix `I:`
+  ([ITunesService.cs](../m4dModels/ITunesService.cs)).
+- **There is working precedent for exactly this lookup.**
+  [SongController.cs:202-247](../m4d/Controllers/SongController.cs#L202) already falls back
+  to an ISRC search via `ServiceIds/any(id: search.in(id, 'R:…'))` when a direct Spotify-id
+  match misses. The API can reuse that pattern rather than inventing one.
 
-**Phase 1 — device-bound tokens.** The app generates a UUID at first launch and keeps it in
-the Keychain. Tokens are bound to `(client_id, device_id)`. A determined attacker rotates
-the UUID and defeats this — which is fine, because the real protection is the layer below:
+### The coverage caveat that shapes the design
 
-**A hard per-client daily ceiling.** Regardless of how many device IDs appear, `danzq-ios`
-gets N anonymous calls per day in total. Worst case is bounded and known, and the ceiling
-is the alarm: if it trips, either the app got popular (good, talk to the developer) or it's
-being abused (revoke, investigate).
+Per the comments in `ISRCService.cs`, **ISRCs are populated only from Spotify track
+metadata** — there is no standalone ISRC search API. So ISRC coverage is *partial and skewed
+toward Spotify-matched songs*. An ISRC-only lookup will miss songs we genuinely have.
 
-Layer on the existing per-IP-subnet limits as a secondary control.
+This makes the fallback chain essential rather than optional:
 
-**Phase 2 — App Attest, if abuse appears.** iOS App Attest lets Apple cryptographically
-vouch that a request came from a genuine, unmodified build of DanzQ on real hardware. The
-server verifies the attestation before issuing an anonymous token. This is the strong
-answer, but it's meaningful work on both sides and Android would need Play Integrity
-separately. Don't build it until the data says you need it.
+```txt
+GET /v1/songs/resolve?isrc=…&appleMusicId=…&spotifyId=…&title=…&artist=…
 
-**Reduced payload** (top 3 dance matches, no tags, no tempo detail) keeps this tier from
-becoming a free bulk-data endpoint even if the metering is beaten.
-
-### Tier 1 — Registered, free
-
-Token maps to a real `ApplicationUser`. Standard payload. Higher quota. This tier exists
-because *registration is the conversion step we actually want* — it gets the user into the
-funnel described in [visitor-engagement-monetization.md](visitor-engagement-monetization.md).
-
-### Tier 2 — Subscriber
-
-Checked per request:
-
-```csharp
-// Same test as ContentController.IsPremium() — deliberately, so the API and site never diverge
-var isPremium = User.IsInRole(DanceMusicCoreService.PremiumRole) ||
-                User.IsInRole(DanceMusicCoreService.TrialRole);
+  1. isrc          → ServiceIds "R:{isrc}"     exact   ─┐
+  2. appleMusicId  → ServiceIds "I:{id}"       exact    ├─ high confidence
+  3. spotifyId     → ServiceIds "S:{id}"       exact   ─┘
+  4. title+artist  → SongsFromTitleArtist      fuzzy   ─── lower confidence
 ```
 
-Full payload, highest quota. **Subscription state is never encoded in the token** — a
-cancellation takes effect on the next request.
+Return which method matched, so the client can render confidence honestly:
+
+```json
+{
+  "match": { "method": "isrc", "confidence": "exact" },
+  "song": { "songId": "3f2a…", "title": "Blue Bayou", … }
+}
+```
+
+### The Shazam angle
+
+There are **no Shazam references anywhere in the codebase**, so this is about the app's
+recognition path, not an existing import. ShazamKit's `SHMediaItem` returns an Apple Music
+ID and generally an ISRC — worth confirming with the developer exactly which identifiers his
+recognition path yields, since that determines how much of the cascade above actually gets
+used in practice.
+
+**A genuine value exchange worth proposing:** when the app resolves a track via Shazam and
+we *miss*, that's information we don't have — an ISRC or Apple Music ID for a recording
+absent from our database, or present but unlinked. Logging unmatched identifiers (with no
+write access required) would improve the database as a side effect of the integration. That
+reframes the API from pure cost to a two-way trade, and it's a good thing to raise while
+goodwill is high.
 
 ---
 
 ## API Surface
 
-Separate prefix, separate scheme, explicit versioning:
-
 ```txt
-GET  /v1/songs?title=&artist=          Look up by title/artist
+GET  /v1/songs/resolve?isrc=&appleMusicId=&spotifyId=&title=&artist=
 GET  /v1/songs?search=                 Free-text search
 GET  /v1/songs/{id}                    Song detail
 GET  /v1/dances                        Dance catalog + tempo ranges (cacheable, static)
-GET  /v1/me                            Username, tier, quota remaining
+GET  /v1/me                            Username, tier, allowance remaining
 ```
 
-Example Tier 2 response, using the real field names from
-[Song.cs](../m4dModels/Song.cs) and [DanceRating.cs](../m4dModels/DanceRating.cs):
+Example subscriber response, using real field names from [Song.cs](../m4dModels/Song.cs)
+and [DanceRating.cs](../m4dModels/DanceRating.cs):
 
 ```json
 {
@@ -276,105 +421,238 @@ Example Tier 2 response, using the real field names from
 }
 ```
 
-Tempo is MPM, consistent with the rest of the domain. Tier 0 omits `tags`, per-rating
-`tempo`, and truncates `danceRatings` to 3.
+Tempo is MPM, consistent with the domain. Trial tier omits `tags` and per-rating `tempo`,
+and truncates `danceRatings` to 3.
 
-### Critical: the API must not accept cookies
+### The API must not accept cookies
 
 ```csharp
 [Authorize(AuthenticationSchemes = M4dApiDefaults.BearerScheme)]
 ```
 
-If the public API also accepted the site session cookie, every CSRF concern that
-`[ValidateAntiForgeryToken]` currently handles on `/api/*` would reappear on an endpoint
-that has no antiforgery protection. Bearer only, and no `[ValidateAntiForgeryToken]`
-(it would be meaningless and would break legitimate clients).
+If `/v1/*` also accepted the site session cookie, every CSRF concern that
+`[ValidateAntiForgeryToken]` currently handles on `/api/*` would reappear on endpoints with
+no antiforgery protection. Bearer only.
+
+---
+
+## Dance Voting Write API (fast follow)
+
+Appealing, and **safer than it first sounds** — because the abuse ceiling already exists in
+the domain model.
+
+### The existing cap is the security argument
+
+[`TryGetCappedDelta`](../m4dModels/Song.cs#L4358) enforces **±1 per user, per dance**, applied
+during property-log replay. A fully malicious client holding a legitimate user token still
+cannot move a dance rating by more than ±1 for that account. The blast radius is
+structurally bounded by logic that already exists and is already tested — we are not
+inventing a trust model, we're exposing one.
+
+### Endpoint shape: narrow and idempotent
+
+**Do not expose `POST /api/song/`.** It takes an arbitrary `SongHistory` of property deltas
+into `CreateOrMergeSong` — full edit power over any field. A third-party client must never
+be able to express that.
+
+Instead, a single-purpose endpoint where the server constructs the `DanceRatingDelta`:
+
+```txt
+PUT    /v1/songs/{songId}/votes/{danceId}     body: { "vote": 1 }   // 1 | -1
+DELETE /v1/songs/{songId}/votes/{danceId}                           // retract
+GET    /v1/songs/{songId}/votes                                     // this user's votes
+```
+
+`PUT` with a target value rather than `POST` with a delta, deliberately: it is **naturally
+idempotent**. Mobile networks retry, and a retried `PUT` of "my vote is +1" is harmless,
+where a retried `POST` of "+1" is a double vote. The ±1 cap would absorb it anyway, but
+designing the retry problem away is better than relying on a backstop.
+
+The client can express exactly two things: a dance and a direction. Nothing else.
+
+### Scope and tier
+
+- New scope **`dances:vote`**, requested separately, listed separately on the consent screen,
+  **not** granted by default. A read-only client never holds write capability.
+- **Any authenticated m4d account may vote** — not subscriber-gated. Votes are contributions;
+  restricting them to paying users reduces the data we get, which is backwards. (Flagging
+  this as a choice rather than assuming it, since it differs slightly from "tied to a paid
+  account.")
+- Never available to the trial tier — an anonymous device token cannot vote.
+
+### The design question to settle *before* shipping
+
+`s_unconfirmedVoteSources` ([unconfirmed-dance-votes.md](unconfirmed-dance-votes.md)) is
+keyed by **username**. Votes arriving through the API come from real user accounts, so
+there is currently **no way to distinguish an API-sourced vote from a website vote** without
+marking that user's votes wholesale.
+
+If we want API votes distinguishable — for trust weighting, for bulk rollback if a client
+misbehaves, or simply for analytics — the property log needs a marker recording the
+originating client.
+
+**This decision is effectively irreversible**, because the property log is append-only
+history: votes recorded without client attribution can never have it added retroactively.
+Decide before the first API vote is written, not after. Recommendation: **record the client
+ID from the start**, even if nothing reads it initially. It is cheap now and impossible later.
+
+### Why this is a separate phase
+
+Agreed on reviewing it separately. Beyond the review burden, it's the first time a
+third-party client can *mutate* community data, and it should ship only after the read API
+has demonstrated the client behaves well. The phasing is also a natural trust ladder for
+onboarding future developers: read access first, write access on request.
+
+---
+
+## Identity Provider Strategy
+
+Broader than this project, and worth a straight answer: **don't couple an identity migration
+to the third-party API.** But the interest is well-founded, and this project moves toward it
+rather than away.
+
+### What is actually load-bearing about `ApplicationUser`
+
+The coupling is deeper than a typical Identity install:
+
+- **Domain fields on the user record** — `SubscriptionLevel`, `SubscriptionEnd`, `Region`,
+  `Privacy`, `ServicePreference`, `ColumnDefaults`, `HitCount`, `LifetimePurchased`.
+- **Foreign keys** from `Searches`, `ActivityLog`, `UsageLog`, `PlayList`.
+- **Usernames embedded in song data.** The song property log stores `User=dwgray` inline
+  ([ModifiedRecord.cs](../m4dModels/ModifiedRecord.cs)), inside compressed Azure Search
+  documents, replayed on every song materialization to compute vote attribution and the ±1
+  cap. These are immutable historical records, not a table you can rewrite.
+- **Roles** (`premium`, `trial`, `canEdit`, `canTag`, `dbAdmin`, …) drive authorization
+  throughout.
+- **Legacy password hashes** — `PasswordHasherCompatibilityMode.IdentityV2`
+  ([Program.cs:510](../m4d/Program.cs#L510)).
+- **Three external providers already federated** — Google, Facebook, Spotify.
+
+The conclusion that follows: **the local user table cannot be removed.** Whatever provider
+handles credentials, `ApplicationUser` survives as the profile and attribution record.
+
+So what's genuinely on offer is moving *credential handling* — passwords, MFA, recovery,
+social federation — out of the app. That's real value, but it's a fraction of the surface,
+and the social-federation part is already done.
+
+### Options, if evaluated separately
+
+| Option | Notes |
+| --- | --- |
+| **Microsoft Entra External ID** | Natural first look given Azure hosting; generous free MAU tier (verify current terms). Consolidates billing and identity in one cloud. |
+| **Auth0 / Okta** | Excellent DX, most mature. Pricing escalates with MAU — verify against your user count before falling for the free tier. |
+| **Clerk / Stytch / WorkOS** | Modern DX, strong prebuilt UI. Less .NET-native; more work to reconcile with ASP.NET Core Identity. |
+| **Keycloak / FusionAuth / Logto** | Open source, self-hostable, no per-MAU cost. Trades licensing cost for operational cost — you now run an identity server. |
+| **Status quo + OpenIddict** ✅ | Keep Identity, add an OAuth/OIDC server on top. **Recommended for now.** |
+
+### Why this project helps rather than hinders
+
+The useful insight: **becoming an OAuth/OIDC authorization server creates exactly the seam a
+future migration needs.** Once third-party clients authenticate against *our* `/oauth/*`
+endpoints, the credential backend behind those endpoints is an implementation detail. Swap
+it later and no client notices — that is the entire point of the abstraction.
+
+Building on OpenIddict is a step *toward* offloading identity, not a commitment against it.
+
+### Recommendation
+
+Keep them separate. Two hard things at once, one of which is a security-critical migration
+of every existing user's credentials, is how outages happen. Ship the API on OpenIddict;
+evaluate Entra External ID as its own project with its own risk budget, once the OAuth seam
+exists and has proven itself.
 
 ---
 
 ## Data Model
 
 Let OpenIddict own the OAuth tables (`OpenIddictApplications`, `OpenIddictAuthorizations`,
-`OpenIddictTokens`, `OpenIddictScopes`). Add one m4d-owned table for the things OpenIddict
-has no opinion about:
+`OpenIddictTokens`, `OpenIddictScopes`). Add m4d-owned tables for what it has no opinion on:
 
 ```csharp
 public class ApiClientProfile
 {
     public int Id { get; set; }
     public string ClientId { get; set; }        // matches OpenIddict application
-    public string DisplayName { get; set; }     // "DanzQ" — shown on the consent screen
+    public string DisplayName { get; set; }     // "DanzQ" — shown on consent screen
     public string DeveloperUserId { get; set; } // FK to ApplicationUser
     public string DeveloperEmail { get; set; }
     public string HomepageUrl { get; set; }
     public ApiClientStatus Status { get; set; } // Pending, Approved, Suspended, Revoked
-    public int QuotaTier { get; set; }
+    public string TierPolicySet { get; set; }   // which ApiTierPolicy set applies
+    public bool AllowVoting { get; set; }       // dances:vote grantable per client
     public DateTime Created { get; set; }
     public DateTime? ApprovedDate { get; set; }
     public string Notes { get; set; }           // admin-only
 }
+
+public class ApiDeviceAllowance                 // lifetime trial tracking
+{
+    public long Id { get; set; }
+    public string ClientId { get; set; }
+    public string DeviceId { get; set; }        // hashed
+    public int Consumed { get; set; }
+    public DateTime FirstSeen { get; set; }
+    public DateTime LastSeen { get; set; }
+}
 ```
 
-Per project convention, no nullable reference type annotations — check null explicitly.
+Per project convention: no nullable reference type annotations — check null explicitly.
 
-Extend `UsageLog` with a nullable `ClientId` so API traffic is separable from site traffic
-in the existing analytics (see [usage-log-analysis-plan.md](usage-log-analysis-plan.md)).
+Extend `UsageLog` with a nullable `ClientId` so API traffic is separable from site traffic in
+the existing analytics ([usage-log-analysis-plan.md](usage-log-analysis-plan.md)).
 
 ---
 
 ## Onboarding Other Developers
 
-This is what makes the design worth building rather than special-casing DanzQ.
+**Registration** — a logged-in user registers an app at `/developers` (name, homepage,
+redirect URIs, contact) and receives a `client_id` in `Pending` state. Public clients get no
+secret; correct and expected for mobile under RFC 8252.
 
-**Registration** — a logged-in user visits `/developers`, registers an app (name, homepage,
-redirect URIs, contact), and receives a `client_id` in `Pending` state. Public clients get
-no secret; that is correct and expected for mobile apps under RFC 8252.
+**Approval** — manual from the admin area while volume is low. The gate is where you verify
+the app is real, redirect URIs are sane, and terms are accepted.
 
-**Approval** — manual, from the admin area, while volume is low. The gate is where you check
-the app is real, the redirect URIs are sane, and the developer has agreed to the terms.
+**Terms of use** — publish before the first external client ships:
 
-**Terms of use** — publish these before the first external client ships. Minimum:
-
-- Attribution: "Powered by music4dance" with a link, visible in the app
+- Attribution: "Powered by music4dance," visible in the app, linked
 - No bulk extraction, redistribution, or resale of the song database
-- Caching allowed for reasonable periods; no permanent local mirrors
-- Quota limits and our right to revoke, stated plainly
+- Caching permitted for reasonable periods; no permanent local mirrors
+- Quota limits and our revocation rights, stated plainly
 - Contact obligation so we can reach the developer about breaking changes
 
-The database is community-contributed. Terms are how you keep the API from quietly becoming
-an export pipe.
+The database is community-contributed. Terms are how the API doesn't quietly become an
+export pipe.
 
 **Versioning** — once an app ships, `/v1` is a contract. Add fields freely; never remove or
-retype one. Breaking changes get `/v2` and a deprecation window announced by email to
-registered developers.
+retype one. Breaking changes get `/v2` plus a deprecation window announced by email.
 
-**Admin visibility** — a page listing clients with request volume, error rate, quota
-consumption, and a revoke button, alongside the existing rate-limit dashboards in
-[AdminController.cs:447](../m4d/Controllers/AdminController.cs#L447).
+**Trust ladder** — read access on approval; `dances:vote` granted per client
+(`AllowVoting`) after the client has demonstrated good behavior.
 
 ---
 
 ## Security Requirements
 
-Non-negotiable, all from RFC 9700 / RFC 8252:
+From RFC 9700 / RFC 8252:
 
-- [ ] PKCE `S256` required on every authorization request; plain rejected
+- [ ] PKCE `S256` required on every authorization request; `plain` rejected
 - [ ] Exact redirect-URI string matching — no prefix or wildcard matching
-- [ ] Authorization codes: single-use, ≤60s TTL, bound to `client_id` + `code_verifier`
-- [ ] `state` parameter required and verified
+- [ ] Authorization codes single-use, ≤60s TTL, bound to `client_id` + `code_verifier`
+- [ ] `state` required and verified
 - [ ] Implicit and password grants **not** enabled
 - [ ] Refresh token rotation with replay detection (reuse revokes the chain)
-- [ ] Access tokens: 1h TTL, opaque, hashed at rest
+- [ ] Access tokens 1h TTL, opaque, hashed at rest
 - [ ] Consent screen names the app and its scopes in plain language
+- [ ] `dances:vote` never granted implicitly with read scopes
 - [ ] Bearer scheme only on `/v1/*`; cookies not accepted
 - [ ] HTTPS everywhere; no token in query strings or logs
 - [ ] Per-token and per-client rate limits, separate from the site's per-IP limits
-- [ ] Token endpoint added to `ShouldRateLimit` paths with brute-force protection
+- [ ] Token endpoint added to `ShouldRateLimit` paths
+- [ ] Hard per-client daily ceiling on anonymous grants, with alerting
 - [ ] Revocation reflected within one request — no cached authorization decisions
 
-**Scraping defense**, which is easy to overlook: page size caps, no unbounded result sets,
-no "list all songs" endpoint, and per-client volume alerting. The API is a new front door to
-the entire dataset.
+**Scraping defense:** page size caps, no unbounded result sets, no "list all songs"
+endpoint, per-client volume alerting. The API is a new front door to the entire dataset.
 
 ---
 
@@ -382,60 +660,69 @@ the entire dataset.
 
 | Phase | Scope | Notes |
 | --- | --- | --- |
-| **1. Foundation** | OpenIddict + EF stores, `ApiClientProfile`, migrations, bearer scheme, `/v1/dances` as a trivial first endpoint | No UI yet. Proves the plumbing. |
-| **2. Authorization flow** | `/oauth/authorize`, `/oauth/token`, `/oauth/revoke`, `.well-known` metadata, consent page | The security-critical phase. Review hardest here. |
-| **3. Read API** | `/v1/songs`, `/v1/songs/{id}`, `/v1/me`, tiered payload shaping | Reuses `SongIndex`; little new domain logic. |
-| **4. Metering** | Per-token/client quotas, `X-M4D-Quota-*` headers, `UsageLog.ClientId` | Extends existing rate-limit middleware. |
-| **5. Anonymous tier** | Anonymous grant, device binding, per-client ceiling, reduced payload | Can ship after DanzQ's authenticated path works. |
-| **6. Developer self-serve** | `/developers` registration, admin approval + revoke UI, published terms | Needed before developer #2. |
+| **1. Foundation** | OpenIddict + EF stores, `ApiClientProfile`, `ApiTierPolicy`, migrations, bearer scheme, `/v1/dances` | Proves the plumbing. No UI. |
+| **2. Authorization flow** | `/oauth/authorize`, `/oauth/token`, `/oauth/revoke`, `.well-known`, consent page, OIDC `id_token` | Security-critical. Review hardest here. |
+| **3. Read API** | `/v1/songs/resolve` with the ISRC→Apple→Spotify→title/artist cascade, `/v1/songs/{id}`, `/v1/me` | Reuses the existing ISRC pattern at SongController.cs:202. |
+| **4. Metering** | Tier policy enforcement, lifetime allowance tracking, `X-M4D-Allowance-*`, `UsageLog.ClientId` | Where Model A vs B becomes config. |
+| **5. Trial tier** | Anonymous grant, Keychain + DeviceCheck binding, per-client ceiling, reduced payload | Ships the no-registration experience. |
+| **6. Developer self-serve** | `/developers` registration, admin approve/revoke UI, published terms | Needed before developer #2. |
+| **7. Voting write API** | `PUT/DELETE /v1/songs/{id}/votes/{danceId}`, `dances:vote` scope, client attribution in property log | **Separate review.** Settle the attribution question in Phase 1's schema. |
 
-Phases 1–3 are enough for DanzQ to ship against Tier 1/2. Phase 5 delivers the
-try-before-registering experience.
+Phases 1–3 let DanzQ ship against paid accounts. Phase 5 delivers the trial. Phase 7 is the
+fast follow.
+
+**One thing to pull forward:** the vote-attribution decision (recording client ID in the
+property log) should land in **Phase 1's schema**, even though voting is Phase 7. Append-only
+history means retrofitting it is impossible.
 
 ---
 
 ## Accepting the Contribution
 
-The offer is genuine and useful, and the developer has correctly identified a real gap. A
-few guardrails, given this code touches authentication:
+The offer is genuine and the developer has correctly identified a real gap. Guardrails,
+given this touches authentication:
 
 1. **We choose the library.** Specify OpenIddict up front rather than reviewing a
    hand-rolled implementation and asking for a rewrite. Cheaper for both sides.
-2. **Split the PR by phase.** One PR containing schema, OAuth endpoints, API surface, and
-   rate limiting is not reviewably safe. Phases 1, 2, and 3 as separate PRs.
-3. **Feature-flag it.** Everything behind a config switch, default off, so it can merge
-   before it's ready to be exposed.
-4. **Review against RFC 9700** as an explicit checklist, not by reading for style.
-5. **Server tests required**, following [testing-patterns.md](testing-patterns.md) —
-   including negative cases: wrong `code_verifier`, replayed code, mismatched redirect URI,
-   revoked token, exceeded quota, lapsed subscription.
-6. **The consent screen is ours.** It carries our branding and sets user expectations about
-   what we permit; we should write that copy.
-7. **Terms of use before the first external client ships**, not after.
-
-One thing to decide before starting: **is API access included in the existing subscription
-or priced separately?** Recommendation: include it. A third-party app that drives
-subscriptions is worth more than a separate small revenue line, and a second price point
-complicates a subscription model that currently works. Revisit only if a client's load
-becomes a real cost.
+2. **Resolve the token-format question early** — offer OIDC `id_token` as the answer to what
+   he's actually after. Better settled in conversation than in PR review.
+3. **Split the PR by phase.** Schema + OAuth endpoints + API surface + rate limiting in one
+   PR is not reviewably safe.
+4. **Feature-flag everything**, default off, so work can merge before it's exposed.
+5. **Review against RFC 9700** as an explicit checklist.
+6. **Server tests required** ([testing-patterns.md](testing-patterns.md)) including negative
+   cases: wrong `code_verifier`, replayed code, mismatched redirect URI, revoked token,
+   exhausted lifetime allowance, lapsed subscription, vote beyond the ±1 cap.
+7. **The consent screen is ours** — our branding, our copy about what we permit.
+8. **Terms of use before the first external client ships.**
+9. **Ask what his Shazam path returns** (ISRC? Apple Music ID? both?) — it determines how
+   much of the resolution cascade matters in practice.
 
 ---
 
 ## Open Questions
 
-- Should Tier 0 be available to *every* approved client, or only to clients we explicitly
-  grant it to? (Leaning: explicit grant — it's the highest-abuse surface.)
-- Do we want write scopes eventually — letting an app submit tempo data or dance votes back?
-  That is a much larger trust decision and should stay out of v1.
-- Does the DanzQ developer want playlist access? [playlist-management.md](playlist-management.md)
-  describes premium functionality that could be a natural Tier 2 differentiator.
+- **Model A or B?** Recommendation is A, built so B is a config change. Worth measuring
+  rather than deciding by argument.
+- **Is 15 the right lifetime allowance?** Unknowable until real users hit it — hence the
+  policy table.
+- **Should API votes be distinguishable from site votes in the property log?** Recommendation
+  is yes, decided in Phase 1. Irreversible once votes are written.
+- **Should the trial tier be grantable per client**, rather than automatic on approval?
+  Leaning yes — it's the highest-abuse surface.
+- **Playlist access as a subscriber differentiator?**
+  See [playlist-management.md](playlist-management.md).
+- **Do we want unmatched-ISRC logging** as a database-enrichment side effect? Low cost, real
+  value, good goodwill.
 
 ---
 
 ## Related Documents
 
+- [unconfirmed-dance-votes.md](unconfirmed-dance-votes.md) — vote trust model and the ±1 cap
 - [account-management.md](account-management.md) — where "Connected Apps" belongs
 - [identity-endpoint-protection.md](identity-endpoint-protection.md) — existing identity hardening
 - [distributed-attack-mitigation.md](distributed-attack-mitigation.md) — rate-limiting architecture
 - [visitor-engagement-monetization.md](visitor-engagement-monetization.md) — subscription funnel
+- [music-service-model.md](music-service-model.md) — service IDs, prefixes, `ServiceIds` field
 - [song-search-service.md](song-search-service.md) — the search layer the API sits on
