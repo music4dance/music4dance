@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useDropTarget } from "@/composables/useDropTarget";
-import axios from "axios";
+import { getAxiosXsrf } from "@/helpers/GetMenuContext";
 import { ref, watch } from "vue";
 import { type Size } from "bootstrap-vue-next";
 
@@ -57,8 +57,8 @@ watch(
     if (!s || s.length < 2) {
       return;
     }
-    axios
-      .get(`/api/suggestion/${s}`)
+    getAxiosXsrf()
+      .get(`/api/suggestion/${encodeURIComponent(s)}`)
       .then((response) => {
         const list = response.data as SuggestionEntry;
         suggestions.value = list.suggestions.map((s) => addQuotes(s.value));
