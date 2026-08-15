@@ -43,7 +43,7 @@ public static class SpiderManager
             return true;
         }
 
-        var agent = userAgent.ToLower();
+        var agent = userAgent.ToLowerInvariant();
         var botFilter = configuration
             .GetSection(BotFilterInfo.SectionName).Get<BotFilterInfo>() ?? new BotFilterInfo();
 
