@@ -35,8 +35,9 @@ public static class ServiceCollectionExtensions
         {
             serviceHealth.MarkUnavailable("EmailService", $"{ex.GetType().Name}: {ex.Message}");
             Console.WriteLine($"WARNING: Email service not configured: {ex.Message}");
-            // Register a null email sender as fallback
-            services.AddTransient<IEmailSender, EmailSender>(provider => new EmailSender(null));
+            // Register a no-op fallback - EmailSender's constructor throws on a null
+            // connection string, which would just move this crash to first DI resolution.
+            services.AddTransient<IEmailSender, NullEmailSender>();
         }
 
         return services;

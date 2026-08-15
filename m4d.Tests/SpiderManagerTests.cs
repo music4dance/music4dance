@@ -59,4 +59,15 @@ public class SpiderManagerTests
         Assert.IsTrue(result);
     }
 
+    [TestMethod]
+    public void CheckSpiders_Returns_False_WhenBotFilterConfigMissing()
+    {
+        // Simulates Azure App Configuration being unavailable, which is where
+        // Configuration:BotFilter is normally sourced from.
+        var emptyConfig = new ConfigurationBuilder().Build();
+        var agent = "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; +http://www.google.com/bot.html) Chrome/W.X.Y.Z Safari/537.36";
+        var result = SpiderManager.CheckAnySpiders(agent, emptyConfig);
+        Assert.IsFalse(result);
+    }
+
 }
