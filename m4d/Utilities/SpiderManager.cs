@@ -45,7 +45,7 @@ public static class SpiderManager
 
         var agent = userAgent.ToLower();
         var botFilter = configuration
-            .GetSection(BotFilterInfo.SectionName).Get<BotFilterInfo>();
+            .GetSection(BotFilterInfo.SectionName).Get<BotFilterInfo>() ?? new BotFilterInfo();
 
         if (!botFilter.ExcludeFragmentList.Any(agent.Contains) &&
             !botFilter.ExcludeTokenList.Any(t => agent.Equals(t)))
