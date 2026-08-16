@@ -40,8 +40,6 @@
     var isTestDb = _configuration.GetValue<bool>("TEST_DB");
     var isProdDb = _configuration.GetValue<bool>("PROD_DB");
     var hasIcons = ViewData.TryGetValue("HasIcons", out var hasIconsObj) && (hasIconsObj as bool?).Value;
-    var styleModifier = hasIcons ? "wicons" : "";
-    var styleSheet = ViewData.ContainsKey("NoSiteCss") ? null : $"/css/site{styleModifier}.css";
     var marketing = GlobalState.GetMarketing(user, Context.Request.Path);
     var marketingMessage = marketing.Enabled ? marketing.Banner : String.Empty;
     var customerReminder = !noWarnings && !isPremium && userMetadata.User != null && await _featureManager.IsEnabledAsync(FeatureFlags.CustomerReminder);
@@ -110,11 +108,6 @@
 
 <link rel="shortcut icon" href="~/images/favicon.png"/>
 <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro|Merienda:700" rel="stylesheet" type="text/css">
-
-@if (styleSheet != null)
-{
-    <link rel="stylesheet" href=@styleSheet />
-}
 
 @if (hasIcons)
 {

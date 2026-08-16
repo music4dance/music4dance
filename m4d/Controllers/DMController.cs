@@ -581,8 +581,6 @@ public class DanceMusicController(
             model = s.Replace(@"'", @"\'");
         }
 
-        ViewData["NoSiteCss"] = true;
-
         return View(
             "Vue3", new VueModel
             {

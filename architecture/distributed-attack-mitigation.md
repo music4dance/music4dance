@@ -165,6 +165,29 @@ convention — the standard Razor fallback then resolves it for any current or f
 
 ---
 
+### Known 404/4xx Sources (Triage Log)
+
+Started Aug 16, 2026, after a first pass through `/Admin/Diagnostics`'s "HTTP 4xx Errors" table
+(populated by `Http4xxTracker`, see above) now that the worst offender — a broken autocomplete
+endpoint — was fixed. Purpose: build a running record of what's already been triaged so recurring
+noise doesn't get re-investigated from scratch, and so a genuinely new pattern stands out. When
+reviewing `/Admin/Diagnostics` going forward, check new top URLs against this table first; add a
+row for anything not already covered.
+
+| URL / Pattern | Category | Explanation | Status |
+| --- | --- | --- | --- |
+| `/wp-admin/`, `/wp-login.php` | Bad actor / scanner | Generic WordPress scanner probes; not a WordPress site | Ignore |
+| `/.env` | Bad actor / scanner | Generic secret-hunting bot | Ignore |
+| `/account/signin?ReturnUrl=...` | Bad actor / scanner | `/account/signin` has never existed in this codebase (real path is `/Identity/Account/Login`). Bot guesses common auth paths; the `ReturnUrl` was a real artist-page URL the bot had already scraped, used as plausible bait | Ignore |
+| `/apple-touch-icon*.png` | Benign platform probe | iOS Safari auto-requests these when a user bookmarks/pins the site; we don't define them | Ignore (optional: add touch icons for polish) |
+| `/.well-known/traffic-advice`, `/.well-known/passkey-endpoints` | Benign platform probe | Browser auto-discovery requests (Chrome Privacy Sandbox, WebAuthn/passkeys) | Ignore |
+| `/sitemap.xml` | Benign platform probe (crawler) | Search-engine crawler checking for a sitemap we don't publish | Ignore (optional SEO win if we ever add one) |
+| `/css/site.css`, `/css/sitewicons.css` | **Internal bug — fixed Aug 16, 2026** | `_head.cshtml` linked a stylesheet with no build step producing it since a pre-Vite CSS pipeline was retired (no `site.scss` source anywhere, nothing in `wwwroot/css` but `bootstrap-icons`/`auth-buttons`). Other views worked around it ad hoc via `ViewData["NoSiteCss"]`, but `_vue-Layout.cshtml` — used by `UseVue.V3` pages (the main song-search index, `DanceController`, `CustomSearchController`) — never set that flag, so those pages rendered the dead link on every load | Fixed: removed the dead `styleSheet`/`styleModifier` computation and `<link>` from `_head.cshtml`, and the now-pointless `NoSiteCss` writes in `_bs5-Layout.cshtml` and `DMController.cs` |
+| `/vclient/assets/*.js` (Vite content-hashed filenames) | Expected — deploy artifact | Hashes didn't match current build output; all hits clustered in a ~12 min window matching a deploy. Anonymous HTML responses get `Cache-Control: public, max-age=300` for Front Door (`Program.cs:889`), so browsers/CDN holding pre-deploy HTML request stale bundle names for up to 5 min after each release | No action. Watch for hits **outside** a post-deploy window — that would indicate a real caching problem |
+| `/song/artist?name` (no value) | Known bot pattern (pre-documented) | `SongController.Artist(string name)` 404s on empty `name` ("Empty artist name not valid"); real links always carry a value. Matches the bot signature already noted in `usage-log-analysis-plan.md` | No action |
+
+---
+
 ## Attack Analysis
 
 ### Timeline: March 5, 2026 17:36-17:38 UTC
