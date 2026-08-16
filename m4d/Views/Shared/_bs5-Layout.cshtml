@@ -15,7 +15,6 @@
     {
         help = string.Format("https://music4dance.blog/music4dance-help/{0}/", ViewBag.Help);
     }
-    ViewData["NoSiteCss"] = true;
     var entry = "src/pages/header/main.ts";
     var isDatabaseHealthy = _serviceHealth.IsServiceHealthy("Database");
     var isIdentityArea = ViewContext.RouteData.Values["area"]?.ToString() == "Identity";
