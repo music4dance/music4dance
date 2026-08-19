@@ -25,7 +25,7 @@ contributor, which changes the cost calculus — it is infrastructure, not a fav
 | Question | Decision |
 | --- | --- |
 | **Contribution licensing** | **DCO**, not a CLA. Keep the process light — `Signed-off-by` enforced by a GitHub check |
-| **Sample data in the repo** | **No.** No song data is committed, sanitized or otherwise. See [L1](#l1--local-stub-index--inline-test-coverage--recommended) for how CI coverage survives that |
+| **Sample data in the repo** | **No.** No song data is committed, sanitized or otherwise. See [L1](#l1--no-external-service-local-server--recommended) for how CI coverage survives that |
 | **Sample data delivery** | Out-of-band initially; **a dev-portal download gated on accepting testing-only terms** long term |
 | **Sanitizer form factor** | **Admin endpoint** now, alongside `BackupDatabase`; a dev-portal endpoint later, feeding the download above |
 | **Service accounts in samples** | **Not obfuscated** — `batch*`, `tempo-bot`, `dgsnure`, `@music4dance.net`. They are machine identities, not personal data. ⚠️ **Spotify proxy users are the exception** — see [the catch](#the-spotify-proxy-user-catch) |
@@ -54,14 +54,15 @@ is the work that matters most.** That alignment is lucky and should be exploited
 | Rung | What | Unblocks | Cost |
 | --- | --- | --- | --- |
 | **0** | Contributor setup guide + DCO; empty local DB, no keys, no data | API Phases 1–2, 4, 6 | **XS** |
-| **1** | `SongIndexLocal` + inline-constructed test coverage | API Phases 3, 7 | **M** |
+| **1** | No-external-service local server: shared stub assembly, `m4d.Sandbox` host, seeded test users | API Phases 3, 7; manual QA; e2e | **M** |
 | **2** | You deploy their PR branch to the existing test site on request | End-to-end iOS validation | **XS** |
 | **3** | Owner-scoped API diagnostics (their `client_id` only) | Self-service debugging | **S** |
 | **4** | Samplification endpoint + terms-gated delivery | Browseable realistic dataset | **L** |
 | **5** | GitHub Actions environment-gated deploy | Self-service test deploys | **M** |
 | **6** | Their own Azure deployment (guide only) | Full independence | **M** (docs) |
 
-Rungs 0–3 total under a week and cover the realistic need. **Rung 4 is now the only source of
+Rungs 0–3 total a bit over a week — rung 1 grew once it started carrying manual QA and e2e as
+well as CI coverage — and still cover the realistic need. **Rung 4 is now the only source of
 browseable data**, since nothing ships in the repo — but it is needed for *interactive*
 development, not for correctness testing, so it still isn't a prerequisite for starting.
 
@@ -355,31 +356,96 @@ security-critical OAuth surface.
 The "expected warnings" section is worth more than it sounds. Without it, the first five
 minutes of a new contributor's experience is a wall of scary-looking startup errors.
 
-### L1 — Local stub index + inline test coverage ✅ (recommended)
+### L1 — No-external-service local server ✅ (recommended)
 
-**Cost: M** (2–4 days) — and it improves your own test suite
+**Cost: M** (~4–5 days, upper end of the band) — and it upgrades both CI and manual QA
 
-This is the option not on the original list, and with no data shipping in the repo it splits
-cleanly into a code half and a testing half. **Neither half needs a data file.**
+Earlier drafts of this document split this into two separate line items: a test-only stub index,
+and a "sandbox configuration profile" for the server (the latter now folded in here — see the old
+[L4](#l4--sandbox-configuration-profile-merged-into-l1)). They turn out to be the same problem.
+Everything either one needs already exists, just trapped in the test project:
+[`TestSongIndex`](../m4dModels.Tests/TestSongIndex.cs) is a working in-memory `SongIndex`, and
+[`DanceMusicTester.CreateService`](../m4dModels.Tests/DanceMusicTester.cs) is already the one
+place that assembles the *whole* stub graph a `SongIndex` needs to run — an in-memory
+`DanceMusicContext`, a stub `IDanceStatsFileManager` (`TestDSFileManager`), and the
+`DanceMusicCoreService`/`DanceMusicService` pair `SongIndex.DanceMusicService` depends on. (This
+is almost certainly what "a stubbed `DanceServiceCore`" was reaching for — there is no class by
+that name, but `DanceMusicCoreService` is exactly the object graph `TestSongIndex` currently gets
+handed via `AttachToService`, and it's the thing that needs promoting alongside the index itself.)
+The only thing missing is a home outside the test project so a running web server can use it too.
 
-**L1a — `SongIndexLocal`.** [`TestSongIndex`](../m4dModels.Tests/TestSongIndex.cs) is already
-an in-memory `SongIndex` subclass — and it already overrides `GetSongFromService`, with a
-comment stating its purpose verbatim: *"Lets tests exercise service-id/ISRC lookup paths …
-without a real search backend."* **That is precisely the Phase 3 resolve cascade.** The
-capability exists; it is just trapped in the test project.
+**L1a — Promote the stub layer into its own assembly.**
 
-Promote it to a `SongIndexLocal` in `m4dModels`, selected by configuration (e.g.
-`SearchBackend: Local`), holding songs in memory. `SongIndex` is already designed for
-subclassing — `SongIndexNext` and `TestSongIndex` both do it — so this follows an established
-seam rather than cutting a new one. Gaps to fill beyond `TestSongIndex`: free-text search over
-title/artist, dance filters, and paging good enough for the site to render.
+New class library, `m4dModels.Sandbox`, referenced by both `m4dModels.Tests` (replacing what's
+built inline there today) and the sandbox host in L1b. It carries:
 
-Per the settled decision, it **prints a startup warning that relevance scoring is not
-representative**, so nobody debugs a ranking difference that is a stub artifact.
+| Moves from `m4dModels.Tests` today | Becomes | Notes |
+| --- | --- | --- |
+| `TestSongIndex` | `SongIndexLocal` | Same overrides (`SaveSong`, `FindSong`, `GetSongFromService`, `LoadLightSongsStreamingAsync`) — the comment on `GetSongFromService` already states the point verbatim: *"Lets tests exercise service-id/ISRC lookup paths … without a real search backend."* That's precisely the Phase 3 resolve cascade. Gains free-text title/artist search, dance-filter matching, and paging — needed once results get *rendered* for a person instead of just asserted on in a test |
+| `TestDSFileManager` | `LocalDanceStatsFileManager` | Same `IDanceStatsFileManager` seam production already uses — `DanceStatsFileManager` reads `content/dances.json` with a fallback to a checked-in static copy at [DanceStatsFileManager.cs:41](../m4dModels/DanceStatsFileManager.cs#L41); this implementation reads the checked-in test data instead. Same interface, same "fall back to what's in source control" shape |
+| *(new)* | `LocalSearchServiceManager` | A minimal `ISearchServiceManager`. Doesn't need to do much: `GetSongFilter` is pure string parsing, not a service call, and once a `SongIndexLocal` is pre-attached — the same late-binding `AttachToService` pattern `TestSongIndex` already uses to dodge the `SongIndex`/`DanceMusicCoreService` circular dependency — `SongIndex.Create`'s Azure-bound path in [SongIndex.cs:52](../m4dModels/SongIndex.cs#L52) is never reached. Its job is to satisfy the constructor dependency and answer `RawEnvironment` / `CurrentIndexName` honestly as "local" for the startup banner |
+| `DanceMusicTester.CreateService` / `CreatePopulatedService` / `AddUser` | `SandboxServiceFactory` | Same shape, same parameters. `m4dModels.Tests` keeps its existing call sites working via thin same-named wrappers, so none of the ~15 test files that reference these by name need to change |
+| `m4dModels.Tests/TestData/*.txt`, `*.json` | same files, moved | Already public, already the small PII-cleaned dataset — this is the "existing sanitized data" this request is asking to reuse, not a new sanitization effort |
 
-**L1b — test coverage from constructed songs, not fixtures.** This is what makes the
-no-data-in-repo decision cost-free. Per [testing-patterns.md](testing-patterns.md), server
-tests already build songs inline from the serialized format:
+Renaming `Test*` classes is mechanical but real work — worth doing once rather than leaving
+misleadingly-named `Test*` classes running inside a live web server. `SongIndex` is already
+designed for subclassing (`SongIndexNext` and `TestSongIndex` both do it today), so this follows
+an established seam rather than cutting a new one.
+
+Per the settled decision, `SongIndexLocal` **prints a startup warning that relevance scoring is
+not representative**, so nobody debugs a ranking difference that is a stub artifact.
+
+**L1b — `m4d.Sandbox`: a second host project, not a build flag.**
+
+The bonus ask — keep this code and data out of the artifact that reaches Azure — has two possible
+mechanisms:
+
+| Approach | How | Verdict |
+| --- | --- | --- |
+| Config-flag branching inside `m4d.csproj` (`SANDBOX_MODE`, `#if`) | Conditional `<ProjectReference>` + compiler constant; branches inside the shared `Program.cs` | ❌ The "one more configuration path to keep working" risk the old sandbox-profile idea already flagged against itself — except now the thing gated behind someone's discipline is *whether stub data ships to production* |
+| A second project, `m4d.Sandbox.csproj` | Project-references `m4d.csproj` (inherits every controller and Razor view for free — MVC's application-part discovery walks referenced assemblies, the same mechanism Razor Class Libraries rely on, and static web assets should flow the same way; **verify both during implementation**, it's the one part of this design borrowed from general ASP.NET Core behaviour rather than confirmed in this codebase) plus `m4dModels.Sandbox.csproj`. Its own minimal `Program.cs` | ✅ Recommended |
+
+With the second-project approach, keeping the stub assembly off production isn't a rule anyone has
+to remember — `m4d.csproj` simply has no reference to `m4dModels.Sandbox.csproj`, so
+`dotnet publish m4d/m4d.csproj -c Release` (what `azure-pipelines.yml` already runs) cannot pull it
+in. That's a stronger guarantee than a flag: enforced by the compiler, not by a reviewer.
+
+The cost of a second host is the usual one — two `Program.cs`-adjacent files that could drift.
+Contained by factoring `m4d/Program.cs`'s composition root (currently one long imperative file)
+into named extension methods — `AddM4dApplication(builder)`, `app.UseM4dPipeline()` — that both the
+real `Program.cs` and `m4d.Sandbox/Program.cs` call. The sandbox host then only *overrides* a
+handful of registrations after the shared call: `ISearchServiceManager` → `LocalSearchServiceManager`
+with a pre-attached `SongIndexLocal`, plus the seeding in L1d. Routing, middleware, and every
+controller stay identical by construction, so there's no second copy of application logic to drift
+— only the deliberately-overridden pieces can.
+
+`m4d.Sandbox` carries its own `appsettings.json` rather than a flag layered on the production one
+— this is where the old L4's specific settings land: `Commerce:Enabled: false`, captcha off, and
+`AppConfig:Endpoint` left blank (closing the trap already called out in
+[L3](#l3--they-deploy-their-own-cloud-instance--settled-direction), where a non-Development
+deployment that forgets to blank it tries to reach *our* App Configuration store).
+
+One real open decision: **the EF backing store.** `SandboxServiceFactory` (like `DanceMusicTester`
+today) uses `UseInMemoryDatabase` for zero-install convenience. But
+[`DanceMusicContext.CreateTransientContext`](../m4dModels/DanceMusicContext.cs#L19) — used by
+[`PlayListController.cs:285`](../m4d/Controllers/PlayListController.cs#L285) for playlist creation
+— throws `"Cannot create a new dbcontext from a test context"` whenever the context has no
+`SqlServerOptionsExtension`, which is exactly the InMemory case. That's the same seam as the
+already-tracked internal-EF-API issue on `CreateTransientContext`. Two ways through: point
+`m4d.Sandbox` at a real (if disposable) LocalDB instance instead of InMemory — consistent with L0's
+guidance that LocalDB is the easy path and isn't "external" — or teach `CreateTransientContext` an
+InMemory-aware fallback while fixing it properly. Either way, **playlist creation is the one
+feature that will silently break in the sandbox if this isn't decided deliberately**, not a
+hypothetical.
+
+Add `m4d.Sandbox` and `m4dModels.Sandbox` to `music4dance.sln`, following the precedent
+`SelfCrawler` already sets for a project that's part of the solution but not part of CI or the
+deploy pipeline.
+
+**L1c — Test coverage from constructed songs, not fixtures.** This is what makes the
+no-data-in-repo decision cost-free, independent of L1a/L1b. Per
+[testing-patterns.md](testing-patterns.md), server tests already build songs inline from the
+serialized format:
 
 ```csharp
 var song = await Song.Create(
@@ -392,17 +458,73 @@ near-misses for the fuzzy fallback and confidence reporting. No real identifiers
 metadata, no licensing question, and better tests than a fixture would give because each case
 is explicit about what it's probing.
 
+**L1d — A test user, not just test data.**
+
+Extend the existing admin-bootstrap pattern
+([`UserManagerHelpers.SeedUsers`](../m4d/Areas/Identity/UserManagerHelpers.cs#L13), driven by
+`M4D_ADMIN_USER` / `M4D_ADMIN_PASSWORD`) with a deliberately low-privilege second account:
+`M4D_TEST_USER` / `M4D_TEST_PASSWORD`, seeded with **no roles at all**.
+
+That's enough. Voting (`DanceRating`) and tag editing are available to any authenticated,
+non-pseudo user — `[Authorize]` with no role restriction already gates the equivalent write paths
+in `SongController` (e.g. `UndoUserChanges`), and on the client, `MenuContext.canEdit` only gates
+the *further* affordances (bulk tag removal, full song edit) — see
+[TagListEditor.vue:126](../m4d/ClientApp/src/components/TagListEditor.vue#L126). A roleless
+account exercises exactly the code path real users hit, which is the one voting/tagging tests
+actually need.
+
+⚠️ **Don't give it an `@music4dance.net` email.** That domain is what `ApplicationUser.IsM4d` /
+`IsPseudo` key off ([ApplicationUser.cs:45](../m4dModels/ApplicationUser.cs#L45)) — the same switch
+that decorates batch/service accounts with `|P` and exempts them from the rating cap. An
+`@music4dance.net` test user would silently stop testing the thing it's meant to test. Use
+`{name}@example.invalid` instead, matching the samplification convention already settled on for
+[real users](#rewrite-rules-for-real-registered-users) below.
+
+A third optional account, `M4D_EDITOR_USER`, seeded with just `canEdit`, covers the tag-removal /
+full-edit surface without handing out `dbAdmin` or `showDiagnostics`. Three tiers — admin, editor,
+plain — mirror the three privilege levels real users actually occupy, and the second and third are
+cheap once the first exists.
+
+**L1e — Other things worth adding, now that this is a real running server:**
+
+- **`FileEmailSender`**, writing `.eml` files to `local/mail/` (carried over from the old L4),
+  stops being a nicety here and becomes load-bearing: it's what makes self-registration and
+  password reset testable for accounts a contributor creates *beyond* the two or three seeded
+  ones — relevant if "useful for manual testing" should include the sign-up flow itself, not only
+  voting on seeded songs.
+- **A startup banner** stating which accounts were seeded (usernames, not passwords), alongside
+  the already-settled "relevance scoring is not representative" warning — so a contributor doesn't
+  have to go read environment variables to find their own test login.
+- **A reset path.** State lives in-process (`SongIndexLocal` is in-memory), so a manual tester who
+  mangles data while poking at voting or editing needs a cheap way back to a known-good state. A
+  `dotnet run` restart already gives this for free; worth deciding whether that's sufficient or a
+  `/sandbox/reset` admin endpoint earns its keep — the one item in this whole section that's new
+  application logic rather than wiring.
+- **A real end-to-end smoke test in CI**, now cheap to add: `m4d.Sandbox` boots the full
+  controller/view/middleware pipeline against nothing but in-memory stubs, so a CI job that starts
+  it and hits home / dance-list / song-details / a vote is genuine HTTP-pipeline coverage that
+  nothing today provides — the current suite is unit tests plus a few integration tests against
+  `TestSongIndex` directly, never through `Program.cs`.
+- **Browser-driven e2e becomes possible at all.** This is the first point in the whole document
+  where Playwright-style testing of voting, tag editing, or playlist creation is available cheaply
+  — the cloud options never unlock this as cheaply, since each iteration there costs a deploy
+  cycle.
+- **Known non-goal, stated explicitly:** `MusicServiceManager`'s Spotify/iTunes enrichment path
+  (`UpdateSongAndServices`, used when importing a new song from a service playlist) makes live
+  third-party calls and isn't stubbed by this design. Voting on and editing *existing* seeded songs
+  never touches it; creating a song from a live Spotify playlist inside the sandbox still would.
+  Worth saying rather than discovering by surprise.
+
 | Pros | Cons |
 | --- | --- |
-| No Azure, no keys, no cost, **no data agreement at all** | Stub is not Azure Search — scoring and analyzer behaviour differ, so "works locally" ≠ "works in prod" |
-| Runs in CI, so the API gets real regression coverage | `SongIndexLocal` is a new component you own and must keep in step with `SongIndex` |
-| Directly benefits your own testing — Phases 3 and 7 become unit-testable | Gives them nothing to *browse* — the site is empty until L2 |
-| Turns "here is a setup guide" into "clone, build, run" | |
-| Reusable by every future contributor forever | |
+| One stub assembly serves CI and manual testing — no drift between "what the tests exercise" and "what a contributor clicks through" | `SongIndexLocal` still isn't Azure Search; ranking/relevance differences remain a known, disclosed gap |
+| The bonus (stub code/data never reaches the cloud build) falls out of project structure, not a flag someone has to remember | Second host project is real ongoing surface area, bounded by the shared-pipeline-method design in L1b |
+| Three-tier seeded users (admin/editor/plain) cover the privilege levels that actually matter for voting and editing | Renaming `Test*` classes touches ~15 existing test files — mechanical, but a real PR |
+| Unlocks browser-driven e2e for the first time in this document | The `CreateTransientContext`/InMemory gap breaks playlist creation unless deliberately resolved; `MusicServiceManager`'s live-service enrichment stays unstubbed by design |
 
-**What this deliberately does not solve:** having a populated site to click around in. That is
-L2's job, and it is a comfort-and-exploration need rather than a correctness need — which is
-exactly why L2 can wait for the developer to ask for it.
+**What this still deliberately doesn't solve:** realistic scale and messiness. The seed set is
+still the same small, already-public dataset — enough to walk every code path, not enough to feel
+like the real site. That is still [L2](#l2--samplification--terms-gated-delivery)'s job, unchanged.
 
 ### L2 — Samplification + terms-gated delivery
 
@@ -454,26 +576,16 @@ One caveat for their deployed instance: `AppConfig:Endpoint` is set in the base
 store and fail. The setup guide must tell them to blank it — a one-line trap that would
 otherwise cost them an afternoon.
 
-### L4 — Sandbox configuration profile ✅
+### L4 — Sandbox configuration profile (merged into L1)
 
-**Cost: S** (~1 day)
-
-Rather than building stubs, make "no external dependencies" a **declared, tested mode** instead
-of an accident that happens to work:
-
-- `appsettings.Sandbox.json` + a `SANDBOX_MODE` flag
-- Forces `SearchBackend: Local` (L1a), `Commerce:Enabled: false`, captcha off, and **clears
-  `AppConfig:Endpoint`** — closing the trap noted above
-- A Development-only `FileEmailSender` writing `.eml` files to `local/mail/` — genuinely
-  useful for **your** work too (password reset and confirmation flows become inspectable
-  locally), and it removes the last reason a contributor would ask for an email key
-- A startup banner stating plainly which services are stubbed
-
-| Pros | Cons |
-| --- | --- |
-| Turns an emergent property into a supported, CI-tested configuration | One more configuration path to keep working |
-| `FileEmailSender` is independently useful to you | Risk of sandbox-only bugs if it drifts from real config |
-| Makes the contributor's environment reproducible and describable | |
+Everything this used to propose — a declared no-external-dependencies mode,
+`Commerce:Enabled: false`, captcha off, clearing `AppConfig:Endpoint`, `FileEmailSender`, the
+startup banner — is now part of
+[L1](#l1--no-external-service-local-server--recommended), specifically L1b and L1e. Building the
+sandbox as its own host project (`m4d.Sandbox`) makes "no external dependencies" a separately
+buildable target with its own `appsettings.json`, rather than a flag layered onto the production
+one — which was this option's own stated risk (*"one more configuration path to keep working"*).
+Kept as a heading only so this stays discoverable by its old name.
 
 ---
 
@@ -643,8 +755,7 @@ Deliberately light, per the settled decision.
 | **L0** Setup guide + DCO, run with nothing | XS | — | Phases 1, 2, 4, 6 | ✅ **Do first** |
 | **C1** You deploy their PR to test | XS | — | End-to-end validation | ✅ **Default** |
 | **C3** Owner-scoped API diagnostics | S | — | Self-service debugging | ✅ **Pull into Phase 1** |
-| **L4** Sandbox config profile + `FileEmailSender` | S | — | Reproducible environment | ✅ Cheap, useful to you |
-| **L1** `SongIndexLocal` + inline test coverage | M | — | Phases 3, 7; CI coverage | ✅ **Highest leverage** |
+| **L1** No-external-service local server (stub assembly + `m4d.Sandbox` host + test users) | M (~4–5 days) | — | Phases 3, 7; CI coverage; manual QA; e2e | ✅ **Highest leverage** |
 | **L3** Their own cloud instance (guide) | M (docs) | Theirs | Full independence | ✅ Settled direction |
 | **L2** Samplification + terms-gated delivery | L | — | Browseable realistic data | ⏸ When they ask |
 | **C4** GitHub Actions environment-gated deploy | M | — | Self-service deploys | ⏸ Only if C1 stalls |
@@ -652,12 +763,14 @@ Deliberately light, per the settled decision.
 | **C2** `showDiagnostics` on production | XS | — | — | ❌ **Reject** |
 
 Scale: XS < ½ day · S ≈ 1 day · M ≈ 2–4 days · L ≈ 1–2 weeks. Estimates are of *your* time and
-are rough.
+are rough. L1 sits at the top of the M band once it's carrying the sandbox host and stub-layer
+promotion, not just the old `SongIndexLocal`-only scope.
 
-**The path:** L0 → C1 → C3 → L1, adding L4 alongside, with L3's setup guide written when they
-ask for a deployment of their own. That is roughly one week of your effort, covers all seven
-API phases, ships **no data to anyone**, requires no Azure access for them, and leaves behind
-reusable contributor infrastructure. L2 and C4 stay on the shelf until something specific
+**The path:** L0 → C1 → C3 → L1 (which now folds in the former L4 sandbox-profile idea), with
+L3's setup guide written when they ask for a deployment of their own. That is roughly a week and
+a half of your effort, covers all seven API phases, ships **no data to anyone**, requires no
+Azure access for them, and leaves behind reusable contributor infrastructure — usable for manual
+QA and browser-driven e2e, not just CI. L2 and C4 stay on the shelf until something specific
 demands them.
 
 ---
@@ -679,8 +792,21 @@ demands them.
 - **Does the dev-portal download belong in Phase 6, or earlier?** It shares the
   `/developers` surface with C3, so building both at once is cheaper than building them apart
   — but only if L2's sanitizer exists by then.
-- **Should `SongIndexLocal` eventually replace `TestSongIndex`?** Two in-memory index
-  implementations will drift. Worth deciding at build time rather than discovering later.
+- **Does `m4d.Sandbox` referencing `m4d.csproj` actually pick up controllers, views, and static
+  web assets for free**, the way it does for a Razor Class Library? Confirm with a throwaway
+  spike before committing to the second-project design in L1b — if it doesn't, the fallback is
+  linking `wwwroot` content explicitly, which is more plumbing but not a blocker.
+- **InMemory or LocalDB for `m4d.Sandbox`'s EF store?** InMemory is zero-install but breaks
+  playlist creation via `CreateTransientContext` (see L1b); LocalDB avoids that but reintroduces
+  the Windows-only question L0 already has to answer for contributor dev boxes anyway. Possibly
+  the same answer either way — worth deciding once, not per-project.
+- **Is there any day/window-boundary time dependency in the rating-cap logic** (`TryGetCappedDelta`
+  and friends) that would make manual voting tests flaky in the sandbox around midnight or a
+  period rollover? Flagging as a question rather than asserting either way — worth a quick check
+  before promising contributors a frictionless voting demo.
+- **Is a `/sandbox/reset` endpoint worth building**, or does a `dotnet run` restart cover the
+  "get back to a known-good state" need well enough? The former is real new code; the latter is
+  free. Decide once someone's actually hit the friction, not preemptively.
 
 ---
 
