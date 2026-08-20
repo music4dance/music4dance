@@ -13,6 +13,17 @@ using System.Text;
 
 namespace m4dModels;
 
+/// <summary>
+/// Optional extensibility point for an ISearchServiceManager that wants SongIndex.Create to
+/// hand back a specific pre-built SongIndex instance instead of constructing a real Azure-bound
+/// one. Used by m4dModels.Sandbox's LocalSearchServiceManager - see
+/// architecture/contributor-test-environments.md.
+/// </summary>
+public interface ISongIndexFactory
+{
+    SongIndex CreateSongIndex(DanceMusicCoreService dms, string id, bool isNext);
+}
+
 public class SongIndex
 {
     private static readonly TimeSpan IndexDocumentTimeout = TimeSpan.FromSeconds(20);
@@ -51,6 +62,15 @@ public class SongIndex
 
     public static SongIndex Create(DanceMusicCoreService dms, string id = null, bool isNext = false)
     {
+        // Opt-in escape hatch for hosts (e.g. the no-external-service m4d.Sandbox host, see
+        // architecture/contributor-test-environments.md) whose ISearchServiceManager wants to
+        // hand back a pre-built SongIndex instead of a real Azure-bound one. SearchServiceManager
+        // doesn't implement this, so production construction below is unchanged.
+        if (dms.SearchService is ISongIndexFactory factory)
+        {
+            return factory.CreateSongIndex(dms, id, isNext);
+        }
+
         var info = dms.SearchService.GetInfo(id);
         return isNext || info.Id == "SongIndexExperimental"
             ? new SongIndexNext(dms, id)

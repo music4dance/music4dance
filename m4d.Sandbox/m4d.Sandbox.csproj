@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\m4d\m4d.csproj" />
+    <ProjectReference Include="..\m4dModels.Sandbox\m4dModels.Sandbox.csproj" />
+  </ItemGroup>
+</Project>

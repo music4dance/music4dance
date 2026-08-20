@@ -72,6 +72,10 @@ public static class ServiceCollectionExtensions
         {
             serviceHealth.MarkUnavailable("ReCaptcha", $"{ex.GetType().Name}: {ex.Message}");
             Console.WriteLine($"WARNING: reCAPTCHA not configured: {ex.Message}");
+            // Register a no-op fallback - Login/Register/PaymentController constructor-inject
+            // IreCAPTCHASiteVerifyV2 unconditionally, which would otherwise turn "captcha not
+            // configured" into a DI activation failure (500) on those pages.
+            services.AddTransient<Owl.reCAPTCHA.v2.IreCAPTCHASiteVerifyV2, NullReCaptchaSiteVerify>();
         }
 
         return services;

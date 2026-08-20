@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace m4dModels.Tests;
+namespace m4dModels.Sandbox;
 
 internal class UserLogger : ILogger<UserManager<ApplicationUser>>
 {
@@ -50,61 +50,17 @@ internal class RoleLogger : ILogger<RoleManager<IdentityRole>>
     }
 }
 
-public class TestDSFileManager : IDanceStatsFileManager
-{
-    public Task<string> GetDances()
-    {
-        return DanceMusicTester.ReadResourceFile("test-dances.json");
-    }
-
-    public Task<string> GetGroups()
-    {
-        return DanceMusicTester.ReadResourceFile("test-groups.json");
-    }
-
-    public async Task<string> GetStats()
-    {
-        // Load the real stats file (which has proper tag groups and dance stats)
-        // but clear the cachedSongs array to start with empty cache for each test
-        var statsJson = await DanceMusicTester.ReadResourceFile("dancestatistics.txt");
-
-        if (string.IsNullOrEmpty(statsJson))
-        {
-            // Fallback to minimal valid structure if file not found
-            return @"{
-                ""dances"": [],
-                ""groups"": [],
-                ""cachedSongs"": [],
-                ""tagGroups"": []
-            }";
-        }
-
-        // Parse, clear cachedSongs, and re-serialize
-        var stats = Newtonsoft.Json.JsonConvert.DeserializeObject<DanceStatsInstance>(statsJson);
-
-        // Return the stats with empty song cache (ensures tests start fresh)
-        // but preserve tag groups and dance stats for proper tag processing
-        return Newtonsoft.Json.JsonConvert.SerializeObject(new
-        {
-            dances = stats.Dances,
-            groups = stats.Groups,
-            cachedSongs = new string[0], // Empty song cache for test isolation
-            tagGroups = stats.TagGroups
-        });
-    }
-
-    public Task WriteStats(string stats)
-    {
-        // No-op in tests - don't persist stats
-        return Task.CompletedTask;
-    }
-}
-
-public static class DanceMusicTester
+/// <summary>
+/// Assembles the full in-memory DanceMusicService object graph (EF context, Identity
+/// UserManager/RoleManager, DanceStatsManager, SongIndexLocal) shared by the existing test
+/// suite and the no-external-service m4d.Sandbox host. Promoted out of m4dModels.Tests so a
+/// running web server can use it too - see architecture/contributor-test-environments.md.
+/// </summary>
+public static class SandboxServiceFactory
 {
     public static async Task<bool> LoadDances()
     {
-        var files = new TestDSFileManager();
+        var files = new LocalDanceStatsFileManager();
         _ = DanceLibrary.Dances.Reset(
             DanceLibrary.Dances.Load(
                 await files.GetDances(), await files.GetGroups()));
@@ -200,14 +156,14 @@ public static class DanceMusicTester
             new RoleLogger()
         );
 
-        var manager = new DanceStatsManager(new TestDSFileManager());
+        var manager = new DanceStatsManager(new LocalDanceStatsFileManager());
 
         // Create SongIndex based on parameters
         SongIndex songIndex;
         if (useTestSongIndex)
         {
-            // Create TestSongIndex for integration tests
-            songIndex = new TestSongIndex();
+            // Create SongIndexLocal for integration tests / the sandbox host
+            songIndex = new SongIndexLocal();
         }
         else
         {
@@ -215,30 +171,30 @@ public static class DanceMusicTester
             var mockSongIndex = new Mock<SongIndex>();
             songIndex = mockSongIndex.Object;
         }
-        
+
         var service = new DanceMusicService(context, userManager, null, manager, songIndex);
-        
-        // If using TestSongIndex, attach the service immediately after creation
+
+        // If using SongIndexLocal, attach the service immediately after creation
         // This resolves the circular dependency before any initialization code runs
-        if (songIndex is TestSongIndex testIndex)
+        if (songIndex is SongIndexLocal localIndex)
         {
-            testIndex.AttachToService(service);
+            localIndex.AttachToService(service);
         }
-        
+
         // Only setup mocks if we're using a mock
         if (!useTestSongIndex)
         {
             _ = Mock.Get(songIndex).Setup(m => m.UpdateIndex(new List<string>())).ReturnsAsync(true);
             _ = Mock.Get(songIndex).Setup(m => m.DanceMusicService).Returns(service);
         }
-        
+
         await manager.Initialize(service);
-        
+
         if (!useTestSongIndex)
         {
             _ = Mock.Get(songIndex).Setup(m => m.DanceMusicService).Returns(service);
         }
-        
+
         await manager.Instance.FixupStats(service);
 
         await SeedRoles(roleManager);
