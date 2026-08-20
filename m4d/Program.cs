@@ -1,35 +1,5 @@
-using Azure.Identity;
-using Azure.Search.Documents;
-using Azure.Search.Documents.Indexes;
-
-using m4d.Areas.Identity;
-using m4d.Services;
-using m4d.Services.ServiceHealth;
 using m4d.Configuration;
-using m4d.Utilities;
-using m4d.ViewModels;
-
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Rewrite;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Azure;
-using Microsoft.Extensions.Configuration.AzureAppConfiguration;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.FeatureManagement;
-using Microsoft.Data.SqlClient;
-
-using Newtonsoft.Json.Serialization;
-using System.Reflection;
-using Vite.AspNetCore;
-
-using AzureSearchExtensions = Microsoft.Extensions.Azure.SearchClientBuilderExtensions;
 
 // TODO: Figure out how to add a design time factory for the context https://learn.microsoft.com/en-us/ef/core/cli/dbcontext-creation?tabs=dotnet-core-cli#from-a-design-time-factory
 //  Or maybe implement https://learn.microsoft.com/en-us/ef/core/cli/dbcontext-creation?tabs=dotnet-core-cli#from-application-services
