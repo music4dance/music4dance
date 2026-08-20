@@ -182,7 +182,7 @@
           },
           "background": {
             "activeOnStart": true,
-            "beginsPattern": "^info: m4d.Sandbox\\[0\\]$",
+            "beginsPattern": "\\bNow listening on:",
             "endsPattern": "music4dance sandbox — no external services",
           },
         },

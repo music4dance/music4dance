@@ -37,7 +37,7 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
     WebRootPath = webRootPath
 });
 
-builder.AddM4dApplication(connectionString: null, sandboxOptions);
+builder.AddM4dApplication(connectionString: null, appOptions: sandboxOptions);
 
 builder.Services.AddDbContext<DanceMusicContext>(options =>
     options.UseInMemoryDatabase(SandboxDbName));
@@ -73,7 +73,7 @@ using (var scope = app.Services.CreateScope())
     await UserManagerHelpers.SeedData(userManager, roleManager, builder.Configuration);
 }
 
-await app.UseM4dPipeline(connectionString: null, useProdDb: false, useTestDb: false, sandboxOptions);
+await app.UseM4dPipeline(connectionString: null, useProdDb: false, useTestDb: false, appOptions: sandboxOptions);
 
 // Starts Kestrel and runs every IHostedService.StartAsync - including DanceStatsHostedService,
 // which calls IDanceStatsManager.Initialize(). Song seeding needs that to have already happened
