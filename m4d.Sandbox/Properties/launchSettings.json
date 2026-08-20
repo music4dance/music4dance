@@ -7,6 +7,15 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "applicationUrl": "https://localhost:65084;http://localhost:65085"
+    },
+    "m4d.Sandbox-vite": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_VITE": "true"
+      },
+      "applicationUrl": "https://localhost:65084;http://localhost:65085"
     }
   }
 }

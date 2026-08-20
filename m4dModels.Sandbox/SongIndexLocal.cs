@@ -81,6 +81,7 @@ public class SongIndexLocal : SongIndex
         var stats = DanceMusicService.DanceStats;
         foreach (var song in songs)
         {
+            _songStore[song.SongId] = song;
             stats.UpdateSong(song);
         }
 

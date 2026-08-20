@@ -63,6 +63,7 @@
       "New-Item": true,
     },
     "powershell.cwd": "Server (.NET)",
+    "git.alwaysSignOff": true,
   },
   "extensions": {
     "recommendations": [
@@ -157,6 +158,34 @@
           "panel": "shared",
         },
         "problemMatcher": "$msCompile",
+      },
+      {
+        "label": "Sandbox: Run",
+        "type": "shell",
+        "command": "dotnet",
+        "args": ["run", "--project", "m4d.Sandbox"],
+        "detail": "The no-external-service local server - nothing to install beyond the .NET SDK. See architecture/contributor-setup.md.",
+        "isBackground": true,
+        "group": "none",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "dedicated",
+        },
+        "problemMatcher": {
+          "pattern": {
+            "regexp": "^unused$",
+            "file": 1,
+            "location": 2,
+            "message": 3,
+          },
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": "^info: m4d.Sandbox\\[0\\]$",
+            "endsPattern": "music4dance sandbox — no external services",
+          },
+        },
       },
       {
         "label": "Client: Install",
@@ -293,9 +322,26 @@
         "type": "coreclr",
         "request": "launch",
         "preLaunchTask": "Server: Build",
-        "program": "${workspaceFolder}/m4d/bin/Debug/net8.0/m4d.dll",
+        "program": "${workspaceFolder}/m4d/bin/Debug/net10.0/m4d.dll",
         "args": [],
         "cwd": "${workspaceFolder}",
+        "stopAtEntry": false,
+        "serverReadyAction": {
+          "action": "openExternally",
+          "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+        },
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Development",
+        },
+      },
+      {
+        "name": "Launch Sandbox",
+        "type": "coreclr",
+        "request": "launch",
+        "preLaunchTask": "Server: Build",
+        "program": "${workspaceFolder}/m4d.Sandbox/bin/Debug/net10.0/m4d.Sandbox.dll",
+        "args": [],
+        "cwd": "${workspaceFolder}/m4d.Sandbox",
         "stopAtEntry": false,
         "serverReadyAction": {
           "action": "openExternally",

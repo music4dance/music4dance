@@ -4,7 +4,7 @@ Two ways to get a running server, from least to most setup:
 
 | Path | Setup needed | What works |
 | --- | --- | --- |
-| **[`m4d.Sandbox`](#the-fastest-path-m4dsandbox)** | .NET 10 SDK only | Everything except real search relevance and Spotify/iTunes import |
+| **[`m4d.Sandbox`](#the-fastest-path-m4dsandbox)** | .NET 10 SDK only (Node 22 too, for a styled UI) | Everything except real search relevance and Spotify/iTunes import |
 | **[The real `m4d` app, empty database](#running-the-real-app-against-an-empty-database)** | .NET 10 SDK, Node 22, a SQL database | Everything `m4d.Sandbox` does, against the real composition root |
 
 Both need **zero third-party API keys, zero Azure access, and zero production data**. This is
@@ -20,23 +20,58 @@ configured at all.
 dotnet run --project m4d.Sandbox
 ```
 
-That's it. No connection string, no `user-secrets`, no database engine to install. It runs the
-real `m4d` controllers, views, and routes (`m4d.Sandbox` references `m4d.csproj` directly) against
-an in-memory database and an in-memory `SongIndexLocal` instead of Azure Search, seeded with the
-small, already-public, PII-cleaned dataset in
-[`m4dModels.Sandbox/TestData/`](../m4dModels.Sandbox/TestData/).
+No connection string, no `user-secrets`, no database engine to install. It runs the real `m4d`
+controllers, views, and routes (`m4d.Sandbox` references `m4d.csproj` directly, and points its
+`WebRootPath` at `m4d/wwwroot`) against an in-memory database and an in-memory `SongIndexLocal`
+instead of Azure Search, seeded with the real, already-public, PII-cleaned song/dance/tag history
+embedded from [`m4dModels.Sandbox/TestData/`](../m4dModels.Sandbox/TestData/) — a few hundred
+songs with their full edit/tag/rating history, not synthetic placeholders.
 
 On startup it prints a banner with:
 
 - The seeded accounts (usernames only) — an admin (`canTag`/`canEdit`/`showDiagnostics`/`dbAdmin`),
   an editor (`canEdit` only), and a plain roleless account for exercising the ordinary
   voting/tagging path a real user hits
+- A handful of direct links into the seeded songs (there's no free-text search yet — see
+  "Known gaps" below)
 - A warning that search relevance is not representative (it's not backed by real Azure Search)
 - A reminder that state is in-memory — `Ctrl+C` and re-run for a clean slate
 
 Set `M4D_TEST_USER` / `M4D_TEST_PASSWORD` (and optionally `M4D_EDITOR_USER` /
 `M4D_EDITOR_PASSWORD`) as environment variables before running if you want to choose your own
 credentials instead of the defaults printed in the banner.
+
+**For a styled, hydrated UI** (Bootstrap CSS, the Vue widgets), build the client once — it's a
+one-time step, not a per-run one, and it's shared: `m4d.Sandbox` serves the exact same
+`m4d/wwwroot` that the real app does, so there's no separate client build to maintain per host.
+
+```sh
+cd m4d/ClientApp && yarn install && yarn build
+```
+
+Without it the sandbox still runs — routes, forms, voting, tagging, editing all work — just as
+unstyled HTML, since `Vite:IgnoreMissingAssets` is on. `dotnet build`/`dotnet run` do **not**
+trigger this client build themselves (only CI's separate client job does); it's always a
+deliberate `yarn build` step, for both hosts.
+
+### Editing the Vue client (hot reload)
+
+`m4d` and `m4d.Sandbox` share one `ClientApp` — there's no separate client build to target per
+host. To iterate on Vue/TypeScript with hot reload instead of rebuilding via `yarn build` on
+every change, run the Vite dev server alongside whichever host you're using:
+
+```sh
+cd m4d/ClientApp && yarn dev
+```
+
+Then launch the server with the `ASPNETCORE_VITE` flag set, which proxies asset requests to that
+dev server instead of reading the static manifest. Both hosts already have a launch profile for
+this (`m4d-vite` for the real app, `m4d.Sandbox-vite` for the sandbox):
+
+```sh
+dotnet run --project m4d --launch-profile m4d-vite
+dotnet run --project m4d.Sandbox --launch-profile m4d.Sandbox-vite
+```
 
 **Known gaps**, so they read as expected rather than as bugs:
 

@@ -24,9 +24,9 @@ continue to provide a [simpler reporting option](https://music4dance.blog/bug-re
 
 ### Code
 
-Even though the project is now open source, there are some additional hurdles to getting sandboxed development environments set up.
-If you are interested in contributing code, please create a feature with your idea and note that you would like to implement it. That will increase
-the priority of figuring out ways to get past the blocking issues.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the DCO sign-off process and a link to the
+contributor setup guide, which gets you a running server with nothing installed but the .NET
+SDK.
 
 ## Deployment
 

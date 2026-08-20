@@ -67,6 +67,18 @@ public static class SandboxServiceFactory
         return true;
     }
 
+    /// <summary>
+    /// The real, already-public, PII-cleaned song history embedded in dancestatistics.txt's
+    /// "cachedSongs" array - each entry is a full serialized song (Song.ToString()/Serialize()
+    /// format, "SongId={guid}\t..."), suitable for Song.Create.
+    /// </summary>
+    public static async Task<List<string>> LoadCachedSongs()
+    {
+        var json = await ReadResourceFile("dancestatistics.txt");
+        var stats = Newtonsoft.Json.Linq.JObject.Parse(json);
+        return stats["cachedSongs"]?.ToObject<List<string>>() ?? [];
+    }
+
     public static string ReplaceTime(string s)
     {
         if (string.IsNullOrWhiteSpace(s))

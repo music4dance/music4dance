@@ -86,11 +86,12 @@ using (var scope = app.Services.CreateScope())
 {
     var sp = scope.ServiceProvider;
 
-    // dancestatistics.txt (the sandbox's PII-cleaned dataset) is the dance-stats cache, not
-    // actual song records - LocalDanceStatsFileManager deliberately clears its cachedSongs for a
-    // clean starting state. There are no real songs to seed, so construct a handful with
-    // made-up metadata via the same Song.Create serialized-format path tests use (see
-    // testing-patterns.md / CLAUDE.md), so there's something to vote/tag/edit on manually.
+    // dancestatistics.txt (the sandbox's already-public, PII-cleaned dataset) carries a real
+    // song history in its "cachedSongs" array - LocalDanceStatsFileManager clears that array
+    // before handing the file to DanceStatsManager (so the stats cache starts empty each run),
+    // but the same entries are exactly what SeedSongs loads here into the actual song database,
+    // via the same Song.Create serialized-format path tests use (see testing-patterns.md /
+    // CLAUDE.md).
     var dms = new DanceMusicService(
         sp.GetRequiredService<DanceMusicContext>(), sp.GetRequiredService<UserManager<ApplicationUser>>(),
         sp.GetRequiredService<ISearchServiceManager>(), sp.GetRequiredService<IDanceStatsManager>());
@@ -104,24 +105,27 @@ await app.WaitForShutdownAsync();
 
 static async Task<List<(Guid Id, string Title)>> SeedSongs(DanceMusicService dms)
 {
-    string[] seeds =
-    [
-        ".Create=\tUser=admin\tTitle=Neon Rewind\tArtist=The Cassette Kids\tTempo=100.0\tDanceRating=SLS+1",
-        ".Create=\tUser=admin\tTitle=Paper Skyline\tArtist=Marlow & Vega\tTempo=124.0\tDanceRating=CHA+1",
-        ".Create=\tUser=admin\tTitle=Low Tide Radio\tArtist=Sable Harbor\tTempo=88.0\tDanceRating=SFT+1",
-        ".Create=\tUser=admin\tTitle=Glass Avenue\tArtist=Nine Parallel\tTempo=180.0\tDanceRating=JIV+1",
-        ".Create=\tUser=admin\tTitle=Copper & Rust\tArtist=The Lowlight Sessions\tTempo=176.0\tDanceRating=WCS+1",
-    ];
+    var rawSongs = await SandboxServiceFactory.LoadCachedSongs();
 
-    var seeded = new List<(Guid, string)>();
-    foreach (var seed in seeds)
+    var songs = new List<Song>();
+    foreach (var raw in rawSongs)
     {
-        var song = await Song.Create(seed, dms);
-        await dms.SongIndex.SaveSong(song);
-        seeded.Add((song.SongId, song.Title));
+        try
+        {
+            songs.Add(await Song.Create(raw, dms));
+        }
+        catch (Exception ex)
+        {
+            // A handful of historical entries may not survive being replayed against the
+            // sandbox's trimmed dance/tag registry - skip and keep going rather than let one
+            // bad entry take down every dev's clean-slate startup.
+            Console.WriteLine($"WARNING: Skipped a seed song that failed to load: {ex.Message}");
+        }
     }
 
-    return seeded;
+    await dms.SongIndex.SaveSongs(songs);
+
+    return [.. songs.Select(s => (s.SongId, s.Title))];
 }
 
 static void PrintStartupBanner(
@@ -142,10 +146,14 @@ static void PrintStartupBanner(
     PrintSeededUser(configuration, "plain, roleless", "voting/tagging as an ordinary user", "M4D_TEST_USER");
     PrintSeededUser(configuration, "canEdit only", "bulk tag removal / full song edit", "M4D_EDITOR_USER");
     Console.WriteLine();
-    Console.WriteLine(" Seeded songs (no free-text search yet - go straight to these):");
-    foreach (var (id, title) in seededSongs)
+    Console.WriteLine($" Seeded {seededSongs.Count} songs (no free-text search yet - here are a few to start with):");
+    foreach (var (id, title) in seededSongs.Take(8))
     {
         Console.WriteLine($"   - {baseUrl}/Song/Details/{id}  ({title})");
+    }
+    if (seededSongs.Count > 8)
+    {
+        Console.WriteLine($"   ... and {seededSongs.Count - 8} more, only reachable directly by SongId until search lands");
     }
     Console.WriteLine();
     Console.WriteLine(" ⚠ Search relevance is NOT representative - SongIndexLocal is an in-memory");
