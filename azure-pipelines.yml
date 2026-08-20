@@ -78,13 +78,19 @@ steps:
     displayName: "Build .NET project ($(buildConfiguration))"
 
   # ===== PUBLISH (Self-Contained) =====
+  # projects is pinned to m4d/m4d.csproj rather than relying on publishWebProjects: true
+  # solution-wide auto-discovery, so the sandbox stub host (m4d.Sandbox, a second Web-SDK
+  # project - see architecture/contributor-test-environments.md) is never a publish/deploy
+  # candidate. m4d.csproj itself has no ProjectReference to the *.Sandbox projects, so this
+  # keeps their code and seed data structurally unreachable from the deployed artifact.
   - task: DotNetCoreCLI@2
     displayName: "Publish web project (self-contained)"
     condition: eq(variables['useSelfContained'], true)
     inputs:
       command: "publish"
+      publishWebProjects: false
+      projects: "m4d/m4d.csproj"
       arguments: "--configuration $(buildConfiguration) --runtime linux-x64 --self-contained true /p:SelfContained=true"
-      publishWebProjects: true
 
   # ===== PUBLISH (Framework-Dependent) =====
   - task: DotNetCoreCLI@2
@@ -92,8 +98,9 @@ steps:
     condition: eq(variables['useSelfContained'], false)
     inputs:
       command: "publish"
+      publishWebProjects: false
+      projects: "m4d/m4d.csproj"
       arguments: "--configuration $(buildConfiguration) --runtime linux-x64"
-      publishWebProjects: true
 
   # ===== DEPLOY WITH CONFIGURATION =====
   # Deploy and configure app settings in a single atomic operation

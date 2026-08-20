@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 using System.Diagnostics;
@@ -16,16 +17,30 @@ public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : Id
 
     private string ConnectionString { get; } = options.FindExtension<SqlServerOptionsExtension>()?.ConnectionString;
 
+    // Lets the no-external-service sandbox host (m4d.Sandbox, see
+    // architecture/contributor-test-environments.md) share an in-memory database across
+    // transient contexts the same way the real app shares a SQL Server connection string -
+    // without this, playlist creation (PlayListController.Update) silently breaks under
+    // UseInMemoryDatabase.
+    private string InMemoryStoreName { get; } = options.FindExtension<InMemoryOptionsExtension>()?.StoreName;
+
     public DanceMusicContext CreateTransientContext()
     {
-        if (ConnectionString == null)
+        var builder = new DbContextOptionsBuilder<DanceMusicContext>();
+
+        if (ConnectionString != null)
+        {
+            _ = builder.UseSqlServer(ConnectionString);
+            _ = builder.EnableSensitiveDataLogging();
+        }
+        else if (InMemoryStoreName != null)
+        {
+            _ = builder.UseInMemoryDatabase(InMemoryStoreName);
+        }
+        else
         {
             throw new Exception("Cannot create a new dbcontext from a test context");
         }
-
-        var builder = new DbContextOptionsBuilder<DanceMusicContext>();
-        _ = builder.UseSqlServer(ConnectionString);
-        _ = builder.EnableSensitiveDataLogging();
 
         return new DanceMusicContext(builder.Options);
     }

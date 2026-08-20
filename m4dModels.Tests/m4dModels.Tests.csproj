@@ -5,37 +5,6 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
   <ItemGroup>
-    <None Remove="TestData\dancestatistics.txt" />
-    <None Remove="TestData\test-dances.json" />
-    <None Remove="TestData\test-dances.txt" />
-    <None Remove="TestData\test-groups.json" />
-    <None Remove="TestData\test-searches.txt" />
-    <None Remove="TestData\test-tags.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="TestData\test-groups.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TestData\test-dances.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TestData\dancestatistics.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TestData\test-dances.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TestData\test-searches.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TestData\test-tags.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TestData\test-users-clean.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Moq" />
@@ -50,5 +19,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\m4dModels\m4dModels.csproj" />
+    <ProjectReference Include="..\m4dModels.Sandbox\m4dModels.Sandbox.csproj" />
   </ItemGroup>
 </Project>
