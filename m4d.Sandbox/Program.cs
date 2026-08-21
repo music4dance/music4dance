@@ -146,7 +146,7 @@ static void PrintStartupBanner(
     PrintSeededUser(configuration, "plain, roleless", "voting/tagging as an ordinary user", "M4D_TEST_USER");
     PrintSeededUser(configuration, "canEdit only", "bulk tag removal / full song edit", "M4D_EDITOR_USER");
     Console.WriteLine();
-    Console.WriteLine($" Seeded {seededSongs.Count} songs (no free-text search yet - here are a few to start with):");
+    Console.WriteLine($" Seeded {seededSongs.Count} songs (here are a few to start with):");
     foreach (var (id, title) in seededSongs.Take(8))
     {
         Console.WriteLine($"   - {baseUrl}/Song/Details/{id}  ({title})");
@@ -157,7 +157,7 @@ static void PrintStartupBanner(
     }
     Console.WriteLine();
     Console.WriteLine(" ⚠ Search relevance is NOT representative - SongIndexLocal is an in-memory");
-    Console.WriteLine("   stand-in for Azure Search with no free-text search/paging implemented yet.");
+    Console.WriteLine("   stand-in for Azure Search using simple substring/LINQ matching, not real ranking.");
     Console.WriteLine(" ⚠ All state is in-memory. Ctrl+C and re-run for a clean slate.");
     Console.WriteLine("========================================================================");
     Console.WriteLine();

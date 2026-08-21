@@ -62,22 +62,25 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
             }
         }
 
-        var p = SongIndex.AzureParmsFromFilter(
-            await UserMapper.DeanonymizeFilter(Filter, UserManager, ServiceHealth), PageSize);
-
-        p.IncludeTotalCount = true;
+        var deanonymized = await UserMapper.DeanonymizeFilter(Filter, UserManager, ServiceHealth);
 
         await LogSearch(Filter);
 
         if (userQuery.IsVoted && Filter.DanceQuery.Dances.Any())
         {
+            var p = SongIndex.AzureParmsFromFilter(deanonymized, PageSize);
             return await VoteSearch(p);
         }
 
         try
         {
-            return await SongIndex.Search(
-                Filter.SearchString, p, Filter.CruftFilter);
+            // Routed through the SongFilter overload (rather than flattening to SearchOptions
+            // here as before) so index implementations that want the structured, already-parsed
+            // query objects - see SongIndexLocal.Search in the sandbox - can use them directly
+            // instead of re-deriving them from OData filter text. SongIndex's base implementation
+            // still just flattens via AzureParmsFromFilter internally, so Azure-backed behavior
+            // is unchanged.
+            return await SongIndex.Search(deanonymized, PageSize, Filter.CruftFilter);
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("Azure Search service is unavailable") ||
                                                    ex.Message.Contains("Client registration requires a TokenCredential"))
