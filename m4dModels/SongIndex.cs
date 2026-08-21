@@ -1131,7 +1131,7 @@ public class SongIndex
     #endregion
 
     #region Search
-    public async Task<SearchResults> Search(
+    public virtual async Task<SearchResults> Search(
     SongFilter filter, int? pageSize = null, CruftFilter cruft = CruftFilter.NoCruft)
     {
         if (filter.CruftFilter != CruftFilter.NoCruft)
