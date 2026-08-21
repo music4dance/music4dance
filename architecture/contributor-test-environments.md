@@ -1,7 +1,8 @@
 # Contributor Test Environments
 
-**Status:** 🚧 In Progress — L0 + L1 shipped in
-[PR #250](https://github.com/music4dance/music4dance/pull/250); L2+ still proposed
+**Status:** 🚧 In Progress — L0 + L1a-e shipped in
+[PR #250](https://github.com/music4dance/music4dance/pull/250); L1f (Option A) implemented
+since; L2+ still proposed
 
 **Context:** An independent iOS developer has offered to implement
 [public-api-authorization.md](public-api-authorization.md). There is no business or
@@ -12,9 +13,9 @@ This document lays out the options, what each costs, and a recommended sequence.
 
 It also closes a promise already in the [README](../README.md):
 
-> *"there are some additional hurdles to getting sandboxed development environments set up.
+> _"there are some additional hurdles to getting sandboxed development environments set up.
 > If you are interested in contributing code, please create a feature with your idea …
-> That will increase the priority of figuring out ways to get past the blocking issues."*
+> That will increase the priority of figuring out ways to get past the blocking issues."_
 
 This is that priority arriving. Whatever gets built here is reusable for every future
 contributor, which changes the cost calculus — it is infrastructure, not a favor.
@@ -23,16 +24,16 @@ contributor, which changes the cost calculus — it is infrastructure, not a fav
 
 ## Decisions Settled
 
-| Question | Decision |
-| --- | --- |
-| **Contribution licensing** | **DCO**, not a CLA. Keep the process light — `Signed-off-by` enforced by a GitHub check |
-| **Sample data in the repo** | **No.** No song data is committed, sanitized or otherwise. See [L1](#l1--no-external-service-local-server--recommended) for how CI coverage survives that |
-| **Sample data delivery** | Out-of-band initially; **a dev-portal download gated on accepting testing-only terms** long term |
-| **Sanitizer form factor** | **Admin endpoint** now, alongside `BackupDatabase`; a dev-portal endpoint later, feeding the download above |
-| **Service accounts in samples** | **Not obfuscated** — `batch*`, `tempo-bot`, `dgsnure`, `@music4dance.net`. They are machine identities, not personal data. ⚠️ **Spotify proxy users are the exception** — see [the catch](#the-spotify-proxy-user-catch) |
-| **Realistic-scale environment** | The developer creates **their own** Azure deployment and search service, loaded with a samplified dataset |
-| **Search relevance honesty** | The local index must state plainly at startup that scoring is not representative |
-| **Free Azure Search tier** | Ours is consumed (site search could be moved to the paid subscription to free it, but that solves a problem we no longer have). **A new subscription carries its own free tier**, so this constraint lands on their side, not ours |
+| Question                        | Decision                                                                                                                                                                                                                           |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Contribution licensing**      | **DCO**, not a CLA. Keep the process light — `Signed-off-by` enforced by a GitHub check                                                                                                                                            |
+| **Sample data in the repo**     | **No.** No song data is committed, sanitized or otherwise. See [L1](#l1--no-external-service-local-server--recommended) for how CI coverage survives that                                                                          |
+| **Sample data delivery**        | Out-of-band initially; **a dev-portal download gated on accepting testing-only terms** long term                                                                                                                                   |
+| **Sanitizer form factor**       | **Admin endpoint** now, alongside `BackupDatabase`; a dev-portal endpoint later, feeding the download above                                                                                                                        |
+| **Service accounts in samples** | **Not obfuscated** — `batch*`, `tempo-bot`, `dgsnure`, `@music4dance.net`. They are machine identities, not personal data. ⚠️ **Spotify proxy users are the exception** — see [the catch](#the-spotify-proxy-user-catch)           |
+| **Realistic-scale environment** | The developer creates **their own** Azure deployment and search service, loaded with a samplified dataset                                                                                                                          |
+| **Search relevance honesty**    | The local index must state plainly at startup that scoring is not representative                                                                                                                                                   |
+| **Free Azure Search tier**      | Ours is consumed (site search could be moved to the paid subscription to free it, but that solves a problem we no longer have). **A new subscription carries its own free tier**, so this constraint lands on their side, not ours |
 
 **Still open:** what the developer actually wants — you're asking. That answer may collapse
 the cloud branch entirely.
@@ -52,36 +53,36 @@ is the work that matters most.** That alignment is lucky and should be exploited
 
 **Recommended sequence:**
 
-| Rung | What | Unblocks | Cost | Status |
-| --- | --- | --- | --- | --- |
-| **0** | Contributor setup guide + DCO; empty local DB, no keys, no data | API Phases 1–2, 4, 6 | **XS** | ✅ Shipped ([PR #250](https://github.com/music4dance/music4dance/pull/250)) |
-| **1** | No-external-service local server: shared stub assembly, `m4d.Sandbox` host, seeded test users | API Phases 3, 7; manual QA; e2e | **M** | ✅ Shipped ([PR #250](https://github.com/music4dance/music4dance/pull/250)) — minus interactive search/filter/sort, see [L1f](#l1f--search-filter-and-sort-for-songindexlocal-new-fast-follow) |
-| **2** | You deploy their PR branch to the existing test site on request | End-to-end iOS validation | **XS** | 📋 Proposed |
-| **3** | Owner-scoped API diagnostics (their `client_id` only) | Self-service debugging | **S** | 📋 Proposed |
-| **4** | Samplification endpoint + terms-gated delivery | Browseable realistic dataset | **L** | 📋 Proposed |
-| **5** | GitHub Actions environment-gated deploy | Self-service test deploys | **M** | 📋 Proposed |
-| **6** | Their own Azure deployment (guide only) | Full independence | **M** (docs) | 📋 Proposed |
+| Rung  | What                                                                                          | Unblocks                        | Cost         | Status                                                                                                                                                                                           |
+| ----- | --------------------------------------------------------------------------------------------- | ------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **0** | Contributor setup guide + DCO; empty local DB, no keys, no data                               | API Phases 1–2, 4, 6            | **XS**       | ✅ Shipped ([PR #250](https://github.com/music4dance/music4dance/pull/250))                                                                                                                      |
+| **1** | No-external-service local server: shared stub assembly, `m4d.Sandbox` host, seeded test users | API Phases 3, 7; manual QA; e2e | **M**        | ✅ Shipped ([PR #250](https://github.com/music4dance/music4dance/pull/250)); interactive search/filter/sort followed, see [L1f](#l1f--search-filter-and-sort-for-songindexlocal-new-fast-follow) |
+| **2** | You deploy their PR branch to the existing test site on request                               | End-to-end iOS validation       | **XS**       | 📋 Proposed                                                                                                                                                                                      |
+| **3** | Owner-scoped API diagnostics (their `client_id` only)                                         | Self-service debugging          | **S**        | 📋 Proposed                                                                                                                                                                                      |
+| **4** | Samplification endpoint + terms-gated delivery                                                | Browseable realistic dataset    | **L**        | 📋 Proposed                                                                                                                                                                                      |
+| **5** | GitHub Actions environment-gated deploy                                                       | Self-service test deploys       | **M**        | 📋 Proposed                                                                                                                                                                                      |
+| **6** | Their own Azure deployment (guide only)                                                       | Full independence               | **M** (docs) | 📋 Proposed                                                                                                                                                                                      |
 
 Rungs 0–3 total a bit over a week — rung 1 grew once it started carrying manual QA and e2e as
 well as CI coverage — and still cover the realistic need. **Rung 4 is now the only source of
-browseable data**, since nothing ships in the repo — but it is needed for *interactive*
+browseable data**, since nothing ships in the repo — but it is needed for _interactive_
 development, not for correctness testing, so it still isn't a prerequisite for starting.
 
 **Since this was written:** L0 and L1 shipped in
 [PR #250](https://github.com/music4dance/music4dance/pull/250) largely as planned, plus a few
 real bugs the sandbox build surfaced along the way (see the "Shipped" notes inside L0/L1 below).
-One piece of L1's original scope was deliberately deferred rather than shipped: `SongIndexLocal`
-has no free-text search, dance/tag filtering, or sort yet, so the sandbox can only be browsed via
-direct links to seeded songs. That gap now has its own options analysis at
-[L1f](#l1f--search-filter-and-sort-for-songindexlocal-new-fast-follow).
+One piece of L1's original scope was deliberately deferred rather than shipped in that PR:
+`SongIndexLocal` had no free-text search, dance/tag filtering, or sort, so the sandbox could
+only be browsed via direct links to seeded songs. That gap has since been closed for the
+filter/sort/browse path — see [L1f](#l1f--search-filter-and-sort-for-songindexlocal-new-fast-follow).
 
 **Two assumptions worth killing early**, because both inflate the plan:
 
-1. *"They need a cloud instance to test the iOS app."* No. `ASWebAuthenticationSession`
+1. _"They need a cloud instance to test the iOS app."_ No. `ASWebAuthenticationSession`
    against a local server works fine — a dev cert on the LAN, or a Cloudflare/ngrok/Tailscale
    tunnel for a real HTTPS hostname. The `danzq://` redirect never touches our infrastructure.
-2. *"They need production-like data to build the API."* No. The resolve cascade needs the
-   *shape* of the data — songs carrying ISRC / iTunes / Spotify service IDs — and tests can
+2. _"They need production-like data to build the API."_ No. The resolve cascade needs the
+   _shape_ of the data — songs carrying ISRC / iTunes / Spotify service IDs — and tests can
    construct that inline. Realistic data is for exploring the site, not for proving the code.
 
 ---
@@ -91,15 +92,15 @@ direct links to seeded songs. That gap now has its own options analysis at
 Mapping the phases from [public-api-authorization.md](public-api-authorization.md#implementation-phases)
 onto environment needs:
 
-| Phase | SQL | Song data | Azure Search | 3rd-party keys | Deployed instance |
-| --- | --- | --- | --- | --- | --- |
-| 1. Foundation (OpenIddict, schema, `/v1/dances`) | ✅ | — | — | — | — |
-| 2. Authorization flow (**security-critical**) | ✅ | — | — | — | — |
-| 3. Read API (`resolve` cascade) | ✅ | constructed | stub OK | — | — |
-| 4. Metering / tier policy | ✅ | — | — | — | — |
-| 5. Trial tier (DeviceCheck) | ✅ | — | — | Apple only¹ | helpful |
-| 6. Developer self-serve `/developers` | ✅ | — | — | — | — |
-| 7. Voting write API | ✅ | constructed | stub OK | — | — |
+| Phase                                            | SQL | Song data   | Azure Search | 3rd-party keys | Deployed instance |
+| ------------------------------------------------ | --- | ----------- | ------------ | -------------- | ----------------- |
+| 1. Foundation (OpenIddict, schema, `/v1/dances`) | ✅  | —           | —            | —              | —                 |
+| 2. Authorization flow (**security-critical**)    | ✅  | —           | —            | —              | —                 |
+| 3. Read API (`resolve` cascade)                  | ✅  | constructed | stub OK      | —              | —                 |
+| 4. Metering / tier policy                        | ✅  | —           | —            | —              | —                 |
+| 5. Trial tier (DeviceCheck)                      | ✅  | —           | —            | Apple only¹    | helpful           |
+| 6. Developer self-serve `/developers`            | ✅  | —           | —            | —              | —                 |
+| 7. Voting write API                              | ✅  | constructed | stub OK      | —              | —                 |
 
 ¹ Apple DeviceCheck / App Attest keys belong to **their** Apple developer team, not ours —
 nothing to provision on our side.
@@ -116,18 +117,18 @@ and none of it is song data, so the no-commit decision doesn't touch it.
 
 These shape every option below. Several rule out the obvious approach.
 
-| Constraint | Evidence | Consequence |
-| --- | --- | --- |
-| **`showDiagnostics` is a full-database-export role, not a viewer role** | [AdminController.cs:1732](../m4d/Controllers/AdminController.cs#L1732) `BackupDatabase` and [:1846](../m4d/Controllers/AdminController.cs#L1846) `BackupTail` are gated on it, and [`SerializeUsers`](../m4dModels/DanceMusicService.cs#L841) emits **password hashes, security stamps, emails, and external-provider keys** for every user | **Cannot be granted on production.** Reusing it as-is would hand over the entire user table. Needs a new narrow capability instead — see [C3](#c3--owner-scoped-api-diagnostics-recommended) |
-| **Azure AI Search RBAC has no index-level scope** | Search is authenticated by `DefaultAzureCredential` / RBAC, not API keys ([Program.cs:308-334](../m4d/Program.cs#L308)); data-plane roles are assignable at service scope only | There is **no way** to grant read on `songs-test-3` without also granting read on `songs-prod-3` |
-| **Test and production indexes live on the same search service** | [appsettings.json](../m4d/appsettings.json) — `SongIndexProd-*` and `SongIndexTest-*` both point at `music4dance.search.windows.net` | Compounds the above. Settled by having them run their own service in their own subscription. (`PageIndex` already sits on a second service, `m4d.search.windows.net`, so multi-service is established practice) |
-| **Every third-party dependency already fails soft** | `AddGoogleWithResilience` / `AddFacebookWithResilience` / `AddSpotifyWithResilience` ([AuthenticationBuilderExtensions.cs](../m4d/Configuration/AuthenticationBuilderExtensions.cs)), `AddEmailSenderWithResilience` / `AddReCaptchaWithResilience` ([ServiceCollectionExtensions.cs](../m4d/Configuration/ServiceCollectionExtensions.cs)) each catch, `MarkUnavailable`, warn, and continue; email falls back to `NullEmailSender` | **The app already boots with no third-party keys at all.** The service-resilience work (phases 1–7) accidentally solved most of the onboarding problem. No stub framework needs building |
-| **Azure App Configuration / Key Vault are skipped in Development** | [Program.cs:222](../m4d/Program.cs#L222) — `if (!isDevelopment)` guards the whole `AddAzureAppConfiguration` block | Local development reads user secrets and `appsettings.Development.json`. A contributor needs **no access to our config store**, which would otherwise be a hard blocker |
-| **Admin bootstrap already exists** | [`UserManagerHelpers.SeedUsers`](../m4d/Areas/Identity/UserManagerHelpers.cs#L13) creates `M4D_ADMIN_USER` with `EmailConfirmed = true` and grants `canTag`, `canEdit`, `showDiagnostics`, `dbAdmin` | Their local admin account is **two environment variables**. No need to carry over a real password hash, and no email round-trip to confirm the account |
-| **Some usernames are load-bearing in code** | `ChunkedSong.IsBatch` matches `batch\|P` / `batch-*`; `tempo-bot` is cap-exempt ([DanceRatingCapTests.cs](../m4dModels.Tests/DanceRatingCapTests.cs)); `dgsnure` is hardcoded in `s_unconfirmedVoteSources` ([unconfirmed-dance-votes.md](unconfirmed-dance-votes.md)); `IsPseudo` derives from the email domain ([ApplicationUser.cs:43](../m4dModels/ApplicationUser.cs#L43)) | Preserving these verbatim is **required for correctness**, independent of the privacy argument. See [Samplification](#samplification-design) |
-| **SQL Server coupling is deeper than the connection string** | `UseSqlServer` in [DanceMusicContext.cs:27](../m4dModels/DanceMusicContext.cs#L27) and four sites in `Program.cs`; `ExecuteSqlRawAsync("TRUNCATE TABLE UsageLog")` at [AdminController.cs:1184](../m4d/Controllers/AdminController.cs#L1184); `SqlException` caught by name in five resilience paths; 13 migrations emitting `nvarchar(max)` / `nvarchar(450)` | **SQLite is not a drop-in.** See [the macOS question](#the-macos-database-question) |
-| **The data is not MIT licensed** | [README.md](../README.md) — *"the data running on the site is not included in that license"* | Sharing a sample is a **licensing decision**, not only a privacy one. Settled: nothing in the repo; terms-gated delivery only |
-| **There is no `CONTRIBUTING.md` and no DCO check** | Repo root | Nothing currently establishes rights to merge an outside contribution to an auth system |
+| Constraint                                                              | Evidence                                                                                                                                                                                                                                                                                                                                                                                                                             | Consequence                                                                                                                                                                                                     |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`showDiagnostics` is a full-database-export role, not a viewer role** | [AdminController.cs:1732](../m4d/Controllers/AdminController.cs#L1732) `BackupDatabase` and [:1846](../m4d/Controllers/AdminController.cs#L1846) `BackupTail` are gated on it, and [`SerializeUsers`](../m4dModels/DanceMusicService.cs#L841) emits **password hashes, security stamps, emails, and external-provider keys** for every user                                                                                          | **Cannot be granted on production.** Reusing it as-is would hand over the entire user table. Needs a new narrow capability instead — see [C3](#c3--owner-scoped-api-diagnostics-recommended)                    |
+| **Azure AI Search RBAC has no index-level scope**                       | Search is authenticated by `DefaultAzureCredential` / RBAC, not API keys ([Program.cs:308-334](../m4d/Program.cs#L308)); data-plane roles are assignable at service scope only                                                                                                                                                                                                                                                       | There is **no way** to grant read on `songs-test-3` without also granting read on `songs-prod-3`                                                                                                                |
+| **Test and production indexes live on the same search service**         | [appsettings.json](../m4d/appsettings.json) — `SongIndexProd-*` and `SongIndexTest-*` both point at `music4dance.search.windows.net`                                                                                                                                                                                                                                                                                                 | Compounds the above. Settled by having them run their own service in their own subscription. (`PageIndex` already sits on a second service, `m4d.search.windows.net`, so multi-service is established practice) |
+| **Every third-party dependency already fails soft**                     | `AddGoogleWithResilience` / `AddFacebookWithResilience` / `AddSpotifyWithResilience` ([AuthenticationBuilderExtensions.cs](../m4d/Configuration/AuthenticationBuilderExtensions.cs)), `AddEmailSenderWithResilience` / `AddReCaptchaWithResilience` ([ServiceCollectionExtensions.cs](../m4d/Configuration/ServiceCollectionExtensions.cs)) each catch, `MarkUnavailable`, warn, and continue; email falls back to `NullEmailSender` | **The app already boots with no third-party keys at all.** The service-resilience work (phases 1–7) accidentally solved most of the onboarding problem. No stub framework needs building                        |
+| **Azure App Configuration / Key Vault are skipped in Development**      | [Program.cs:222](../m4d/Program.cs#L222) — `if (!isDevelopment)` guards the whole `AddAzureAppConfiguration` block                                                                                                                                                                                                                                                                                                                   | Local development reads user secrets and `appsettings.Development.json`. A contributor needs **no access to our config store**, which would otherwise be a hard blocker                                         |
+| **Admin bootstrap already exists**                                      | [`UserManagerHelpers.SeedUsers`](../m4d/Areas/Identity/UserManagerHelpers.cs#L13) creates `M4D_ADMIN_USER` with `EmailConfirmed = true` and grants `canTag`, `canEdit`, `showDiagnostics`, `dbAdmin`                                                                                                                                                                                                                                 | Their local admin account is **two environment variables**. No need to carry over a real password hash, and no email round-trip to confirm the account                                                          |
+| **Some usernames are load-bearing in code**                             | `ChunkedSong.IsBatch` matches `batch\|P` / `batch-*`; `tempo-bot` is cap-exempt ([DanceRatingCapTests.cs](../m4dModels.Tests/DanceRatingCapTests.cs)); `dgsnure` is hardcoded in `s_unconfirmedVoteSources` ([unconfirmed-dance-votes.md](unconfirmed-dance-votes.md)); `IsPseudo` derives from the email domain ([ApplicationUser.cs:43](../m4dModels/ApplicationUser.cs#L43))                                                      | Preserving these verbatim is **required for correctness**, independent of the privacy argument. See [Samplification](#samplification-design)                                                                    |
+| **SQL Server coupling is deeper than the connection string**            | `UseSqlServer` in [DanceMusicContext.cs:27](../m4dModels/DanceMusicContext.cs#L27) and four sites in `Program.cs`; `ExecuteSqlRawAsync("TRUNCATE TABLE UsageLog")` at [AdminController.cs:1184](../m4d/Controllers/AdminController.cs#L1184); `SqlException` caught by name in five resilience paths; 13 migrations emitting `nvarchar(max)` / `nvarchar(450)`                                                                       | **SQLite is not a drop-in.** See [the macOS question](#the-macos-database-question)                                                                                                                             |
+| **The data is not MIT licensed**                                        | [README.md](../README.md) — _"the data running on the site is not included in that license"_                                                                                                                                                                                                                                                                                                                                         | Sharing a sample is a **licensing decision**, not only a privacy one. Settled: nothing in the repo; terms-gated delivery only                                                                                   |
+| **There is no `CONTRIBUTING.md` and no DCO check**                      | Repo root                                                                                                                                                                                                                                                                                                                                                                                                                            | Nothing currently establishes rights to merge an outside contribution to an auth system                                                                                                                         |
 
 ---
 
@@ -138,16 +139,16 @@ These shape every option below. Several rule out the obvious approach.
 Worth stating plainly, because the two get conflated and the conflation changes the plan.
 **SQL Server Express LocalDB is the real SQL Server engine** — `sqlservr.exe`, the same
 database family as the production Azure SQL — just packaged to start on demand as a user-mode
-process with file-based `.mdf` attachment and no service to administer. SQLite shares *none*
+process with file-based `.mdf` attachment and no service to administer. SQLite shares _none_
 of its code: it is an embedded C library that runs in-process, with its own SQL dialect and
 its own type system.
 
-| | LocalDB | SQLite |
-| --- | --- | --- |
-| Engine | SQL Server (`sqlservr.exe`), separate process | Embedded C library, in-process |
-| Provider | `Microsoft.Data.SqlClient` | `Microsoft.Data.Sqlite` |
-| Dialect | Full T-SQL | Own dialect; type affinity, not strict typing |
-| Platform | **Windows only** | Cross-platform, native ARM64 |
+|          | LocalDB                                       | SQLite                                        |
+| -------- | --------------------------------------------- | --------------------------------------------- |
+| Engine   | SQL Server (`sqlservr.exe`), separate process | Embedded C library, in-process                |
+| Provider | `Microsoft.Data.SqlClient`                    | `Microsoft.Data.Sqlite`                       |
+| Dialect  | Full T-SQL                                    | Own dialect; type affinity, not strict typing |
+| Platform | **Windows only**                              | Cross-platform, native ARM64                  |
 
 The confusion is understandable — both are "lightweight, file-based, zero-admin" — but they
 have no common ancestry.
@@ -181,7 +182,7 @@ not just the connection string:
 - **Five resilience paths catch `Microsoft.Data.SqlClient.SqlException` by type**
   (`Program.cs:487`, `DMController.cs:46`, `UserMapper.cs:238`, `DanceStatsInstance.cs:219`
   and `:290`). On SQLite these become `SqliteException` and the degradation machinery
-  silently stops engaging — the failure mode is *invisible*, which is the worst kind
+  silently stops engaging — the failure mode is _invisible_, which is the worst kind
 - **Collation semantics differ.** SQL Server's default collation is case-insensitive; SQLite's
   `=` is case-sensitive and its `LIKE` is case-insensitive for ASCII only. Username lookup and
   title/artist matching depend on case-insensitive comparison, so this produces bugs that
@@ -197,10 +198,10 @@ not worth doing to unblock one contributor.
    that they run their own deployment. Auto-pause makes idle cost trivial, it's the real
    engine so no divergence, and there is nothing to install locally. Microsoft has published a
    perpetually-free Azure SQL Database tier (serverless, on the order of 100k vCore-seconds
-   and 32 GB/month) — *verify current terms*, but a new account also carries the standard
+   and 32 GB/month) — _verify current terms_, but a new account also carries the standard
    credit and 12-month free allowances. **Lead with this.**
 2. **`mssql/server` in Docker under Rosetta 2** — widely used, works, costs nothing. Needs
-   Docker Desktop with Rosetta enabled. *Verify whether native ARM64 server images now exist*
+   Docker Desktop with Rosetta enabled. _Verify whether native ARM64 server images now exist_
    before writing the guide; if they do, this becomes option 1.
 3. **SQLite** — a real option, but as a deliberate portability project with the five items
    above as its scope, not as a shortcut.
@@ -219,12 +220,12 @@ extra resource in a portal they're already in, and removes the ARM question enti
 The existing `azure-pipelines.yml` already parameterizes `environment: test` → the `m4d-test`
 app plus `SongIndexTest-3`. Nothing to build.
 
-| Pros | Cons |
-| --- | --- |
-| Zero engineering cost — works today | Serializes on your availability; a 4-hour loop feels slow to a volunteer |
-| You review every line before it runs anywhere | Every trivial fix costs you an interrupt |
-| Fork-based PRs get no secrets and no OIDC token — the strongest isolation GitHub offers | Doesn't scale past one contributor |
-| No trust grant required at all | They cannot see server-side failure detail without [C3](#c3--owner-scoped-api-diagnostics-recommended) |
+| Pros                                                                                    | Cons                                                                                                   |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Zero engineering cost — works today                                                     | Serializes on your availability; a 4-hour loop feels slow to a volunteer                               |
+| You review every line before it runs anywhere                                           | Every trivial fix costs you an interrupt                                                               |
+| Fork-based PRs get no secrets and no OIDC token — the strongest isolation GitHub offers | Doesn't scale past one contributor                                                                     |
+| No trust grant required at all                                                          | They cannot see server-side failure detail without [C3](#c3--owner-scoped-api-diagnostics-recommended) |
 
 **Verdict: start here.** At one contributor and a phased PR plan (7 phases, likely 2–4 PRs
 each), this is maybe a dozen deploy cycles total. Build automation only if that proves painful
@@ -242,13 +243,13 @@ This is the "reuse `showDiagnostics`" idea, and the codebase says no: that role 
 external-provider keys**. It also gates `UsageLog` (real user behavioural data), index backup,
 and the bulk-modify surface.
 
-| Pros | Cons |
-| --- | --- |
-| Nothing to build | Grants full PII export to someone with no contractual relationship |
-| | Provider keys are stable Google/Facebook/Spotify user identifiers — irrevocable once leaked |
-| | Almost certainly a privacy-law problem for any EU users |
+| Pros             | Cons                                                                                        |
+| ---------------- | ------------------------------------------------------------------------------------------- |
+| Nothing to build | Grants full PII export to someone with no contractual relationship                          |
+|                  | Provider keys are stable Google/Facebook/Spotify user identifiers — irrevocable once leaked |
+|                  | Almost certainly a privacy-law problem for any EU users                                     |
 
-**Verdict: reject as stated.** The *want* behind it is legitimate, though — see C3.
+**Verdict: reject as stated.** The _want_ behind it is legitimate, though — see C3.
 
 ### C3 — Owner-scoped API diagnostics ✅ (recommended)
 
@@ -257,7 +258,7 @@ and the bulk-modify surface.
 The correct version of C2. Instead of a role, use **ownership**: the design doc's
 `ApiClientProfile` already carries `DeveloperUserId`
 ([public-api-authorization.md](public-api-authorization.md#data-model)). So the scope is
-naturally self-limiting — *"you can see diagnostics for API clients you own."* No role grant,
+naturally self-limiting — _"you can see diagnostics for API clients you own."_ No role grant,
 no PII, no admin surface, and it generalizes to every future third-party developer for free.
 
 Surface, all filtered to `client_id` values the caller owns:
@@ -270,11 +271,11 @@ Surface, all filtered to `client_id` values the caller owns:
 - Rate-limit counters for their client
 - Never: usernames, emails, tokens, other clients' traffic, site-wide logs
 
-| Pros | Cons |
-| --- | --- |
-| Turns C1's slow loop into a fast one — they diagnose their own failures | New endpoint to build and secure |
-| Zero PII exposure by construction | Only useful once Phase 1's schema exists (chicken-and-egg for the earliest work) |
-| Ships as part of the API anyway — it is `/developers` self-serve infrastructure (Phase 6), pulled forward | Needs care that "own client" checks can't be spoofed |
+| Pros                                                                                                      | Cons                                                                             |
+| --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Turns C1's slow loop into a fast one — they diagnose their own failures                                   | New endpoint to build and secure                                                 |
+| Zero PII exposure by construction                                                                         | Only useful once Phase 1's schema exists (chicken-and-egg for the earliest work) |
+| Ships as part of the API anyway — it is `/developers` self-serve infrastructure (Phase 6), pulled forward | Needs care that "own client" checks can't be spoofed                             |
 
 **Implementation:** extend `UsageLog` with the nullable `ClientId` that Phase 4 already
 specifies; add an `ApiClientEvent` table for token lifecycle events; add
@@ -288,7 +289,7 @@ and the same `/developers` surface later hosts the samplified-data download (L2)
 
 **Cost: M** (2–4 days, partly work worth doing anyway)
 
-The question was: *can we let them deploy to test without letting them deploy to prod?*
+The question was: _can we let them deploy to test without letting them deploy to prod?_
 **Yes, and the enforcement is real** — GitHub Environments are enforced by GitHub, not by the
 workflow file, so a contributor who edits the workflow to target production still cannot
 deploy.
@@ -306,18 +307,18 @@ Mechanism:
    only. Both are GitHub-side gates.
 5. `CODEOWNERS` on `.github/workflows/**` requiring your review.
 
-| Pros | Cons |
-| --- | --- |
+| Pros                                                        | Cons                                                                                                      |
+| ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | They self-serve test deploys; you stop being the bottleneck | Requires giving repo **write** access — a real trust grant, and they could push to non-protected branches |
-| Prod gate is enforced by the platform, not by convention | Loses the fork-PR isolation of C1 (fork PRs get no OIDC token, which is a *feature*) |
-| No stored secrets — OIDC federation only | Two pipelines to maintain unless you fully migrate off Azure DevOps |
-| You get a better prod pipeline out of it regardless | Test deploys touch the shared search service, so a bad migration can disturb `songs-test-3` |
+| Prod gate is enforced by the platform, not by convention    | Loses the fork-PR isolation of C1 (fork PRs get no OIDC token, which is a _feature_)                      |
+| No stored secrets — OIDC federation only                    | Two pipelines to maintain unless you fully migrate off Azure DevOps                                       |
+| You get a better prod pipeline out of it regardless         | Test deploys touch the shared search service, so a bad migration can disturb `songs-test-3`               |
 
 **Verdict: build it if and only if C1's loop becomes the bottleneck.** It is the right
 long-term answer and it is genuinely secure; it is just premature at one contributor — and
 largely moot if they run their own deployment (L3).
 
-**Caveat worth internalizing:** even with perfect gating, a test deploy runs *their* code
+**Caveat worth internalizing:** even with perfect gating, a test deploy runs _their_ code
 against a database and search index that are yours. Test-environment compromise is not
 production compromise, but it is not nothing either.
 
@@ -362,7 +363,7 @@ security-critical OAuth surface.
   connection string, not a paragraph of prose
 - `dotnet user-secrets set` for the connection string, `M4D_ADMIN_USER`, `M4D_ADMIN_PASSWORD`
 - `dotnet ef database update`
-- Expected startup warnings — a printed list of the "not configured" lines they *should* see,
+- Expected startup warnings — a printed list of the "not configured" lines they _should_ see,
   so absent services read as normal rather than as breakage
 - `yarn install && yarn build`, then the test targets from [CLAUDE.md](../CLAUDE.md)
 - What does **not** work without keys: social login, outbound email, captcha, song search,
@@ -385,7 +386,7 @@ next person should read the subsections below:
   classes moved to `m4dModels.Sandbox` under their new names (`SongIndexLocal`,
   `SandboxServiceFactory`), and a `SandboxAliases.cs` in both `m4dModels.Tests` and `m4d.Tests`
   restores the old names as `global using` aliases — `global using TestSongIndex =
-  m4dModels.Sandbox.SongIndexLocal;`. All ~148 existing call sites compile unchanged. The
+m4dModels.Sandbox.SongIndexLocal;`. All ~148 existing call sites compile unchanged. The
   original concern (misleadingly-named `Test*` classes running inside a live web server) is
   still fully addressed: `m4d.Sandbox/Program.cs` references the real names directly, never the
   aliases.
@@ -418,13 +419,24 @@ next person should read the subsections below:
      no-keys-at-all path end-to-end for the first time.
   3. `m4d.Sandbox`'s `appsettings.json` was missing the `Vite:Base` config block, so the Vite
      manifest lookup silently failed and every page rendered unstyled.
-- **What did not ship:** the free-text search / dance-filter / paging capability the original
-  L1a table flagged as needed once results get *rendered* for a person. `SongIndexLocal` has no
-  `Search`/`DoSearch` override, so the song-list/browse routes silently return zero results
-  (the base class's catch-all swallows the `ThrowingSearchClientFactory` exception rather than
-  crashing — see [L1f](#l1f--search-filter-and-sort-for-songindexlocal-new-fast-follow)). Also
-  not shipped: the CI end-to-end smoke test and the `/sandbox/reset` endpoint floated in L1e —
-  both remain open, unforced choices, not regressions.
+  4. (Found 2026-08-21, same root cause as #3.) `m4d.Sandbox`'s `Vite` config was also missing
+     `Server:Port`/`Server:Https`, so the `m4d.Sandbox-vite` launch profile emitted script tags
+     pointing at `Vite.AspNetCore`'s library default (`:5173`, http) instead of the actual dev
+     server. The client's `vite.config.ts` hardcodes its port/https by importing
+     `m4d/appsettings.Development.json` directly — that file is shared regardless of which host
+     (`m4d` or `m4d.Sandbox`) is proxying to it — so the fix was adding the matching
+     `Server: { Port: 7237, Https: true }` to `m4d.Sandbox/appsettings.json`'s existing `Vite`
+     block. Verified end-to-end with both the client dev server and the sandbox host running
+     together: the sandbox's home page now emits `https://localhost:7237/vclient/...` tags and
+     that port serves real Vite module content.
+- **What did not ship in PR #250:** the free-text search / dance-filter / paging capability the
+  original L1a table flagged as needed once results get _rendered_ for a person.
+  `SongIndexLocal` had no `Search`/`DoSearch` override, so the song-list/browse routes silently
+  returned zero results (the base class's catch-all swallows the `ThrowingSearchClientFactory`
+  exception rather than crashing). This has since been implemented for the filter/sort/browse
+  path — see [L1f](#l1f--search-filter-and-sort-for-songindexlocal-new-fast-follow). Still not
+  shipped: the CI end-to-end smoke test and the `/sandbox/reset` endpoint floated in L1e — both
+  remain open, unforced choices, not regressions.
 
 Earlier drafts of this document split this into two separate line items: a test-only stub index,
 and a "sandbox configuration profile" for the server (the latter now folded in here — see the old
@@ -432,7 +444,7 @@ and a "sandbox configuration profile" for the server (the latter now folded in h
 Everything either one needs already exists, just trapped in the test project:
 [`TestSongIndex`](../m4dModels.Tests/TestSongIndex.cs) is a working in-memory `SongIndex`, and
 [`DanceMusicTester.CreateService`](../m4dModels.Tests/DanceMusicTester.cs) is already the one
-place that assembles the *whole* stub graph a `SongIndex` needs to run — an in-memory
+place that assembles the _whole_ stub graph a `SongIndex` needs to run — an in-memory
 `DanceMusicContext`, a stub `IDanceStatsFileManager` (`TestDSFileManager`), and the
 `DanceMusicCoreService`/`DanceMusicService` pair `SongIndex.DanceMusicService` depends on. (This
 is almost certainly what "a stubbed `DanceServiceCore`" was reaching for — there is no class by
@@ -445,13 +457,13 @@ The only thing missing is a home outside the test project so a running web serve
 New class library, `m4dModels.Sandbox`, referenced by both `m4dModels.Tests` (replacing what's
 built inline there today) and the sandbox host in L1b. It carries:
 
-| Moves from `m4dModels.Tests` today | Becomes | Notes |
-| --- | --- | --- |
-| `TestSongIndex` | `SongIndexLocal` | Same overrides (`SaveSong`, `FindSong`, `GetSongFromService`, `LoadLightSongsStreamingAsync`) — the comment on `GetSongFromService` already states the point verbatim: *"Lets tests exercise service-id/ISRC lookup paths … without a real search backend."* That's precisely the Phase 3 resolve cascade. Gains free-text title/artist search, dance-filter matching, and paging — needed once results get *rendered* for a person instead of just asserted on in a test |
-| `TestDSFileManager` | `LocalDanceStatsFileManager` | Same `IDanceStatsFileManager` seam production already uses — `DanceStatsFileManager` reads `content/dances.json` with a fallback to a checked-in static copy at [DanceStatsFileManager.cs:41](../m4dModels/DanceStatsFileManager.cs#L41); this implementation reads the checked-in test data instead. Same interface, same "fall back to what's in source control" shape |
-| *(new)* | `LocalSearchServiceManager` | A minimal `ISearchServiceManager`. Doesn't need to do much: `GetSongFilter` is pure string parsing, not a service call, and once a `SongIndexLocal` is pre-attached — the same late-binding `AttachToService` pattern `TestSongIndex` already uses to dodge the `SongIndex`/`DanceMusicCoreService` circular dependency — `SongIndex.Create`'s Azure-bound path in [SongIndex.cs:52](../m4dModels/SongIndex.cs#L52) is never reached. Its job is to satisfy the constructor dependency and answer `RawEnvironment` / `CurrentIndexName` honestly as "local" for the startup banner |
-| `DanceMusicTester.CreateService` / `CreatePopulatedService` / `AddUser` | `SandboxServiceFactory` | Same shape, same parameters. `m4dModels.Tests` keeps its existing call sites working via thin same-named wrappers, so none of the ~15 test files that reference these by name need to change |
-| `m4dModels.Tests/TestData/*.txt`, `*.json` | same files, moved | Already public, already the small PII-cleaned dataset — this is the "existing sanitized data" this request is asking to reuse, not a new sanitization effort |
+| Moves from `m4dModels.Tests` today                                      | Becomes                      | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ----------------------------------------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TestSongIndex`                                                         | `SongIndexLocal`             | Same overrides (`SaveSong`, `FindSong`, `GetSongFromService`, `LoadLightSongsStreamingAsync`) — the comment on `GetSongFromService` already states the point verbatim: _"Lets tests exercise service-id/ISRC lookup paths … without a real search backend."_ That's precisely the Phase 3 resolve cascade. Gains free-text title/artist search, dance-filter matching, and paging — needed once results get _rendered_ for a person instead of just asserted on in a test                                                                                                          |
+| `TestDSFileManager`                                                     | `LocalDanceStatsFileManager` | Same `IDanceStatsFileManager` seam production already uses — `DanceStatsFileManager` reads `content/dances.json` with a fallback to a checked-in static copy at [DanceStatsFileManager.cs:41](../m4dModels/DanceStatsFileManager.cs#L41); this implementation reads the checked-in test data instead. Same interface, same "fall back to what's in source control" shape                                                                                                                                                                                                           |
+| _(new)_                                                                 | `LocalSearchServiceManager`  | A minimal `ISearchServiceManager`. Doesn't need to do much: `GetSongFilter` is pure string parsing, not a service call, and once a `SongIndexLocal` is pre-attached — the same late-binding `AttachToService` pattern `TestSongIndex` already uses to dodge the `SongIndex`/`DanceMusicCoreService` circular dependency — `SongIndex.Create`'s Azure-bound path in [SongIndex.cs:52](../m4dModels/SongIndex.cs#L52) is never reached. Its job is to satisfy the constructor dependency and answer `RawEnvironment` / `CurrentIndexName` honestly as "local" for the startup banner |
+| `DanceMusicTester.CreateService` / `CreatePopulatedService` / `AddUser` | `SandboxServiceFactory`      | Same shape, same parameters. `m4dModels.Tests` keeps its existing call sites working via thin same-named wrappers, so none of the ~15 test files that reference these by name need to change                                                                                                                                                                                                                                                                                                                                                                                       |
+| `m4dModels.Tests/TestData/*.txt`, `*.json`                              | same files, moved            | Already public, already the small PII-cleaned dataset — this is the "existing sanitized data" this request is asking to reuse, not a new sanitization effort                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 Renaming `Test*` classes is mechanical but real work — worth doing once rather than leaving
 misleadingly-named `Test*` classes running inside a live web server. `SongIndex` is already
@@ -466,10 +478,10 @@ not representative**, so nobody debugs a ranking difference that is a stub artif
 The bonus ask — keep this code and data out of the artifact that reaches Azure — has two possible
 mechanisms:
 
-| Approach | How | Verdict |
-| --- | --- | --- |
-| Config-flag branching inside `m4d.csproj` (`SANDBOX_MODE`, `#if`) | Conditional `<ProjectReference>` + compiler constant; branches inside the shared `Program.cs` | ❌ The "one more configuration path to keep working" risk the old sandbox-profile idea already flagged against itself — except now the thing gated behind someone's discipline is *whether stub data ships to production* |
-| A second project, `m4d.Sandbox.csproj` | Project-references `m4d.csproj` (inherits every controller and Razor view for free — MVC's application-part discovery walks referenced assemblies, the same mechanism Razor Class Libraries rely on, and static web assets should flow the same way; **verify both during implementation**, it's the one part of this design borrowed from general ASP.NET Core behaviour rather than confirmed in this codebase) plus `m4dModels.Sandbox.csproj`. Its own minimal `Program.cs` | ✅ Recommended |
+| Approach                                                          | How                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Verdict                                                                                                                                                                                                                   |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Config-flag branching inside `m4d.csproj` (`SANDBOX_MODE`, `#if`) | Conditional `<ProjectReference>` + compiler constant; branches inside the shared `Program.cs`                                                                                                                                                                                                                                                                                                                                                                                   | ❌ The "one more configuration path to keep working" risk the old sandbox-profile idea already flagged against itself — except now the thing gated behind someone's discipline is _whether stub data ships to production_ |
+| A second project, `m4d.Sandbox.csproj`                            | Project-references `m4d.csproj` (inherits every controller and Razor view for free — MVC's application-part discovery walks referenced assemblies, the same mechanism Razor Class Libraries rely on, and static web assets should flow the same way; **verify both during implementation**, it's the one part of this design borrowed from general ASP.NET Core behaviour rather than confirmed in this codebase) plus `m4dModels.Sandbox.csproj`. Its own minimal `Program.cs` | ✅ Recommended                                                                                                                                                                                                            |
 
 With the second-project approach, keeping the stub assembly off production isn't a rule anyone has
 to remember — `m4d.csproj` simply has no reference to `m4dModels.Sandbox.csproj`, so
@@ -479,7 +491,7 @@ in. That's a stronger guarantee than a flag: enforced by the compiler, not by a 
 The cost of a second host is the usual one — two `Program.cs`-adjacent files that could drift.
 Contained by factoring `m4d/Program.cs`'s composition root (currently one long imperative file)
 into named extension methods — `AddM4dApplication(builder)`, `app.UseM4dPipeline()` — that both the
-real `Program.cs` and `m4d.Sandbox/Program.cs` call. The sandbox host then only *overrides* a
+real `Program.cs` and `m4d.Sandbox/Program.cs` call. The sandbox host then only _overrides_ a
 handful of registrations after the shared call: `ISearchServiceManager` → `LocalSearchServiceManager`
 with a pre-attached `SongIndexLocal`, plus the seeding in L1d. Routing, middleware, and every
 controller stay identical by construction, so there's no second copy of application logic to drift
@@ -489,7 +501,7 @@ controller stay identical by construction, so there's no second copy of applicat
 — this is where the old L4's specific settings land: `Commerce:Enabled: false`, captcha off, and
 `AppConfig:Endpoint` left blank (closing the trap already called out in
 [L3](#l3--they-deploy-their-own-cloud-instance--settled-direction), where a non-Development
-deployment that forgets to blank it tries to reach *our* App Configuration store).
+deployment that forgets to blank it tries to reach _our_ App Configuration store).
 
 **Resolved: InMemory, not LocalDB.** `SandboxServiceFactory` (like `DanceMusicTester` before it)
 uses `UseInMemoryDatabase` for zero-install convenience. But
@@ -541,7 +553,7 @@ Extend the existing admin-bootstrap pattern
 That's enough. Voting (`DanceRating`) and tag editing are available to any authenticated,
 non-pseudo user — `[Authorize]` with no role restriction already gates the equivalent write paths
 in `SongController` (e.g. `UndoUserChanges`), and on the client, `MenuContext.canEdit` only gates
-the *further* affordances (bulk tag removal, full song edit) — see
+the _further_ affordances (bulk tag removal, full song edit) — see
 [TagListEditor.vue:126](../m4d/ClientApp/src/components/TagListEditor.vue#L126). A roleless
 account exercises exactly the code path real users hit, which is the one voting/tagging tests
 actually need.
@@ -562,7 +574,7 @@ cheap once the first exists.
 
 - **`FileEmailSender`**, writing `.eml` files to `local/mail/` (carried over from the old L4),
   stops being a nicety here and becomes load-bearing: it's what makes self-registration and
-  password reset testable for accounts a contributor creates *beyond* the two or three seeded
+  password reset testable for accounts a contributor creates _beyond_ the two or three seeded
   ones — relevant if "useful for manual testing" should include the sign-up flow itself, not only
   voting on seeded songs.
 - **A startup banner** stating which accounts were seeded (usernames, not passwords), alongside
@@ -584,16 +596,16 @@ cheap once the first exists.
   cycle.
 - **Known non-goal, stated explicitly:** `MusicServiceManager`'s Spotify/iTunes enrichment path
   (`UpdateSongAndServices`, used when importing a new song from a service playlist) makes live
-  third-party calls and isn't stubbed by this design. Voting on and editing *existing* seeded songs
+  third-party calls and isn't stubbed by this design. Voting on and editing _existing_ seeded songs
   never touches it; creating a song from a live Spotify playlist inside the sandbox still would.
   Worth saying rather than discovering by surprise.
 
-| Pros | Cons |
-| --- | --- |
-| One stub assembly serves CI and manual testing — no drift between "what the tests exercise" and "what a contributor clicks through" | `SongIndexLocal` still isn't Azure Search; ranking/relevance differences remain a known, disclosed gap |
-| The bonus (stub code/data never reaches the cloud build) falls out of project structure, not a flag someone has to remember | Second host project is real ongoing surface area, bounded by the shared-pipeline-method design in L1b |
-| Three-tier seeded users (admin/editor/plain) cover the privilege levels that actually matter for voting and editing | Renaming `Test*` classes touches ~15 existing test files — mechanical, but a real PR |
-| Unlocks browser-driven e2e for the first time in this document | `CreateTransientContext`'s InMemory fix reintroduced 2 EF1001 warnings; `MusicServiceManager`'s live-service enrichment stays unstubbed by design |
+| Pros                                                                                                                                | Cons                                                                                                                                              |
+| ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| One stub assembly serves CI and manual testing — no drift between "what the tests exercise" and "what a contributor clicks through" | `SongIndexLocal` still isn't Azure Search; ranking/relevance differences remain a known, disclosed gap                                            |
+| The bonus (stub code/data never reaches the cloud build) falls out of project structure, not a flag someone has to remember         | Second host project is real ongoing surface area, bounded by the shared-pipeline-method design in L1b                                             |
+| Three-tier seeded users (admin/editor/plain) cover the privilege levels that actually matter for voting and editing                 | Renaming `Test*` classes touches ~15 existing test files — mechanical, but a real PR                                                              |
+| Unlocks browser-driven e2e for the first time in this document                                                                      | `CreateTransientContext`'s InMemory fix reintroduced 2 EF1001 warnings; `MusicServiceManager`'s live-service enrichment stays unstubbed by design |
 
 **What this still doesn't solve, as shipped:**
 
@@ -608,12 +620,30 @@ cheap once the first exists.
 
 ### L1f — Search, filter, and sort for SongIndexLocal (new fast follow)
 
-**Cost: S–M** (recommended option; see below) — not shipped in PR #250, blocks nothing else in
-this document
+**Cost: S–M** (recommended option; see below) — not shipped in PR #250, implemented since as a
+follow-up; blocked nothing else in this document
 
-This was flagged as needed back in the original L1a table (*"gains free-text title/artist
+**✅ Implemented (Option A).** `SongIndexLocal.Search(SongFilter, int?, CruftFilter)` evaluates
+`DanceQuery`/`TagQuery`/`UserQuery`/`KeywordQuery`/`SongSort`/tempo-length range/`CruftFilter`
+directly against the in-memory song store, and `SongIndex.Search(SongFilter, ...)` was made
+`virtual` so it can be overridden; `SongSearch.Search()` (`m4d/Services/SongSearch.cs`) now calls
+that overload directly instead of pre-flattening to `SearchOptions` and calling the
+`(string, SearchOptions, CruftFilter)` seam, so the real browse/filter UI's call path reaches the
+override. The base (Azure-backed) implementation is unchanged — it still does the same
+flattening inline — so production behavior is identical. Tests:
+`m4dModels.Tests/SongIndexLocalSearchTests.cs` (dance threshold, tempo range, keyword substring,
+tag include, sort direction, paging/total-count). Left as explicit gaps, matching the "long tail
+can land incrementally" cost note below: raw/customsearch filters (`SongFilter.IsRaw` — falls
+back to keyword+sort+paging only, no structured filtering), per-dance-scoped tag queries
+(`DanceQueryItem.TagQuery`), Purchase/service-availability filtering, and vote-based queries
+(`UserQuery.IsVoted` — `SongSearch` routes those through `VoteSearch`/`StreamAll` instead, which
+`SongIndexLocal` doesn't override). The free-text search box and a few narrower flows
+(`SimpleSearch`, `FindArtist`, `SongsFromTitle`, `SongsFromTitleArtist`, `List`) still call the
+private `DoSearch` directly and aren't intercepted — only the filter/sort/browse path is covered.
+
+This was flagged as needed back in the original L1a table (_"gains free-text title/artist
 search, dance-filter matching, and paging — needed once results get rendered for a person
-instead of just asserted on in a test"*) but got deferred out of PR #250's scope, and there was
+instead of just asserted on in a test"_) but got deferred out of PR #250's scope, and there was
 no options analysis for it on its own. This section is that analysis.
 
 **Where things stand today:** `SongIndexLocal` overrides `SaveSong`/`SaveSongs`/`FindSong`/
@@ -622,15 +652,15 @@ song-list/browse pages in `m4d.Sandbox` doesn't crash — the base `SongIndex.Se
 (`catch (Exception e)`, `SongIndex.cs:1168`) swallows whatever
 `ThrowingSearchClientFactory` throws and returns an empty `SearchResults` — but it always comes
 back with zero results. A contributor can vote on, tag, and edit any of the ~400 seeded songs
-(direct-link and ID-based paths all work), but can't *find* one through the UI; the startup
+(direct-link and ID-based paths all work), but can't _find_ one through the UI; the startup
 banner prints direct links specifically to work around this.
 
 **Which "in-memory database" actually holds the songs?** Worth being precise about, since the
 sandbox has two unrelated in-memory stores and only one of them is where songs live:
 
-| Store | Holds | Query mechanism today |
-| --- | --- | --- |
-| EF Core `UseInMemoryDatabase` on `DanceMusicContext` | Users, dances, tags, roles — Identity + the SQL-side tables | Normal EF LINQ, already works, untouched by this section |
+| Store                                                              | Holds                                                        | Query mechanism today                                                                        |
+| ------------------------------------------------------------------ | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| EF Core `UseInMemoryDatabase` on `DanceMusicContext`               | Users, dances, tags, roles — Identity + the SQL-side tables  | Normal EF LINQ, already works, untouched by this section                                     |
 | `SongIndexLocal`'s private `Dictionary<Guid, Song>` (`_songStore`) | **Songs** — the thing standing in for the Azure Search index | Point lookups only (`FindSong` by id, `GetSongFromService` by service+id) — no query surface |
 
 Songs never touch EF at all, in the sandbox or in production — they live in Azure Search, and
@@ -646,12 +676,12 @@ an Azure-only extension — and hand them to `SongIndex.AzureParmsFromFilter` as
 `SearchOptions.Filter`/`.OrderBy` (`SongIndex.cs:1465`). Free-text (`SearchString`) is separate:
 that's Azure's own full-text query, unrelated to OData. This is the direct answer to "is there
 an OData mechanism we could reuse" — yes, the filter half of Azure Search's own query surface
-already *is* OData, which is exactly what makes option B below possible in principle, and exactly
+already _is_ OData, which is exactly what makes option B below possible in principle, and exactly
 why option A below doesn't need it.
 
 #### Option A — Evaluate SongFilter's parsed sub-queries directly against `Song` (recommended)
 
-`GetOdataFilter()` doesn't parse a string — it *assembles* one, from objects that are already
+`GetOdataFilter()` doesn't parse a string — it _assembles_ one, from objects that are already
 fully parsed and sitting on `SongFilter` before any stringification happens: `DanceQuery`
 (`.Items`, each with `.Threshold` and an optional `.TagQuery`, plus `.IsExclusive` for and/or
 semantics), `TagQuery` (`.TagList`, already split into include/exclude and classed by
@@ -662,16 +692,16 @@ Music/Style/Tempo/Other), `UserQuery` (include/exclude, like/hate/upvoted/downvo
 objects into a LINQ predicate or comparer evaluated directly against the `Song` objects in
 `_songStore.Values`, skipping OData text entirely in both directions.
 
-| Filter dimension | Structured source (already parsed) | Evaluates against |
-| --- | --- | --- |
-| Dance selection + rating threshold | `DanceQuery.Items` (`.Threshold`, `.IsExclusive`) | `Song.DanceRatings` (`DanceId`, vote total) |
-| Tags (include/exclude, per class) | `TagQuery.TagList`; ring expansion via `dms.GetTagRings` (local lookup, not Azure) | `Song.DanceRatings[].TagSummary.Tags` / song-level tags |
-| User activity (voted/liked/edited by) | `UserQuery` (include/exclude, modifier) | Per-user vote/edit history on `Song` — confirm exact shape while implementing |
-| Tempo / length range | `TempoMin/Max`, `LengthMin/Max`, `SongFilter.SingleDanceId` for the per-dance tempo case | `Song.Tempo`/`.Length`, or the scoped dance's tempo sub-field |
-| Service availability | `Purchase` (already split by `SplitPurchase`/`BuildServiceClause`) | `Song`'s purchase/service-link list |
-| Free text | `KeywordQuery` | Case-insensitive substring/token match on Title + Artist — **not** real relevance scoring, which is already an accepted, disclosed gap (see "Search relevance honesty" in Decisions Settled) |
-| Sort | `SongSort.Id`/`.Descending` (Title, Artist, Tempo, Length, Modified, Created, Comments, Dances/vote-count, …) | `OrderBy`/`OrderByDescending` on the matching `Song` property or computed vote total |
-| Paging | `SearchOptions.Skip`/`.Size` | `.Skip().Take()` on the ordered result |
+| Filter dimension                      | Structured source (already parsed)                                                                            | Evaluates against                                                                                                                                                                            |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dance selection + rating threshold    | `DanceQuery.Items` (`.Threshold`, `.IsExclusive`)                                                             | `Song.DanceRatings` (`DanceId`, vote total)                                                                                                                                                  |
+| Tags (include/exclude, per class)     | `TagQuery.TagList`; ring expansion via `dms.GetTagRings` (local lookup, not Azure)                            | `Song.DanceRatings[].TagSummary.Tags` / song-level tags                                                                                                                                      |
+| User activity (voted/liked/edited by) | `UserQuery` (include/exclude, modifier)                                                                       | Per-user vote/edit history on `Song` — confirm exact shape while implementing                                                                                                                |
+| Tempo / length range                  | `TempoMin/Max`, `LengthMin/Max`, `SongFilter.SingleDanceId` for the per-dance tempo case                      | `Song.Tempo`/`.Length`, or the scoped dance's tempo sub-field                                                                                                                                |
+| Service availability                  | `Purchase` (already split by `SplitPurchase`/`BuildServiceClause`)                                            | `Song`'s purchase/service-link list                                                                                                                                                          |
+| Free text                             | `KeywordQuery`                                                                                                | Case-insensitive substring/token match on Title + Artist — **not** real relevance scoring, which is already an accepted, disclosed gap (see "Search relevance honesty" in Decisions Settled) |
+| Sort                                  | `SongSort.Id`/`.Descending` (Title, Artist, Tempo, Length, Modified, Created, Comments, Dances/vote-count, …) | `OrderBy`/`OrderByDescending` on the matching `Song` property or computed vote total                                                                                                         |
+| Paging                                | `SearchOptions.Skip`/`.Size`                                                                                  | `.Skip().Take()` on the ordered result                                                                                                                                                       |
 
 This is squarely inside the CLAUDE.md rule to always use the class library rather than
 hand-parsing filter strings — it just applies the rule one layer up, using the already-parsed
@@ -756,12 +786,12 @@ worthwhile in the first place.
 Now the **only** source of realistic data, given nothing ships in the repo. Delivered
 out-of-band at first, and through a dev-portal download later.
 
-| Pros | Cons |
-| --- | --- |
-| Realistic scale and messiness; real Azure Search semantics on their own service | The largest build on this list |
-| Reusable for your own testing and for every future contributor | Requires the data-use terms to exist first |
-| Lets them work on *any* part of the codebase, not just the API | Sanitizer correctness is security-relevant and needs its own tests |
-| The dev-portal download is a natural Phase 6 feature, not a one-off | Free-tier search limits constrain sample size — now their limit, not ours |
+| Pros                                                                            | Cons                                                                      |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Realistic scale and messiness; real Azure Search semantics on their own service | The largest build on this list                                            |
+| Reusable for your own testing and for every future contributor                  | Requires the data-use terms to exist first                                |
+| Lets them work on _any_ part of the codebase, not just the API                  | Sanitizer correctness is security-relevant and needs its own tests        |
+| The dev-portal download is a natural Phase 6 feature, not a one-off             | Free-tier search limits constrain sample size — now their limit, not ours |
 
 **Verdict: build the sanitizer when they ask for browseable data**, not before. The delivery
 channel can start as "you send them a file after they accept the terms" and graduate to the
@@ -778,24 +808,24 @@ free-tier Azure AI Search service.
 
 This also answers the external-dependency question concretely:
 
-| Dependency | Config key | Do they need it? |
-| --- | --- | --- |
-| Google OAuth | `Authentication:Google:*` | No — degrades cleanly. Own app if wanted (free) |
-| Facebook OAuth | `Authentication:Facebook:*` | No — and Facebook requires app review; recommend leaving off |
-| Spotify OAuth | `Authentication:Spotify:*` | Only if testing Spotify sign-in. Own app, free, minutes. [Program.cs:739](../m4d/Program.cs#L739) already documents the `localhost` HTTPS-redirect accommodation |
-| Email (Azure Comm. Services) | `Authentication:AzureCommunicationServices:ConnectionString` | No — `NullEmailSender` fallback, and seeded/sanitized users are pre-confirmed |
-| reCAPTCHA | `Authentication:reCAPTCHA:*` | No. Google publishes always-pass test keys — include them in the guide (*verify still current*) |
-| Azure Search | RBAC, `SongIndex*` sections | Theirs, never ours |
-| App Config + Key Vault | `AppConfig:Endpoint` | **No** — Development skips it entirely. For their *deployed* instance, plain app settings work |
-| Commerce | `Configuration:Commerce:Enabled` | No — set `false` |
-| GTM / Google Tags | feature flags | Already `false` in `appsettings.Development.json` |
+| Dependency                   | Config key                                                   | Do they need it?                                                                                                                                                 |
+| ---------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Google OAuth                 | `Authentication:Google:*`                                    | No — degrades cleanly. Own app if wanted (free)                                                                                                                  |
+| Facebook OAuth               | `Authentication:Facebook:*`                                  | No — and Facebook requires app review; recommend leaving off                                                                                                     |
+| Spotify OAuth                | `Authentication:Spotify:*`                                   | Only if testing Spotify sign-in. Own app, free, minutes. [Program.cs:739](../m4d/Program.cs#L739) already documents the `localhost` HTTPS-redirect accommodation |
+| Email (Azure Comm. Services) | `Authentication:AzureCommunicationServices:ConnectionString` | No — `NullEmailSender` fallback, and seeded/sanitized users are pre-confirmed                                                                                    |
+| reCAPTCHA                    | `Authentication:reCAPTCHA:*`                                 | No. Google publishes always-pass test keys — include them in the guide (_verify still current_)                                                                  |
+| Azure Search                 | RBAC, `SongIndex*` sections                                  | Theirs, never ours                                                                                                                                               |
+| App Config + Key Vault       | `AppConfig:Endpoint`                                         | **No** — Development skips it entirely. For their _deployed_ instance, plain app settings work                                                                   |
+| Commerce                     | `Configuration:Commerce:Enabled`                             | No — set `false`                                                                                                                                                 |
+| GTM / Google Tags            | feature flags                                                | Already `false` in `appsettings.Development.json`                                                                                                                |
 
 **Never share:** Google, Facebook, Spotify, or Azure Communication Services credentials. Those
-are *our* identity with those providers; sharing them is both a security problem and likely a
+are _our_ identity with those providers; sharing them is both a security problem and likely a
 terms violation. **They create their own or go without** — and going without works.
 
 One caveat for their deployed instance: `AppConfig:Endpoint` is set in the base
-`appsettings.json`, so a non-Development deployment will try to reach *our* App Configuration
+`appsettings.json`, so a non-Development deployment will try to reach _our_ App Configuration
 store and fail. The setup guide must tell them to blank it — a one-line trap that would
 otherwise cost them an afternoon.
 
@@ -807,7 +837,7 @@ startup banner — is now part of
 [L1](#l1--no-external-service-local-server--recommended), specifically L1b and L1e. Building the
 sandbox as its own host project (`m4d.Sandbox`) makes "no external dependencies" a separately
 buildable target with its own `appsettings.json`, rather than a flag layered onto the production
-one — which was this option's own stated risk (*"one more configuration path to keep working"*).
+one — which was this option's own stated risk (_"one more configuration path to keep working"_).
 Kept as a heading only so this stays discoverable by its old name.
 
 ---
@@ -823,7 +853,7 @@ Needed for L2. **Good news: the extraction half already exists.**
   commented out (`DBKILL`) because songs now live in the index.
 - `Admin/IndexBackup` ([AdminController.cs:1665](../m4d/Controllers/AdminController.cs#L1665))
   streams the songs section from the index via `BackupIndexStreamingAsync` — **and it already
-  takes a `SongFilter`.** Sample *selection* is therefore free: express the subset as a filter.
+  takes a `SongFilter`.** Sample _selection_ is therefore free: express the subset as a filter.
 - `Admin/ReloadDatabase` ([AdminController.cs:928](../m4d/Controllers/AdminController.cs#L928))
   is the load path, already sectioned and already able to wipe-and-reload.
 - Precedent exists: [`test-users-clean.txt`](../m4dModels.Tests/TestData/test-users-clean.txt)
@@ -838,7 +868,7 @@ An **admin endpoint** (`Admin/Samplify`) alongside `BackupDatabase`, reusing the
 same artifact as a **download gated on accepting testing-only terms**, which fits naturally
 into the Phase 6 `/developers` surface.
 
-Not a `scripts/*.ps1` text transform: usernames live *inside* the property log, which has a
+Not a `scripts/*.ps1` text transform: usernames live _inside_ the property log, which has a
 real parser (`ModifiedRecord`, `SongPropertyBlockParser`), and [CLAUDE.md](../CLAUDE.md) is
 explicit that these formats must be built and parsed through the class library. A regex over
 property logs is exactly the silent breakage that rule exists to prevent.
@@ -859,16 +889,16 @@ This is what answers "how do songs and users stay consistent?":
 ### Service accounts stay in the clear ✅
 
 Agreed, and the reasoning is now doubly strong — these are machine identities owned by
-music4dance, so they are **not personal data**, *and* preserving them is **required for
+music4dance, so they are **not personal data**, _and_ preserving them is **required for
 correctness** because code keys off the names:
 
-| Preserved verbatim | Not PII because | Correctness reason |
-| --- | --- | --- |
-| `batch`, `batch-*` | m4d import automation | `ChunkedSong.IsBatch`; exempt from `TryGetCappedDelta`'s ±1 cap |
-| `tempo-bot` | m4d tempo automation | Cap-exempt; asserted by name in `DanceRatingCapTests` |
-| `dgsnure` | Non-personal data source | Hardcoded in `s_unconfirmedVoteSources` |
-| Any `@music4dance.net` account | Our own service identities | `IsPseudo` / `IsM4d` derives from the email domain |
-| The `\|P` pseudo suffix | Not an identifier | `ModifiedRecord` splits on it; stripping it changes attribution |
+| Preserved verbatim             | Not PII because            | Correctness reason                                              |
+| ------------------------------ | -------------------------- | --------------------------------------------------------------- |
+| `batch`, `batch-*`             | m4d import automation      | `ChunkedSong.IsBatch`; exempt from `TryGetCappedDelta`'s ±1 cap |
+| `tempo-bot`                    | m4d tempo automation       | Cap-exempt; asserted by name in `DanceRatingCapTests`           |
+| `dgsnure`                      | Non-personal data source   | Hardcoded in `s_unconfirmedVoteSources`                         |
+| Any `@music4dance.net` account | Our own service identities | `IsPseudo` / `IsM4d` derives from the email domain              |
+| The `\|P` pseudo suffix        | Not an identifier          | `ModifiedRecord` splits on it; stripping it changes attribution |
 
 This is a real simplification: the preserve-list stops being a grudging exception and becomes
 the intended behaviour.
@@ -886,7 +916,7 @@ public string SpotifyId => IsSpotify ? EmailAlias : null;
 The email is `{spotifyUserId}@spotify.com`, and `SpotifyId` is **the local part of that
 email** — a real Spotify account identifier belonging to a real person whose public playlist
 was imported. That is the same category as the `Providers` column, which must be dropped: a
-stable third-party identifier for a natural person, not a machine account. It only *looks*
+stable third-party identifier for a natural person, not a machine account. It only _looks_
 like a service account because `IsPseudo` returns true for it.
 
 **Rule: keep the `@spotify.com` domain, rewrite the local part.** Mapping
@@ -899,16 +929,16 @@ Worth a denylist test of its own, since this is the one case where the privacy r
 
 ### Rewrite rules for real registered users
 
-| Field | Treatment |
-| --- | --- |
-| `UserName` | Deterministic pseudonym — `Firstname L.` from a name table, via a salted keyed hash so successive samples are stable and diffable. Resolve collisions explicitly |
-| `Email` | `{pseudonym}@example.invalid` — RFC 2606 reserved TLD, so no accidental delivery |
-| `PasswordHash` | Fixed placeholder (`LoadUsers` treats blank as null; `test-users-clean.txt` uses `XXXXXXXXXXX`) |
-| `SecurityStamp` | Zero GUID, matching existing test data |
-| `Providers` | **Empty.** Holds Google/Facebook/Spotify provider keys — stable third-party user identifiers. Highest-severity field in the file |
-| `Region` | Drop, or coarsen to country |
-| Subscription fields | Synthesize rather than copy — real purchase history is commercially sensitive. Keep the *shape*: one premium, one trial, one lapsed, several free, so tier logic is exercised |
-| `LastActive` / `StartDate` | Keep, or jitter by days |
+| Field                      | Treatment                                                                                                                                                                     |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `UserName`                 | Deterministic pseudonym — `Firstname L.` from a name table, via a salted keyed hash so successive samples are stable and diffable. Resolve collisions explicitly              |
+| `Email`                    | `{pseudonym}@example.invalid` — RFC 2606 reserved TLD, so no accidental delivery                                                                                              |
+| `PasswordHash`             | Fixed placeholder (`LoadUsers` treats blank as null; `test-users-clean.txt` uses `XXXXXXXXXXX`)                                                                               |
+| `SecurityStamp`            | Zero GUID, matching existing test data                                                                                                                                        |
+| `Providers`                | **Empty.** Holds Google/Facebook/Spotify provider keys — stable third-party user identifiers. Highest-severity field in the file                                              |
+| `Region`                   | Drop, or coarsen to country                                                                                                                                                   |
+| Subscription fields        | Synthesize rather than copy — real purchase history is commercially sensitive. Keep the _shape_: one premium, one trial, one lapsed, several free, so tier logic is exercised |
+| `LastActive` / `StartDate` | Keep, or jitter by days                                                                                                                                                       |
 
 **Property log:** map every `User=` occurrence (including `|P` forms) through the same table.
 Consistency with the users section is what makes vote replay produce the same answer.
@@ -962,8 +992,8 @@ Deliberately light, per the settled decision.
    Necessary because the README already states the data sits outside the MIT grant. This is
    also the text the dev-portal download gates on, so writing it once serves both channels.
 3. **Privacy posture.** Pseudonymized is not anonymous. The defensible position — and it is
-   genuinely defensible — is *real song data, synthetic human identities, real machine
-   identities*: all real usernames and emails rewritten, Spotify local parts rewritten,
+   genuinely defensible — is _real song data, synthetic human identities, real machine
+   identities_: all real usernames and emails rewritten, Spotify local parts rewritten,
    provider keys dropped, hashes discarded, service accounts untouched. Say that explicitly in
    the terms so both sides know what was done.
 4. **Secrets hygiene**, stated plainly to them: they will never receive our third-party
@@ -976,28 +1006,28 @@ Deliberately light, per the settled decision.
 
 ## Cost Summary
 
-| Option | Build cost | Ongoing $ | Unblocks | Verdict |
-| --- | --- | --- | --- | --- |
-| **L0** Setup guide + DCO, run with nothing | XS | — | Phases 1, 2, 4, 6 | ✅ **Shipped** (PR #250) |
-| **L1** No-external-service local server (stub assembly + `m4d.Sandbox` host + test users) | M (~4–5 days) | — | Phases 3, 7; CI coverage; manual QA; e2e | ✅ **Shipped** (PR #250) |
-| **C1** You deploy their PR to test | XS | — | End-to-end validation | ✅ **Default** — proposed |
-| **C3** Owner-scoped API diagnostics | S | — | Self-service debugging | ✅ **Pull into Phase 1** — proposed |
-| **L1f** Search/filter/sort for `SongIndexLocal` | S–M | — | Interactive browsing of the sandbox | ✅ **Do next** — proposed |
-| **L3** Their own cloud instance (guide) | M (docs) | Theirs | Full independence | ✅ Settled direction — proposed |
-| **L2** Samplification + terms-gated delivery | L | — | Browseable realistic data | ⏸ When they ask |
-| **C4** GitHub Actions environment-gated deploy | M | — | Self-service deploys | ⏸ Only if C1 stalls |
-| **C5** Dedicated API test instance | M | $$ | Isolation | ❌ Superseded by L3 |
-| **C2** `showDiagnostics` on production | XS | — | — | ❌ **Reject** |
+| Option                                                                                    | Build cost    | Ongoing $ | Unblocks                                 | Verdict                             |
+| ----------------------------------------------------------------------------------------- | ------------- | --------- | ---------------------------------------- | ----------------------------------- |
+| **L0** Setup guide + DCO, run with nothing                                                | XS            | —         | Phases 1, 2, 4, 6                        | ✅ **Shipped** (PR #250)            |
+| **L1** No-external-service local server (stub assembly + `m4d.Sandbox` host + test users) | M (~4–5 days) | —         | Phases 3, 7; CI coverage; manual QA; e2e | ✅ **Shipped** (PR #250)            |
+| **C1** You deploy their PR to test                                                        | XS            | —         | End-to-end validation                    | ✅ **Default** — proposed           |
+| **C3** Owner-scoped API diagnostics                                                       | S             | —         | Self-service debugging                   | ✅ **Pull into Phase 1** — proposed |
+| **L1f** Search/filter/sort for `SongIndexLocal`                                           | S–M           | —         | Interactive browsing of the sandbox      | ✅ **Shipped** (Option A)           |
+| **L3** Their own cloud instance (guide)                                                   | M (docs)      | Theirs    | Full independence                        | ✅ Settled direction — proposed     |
+| **L2** Samplification + terms-gated delivery                                              | L             | —         | Browseable realistic data                | ⏸ When they ask                     |
+| **C4** GitHub Actions environment-gated deploy                                            | M             | —         | Self-service deploys                     | ⏸ Only if C1 stalls                 |
+| **C5** Dedicated API test instance                                                        | M             | $$        | Isolation                                | ❌ Superseded by L3                 |
+| **C2** `showDiagnostics` on production                                                    | XS            | —         | —                                        | ❌ **Reject**                       |
 
-Scale: XS < ½ day · S ≈ 1 day · M ≈ 2–4 days · L ≈ 1–2 weeks. Estimates are of *your* time and
+Scale: XS < ½ day · S ≈ 1 day · M ≈ 2–4 days · L ≈ 1–2 weeks. Estimates are of _your_ time and
 are rough. L1 sat at the top of the M band once it started carrying the sandbox host and
 stub-layer promotion, not just the old `SongIndexLocal`-only scope — and shipped there.
 
-**The path:** L0 → L1 are done ([PR #250](https://github.com/music4dance/music4dance/pull/250)).
-Next up is [L1f](#l1f--search-filter-and-sort-for-songindexlocal-new-fast-follow) — cheap, and it
-finishes what L1 started — then C1/C3 whenever a contributor is actually in the loop, with L3's
-setup guide written when they ask for a deployment of their own. L2 and C4 stay on the shelf
-until something specific demands them.
+**The path:** L0 → L1 → L1f are done ([PR #250](https://github.com/music4dance/music4dance/pull/250)
+plus the [L1f](#l1f--search-filter-and-sort-for-songindexlocal-new-fast-follow) follow-up).
+Next up is C1/C3 whenever a contributor is actually in the loop, with L3's setup guide written
+when they ask for a deployment of their own. L2 and C4 stay on the shelf until something
+specific demands them.
 
 ---
 
@@ -1026,12 +1056,22 @@ until something specific demands them.
 - ~~InMemory or LocalDB for `m4d.Sandbox`'s EF store?~~ **Resolved: InMemory**, with
   `CreateTransientContext` taught to build a matching `UseInMemoryDatabase` context instead of
   throwing (see L1b above) — at the cost of 2 more EF1001 warnings, not yet folded into the
-  tracked internal-EF-API cleanup ([[project_ef1001_connection_string]]).
-- **Which of L1f's options should the search/filter/sort follow-up actually build?** New
-  question, not in the original plan. Recommendation above is Option A (evaluate `SongFilter`'s
-  parsed sub-queries directly, skip OData text entirely) — flagging here since it's the next
-  piece of unstarted work in this document and the recommendation hasn't been road-tested
-  against an actual implementation attempt yet.
+  tracked internal-EF-API cleanup.
+- ~~Which of L1f's options should the search/filter/sort follow-up actually build?~~
+  **Resolved: Option A**, implemented. `SongIndexLocal.Search(SongFilter, ...)` now evaluates
+  `DanceQuery`/`TagQuery`/`UserQuery`/`KeywordQuery`/`SongSort`/tempo-length range/cruft directly
+  against `_songStore`, and `SongSearch.Search()` (`m4d/Services/SongSearch.cs`) was changed to
+  call that overload (now `virtual` on `SongIndex`) instead of pre-flattening to `SearchOptions`,
+  so the browse/filter UI's actual call path reaches it — Azure-backed behavior is unchanged
+  since the base implementation still just does the same flattening inline. Covered by
+  `m4dModels.Tests/SongIndexLocalSearchTests.cs` (dance threshold, tempo range, keyword, tag,
+  sort, paging). Remaining gaps, deferred as originally scoped: raw/customsearch filters
+  (falls back to keyword+sort+paging only), per-dance-scoped tag queries
+  (`DanceQueryItem.TagQuery`), Purchase/service-availability filtering, and vote-based queries
+  (`UserQuery.IsVoted` — still routes through `VoteSearch`/`StreamAll`, which this class doesn't
+  override) — and `SimpleSearch`/`FindArtist`/`SongsFromTitle`/`SongsFromTitleArtist`/`List`
+  (the free-text search box and a few narrower flows) still call the private `DoSearch` directly
+  and aren't intercepted.
 - **Is there any day/window-boundary time dependency in the rating-cap logic** (`TryGetCappedDelta`
   and friends) that would make manual voting tests flaky in the sandbox around midnight or a
   period rollover? Flagging as a question rather than asserting either way — worth a quick check
