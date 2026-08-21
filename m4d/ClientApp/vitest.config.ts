@@ -2,8 +2,27 @@ import { fileURLToPath } from "node:url";
 import { mergeConfig, defineConfig, configDefaults } from "vitest/config";
 import viteConfig from "./vite.config";
 
+// vite-plugin-mkcert's internal plugin name (vite-plugin-mkcert -> vite:plugin:mkcert).
+const MKCERT_PLUGIN_NAME = "vite:plugin:mkcert";
+
 export default mergeConfig(
-  viteConfig,
+  {
+    ...viteConfig,
+    // Vitest never starts a real HTTPS dev server, so mkcert's certificate generation is
+    // unneeded here - and it's fragile in CI: its config hook calls the GitHub API to fetch
+    // the mkcert binary's release info, which GitHub Actions runners routinely get 403'd on
+    // due to shared-IP rate limiting. Locally it's silent because the binary is already
+    // cached under ~/.vite-plugin-mkcert from prior dev-server runs.
+    plugins: (viteConfig.plugins ?? []).filter(
+      (plugin) =>
+        !(
+          plugin &&
+          typeof plugin === "object" &&
+          "name" in plugin &&
+          plugin.name === MKCERT_PLUGIN_NAME
+        ),
+    ),
+  },
   defineConfig({
     test: {
       environment: "jsdom",
