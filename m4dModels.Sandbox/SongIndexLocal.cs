@@ -172,7 +172,7 @@ public class SongIndexLocal : SongIndex
     /// queries (UserQuery.IsVoted - SongSearch routes those through VoteSearch/StreamAll
     /// instead, which this class doesn't override).
     /// </summary>
-    public override async Task<SearchResults> Search(
+    public override Task<SearchResults> Search(
         SongFilter filter, int? pageSize = null, CruftFilter cruft = CruftFilter.NoCruft)
     {
         if (filter.CruftFilter != CruftFilter.NoCruft)
@@ -210,7 +210,11 @@ public class SongIndexLocal : SongIndex
         var total = matchList.Count;
         var paged = matchList.Skip(skip).Take(size).ToList();
 
-        return new SearchResults(filter.SearchString ?? "", paged.Count, total, page, size, paged, null);
+        // Match SongIndex.Search(string, ...): report the Lucene/backtick-stripped keyword
+        // text, not the raw search string, so the UI sees the same query across index
+        // implementations.
+        return Task.FromResult(
+            new SearchResults(filter.KeywordQuery.Keywords, paged.Count, total, page, size, paged, null));
     }
 
     private static string GetSingleDanceId(SongFilter filter)
