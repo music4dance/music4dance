@@ -109,7 +109,11 @@ nothing to provision on our side.
 `DanceStatsManager`, and [`m4dModels.Tests/TestData/`](../m4dModels.Tests/TestData/) already
 ships `test-dances.json`, `test-dances.txt`, `test-tags.txt`, and `dancestatistics.txt`. The
 entire Phase 1 deliverable is testable against data **already committed to the public repo** —
-and none of it is song data, so the no-commit decision doesn't touch it.
+and the dance/tag catalog fields (`dances`/`groups`/`tagGroups`) aren't song data, so the
+no-commit decision doesn't touch them. (`dancestatistics.txt` also carries a `cachedSongs` array
+that _is_ real, PII-cleaned song data used to seed the `m4d.Sandbox` host's database — see
+[song-internal-format.md §12.1](song-internal-format.md#121-contributor-test-fixture-m4dmodelssandboxtestdatadancestatisticstxt)
+for its format and the two different consumers that read it.)
 
 ---
 
