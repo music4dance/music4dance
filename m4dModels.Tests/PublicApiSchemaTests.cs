@@ -75,8 +75,7 @@ public class PublicApiSchemaTests
         services.AddLogging();
         services.AddDbContext<DanceMusicContext>(options =>
             options.UseSqlServer(
-                    "Server=localhost;Database=unused;Integrated Security=True;Encrypt=False")
-                .UseOpenIddict());
+                "Server=localhost;Database=unused;Integrated Security=True;Encrypt=False"));
         services.AddIdentityCore<ApplicationUser>(options =>
                 options.Stores.MaxLengthForKeys = 128)
             .AddRoles<IdentityRole>()

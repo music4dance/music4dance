@@ -11,6 +11,7 @@ internal static class DanzQClient
         var descriptor = new OpenIddictApplicationDescriptor
         {
             ClientId = PublicApiDefaults.Clients.DanzQ,
+            ApplicationType = ApplicationTypes.Native,
             ClientType = ClientTypes.Public,
             ConsentType = ConsentTypes.Explicit,
             DisplayName = PublicApiDefaults.Clients.DanzQDisplayName

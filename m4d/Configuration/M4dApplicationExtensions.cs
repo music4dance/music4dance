@@ -286,8 +286,7 @@ public static class M4dApplicationExtensions
                 // Register a placeholder DbContext to prevent dependency injection failures
                 services.AddDbContext<DanceMusicContext>(options =>
                     options.UseSqlServer("Server=(placeholder);Database=placeholder;", sqlOptions =>
-                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 0))
-                    .UseOpenIddict());
+                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 0)));
             }
             else
             {
@@ -313,7 +312,7 @@ public static class M4dApplicationExtensions
                             // Set command timeout to 60 seconds to handle Azure SQL cold starts
                             // Default is 30s which can timeout when database is warming up
                             sqlOptions.CommandTimeout(60);
-                        }).UseOpenIddict();
+                        });
                     });
                     // Note: Database health is marked healthy after migrations run synchronously
                     // later in startup (or after the first successful FixupStats DB access).
@@ -329,8 +328,7 @@ public static class M4dApplicationExtensions
                     // Register a placeholder DbContext to prevent dependency injection failures
                     services.AddDbContext<DanceMusicContext>(options =>
                         options.UseSqlServer("Server=(placeholder);Database=placeholder;", sqlOptions =>
-                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 0))
-                        .UseOpenIddict());
+                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 0)));
                 }
             }
         }
@@ -892,7 +890,6 @@ public static class M4dApplicationExtensions
                     // the failed connection attempt and giving up before the DB is created.
                     var migrationOptions = new DbContextOptionsBuilder<DanceMusicContext>()
                         .UseSqlServer(connectionString, sqlOptions => sqlOptions.CommandTimeout(60))
-                        .UseOpenIddict()
                         .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning))
                         .Options;
 

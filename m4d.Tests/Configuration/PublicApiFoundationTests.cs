@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 using m4d.PublicApi;
 using m4d.Utilities;
 
@@ -17,6 +19,7 @@ using Moq;
 using OpenIddict.Abstractions;
 using OpenIddict.EntityFrameworkCore.Models;
 using OpenIddict.Server;
+using OpenIddict.Validation.AspNetCore;
 
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
@@ -35,7 +38,7 @@ public class PublicApiFoundationTests
         var count = services.Count;
 
         var result = services.AddPublicApiFoundation(
-            CreateConfiguration(enabled: false),
+            CreateConfiguration(enabled: false, useProductionDatabase: true),
             CreateEnvironment(Environments.Production));
 
         Assert.AreSame(services, result);
@@ -51,6 +54,17 @@ public class PublicApiFoundationTests
             services.AddPublicApiFoundation(
                 CreateConfiguration(enabled: true),
                 CreateEnvironment(Environments.Production)));
+    }
+
+    [TestMethod]
+    public void EnabledWithProductionDatabase_Throws()
+    {
+        var services = new ServiceCollection();
+
+        Assert.ThrowsExactly<InvalidOperationException>(() =>
+            services.AddPublicApiFoundation(
+                CreateConfiguration(enabled: true, useProductionDatabase: true),
+                CreateEnvironment(Environments.Development)));
     }
 
     [TestMethod]
@@ -90,11 +104,19 @@ public class PublicApiFoundationTests
         CollectionAssert.AreEquivalent(
             new[] { GrantTypes.AuthorizationCode, GrantTypes.RefreshToken },
             options.GrantTypes.ToArray());
-        CollectionAssert.IsSubsetOf(
-            new[] { PublicApiDefaults.Scopes.AccountRead, PublicApiDefaults.Scopes.SongsRead },
-            options.Scopes.ToArray());
+        CollectionAssert.AreEquivalent(
+            new[]
+            {
+                Scopes.OfflineAccess,
+                PublicApiDefaults.Scopes.AccountRead,
+                PublicApiDefaults.Scopes.SongsRead
+            },
+            options.Scopes.ToArray(),
+            $"Configured scopes: {string.Join(", ", options.Scopes)}");
         Assert.IsTrue(options.RequireProofKeyForCodeExchange);
         Assert.IsTrue(options.UseReferenceAccessTokens);
+        Assert.AreEqual(TimeSpan.FromMinutes(1), options.AuthorizationCodeLifetime);
+        Assert.AreEqual(TimeSpan.FromHours(1), options.AccessTokenLifetime);
         CollectionAssert.AreEquivalent(
             new[] { CodeChallengeMethods.Sha256 },
             options.CodeChallengeMethods.ToArray());
@@ -107,15 +129,94 @@ public class PublicApiFoundationTests
         Assert.AreEqual(
             PublicApiDefaults.Endpoints.Token,
             options.TokenEndpointUris.Single().OriginalString);
+
+        var aspNetCore = provider
+            .GetRequiredService<IOptions<OpenIddictValidationAspNetCoreOptions>>()
+            .Value;
+        Assert.IsFalse(aspNetCore.DisableAccessTokenExtractionFromAuthorizationHeader);
+        Assert.IsTrue(aspNetCore.DisableAccessTokenExtractionFromBodyForm);
+        Assert.IsTrue(aspNetCore.DisableAccessTokenExtractionFromQueryString);
     }
 
     [TestMethod]
     public void DanzQDescriptor_IsARestrictedPkcePublicClient()
     {
-        var descriptor = DanzQClient.CreateDescriptor();
+        AssertDanzQDescriptor(DanzQClient.CreateDescriptor());
+    }
 
+    [TestMethod]
+    public async Task DanzQInitializer_CreatesAndRepairsRegistration()
+    {
+        var services = CreateEnabledServices();
+        await using var provider = services.BuildServiceProvider();
+        var initializer = provider.GetServices<IHostedService>()
+            .OfType<DanzQClientInitializer>()
+            .Single();
+
+        await initializer.StartAsync(CancellationToken.None);
+
+        using (var setupScope = provider.CreateScope())
+        {
+            var setupManager = setupScope.ServiceProvider
+                .GetRequiredService<IOpenIddictApplicationManager>();
+            var setupApplication = await setupManager.FindByClientIdAsync(
+                PublicApiDefaults.Clients.DanzQ,
+                CancellationToken.None);
+            Assert.IsNotNull(setupApplication);
+
+            var stale = new OpenIddictApplicationDescriptor
+            {
+                ClientId = PublicApiDefaults.Clients.DanzQ,
+                ClientType = ClientTypes.Public,
+                DisplayName = "Stale DanzQ registration"
+            };
+            stale.RedirectUris.Add(new Uri("com.example.danzq:/old-callback"));
+            await setupManager.UpdateAsync(setupApplication, stale, CancellationToken.None);
+        }
+
+        await initializer.StartAsync(CancellationToken.None);
+        await initializer.StartAsync(CancellationToken.None);
+
+        using var scope = provider.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
+        Assert.AreEqual(
+            1,
+            await context.Set<OpenIddictEntityFrameworkCoreApplication>().CountAsync());
+
+        var manager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
+        var application = await manager.FindByClientIdAsync(
+            PublicApiDefaults.Clients.DanzQ,
+            CancellationToken.None);
+        Assert.IsNotNull(application);
+
+        var descriptor = new OpenIddictApplicationDescriptor();
+        await manager.PopulateAsync(descriptor, application, CancellationToken.None);
+        AssertDanzQDescriptor(descriptor);
+    }
+
+    [TestMethod]
+    public async Task SubscriberPolicy_FailsClosedWithoutEntitlementHandler()
+    {
+        var services = CreateEnabledServices();
+        await using var provider = services.BuildServiceProvider();
+        var authorization = provider.GetRequiredService<IAuthorizationService>();
+        var user = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.NameIdentifier, "subscriber")],
+            PublicApiDefaults.BearerScheme));
+
+        var result = await authorization.AuthorizeAsync(
+            user,
+            resource: null,
+            PublicApiDefaults.SubscriberPolicy);
+
+        Assert.IsFalse(result.Succeeded);
+    }
+
+    private static void AssertDanzQDescriptor(OpenIddictApplicationDescriptor descriptor)
+    {
         Assert.AreEqual(PublicApiDefaults.Clients.DanzQ, descriptor.ClientId);
         Assert.AreEqual(PublicApiDefaults.Clients.DanzQDisplayName, descriptor.DisplayName);
+        Assert.AreEqual(ApplicationTypes.Native, descriptor.ApplicationType);
         Assert.AreEqual(ClientTypes.Public, descriptor.ClientType);
         Assert.AreEqual(ConsentTypes.Explicit, descriptor.ConsentType);
         Assert.IsNull(descriptor.ClientSecret);
@@ -136,30 +237,6 @@ public class PublicApiFoundationTests
             [Requirements.Features.ProofKeyForCodeExchange]));
     }
 
-    [TestMethod]
-    public async Task DanzQInitializer_IsIdempotent()
-    {
-        var services = CreateEnabledServices();
-        await using var provider = services.BuildServiceProvider();
-        var initializer = provider.GetServices<IHostedService>()
-            .OfType<DanzQClientInitializer>()
-            .Single();
-
-        await initializer.StartAsync(CancellationToken.None);
-        await initializer.StartAsync(CancellationToken.None);
-
-        using var scope = provider.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<DanceMusicContext>();
-        Assert.AreEqual(
-            1,
-            await context.Set<OpenIddictEntityFrameworkCoreApplication>().CountAsync());
-
-        var manager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
-        Assert.IsNotNull(await manager.FindByClientIdAsync(
-            PublicApiDefaults.Clients.DanzQ,
-            CancellationToken.None));
-    }
-
     private static ServiceCollection CreateEnabledServices()
     {
         var services = new ServiceCollection();
@@ -173,19 +250,21 @@ public class PublicApiFoundationTests
             })
             .AddCookie(ExistingScheme);
         services.AddDbContext<DanceMusicContext>(options =>
-            options.UseInMemoryDatabase(databaseName)
-                .UseOpenIddict());
+            options.UseInMemoryDatabase(databaseName));
         services.AddPublicApiFoundation(
             CreateConfiguration(enabled: true),
             CreateEnvironment(Environments.Development));
         return services;
     }
 
-    private static IConfiguration CreateConfiguration(bool enabled) =>
+    private static IConfiguration CreateConfiguration(
+        bool enabled,
+        bool useProductionDatabase = false) =>
         new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                [$"FeatureManagement:{FeatureFlags.PublicApi}"] = enabled.ToString()
+                [$"FeatureManagement:{FeatureFlags.PublicApi}"] = enabled.ToString(),
+                ["PROD_DB"] = useProductionDatabase.ToString()
             })
             .Build();
 

@@ -25,6 +25,12 @@ public static class PublicApiServiceCollectionExtensions
                 "The public API cannot be enabled until production signing keys are configured.");
         }
 
+        if (configuration.GetValue<bool>("PROD_DB"))
+        {
+            throw new InvalidOperationException(
+                "The public API cannot be enabled from Development while using the production database.");
+        }
+
         services.AddOpenIddict()
             .AddCore(options =>
             {
@@ -39,6 +45,8 @@ public static class PublicApiServiceCollectionExtensions
                     .SetAuthorizationEndpointUris(PublicApiDefaults.Endpoints.Authorization)
                     .SetRevocationEndpointUris(PublicApiDefaults.Endpoints.Revocation)
                     .SetTokenEndpointUris(PublicApiDefaults.Endpoints.Token)
+                    .SetAuthorizationCodeLifetime(TimeSpan.FromMinutes(1))
+                    .SetAccessTokenLifetime(TimeSpan.FromHours(1))
                     .UseReferenceAccessTokens()
                     .RegisterScopes(
                         PublicApiDefaults.Scopes.AccountRead,
@@ -49,12 +57,15 @@ public static class PublicApiServiceCollectionExtensions
                 {
                     server.CodeChallengeMethods.Clear();
                     server.CodeChallengeMethods.Add(CodeChallengeMethods.Sha256);
+                    server.Scopes.Remove(Scopes.OpenId);
                 });
             })
             .AddValidation(options =>
             {
                 options.UseLocalServer();
-                options.UseAspNetCore();
+                options.UseAspNetCore()
+                    .DisableAccessTokenExtractionFromBodyForm()
+                    .DisableAccessTokenExtractionFromQueryString();
             });
 
         services.AddAuthorization(options =>

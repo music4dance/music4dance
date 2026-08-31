@@ -35,13 +35,16 @@ document.
 The foundation adds the four standard OpenIddict EF Core tables, a DanzQ client descriptor,
 the validation bearer scheme, read-scope constants, and a fail-closed subscriber policy
 requirement. `FeatureManagement:PublicApi` is false in every checked-in configuration.
-When enabled in Development, the DanzQ registration is created or updated at startup and
-temporary signing and encryption keys are used. The server reserves the agreed
+It is a global startup switch: filter-based definitions and variants are not supported, and
+changes take effect only after a restart. When enabled in Development, the DanzQ
+registration is created or updated at startup and temporary signing and encryption keys are
+used. The server reserves the agreed
 `/connect/authorize`, `/connect/token`, and `/connect/revocation` protocol paths for code
 flow with PKCE and refresh tokens. The ASP.NET Core server host integration is deliberately
 deferred to PR 2, so the foundation exposes neither those paths nor discovery metadata.
-Enabling the feature outside Development fails until production keys are configured. No
-`/v1/*` endpoint is mapped by the foundation.
+Enabling the feature outside Development fails until production keys are configured. It is
+also rejected when a Development process uses `PROD_DB`. No `/v1/*` endpoint is mapped by
+the foundation.
 
 ---
 
@@ -102,7 +105,7 @@ is the one part of the system where a bug is a breach.
 
 Correcting the earlier draft, which muddied this: **PKCE is entirely orthogonal to how many
 instances we run.** It solves a problem that lives on the *device* — on mobile, the redirect
-back to the app (`danzq://auth/callback`) can in principle be intercepted by another app
+back to the app (`com.domke.danzq:/oauth/callback`) can in principle be intercepted by another app
 that registered the same URI scheme. PKCE means an intercepted authorization code is
 useless without the `code_verifier`, which never left the legitimate app.
 
@@ -144,7 +147,7 @@ Connect remains available if a future client has a genuine identity-token requir
 | [RFC 6749](https://datatracker.ietf.org/doc/html/rfc6749) | OAuth 2.0 core — Authorization Code grant |
 | [RFC 7636](https://datatracker.ietf.org/doc/html/rfc7636) | **PKCE** — mandatory here |
 | [RFC 8252](https://datatracker.ietf.org/doc/html/rfc8252) | **OAuth for Native Apps** (BCP 212) — requires an external user-agent, never an embedded webview |
-| [OpenID Connect Core](https://openid.net/specs/openid-connect-core-1_0.html) | `id_token` — the client-readable JWT discussed above |
+| [OpenID Connect Core](https://openid.net/specs/openid-connect-core-1_0.html) | `id_token` for a future client that needs identity claims |
 | [RFC 6750](https://datatracker.ietf.org/doc/html/rfc6750) | Bearer token usage |
 | [RFC 7009](https://datatracker.ietf.org/doc/html/rfc7009) | Token revocation endpoint |
 | [RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414) | AS metadata — the `/.well-known` doc that lets a new developer self-configure |
@@ -324,8 +327,8 @@ the property the developer asked for, and the one Apple looks for.
 
 ### Flow C — Ongoing use and revocation
 
-- Access token expires hourly; silent refresh. **Refresh tokens rotate** on every use;
-  a replayed refresh token revokes the chain (RFC 9700 §4.14).
+- Access tokens expire hourly. PR 2 must define and protocol-test refresh-token rotation and
+  replay handling before the authorization endpoints are exposed.
 - User revokes at **Account → Connected Apps**: app name, connection date, last used,
   scopes, `[Disconnect]`.
 - App revokes on sign-out via `POST /connect/revocation`.
@@ -371,7 +374,7 @@ toward Spotify-matched songs*. An ISRC-only lookup will miss songs we genuinely 
 This makes the fallback chain essential rather than optional:
 
 ```txt
-GET /v1/songs/resolve?isrc=…&appleMusicId=…&spotifyId=…&title=…&artist=…
+POST /v1/songs/resolve
 
   1. isrc          → ServiceIds "R:{isrc}"     exact   ─┐
   2. appleMusicId  → ServiceIds "I:{id}"       exact    ├─ high confidence
@@ -440,12 +443,13 @@ and truncates `danceRatings` to 3.
 ### The API must not accept cookies
 
 ```csharp
-[Authorize(AuthenticationSchemes = M4dApiDefaults.BearerScheme)]
+[Authorize(Policy = PublicApiDefaults.SubscriberPolicy)]
 ```
 
 If `/v1/*` also accepted the site session cookie, every CSRF concern that
 `[ValidateAntiForgeryToken]` currently handles on `/api/*` would reappear on endpoints with
-no antiforgery protection. Bearer only.
+no antiforgery protection. Bearer only. Each endpoint must additionally enforce its required
+scope.
 
 ---
 
@@ -679,6 +683,9 @@ endpoint, per-client volume alerting. The API is a new front door to the entire 
 | **2. Authorization flow** | `/connect/*`, metadata, consent, PKCE, refresh and revocation behavior, protocol tests | Song and account APIs |
 | **3. Account and subscriber enforcement** | `/v1/me`, current entitlement evaluation, API errors, rate-limit keying, `UsageLog.ClientId` | Song resolution |
 | **4. Read-only resolution** | `POST /v1/songs/resolve`, ISRC then Apple Music then title/artist matching, minimal dance projection | Trial access and writes |
+| **Future: Trial access** | Anonymous grant, device binding, metering, and reduced payload | Not part of the subscriber MVP |
+| **Future: Developer self-service** | Client registration, approval, revocation UI, and terms | Needed only before another client is onboarded |
+| **Future: Voting** | Narrow vote endpoints, `dances:vote`, and property-log client attribution | Separate security review before the first API write |
 
 These four PRs complete the server-side authenticated-subscriber MVP. DanzQ's client
 integration and an end-to-end test are also required before the app itself can ship.
