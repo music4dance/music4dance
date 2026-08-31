@@ -3,6 +3,7 @@ using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
 
 using m4d.Areas.Identity;
+using m4d.PublicApi;
 using m4d.Services;
 using m4d.Services.ServiceHealth;
 using m4d.Utilities;
@@ -285,7 +286,8 @@ public static class M4dApplicationExtensions
                 // Register a placeholder DbContext to prevent dependency injection failures
                 services.AddDbContext<DanceMusicContext>(options =>
                     options.UseSqlServer("Server=(placeholder);Database=placeholder;", sqlOptions =>
-                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 0)));
+                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 0))
+                    .UseOpenIddict());
             }
             else
             {
@@ -311,7 +313,7 @@ public static class M4dApplicationExtensions
                             // Set command timeout to 60 seconds to handle Azure SQL cold starts
                             // Default is 30s which can timeout when database is warming up
                             sqlOptions.CommandTimeout(60);
-                        });
+                        }).UseOpenIddict();
                     });
                     // Note: Database health is marked healthy after migrations run synchronously
                     // later in startup (or after the first successful FixupStats DB access).
@@ -327,7 +329,8 @@ public static class M4dApplicationExtensions
                     // Register a placeholder DbContext to prevent dependency injection failures
                     services.AddDbContext<DanceMusicContext>(options =>
                         options.UseSqlServer("Server=(placeholder);Database=placeholder;", sqlOptions =>
-                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 0)));
+                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 0))
+                        .UseOpenIddict());
                 }
             }
         }
@@ -462,6 +465,8 @@ public static class M4dApplicationExtensions
 
         // Spotify OAuth
         authBuilder.AddSpotifyWithResilience(configuration, serviceHealth);
+
+        services.AddPublicApiFoundation(configuration, environment);
 
         // reCAPTCHA
         services.AddReCaptchaWithResilience(configuration, serviceHealth);
@@ -887,6 +892,7 @@ public static class M4dApplicationExtensions
                     // the failed connection attempt and giving up before the DB is created.
                     var migrationOptions = new DbContextOptionsBuilder<DanceMusicContext>()
                         .UseSqlServer(connectionString, sqlOptions => sqlOptions.CommandTimeout(60))
+                        .UseOpenIddict()
                         .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning))
                         .Options;
 

@@ -42,6 +42,8 @@ public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : Id
             throw new Exception("Cannot create a new dbcontext from a test context");
         }
 
+        _ = builder.UseOpenIddict();
+
         return new DanceMusicContext(builder.Options);
     }
 

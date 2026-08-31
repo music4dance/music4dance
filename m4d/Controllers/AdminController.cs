@@ -2124,6 +2124,7 @@ public class AdminController(
             // ('Database.Context') one that doesn't have that suppression configured.
             var migrationOptions = new DbContextOptionsBuilder<DanceMusicContext>()
                 .UseSqlServer(context.Database.GetConnectionString())
+                .UseOpenIddict()
                 .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning))
                 .Options;
             using var migrationContext = new DanceMusicContext(migrationOptions);

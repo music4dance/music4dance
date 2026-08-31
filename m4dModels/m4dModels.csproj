@@ -16,6 +16,7 @@
     <PackageReference Include="Microsoft.Extensions.Azure" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="OpenIddict.EntityFrameworkCore" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DanceLib\DanceLibrary.csproj" />

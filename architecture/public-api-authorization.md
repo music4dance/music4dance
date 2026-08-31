@@ -1,11 +1,47 @@
 # Public API & Third-Party Authorization
 
-**Status:** 📋 Proposed — design only, nothing implemented
+**Status:** Foundation implemented behind a disabled feature flag; later slices remain proposed
 
 **Context:** An independent iOS developer (DanzQ) has offered to contribute a token
 mechanism so their app can look up songs and show matching dances, without asking users
 to type their music4dance password into a third-party app. This document generalizes that
 request into a design that can onboard any number of third-party developers.
+
+---
+
+## Current DanzQ Subscriber MVP
+
+Issue [#253](https://github.com/music4dance/music4dance/issues/253) narrows the first
+delivery to read-only access for existing subscribers. This section records the current
+contract and takes precedence over the broader trial and write-API ideas later in this
+document.
+
+- OpenIddict uses Authorization Code with PKCE for the public native client. DanzQ has no
+  client secret and uses the exact redirect URI `com.domke.danzq:/oauth/callback`.
+- The client requests `account:read`, `songs:read`, and `offline_access`. It treats access
+  tokens as opaque. The MVP does not request `openid` or use an `id_token`.
+- OpenIddict's conventional `/connect/*` paths are used for the authorization flow.
+- The API uses a dedicated bearer scheme. Site cookies must not authorize `/v1/*`.
+- The first API consists of `/v1/me` and `POST /v1/songs/resolve`. There is no
+  `/v1/dances`, trial grant, voting, or general song-search surface in this MVP.
+- Subscriber entitlement is evaluated from current database state. The exact treatment of
+  manual roles and expiry remains open and is isolated behind one authorization policy.
+- Client attribution in `UsageLog` belongs with subscriber enforcement. Property-log
+  attribution is required only before the first API write and does not block this read-only
+  slice.
+
+### Foundation implementation
+
+The foundation adds the four standard OpenIddict EF Core tables, a DanzQ client descriptor,
+the validation bearer scheme, read-scope constants, and a fail-closed subscriber policy
+requirement. `FeatureManagement:PublicApi` is false in every checked-in configuration.
+When enabled in Development, the DanzQ registration is created or updated at startup and
+temporary signing and encryption keys are used. The server reserves the agreed
+`/connect/authorize`, `/connect/token`, and `/connect/revocation` protocol paths for code
+flow with PKCE and refresh tokens. The ASP.NET Core server host integration is deliberately
+deferred to PR 2, so the foundation exposes neither those paths nor discovery metadata.
+Enabling the feature outside Development fails until production keys are configured. No
+`/v1/*` endpoint is mapped by the foundation.
 
 ---
 
@@ -92,36 +128,14 @@ If the site ever scales out, the mitigation is a short-TTL per-instance cache wi
 revocation lag — which is precisely the tradeoff JWTs force on you anyway, except with a
 JWT you can't opt out of it.
 
-### If the developer prefers JWTs (1b)
+### Client-visible account state
 
-Mostly a category error worth resolving gently, because the underlying want is legitimate.
-
-**Access tokens are opaque to the client by specification** —
-[RFC 6749 §1.4](https://datatracker.ietf.org/doc/html/rfc6749#section-1.4). A client is not
-supposed to parse an access token; the format is the authorization server's private
-business. So "I'd prefer a JWT" almost always means something more specific:
-
-> *"I want to know who the user is and what tier they're on without an extra round trip."*
-
-The standard answer to that is **OpenID Connect**: issue a JWT **`id_token`** alongside the
-opaque access token. The `id_token` is *designed* to be read by the client, carries signed
-claims (`sub`, `preferred_username`, and a custom `m4d_tier`), and gives him exactly the
-ergonomics he's after. OpenIddict does OIDC natively, so this costs us nothing.
-
-**Recommendation: give him OIDC id_tokens, keep access tokens opaque.** That is the
-conventional split, and it satisfies the real requirement.
-
-If he still wants JWT *access* tokens, it's a cheap concession rather than a fight — set a
-short TTL (5–10 min) plus refresh, and revocation lag stays bounded. Two things to weigh
-before agreeing:
-
-- It buys nothing measurable, since we hit the database for subscription state regardless.
-- It adds **signing key management** — a JWKS endpoint, key rotation, and key persistence
-  that interacts with the Data Protection key ring setup in
-  [Program.cs](../m4d/Program.cs#L431). That's new operational surface for no gain.
-
-Worth saying plainly to him: the format question is ours, the ergonomics question is his,
-and OIDC gives him the ergonomics.
+Access tokens are opaque to the client by specification
+([RFC 6749 §1.4](https://datatracker.ietf.org/doc/html/rfc6749#section-1.4)). DanzQ must not
+parse one or depend on its server-side encoding. For the subscriber MVP, `/v1/me` returns
+the small amount of current account and entitlement state the app needs. This avoids stale
+subscription claims and keeps `openid` and `id_token` out of the first contract. OpenID
+Connect remains available if a future client has a genuine identity-token requirement.
 
 ### Reference documentation
 
@@ -260,13 +274,13 @@ User installs DanzQ
   ├─> First launch: device identity established
   │     ├─> Keychain: persistent install UUID (survives reinstall)
   │     └─> DeviceCheck: query "trial consumed" bit
-  │   └─> POST /oauth/token
+  │   └─> POST /connect/token
   │         grant_type=urn:m4d:params:oauth:grant-type:anonymous
   │         client_id=danzq-ios & device_id=<uuid>
   │       → { access_token, scope: "songs:read", tier: "trial",
   │           allowance_remaining: 15 }
   │
-  ├─> User Shazams a track → GET /v1/songs/resolve?isrc=…&appleMusicId=…
+  ├─> User Shazams a track → POST /v1/songs/resolve
   │   └─> Top 3 dance matches. No tags, no per-dance tempo detail.
   │       X-M4D-Allowance-Remaining: 14
   │
@@ -282,9 +296,9 @@ User taps "Connect music4dance account"
   │
   ├─> App generates code_verifier + code_challenge (PKCE)
   ├─> App opens ASWebAuthenticationSession →
-  │     https://www.music4dance.net/oauth/authorize
-  │       ?client_id=danzq-ios&redirect_uri=danzq://auth/callback
-  │       &response_type=code&scope=openid+songs:read+dances:read
+  │     https://www.music4dance.net/connect/authorize
+  │       ?client_id=danzq-ios&redirect_uri=com.domke.danzq:/oauth/callback
+  │       &response_type=code&scope=account:read+songs:read+offline_access
   │       &code_challenge=<S256>&code_challenge_method=S256&state=<nonce>
   │
   ├─> [music4dance.net — real browser, real URL bar]
@@ -297,11 +311,10 @@ User taps "Connect music4dance account"
   │            DanzQ cannot see your password or change your data.
   │            Disconnect any time from Account → Connected Apps."
   │
-  ├─> Allow → 302 danzq://auth/callback?code=<one-time>&state=<nonce>
+  ├─> Allow → 302 com.domke.danzq:/oauth/callback?code=<one-time>&state=<nonce>
   │
-  ├─> App: POST /oauth/token (code + code_verifier)
-  │       → { access_token (opaque), id_token (JWT), refresh_token }
-  │         id_token claims: sub, preferred_username, m4d_tier
+  ├─> App: POST /connect/token (code + code_verifier)
+  │       → { access_token (opaque), refresh_token }
   │
   └─> App shows "Connected as dwgray · Premium until 2027-03-14"
 ```
@@ -315,7 +328,7 @@ the property the developer asked for, and the one Apple looks for.
   a replayed refresh token revokes the chain (RFC 9700 §4.14).
 - User revokes at **Account → Connected Apps**: app name, connection date, last used,
   scopes, `[Disconnect]`.
-- App revokes on sign-out via `POST /oauth/revoke`.
+- App revokes on sign-out via `POST /connect/revocation`.
 - We revoke a whole client from the admin area — every token for that `client_id` dies.
 
 ### Upgrade prompt
@@ -395,12 +408,12 @@ goodwill is high.
 ## API Surface
 
 ```txt
-GET  /v1/songs/resolve?isrc=&appleMusicId=&spotifyId=&title=&artist=
-GET  /v1/songs?search=                 Free-text search
-GET  /v1/songs/{id}                    Song detail
-GET  /v1/dances                        Dance catalog + tempo ranges (cacheable, static)
-GET  /v1/me                            Username, tier, allowance remaining
+GET   /v1/me                 Current account and subscriber entitlement
+POST  /v1/songs/resolve      Read-only resolution from recognition metadata
 ```
+
+Generic search, song details, and a dance catalog are possible later additions, not part of
+the DanzQ subscriber MVP.
 
 Example subscriber response, using real field names from [Song.cs](../m4dModels/Song.cs)
 and [DanceRating.cs](../m4dModels/DanceRating.cs):
@@ -548,7 +561,7 @@ and the social-federation part is already done.
 ### Why this project helps rather than hinders
 
 The useful insight: **becoming an OAuth/OIDC authorization server creates exactly the seam a
-future migration needs.** Once third-party clients authenticate against *our* `/oauth/*`
+future migration needs.** Once third-party clients authenticate against *our* `/connect/*`
 endpoints, the credential backend behind those endpoints is an implementation detail. Swap
 it later and no client notices — that is the entire point of the abstraction.
 
@@ -658,54 +671,41 @@ endpoint, per-client volume alerting. The API is a new front door to the entire 
 
 ## Implementation Phases
 
-### Core — ships as the subscriber MVP, in order
+### Core: subscriber MVP, in order
 
-| Phase | Scope | Notes |
+| PR | Scope | Excluded |
 | --- | --- | --- |
-| **1. Foundation** | OpenIddict + EF stores, `ApiClientProfile`, `ApiTierPolicy`, migrations, bearer scheme, `/v1/dances` | Proves the plumbing. No UI. |
-| **2. Authorization flow** | `/oauth/authorize`, `/oauth/token`, `/oauth/revoke`, `.well-known`, consent page, OIDC `id_token` | Security-critical. Review hardest here. |
-| **3. Read API** | `/v1/songs/resolve` with the ISRC→Apple→Spotify→title/artist cascade, `/v1/songs/{id}`, `/v1/me` | Reuses the existing ISRC pattern at SongController.cs:202. |
-| **4. Metering** | Tier policy enforcement, lifetime allowance tracking, `X-M4D-Allowance-*`, `UsageLog.ClientId` | Where Model A vs B becomes config. |
+| **1. Foundation and schema** | OpenIddict stores and migration, disabled feature flag, scopes, DanzQ development registration, bearer scheme, subscriber-policy seam | Server host integration, authorization UI, and `/v1/*` endpoints |
+| **2. Authorization flow** | `/connect/*`, metadata, consent, PKCE, refresh and revocation behavior, protocol tests | Song and account APIs |
+| **3. Account and subscriber enforcement** | `/v1/me`, current entitlement evaluation, API errors, rate-limit keying, `UsageLog.ClientId` | Song resolution |
+| **4. Read-only resolution** | `POST /v1/songs/resolve`, ISRC then Apple Music then title/artist matching, minimal dance projection | Trial access and writes |
 
-**Agreed: we can ship — real subscribers, real Production traffic — once Phase 4 is done.**
-None of Trial tier, Developer self-serve, or Voting below is required to get there.
+These four PRs complete the server-side authenticated-subscriber MVP. DanzQ's client
+integration and an end-to-end test are also required before the app itself can ship.
 
-**One thing to pull forward:** the vote-attribution decision (recording client ID in the
-property log) should land in **Phase 1's schema**, even though voting is one of the later,
-optional phases below. Append-only history means retrofitting it is impossible.
+### Required before real Production traffic
 
-### Required before real Production traffic, independent of everything below
-
-| Phase | Scope | Notes |
+| Gate | Scope | Notes |
 | --- | --- | --- |
-| **Production key management** | Replace `AddEphemeralSigningKey`/`AddEphemeralEncryptionKey` with persisted signing/encryption keys, then narrow the Foundation's environment guard from a hard Production block to a real-keys-configured check | Not implied by Phases 1–4 shipping. Nothing in this plan provisions durable keys, so Production stays blocked — and every token gets invalidated on restart — until this lands. |
+| **Production key management** | Replace `AddEphemeralSigningKey` and `AddEphemeralEncryptionKey` with persisted signing and encryption keys, then replace the Production startup block with a durable-key configuration check | Production stays blocked until this lands. Staging may use ephemeral keys for PR smoke tests. |
 
-Phases 1–4 can ship and prove themselves against `m4d-test` in Staging without this — the
-Foundation's environment guard should widen from "Development only" to "not Production" as
-part of Phase 1, so each phase gets a real Staging deploy cycle. But actually serving Production
-traffic needs durable keys first; this gates go-live regardless of how much of the rest of this
-document is done.
+The four Core PRs can be deployed to `m4d-test` in Staging without durable keys. Production
+traffic additionally requires Production key management, regardless of which later additions
+have shipped.
 
-### Later — independent, no required order
+### Later: independent, no required order
 
-Each of these is a standalone addition on top of the shipped Core. None depends on the others,
-so build order is whatever's useful next — Voting before Trial tier and Developer self-serve is
-fine.
+Each addition builds on the Core, but none depends on the other later additions.
 
 | Addition | Scope | Notes |
 | --- | --- | --- |
 | **Trial tier** | Anonymous grant, Keychain + DeviceCheck binding, per-client ceiling, reduced payload | Ships the no-registration experience. |
 | **Developer self-serve** | `/developers` registration, admin approve/revoke UI, published terms | Needed before developer #2. |
-| **Voting write API** | `PUT/DELETE /v1/songs/{id}/votes/{danceId}`, `dances:vote` scope, client attribution in property log | **Separate review** regardless of when it ships. |
+| **Voting write API** | `PUT/DELETE /v1/songs/{id}/votes/{danceId}`, `dances:vote` scope, client attribution in property log | Requires a separate security review. Property-log attribution must be settled before the first Production API write. |
 
-**Feature-flag each of these separately**, rather than reusing the single `PublicApi` flag from
-Phase 1. That flag covers a true dependency chain (Foundation → Authorization flow → Read API →
-Metering) where each piece is meaningless without the ones before it, so one flag for the whole
-chain is correct. Trial tier, Developer self-serve, and Voting have no such dependency on one
-another — if Voting ships before Trial tier, a shared flag would force turning on unfinished
-Trial-tier code (or a half-built Developer self-serve UI) just to expose Voting. Suggested
-names, following the existing `FeatureFlags` convention: `PublicApiTrial`,
-`PublicApiDeveloperPortal`, `PublicApiVoting`.
+The single `PublicApi` flag covers the Core dependency chain. Each later addition should use
+its own flag so it can ship independently: `PublicApiTrial`, `PublicApiDeveloperPortal`, and
+`PublicApiVoting`.
 
 ---
 
@@ -716,8 +716,8 @@ given this touches authentication:
 
 1. **We choose the library.** Specify OpenIddict up front rather than reviewing a
    hand-rolled implementation and asking for a rewrite. Cheaper for both sides.
-2. **Resolve the token-format question early** — offer OIDC `id_token` as the answer to what
-   he's actually after. Better settled in conversation than in PR review.
+2. **Keep the access token opaque to DanzQ.** The MVP obtains current account and
+   subscription state from `/v1/me` and does not request an OIDC `id_token`.
 3. **Split the PR by phase.** Schema + OAuth endpoints + API surface + rate limiting in one
    PR is not reviewably safe.
 4. **Feature-flag everything**, default off, so work can merge before it's exposed.
@@ -739,7 +739,7 @@ given this touches authentication:
 - **Is 15 the right lifetime allowance?** Unknowable until real users hit it — hence the
   policy table.
 - **Should API votes be distinguishable from site votes in the property log?** Recommendation
-  is yes, decided in Phase 1. Irreversible once votes are written.
+  is yes. Decide and implement this before the first production API write.
 - **Should the trial tier be grantable per client**, rather than automatic on approval?
   Leaning yes — it's the highest-abuse surface.
 - **Playlist access as a subscriber differentiator?**

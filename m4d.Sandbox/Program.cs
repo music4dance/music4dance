@@ -40,7 +40,7 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 builder.AddM4dApplication(connectionString: null, appOptions: sandboxOptions);
 
 builder.Services.AddDbContext<DanceMusicContext>(options =>
-    options.UseInMemoryDatabase(SandboxDbName));
+    options.UseInMemoryDatabase(SandboxDbName).UseOpenIddict());
 
 builder.Services.AddSingleton<ISearchServiceManager, LocalSearchServiceManager>();
 builder.Services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(new LocalDanceStatsFileManager()));
