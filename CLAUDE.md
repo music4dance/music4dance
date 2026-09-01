@@ -113,4 +113,4 @@ See `architecture/testing-patterns.md` for full format reference.
 - Tempo is measured in **MPM** (Measures Per Minute) as the primary unit; BPM and BPS are secondary
 - Each dance has a specific tempo range; same music can match multiple dances
 - Organizations (NDCA, DanceSport) may define different tempo requirements for the same dance
-- Dance IDs use lowercase with hyphens (e.g., `american-rhythm`)
+- Dance IDs are three-letter mnemonic codes (e.g., `WCS`, `SWZ`), defined in `m4d/ClientApp/src/assets/content/dances.json`. Kebab-case, lowercase-hyphen slugs (e.g., `american-rhythm`) are used for style/category page URLs, not dance IDs.

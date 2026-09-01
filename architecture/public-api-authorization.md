@@ -414,9 +414,9 @@ and [DanceRating.cs](../m4dModels/DanceRating.cs):
   "meter": "4/4",
   "length": 231,
   "danceRatings": [
-    { "danceId": "west-coast-swing", "danceName": "West Coast Swing",
+    { "danceId": "WCS", "danceName": "West Coast Swing",
       "weight": 12, "tempo": 44.5, "tags": ["Smooth:Style"] },
-    { "danceId": "rumba", "danceName": "Rumba", "weight": 3 }
+    { "danceId": "RMB", "danceName": "Rumba", "weight": 3 }
   ]
 }
 ```
@@ -658,22 +658,54 @@ endpoint, per-client volume alerting. The API is a new front door to the entire 
 
 ## Implementation Phases
 
+### Core — ships as the subscriber MVP, in order
+
 | Phase | Scope | Notes |
 | --- | --- | --- |
 | **1. Foundation** | OpenIddict + EF stores, `ApiClientProfile`, `ApiTierPolicy`, migrations, bearer scheme, `/v1/dances` | Proves the plumbing. No UI. |
 | **2. Authorization flow** | `/oauth/authorize`, `/oauth/token`, `/oauth/revoke`, `.well-known`, consent page, OIDC `id_token` | Security-critical. Review hardest here. |
 | **3. Read API** | `/v1/songs/resolve` with the ISRC→Apple→Spotify→title/artist cascade, `/v1/songs/{id}`, `/v1/me` | Reuses the existing ISRC pattern at SongController.cs:202. |
 | **4. Metering** | Tier policy enforcement, lifetime allowance tracking, `X-M4D-Allowance-*`, `UsageLog.ClientId` | Where Model A vs B becomes config. |
-| **5. Trial tier** | Anonymous grant, Keychain + DeviceCheck binding, per-client ceiling, reduced payload | Ships the no-registration experience. |
-| **6. Developer self-serve** | `/developers` registration, admin approve/revoke UI, published terms | Needed before developer #2. |
-| **7. Voting write API** | `PUT/DELETE /v1/songs/{id}/votes/{danceId}`, `dances:vote` scope, client attribution in property log | **Separate review.** Settle the attribution question in Phase 1's schema. |
 
-Phases 1–3 let DanzQ ship against paid accounts. Phase 5 delivers the trial. Phase 7 is the
-fast follow.
+**Agreed: we can ship — real subscribers, real Production traffic — once Phase 4 is done.**
+None of Trial tier, Developer self-serve, or Voting below is required to get there.
 
 **One thing to pull forward:** the vote-attribution decision (recording client ID in the
-property log) should land in **Phase 1's schema**, even though voting is Phase 7. Append-only
-history means retrofitting it is impossible.
+property log) should land in **Phase 1's schema**, even though voting is one of the later,
+optional phases below. Append-only history means retrofitting it is impossible.
+
+### Required before real Production traffic, independent of everything below
+
+| Phase | Scope | Notes |
+| --- | --- | --- |
+| **Production key management** | Replace `AddEphemeralSigningKey`/`AddEphemeralEncryptionKey` with persisted signing/encryption keys, then narrow the Foundation's environment guard from a hard Production block to a real-keys-configured check | Not implied by Phases 1–4 shipping. Nothing in this plan provisions durable keys, so Production stays blocked — and every token gets invalidated on restart — until this lands. |
+
+Phases 1–4 can ship and prove themselves against `m4d-test` in Staging without this — the
+Foundation's environment guard should widen from "Development only" to "not Production" as
+part of Phase 1, so each phase gets a real Staging deploy cycle. But actually serving Production
+traffic needs durable keys first; this gates go-live regardless of how much of the rest of this
+document is done.
+
+### Later — independent, no required order
+
+Each of these is a standalone addition on top of the shipped Core. None depends on the others,
+so build order is whatever's useful next — Voting before Trial tier and Developer self-serve is
+fine.
+
+| Addition | Scope | Notes |
+| --- | --- | --- |
+| **Trial tier** | Anonymous grant, Keychain + DeviceCheck binding, per-client ceiling, reduced payload | Ships the no-registration experience. |
+| **Developer self-serve** | `/developers` registration, admin approve/revoke UI, published terms | Needed before developer #2. |
+| **Voting write API** | `PUT/DELETE /v1/songs/{id}/votes/{danceId}`, `dances:vote` scope, client attribution in property log | **Separate review** regardless of when it ships. |
+
+**Feature-flag each of these separately**, rather than reusing the single `PublicApi` flag from
+Phase 1. That flag covers a true dependency chain (Foundation → Authorization flow → Read API →
+Metering) where each piece is meaningless without the ones before it, so one flag for the whole
+chain is correct. Trial tier, Developer self-serve, and Voting have no such dependency on one
+another — if Voting ships before Trial tier, a shared flag would force turning on unfinished
+Trial-tier code (or a half-built Developer self-serve UI) just to expose Voting. Suggested
+names, following the existing `FeatureFlags` convention: `PublicApiTrial`,
+`PublicApiDeveloperPortal`, `PublicApiVoting`.
 
 ---
 
