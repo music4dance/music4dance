@@ -36,15 +36,14 @@ The foundation adds the four standard OpenIddict EF Core tables, a DanzQ client 
 the validation bearer scheme, read-scope constants, and a fail-closed subscriber policy
 requirement. `FeatureManagement:PublicApi` is false in every checked-in configuration.
 It is a global startup switch: filter-based definitions and variants are not supported, and
-changes take effect only after a restart. When enabled in Development, the DanzQ
+changes take effect only after a restart. When enabled in Development or Staging, the DanzQ
 registration is created or updated at startup and temporary signing and encryption keys are
 used. The server reserves the agreed
 `/connect/authorize`, `/connect/token`, and `/connect/revocation` protocol paths for code
 flow with PKCE and refresh tokens. The ASP.NET Core server host integration is deliberately
 deferred to PR 2, so the foundation exposes neither those paths nor discovery metadata.
-Enabling the feature outside Development fails until production keys are configured. It is
-also rejected when a Development process uses `PROD_DB`. No `/v1/*` endpoint is mapped by
-the foundation.
+Enabling the feature in Production fails until durable keys are configured. It is also
+rejected whenever `PROD_DB` is set. No `/v1/*` endpoint is mapped by the foundation.
 
 ---
 
@@ -133,12 +132,14 @@ JWT you can't opt out of it.
 
 ### Client-visible account state
 
-Access tokens are opaque to the client by specification
-([RFC 6749 §1.4](https://datatracker.ietf.org/doc/html/rfc6749#section-1.4)). DanzQ must not
-parse one or depend on its server-side encoding. For the subscriber MVP, `/v1/me` returns
-the small amount of current account and entitlement state the app needs. This avoids stale
-subscription claims and keeps `openid` and `id_token` out of the first contract. OpenID
-Connect remains available if a future client has a genuine identity-token requirement.
+Access tokens are opaque to the client by contract, regardless of their server-side format.
+A client that needs signed identity claims would normally use OpenID Connect and an
+`id_token`; OpenIddict supports that option.
+
+DanzQ's subscriber MVP does not need an identity token. It requests no `openid` scope and
+obtains current account and entitlement state from `/v1/me`, avoiding stale subscription
+claims. OpenID Connect remains available if a future client has a genuine identity-token
+requirement.
 
 ### Reference documentation
 
@@ -679,13 +680,10 @@ endpoint, per-client volume alerting. The API is a new front door to the entire 
 
 | PR | Scope | Excluded |
 | --- | --- | --- |
-| **1. Foundation and schema** | OpenIddict stores and migration, disabled feature flag, scopes, DanzQ development registration, bearer scheme, subscriber-policy seam | Server host integration, authorization UI, and `/v1/*` endpoints |
+| **1. Foundation and schema** | OpenIddict stores and migration, disabled feature flag, scopes, DanzQ client registration, bearer scheme, subscriber-policy seam | Server host integration, authorization UI, and `/v1/*` endpoints |
 | **2. Authorization flow** | `/connect/*`, metadata, consent, PKCE, refresh and revocation behavior, protocol tests | Song and account APIs |
 | **3. Account and subscriber enforcement** | `/v1/me`, current entitlement evaluation, API errors, rate-limit keying, `UsageLog.ClientId` | Song resolution |
 | **4. Read-only resolution** | `POST /v1/songs/resolve`, ISRC then Apple Music then title/artist matching, minimal dance projection | Trial access and writes |
-| **Future: Trial access** | Anonymous grant, device binding, metering, and reduced payload | Not part of the subscriber MVP |
-| **Future: Developer self-service** | Client registration, approval, revocation UI, and terms | Needed only before another client is onboarded |
-| **Future: Voting** | Narrow vote endpoints, `dances:vote`, and property-log client attribution | Separate security review before the first API write |
 
 These four PRs complete the server-side authenticated-subscriber MVP. DanzQ's client
 integration and an end-to-end test are also required before the app itself can ship.

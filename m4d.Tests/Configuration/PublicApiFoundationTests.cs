@@ -46,7 +46,7 @@ public class PublicApiFoundationTests
     }
 
     [TestMethod]
-    public void EnabledOutsideDevelopment_Throws()
+    public void EnabledInProduction_Throws()
     {
         var services = new ServiceCollection();
 
@@ -54,6 +54,15 @@ public class PublicApiFoundationTests
             services.AddPublicApiFoundation(
                 CreateConfiguration(enabled: true),
                 CreateEnvironment(Environments.Production)));
+    }
+
+    [TestMethod]
+    public void EnabledInStaging_RegistersFoundation()
+    {
+        var services = CreateEnabledServices(Environments.Staging);
+        using var provider = services.BuildServiceProvider();
+
+        Assert.IsNotNull(provider.GetService<IOpenIddictApplicationManager>());
     }
 
     [TestMethod]
@@ -237,7 +246,8 @@ public class PublicApiFoundationTests
             [Requirements.Features.ProofKeyForCodeExchange]));
     }
 
-    private static ServiceCollection CreateEnabledServices()
+    private static ServiceCollection CreateEnabledServices(
+        string? environmentName = null)
     {
         var services = new ServiceCollection();
         var databaseName = $"public-api-{Guid.NewGuid()}";
@@ -253,7 +263,7 @@ public class PublicApiFoundationTests
             options.UseInMemoryDatabase(databaseName));
         services.AddPublicApiFoundation(
             CreateConfiguration(enabled: true),
-            CreateEnvironment(Environments.Development));
+            CreateEnvironment(environmentName ?? Environments.Development));
         return services;
     }
 

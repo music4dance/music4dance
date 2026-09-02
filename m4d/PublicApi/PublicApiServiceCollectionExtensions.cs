@@ -19,16 +19,16 @@ public static class PublicApiServiceCollectionExtensions
             return services;
         }
 
-        if (!environment.IsDevelopment())
+        if (environment.IsProduction())
         {
             throw new InvalidOperationException(
-                "The public API cannot be enabled until production signing keys are configured.");
+                "The public API cannot be enabled until durable signing and encryption keys are configured.");
         }
 
         if (configuration.GetValue<bool>("PROD_DB"))
         {
             throw new InvalidOperationException(
-                "The public API cannot be enabled from Development while using the production database.");
+                "The public API cannot be enabled while PROD_DB is set.");
         }
 
         services.AddOpenIddict()
