@@ -232,7 +232,9 @@ incrementVisitCount() ? 0
 **Features:**
 
 - Inherits from `DanceMusicApiController`
-- `[ValidateAntiForgeryToken]` for CSRF protection
+- CSRF-protected via an explicit inline `IAntiforgery.ValidateRequestAsync` call (not the
+  `[ValidateAntiForgeryToken]` attribute — see 10.1) so a failure can be logged with diagnostic
+  detail
 - Accepts `FormData` with XSRF token
 - Returns 202 Accepted immediately (fire-and-forget)
 - Enqueues to `IBackgroundTaskQueue`
@@ -596,7 +598,41 @@ customEvents
 
 ### 10.1 CSRF Protection
 
-**Mechanism:** `[ValidateAntiForgeryToken]` attribute on API controller
+**Mechanism:** explicit inline `IAntiforgery.ValidateRequestAsync(HttpContext)` call at the top of
+`LogBatch`, not the `[ValidateAntiForgeryToken]` attribute.
+
+**Why not the attribute** (changed 2026-09-03): this endpoint saw a recurring, unexplained 400
+rate in `/Admin/Diagnostics`'s "HTTP 4xx Errors" table (see
+`architecture/distributed-attack-mitigation.md`) with no corresponding entry in this controller's
+own `LogWarning` calls — even in a server-log window that bracketed the exact failure timestamp.
+That ruled out the endpoint's own explicit `BadRequest` paths (empty body / bad JSON / batch too
+large), pointing at a silent antiforgery-validation failure: ASP.NET Core's built-in
+`[ValidateAntiForgeryToken]` filter doesn't log a failure at any level, so it was structurally
+invisible no matter which log was checked. Since the built-in filter also catches its own
+exception internally (an outer exception filter can never observe it), the only way to get
+visibility was to perform the check explicitly and log on failure:
+
+```csharp
+try
+{
+    await _antiforgery.ValidateRequestAsync(HttpContext);
+}
+catch (AntiforgeryValidationException ex)
+{
+    Logger.LogWarning(ex,
+        "Antiforgery validation failed for usage log batch. " +
+        "HasAntiforgeryCookie={HasAntiforgeryCookie}, HasFormToken={HasFormToken}, " +
+        "ContentType={ContentType}, IsAuthenticated={IsAuthenticated}", ...);
+    return BadRequest("Antiforgery validation failed");
+}
+```
+
+Same net behavior/response as the attribute — this is diagnostics-only, not a security change.
+**Root cause of the 400s is still open** as of this writing; the next occurrence's log line should
+identify whether it's a missing cookie, missing form token, or something else. The leading
+hypothesis is the combination of a CSRF-protected endpoint with `navigator.sendBeacon` firing on
+page unload/visibility-change (see 5, "SendBeacon Integration") — a fragile pattern generally,
+since a beacon request has no way to retry or surface a failure back to the page.
 
 **Implementation:**
 

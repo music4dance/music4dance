@@ -191,8 +191,8 @@ m4d/Views/Shared/
 | Home and most other home controller pages | None (static content)               | Always renders fully - no database required                                                          | 1     |
 | Tempi and Counter pages                   | Database (with JSON cache fallback) | Serve from JSON file cache if database unavailable; show notice if cache also missing                | 2     |
 | Dance Pages                               | Database (with JSON cache fallback) | Serve from JSON file cache if database unavailable; show notice if cache also missing                | 2     |
-| Song Search/List                          | Search Service                      | ✅ Phase 6: Credential errors handled gracefully, empty results returned, service marked unavailable | 2/3/6 |
-| Song Details                              | Search Service                      | ✅ Phase 6: Credential errors caught, error view shown, service marked unavailable                   | 2/3/6 |
+| Song Search/List                          | Search Service                      | ✅ Phase 6/8: Credential errors and throttling (503/429) handled gracefully, empty results returned, service marked unavailable and auto-recovers | 2/3/6/8 |
+| Song Details                              | Search Service                      | ✅ Phase 6/8: Credential errors and throttling caught, error view shown, service marked unavailable and auto-recovers | 2/3/6/8 |
 | User Login                                | Database + Auth Providers           | ✅ Phase 2: Check OAuth provider health, disable unavailable options                                 | 2     |
 | User Registration                         | Database + Email Service            | Disabled when database unavailable (cannot create accounts)                                          | 2     |
 | Playlist Creation                         | Database + Spotify                  | Disable feature with explanatory message                                                             | 3     |
@@ -572,6 +572,48 @@ See [Phase 6 Completion Report](service-resilience-phase6-completion-report.md) 
 
 **Configuration**: `ServiceHealth:DatabaseRetryInterval` (default `"00:01:00"`). See [Phase 7 Completion Report](service-resilience-phase7-completion-report.md).
 
+### Phase 8: Search Service Throttling & Auto-Recovery ✅ COMPLETE
+
+**Scope**: Recognize a throttled/overloaded Azure Search response (`503`/`429`, e.g.
+`throttle-reason: capacityOverloaded`) as a service-availability condition, and let
+`ServiceHealthManager` recover from an `Unavailable` mark on its own instead of needing a manual
+reset or app restart.
+
+**Problem Statement**: A live Azure Search 503/429 wasn't recognized by any of the Phase 6
+`IsSearchServiceError` checks, so it could surface as an unhandled `AggregateException` instead of
+graceful degradation. Fixing that classification alone would have made things worse: once
+recognized, `MarkUnavailable("SearchService")` would fire, and since nothing in production ever
+called `MarkHealthy("SearchService")` again, the very first (self-healing, seconds-long) spike
+would wedge search app-wide until the next restart.
+
+**Implementation**:
+
+- ✅ **503/429 classification** — `SongIndex.DoSearch` now catches `RequestFailedException` with
+  `Status == 503 || 429` and rethrows the same `InvalidOperationException("Azure Search service is
+  unavailable")` the Phase 6 TokenCredential case uses, so it flows through existing
+  `IsSearchServiceError`/`ServiceHealth.MarkUnavailable` handling unchanged.
+- ✅ **`ServiceHealthManager.UnavailableCooldown`** — `IsServiceHealthy` optimistically returns
+  `true` once a configurable cooldown (default 1 minute) since the last failure has elapsed,
+  letting the next caller retry for real; a renewed failure resets the cooldown.
+- ✅ **`ISearchServiceManager.ReportSearchSuccess()`** — `SongIndex.DoSearch` reports every
+  successful live query back through this (default no-op) interface method; the production
+  `SearchServiceManager`'s `OnSearchSuccess` delegate is wired by `m4d`'s DI composition root to
+  `ServiceHealth.MarkHealthy("SearchService")`, so recovery is detected and reported immediately
+  rather than only inferred after the cooldown window.
+
+**Key Deliverables**:
+
+- ✅ A search-service throttling spike degrades gracefully instead of risking an unhandled
+  exception
+- ✅ A transient spike self-heals within one cooldown period of actual recovery — no app restart
+  required
+- ✅ Admin-facing health status (`/api/health`, health report, Diagnostics) reflects recovery
+  immediately, not just internally-bypassed-but-still-reported-unavailable
+
+**Configuration**: `ServiceHealthManager.UnavailableCooldown` (default 1 minute; no config-file
+key yet — hardcoded constant, bumped in code if it ever needs tuning). See
+[Phase 8 Completion Report](service-resilience-phase8-completion-report.md).
+
 ### Phase 5: Static Cache Fallback ✅ COMPLETE
 
 **Scope**: Ensure resilience during fresh deployments by maintaining static JSON cache in source control.
@@ -947,5 +989,6 @@ After implementing static cache fallback, consider these additional deployment r
 
 | Date       | Version | Author         | Changes                              |
 | ---------- | ------- | -------------- | ------------------------------------ |
+| 2026-09-03 | 2.1     | Claude Sonnet 5 | Added Phase 8: Search Service Throttling & Auto-Recovery |
 | 2025-12-22 | 2.0     | GitHub Copilot | Added Phase 5: Static Cache Fallback |
 | 2025-12-14 | 1.0     | GitHub Copilot | Initial draft based on code analysis |

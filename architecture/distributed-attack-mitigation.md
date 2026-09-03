@@ -97,9 +97,17 @@ independent of both `SpiderManager` (§ above, keyed by user-agent, not URL/stat
 **`Http4xxTracker`** (`m4d/Security/Http4xxTracker.cs`) — DI singleton, same shape as
 `RateLimitingTracker`: a `CircularBuffer<Http4xxEvent>` (10,000 capacity, reusing the
 `CircularBuffer<T>` already defined in `RateLimitingTracker.cs`) behind a `lock`.
-`RecordEvent(url, statusCode)` appends an event; `GetStats(topN = 100)` groups by
-`(Url, StatusCode)`, orders by count descending, and returns the top N as `Http4xxUrlStats`
-(URL, status, count, last-seen timestamp) plus `TotalEventsTracked` / `LastHourCount`.
+`RecordEvent(url, statusCode)` appends an event; `GetStats(topN = 100, filter = All)` groups by
+`(Url, StatusCode)`, orders by count descending, and returns the top N (or every distinct URL, if
+`topN` is `null`) as `Http4xxUrlStats` (URL, status, count, last-seen timestamp, `IsKnownAttack`)
+plus `TotalEventsTracked` / `LastHourCount` computed over the filtered set.
+
+**Known-attack classification** — `Http4xxTracker.IsKnownAttackUrl(url)` (static, also used
+directly by tests) flags a path as scanner/exploit noise rather than a real bug: any path ending
+in `.php`, or starting with `/wp-`, `/wp/`, `/administrator`, or `/.env` (query string stripped
+before matching). `Http4xxUrlFilter` (`All` / `KnownAttacksOnly` / `ExcludeKnownAttacks`) is
+applied to the event set *before* grouping/top-N, so filtering changes which URLs are eligible
+for the top 100, not just which rows get hidden client-side.
 
 **`Http4xxTrackingMiddleware`** (`m4d/Middleware/Http4xxTrackingMiddleware.cs`) — registered
 in `Program.cs` immediately after `app.UseRouting()`, before the DB-recovery and
@@ -118,15 +126,26 @@ status 200 (the `ErrorController` view rendering successfully), which falls outs
 `[400, 500)` check and is correctly skipped. No double-counting.
 
 **Admin wiring**: `AdminController` takes `Http4xxTracker` as a constructor-injected singleton
-(alongside `AuthenticationTracker`/`RateLimitingTracker`), and `Diagnostics()` sets
-`ViewBag.Http4xxStats = _http4xxTracker.GetStats(100)`. Rendered in
-`Views/Admin/Diagnostics.cshtml` under "HTTP 4xx Errors" (between "Authentication Security" and
-"Bot Stats"), as a card + table following the same convention as the Rate Limiting/Auth
-sections — one row per (URL, status code), sorted by count.
+(alongside `AuthenticationTracker`/`RateLimitingTracker`). `Diagnostics(Http4xxUrlFilter
+http4xxFilter = All)` sets `ViewBag.Http4xxStats = _http4xxTracker.GetStats(100, http4xxFilter)`
+and `ViewBag.Http4xxFilter`. Rendered in `Views/Admin/Diagnostics.cshtml` under "HTTP 4xx Errors"
+(between "Authentication Security" and "Bot Stats"), as a card + table following the same
+convention as the Rate Limiting/Auth sections — one row per (URL, status code), sorted by count,
+with an "attack" badge on rows `IsKnownAttack` flags. Three query-string-driven links (All /
+Known Attacks Only / Excluding Known Attacks) re-run `Diagnostics` with the filter applied server
+side, so the displayed "top 100" reflects the filter rather than being truncated first and
+filtered client-side.
+
+`AdminController.Http4xxExportCsv()` (`GET /Admin/Http4xxExportCsv`) exports the **complete**
+(uncapped — `GetStats(null, ExcludeKnownAttacks)`) unique-URL list as CSV via `CsvWriter`, always
+excluding known attacks — this is the feed intended for tracking real broken links/bugs over time
+without re-deriving the known-attack filter by hand each time.
 
 **Test coverage**: `m4d.Tests/Security/Http4xxTrackerTests.cs` (aggregation, top-N ordering,
-top-N limit, empty/null handling) and `m4d.Tests/Middleware/Http4xxTrackingMiddlewareTests.cs`
-(records 4xx, ignores 2xx/5xx/429, includes query string, truncates long URLs).
+top-N limit and `null` = uncapped, empty/null handling, `IsKnownAttackUrl` classification cases,
+filter behavior for `KnownAttacksOnly`/`ExcludeKnownAttacks`) and
+`m4d.Tests/Middleware/Http4xxTrackingMiddlewareTests.cs` (records 4xx, ignores 2xx/5xx/429,
+includes query string, truncates long URLs).
 
 **Limitations (by design, consistent with the other trackers on this page)**: in-memory only,
 resets on app restart; single-instance in-process (see

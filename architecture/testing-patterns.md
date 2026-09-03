@@ -196,6 +196,48 @@ var service = (IServiceInterface)backingField.GetValue(dms);
 - ? NOT for production code
 - ? NOT as a workaround for bad design
 
+### Pattern 5: Fault-Injecting an Azure SDK Client
+
+**Problem:** A class wraps an Azure SDK client behind a private, lazily-constructed property
+(e.g. `SongIndex.Client : SearchClient`), and you need it to throw or return a specific response
+in a unit test without a real Azure resource.
+
+**Solution:** Make the wrapping property `protected virtual` (see `SongIndex.Client` /
+`SongIndex.Manager`) and override it in a small test-local subclass that returns a Moq'd client.
+Azure SDK clients are designed for this — their methods are `public virtual` and they expose a
+protected parameterless constructor specifically so Moq can proxy them.
+
+```csharp
+private class FaultInjectingSongIndex(SearchClient client) : SongIndex
+{
+    protected override SearchClient Client => client;
+}
+
+var mock = new Mock<SearchClient>();
+mock.Setup(c => c.SearchAsync<SearchDocument>(
+        It.IsAny<string>(), It.IsAny<SearchOptions>(), It.IsAny<CancellationToken>()))
+    .ThrowsAsync(new RequestFailedException(503, "Service Unavailable"));
+
+var index = new FaultInjectingSongIndex(mock.Object);
+```
+
+**Constructing a fake success value:** the awaited result of `SearchClient.SearchAsync<T>` is
+`Response<SearchResults<T>>` (it implicitly converts to bare `SearchResults<T>` at the production
+call site, but Moq needs the exact wrapped type for `.ReturnsAsync(...)`):
+
+```csharp
+mock.Setup(c => c.SearchAsync<SearchDocument>(...))
+    .ReturnsAsync(Response.FromValue(
+        SearchModelFactory.SearchResults<SearchDocument>([], null, null, null, null),
+        Mock.Of<Response>()));
+```
+
+See `m4dModels.Tests/SongIndexSearchAvailabilityTests.cs` for a full example. If the exact
+`SearchModelFactory` overload isn't obvious from IntelliSense/docs, a throwaway console project
+referencing the same `Azure.Search.Documents` package version and reflecting
+`SearchModelFactory`'s methods (`typeof(SearchModelFactory).GetMethods()...`) is faster than
+guessing at overloads that vary between SDK versions.
+
 ---
 
 ## Client-Side Testing Patterns
