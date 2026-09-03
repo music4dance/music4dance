@@ -469,7 +469,16 @@ public static class M4dApplicationExtensions
         if (appOptions.ConfigureSearch)
         {
             var appRoot = environment.WebRootPath;
-            services.AddSingleton<ISearchServiceManager, SearchServiceManager>();
+            services.AddSingleton<ISearchServiceManager>(sp =>
+            {
+                var manager = ActivatorUtilities.CreateInstance<SearchServiceManager>(sp);
+                // Bridges SongIndex's post-success signal (ISearchServiceManager.ReportSearchSuccess)
+                // to ServiceHealthManager, so a service marked Unavailable by a transient search
+                // failure clears immediately the next time a live search actually succeeds,
+                // instead of only via ServiceHealthManager's cooldown-based inference.
+                manager.OnSearchSuccess = () => serviceHealth.MarkHealthy("SearchService");
+                return manager;
+            });
             services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(new DanceStatsFileManager(appRoot)));
         }
 

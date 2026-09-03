@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +7,7 @@ using m4d.APIControllers;
 using m4d.Tests.TestHelpers;
 using m4dModels;
 using m4dModels.Tests;
+using Moq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Text.Json;
@@ -42,7 +44,7 @@ public class UsageLogControllerIntegrationTests
     }
 
     private static (UsageLogController controller, TestBackgroundTaskQueue taskQueue) CreateController(
-        DanceMusicService dms, IConfiguration? config = null)
+        DanceMusicService dms, IConfiguration? config = null, IAntiforgery? antiforgery = null)
     {
         config ??= CreateTestConfiguration();
         var taskQueue = new TestBackgroundTaskQueue();
@@ -61,6 +63,11 @@ public class UsageLogControllerIntegrationTests
 
         var danceStats = (IDanceStatsManager)danceStatsManagerField.GetValue(dms)!;
 
+        // Real IAntiforgery needs request-scoped services DefaultHttpContext doesn't provide,
+        // so tests pass a stub that accepts by default; individual tests can pass one that
+        // throws to exercise the failure path.
+        antiforgery ??= CreatePassingAntiforgery();
+
         var controller = new UsageLogController(
             dms.Context,
             dms.UserManager,
@@ -68,10 +75,18 @@ public class UsageLogControllerIntegrationTests
             danceStats,
             config,
             NullLogger<UsageLogController>.Instance,
-            taskQueue
+            taskQueue,
+            antiforgery
         );
 
         return (controller, taskQueue);
+    }
+
+    private static IAntiforgery CreatePassingAntiforgery()
+    {
+        var mock = new Mock<IAntiforgery>();
+        mock.Setup(a => a.ValidateRequestAsync(It.IsAny<HttpContext>())).Returns(Task.CompletedTask);
+        return mock.Object;
     }
 
     [TestMethod]
@@ -265,6 +280,44 @@ public class UsageLogControllerIntegrationTests
         var badRequest = (BadRequestObjectResult)result;
         Assert.AreEqual("Batch size exceeds limit (100 events)", badRequest.Value);
         Assert.AreEqual(0, taskQueue.Count, "Should not enqueue any tasks for oversized batch");
+    }
+
+    [TestMethod]
+    public async Task LogBatch_AntiforgeryValidationFails_ReturnsBadRequestWithoutEnqueueing()
+    {
+        // Arrange
+        var dms = await DanceMusicTester.CreateServiceWithUsers("UsageLog_AntiforgeryFail");
+        var failingAntiforgery = new Mock<IAntiforgery>();
+        failingAntiforgery
+            .Setup(a => a.ValidateRequestAsync(It.IsAny<HttpContext>()))
+            .ThrowsAsync(new AntiforgeryValidationException("Simulated antiforgery failure"));
+
+        var (controller, taskQueue) = CreateController(dms, antiforgery: failingAntiforgery.Object);
+
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+
+        var events = new List<UsageEventDto>
+        {
+            new() {
+                UsageId = Guid.NewGuid().ToString(),
+                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                Page = "/test/page",
+                UserAgent = "Mozilla/5.0"
+            }
+        };
+        var eventsJson = JsonSerializer.Serialize(events);
+
+        // Act
+        var result = await controller.LogBatch(eventsJson);
+
+        // Assert
+        Assert.IsInstanceOfType<BadRequestObjectResult>(result);
+        var badRequest = (BadRequestObjectResult)result;
+        Assert.AreEqual("Antiforgery validation failed", badRequest.Value);
+        Assert.AreEqual(0, taskQueue.Count, "Should not enqueue a task when antiforgery validation fails");
     }
 
     [TestMethod]

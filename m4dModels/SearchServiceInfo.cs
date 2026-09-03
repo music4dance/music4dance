@@ -25,11 +25,27 @@ public interface ISearchServiceManager
     string CurrentIndexName { get; }
     bool HasNextIndex { get; }
     string NextIndexName { get; }
+
+    /// <summary>
+    /// Called by SongIndex after a successful live Azure Search call, so a host tracking
+    /// service health (e.g. m4d's ServiceHealthManager) can clear a prior "unavailable" mark as
+    /// soon as the service actually responds again, without SongIndex/m4dModels needing to
+    /// reference that layer directly. No-op by default - only SearchServiceManager wires it up.
+    /// </summary>
+    void ReportSearchSuccess() { }
 }
 
 public class SearchServiceManager : ISearchServiceManager
 {
     public static readonly string ExperimentalId = "SongIndexExperimental";
+
+    /// <summary>
+    /// Set by the host's composition root to bridge search-success signals to its own service
+    /// health tracking. Left unset (no-op) by hosts that don't track service health.
+    /// </summary>
+    public Action OnSearchSuccess { get; set; }
+
+    public void ReportSearchSuccess() => OnSearchSuccess?.Invoke();
 
     public SearchServiceManager(IConfiguration configuration,
         IAzureClientFactory<SearchClient> searchFactory,

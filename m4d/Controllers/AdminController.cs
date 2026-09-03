@@ -78,7 +78,7 @@ public class AdminController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-    IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger,
+    IFeatureManagerSnapshot featureManager, ILogger<AdminController> logger,
     IOptionsMonitor<LoggerFilterOptions> loggerFilterOptions,
     ServiceHealthManager serviceHealth,
     AuthenticationTracker authTracker,

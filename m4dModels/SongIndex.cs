@@ -53,10 +53,10 @@ public class SongIndex
     // Public for testing purposes
     public virtual DanceMusicCoreService DanceMusicService { get; }
     private string SearchId { get; }
-    private ISearchServiceManager Manager => DanceMusicService.SearchService;
+    protected virtual ISearchServiceManager Manager => DanceMusicService.SearchService;
 
     private SearchClient _client;
-    protected SearchClient Client => _client ??= CreateSearchClient();
+    protected virtual SearchClient Client => _client ??= CreateSearchClient();
 
     protected SearchServiceInfo Info => DanceMusicService.SearchService.GetInfo(SearchId);
 
@@ -1559,11 +1559,24 @@ public class SongIndex
 
         try
         {
-            return await Client.SearchAsync<SearchDocument>(search, parameters);
+            var result = await Client.SearchAsync<SearchDocument>(search, parameters);
+            Manager.ReportSearchSuccess();
+            return result;
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("Client registration requires a TokenCredential"))
         {
             // Re-throw with a message that will be caught by upper layers
+            throw new InvalidOperationException("Azure Search service is unavailable", ex);
+        }
+        catch (RequestFailedException ex) when (ex.Status == 503 || ex.Status == 429)
+        {
+            // The service is overloaded/throttled (e.g. throttle-reason: capacityOverloaded)
+            // rather than something local to this query, so surface it as the same
+            // "unavailable" condition the upper layers already know how to handle
+            // (IsSearchServiceError / ServiceHealth.MarkUnavailable + graceful degradation)
+            // instead of falling into the retry-without-select path below, which assumes a
+            // field-selection mismatch and would just hammer an already-overloaded service
+            // with an immediate, un-backed-off second attempt.
             throw new InvalidOperationException("Azure Search service is unavailable", ex);
         }
         catch (Exception ex)
@@ -1573,7 +1586,9 @@ public class SongIndex
             parameters.Select.Clear();
             try
             {
-                return await Client.SearchAsync<SearchDocument>(search, parameters);
+                var result = await Client.SearchAsync<SearchDocument>(search, parameters);
+                Manager.ReportSearchSuccess();
+                return result;
             }
             catch (Exception retryEx)
             {
