@@ -11,6 +11,33 @@ public class Http4xxTracker
     private readonly CircularBuffer<Http4xxEvent> _events = new(10000);
     private readonly object _lock = new();
 
+    // Path prefixes for well-known scanner/exploit probes that show up constantly in the
+    // 4xx log and aren't actionable bugs in our own code (WordPress/Joomla probing, secret
+    // scanning, etc). Matched against the path only (query string stripped). ".php" is
+    // checked separately since it can appear anywhere in the probed path, not just as a
+    // prefix.
+    private static readonly string[] KnownAttackPathPrefixes =
+    [
+        "/wp-",
+        "/wp/",
+        "/administrator",
+        "/.env",
+    ];
+
+    public static bool IsKnownAttackUrl(string url)
+    {
+        if (string.IsNullOrEmpty(url))
+        {
+            return false;
+        }
+
+        var path = url.Split('?', 2)[0];
+
+        return path.EndsWith(".php", StringComparison.OrdinalIgnoreCase)
+            || KnownAttackPathPrefixes.Any(
+                prefix => path.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+    }
+
     public void RecordEvent(string url, int statusCode)
     {
         var evt = new Http4xxEvent
@@ -26,13 +53,23 @@ public class Http4xxTracker
         }
     }
 
-    public Http4xxStats GetStats(int topN = 100)
+    /// <summary>
+    /// Aggregates tracked events by URL+status. Pass <paramref name="topN"/> as null to
+    /// return every distinct URL (used for the CSV export) instead of capping the list.
+    /// </summary>
+    public Http4xxStats GetStats(int? topN = 100, Http4xxUrlFilter filter = Http4xxUrlFilter.All)
     {
         lock (_lock)
         {
             var allEvents = _events.ToList();
+            var filteredEvents = filter switch
+            {
+                Http4xxUrlFilter.KnownAttacksOnly => allEvents.Where(e => IsKnownAttackUrl(e.Url)).ToList(),
+                Http4xxUrlFilter.ExcludeKnownAttacks => allEvents.Where(e => !IsKnownAttackUrl(e.Url)).ToList(),
+                _ => allEvents
+            };
 
-            if (!allEvents.Any())
+            if (!filteredEvents.Any())
             {
                 return new Http4xxStats
                 {
@@ -43,26 +80,39 @@ public class Http4xxTracker
 
             var lastHour = DateTime.UtcNow.AddHours(-1);
 
+            var topUrls = filteredEvents
+                .GroupBy(e => new { e.Url, e.StatusCode })
+                .OrderByDescending(g => g.Count())
+                .Select(g => new Http4xxUrlStats
+                {
+                    Url = g.Key.Url,
+                    StatusCode = g.Key.StatusCode,
+                    Count = g.Count(),
+                    LastSeen = g.Max(e => e.Timestamp),
+                    IsKnownAttack = IsKnownAttackUrl(g.Key.Url)
+                });
+
+            if (topN.HasValue)
+            {
+                topUrls = topUrls.Take(topN.Value);
+            }
+
             return new Http4xxStats
             {
-                TotalEventsTracked = allEvents.Count,
-                LastHourCount = allEvents.Count(e => e.Timestamp >= lastHour),
-                OldestEventTime = allEvents.Min(e => e.Timestamp),
-                TopUrls = allEvents
-                    .GroupBy(e => new { e.Url, e.StatusCode })
-                    .OrderByDescending(g => g.Count())
-                    .Take(topN)
-                    .Select(g => new Http4xxUrlStats
-                    {
-                        Url = g.Key.Url,
-                        StatusCode = g.Key.StatusCode,
-                        Count = g.Count(),
-                        LastSeen = g.Max(e => e.Timestamp)
-                    })
-                    .ToList()
+                TotalEventsTracked = filteredEvents.Count,
+                LastHourCount = filteredEvents.Count(e => e.Timestamp >= lastHour),
+                OldestEventTime = filteredEvents.Min(e => e.Timestamp),
+                TopUrls = topUrls.ToList()
             };
         }
     }
+}
+
+public enum Http4xxUrlFilter
+{
+    All,
+    KnownAttacksOnly,
+    ExcludeKnownAttacks
 }
 
 public class Http4xxEvent
@@ -86,4 +136,5 @@ public class Http4xxUrlStats
     public int StatusCode { get; set; }
     public int Count { get; set; }
     public DateTime LastSeen { get; set; }
+    public bool IsKnownAttack { get; set; }
 }
