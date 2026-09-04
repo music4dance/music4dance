@@ -33,7 +33,7 @@ public class Http4xxTracker
 
         var path = url.Split('?', 2)[0];
 
-        return path.EndsWith(".php", StringComparison.OrdinalIgnoreCase)
+        return path.Contains(".php", StringComparison.OrdinalIgnoreCase)
             || KnownAttackPathPrefixes.Any(
                 prefix => path.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
     }

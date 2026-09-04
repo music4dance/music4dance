@@ -177,6 +177,7 @@ public class Http4xxTrackerTests
     [DataRow("/xmlrpc.php", true)]
     [DataRow("/fling.php?p=", true)]
     [DataRow("/this_is_a_new_hello_world.PHP", true)]
+    [DataRow("/uploads/exploit.php/payload.jpg", true)]
     [DataRow("/song/artist", false)]
     [DataRow("/api/usagelog/batch", false)]
     [DataRow("/css/site.css", false)]

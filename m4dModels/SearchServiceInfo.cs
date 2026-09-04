@@ -41,11 +41,11 @@ public class SearchServiceManager : ISearchServiceManager
 
     /// <summary>
     /// Set by the host's composition root to bridge search-success signals to its own service
-    /// health tracking. Left unset (no-op) by hosts that don't track service health.
+    /// health tracking. Defaults to a no-op for hosts that don't track service health.
     /// </summary>
-    public Action OnSearchSuccess { get; set; }
+    public Action OnSearchSuccess { get; set; } = () => { };
 
-    public void ReportSearchSuccess() => OnSearchSuccess?.Invoke();
+    public void ReportSearchSuccess() => OnSearchSuccess();
 
     public SearchServiceManager(IConfiguration configuration,
         IAzureClientFactory<SearchClient> searchFactory,
