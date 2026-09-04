@@ -55,21 +55,24 @@ public class ServiceHealthManagerTests
     [TestMethod]
     public async Task IsServiceHealthy_RenewedFailure_RestartsTheCooldown()
     {
-        var manager = CreateManager(TimeSpan.FromMilliseconds(100));
+        // Cooldown and delays are spaced with a wide margin (5x) rather than the original
+        // 100ms/60ms (a ~40ms margin) - that margin was tight enough for CI scheduler jitter
+        // to push the second Task.Delay(60) past the cooldown and flake the assertion below.
+        var manager = CreateManager(TimeSpan.FromMilliseconds(500));
         manager.MarkUnavailable(ServiceName, "throttled");
 
-        await Task.Delay(60);
-        Assert.IsFalse(manager.IsServiceHealthy(ServiceName), "Still within the first cooldown window");
+        await Task.Delay(100);
+        Assert.IsFalse(manager.IsServiceHealthy(ServiceName), "Still well within the first cooldown window");
 
         // Simulates an optimistic retry (after the cooldown would otherwise have let one
         // through) failing again - MarkUnavailable should reset the clock.
         manager.MarkUnavailable(ServiceName, "still throttled");
 
-        await Task.Delay(60);
+        await Task.Delay(100);
         Assert.IsFalse(
             manager.IsServiceHealthy(ServiceName),
-            "120ms have passed since the first failure (over the 100ms cooldown), but only " +
-            "60ms since the renewed failure, so the cooldown should not have elapsed yet");
+            "Only ~100ms have passed since the renewed failure, well under the 500ms cooldown, " +
+            "so the cooldown should not have elapsed yet even accounting for CI scheduling jitter");
     }
 
     [TestMethod]
