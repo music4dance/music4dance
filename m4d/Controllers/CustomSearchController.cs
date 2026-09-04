@@ -22,7 +22,7 @@ public class CustomSearchController : ContentController
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
         IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-        IFeatureManagerSnapshot featureManager, ILogger<SongController> logger, LinkGenerator linkGenerator, IMapper mapper,
+        IFeatureManagerSnapshot featureManager, ILogger<CustomSearchController> logger, LinkGenerator linkGenerator, IMapper mapper,
         ServiceHealthManager serviceHealth) :
         base(context, userManager, searchService, danceStatsManager, configuration,
             fileProvider, backroundTaskQueue, featureManager, logger, linkGenerator, mapper, serviceHealth)

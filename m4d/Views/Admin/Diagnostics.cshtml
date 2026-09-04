@@ -771,16 +771,35 @@ else
 
 
 <hr />
-<h3>HTTP 4xx Errors</h3>
+<h3 id="http4xx">HTTP 4xx Errors</h3>
+@{
+    var http4xxFilter = ViewBag.Http4xxFilter is m4d.Security.Http4xxUrlFilter f
+        ? f
+        : m4d.Security.Http4xxUrlFilter.All;
+}
 @if (ViewBag.Http4xxStats is m4d.Security.Http4xxStats http4xxStats)
 {
     <div class="card mb-3">
-        <div class="card-header">
-            <strong>Top URLs by 4xx Response (Top @http4xxStats.TopUrls.Count, all time)</strong>
-            <small class="text-muted ms-2">
-                @http4xxStats.TotalEventsTracked total tracked, @http4xxStats.LastHourCount in the last hour.
-                429s excluded — see Rate Limiting Activity above.
-            </small>
+        <div class="card-header d-flex flex-wrap align-items-center gap-2">
+            <div>
+                <strong>Top URLs by 4xx Response (Top @http4xxStats.TopUrls.Count, all time)</strong>
+                <br />
+                <small class="text-muted">
+                    @http4xxStats.TotalEventsTracked total tracked (matching filter below), @http4xxStats.LastHourCount in the last hour.
+                    429s excluded — see Rate Limiting Activity above.
+                </small>
+            </div>
+            <div class="ms-auto btn-group btn-group-sm" role="group" aria-label="Attack filter">
+                <a class="btn btn-outline-secondary @(http4xxFilter == m4d.Security.Http4xxUrlFilter.All ? "active" : "")"
+                   href="@(Url.Action("Diagnostics", new { http4xxFilter = m4d.Security.Http4xxUrlFilter.All }))#http4xx">All</a>
+                <a class="btn btn-outline-secondary @(http4xxFilter == m4d.Security.Http4xxUrlFilter.KnownAttacksOnly ? "active" : "")"
+                   href="@(Url.Action("Diagnostics", new { http4xxFilter = m4d.Security.Http4xxUrlFilter.KnownAttacksOnly }))#http4xx">Known Attacks Only</a>
+                <a class="btn btn-outline-secondary @(http4xxFilter == m4d.Security.Http4xxUrlFilter.ExcludeKnownAttacks ? "active" : "")"
+                   href="@(Url.Action("Diagnostics", new { http4xxFilter = m4d.Security.Http4xxUrlFilter.ExcludeKnownAttacks }))#http4xx">Excluding Known Attacks</a>
+            </div>
+            <a class="btn btn-sm btn-outline-primary" href="@Url.Action("Http4xxExportCsv", "Admin")">
+                Download CSV (all URLs, excluding known attacks)
+            </a>
         </div>
         <div class="card-body">
             @if (http4xxStats.TopUrls.Any())
@@ -799,7 +818,13 @@ else
                             @foreach (var url in http4xxStats.TopUrls)
                             {
                                 <tr class="@(url.StatusCode == 400 ? "table-warning" : "")">
-                                    <td class="text-break"><code>@url.Url</code></td>
+                                    <td class="text-break">
+                                        <code>@url.Url</code>
+                                        @if (url.IsKnownAttack)
+                                        {
+                                            <span class="badge bg-secondary ms-1">attack</span>
+                                        }
+                                    </td>
                                     <td>@url.StatusCode</td>
                                     <td>@url.Count</td>
                                     <td><small>@url.LastSeen.ToLocalTime().ToString("MMM dd HH:mm:ss")</small></td>

@@ -52,6 +52,29 @@ public class SearchServiceManagerVersioningTests
         Assert.IsFalse(manager.HasNextVersion);
     }
 
+    [TestMethod]
+    public void ReportSearchSuccess_NoHandlerAttached_DoesNotThrow()
+    {
+        // Hosts that don't track service health (e.g. m4d.Sandbox) never set OnSearchSuccess -
+        // SongIndex.DoSearch calls ReportSearchSuccess() unconditionally on every successful
+        // query, so this must be a safe no-op rather than a NullReferenceException.
+        var manager = CreateManager(includeVersion4: false, envVersion: 3);
+
+        manager.ReportSearchSuccess();
+    }
+
+    [TestMethod]
+    public void ReportSearchSuccess_InvokesOnSearchSuccess()
+    {
+        var manager = CreateManager(includeVersion4: false, envVersion: 3);
+        var invoked = false;
+        manager.OnSearchSuccess = () => invoked = true;
+
+        manager.ReportSearchSuccess();
+
+        Assert.IsTrue(invoked);
+    }
+
     private static SearchServiceManager CreateManager(bool includeVersion4, int envVersion)
     {
         var values = new Dictionary<string, string>

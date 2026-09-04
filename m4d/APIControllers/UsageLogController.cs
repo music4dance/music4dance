@@ -1,4 +1,5 @@
 using m4d.Services;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -8,7 +9,6 @@ namespace m4d.APIControllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[ValidateAntiForgeryToken]
 public class UsageLogController(
     DanceMusicContext context,
     UserManager<ApplicationUser> userManager,
@@ -16,13 +16,44 @@ public class UsageLogController(
     IDanceStatsManager danceStatsManager,
     IConfiguration configuration,
     ILogger<UsageLogController> logger,
-    IBackgroundTaskQueue backgroundTaskQueue) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger, backgroundTaskQueue)
+    IBackgroundTaskQueue backgroundTaskQueue,
+    IAntiforgery antiforgery) : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration, logger, backgroundTaskQueue)
 {
+    private readonly IAntiforgery _antiforgery = antiforgery;
+
     [HttpPost("batch")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> LogBatch([FromForm] string events)
     {
+        // Validated explicitly (rather than via [ValidateAntiForgeryToken]) so a failure can
+        // be logged with enough detail to diagnose it - this endpoint is the only one hit via
+        // navigator.sendBeacon on page unload, which gives the client no way to surface or
+        // retry a failure, and the framework's own antiforgery filter fails silently (no log
+        // at any level). See architecture/client-side-usage-logging.md and the investigation
+        // of the recurring 400s on this route in local/4xx-errors.txt.
+        try
+        {
+            await _antiforgery.ValidateRequestAsync(HttpContext);
+        }
+        catch (AntiforgeryValidationException ex)
+        {
+            var hasAntiforgeryCookie = Request.Cookies.Keys
+                .Any(k => k.StartsWith(".AspNetCore.Antiforgery", StringComparison.Ordinal));
+            var hasFormToken = Request.HasFormContentType &&
+                !string.IsNullOrEmpty(Request.Form["__RequestVerificationToken"]);
+
+            Logger.LogWarning(
+                ex,
+                "Antiforgery validation failed for usage log batch. " +
+                "HasAntiforgeryCookie={HasAntiforgeryCookie}, HasFormToken={HasFormToken}, " +
+                "ContentType={ContentType}, IsAuthenticated={IsAuthenticated}",
+                hasAntiforgeryCookie, hasFormToken, Request.ContentType,
+                User?.Identity?.IsAuthenticated == true);
+
+            return BadRequest("Antiforgery validation failed");
+        }
+
         // 1. Validate input is not null/empty
         if (string.IsNullOrWhiteSpace(events))
         {

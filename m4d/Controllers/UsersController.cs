@@ -15,7 +15,7 @@ public class UsersController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-    IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger,
+    IFeatureManagerSnapshot featureManager, ILogger<UsersController> logger,
     ServiceHealthManager serviceHealth) : DanceMusicController(context, userManager, searchService, danceStatsManager, configuration,
         fileProvider, backroundTaskQueue, featureManager, logger, serviceHealth)
 {

@@ -67,7 +67,7 @@ public class ApplicationUsersControllerTests
             new Mock<IFileProvider>().Object,
             new TestBackgroundTaskQueue(),
             new Mock<IFeatureManagerSnapshot>().Object,
-            NullLogger<ActivityLogController>.Instance,
+            NullLogger<ApplicationUsersController>.Instance,
             serviceHealth
         );
 

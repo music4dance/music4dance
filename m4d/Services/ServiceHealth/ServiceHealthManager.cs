@@ -9,9 +9,19 @@ namespace m4d.Services.ServiceHealth;
 /// </summary>
 public class ServiceHealthManager
 {
+    private static readonly TimeSpan DefaultUnavailableCooldown = TimeSpan.FromMinutes(1);
+
     private readonly ConcurrentDictionary<string, ServiceHealthStatus> _serviceStatuses = new();
     private readonly ILogger<ServiceHealthManager> _logger;
     private ServiceHealthNotifier? _notifier;
+
+    // How long a service stays reported Unavailable before IsServiceHealthy optimistically
+    // lets the next caller retry it. Nothing in production ever calls MarkHealthy for most
+    // services (e.g. SearchService), so without this a transient failure - a brief Azure
+    // Search throttling spike, say - would otherwise wedge the whole app in degraded mode
+    // until the process restarts, long after the underlying service recovered on its own.
+    // Internal setter so tests can use a short cooldown instead of sleeping for real.
+    internal TimeSpan UnavailableCooldown { get; set; } = DefaultUnavailableCooldown;
 
     public ServiceHealthManager(ILogger<ServiceHealthManager> logger)
     {
@@ -153,8 +163,14 @@ public class ServiceHealthManager
     }
 
     /// <summary>
-    /// Check if a service is healthy (or unknown - optimistic assumption)
-    /// Returns false only if service is explicitly marked as Unavailable
+    /// Check if a service is healthy (or unknown - optimistic assumption).
+    /// Returns false if the service is marked Unavailable and the cooldown since that failure
+    /// hasn't elapsed yet; once it has, optimistically returns true so the next caller retries
+    /// the real operation instead of every request short-circuiting forever (see
+    /// <see cref="UnavailableCooldown"/>). A renewed failure calls <see cref="MarkUnavailable"/>
+    /// again, which resets <see cref="ServiceHealthStatus.LastChecked"/> and restarts the
+    /// cooldown - so a sustained outage still gets retried at roughly that interval rather than
+    /// on every single request.
     /// </summary>
     public bool IsServiceHealthy(string serviceName)
     {
@@ -164,8 +180,8 @@ public class ServiceHealthManager
             return true;
         }
 
-        // Explicitly unavailable services return false, everything else returns true
-        return status.Status != ServiceStatus.Unavailable;
+        return status.Status != ServiceStatus.Unavailable
+            || DateTime.UtcNow - status.LastChecked >= UnavailableCooldown;
     }
 
     /// <summary>

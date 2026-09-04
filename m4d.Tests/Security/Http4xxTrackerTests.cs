@@ -149,4 +149,74 @@ public class Http4xxTrackerTests
         // Assert
         Assert.AreEqual(100, stats.TopUrls.Count);
     }
+
+    [TestMethod]
+    public void GetStats_TopNNull_ReturnsEveryDistinctUrl()
+    {
+        // Arrange
+        var tracker = new Http4xxTracker();
+        for (var i = 0; i < 150; i++)
+        {
+            tracker.RecordEvent($"/bad-link-{i}-{Guid.NewGuid()}", 404);
+        }
+
+        // Act
+        var stats = tracker.GetStats(null);
+
+        // Assert
+        Assert.AreEqual(150, stats.TopUrls.Count);
+    }
+
+    [TestMethod]
+    [DataRow("/wp-login.php", true)]
+    [DataRow("/wp-admin/", true)]
+    [DataRow("/wp/wp-json/batch/v1", true)]
+    [DataRow("/administrator/", true)]
+    [DataRow("/administrator", true)]
+    [DataRow("/.env", true)]
+    [DataRow("/xmlrpc.php", true)]
+    [DataRow("/fling.php?p=", true)]
+    [DataRow("/this_is_a_new_hello_world.PHP", true)]
+    [DataRow("/uploads/exploit.php/payload.jpg", true)]
+    [DataRow("/song/artist", false)]
+    [DataRow("/api/usagelog/batch", false)]
+    [DataRow("/css/site.css", false)]
+    [DataRow("", false)]
+    public void IsKnownAttackUrl_ClassifiesKnownPatterns(string url, bool expected)
+    {
+        Assert.AreEqual(expected, Http4xxTracker.IsKnownAttackUrl(url));
+    }
+
+    [TestMethod]
+    public void GetStats_ExcludeKnownAttacks_FiltersOutAttackUrls()
+    {
+        // Arrange
+        var tracker = new Http4xxTracker();
+        tracker.RecordEvent("/wp-login.php", 404);
+        tracker.RecordEvent("/song/artist", 404);
+
+        // Act
+        var stats = tracker.GetStats(filter: Http4xxUrlFilter.ExcludeKnownAttacks);
+
+        // Assert
+        Assert.AreEqual(1, stats.TopUrls.Count);
+        Assert.AreEqual("/song/artist", stats.TopUrls[0].Url);
+    }
+
+    [TestMethod]
+    public void GetStats_KnownAttacksOnly_ReturnsOnlyAttackUrls()
+    {
+        // Arrange
+        var tracker = new Http4xxTracker();
+        tracker.RecordEvent("/wp-login.php", 404);
+        tracker.RecordEvent("/song/artist", 404);
+
+        // Act
+        var stats = tracker.GetStats(filter: Http4xxUrlFilter.KnownAttacksOnly);
+
+        // Assert
+        Assert.AreEqual(1, stats.TopUrls.Count);
+        Assert.AreEqual("/wp-login.php", stats.TopUrls[0].Url);
+        Assert.IsTrue(stats.TopUrls[0].IsKnownAttack);
+    }
 }

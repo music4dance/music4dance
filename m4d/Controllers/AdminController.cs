@@ -78,7 +78,7 @@ public class AdminController(
     DanceMusicContext context, UserManager<ApplicationUser> userManager,
     ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
     IConfiguration configuration, IFileProvider fileProvider, IBackgroundTaskQueue backroundTaskQueue,
-    IFeatureManagerSnapshot featureManager, ILogger<ActivityLogController> logger,
+    IFeatureManagerSnapshot featureManager, ILogger<AdminController> logger,
     IOptionsMonitor<LoggerFilterOptions> loggerFilterOptions,
     ServiceHealthManager serviceHealth,
     AuthenticationTracker authTracker,
@@ -439,14 +439,50 @@ public class AdminController(
     //
     // GET: /Admin/Diagnostics
     [Authorize(Roles = "showDiagnostics")]
-    public ActionResult Diagnostics()
+    public ActionResult Diagnostics(Http4xxUrlFilter http4xxFilter = Http4xxUrlFilter.All)
     {
         // GcSnapshot and RecentDumps set by filter
         // Add security stats for Phase 1
         ViewBag.AuthStats = _authTracker.GetStats();
         ViewBag.RateLimitStats = _rateLimitingTracker.GetStats();
-        ViewBag.Http4xxStats = _http4xxTracker.GetStats(100);
+        ViewBag.Http4xxStats = _http4xxTracker.GetStats(100, http4xxFilter);
+        ViewBag.Http4xxFilter = http4xxFilter;
         return View();
+    }
+
+    // GET: /Admin/Http4xxExportCsv
+    // Full (uncapped) list of unique 4xx URLs, excluding known scanner/exploit-probe
+    // patterns (see Http4xxTracker.IsKnownAttackUrl), for offline analysis of real broken
+    // links vs. attack noise.
+    [Authorize(Roles = "showDiagnostics")]
+    public ActionResult Http4xxExportCsv()
+    {
+        var stats = _http4xxTracker.GetStats(null, Http4xxUrlFilter.ExcludeKnownAttacks);
+
+        using var memoryStream = new MemoryStream();
+        using (var writer = new StreamWriter(memoryStream, Encoding.UTF8, leaveOpen: true))
+        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+        {
+            csv.WriteField("Url");
+            csv.WriteField("Status");
+            csv.WriteField("Count");
+            csv.WriteField("LastSeen");
+            csv.NextRecord();
+
+            foreach (var url in stats.TopUrls)
+            {
+                csv.WriteField(url.Url);
+                csv.WriteField(url.StatusCode);
+                csv.WriteField(url.Count);
+                csv.WriteField(url.LastSeen.ToString("O"));
+                csv.NextRecord();
+            }
+        }
+
+        var dt = DateTime.Now;
+        return File(
+            memoryStream.ToArray(), "text/csv",
+            $"4xx-urls-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}.csv");
     }
 
     //

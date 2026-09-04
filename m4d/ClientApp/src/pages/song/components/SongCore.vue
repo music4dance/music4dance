@@ -101,7 +101,7 @@ const modified = computed(() => {
 
 const artistLink = computed(() => {
   const artist = song.value.artist;
-  return artist ? `/song/artist?name=${artist}` : undefined;
+  return artist ? `/song/artist?name=${encodeURIComponent(artist)}` : undefined;
 });
 
 const explicitDanceIds = computed(() => {
