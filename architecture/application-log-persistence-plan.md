@@ -2,9 +2,9 @@
 
 ## Overview
 
-Investigated 2026-09-04: production "warning" logs appeared to be missing. Root cause turned out to be that **nothing persists application logs anywhere today** — `az webapp log tail` / Azure Portal "Log stream" is a live, unbuffered tap on container stdout. If no one is actively connected at the moment a log line is written, it's gone. This affects both `msc4dnc` (production) and `m4d-test` equally; there was never a prod/test config difference.
+Investigated 2026-09-04: production "warning" logs appeared to be missing. Root cause turned out to be that **nothing persisted application logs anywhere at the time** — `az webapp log tail` / Azure Portal "Log stream" is a live, unbuffered tap on container stdout. If no one is actively connected at the moment a log line is written, it's gone. This affected both `msc4dnc` (production) and `m4d-test` equally; there was never a prod/test config difference.
 
-This document lays out options to make Warning+ level logs durably reviewable after the fact, ordered lightest/cheapest first, so a choice can be made deliberately instead of re-enabling the thing that caused a billing surprise last time.
+**Status: Option 1 is implemented** (both apps now persist Warning+ logs to the instance filesystem — see below). This document still lays out Options 2–4, ordered lightest/cheapest first, for if/when the rolling filesystem window stops being enough — so any further step is a deliberate choice instead of re-enabling the thing that caused a billing surprise last time.
 
 ## Current State (verified via `az` CLI, 2026-09-04)
 
@@ -111,8 +111,8 @@ Ship via OpenTelemetry to a SaaS with a generous free tier (Grafana Cloud, Axiom
 
 Given "lightest/cheapest first" and that the immediate problem is just **"I can't see yesterday's warnings"**:
 
-1. **Do Option 1 now** — five-minute free toggle, solves the immediate problem for a rolling window.
-2. **Layer Option 2 shortly after** — durable, still effectively free, no code changes, removes the rolling-quota limitation of Option 1.
+1. ~~Do Option 1 now~~ — **done**; five-minute free toggle, solves the immediate problem for a rolling window.
+2. **Layer Option 2 next, if wanted** — durable, still effectively free, no code changes, removes the rolling-quota limitation of Option 1.
 3. **Only reach for Option 3 or 4** if you find yourself wanting to *query* across days or get alerted proactively rather than checking manually. If so, prefer Option 3 (Basic Logs + explicit daily cap) over re-enabling full App Insights — same cost-safety story, less to misconfigure.
 
 ## Orphaned resource cleanup
