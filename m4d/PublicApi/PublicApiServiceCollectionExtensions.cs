@@ -3,6 +3,7 @@ using m4d.Utilities;
 using Microsoft.AspNetCore.Authorization;
 
 using static OpenIddict.Abstractions.OpenIddictConstants;
+using static OpenIddict.Server.OpenIddictServerEvents;
 
 namespace m4d.PublicApi;
 
@@ -59,6 +60,14 @@ public static class PublicApiServiceCollectionExtensions
                     server.CodeChallengeMethods.Add(CodeChallengeMethods.Sha256);
                     server.Scopes.Remove(Scopes.OpenId);
                 });
+                options.UseAspNetCore();
+                // PR 2 replaces this rejection with sign-in and consent handling.
+                options.AddEventHandler<HandleAuthorizationRequestContext>(builder =>
+                    builder.UseInlineHandler(context =>
+                    {
+                        context.Reject(Errors.TemporarilyUnavailable, "Authorization is not available yet.");
+                        return ValueTask.CompletedTask;
+                    }));
             })
             .AddValidation(options =>
             {

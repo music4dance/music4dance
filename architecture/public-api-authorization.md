@@ -38,10 +38,12 @@ requirement. `FeatureManagement:PublicApi` is false in every checked-in configur
 It is a global startup switch: filter-based definitions and variants are not supported, and
 changes take effect only after a restart. When enabled in Development or Staging, the DanzQ
 registration is created or updated at startup and temporary signing and encryption keys are
-used. The server reserves the agreed
-`/connect/authorize`, `/connect/token`, and `/connect/revocation` protocol paths for code
-flow with PKCE and refresh tokens. The ASP.NET Core server host integration is deliberately
-deferred to PR 2, so the foundation exposes neither those paths nor discovery metadata.
+used. The ASP.NET Core server integration exposes discovery metadata and public signing
+keys over HTTPS, and validates requests at `/connect/authorize`, `/connect/token`, and
+`/connect/revocation`. Invalid requests receive OAuth errors. A valid authorization request
+returns `temporarily_unavailable` to the validated callback without issuing a code. PR 2
+must replace that temporary rejection with sign-in and consent handling, and implement and
+test token issuance, refresh, and revocation before the flow is usable by a client.
 Enabling the feature in Production fails until durable keys are configured. It is also
 rejected whenever `PROD_DB` is set. No `/v1/*` endpoint is mapped by the foundation.
 
@@ -329,7 +331,7 @@ the property the developer asked for, and the one Apple looks for.
 ### Flow C — Ongoing use and revocation
 
 - Access tokens expire hourly. PR 2 must define and protocol-test refresh-token rotation and
-  replay handling before the authorization endpoints are exposed.
+  replay handling before token issuance is enabled.
 - User revokes at **Account → Connected Apps**: app name, connection date, last used,
   scopes, `[Disconnect]`.
 - App revokes on sign-out via `POST /connect/revocation`.
@@ -680,8 +682,8 @@ endpoint, per-client volume alerting. The API is a new front door to the entire 
 
 | PR | Scope | Excluded |
 | --- | --- | --- |
-| **1. Foundation and schema** | OpenIddict stores and migration, disabled feature flag, scopes, DanzQ client registration, bearer scheme, subscriber-policy seam | Server host integration, authorization UI, and `/v1/*` endpoints |
-| **2. Authorization flow** | `/connect/*`, metadata, consent, PKCE, refresh and revocation behavior, protocol tests | Song and account APIs |
+| **1. Foundation and schema** | OpenIddict stores and migration, disabled feature flag, scopes, DanzQ client registration, bearer scheme, subscriber-policy seam, protocol hosting and discovery | Authorization UI, token issuance, and `/v1/*` endpoints |
+| **2. Authorization flow** | Sign-in and consent at `/connect/*`, code exchange, PKCE, refresh and revocation behavior, protocol tests | Song and account APIs |
 | **3. Account and subscriber enforcement** | `/v1/me`, current entitlement evaluation, API errors, rate-limit keying, `UsageLog.ClientId` | Song resolution |
 | **4. Read-only resolution** | `POST /v1/songs/resolve`, ISRC then Apple Music then title/artist matching, minimal dance projection | Trial access and writes |
 
