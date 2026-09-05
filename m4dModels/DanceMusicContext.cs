@@ -49,6 +49,8 @@ public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : Id
     {
         base.OnModelCreating(builder);
 
+        _ = builder.UseOpenIddict();
+
         _ = builder.Entity<Dance>().ToTable("Dances");
         _ = builder.Entity<DanceLink>().ToTable("DanceLink");
         _ = builder.Entity<PlayList>().ToTable("PlayLists");

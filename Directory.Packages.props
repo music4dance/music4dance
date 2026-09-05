@@ -20,6 +20,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.10" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.10" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.10" />
     <PackageVersion Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.6.0" />
     <PackageVersion Include="Microsoft.Build" Version="18.4.0" />
     <PackageVersion Include="Microsoft.CSharp" Version="4.7.0" />
@@ -42,6 +43,11 @@
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageVersion Include="NuGet.Packaging" Version="6.12.5" />
     <PackageVersion Include="NuGet.Protocol" Version="6.12.5" />
+    <PackageVersion Include="OpenIddict.EntityFrameworkCore" Version="7.6.1" />
+    <PackageVersion Include="OpenIddict.Server" Version="7.6.1" />
+    <PackageVersion Include="OpenIddict.Server.AspNetCore" Version="7.6.1" />
+    <PackageVersion Include="OpenIddict.Validation.AspNetCore" Version="7.6.1" />
+    <PackageVersion Include="OpenIddict.Validation.ServerIntegration" Version="7.6.1" />
     <PackageVersion Include="owl" Version="1.0.5407.37498" />
     <PackageVersion Include="Owl.reCAPTCHA" Version="9.0.0" />
     <PackageVersion Include="Selenium.WebDriver" Version="4.46.0" />

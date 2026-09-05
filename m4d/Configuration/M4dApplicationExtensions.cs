@@ -3,6 +3,7 @@ using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
 
 using m4d.Areas.Identity;
+using m4d.PublicApi;
 using m4d.Services;
 using m4d.Services.ServiceHealth;
 using m4d.Utilities;
@@ -462,6 +463,8 @@ public static class M4dApplicationExtensions
 
         // Spotify OAuth
         authBuilder.AddSpotifyWithResilience(configuration, serviceHealth);
+
+        services.AddPublicApiFoundation(configuration, environment);
 
         // reCAPTCHA
         services.AddReCaptchaWithResilience(configuration, serviceHealth);
