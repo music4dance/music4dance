@@ -1084,9 +1084,10 @@ specific demands them.
   "get back to a known-good state" need well enough? Not built in PR #250. The former is real
   new code; the latter is free. Decide once someone's actually hit the friction, not
   preemptively.
-- **Is the CI end-to-end smoke test against `m4d.Sandbox` (L1e) still worth adding?** Also not
-  built in PR #250 — `m4d.Sandbox` boots the full pipeline, so the capability exists, it's just
-  not wired into a CI job yet.
+- ~~Is the CI end-to-end smoke test against `m4d.Sandbox` (L1e) still worth adding?~~
+  **Planned:** see [playwright-e2e-testing.md](playwright-e2e-testing.md) for the environment
+  setup and minimal coverage plan, proposed as a separate GitHub Actions workflow rather than
+  folded into `ci-server.yaml`/`ci-client.yaml`.
 
 ---
 
@@ -1100,3 +1101,5 @@ specific demands them.
 - [search-index-versioning.md](search-index-versioning.md) — index naming and versioning
 - [SELF_CONTAINED_DEPLOYMENT.md](SELF_CONTAINED_DEPLOYMENT.md) — deployment modes
 - [admin-pages.md](admin-pages.md) — admin surface and role gating
+- [playwright-e2e-testing.md](playwright-e2e-testing.md) — browser-driven e2e against
+  `m4d.Sandbox`, unlocked by L1/L1f above
