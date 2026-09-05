@@ -509,6 +509,14 @@ public static class M4dApplicationExtensions
             typeof(SongPropertyProfile),
             typeof(TagProfile));
 
+        // wwwroot/vclient is gitignored (Vite build output) and won't exist on a fresh
+        // checkout without a client build. Vite.AspNetCore's IViteManifest constructs a
+        // PhysicalFileProvider over this path eagerly, throwing DirectoryNotFoundException
+        // on the first rendered request if it's missing - create it so the no-client-build
+        // path (documented as ".NET SDK only") actually works.
+        Directory.CreateDirectory(
+            Path.Combine(environment.WebRootPath, configuration["Vite:Base"] ?? "vclient"));
+
         services.AddViteServices();
 
         services.AddSingleton<DatabaseRecoveryService>();
