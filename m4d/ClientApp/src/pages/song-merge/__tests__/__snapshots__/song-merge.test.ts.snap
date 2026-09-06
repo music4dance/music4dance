@@ -89,7 +89,7 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
           <div data-v-713e0d4a="" class="d-flex align-items-start gap-2">
             <div data-v-713e0d4a="" class="d-flex align-items-center gap-2 mb-2">
               <div data-v-d0b4fb7f="" class="vote-container">
-                <div data-v-d0b4fb7f="" class="vote-up"></div><span><span id="__m4d__000001_placeholder" style="display: none;"></span>
+                <div data-v-d0b4fb7f="" role="button" tabindex="0" aria-label="Click here to vote for this song being danceable Night Club Two Step" class="vote-up"></div><span><span id="__m4d__000001_placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
                   <div id="__m4d__000001" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
@@ -109,7 +109,7 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
                     </div>
                   </div>
                 </transition-stub></span>
-                <div data-v-d0b4fb7f="" class="vote-down"></div><span><span id="__m4d__000003_placeholder" style="display: none;"></span>
+                <div data-v-d0b4fb7f="" role="button" tabindex="0" aria-label="Click here to vote that this song is not danceable to Night Club Two Step" class="vote-down"></div><span><span id="__m4d__000003_placeholder" style="display: none;"></span>
                 <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="false" persisted="false" css="true">
                   <div id="__m4d__000003" class="tooltip b-tooltip fade bs-tooltip-end" role="tooltip" tabindex="-1" style="position: absolute; left: 0px; top: 0px; display: none;">
                     <div class="tooltip-arrow" style="position: absolute;" data-popper-arrow=""></div>
