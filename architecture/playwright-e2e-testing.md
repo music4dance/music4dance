@@ -97,15 +97,17 @@ Per CLAUDE.md, no abstraction beyond what seven-ish spec files actually need.
 ### Local setup
 
 Prerequisites beyond what contributor-setup.md already documents: Node 22 (already required for
-`ClientApp`) plus the Playwright browser binaries, installed once via `npx playwright install
-chromium` (Chromium only for v1 — see [Browser matrix](#browser-matrix-start-narrow)).
+`ClientApp`) plus the Playwright browser binaries, installed once via `yarn playwright install
+chromium` (Chromium only for v1 — see [Browser matrix](#browser-matrix-start-narrow)). Use `yarn`,
+not `npx`, to run Playwright's own CLI — `e2e/.yarnrc.yml` sets `nodeLinker: pnpm`, and `npx`
+can't resolve the local `playwright` binary under that linker (`sh: 1: playwright: not found`).
 
 ```bash
 # one-time, or after client source changes
 cd m4d/ClientApp && yarn build
 
 # one-time
-cd e2e && yarn install && npx playwright install chromium
+cd e2e && yarn install && yarn playwright install chromium
 
 # run the suite — playwright.config.ts's webServer block starts m4d.Sandbox for you
 cd e2e && yarn test
@@ -207,7 +209,7 @@ on:
 
 jobs:
   playwright:
-    runs-on: ubuntu-latest # verify: see the OS note below
+    runs-on: ubuntu-latest # confirmed - see the OS note below
     steps:
       - uses: actions/checkout@v4
 
@@ -225,13 +227,17 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.x"
-      - run: dotnet build m4d.Sandbox/m4d.Sandbox.csproj --configuration Release
+      # Debug, not Release: playwright.config.ts's webServer runs `dotnet run` with no
+      # --configuration flag, which defaults to Debug. Building Release here would warm up an
+      # output dotnet run never looks at, leaving the real Debug build to happen live inside
+      # webServer.timeout.
+      - run: dotnet build m4d.Sandbox/m4d.Sandbox.csproj --configuration Debug
 
       - name: Install Playwright
         working-directory: e2e
         run: |
           yarn install --network-timeout=300000
-          npx playwright install --with-deps chromium
+          yarn playwright install --with-deps chromium
 
       - name: Run Playwright
         working-directory: e2e
@@ -247,14 +253,16 @@ jobs:
           retention-days: 14
 ```
 
-**OS choice — verify before committing to it:** `ci-server.yaml` currently runs on
-`windows-latest`; nothing found in this investigation explains why (no `LocalDB` connection
-string is referenced outside `m4d/appsettings.json`'s default, and `m4d.Sandbox` uses
-`UseInMemoryDatabase` exclusively — no local database engine at all). `ubuntu-latest` is cheaper
-and faster for GitHub-hosted runners and should work for `m4d.Sandbox` specifically, but confirm
-with one real run before assuming it — if `m4d.csproj` pulls in anything Windows-only that
-`m4d.Sandbox`'s project reference inherits, this needs to fall back to `windows-latest` like its
-sibling workflows.
+**OS choice — confirmed via a live run.** `ci-server.yaml` runs on `windows-latest`; nothing found
+in this investigation explains why (no `LocalDB` connection string is referenced outside
+`m4d/appsettings.json`'s default, and `m4d.Sandbox` uses `UseInMemoryDatabase` exclusively — no
+local database engine at all). `ubuntu-latest` is cheaper and faster for GitHub-hosted runners,
+and a real `workflow_dispatch` run confirmed `m4d.Sandbox` boots and serves correctly there
+(https://github.com/music4dance/music4dance/actions/runs/34004859307) — no Windows-only
+dependency inherited through `m4d.csproj`. That run also caught a real, pre-existing bug that only
+a case-sensitive filesystem could surface: `DMController.ReadJsonFile` requested
+`danceGroups.json` (capital G) while the file on disk is `dancegroups.json`, silently masked on
+Windows/WSL's case-insensitive filesystems (fixed in #266).
 
 **Why nightly + on-demand, not on every PR:** matches the "separate GitHub Action outside CI"
 instinct — this suite costs real minutes (client build + browser install + server boot) on every
@@ -315,8 +323,6 @@ add them opportunistically when someone is already touching that area, not as a 
 
 ## Open Questions
 
-- **OS for the CI runner.** Flagged above — needs one real `ubuntu-latest` run to confirm
-  `m4d.Sandbox` has no inherited Windows dependency before treating that as settled.
 - **Promotion to a PR-blocking check.** Start as `workflow_dispatch` + nightly; decide once it's
   been observed stable for a couple of weeks. No fixed date — a flaky gate is worse than no gate.
 - **Whether stable seeded-song titles are worth adding.** Tests should locate songs through the

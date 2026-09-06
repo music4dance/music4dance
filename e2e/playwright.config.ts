@@ -9,6 +9,12 @@ import { defineConfig } from "@playwright/test";
 // no Vue islands mount - voting/tagging/search all live client-side).
 const port = 65085;
 
+// Set to run against a sandbox you've already started yourself (a separate terminal, or a
+// deployed instance) - this also disables the webServer block below, since starting our own
+// dotnet run on the hard-coded port would be pointless (and could conflict with the one
+// M4D_SANDBOX_URL points at) once a server is already reachable elsewhere.
+const externalSandboxUrl = process.env.M4D_SANDBOX_URL;
+
 export default defineConfig({
   testDir: "./tests",
 
@@ -27,15 +33,15 @@ export default defineConfig({
     // Plain HTTP, not HTTPS: m4d.Sandbox/appsettings.json already sets
     // DISABLE_HTTPS_REDIRECT so this is a supported, no-friction path - it also sidesteps dev
     // cert trust setup entirely, locally and in CI alike.
-    baseURL: process.env.M4D_SANDBOX_URL ?? `http://localhost:${port}`,
+    baseURL: externalSandboxUrl ?? `http://localhost:${port}`,
     trace: "retain-on-failure",
     video: "retain-on-failure",
     screenshot: "only-on-failure",
   },
 
-  // Starts m4d.Sandbox for the run and tears it down afterward. Set M4D_SANDBOX_URL and skip
-  // this (or rely on reuseExistingServer locally) if you'd rather run the sandbox yourself in a
-  // separate terminal.
+  // Starts m4d.Sandbox for the run and tears it down afterward. Skipped entirely when
+  // M4D_SANDBOX_URL is set (see above) - reuseExistingServer only covers "already running on
+  // this same hard-coded port", not "running somewhere else instead".
   //
   // --no-launch-profile is required to stop launchSettings.json's launchBrowser:true from
   // popping a browser window during automated runs - but that flag also throws away
@@ -43,23 +49,26 @@ export default defineConfig({
   // so both must be set explicitly here or the server silently comes up on the ASP.NET Core
   // default (http://localhost:5000, Production) instead - confirmed by hand, since that's
   // exactly the failure mode that produced a webServer boot timeout on port 65085.
-  webServer: {
-    command: "dotnet run --project ../m4d.Sandbox --no-launch-profile",
-    url: `http://localhost:${port}`,
-    reuseExistingServer: !process.env.CI,
-    // Seeding ~400 songs and building SongIndexLocal at startup, plus dotnet run's own
-    // build-check overhead, comfortably fits under 60s locally but ran past it on a cold
-    // GitHub-hosted runner (confirmed by a live workflow_dispatch run:
-    // https://github.com/music4dance/music4dance/actions/runs/34002543313). Give CI more room.
-    timeout: process.env.CI ? 120_000 : 60_000,
-    // Default is "ignore" for stdout, which means a webServer timeout gives no clue what the
-    // server was actually doing - pipe it so CI logs show real startup progress on failure.
-    stdout: "pipe",
-    env: {
-      ASPNETCORE_ENVIRONMENT: "Development",
-      ASPNETCORE_URLS: `http://localhost:${port}`,
-    },
-  },
+  webServer: externalSandboxUrl
+    ? undefined
+    : {
+        command: "dotnet run --project ../m4d.Sandbox --no-launch-profile",
+        url: `http://localhost:${port}`,
+        reuseExistingServer: !process.env.CI,
+        // Seeding ~400 songs and building SongIndexLocal at startup, plus dotnet run's own
+        // build-check overhead, comfortably fits under 60s locally but ran past it on a cold
+        // GitHub-hosted runner (confirmed by a live workflow_dispatch run:
+        // https://github.com/music4dance/music4dance/actions/runs/34002543313). Give CI more room.
+        timeout: process.env.CI ? 120_000 : 60_000,
+        // Defaults are "ignore" for stdout and "pipe" for stderr - pipe both explicitly so a
+        // webServer timeout always shows real startup progress in CI logs, not just half of it.
+        stdout: "pipe",
+        stderr: "pipe",
+        env: {
+          ASPNETCORE_ENVIRONMENT: "Development",
+          ASPNETCORE_URLS: `http://localhost:${port}`,
+        },
+      },
 
   projects: [
     {
