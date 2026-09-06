@@ -734,6 +734,7 @@ public static class M4dApplicationExtensions
         // Note that this call is currently redundant, since asp.net core identity already
         // configured this earlier. But it is essential that this happen, so having the explicit
         // call here prevents it being lost in changes to or removal of the default identity configuration
+        app.UsePublicApiProtection();
         app.UseAuthentication();
 
         // Rate limiting middleware: Protect Identity endpoints from bot attacks

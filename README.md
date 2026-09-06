@@ -28,6 +28,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the DCO sign-off process and a link t
 contributor setup guide, which gets you a running server with nothing installed but the .NET
 SDK.
 
+For the disabled-by-default DanzQ integration, see the [authorization client contract](architecture/public-api-client.md) and [HTTPS sandbox setup](architecture/contributor-setup.md#testing-the-public-authorization-flow).
+
 ## Deployment
 
 For information on deploying this application to Azure Linux Web Apps (including self-contained deployment for .NET 10), see [SELF_CONTAINED_DEPLOYMENT.md](SELF_CONTAINED_DEPLOYMENT.md).

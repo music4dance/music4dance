@@ -6,6 +6,9 @@ public static class PublicApiDefaults
 {
     public const string BearerScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
     public const string SubscriberPolicy = "PublicApiSubscriber";
+    public const string BrowserPolicy = "PublicApiBrowser";
+    public const string Resource = "music4dance-api";
+    public const string ConnectedAppsPath = "/Identity/Account/Manage/ConnectedApps";
 
     public static class Endpoints
     {

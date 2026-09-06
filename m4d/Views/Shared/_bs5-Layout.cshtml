@@ -46,7 +46,7 @@
 </head>
 
 <body>
-@if (await _featureManager.IsEnabledAsync(FeatureFlags.GoogleTagManager)) {
+@if (!m4d.PublicApi.PublicApiProtection.IsSensitiveRequest(Context.Request) && await _featureManager.IsEnabledAsync(FeatureFlags.GoogleTagManager)) {
     <!-- Google Tag Manager (noscript) -->
     <noscript>
         <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T5WZVX7Z"

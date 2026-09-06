@@ -1,6 +1,6 @@
 # Public API & Third-Party Authorization
 
-**Status:** Foundation implemented behind a disabled feature flag; later slices remain proposed
+**Status:** Foundation and authorization flow implemented behind a disabled feature flag; subscriber and song endpoints remain proposed
 
 **Context:** An independent iOS developer (DanzQ) has offered to contribute a token
 mechanism so their app can look up songs and show matching dances, without asking users
@@ -30,22 +30,15 @@ document.
   attribution is required only before the first API write and does not block this read-only
   slice.
 
-### Foundation implementation
+### Implemented: foundation and authorization
 
-The foundation adds the four standard OpenIddict EF Core tables, a DanzQ client descriptor,
-the validation bearer scheme, read-scope constants, and a fail-closed subscriber policy
-requirement. `FeatureManagement:PublicApi` is false in every checked-in configuration.
-It is a global startup switch: filter-based definitions and variants are not supported, and
-changes take effect only after a restart. When enabled in Development or Staging, the DanzQ
-registration is created or updated at startup and temporary signing and encryption keys are
-used. The ASP.NET Core server integration exposes discovery metadata and public signing
-keys over HTTPS, and validates requests at `/connect/authorize`, `/connect/token`, and
-`/connect/revocation`. Invalid requests receive OAuth errors. A valid authorization request
-returns `temporarily_unavailable` to the validated callback without issuing a code. PR 2
-must replace that temporary rejection with sign-in and consent handling, and implement and
-test token issuance, refresh, and revocation before the flow is usable by a client.
-Enabling the feature in Production fails until durable keys are configured. It is also
-rejected whenever `PROD_DB` is set. No `/v1/*` endpoint is mapped by the foundation.
+PR 1 adds the four standard OpenIddict EF Core tables, DanzQ registration, a separate bearer scheme and the fail-closed subscriber-policy requirement. PR 2 connects the existing Identity sign-in to consent, code exchange, rotating refresh tokens and account-level revocation. It adds no database migration or `/v1/*` endpoint. Current account and subscription checks belong to PR 3, and song resolution to PR 4.
+
+`FeatureManagement:PublicApi` remains false in every checked-in configuration. It is a global startup switch, not a per-user filter or variant. Changes require a restart. Development and Staging use temporary signing and encryption keys and create or update the DanzQ registration at startup. Enabling the feature in Production or with `PROD_DB` set still fails at startup.
+
+The [authorization client contract](public-api-client.md) documents the working `/connect/*` flow, token lifetimes, error handling and revocation. In particular, refresh tokens last **30 days from issue**, with a new 30-day window after each successful refresh. Old refresh tokens cannot be reused. Reuse revokes the associated grant and token chain. DanzQ must serialize refresh attempts and save the replacement token before making further requests.
+
+The existing Identity login, optional two-factor authentication and site cookies are unchanged. Consent and Connected Apps use the website cookie; API access uses only the dedicated bearer scheme. The client receives no `id_token`, username, subscription or role claims in its access token.
 
 ---
 
@@ -330,12 +323,10 @@ the property the developer asked for, and the one Apple looks for.
 
 ### Flow C — Ongoing use and revocation
 
-- Access tokens expire hourly. PR 2 must define and protocol-test refresh-token rotation and
-  replay handling before token issuance is enabled.
-- User revokes at **Account → Connected Apps**: app name, connection date, last used,
-  scopes, `[Disconnect]`.
-- App revokes on sign-out via `POST /connect/revocation`.
-- We revoke a whole client from the admin area — every token for that `client_id` dies.
+- Access tokens expire after one hour. Refresh tokens rotate on every use and receive a new 30-day lifetime. Reuse of an old code or refresh token revokes its grant and associated tokens.
+- **Account → Connected Apps** shows each grant's app name and connection date. Disconnect revokes that grant and its tokens. Last-used and scope details remain future UI additions.
+- The app can revoke individual tokens via `POST /connect/revocation`. On sign-out it should revoke both its current access and refresh tokens, then clear its local credentials.
+- A client-wide admin revocation UI remains future work.
 
 ### Upgrade prompt
 

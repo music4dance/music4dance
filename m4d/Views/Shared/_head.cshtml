@@ -47,7 +47,8 @@
     // Client-side usage tracking - check if should track this path
     var currentPath = Context.Request.Path.ToString();
     var excludedPaths = new[] { "/admin/", "/identity/", "/api/" };
-    var shouldTrack = !excludedPaths.Any(p => currentPath.StartsWith(p, StringComparison.OrdinalIgnoreCase));
+    var shouldTrack = !m4d.PublicApi.PublicApiProtection.IsSensitiveRequest(Context.Request) &&
+        !excludedPaths.Any(p => currentPath.StartsWith(p, StringComparison.OrdinalIgnoreCase));
     var clientSideTracking = await _featureManager.IsEnabledAsync(FeatureFlags.ClientSideUsageLogging);
 
     // Engagement system - don't show on pages with ads suppressed (Contribute, identity pages, etc.)
@@ -173,7 +174,7 @@
 
 @* Client-side usage tracking initialization moved to MainMenu.vue *@
 
-@if (await _featureManager.IsEnabledAsync(FeatureFlags.GoogleTagManager))
+@if (!m4d.PublicApi.PublicApiProtection.IsSensitiveRequest(Context.Request) && await _featureManager.IsEnabledAsync(FeatureFlags.GoogleTagManager))
 {
     <!-- Google Tag Manager -->
     <script>
@@ -185,7 +186,7 @@
     <!-- End Google Tag Manager -->
 }
 
-@if (await _featureManager.IsEnabledAsync(FeatureFlags.GoogleTags))
+@if (!m4d.PublicApi.PublicApiProtection.IsSensitiveRequest(Context.Request) && await _featureManager.IsEnabledAsync(FeatureFlags.GoogleTags))
 {
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-2MCXRT7ZDV"></script>
