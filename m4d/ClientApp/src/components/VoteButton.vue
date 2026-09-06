@@ -58,16 +58,26 @@ const downClick = async () => {
   <div class="vote-container">
     <div
       v-b-tooltip.hover.right="{ title: upTip, id: getId() }"
+      role="button"
+      tabindex="0"
+      :aria-label="upTip"
       :class="upClass"
       @click="upClick"
+      @keydown.enter="upClick"
+      @keydown.space.prevent="upClick"
     />
     <div v-b-tooltip.hover.right="{ title: mainTip, id: getId() }" class="vote-number">
       {{ value }}
     </div>
     <div
       v-b-tooltip.hover.right="{ title: downTip, id: getId() }"
+      role="button"
+      tabindex="0"
+      :aria-label="downTip"
       :class="downClass"
       @click="downClick"
+      @keydown.enter="downClick"
+      @keydown.space.prevent="downClick"
     />
   </div>
 </template>

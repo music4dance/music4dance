@@ -280,7 +280,7 @@ exhaustive coverage of every page listed under `m4d/ClientApp/src/pages/`. Pick 
 representative slice through the stack per concern, and let unit/integration tests (which are
 much cheaper to write and run) continue to carry the depth.
 
-### Tier 1 — the set to build first (~7 spec files)
+### Tier 1 — the set to build first (~6 spec files)
 
 | Spec                        | Exercises                                                                                                                   | Why it earns a slot                                                                                                                                                             |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -289,21 +289,30 @@ much cheaper to write and run) continue to carry the depth.
 | `search-and-browse.spec.ts`   | Filter the song list by dance + tempo range, sort by title, page through results                                            | Directly regression-tests L1f (`SongIndexLocal.Search`) through its real caller (`SongSearch.Search()`), the one path this whole environment previously couldn't exercise at all |
 | `voting.spec.ts`              | As the plain tester, cast a dance-rating vote on a song; verify the displayed total changes; undo via "Undo My Changes"     | Core site purpose — matching music to dances is driven by these votes; also the plain-tier account's reason for existing (L1d)                                                 |
 | `tagging.spec.ts`             | Add and remove a tag on a song via `TagListEditor`; verify it round-trips through `Tag.fromParts`-style tag strings          | Second core write path; per CLAUDE.md, this also indirectly checks tag-string handling stays class-library-driven rather than manually parsed                                  |
-| `playlist.spec.ts`            | From search results, create a playlist and confirm the song appears in it                                                  | Exercises `PlayListController`'s `CreateTransientContext` path — the exact code that needed the InMemory fallback fix documented in contributor-test-environments.md L1b; a real regression risk if that fix ever drifts |
 | `custom-search.spec.ts`       | Build a dance+tag filter through the advanced/custom search UI; assert the resulting URL/query uses the expected filter shape | Guards the CLAUDE.md "always use the class library to build/parse filter strings" rule from the UI side — a manual-construction regression would show up here as a broken query, not just a passing unit test |
 
 Each of these should be **one or two tests per file**, not a matrix — e.g. `auth.spec.ts` is
 three short tests (one per tier), not a combinatorial sweep of every role-gated button.
 
+**`playlist.spec.ts` was dropped from this table** (folded into the non-goals below) once
+`PlayListController` was actually read: `Create`/`Update`/`BulkCreate*` are all
+`[Authorize(Roles = "dbAdmin")]`, and every mutating path calls `SpotifyAuthorization()` and
+`MusicServiceManager` against a **real** Spotify playlist — there's no user-facing "add these
+search results to a playlist" flow for an ordinary account at all, seeded or otherwise. The
+seeded accounts have no Spotify identity to authorize with, so this was never testable here
+without real third-party credentials; it already fell under "Anything touching live third-party
+services" below, the Tier 1 table just hadn't caught up to that yet.
+
 ### Explicit non-goals for this suite
 
 - **Anything touching live third-party services** (Google/Facebook/Spotify OAuth,
-  `MusicServiceManager`'s enrichment path). Already called out as a known non-goal of the
-  sandbox itself (contributor-test-environments.md L1e) — no local server work makes this
-  testable, and it shouldn't be worked around with real credentials in CI.
-  `AddSpotifyWithResilience`'s degrade-cleanly behavior is exactly what Playwright would hit
-  instead, which is fine — that's still real coverage of the resilience path, just not of
-  Spotify sign-in itself.
+  `MusicServiceManager`'s enrichment path, **playlist creation/update** — `PlayListController`
+  is `dbAdmin`-only and every mutating action authorizes against a real Spotify playlist).
+  Already called out as a known non-goal of the sandbox itself
+  (contributor-test-environments.md L1e) — no local server work makes this testable, and it
+  shouldn't be worked around with real credentials in CI. `AddSpotifyWithResilience`'s
+  degrade-cleanly behavior is exactly what Playwright would hit instead, which is fine — that's
+  still real coverage of the resilience path, just not of Spotify sign-in itself.
 - **Search relevance/ranking quality.** `SongIndexLocal` is explicitly disclosed as not
   representative of real Azure Search scoring. Tests should assert *which songs come back* and
   *in what order for an explicit sort field*, never "does the best match rank first."

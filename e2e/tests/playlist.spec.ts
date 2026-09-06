@@ -1,10 +1,13 @@
 import { test } from "@playwright/test";
 
-// TODO: implement once the search-results-to-playlist UI has been inspected against a running
-// m4d.Sandbox. Create a playlist from search results and confirm the song appears in it. This
-// exercises PlayListController.cs's CreateTransientContext path - the exact code that needed
-// the InMemory-aware fallback documented in architecture/contributor-test-environments.md (L1b)
-// - so it's real regression coverage for that fix, not just a UI smoke check.
+// Deferred out of the first round (see architecture/playwright-e2e-testing.md's Coverage Plan):
+// PlayListController's Create/Update actions are [Authorize(Roles = "dbAdmin")] and every
+// playlist-mutating path (BulkCreateTopN, UpdateSpotifyFromSearch, etc.) calls
+// SpotifyAuthorization() and MusicServiceManager against a real Spotify playlist - there's no
+// user-facing "add these search results to a playlist" flow for an ordinary account, seeded or
+// otherwise. The seeded sandbox accounts have no Spotify identity to authorize with, so this
+// isn't testable here without real third-party credentials - already an explicit non-goal of
+// this suite ("Anything touching live third-party services").
 test.fixme("creates a playlist from search results", async ({ page }) => {
   void page;
 });

@@ -155,6 +155,7 @@ const tagHandler = (tag: Tag): TagHandler => {
         v-if="authenticated"
         href="#"
         role="button"
+        aria-label="Edit tags"
         @click.prevent="
           $emit(
             'edit',
