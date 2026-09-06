@@ -47,7 +47,14 @@ export default defineConfig({
     command: "dotnet run --project ../m4d.Sandbox --no-launch-profile",
     url: `http://localhost:${port}`,
     reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
+    // Seeding ~400 songs and building SongIndexLocal at startup, plus dotnet run's own
+    // build-check overhead, comfortably fits under 60s locally but ran past it on a cold
+    // GitHub-hosted runner (confirmed by a live workflow_dispatch run:
+    // https://github.com/music4dance/music4dance/actions/runs/34002543313). Give CI more room.
+    timeout: process.env.CI ? 120_000 : 60_000,
+    // Default is "ignore" for stdout, which means a webServer timeout gives no clue what the
+    // server was actually doing - pipe it so CI logs show real startup progress on failure.
+    stdout: "pipe",
     env: {
       ASPNETCORE_ENVIRONMENT: "Development",
       ASPNETCORE_URLS: `http://localhost:${port}`,
