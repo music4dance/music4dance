@@ -34,8 +34,13 @@ jobs:
         with:
           dotnet-version: "10.x"
 
+      # Debug, not Release: playwright.config.ts's webServer runs `dotnet run` with no
+      # --configuration flag, which defaults to Debug. Building Release here would warm up an
+      # output `dotnet run` never looks at, leaving the real Debug build to happen live inside
+      # Playwright's webServer.timeout window - confirmed by a run that timed out at 60s on a
+      # cold CI runner (https://github.com/music4dance/music4dance/actions/runs/34002133865).
       - name: Build m4d.Sandbox
-        run: dotnet build m4d.Sandbox/m4d.Sandbox.csproj --configuration Release
+        run: dotnet build m4d.Sandbox/m4d.Sandbox.csproj --configuration Debug
 
       - name: Install Playwright
         working-directory: e2e
