@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../../music4dance-sandbox"
+		}
+	],
+	"settings": {
+		"workbench.colorCustomizations": {
+			"terminal.background": "#2b1a3d",
+			"terminal.foreground": "#e6d9f2",
+			"terminal.border": "#5c2d91"
+		}
+	}
+}
