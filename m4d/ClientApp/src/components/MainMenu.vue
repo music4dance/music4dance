@@ -288,7 +288,7 @@ function search(s?: string): void {
             </BInputGroup>
           </BNavForm>
           <template v-if="context.userName">
-            <BNavItemDropdown>
+            <BNavItemDropdown id="account-menu">
               <template #button-content>
                 {{ context.userName }} {{ songIndex }}
                 <img :src="dancers" alt="User Icon" height="30" width="30" />

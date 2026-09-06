@@ -14,12 +14,13 @@ test.describe("auth", () => {
     test(`logs in as the seeded ${tier} account`, async ({ page }) => {
       await login(page, tier);
 
-      // Scoped to the navbar (MainMenu.vue's <BNavbar id="mainMenu">) - a bare page-wide text
-      // search for the username is ambiguous, e.g. "editor" also matches unrelated page copy
-      // ("The tag editor is...") on some pages.
-      const nav = page.locator("#mainMenu");
+      // Scoped to the account dropdown specifically (MainMenu.vue's
+      // <BNavItemDropdown id="account-menu">), not the whole navbar - a bare #mainMenu-wide text
+      // search for the username is ambiguous, e.g. "admin" also matches the "Admin" nav dropdown
+      // and its "Admin Search" item via Playwright's case-insensitive substring match.
+      const accountMenu = page.locator("#account-menu");
       const { userName } = credentialsFor(tier);
-      await expect(nav.getByText(userName, { exact: false })).toBeVisible();
+      await expect(accountMenu.getByText(userName, { exact: false })).toBeVisible();
 
       const adminMenu = page.locator("#admin-menu");
       if (tier === "admin") {
