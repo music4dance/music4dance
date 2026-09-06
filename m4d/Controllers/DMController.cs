@@ -511,7 +511,7 @@ public class DanceMusicController(
             {
                 var danceStats = Database.DanceStats;
                 var dancesJson = ReadJsonFile(fileProvider, "dances");
-                var groupsJson = ReadJsonFile(fileProvider, "danceGroups");
+                var groupsJson = ReadJsonFile(fileProvider, "dancegroups");
                 var metricsJson = danceStats != null
                     ? JArray.FromObject(danceStats.GetMetrics().Values, CamelCaseSerializer)
                     : new JArray();
