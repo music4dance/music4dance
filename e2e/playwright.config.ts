@@ -13,7 +13,10 @@ const port = 65085;
 // deployed instance) - this also disables the webServer block below, since starting our own
 // dotnet run on the hard-coded port would be pointless (and could conflict with the one
 // M4D_SANDBOX_URL points at) once a server is already reachable elsewhere.
-const externalSandboxUrl = process.env.M4D_SANDBOX_URL;
+// Trimmed and treated as unset when blank, so an accidentally-empty env var (e.g.
+// M4D_SANDBOX_URL= with no value) doesn't silently produce an invalid empty baseURL while still
+// skipping the webServer that would have caught the misconfiguration.
+const externalSandboxUrl = process.env.M4D_SANDBOX_URL?.trim() || undefined;
 
 export default defineConfig({
   testDir: "./tests",
