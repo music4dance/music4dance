@@ -1,0 +1,13 @@
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+.cache/
+
+# Yarn Berry: keep the lockfile, drop the local install-state cache (matches m4d/ClientApp/.gitignore)
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
