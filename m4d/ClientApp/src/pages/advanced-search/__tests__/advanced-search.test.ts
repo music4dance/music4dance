@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, afterEach, describe, test, expect } from "vitest";
+import { beforeAll, beforeEach, afterEach, describe, test, expect, vi } from "vitest";
 import { testPageSnapshot, loadTestPage } from "@/helpers/TestPageSnapshot";
 import { mockResizObserver } from "@/helpers/TestHelpers";
 import { SongFilter } from "@/models/SongFilter";
@@ -322,5 +322,39 @@ describe("AdvancedSearch.vue", () => {
 
     await wrapper.find("#scope-dance").setValue("RMB");
     expect(sortOptionTexts(wrapper)).toContain("Dance Rating (Rumba)");
+  });
+
+  // Reads the `filter` param off the most recent history.replaceState call and parses it back
+  // into a SongFilter, the same way the server/next page load would - more robust than comparing
+  // encoded strings directly, since useUrlQuerySync's URLSearchParams-based encoding legitimately
+  // differs byte-for-byte from SongFilter.encodedQuery's encodeURIComponent (e.g. "~" and " ")
+  // while still round-tripping to an equivalent filter.
+  function replacedFilter(replaceSpy: ReturnType<typeof vi.spyOn>): SongFilter {
+    const lastCall = replaceSpy.mock.calls.at(-1)!;
+    const url = new URL(String(lastCall[2]), "https://localhost:5001");
+    return SongFilter.buildFilter(url.searchParams.get("filter")!);
+  }
+
+  describe("shareable URL (useUrlQuerySync)", () => {
+    test("keeps the form's own URL live as a bookmarkable link to its current configuration", () => {
+      const replaceSpy = vi.spyOn(window.history, "replaceState");
+
+      loadTestPage(App);
+
+      const filter = replacedFilter(replaceSpy);
+      expect(filter.dances).toBe("BOL,RMB");
+      expect(filter.searchString).toBe("Love");
+      replaceSpy.mockRestore();
+    });
+
+    test("updates the URL live as the user edits the form", async () => {
+      const replaceSpy = vi.spyOn(window.history, "replaceState");
+
+      const wrapper = loadTestPage(App);
+      await wrapper.find("#tempo-min").setValue(100);
+
+      expect(replacedFilter(replaceSpy).tempoMin).toBe(100);
+      replaceSpy.mockRestore();
+    });
   });
 });

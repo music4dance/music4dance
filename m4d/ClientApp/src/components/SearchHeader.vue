@@ -18,6 +18,7 @@ const playListRef = props.filter.getPlayListRef(props.user);
       {{ description }}
       <BButton :href="changeLink" variant="primary" class="mx-1">Change</BButton>
       <BButton v-if="playListRef" :href="playListRef" class="mx-1">Create Spotify PlayList</BButton>
+      <CopyLinkButton class="mx-1" label="Copy Link to This Search" />
     </h3>
   </div>
 </template>

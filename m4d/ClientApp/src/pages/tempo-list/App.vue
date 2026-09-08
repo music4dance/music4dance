@@ -7,6 +7,7 @@ import {
   textFromValues,
   filterValid,
 } from "@/models/CheckboxTypes";
+import { useUrlQuerySync } from "@/composables/useUrlQuerySync";
 import { computed, ref } from "vue";
 import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { DanceFilter } from "@/models/DanceDatabase/DanceFilter";
@@ -56,6 +57,11 @@ const { options: organizationOptions, values: organizations } = buildList(
 );
 
 const nameFilter = ref("");
+
+// Bound via TempoList's v-model:visible-columns - undefined until TempoList applies its own
+// default (defaultVisible columns, or `model.columns` via `initial-columns`), at which point that
+// value is synced back here so it's included below. See TempoList.vue's `visibleColumns`.
+const visibleColumns = ref<string[]>();
 
 function buildList(values: string[], current?: string[]) {
   const options = optionsFromText(values);
@@ -170,6 +176,16 @@ const organizationCounts = computed(() =>
   ),
 );
 
+// Keeps the address bar (and therefore CopyLinkButton's default target) live as a shareable link
+// to the current filter/column selection - see architecture/bookmarkable-tool-links-plan.md.
+useUrlQuerySync(() => ({
+  styles: styles.value,
+  types: types.value,
+  meters: meters.value.map((m) => m.toString()),
+  organizations: organizations.value,
+  columns: visibleColumns.value,
+}));
+
 // Exposed for testing
 defineExpose({
   styles,
@@ -184,6 +200,7 @@ defineExpose({
   organizationOptions,
   organizationCounts,
   nameFilter,
+  visibleColumns,
   dances,
 });
 </script>
@@ -228,8 +245,16 @@ defineExpose({
         placeholder="Filter Dances"
       />
     </div>
+    <div class="d-flex justify-content-end my-2">
+      <CopyLinkButton label="Copy Link to This View" />
+    </div>
     <div class="row">
-      <TempoList class="col-md" :dances="dances" :initial-columns="model.columns" />
+      <TempoList
+        class="col-md"
+        :dances="dances"
+        :initial-columns="model.columns"
+        @update:visible-columns="visibleColumns = $event"
+      />
     </div>
     <div class="row">
       <div class="col">

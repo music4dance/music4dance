@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { TempoType } from "@/models/DanceDatabase/TempoType";
+import { useUrlQuerySync } from "@/composables/useUrlQuerySync";
 import { computed, ref } from "vue";
 import type { CountMethod } from "./CountMethod";
 import {
@@ -46,6 +47,15 @@ function chooseDance(danceId: string): void {
   }
 }
 
+// Keeps the address bar (and therefore CopyLinkButton's default target) live as a shareable link
+// to the counter's current configuration - see architecture/bookmarkable-tool-links-plan.md.
+useUrlQuerySync(() => ({
+  numerator: beatsPerMeasure.value.toString(),
+  tempo: beatsPerMinute.value.toString(),
+  count: countMethod.value,
+  epsilon: epsilonPercent.value.toString(),
+}));
+
 // Exposed for testing
 defineExpose({
   beatsPerMeasure,
@@ -67,6 +77,9 @@ defineExpose({
       v-model:count-method="countMethod"
       v-model:epsilon-percent="epsilonPercent"
     />
+    <div class="d-flex justify-content-end my-2">
+      <CopyLinkButton label="Copy Link to This Tempo" />
+    </div>
     <DanceDeltas
       :dances="dances"
       :beats-per-measure="beatsPerMeasure"

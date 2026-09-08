@@ -3,7 +3,7 @@ import { defaultTempoLink } from "@/helpers/LinkHelpers";
 import { wordsToKebab } from "@/helpers/StringHelpers";
 import { filterValid } from "@/models/CheckboxTypes";
 import type { TableFieldRaw, BTableSortBy, CheckboxOption } from "bootstrap-vue-next";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import type { DanceType } from "@/models/DanceDatabase/DanceType";
 
 const props = defineProps<{
@@ -52,6 +52,13 @@ const visibleColumns = ref<string[]>(
       )
     : chooseableColumns.filter((c) => c.defaultVisible).map((c) => c.key),
 );
+
+// Reports the column selection upward (rather than a two-way defineModel, whose `default` can't
+// reference `props.initialColumns` - it's hoisted out of setup()) so App.vue can keep it live in
+// the shareable URL via useUrlQuerySync. `immediate: true` fires this once synchronously during
+// setup with the initial value above, before this component's first render.
+const emit = defineEmits<{ "update:visibleColumns": [value: string[]] }>();
+watch(visibleColumns, (value) => emit("update:visibleColumns", value), { immediate: true });
 
 const allFields: Exclude<TableFieldRaw<DanceType>, string>[] = [
   {

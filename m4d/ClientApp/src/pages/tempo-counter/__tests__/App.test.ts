@@ -1,4 +1,5 @@
 import { describe, test, expect, beforeEach, vi } from "vitest";
+import { nextTick } from "vue";
 import type { VueWrapper } from "@vue/test-utils";
 import App from "../App.vue";
 import { loadTestPage } from "@/helpers/TestPageSnapshot";
@@ -140,6 +141,27 @@ describe("tempo-counter App.vue", () => {
 
       expect(justOutside.text()).not.toContain("Cha Cha");
       expect(justInside.text()).toContain("Cha Cha");
+    });
+  });
+
+  describe("shareable URL (useUrlQuerySync)", () => {
+    test("the address bar reflects the seeded configuration as soon as the page mounts", () => {
+      mountTempoCounter({ numerator: 3, tempo: 90, count: "measures", epsilon: 8 });
+
+      const params = new URLSearchParams(window.location.search);
+      expect(params.get("numerator")).toBe("3");
+      expect(params.get("tempo")).toBe("90");
+      expect(params.get("count")).toBe("measures");
+      expect(params.get("epsilon")).toBe("8");
+    });
+
+    test("the address bar updates live as the user adjusts the strictness slider", async () => {
+      const wrapper = mountTempoCounter();
+
+      wrapper.vm.epsilonPercent = 12;
+      await nextTick();
+
+      expect(new URLSearchParams(window.location.search).get("epsilon")).toBe("12");
     });
   });
 
