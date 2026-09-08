@@ -23,6 +23,10 @@ describe("buildQueryString", () => {
     expect(buildQueryString({ styles: [] })).toBe("");
   });
 
+  test("drops empty-string entries within an array the same way the scalar path does", () => {
+    expect(buildQueryString({ styles: ["waltz", "", "tango"] })).toBe("?styles=waltz&styles=tango");
+  });
+
   test("combines scalar and array params in insertion order", () => {
     expect(buildQueryString({ tempo: "120", styles: ["waltz", "tango"] })).toBe(
       "?tempo=120&styles=waltz&styles=tango",

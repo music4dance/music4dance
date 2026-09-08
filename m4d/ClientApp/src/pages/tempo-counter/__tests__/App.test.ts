@@ -164,7 +164,7 @@ describe("tempo-counter App.vue", () => {
       expect(new URLSearchParams(window.location.search).get("epsilon")).toBe("12");
     });
 
-    test("the tempo param is truncated to the one decimal place the UX displays", async () => {
+    test("the tempo param is rounded to the one decimal place the UX displays", async () => {
       const wrapper = mountTempoCounter();
 
       wrapper.vm.beatsPerMinute = 123.456;

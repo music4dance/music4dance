@@ -13,7 +13,7 @@ export function buildQueryString(params: Record<string, QueryParamValue>): strin
       continue;
     }
     if (Array.isArray(value)) {
-      value.forEach((v) => usp.append(key, v));
+      value.filter((v) => v !== "").forEach((v) => usp.append(key, v));
     } else if (value !== "") {
       usp.set(key, value);
     }
