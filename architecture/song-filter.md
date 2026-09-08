@@ -303,6 +303,26 @@ documented in [[song-search-results]] (`DoAzureSearch()` → [[song-search-servi
 `page` query param (pagination, see [[song-search-results]]'s "Pagination Convention"); otherwise it
 re-parses whatever `Filter` the query string already encodes and searches unchanged.
 
+### Shareable links
+
+`onSubmit`'s one-time `replaceState` above used to be the only way the form's own address reflected
+its state. The shared `useUrlQuerySync` composable (`m4d/ClientApp/src/composables/`, see
+[[tempo-list-page]] "Shareable URLs" for the general mechanism) now makes that continuous: a
+`watchEffect` declared at the end of `App.vue`'s `<script setup>` (after `onReset`, so it doesn't
+read `computedActivity` before that ref exists) keeps `?filter=` and `?showDiagnostics=` live as
+every form field changes, using the raw `songFilter.value.query` rather than `.encodedQuery` — the
+composable does its own `URLSearchParams`-based encoding, so passing the already-percent-encoded
+`.encodedQuery` through it would double-encode values like `~`.
+
+A **Copy Link to This Search** button (`CopyLinkButton`, next to Submit) copies a link to the
+clipboard, but not the form's own (live-synced) address — a `resultsLink` computed override points
+it at `` `${origin}/song/filtersearch?filter=${songFilter.value.encodedQuery}` `` instead, since the
+results page is the link actually worth sharing; the form's own URL is only useful to someone who
+wants to keep editing. The results page itself needs no live sync (its own URL is already the
+correct, current link) — `SearchHeader.vue` and `SongLibraryHeader.vue` (the two headers rendered
+above `song-index`'s results table) each just place a bare `CopyLinkButton` (default
+`window.location.href`) next to their existing "Change"/search controls.
+
 ---
 
 ## From `SongFilter` to Azure `SearchOptions`
@@ -537,7 +557,9 @@ And Vocal' or 'Musical' or 'Show Tunes'"`), `Dance`, and `PlayListId`.
 | `m4dModels/RawSearch.cs`                                           | Raw-filter form model, `GetAzureSearchParams`                                                                                                             |
 | `m4dModels/SearchServiceInfo.cs`                                   | `ISearchServiceManager.GetSongFilter` — picks `SongFilter` vs `SongFilterNext` by index schema version                                                    |
 | `m4dModels/SongIndex.cs`                                           | `AzureParmsFromFilter`, `AddCruftInfo`, `DoSearch`, `Search`                                                                                              |
-| `m4d/ClientApp/src/pages/advanced-search/App.vue`                  | Advanced Search form: builds a `SongFilter` from UI state, submits via hard navigation to `FilterSearch`                                                  |
+| `m4d/ClientApp/src/pages/advanced-search/App.vue`                  | Advanced Search form: builds a `SongFilter` from UI state, submits via hard navigation to `FilterSearch`, keeps `?filter=` live via `useUrlQuerySync`     |
+| `m4d/ClientApp/src/composables/useUrlQuerySync.ts`                 | Shared live-URL-sync composable — see [[tempo-list-page]] "Shareable URLs" and this doc's "Shareable links" above                                         |
+| `m4d/ClientApp/src/components/CopyLinkButton.vue`                  | Shared "Copy Link" button, used by the form (with a results-link `url` override) and `SearchHeader.vue`/`SongLibraryHeader.vue`                           |
 | `m4d/Controllers/SongController.cs`                                | `AdvancedSearchForm`, `FilterSearch`, legacy `AdvancedSearch`, `HolidayMusic` redirect; see [[song-search-results]] for the rest of the action surface    |
 | `m4d/Services/SongSearch.cs`                                       | Orchestration layer consuming the built `SearchOptions` — see [[song-search-service]]                                                                     |
 | `m4d/Controllers/CustomSearchController.cs`                        | Holiday/Halloween/Broadway canned pages: builds the raw filter, calls `SongSearch` directly, renders `custom-search`                                      |

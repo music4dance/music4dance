@@ -10,26 +10,28 @@ database ships to the client as `window.danceDatabaseJson`, and every click/inpu
 match list against `DanceDatabase.filterTempo`.
 
 The page is a common blog deep-link target (`blogmap.txt` links to both `/Home/counter` and
-`/Home/tempi`), which is the motivating use case for its `numerator`/`tempo`/`count` query
-parameters: a blog post can link straight into a specific starting tempo/meter/count-mode instead
-of a blank counter.
+`/Home/tempi`), which is the motivating use case for its `numerator`/`tempo`/`count`/`epsilon` query
+parameters: a blog post (or a visitor's own bookmark/copied link — see "Shareable URLs" below) can
+link straight into a specific starting tempo/meter/count-mode/strictness instead of a blank
+counter.
 
 ## Server-Side Wiring
 
-- `HomeController.Counter(numerator, tempo, count)` (`m4d/Controllers/HomeController.cs:100-109`)
-  reads three scalar query-string parameters — `int? numerator`, `decimal? tempo`,
-  `string count = "beats"` — and renders the generic Vue3 host view with:
+- `HomeController.Counter(numerator, tempo, count, epsilon)` (`m4d/Controllers/HomeController.cs`)
+  reads four scalar query-string parameters — `int? numerator`, `decimal? tempo`,
+  `string count = "beats"`, `decimal? epsilon` — and renders the generic Vue3 host view with:
   - component name `"tempo-counter"` (resolves to this `App.vue`)
-  - a `TempoCounterModel` (`m4d/ViewModels/TempoCounterModel.cs`) built directly from the three
+  - a `TempoCounterModel` (`m4d/ViewModels/TempoCounterModel.cs`) built directly from the four
     parameters (no `ConvertParameter`/list handling — unlike `Tempi`, none of these are
     multi-value)
   - `danceEnvironment: true`, which emits `window.danceDatabaseJson` the same way `Tempi` does
 - No `[Route]` attribute; the URL is the default MVC route,
-  `/Home/Counter?numerator=4&tempo=120&count=beats`.
-- `count` is untyped (`string`) server-side and passed through as-is; the client is what
-  constrains it to `CountMethod` (`"measures" | "beats"`) — an invalid value simply fails the
-  `?? "beats"`/type-narrowing on the client only insofar as `model_.count` gets cast to
-  `CountMethod` without validation (see below).
+  `/Home/Counter?numerator=4&tempo=120&count=beats&epsilon=5`.
+- All four parameters are passed through to `model_` untyped/unvalidated server-side — fencing is
+  entirely the client's job, via `QueryValidation.ts` (see below). This mirrors Tempo List's
+  `filterValid`/`filterValidMeters` convention of trusting the server to pass along whatever it was
+  given and having the client silently fall back to a sane default for anything malformed, rather
+  than the server rejecting or normalizing the request.
 
 ## Client-Side Data Flow
 
@@ -39,10 +41,10 @@ window.danceDatabaseJson ──▶ safeDanceDatabase() ──▶ danceDatabase: 
                                               dances = danceDatabase.dances   // unfiltered — no
                                                                               // style/type/org
                                                                               // narrowing here
-model_.numerator ──▶ beatsPerMeasure (ref, default 4)
-model_.tempo      ──▶ beatsPerMinute (ref, default 0)
-model_.count      ──▶ countMethod (ref, default "beats")
-(hard-coded)      ──▶ epsilonPercent (ref, default 5 — no query param)
+model_.numerator ──▶ validateNumerator ──▶ beatsPerMeasure (ref, default 4)
+model_.tempo      ──▶ validateTempo      ──▶ beatsPerMinute (ref, default 0)
+model_.count      ──▶ validateCountMethod ──▶ countMethod (ref, default "beats")
+model_.epsilon    ──▶ validateEpsilon    ──▶ epsilonPercent (ref, default 5)
                                                           │
                         tempoType = countMethod === "measures" ? Measures : Beats
                         measuresPerMinute = computed get/set bridging beatsPerMinute
@@ -64,14 +66,21 @@ Like `model_` on the Tempo List page, `model_` here is the *object itself* (not 
 `App.vue` reads `model_.numerator`/`.tempo`/`.count` directly rather than calling
 `TypedJSON.parse`.
 
-Three query-string-seeded values (`beatsPerMeasure`, `beatsPerMinute`, `countMethod`) round-trip
-through `model_`; `epsilonPercent` (the "strictness" slider) does not — it's always initialized to
-`5` regardless of any query parameter, so a shared/bookmarked link can't currently pin a
-non-default strictness. There's also no client-side validation of `model_.count`: an invalid or
-missing value flows through `?? "beats"`, but anything present is cast straight to `CountMethod`
-without checking it's actually `"beats"`/`"measures"` (contrast with `tempo-list`'s
-`filterValid`/`filterValidMeters`, which silently drop invalid seeded values instead of trusting
-them).
+All four query-string-seeded values (`beatsPerMeasure`, `beatsPerMinute`, `countMethod`,
+`epsilonPercent`) round-trip through `model_`, each fenced by its own validator in
+`m4d/ClientApp/src/pages/tempo-counter/QueryValidation.ts`:
+
+| Validator | Accepts | Falls back to |
+| --- | --- | --- |
+| `validateNumerator` | `2`, `3`, or `4` — the only meters `MeasuresPerMinute.vue`'s dropdown offers | `DEFAULT_NUMERATOR = 4` |
+| `validateTempo` | a finite number in `[0, 500]`, matching `TempoModal.vue`'s manual-entry bounds | `DEFAULT_TEMPO = 0` |
+| `validateCountMethod` | literally `"measures"` (anything else, including garbage) | `DEFAULT_COUNT_METHOD = "beats"` |
+| `validateEpsilon` | a finite number in `[0, 20]`, matching `StrictSlider.vue`'s range bounds | `DEFAULT_EPSILON = 5` |
+
+Each validator silently drops anything else (missing, wrong type, out of range) rather than
+throwing or trusting it through — the same "silently drop invalid seeded value" convention
+`tempo-list`'s `filterValid`/`filterValidMeters` already use, just one field at a time instead of
+against an options list.
 
 Unlike the Tempo List page, `dances` here is **not** filtered to `!tempoRange.isInfinite` up front
 — Performance-group dances and Pattern would only be excluded downstream if their tempo delta
@@ -130,27 +139,49 @@ Owns the tap-tempo state machine and the manual-entry widgets. All state is pass
   background tab" gesture. `DanceName`'s own link is suppressed via `hide-name-link="true"` since
   the whole list item is already clickable.
 
+## Shareable URLs
+
+Like the Tempo List page, the address bar stays continuously in sync with the counter's current
+configuration via the shared `useUrlQuerySync` composable, and a **Copy Link to This Tempo** button
+(`CopyLinkButton`, defaulting to `window.location.href`) sits below the counter controls. See
+[[tempo-list-page]] "Shareable URLs" for how the shared mechanism works generally; this page's
+wiring (`App.vue`) is:
+
+```ts
+useUrlQuerySync(() => ({
+  numerator: beatsPerMeasure.value.toString(),
+  tempo: beatsPerMinute.value.toFixed(1),
+  count: countMethod.value,
+  epsilon: epsilonPercent.value.toString(),
+}));
+```
+
+`tempo` is rounded to one decimal place (`toFixed(1)`) rather than the raw float — the tap-tempo
+state machine and the `measuresPerMinute`/`beatsPerMinute` bridging computed can both produce many
+more significant digits than `BeatsPerMinute.vue`/`MeasuresPerMinute.vue` ever actually display, so
+the shared link matches what the visitor sees rather than exposing that extra, meaningless
+precision. Unlike Tempo List, none of these four params have a "default" worth omitting — every
+counter configuration is equally likely to be the one worth sharing — so all four are always
+present in the URL.
+
 ## Testing
 
-There is currently **no** `__tests__` directory for `tempo-counter/App.vue` or any of its
-components — a gap relative to the Tempo List page, which has thorough coverage of its filter
-pipeline, results table, and column chooser (see [[tempo-list-page]] "Testing"). The tap-tempo
-state machine, the `measuresPerMinute`/`beatsPerMinute` bridging computed, the
-`model_`-seeding/round-trip, and the meter pre-filter/ranking logic in `DanceDeltas.vue` are all
-currently unverified by automated tests.
+`m4d/ClientApp/src/pages/tempo-counter/__tests__/QueryValidation.test.ts` and `App.test.ts` cover
+the validation/fencing behavior above (each validator's accept/reject boundary), the `model_`
+seeding/round-trip for all four values, the tap-tempo state machine, the
+`measuresPerMinute`/`beatsPerMinute` bridging computed, and the shareable-URL sync (initial seed,
+live updates, and the one-decimal rounding on `tempo`). The meter pre-filter/ranking logic in
+`DanceDeltas.vue` is still unverified by automated tests — a gap relative to the rest of this page,
+which now otherwise matches the Tempo List page's coverage level (see [[tempo-list-page]]
+"Testing").
 
 ## Known Gaps / Follow-ups
 
-- `epsilonPercent` isn't seeded from (or reflected in) the query string, so a shared link always
-  starts at the default strictness of `5` — relevant if this page's links are made more broadly
-  shareable/bookmarkable (see [[bookmarkable-tool-links-plan]]).
-- `model_.count` isn't validated against the `CountMethod` union the way the four Tempo List
-  filters validate their seeded values — a malformed `?count=` value would flow straight into
-  `countMethod` uncast.
 - The `ctrlKey` argument on `choose-dance` is accepted by `DanceDeltas`/`TempoDeltaInfo` but
   ignored by `App.vue`'s handler — dead plumbing, or an unfinished "open in same tab vs. new tab"
   feature, depending on intent.
-- No `__tests__` coverage (see "Testing" above).
+- `DanceDeltas.vue`'s meter pre-filter/ranking logic has no dedicated test coverage (see "Testing"
+  above).
 
 ## Related Code
 
@@ -158,6 +189,9 @@ currently unverified by automated tests.
 | --- | --- |
 | `m4d/ClientApp/src/pages/tempo-counter/App.vue` | Page: seeds state from `model_`, holds `beatsPerMeasure`/`beatsPerMinute`/`countMethod`/`epsilonPercent`, wires the counter to the results list |
 | `m4d/ClientApp/src/pages/tempo-counter/CountMethod.ts` | `CountMethod` union type (`"measures" \| "beats"`) |
+| `m4d/ClientApp/src/pages/tempo-counter/QueryValidation.ts` | Per-field validation/fencing + defaults for all four query-string-seeded values |
+| `m4d/ClientApp/src/composables/useUrlQuerySync.ts` | Shared live-URL-sync composable (see [[tempo-list-page]] "Shareable URLs") |
+| `m4d/ClientApp/src/components/CopyLinkButton.vue` | Shared "Copy Link" button (see [[tempo-list-page]] "Shareable URLs") |
 | `m4d/ClientApp/src/pages/tempo-counter/components/TempoCounter.vue` | Tap-tempo state machine + manual-entry/meter/strictness controls |
 | `m4d/ClientApp/src/pages/tempo-counter/components/BeatsPerMinute.vue` | BPM display button + manual-entry trigger |
 | `m4d/ClientApp/src/pages/tempo-counter/components/MeasuresPerMinute.vue` | MPM display button + manual-entry trigger + meter (2/3/4) dropdown |

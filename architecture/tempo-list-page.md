@@ -297,6 +297,48 @@ the original behavior so the four page-level filters render unchanged: `variant`
 default `"primary"`) and `size` (`Size`, default unset/normal), both passed straight through to the
 underlying `BDropdown`.
 
+## Shareable URLs
+
+Every "tool" page that's fully driven by client-side state (this page, [[tempo-counter-page]],
+and the Advanced Search form — see [[song-filter]] "Building a Filter: The Advanced Search Page")
+already supported deep-linking into a specific configuration via query-string parameters, but only
+in the "site owner hand-crafts a URL" direction (`blogmap.txt` links to `/Home/tempi` and
+`/Home/counter` this way). The goal of this mechanism is to let an ordinary visitor reach the same
+result themselves — configure the page, then bookmark it or copy a link, without knowing the
+query-string format — via a small, reusable pair of pieces any future tool page can opt into.
+
+- **`useUrlQuerySync`** (`m4d/ClientApp/src/composables/useUrlQuerySync.ts`) — a page supplies a
+  `getParams: () => Record<string, string | string[] | undefined>` getter; the composable runs a
+  `watchEffect` that calls `history.replaceState` whenever the resulting query string changes, so
+  the address bar is always a valid, shareable link to the page's current state without a page
+  navigation or extra browser back/forward entries. `undefined` values (and empty strings, in
+  either a scalar or an array) are omitted entirely rather than serialized as `key=`. This page
+  passes `undefined` for any of the four `CheckedList` filters when it equals "every option
+  selected" (its default) and for `columns` when it equals `defaultVisibleColumns` (also its
+  default, via the order-independent `arraysEqualAsSets` helper) — see `App.vue`'s
+  `useUrlQuerySync` call — so the common case's URL stays short (a bare `/Home/Tempi` at defaults)
+  rather than always spelling out every selected option.
+- **`CopyLinkButton.vue`** (`m4d/ClientApp/src/components/`) — a small shared button that copies a
+  URL to the clipboard (`navigator.clipboard.writeText`) with a toast confirmation. Defaults to
+  `window.location.href`, which — because the composable above keeps that value current — needs no
+  page-specific URL-building logic in the common case; an optional `url` prop overrides it for the
+  one case where the shareable link isn't the current page's own address (Advanced Search's form
+  wants to share the **results** link, not the form's own URL — see [[song-filter]] "Submission").
+  This page places one labeled "Copy Link to This View" above the results table; the counter page
+  places an equivalent one below its controls (see [[tempo-counter-page]] "Shareable URLs").
+
+Each page still owns reading its *initial* state from `model_` exactly as before (`filterValid`,
+`filterValidMeters`, `QueryValidation.ts`'s validators) — the composable only owns the write
+direction, so none of that "silently drop an invalid seeded value" logic needed to move or change.
+`TempoList.vue`'s column chooser reports its selection upward to `App.vue` via
+`@update:visibleColumns` (a plain `defineEmits` + `watch(..., {immediate: true})`, not a two-way
+`defineModel`, since `defineModel`'s `default` factory can't reference `props.initialColumns` — it's
+hoisted outside `setup()`) so `App.vue` can fold it into the URL alongside the four page-level
+filters.
+
+Future tool pages adopt the same two pieces: wire their state into `useUrlQuerySync`, drop in a
+`CopyLinkButton`. No new shared code should be needed per page beyond that.
+
 ## Testing
 
 - `m4d/ClientApp/src/pages/tempo-list/__tests__/App.test.ts` — mounts the real page (via
@@ -311,7 +353,18 @@ underlying `BDropdown`.
   deliberate narrow organization selection (to prove the fix didn't broaden the latter), and the
   Type column narrowing to the selected group(s). Also covers the name filter, including that it
   ANDs with the other filters (a group match whose name doesn't satisfy the text filter is
-  excluded).
+  excluded). A `describe("shareable URL (useUrlQuerySync)")` block covers the "Shareable URLs"
+  section above end-to-end: the address bar reflects seeded filters/columns as soon as the page
+  mounts, updates live as a filter is narrowed or the column chooser is changed, and — the specific
+  behavior this block exists to pin down — a filter/columns param is omitted once its selection
+  equals "everything"/the default set, and reappears once re-narrowed.
+- `m4d/ClientApp/src/composables/__tests__/useUrlQuerySync.test.ts` — unit tests for the shared
+  composable itself: `buildQueryString`'s param/array serialization and default-omission rules
+  (including empty-string entries within an array, not just bare scalars), and `useUrlQuerySync`'s
+  `history.replaceState` behavior (initial write, live updates, preserving pathname/hash, no new
+  history entry).
+- `m4d/ClientApp/src/components/__tests__/CopyLinkButton.test.ts` — the clipboard-write + toast
+  confirmation behavior, both the default `window.location.href` target and the `url` override.
 - `m4d/ClientApp/src/pages/tempo-list/components/__tests__/TempoList.test.ts` — unit tests for the
   results table: column content/links for a known dance, the empty-selection caption, default sort
   order, and the column chooser (every optional column visible by default except Range, Name not
@@ -429,6 +482,9 @@ BPM/MPM/Styles already shrank to the selected style(s).
 | `m4d/ClientApp/src/pages/tempo-list/App.vue` | Page: builds filter option lists, holds selection state (including `nameFilter`), computes `dances` |
 | `m4d/ClientApp/src/pages/tempo-list/components/CheckedList.vue` | Reusable multi-select dropdown used for the four page-level filters and (via `variant`/`size`) the column chooser |
 | `m4d/ClientApp/src/pages/tempo-list/components/TempoList.vue` | Results table; owns the column chooser and `visibleColumns` state |
+| `m4d/ClientApp/src/pages/tempo-list/components/tempoListColumns.ts` | `chooseableColumns`/`defaultVisibleColumns` — a plain module (not part of `TempoList.vue`'s `<script setup>`, which can't have named exports) so `App.vue` can compare the current selection against the default |
+| `m4d/ClientApp/src/composables/useUrlQuerySync.ts` | Shared live-URL-sync composable — see "Shareable URLs" above |
+| `m4d/ClientApp/src/components/CopyLinkButton.vue` | Shared "Copy Link" button — see "Shareable URLs" above |
 | `m4d/ClientApp/src/components/NameFilterInput.vue` | Shared name-filter text input (search icon + `BInputGroup`), used here and by `dance-index`'s `DanceTable.vue` |
 | `m4d/ClientApp/src/models/DanceDatabase/DanceFilter.ts` | Filter matching logic shared with other dance-filtering pages |
 | `m4d/ClientApp/src/models/DanceDatabase/DanceDatabase.ts` | Dance/group/style/organization aggregation, `.filter()`, `.filterByName()` (name-filter matching, shared across pages) |
