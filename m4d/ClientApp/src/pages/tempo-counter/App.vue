@@ -51,7 +51,7 @@ function chooseDance(danceId: string): void {
 // to the counter's current configuration - see architecture/bookmarkable-tool-links-plan.md.
 useUrlQuerySync(() => ({
   numerator: beatsPerMeasure.value.toString(),
-  tempo: beatsPerMinute.value.toString(),
+  tempo: beatsPerMinute.value.toFixed(1),
   count: countMethod.value,
   epsilon: epsilonPercent.value.toString(),
 }));

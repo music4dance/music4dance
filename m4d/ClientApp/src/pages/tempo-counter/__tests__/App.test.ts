@@ -150,7 +150,7 @@ describe("tempo-counter App.vue", () => {
 
       const params = new URLSearchParams(window.location.search);
       expect(params.get("numerator")).toBe("3");
-      expect(params.get("tempo")).toBe("90");
+      expect(params.get("tempo")).toBe("90.0");
       expect(params.get("count")).toBe("measures");
       expect(params.get("epsilon")).toBe("8");
     });
@@ -162,6 +162,15 @@ describe("tempo-counter App.vue", () => {
       await nextTick();
 
       expect(new URLSearchParams(window.location.search).get("epsilon")).toBe("12");
+    });
+
+    test("the tempo param is truncated to the one decimal place the UX displays", async () => {
+      const wrapper = mountTempoCounter();
+
+      wrapper.vm.beatsPerMinute = 123.456;
+      await nextTick();
+
+      expect(new URLSearchParams(window.location.search).get("tempo")).toBe("123.5");
     });
   });
 
