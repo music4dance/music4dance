@@ -7,12 +7,13 @@ import {
   textFromValues,
   filterValid,
 } from "@/models/CheckboxTypes";
-import { useUrlQuerySync } from "@/composables/useUrlQuerySync";
+import { arraysEqualAsSets, useUrlQuerySync } from "@/composables/useUrlQuerySync";
 import { computed, ref } from "vue";
 import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { DanceFilter } from "@/models/DanceDatabase/DanceFilter";
 import { Meter } from "@/models/DanceDatabase/Meter";
 import type { DanceType } from "@/models/DanceDatabase/DanceType";
+import { defaultVisibleColumns } from "./components/tempoListColumns";
 
 // TODO: Clean up the CheckboxOptions structures
 interface TempoListModel {
@@ -177,13 +178,24 @@ const organizationCounts = computed(() =>
 );
 
 // Keeps the address bar (and therefore CopyLinkButton's default target) live as a shareable link
-// to the current filter/column selection - see architecture/bookmarkable-tool-links-plan.md.
+// to the current filter/column selection - see architecture/bookmarkable-tool-links-plan.md. Each
+// filter's default is "every option selected" - since a selection is always a duplicate-free
+// subset of its options, matching the option count means it must be all of them - so that case
+// omits the param entirely rather than spelling out every option, keeping the common case's URL
+// short. Columns' default is a specific subset (Range hidden), so that one needs a real
+// set-equality check instead of a count comparison.
 useUrlQuerySync(() => ({
-  styles: styles.value,
-  types: types.value,
-  meters: meters.value.map((m) => m.toString()),
-  organizations: organizations.value,
-  columns: visibleColumns.value,
+  styles: styles.value.length === styleOptions.value.length ? undefined : styles.value,
+  types: types.value.length === typeOptions.value.length ? undefined : types.value,
+  meters:
+    meters.value.length === meterOptions.length ? undefined : meters.value.map((m) => m.toString()),
+  organizations:
+    organizations.value.length === organizationOptions.value.length
+      ? undefined
+      : organizations.value,
+  columns: arraysEqualAsSets(visibleColumns.value ?? [], defaultVisibleColumns)
+    ? undefined
+    : visibleColumns.value,
 }));
 
 // Exposed for testing

@@ -397,6 +397,29 @@ describe("tempo-list App.vue", () => {
   });
 
   describe("shareable URL (useUrlQuerySync)", () => {
+    test("omits every param at its default - 'everything selected' for the four filters, the default-visible set for columns", () => {
+      mountTempoList();
+
+      const params = new URLSearchParams(window.location.search);
+      expect(params.has("styles")).toBe(false);
+      expect(params.has("types")).toBe(false);
+      expect(params.has("meters")).toBe(false);
+      expect(params.has("organizations")).toBe(false);
+      expect(params.has("columns")).toBe(false);
+    });
+
+    test("re-selecting every option for a filter drops it back out of the URL", async () => {
+      const wrapper = mountTempoList();
+      wrapper.vm.organizations = ["ucwdc"];
+      await nextTick();
+      expect(new URLSearchParams(window.location.search).has("organizations")).toBe(true);
+
+      const organizationOptions = wrapper.vm.organizationOptions as { value: string }[];
+      wrapper.vm.organizations = organizationOptions.map((o) => o.value);
+      await nextTick();
+      expect(new URLSearchParams(window.location.search).has("organizations")).toBe(false);
+    });
+
     test("the address bar reflects the seeded filters and columns as soon as the page mounts", () => {
       mountTempoList({ meters: ["3/4"], columns: ["mpm", "validationRange"] });
 

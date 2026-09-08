@@ -5,6 +5,7 @@ import { filterValid } from "@/models/CheckboxTypes";
 import type { TableFieldRaw, BTableSortBy, CheckboxOption } from "bootstrap-vue-next";
 import { computed, ref, watch } from "vue";
 import type { DanceType } from "@/models/DanceDatabase/DanceType";
+import { chooseableColumns, defaultVisibleColumns } from "./tempoListColumns";
 
 const props = defineProps<{
   dances: DanceType[];
@@ -21,24 +22,6 @@ const emptyTable = computed(() => {
   return props.dances.length === 0 ? "Please select at least one item from every drop-down" : "";
 });
 
-// Columns an advanced user can hide - "name" is always shown and isn't offered here. New optional
-// columns should be added to this list with `defaultVisible: false` so casual users don't see
-// their table layout change out from under them.
-interface ChooseableColumn {
-  key: string;
-  label: string;
-  defaultVisible: boolean;
-}
-
-const chooseableColumns: ChooseableColumn[] = [
-  { key: "meter", label: "Meter", defaultVisible: true },
-  { key: "bpm", label: "BPM", defaultVisible: true },
-  { key: "mpm", label: "MPM", defaultVisible: true },
-  { key: "groupName", label: "Type", defaultVisible: true },
-  { key: "styles", label: "Styles", defaultVisible: true },
-  { key: "validationRange", label: "Range", defaultVisible: false },
-];
-
 const columnOptions: CheckboxOption[] = chooseableColumns.map((c) => ({
   text: c.label,
   value: c.key,
@@ -50,7 +33,7 @@ const visibleColumns = ref<string[]>(
         chooseableColumns.map((c) => c.key),
         props.initialColumns,
       )
-    : chooseableColumns.filter((c) => c.defaultVisible).map((c) => c.key),
+    : defaultVisibleColumns,
 );
 
 // Reports the column selection upward (rather than a two-way defineModel, whose `default` can't

@@ -22,6 +22,18 @@ export function buildQueryString(params: Record<string, QueryParamValue>): strin
   return query ? `?${query}` : "";
 }
 
+// Compares two arrays as sets (order-independent) - useful for a page to decide whether its
+// current selection equals some default, so useUrlQuerySync can omit that param from the URL
+// entirely (via `undefined`) rather than spelling out every selected value. Assumes neither
+// array has duplicates, which every CheckedList-backed selection already guarantees.
+export function arraysEqualAsSets(a: readonly string[], b: readonly string[]): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+  const bSet = new Set(b);
+  return a.every((v) => bSet.has(v));
+}
+
 // Keeps the browser's address bar continuously in sync with a page's current configuration via
 // history.replaceState, so the current URL is always a valid, shareable/bookmarkable link to
 // whatever the visitor has configured - without a page navigation or extra browser history
