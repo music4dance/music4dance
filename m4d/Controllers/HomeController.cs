@@ -97,13 +97,18 @@ public class HomeController(
             "tech-blog");
     }
 
-    public IActionResult Counter(int? numerator = null, decimal? tempo = null, string count = "beats")
+    // `epsilon` seeds the "strictness" slider (percent tempo deviation still considered a match),
+    // letting a specific match sensitivity be linked to directly alongside numerator/tempo/count.
+    // As with the other three parameters, the client (tempo-counter/App.vue) is responsible for
+    // fencing an out-of-range or otherwise invalid value back to its default.
+    public IActionResult Counter(int? numerator = null, decimal? tempo = null, string count = "beats",
+        decimal? epsilon = null)
     {
         return Vue3(
             "Counter",
             "A web application to measure the tempo of a song and match it with styles of dance.",
             "tempo-counter",
-            new TempoCounterModel { Numerator = numerator, Tempo = tempo, Count = count },
+            new TempoCounterModel { Numerator = numerator, Tempo = tempo, Count = count, Epsilon = epsilon },
             "tempo-counter",
             danceEnvironment: true);
     }

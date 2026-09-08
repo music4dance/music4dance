@@ -3,20 +3,27 @@ import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { TempoType } from "@/models/DanceDatabase/TempoType";
 import { computed, ref } from "vue";
 import type { CountMethod } from "./CountMethod";
+import {
+  validateCountMethod,
+  validateEpsilon,
+  validateNumerator,
+  validateTempo,
+} from "./QueryValidation";
 
 interface TempoModel {
   numerator?: number;
   tempo?: number;
-  count?: CountMethod;
+  count?: string;
+  epsilon?: number;
 }
 
 declare const model_: TempoModel;
 
 const danceDatabase = safeDanceDatabase();
-const beatsPerMeasure = ref(model_.numerator ?? 4);
-const beatsPerMinute = ref(model_.tempo ?? 0);
-const countMethod = ref<CountMethod>(model_.count ?? "beats");
-const epsilonPercent = ref(5);
+const beatsPerMeasure = ref(validateNumerator(model_.numerator));
+const beatsPerMinute = ref(validateTempo(model_.tempo));
+const countMethod = ref<CountMethod>(validateCountMethod(model_.count));
+const epsilonPercent = ref(validateEpsilon(model_.epsilon));
 const dances = danceDatabase.dances;
 
 const tempoType = computed(() =>
@@ -38,6 +45,17 @@ function chooseDance(danceId: string): void {
     window.open(`/dances/${dance.seoName}`, "_blank");
   }
 }
+
+// Exposed for testing
+defineExpose({
+  beatsPerMeasure,
+  beatsPerMinute,
+  countMethod,
+  epsilonPercent,
+  tempoType,
+  measuresPerMinute,
+  chooseDance,
+});
 </script>
 
 <template>
@@ -60,4 +78,3 @@ function chooseDance(danceId: string): void {
     />
   </PageFrame>
 </template>
-./components/TempoCounter.vue
