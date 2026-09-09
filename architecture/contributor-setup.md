@@ -54,6 +54,22 @@ unstyled HTML, since `Vite:IgnoreMissingAssets` is on. `dotnet build`/`dotnet ru
 trigger this client build themselves (only CI's separate client job does); it's always a
 deliberate `yarn build` step, for both hosts.
 
+### Testing the public authorization flow
+
+The authorization feature is off by default. For a local PR 2 smoke test, use an HTTPS development certificate and start from the sandbox directory:
+
+```sh
+dotnet dev-certs https --check
+cd m4d.Sandbox
+ASPNETCORE_ENVIRONMENT=Staging dotnet run --no-launch-profile -- --urls https://localhost:57434 --FeatureManagement:PublicApi=true
+```
+
+If the certificate is missing or untrusted, set up the .NET HTTPS development certificate before continuing. Do not disable OpenIddict's HTTPS requirement. On Windows, set `ASPNETCORE_ENVIRONMENT` in the shell before running the same `dotnet run` command.
+
+Use the [client contract](public-api-client.md) to construct an authorization request with a fresh PKCE verifier and state. Sign in with a sandbox account, accept or deny consent, and visit **Account → Connected Apps** to disconnect a grant. The custom callback needs a native client or an HTTP test harness for code exchange; opening the consent page alone is not an end-to-end token test.
+
+The sandbox disables EF bulk operations so token revocation works with its in-memory provider. No SQL connection or new migration is needed. Production and `PROD_DB` guards remain active. For the automated flow, run `LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 dotnet test m4d.Tests --filter FullyQualifiedName~PublicApi` from the repository root. The English process locale avoids unrelated decimal-formatting failures in the existing suite.
+
 ### Editing the Vue client (hot reload)
 
 `m4d` and `m4d.Sandbox` share one `ClientApp` — there's no separate client build to target per

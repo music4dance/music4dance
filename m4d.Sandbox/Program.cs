@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
+using OpenIddict.EntityFrameworkCore;
+
 // The no-external-service local server: builds on the real m4d controllers/views/middleware
 // (via the ProjectReference to m4d.csproj) but replaces the SQL Server database and Azure
 // Search with in-memory stand-ins from m4dModels.Sandbox, so it needs nothing installed. See
@@ -41,6 +43,10 @@ builder.AddM4dApplication(connectionString: null, appOptions: sandboxOptions);
 
 builder.Services.AddDbContext<DanceMusicContext>(options =>
     options.UseInMemoryDatabase(SandboxDbName));
+
+// EF's in-memory provider cannot execute SQL bulk updates used for token revocation.
+builder.Services.Configure<OpenIddictEntityFrameworkCoreOptions>(options =>
+    options.DisableBulkOperations = true);
 
 builder.Services.AddSingleton<ISearchServiceManager, LocalSearchServiceManager>();
 builder.Services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(new LocalDanceStatsFileManager()));

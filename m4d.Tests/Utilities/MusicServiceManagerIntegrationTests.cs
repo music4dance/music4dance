@@ -48,6 +48,7 @@ public class AssemblyInitializer
 /// using DanceMusicTester to create properly configured services.
 /// </summary>
 [TestClass]
+[DoNotParallelize] // Each sandbox service reloads the shared static dance registry.
 public class MusicServiceManagerIntegrationTests
 {
     private Mock<IConfiguration> _mockConfiguration = null!;
