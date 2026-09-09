@@ -1,22 +1,30 @@
 <script setup lang="ts">
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { TempoType } from "@/models/DanceDatabase/TempoType";
+import { useUrlQuerySync } from "@/composables/useUrlQuerySync";
 import { computed, ref } from "vue";
 import type { CountMethod } from "./CountMethod";
+import {
+  validateCountMethod,
+  validateEpsilon,
+  validateNumerator,
+  validateTempo,
+} from "./QueryValidation";
 
 interface TempoModel {
   numerator?: number;
   tempo?: number;
-  count?: CountMethod;
+  count?: string;
+  epsilon?: number;
 }
 
 declare const model_: TempoModel;
 
 const danceDatabase = safeDanceDatabase();
-const beatsPerMeasure = ref(model_.numerator ?? 4);
-const beatsPerMinute = ref(model_.tempo ?? 0);
-const countMethod = ref<CountMethod>(model_.count ?? "beats");
-const epsilonPercent = ref(5);
+const beatsPerMeasure = ref(validateNumerator(model_.numerator));
+const beatsPerMinute = ref(validateTempo(model_.tempo));
+const countMethod = ref<CountMethod>(validateCountMethod(model_.count));
+const epsilonPercent = ref(validateEpsilon(model_.epsilon));
 const dances = danceDatabase.dances;
 
 const tempoType = computed(() =>
@@ -38,6 +46,26 @@ function chooseDance(danceId: string): void {
     window.open(`/dances/${dance.seoName}`, "_blank");
   }
 }
+
+// Keeps the address bar (and therefore CopyLinkButton's default target) live as a shareable link
+// to the counter's current configuration - see architecture/bookmarkable-tool-links-plan.md.
+useUrlQuerySync(() => ({
+  numerator: beatsPerMeasure.value.toString(),
+  tempo: beatsPerMinute.value.toFixed(1),
+  count: countMethod.value,
+  epsilon: epsilonPercent.value.toString(),
+}));
+
+// Exposed for testing
+defineExpose({
+  beatsPerMeasure,
+  beatsPerMinute,
+  countMethod,
+  epsilonPercent,
+  tempoType,
+  measuresPerMinute,
+  chooseDance,
+});
 </script>
 
 <template>
@@ -49,6 +77,9 @@ function chooseDance(danceId: string): void {
       v-model:count-method="countMethod"
       v-model:epsilon-percent="epsilonPercent"
     />
+    <div class="d-flex justify-content-end my-2">
+      <CopyLinkButton label="Copy Link to This Tempo" />
+    </div>
     <DanceDeltas
       :dances="dances"
       :beats-per-measure="beatsPerMeasure"
@@ -60,4 +91,3 @@ function chooseDance(danceId: string): void {
     />
   </PageFrame>
 </template>
-./components/TempoCounter.vue

@@ -8,6 +8,7 @@ import { UserQuery } from "@/models/UserQuery";
 import { getMenuContext } from "@/helpers/GetMenuContext";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import { safeTagDatabase } from "@/helpers/TagEnvironmentManager";
+import { useUrlQuerySync } from "@/composables/useUrlQuerySync";
 import { computed, ref, watch } from "vue";
 import type { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
 import { DanceQueryItem } from "@/models/DanceQueryItem";
@@ -385,6 +386,23 @@ function onReset(evt: Event): void {
 
   validated.value = false;
 }
+
+// Keeps the address bar live as a bookmarkable link to the form's current configuration (mirrors
+// what onSubmit already does once, at submit time, via history.replaceState). Declared last since
+// its watchEffect reads songFilter eagerly and songFilter's body reaches every ref/computed above.
+// useUrlQuerySync encodes its values itself (via URLSearchParams) - pass the raw, unencoded
+// `.query`, not `.encodedQuery` (already percent-encoded for direct string concatenation, the
+// way onSubmit/resultsLink below use it), or values like "~" would end up double-encoded.
+useUrlQuerySync(() => ({
+  filter: songFilter.value.query,
+  showDiagnostics: showDiagnostics ? "true" : undefined,
+}));
+
+// The link worth sharing is the *results* page, not this form's own address - CopyLinkButton
+// below uses this as its `url` override instead of the current (form) location.
+const resultsLink = computed(
+  () => `${window.location.origin}/song/filtersearch?filter=${songFilter.value.encodedQuery}`,
+);
 </script>
 
 <template>
@@ -659,7 +677,10 @@ function onReset(evt: Event): void {
 
         <div class="d-flex justify-content-between w-100 mx-1 mb-2">
           <BButton type="reset" variant="secondary">Reset</BButton>
-          <BButton type="submit" variant="primary">Submit</BButton>
+          <div class="d-flex gap-2">
+            <CopyLinkButton :url="resultsLink" label="Copy Link to This Search" />
+            <BButton type="submit" variant="primary">Submit</BButton>
+          </div>
         </div>
       </BForm>
       <BCard v-if="showDiagnostics" class="mt-3" header="Form Data Result">

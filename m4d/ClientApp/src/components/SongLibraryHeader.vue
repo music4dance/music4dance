@@ -65,7 +65,7 @@ const chooseDance = (danceId?: string, persist?: boolean, styleTag?: string): vo
         @search="search"
       />
     </BInputGroup>
-    <BRow>
+    <BRow class="align-items-center">
       <BCol><a :href="searches">Saved Searches</a></BCol>
       <BCol v-if="singleDance" style="text-align: center"
         ><a :href="danceReference">{{ singleDance }} Information</a></BCol
@@ -73,6 +73,7 @@ const chooseDance = (danceId?: string, persist?: boolean, styleTag?: string): vo
       <BCol style="text-align: right">
         <a :href="advancedSearch">Advanced Search</a>
       </BCol>
+      <BCol cols="auto"><CopyLinkButton label="Copy Link to This Search" /></BCol>
     </BRow>
     <DanceChooser
       :dance-id="filter.dances"

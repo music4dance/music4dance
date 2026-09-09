@@ -3,8 +3,9 @@ import { defaultTempoLink } from "@/helpers/LinkHelpers";
 import { wordsToKebab } from "@/helpers/StringHelpers";
 import { filterValid } from "@/models/CheckboxTypes";
 import type { TableFieldRaw, BTableSortBy, CheckboxOption } from "bootstrap-vue-next";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import type { DanceType } from "@/models/DanceDatabase/DanceType";
+import { chooseableColumns, defaultVisibleColumns } from "./tempoListColumns";
 
 const props = defineProps<{
   dances: DanceType[];
@@ -21,24 +22,6 @@ const emptyTable = computed(() => {
   return props.dances.length === 0 ? "Please select at least one item from every drop-down" : "";
 });
 
-// Columns an advanced user can hide - "name" is always shown and isn't offered here. New optional
-// columns should be added to this list with `defaultVisible: false` so casual users don't see
-// their table layout change out from under them.
-interface ChooseableColumn {
-  key: string;
-  label: string;
-  defaultVisible: boolean;
-}
-
-const chooseableColumns: ChooseableColumn[] = [
-  { key: "meter", label: "Meter", defaultVisible: true },
-  { key: "bpm", label: "BPM", defaultVisible: true },
-  { key: "mpm", label: "MPM", defaultVisible: true },
-  { key: "groupName", label: "Type", defaultVisible: true },
-  { key: "styles", label: "Styles", defaultVisible: true },
-  { key: "validationRange", label: "Range", defaultVisible: false },
-];
-
 const columnOptions: CheckboxOption[] = chooseableColumns.map((c) => ({
   text: c.label,
   value: c.key,
@@ -50,8 +33,15 @@ const visibleColumns = ref<string[]>(
         chooseableColumns.map((c) => c.key),
         props.initialColumns,
       )
-    : chooseableColumns.filter((c) => c.defaultVisible).map((c) => c.key),
+    : defaultVisibleColumns,
 );
+
+// Reports the column selection upward (rather than a two-way defineModel, whose `default` can't
+// reference `props.initialColumns` - it's hoisted out of setup()) so App.vue can keep it live in
+// the shareable URL via useUrlQuerySync. `immediate: true` fires this once synchronously during
+// setup with the initial value above, before this component's first render.
+const emit = defineEmits<{ "update:visibleColumns": [value: string[]] }>();
+watch(visibleColumns, (value) => emit("update:visibleColumns", value), { immediate: true });
 
 const allFields: Exclude<TableFieldRaw<DanceType>, string>[] = [
   {

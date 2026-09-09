@@ -395,4 +395,60 @@ describe("tempo-list App.vue", () => {
     expect(wrapper.text()).toContain("Please select at least one item from every drop-down");
     expect(wrapper.findAll("tbody tr").length).toBe(0);
   });
+
+  describe("shareable URL (useUrlQuerySync)", () => {
+    test("omits every param at its default - 'everything selected' for the four filters, the default-visible set for columns", () => {
+      mountTempoList();
+
+      const params = new URLSearchParams(window.location.search);
+      expect(params.has("styles")).toBe(false);
+      expect(params.has("types")).toBe(false);
+      expect(params.has("meters")).toBe(false);
+      expect(params.has("organizations")).toBe(false);
+      expect(params.has("columns")).toBe(false);
+    });
+
+    test("re-selecting every option for a filter drops it back out of the URL", async () => {
+      const wrapper = mountTempoList();
+      wrapper.vm.organizations = ["ucwdc"];
+      await nextTick();
+      expect(new URLSearchParams(window.location.search).has("organizations")).toBe(true);
+
+      const organizationOptions = wrapper.vm.organizationOptions as { value: string }[];
+      wrapper.vm.organizations = organizationOptions.map((o) => o.value);
+      await nextTick();
+      expect(new URLSearchParams(window.location.search).has("organizations")).toBe(false);
+    });
+
+    test("the address bar reflects the seeded filters and columns as soon as the page mounts", () => {
+      mountTempoList({ meters: ["3/4"], columns: ["mpm", "validationRange"] });
+
+      const params = new URLSearchParams(window.location.search);
+      expect(params.getAll("meters")).toEqual(["3/4"]);
+      expect(params.getAll("columns")).toEqual(["mpm", "validationRange"]);
+    });
+
+    test("the address bar updates live as the user narrows a filter", async () => {
+      const wrapper = mountTempoList();
+      wrapper.vm.organizations = ["ucwdc"];
+      await nextTick();
+
+      expect(new URLSearchParams(window.location.search).getAll("organizations")).toEqual([
+        "ucwdc",
+      ]);
+    });
+
+    test("the address bar updates live as the user changes the visible columns", async () => {
+      // Range is hidden by default, so "select all" isn't checked out of the box - uncheck each
+      // other default-visible column individually instead, leaving only MPM.
+      const wrapper = mountTempoList();
+      await findCheckbox(wrapper, "column-group", "Meter").setValue(false);
+      await findCheckbox(wrapper, "column-group", "BPM").setValue(false);
+      await findCheckbox(wrapper, "column-group", "Type").setValue(false);
+      await findCheckbox(wrapper, "column-group", "Styles").setValue(false);
+      await nextTick();
+
+      expect(new URLSearchParams(window.location.search).getAll("columns")).toEqual(["mpm"]);
+    });
+  });
 });
