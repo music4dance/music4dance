@@ -339,6 +339,39 @@ filters.
 Future tool pages adopt the same two pieces: wire their state into `useUrlQuerySync`, drop in a
 `CopyLinkButton`. No new shared code should be needed per page beyond that.
 
+### Why not VueUse's `useUrlSearchParams`?
+
+`@vueuse/core` (already a dependency, used elsewhere in the client) ships `useUrlSearchParams`, a
+reactive object backed by the query string with the same repeated-key array convention this
+project already uses. It looks like an obvious replacement for `useUrlQuerySync`'s hand-rolled
+`URLSearchParams` construction, and was prototyped as one during review of the shareable-links
+work above. It was rejected after the prototype surfaced a real correctness bug, not just a style
+preference:
+
+`useUrlSearchParams` writes to the URL through its own internal `watch`, and that watch **pauses
+itself for the duration of each write and only resumes on the next tick**
+(`pause(); ...history.replaceState...; nextTick(() => resume())`). `useUrlQuerySync`'s own
+`watchEffect` recomputes a page's params from live refs/computeds every time any of them change —
+and on pages where that computation settles over more than one reactive tick (e.g. this page's
+`visibleColumns`, which arrives a tick after mount via `TempoList`'s `@update:visibleColumns`
+emit), a second write can land while the first write's internal watch is still paused. That write
+is silently dropped: no error, the URL just never picks up the settled value. This was confirmed
+by tracing `history.replaceState` calls against real page state, not just a test-timing artifact -
+swapping the prototype's `useUrlQuerySync` internals to call `useUrlSearchParams` under the hood
+reliably lost the `columns`/`organizations` param in exactly this multi-tick scenario, while
+single-tick param changes wrote correctly.
+
+Adopting it would also give up a guarantee the existing tests encode: the current implementation's
+`watchEffect` runs synchronously on creation, so the *initial* URL write on mount is synchronous;
+routing through `useUrlSearchParams`'s own watch would make that first write asynchronous too.
+
+Given the write-correctness risk on a feature whose entire purpose is "the URL is always an
+accurate, shareable snapshot of the page state," and that the code it would save (~15 lines of
+`URLSearchParams` construction in `buildQueryString`) is small and already well-tested, the
+hand-rolled composable was kept as-is. If this is revisited, `useUrlSearchParams` may still be
+worth it for the *read* side (parsing `model_`-equivalent state from the URL on load) on a page
+that doesn't route reads back through a second, independently-scheduled write watcher.
+
 ## Testing
 
 - `m4d/ClientApp/src/pages/tempo-list/__tests__/App.test.ts` — mounts the real page (via
