@@ -78,9 +78,21 @@ const safeEditor = computed(() => {
   return editor.value;
 });
 const filter = computed(() => props.model.filter);
+const canSkipDanceRequirement = computed(() => context.isAdmin || context.canEdit);
 const showSave = computed(() => {
   const isAdminEditing = context.isAdmin && edit.value;
-  return (modified.value && (checkDances.value || edit.value)) || isAdminEditing;
+  if (isAdminEditing) {
+    return true;
+  }
+  if (!modified.value) {
+    return false;
+  }
+  // New songs require at least one dance vote before they can be saved, unless
+  // the user has a privileged role. Existing songs don't have this requirement.
+  if (props.creating) {
+    return checkDances.value || canSkipDanceRequirement.value;
+  }
+  return checkDances.value || edit.value;
 });
 const history = computed(() => (editor.value ? editor.value.history : props.model.songHistory));
 const modified = computed(() => {
