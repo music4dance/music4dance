@@ -46,6 +46,12 @@ const danceFilter = (dance: DanceType) => {
   return f;
 };
 
+const artistSearchFilter = () => {
+  const f = new SongFilter();
+  f.searchString = KeywordQuery.fromParts(new Map([["Artist", model.artist]])).query;
+  return f;
+};
+
 const danceCount = (dance: DanceType) => {
   return songs.filter((s) => s.danceRatings?.some((r) => r.danceId === dance.id)).length;
 };
@@ -62,6 +68,11 @@ const danceCount = (dance: DanceType) => {
           >( {{ danceCount(dance) }} song{{ danceCount(dance) > 1 ? "s" : "" }} )</a
         ><span v-if="idx + 1 < dances.length && dances.length > 2">, </span></span
       >
+    </p>
+    <p>
+      <a :href="'/song/filtersearch?filter=' + artistSearchFilter().query">
+        Search all songs with "{{ model.artist }}" in the artist field
+      </a>
     </p>
     <SongTable
       :histories="histories"
