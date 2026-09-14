@@ -35,10 +35,11 @@ public class SuggestionController(
 
             Logger.LogWarning(
                 ex,
-                "Antiforgery validation failed for suggestion request '{Id}'. " +
-                "HasAntiforgeryCookie={HasAntiforgeryCookie}, HasHeaderToken={HasHeaderToken}, " +
-                "IsAuthenticated={IsAuthenticated}",
-                id, hasAntiforgeryCookie, hasHeaderToken, User?.Identity?.IsAuthenticated == true);
+                "Antiforgery validation failed for suggestion request (IdLength={IdLength}, " +
+                "IdSample='{IdSample}'). HasAntiforgeryCookie={HasAntiforgeryCookie}, " +
+                "HasHeaderToken={HasHeaderToken}, IsAuthenticated={IsAuthenticated}",
+                id?.Length ?? 0, SanitizeForLog(id), hasAntiforgeryCookie, hasHeaderToken,
+                User?.Identity?.IsAuthenticated == true);
 
             return BadRequest("Antiforgery validation failed");
         }
@@ -50,5 +51,20 @@ public class SuggestionController(
         }
 
         return NotFound();
+    }
+
+    // Bounds and strips control characters (newlines in particular, to prevent log injection)
+    // from user-controlled route values before they're logged.
+    private static string SanitizeForLog(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return value;
+        }
+
+        var sample = value.Length > 40 ? value[..40] : value;
+        var sanitized = new string([.. sample.Where(c => !char.IsControl(c))]);
+
+        return value.Length > 40 ? sanitized + "..." : sanitized;
     }
 }

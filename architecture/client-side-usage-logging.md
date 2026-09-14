@@ -660,7 +660,8 @@ The real mechanism is simpler and single-browser: `services.AddDefaultIdentity` 
 `AddAntiforgery` with an explicit `Cookie.Expiration`, so the antiforgery cookie used ASP.NET
 Core's default — a **session cookie**, cleared when the browser closes. But `_head.cshtml` mints
 that cookie inside an anonymous HTML response that's *also* sent with
-`Cache-Control: public, max-age=300` (`M4dApplicationExtensions.cs:826`) so the origin doesn't
+`Cache-Control: public, max-age=300` (the anonymous-user cache-control middleware in
+`M4dApplicationExtensions.cs`, § above) so the origin doesn't
 have to regenerate it on every hit. A browser's on-disk HTTP cache persists across restarts even
 though session cookies don't — so: visitor loads the page (fresh cookie + matching embedded
 token), closes the browser (cookie gone, disk cache entry survives), reopens within the 5-minute
