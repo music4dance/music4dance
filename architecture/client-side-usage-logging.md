@@ -634,6 +634,30 @@ hypothesis is the combination of a CSRF-protected endpoint with `navigator.sendB
 page unload/visibility-change (see 5, "SendBeacon Integration") — a fragile pattern generally,
 since a beacon request has no way to retry or surface a failure back to the page.
 
+**Update (2026-09-14): the same signature shows up on ordinary AJAX GETs, not just beacons.** A
+pass through a fresh `/Admin/Http4xxExportCsv` export (`local/4xx-urls-2026-09-14.csv`, not
+committed) found the same "400, no matching `LogWarning`" pattern on `SuggestionController`
+(`[ValidateAntiForgeryToken]`, plain `axios.get`, fires on every keystroke — by far the largest
+single contributor to that day's 4xx volume) and, less frequently, `SongController`/
+`SearchController` — all still class-level `[ValidateAntiForgeryToken]`, all normal fetches with
+no beacon involved, and all firing well before page unload. That rules out "no chance to retry
+because the page is going away" as the sole explanation, since these requests happen in the middle
+of normal interaction with a page the user is actively looking at. It points back toward the
+`xsrfToken`/antiforgery-cookie pair itself being wrong at the time of the call rather than the
+delivery mechanism: `_head.cshtml` mints a fresh token + `Set-Cookie` on every render via
+`_xsrf.GetAndStoreTokens(Context)` (§ above), but anonymous HTML responses are also served with
+`Cache-Control: public, max-age=300` for Front Door (`M4dApplicationExtensions.cs:826`, see
+[[distributed-attack-mitigation]]'s 4xx tracking section). A cached response replays whichever
+token/cookie pair was baked in at the time it was cached — to a different visitor, or to the same
+visitor on a later request after the real cookie has rotated — so the embedded
+`menuContext.xsrfToken` and the browser's actual antiforgery cookie can disagree for up to 5
+minutes after a cache hit, with no visible symptom until an API call happens to be one of the
+`[ValidateAntiForgeryToken]`-protected ones. Not confirmed — would need a cache-hit/miss header
+correlated with a failure to fully pin down — but it's a stronger unifying hypothesis than
+sendBeacon alone, since it explains the GET-endpoint failures the beacon theory doesn't. Applying
+the same explicit-validate-and-log treatment used here to `SuggestionController` (highest volume,
+cheapest to instrument) would be the fastest way to confirm or rule this out.
+
 **Implementation:**
 
 1. Server generates token in `_head.cshtml`

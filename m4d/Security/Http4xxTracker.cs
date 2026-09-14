@@ -13,15 +13,34 @@ public class Http4xxTracker
 
     // Path prefixes for well-known scanner/exploit probes that show up constantly in the
     // 4xx log and aren't actionable bugs in our own code (WordPress/Joomla probing, secret
-    // scanning, etc). Matched against the path only (query string stripped). ".php" is
-    // checked separately since it can appear anywhere in the probed path, not just as a
-    // prefix.
+    // scanning, etc). Matched against the start of the path only (query string stripped).
     private static readonly string[] KnownAttackPathPrefixes =
     [
         "/wp-",
         "/wp/",
         "/administrator",
+    ];
+
+    // Substrings for the same category of probe, but ones scanners prefix with a guessed
+    // app/framework directory (e.g. "/admin/.env", "/laravel/.env"), so a StartsWith check
+    // against the bare pattern would miss most hits. Matched anywhere in the path.
+    private static readonly string[] KnownAttackPathSubstrings =
+    [
+        ".php",
         "/.env",
+        "/.git",
+        "/.aws/",
+        "/.npmrc",
+        "/.s3cfg",
+        "/.boto",
+        "/proc/self/",
+        "editor/filemanager/browser/default/browser.html", // FCKeditor/CKEditor file-manager exploit probe
+        "kubernetes.io/serviceaccount",
+        "/graphql",
+        "service-account.json",
+        "firebase-adminsdk",
+        "credentials.json",
+        "terraform.tfstate",
     ];
 
     public static bool IsKnownAttackUrl(string url)
@@ -33,9 +52,10 @@ public class Http4xxTracker
 
         var path = url.Split('?', 2)[0];
 
-        return path.Contains(".php", StringComparison.OrdinalIgnoreCase)
-            || KnownAttackPathPrefixes.Any(
-                prefix => path.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+        return KnownAttackPathPrefixes.Any(
+                prefix => path.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            || KnownAttackPathSubstrings.Any(
+                substring => path.Contains(substring, StringComparison.OrdinalIgnoreCase));
     }
 
     public void RecordEvent(string url, int statusCode)
