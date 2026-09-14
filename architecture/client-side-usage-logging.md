@@ -634,29 +634,48 @@ hypothesis is the combination of a CSRF-protected endpoint with `navigator.sendB
 page unload/visibility-change (see 5, "SendBeacon Integration") — a fragile pattern generally,
 since a beacon request has no way to retry or surface a failure back to the page.
 
-**Update (2026-09-14): the same signature shows up on ordinary AJAX GETs, not just beacons.** A
-pass through a fresh `/Admin/Http4xxExportCsv` export (`local/4xx-urls-2026-09-14.csv`, not
+**Update (2026-09-14): root-caused, from production logs — not sendBeacon-specific after all.**
+A pass through a fresh `/Admin/Http4xxExportCsv` export (`local/4xx-urls-2026-09-14.csv`, not
 committed) found the same "400, no matching `LogWarning`" pattern on `SuggestionController`
 (`[ValidateAntiForgeryToken]`, plain `axios.get`, fires on every keystroke — by far the largest
 single contributor to that day's 4xx volume) and, less frequently, `SongController`/
-`SearchController` — all still class-level `[ValidateAntiForgeryToken]`, all normal fetches with
-no beacon involved, and all firing well before page unload. That rules out "no chance to retry
-because the page is going away" as the sole explanation, since these requests happen in the middle
-of normal interaction with a page the user is actively looking at. It points back toward the
-`xsrfToken`/antiforgery-cookie pair itself being wrong at the time of the call rather than the
-delivery mechanism: `_head.cshtml` mints a fresh token + `Set-Cookie` on every render via
-`_xsrf.GetAndStoreTokens(Context)` (§ above), but anonymous HTML responses are also served with
-`Cache-Control: public, max-age=300` for Front Door (`M4dApplicationExtensions.cs:826`, see
-[[distributed-attack-mitigation]]'s 4xx tracking section). A cached response replays whichever
-token/cookie pair was baked in at the time it was cached — to a different visitor, or to the same
-visitor on a later request after the real cookie has rotated — so the embedded
-`menuContext.xsrfToken` and the browser's actual antiforgery cookie can disagree for up to 5
-minutes after a cache hit, with no visible symptom until an API call happens to be one of the
-`[ValidateAntiForgeryToken]`-protected ones. Not confirmed — would need a cache-hit/miss header
-correlated with a failure to fully pin down — but it's a stronger unifying hypothesis than
-sendBeacon alone, since it explains the GET-endpoint failures the beacon theory doesn't. Applying
-the same explicit-validate-and-log treatment used here to `SuggestionController` (highest volume,
-cheapest to instrument) would be the fastest way to confirm or rule this out.
+`SearchController` — all normal fetches with no beacon involved, firing well before page unload.
+That ruled out "no chance to retry because the page is going away" as the sole explanation.
+`SuggestionController` was given the same explicit-validate-and-log treatment as this endpoint
+(2026-09-14), and downloading the App Service's persisted Warning-level logs
+(`az webapp log download`, filesystem logging — see [[application-log-persistence-plan]]) and
+grepping the existing `UsageLogController` warnings from this same failure class gave a clear
+answer: **20 of 24 sampled failures were `AntiforgeryValidationException: "The required
+antiforgery cookie ... is not present"` with `HasFormToken=True`** — the client had a token ready
+to send, but the browser had no matching cookie at all (the remaining 4 were the
+cookie/token-mismatch variant). That rules out a per-request encoding/parsing bug in favor of a
+structural cookie-lifetime problem, and also rules out the CDN-cache-replay theory floated
+earlier: **Azure Front Door was never actually deployed** (`az resource list` against the
+subscription turns up no `Microsoft.Cdn`/`Microsoft.Cdn/profiles` resource at all — see
+[[front-door-implementation]], where Phase 2 "Front Door Deployment" is still marked ⏸️ BLOCKED;
+only Phase 1, the origin's own `Cache-Control` middleware, ever shipped). So there's no shared CDN
+cache serving one visitor's token/cookie pair to another.
+
+The real mechanism is simpler and single-browser: `services.AddDefaultIdentity` &c. never called
+`AddAntiforgery` with an explicit `Cookie.Expiration`, so the antiforgery cookie used ASP.NET
+Core's default — a **session cookie**, cleared when the browser closes. But `_head.cshtml` mints
+that cookie inside an anonymous HTML response that's *also* sent with
+`Cache-Control: public, max-age=300` (`M4dApplicationExtensions.cs:826`) so the origin doesn't
+have to regenerate it on every hit. A browser's on-disk HTTP cache persists across restarts even
+though session cookies don't — so: visitor loads the page (fresh cookie + matching embedded
+token), closes the browser (cookie gone, disk cache entry survives), reopens within the 5-minute
+cache window and gets the *cached* HTML body back with the *old* embedded token but no cookie at
+all to pair it with. First protected API call from that page load fails, silently, with exactly
+the log signature above. Session-restore browser features (re-opening yesterday's tabs) make this
+easy to hit even outside a literal 5-minute window if the tab itself was left open/suspended.
+
+**Fix applied 2026-09-14**: `services.AddAntiforgery(options => options.Cookie.Expiration =
+TimeSpan.FromDays(1))` in `M4dApplicationExtensions.cs`, matching the identity cookie's own
+1-day `ExpireTimeSpan` — the antiforgery cookie now outlives a browser restart, so it won't have
+disappeared out from under a still-cached page. Not yet verified in production (needs a
+deploy + a few days of `Http4xxTracker`/log data to confirm the failure rate drops); the
+explicit-validate-and-log instrumentation stays in place on both endpoints either way, since it's
+useful signal regardless.
 
 **Implementation:**
 
