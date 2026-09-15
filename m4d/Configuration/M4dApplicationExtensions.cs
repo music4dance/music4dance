@@ -9,6 +9,7 @@ using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 using m4d.ViewModels;
 
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -373,6 +374,21 @@ public static class M4dApplicationExtensions
 
         // Add services to the container.
         services.AddControllersWithViews();
+
+        // Default antiforgery cookie has no explicit Expiration, so it's a session cookie -
+        // cleared when the browser closes. The anonymous-page HTML that embeds the matching
+        // token (menuContext.xsrfToken, _head.cshtml) is served with Cache-Control:
+        // public, max-age=300 (see M4dApplicationExtensions.cs cache-control middleware below)
+        // and can be replayed from the browser's own disk cache after the session cookie is
+        // gone (browser restart, etc.), producing a token with no matching cookie. That's the
+        // dominant failure mode behind the recurring, previously-silent 400s tracked in
+        // architecture/client-side-usage-logging.md §10.1 and
+        // architecture/distributed-attack-mitigation.md's 4xx triage log - confirmed from
+        // production logs: 20 of 24 sampled antiforgery failures were
+        // "required antiforgery cookie ... is not present" with the request token present.
+        // Giving the cookie a lifetime matching the identity cookie removes that particular
+        // mismatch window.
+        services.AddAntiforgery(options => options.Cookie.Expiration = TimeSpan.FromDays(1));
 
         services.Configure<KestrelServerOptions>(options =>
         {
