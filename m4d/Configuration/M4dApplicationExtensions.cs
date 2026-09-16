@@ -1,3 +1,4 @@
+using Azure.Core;
 using Azure.Identity;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
@@ -112,7 +113,7 @@ public static class M4dApplicationExtensions
 
         // Create optimized DefaultAzureCredential once for reuse across all Azure services
         // Excludes slower credential types (VisualStudio, AzureCLI, AzurePowerShell) for faster startup
-        DefaultAzureCredential azureCredential;
+        TokenCredential azureCredential;
         if (!isDevelopment)
         {
             Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] [Azure] Creating DefaultAzureCredential with optimized chain...");
@@ -126,6 +127,18 @@ public static class M4dApplicationExtensions
                 // Only try ManagedIdentityCredential and EnvironmentCredential in Azure
             });
             Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] [Azure] DefaultAzureCredential created successfully (optimized)");
+        }
+        else if (!string.IsNullOrEmpty(configuration["AZURE_TENANT_ID"]) &&
+                 !string.IsNullOrEmpty(configuration["AZURE_CLIENT_ID"]) &&
+                 !string.IsNullOrEmpty(configuration["AZURE_CLIENT_SECRET"]))
+        {
+            // Development mode with a service principal: EnvironmentCredential only reads real environment
+            // variables, so read the same AZURE_* keys from configuration to also allow them in user secrets
+            Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] [Azure] Creating ClientSecretCredential from AZURE_* configuration for development...");
+            azureCredential = new ClientSecretCredential(
+                configuration["AZURE_TENANT_ID"],
+                configuration["AZURE_CLIENT_ID"],
+                configuration["AZURE_CLIENT_SECRET"]);
         }
         else
         {
