@@ -12,6 +12,44 @@ the practical result of [contributor-test-environments.md](contributor-test-envi
 every third-party dependency in this codebase already fails soft, so the app runs with nothing
 configured at all.
 
+## Installing Prerequisites
+
+Skip anything you already have from previous work; this only covers first-time setup.
+
+### Windows
+
+- **.NET 10 SDK** — `winget install Microsoft.DotNet.SDK.10`, or the installer from
+  [dotnet.microsoft.com/download](https://dotnet.microsoft.com/download). Visual Studio's
+  installer only offers SDKs that existed when your current VS *installer build* shipped, so if
+  you installed .NET via the VS Installer's "Individual Components" tab and don't see a 10.0 SDK
+  listed, don't wait on a VS update — install the SDK standalone; `dotnet build`/`dotnet run`
+  from the command line don't need VS to know about it. Full `net10.0` IDE support (IntelliSense,
+  project system) needs Visual Studio 2026, or a VS2022 installer build released after .NET 10 GA.
+- **Node.js 22** — `winget install OpenJS.NodeJS.LTS`, then enable Corepack:
+  `corepack enable`. CI pins `22.x`; later LTS versions (e.g. 24) have been observed to work for
+  local `yarn install`/`yarn build`, but 22 is the safe default if you hit anything version-shaped.
+- **SQL Server Express LocalDB** — only needed for
+  [the real app path](#running-the-real-app-against-an-empty-database); it ships with Visual
+  Studio's "Data storage and processing" workload, or install it standalone via the
+  [SQL Server Express installer](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
+  (LocalDB option).
+
+### macOS
+
+- **.NET 10 SDK** — `brew install --cask dotnet-sdk`, or the `.pkg` installer from
+  [dotnet.microsoft.com/download](https://dotnet.microsoft.com/download).
+- **Node.js 22** — `brew install node@22`, then `corepack enable`.
+- No local SQL Server engine is available on macOS — not needed for the `m4d.Sandbox` path; see
+  [the macOS database question](contributor-test-environments.md#the-macos-database-question) for
+  the real-app path's Azure SQL serverless free-tier and Docker options.
+
+Verify either platform with:
+
+```sh
+dotnet --list-sdks   # expect a 10.x entry
+node --version        # expect v22.x
+```
+
 ---
 
 ## The fastest path: `m4d.Sandbox`
@@ -37,9 +75,27 @@ On startup it prints a banner with:
 - A warning that search relevance is not representative (it's not backed by real Azure Search)
 - A reminder that state is in-memory — `Ctrl+C` and re-run for a clean slate
 
-Set `M4D_TEST_USER` / `M4D_TEST_PASSWORD` (and optionally `M4D_EDITOR_USER` /
-`M4D_EDITOR_PASSWORD`) as environment variables before running if you want to choose your own
-credentials instead of the defaults printed in the banner.
+**Use the HTTP link from the banner, not HTTPS.** The first `dotnet run` on a machine generates
+an ASP.NET Core dev certificate but doesn't trust it, so hitting the HTTPS URL shows a browser
+cert warning until you run `dotnet dev-certs https --trust`. `m4d.Sandbox/appsettings.json`
+already sets `DISABLE_HTTPS_REDIRECT: true` for exactly this reason — same rationale as
+[the Playwright e2e setup](playwright-e2e-testing.md#local-setup), which points at
+`http://localhost:65085` for the same reason. There's no need to trust the dev cert for the
+sandbox path at all; only do so if you specifically need to exercise HTTPS-only behavior.
+
+The banner only prints usernames, not passwords. The default passwords for the three seeded
+accounts above are in [`m4d.Sandbox/appsettings.json`](../m4d.Sandbox/appsettings.json) — not a
+secret, just public sandbox defaults:
+
+| Account | Username | Password |
+| --- | --- | --- |
+| admin | `admin` | `Sandbox!Admin1` |
+| tester | `tester` | `Sandbox!Test1` |
+| editor | `editor` | `Sandbox!Editor1` |
+
+Set `M4D_ADMIN_USER`/`M4D_ADMIN_PASSWORD`, `M4D_TEST_USER`/`M4D_TEST_PASSWORD`, and/or
+`M4D_EDITOR_USER`/`M4D_EDITOR_PASSWORD` as environment variables before running if you want to
+override any of these defaults.
 
 **For a styled, hydrated UI** (Bootstrap CSS, the Vue widgets), build the client once — it's a
 one-time step, not a per-run one, and it's shared: `m4d.Sandbox` serves the exact same
@@ -49,10 +105,18 @@ one-time step, not a per-run one, and it's shared: `m4d.Sandbox` serves the exac
 cd m4d/ClientApp && yarn install && yarn build
 ```
 
-Without it the sandbox still runs — routes, forms, voting, tagging, editing all work — just as
-unstyled HTML, since `Vite:IgnoreMissingAssets` is on. `dotnet build`/`dotnet run` do **not**
-trigger this client build themselves (only CI's separate client job does); it's always a
-deliberate `yarn build` step, for both hosts.
+Without it the sandbox process itself still starts fine, but every page is **blank** — every
+page app (`m4d/ClientApp/src/pages/*/App.vue`) mounts into `<div id="app">` with no
+server-rendered fallback, so with no built manifest there's no bundle `<script>` to inject and
+Vue never mounts. `Vite:IgnoreMissingAssets` just means the app skips injecting that (nonexistent)
+tag instead of throwing, not that a working unstyled page is served. `dotnet build`/`dotnet run`
+do **not** trigger this client build themselves (only CI's separate client job does); it's always
+a deliberate `yarn build` step, for both hosts — and required, not just cosmetic.
+
+**If you already have the sandbox running and then run `yarn build`, restart it.** The running
+process resolved "no manifest" at startup and won't notice new files appearing under
+`wwwroot/vclient/` — `Ctrl+C` and re-run `dotnet run --project m4d.Sandbox` after the build
+completes.
 
 ### Editing the Vue client (hot reload)
 
