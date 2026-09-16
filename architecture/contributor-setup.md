@@ -46,7 +46,9 @@ Skip anything you already have from previous work; this only covers first-time s
 
 - **.NET 10 SDK** — `brew install --cask dotnet-sdk`, or the `.pkg` installer from
   [dotnet.microsoft.com/download](https://dotnet.microsoft.com/download).
-- **Node.js 22** — `brew install node@22`, then `corepack enable`.
+- **Node.js 22** — `brew install node@22`, then link it (it's keg-only, so it isn't put on `PATH`
+  automatically and won't be what `node`/`corepack` resolve to otherwise):
+  `brew link --force --overwrite node@22`. Then `corepack enable`.
 - No local SQL Server engine is available on macOS — not needed for the `m4d.Sandbox` path; see
   [the macOS database question](contributor-test-environments.md#the-macos-database-question) for
   the real-app path's Azure SQL serverless free-tier and Docker options.

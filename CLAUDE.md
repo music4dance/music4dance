@@ -20,6 +20,21 @@ Web app matching music to competitive/social ballroom dance styles based on mete
 
 Architecture documents go in `architecture/`. Prefer updating existing docs over creating new ones.
 
+## Git Commit Conventions
+
+Every commit must carry a DCO sign-off trailer:
+
+```
+Signed-off-by: David W. Gray <dwgray67@hotmail.com>
+```
+
+This repo's history (and its DCO check) requires it on every commit — a commit missing it will
+fail that check. This is a separate trailer from, and doesn't replace, the
+`Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>` line from the session's own attribution
+instructions; a commit made from this account should carry both. If you notice a pushed commit is
+missing the sign-off, amend it (and force-push if already pushed, since history changes) rather
+than leaving it as-is.
+
 ## C# Standards
 
 **Do NOT use nullable reference types** (`string?`, `object?`). The project has nullable reference types enabled at the compiler level but the convention is to avoid `?` annotations on reference types to prevent CS8632 warnings. Use regular types and check null explicitly.
