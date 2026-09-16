@@ -33,6 +33,14 @@ Skip anything you already have from previous work; this only covers first-time s
   Studio's "Data storage and processing" workload, or install it standalone via the
   [SQL Server Express installer](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
   (LocalDB option).
+- **Windows 11: check Smart App Control isn't blocking local builds.** On a clean Windows 11
+  install it can block `dotnet.exe` from loading freshly-built, unsigned project DLLs (you'd see
+  `Could not load file or assembly '...': An Application Control policy has blocked this file.`,
+  confirmable via `Get-WinEvent -LogName "Microsoft-Windows-CodeIntegrity/Operational"`, event ID
+  3077/3033). It has no per-app/folder exception mechanism, so the only fix is turning it off
+  entirely: Settings → Privacy & security → Windows Security → App & browser control → Smart App
+  Control → Off. This is one-way — re-enabling it later requires a clean Windows reinstall — so
+  it's a call only you should make, not something to toggle automatically.
 
 ### macOS
 
@@ -181,15 +189,42 @@ dotnet user-secrets set "M4D_TEST_PASSWORD" "<password>" --project m4d
 
 ### Create the database
 
+The `dotnet-ef` CLI tool is pinned as a local tool in `m4d/.config/dotnet-tools.json`, not
+installed globally — restore it first, and run `dotnet ef` from inside `m4d/` (local tools are
+resolved from the nearest `.config/dotnet-tools.json` walking up from the current directory, and
+there's no manifest at the repo root):
+
 ```sh
-dotnet ef database update --project m4dModels --startup-project m4d
+cd m4d
+dotnet tool restore
+dotnet ef database update --project ../m4dModels --startup-project .
 ```
+
+The command's own console output ends with a scary-looking `HostAbortedException` dump
+("Application failed to build") — that's expected. `dotnet ef` intentionally aborts the app's
+normal startup host after extracting just enough to build the `DbContext`; the app's own
+top-level exception handler logs that abort verbosely, but it isn't a failure. Check the exit
+code or query the database directly if you want to confirm success rather than trust the log
+output.
 
 ### Run
 
 ```sh
 dotnet run --project m4d
 ```
+
+This uses the `m4d-build` launch profile (the first `commandName: Project` entry in
+`m4d/Properties/launchSettings.json`), which — unlike `m4d.Sandbox` — does **not** set
+`DISABLE_HTTPS_REDIRECT`. The HTTP URL (`http://localhost:5000`) 307-redirects to HTTPS
+(`https://localhost:5001`), so for this path you do need to trust the dev cert:
+
+```sh
+dotnet dev-certs https --trust
+```
+
+or use the `m4d-spotify` profile instead (`dotnet run --project m4d --launch-profile m4d-spotify`),
+which binds HTTP-only on `http://127.0.0.1:5000` with `DISABLE_HTTPS_REDIRECT` already set, the
+same workaround `m4d.Sandbox` uses.
 
 ### Expected startup warnings
 
@@ -204,16 +239,23 @@ WARNING: Email service not configured: ...
 WARNING: reCAPTCHA not configured: ...
 ```
 
-Azure Search will also report unavailable in the startup health summary — expected with no
-Azure Search service configured.
+Azure Search clients register successfully at startup (connections are lazy-loaded and only
+health-checked on first use), so they won't show up in the startup health summary — the failure
+shows up later, on the first search/lookup that actually hits Azure Search.
 
 ### What doesn't work without keys
 
 - Social login (Google / Facebook / Spotify) — sign up with a local username/password instead
 - Outbound email (password reset, confirmation) — falls back to logging a warning instead of
   sending; nothing is delivered
-- Captcha on forms that use it
-- Song search and service (Spotify/iTunes) track lookup — no Azure Search service configured
+- Song search and service (Spotify/iTunes) track lookup — no Azure Search service configured, and
+  (unlike `m4d.Sandbox`) there's no local stand-in for it here, so there's nothing to browse or
+  search — see the optional step below if you want browsable content on this path
+- **Known bug, not a setup issue**: a *failed* local-account login attempt 500s instead of
+  failing soft, because `Login.cshtml` conditionally renders `<recaptcha-script-v2 />` after a
+  failed attempt, and `Owl.reCAPTCHA.IreCAPTCHALanguageCodeProvider` is never registered in DI
+  when reCAPTCHA is unconfigured. A *successful* login (right credentials, first try) is
+  unaffected. Worth a real fix independent of this doc.
 
 ### Build and test
 
@@ -224,6 +266,36 @@ dotnet build                 # server
 
 See [CLAUDE.md](../CLAUDE.md) for the full test-target table (`Server: Test`, `Test All`, etc.)
 and testing conventions.
+
+### Optional: seed the same browsable content into the real LocalDB
+
+The plain real-app path above starts with a genuinely empty site — no dances, no songs, nothing
+to click through — because songs are never SQL-backed in this codebase; they live entirely in the
+search index (Azure Search in production, an in-memory stand-in in `m4d.Sandbox`). Seeding the SQL
+database alone can't fix that, since the real app's own DI always wires up the real (here,
+unconfigured) Azure-Search-backed service.
+
+`m4d.Sandbox` has a `SANDBOX_USE_LOCALDB` opt-in for exactly this: it backs itself with the same
+real, persistent SQL LocalDB (`m4d`) this section just created and migrated, instead of its
+default in-memory database, while still using its in-memory `LocalSearchServiceManager` in place
+of Azure Search. Run it via the `m4d.Sandbox-localdb` launch profile, **after** completing
+"Create the database" above:
+
+```sh
+dotnet run --project m4d.Sandbox --launch-profile m4d.Sandbox-localdb
+```
+
+This gets you the same seeded, browsable songs/dances/tags `m4d.Sandbox` always provides, but
+backed by the real SQL Server engine and persistent storage instead of in-memory — useful for
+exercising real migrations/persistence behavior with content to actually click through. Two
+things carry over from `m4d.Sandbox`, not the real-app path:
+
+- Songs are still search-index-backed, not SQL-backed, so they reseed fresh every run regardless
+  of this flag — only SQL-backed state (user accounts, activity log, playlists, saved searches)
+  persists across restarts.
+- It's still the sandbox's own DI (`ConfigureSearch: false`), so this is **not** the same as
+  making `dotnet run --project m4d` itself show songs — that's not achievable without real Azure
+  Search access.
 
 ---
 

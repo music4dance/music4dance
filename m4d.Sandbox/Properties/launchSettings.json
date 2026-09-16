@@ -16,6 +16,15 @@
         "ASPNETCORE_VITE": "true"
       },
       "applicationUrl": "https://localhost:65084;http://localhost:65085"
+    },
+    "m4d.Sandbox-localdb": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "SANDBOX_USE_LOCALDB": "true"
+      },
+      "applicationUrl": "https://localhost:65084;http://localhost:65085"
     }
   }
 }
