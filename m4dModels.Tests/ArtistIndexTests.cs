@@ -89,6 +89,7 @@ public class ArtistIndexTests
     {
         await DanceMusicTester.LoadDances();
         var dms = await DanceMusicTester.CreateService("ArtistIndexStream", useTestSongIndex: true);
+        _ = await dms.AddPseudoUser(Song.ArtistBotUser, "artist-bot@music4dance.net");
         var index = (TestSongIndex)dms.SongIndex;
         await index.SaveSong(await Song.Create(
             ".Create=\tUser=dwgray\tTime=01/15/2024 14:30:00\tTitle=Hold My Heart (feat. ZZ Ward)\t" +

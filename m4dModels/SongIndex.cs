@@ -1661,9 +1661,24 @@ public class SongIndex
     /// Save hook: runs the artist splitter over songs about to be saved and appends an artist-bot
     /// edit to any whose individual artists change. Human- and service-supplied lists are left
     /// alone (see Song.UpdateArtists). Ambiguous splits get their evidence from the index.
+    /// Dormant until the artist-bot pseudo user exists (Admin BatchArtists creates it), so history
+    /// never shows edits by an unknown user and deploying this code changes nothing on its own.
     /// </summary>
     public async Task UpdateArtists(IEnumerable<Song> songs)
     {
+        try
+        {
+            if (await DanceMusicService.FindUser(Song.ArtistBotUser) == null)
+            {
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"UpdateArtists skipped: {ex.Message}");
+            return;
+        }
+
         foreach (var song in songs.Where(s => !s.IsNull &&
                      s.ArtistsSource is ArtistsSource.None or ArtistsSource.Heuristic))
         {

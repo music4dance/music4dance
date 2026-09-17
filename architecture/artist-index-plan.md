@@ -1,7 +1,11 @@
 # Individual Artists and Artist Index — Planning Doc
 
-> **Status: PLANNING (started 2026-09-16).** This is a working plan, not a description of shipped
-> behavior. **Before this work is marked complete, turn this doc into an architecture doc**: drop
+> **Status: IMPLEMENTED ON BRANCH, NOT ROLLED OUT (2026-09-16).** Phases 0-4 are built on
+> `feature/artist-index` and fully tested locally, all behind the `ArtistIndex` feature flag
+> (default off). Nothing has touched a live Azure index yet - see §0 for what was built, where it
+> departs from the plan below, and the rollout runbook.
+>
+> **Before this work is marked complete, turn this doc into an architecture doc**: drop
 > the options we rejected, the open questions, and the phase checklists; describe what was actually
 > built; and fold the artist-page changes into [artist-pages.md](artist-pages.md) (or replace it).
 > Also update [song-internal-format.md](song-internal-format.md) with the new property and bot user.
@@ -11,6 +15,133 @@ Related docs: [artist-pages.md](artist-pages.md), [song-internal-format.md](song
 [index-backup-streaming.md](index-backup-streaming.md),
 [song-details-viewing-editing.md](song-details-viewing-editing.md),
 [song-merge-algorithm.md](song-merge-algorithm.md), [meta-crawler-mitigation.md](meta-crawler-mitigation.md).
+
+---
+
+## 0. Implementation Status (2026-09-16)
+
+### 0.1 What's Built
+
+| Phase | Commit(s) | Contents |
+| ----- | --------- | -------- |
+| 0 | `Add ArtistSplitter heuristic and index-backup analysis harness` | `m4dModels/ArtistSplitter.cs`, `ArtistKnowledge.cs`; unit tests; manual `ArtistSplitterAnalysis` harness |
+| 1 | `Add Artists song property with replay rules in C# and TypeScript` | `Song.Artists` / `ArtistsSource` / `EffectiveArtists` / `UpdateArtists`; TS `Song.artists`; shared JSON replay cases; history viewer; `artist-bot` user |
+| 2 | `Index individual artists and use them for artist pages` | Artists index field, schema detection (`SearchServiceInfo.HasFieldAsync`), save hook, `FindArtist` switch, Admin **Add Missing Fields** and **BatchArtists**, sandbox parity |
+| 3 | `Show and edit individual artists on song details`, `Link individual artists in song lists and show collaborators`, `Add browsable artist index at /song/artists` | `ArtistCredit`, `ArtistsEditor`, SongTable links, artist page collaborators, `/song/artists` |
+| 4 | `Capture Spotify's structured artist credits` | `ServiceTrack.Artists`; add-song-from-track records multi-artist credits |
+| - | `Harden the artist save hook and artist index build` | Review fixes (see §0.2) |
+
+Test status at the last commit: m4dModels.Tests 592 passed, m4d.Tests 228 passed, Vitest 964 passed.
+`yarn type-check` clean; `yarn lint` reports only errors that already existed on `main`.
+
+### 0.2 Departures From the Plan Below
+
+These supersede the corresponding sections; fold them in when converting to an architecture doc.
+
+- **No confidence tiers (§5.1, §5.3).** Evidence-free rules (feat, title feat, `;`, spaced ` / `,
+  comma lists, feat-clause lists of full names) always apply. Ambiguous separators (`&`, `+`, `and`,
+  `y`, `e`, `et`, `und`, `x`, `vs`, `with`) split only with evidence, so there's no separate gate.
+  `ArtistSplit` reports `Rules` and `Unresolved` instead of a confidence.
+- **Protected lists live in code (§5.4).** They're in `ArtistSplitter.cs` (`ProtectedActs`,
+  `GroupWords`, `Articles`, `Fillers`), not JSON. Any change still bumps `ArtistSplitter.Version`.
+- **Extra protections found in the data (§5.2).** Joins followed by a possessive or group word
+  ("& His Orchestra", "y Su Charanga", "& Sons", "& Friends", "& Girls") or, for `&`/`and`/`y`/...,
+  by an article ("& The News", "y la Verdad") never split. Two single words ("Rodrigo y Gabriela",
+  "Sonny & Cher") never split outside a feat clause, even with evidence. `Last, First` un-sorting
+  was dropped: the corpus has almost no sorted names, and `, Jr.`/`, Sr.` suffixes are protected.
+- **Replay: `batch-*` is always a service (§4.4).** Songs added from a track in the client log the
+  service block as plain `batch-s` (no `|P`), so replay classifies `batch-*` accounts as `Service`
+  either way.
+- **Replay: an unchanged credit doesn't invalidate (§4.5).** Services routinely re-write `Artist`
+  with the same value, so only a write that changes the cleaned credit clears `Artists`.
+- **`Song.UpdateArtists` is synchronous and doesn't reload.** It appends the block and sets the
+  in-memory state directly (tested to match a fresh replay), so callers' unsaved in-memory changes
+  survive the save hook.
+- **Backfill uses the existing `SongIndex.StreamAllSongsAsync` (§8.1).** It already pages
+  `Modified desc` with key-set pagination and is documented as safe to write back while
+  streaming (a re-saved song moves above the cursor). No partial `Merge` uploads: **Apply** re-saves
+  every song in full, like **Reload All Songs**, and **ApplyChanged** re-saves only changed songs.
+- **Artist page matching (§11.4, §7.6).** Instead of expanding keys to variants, `FindArtist` does
+  an analyzed phrase search on `Artists` (case-insensitive) and then keeps songs whose
+  `EffectiveArtists` contain the name by `ArtistSplitter.ArtistKey` (case- and
+  diacritic-insensitive). No second index field. It falls back to the old credit phrase search
+  when that finds nothing.
+- **Online evidence (§5.5).** The save hook records which names the splitter would ask about and
+  fetches evidence with one facet query:
+  `Artists/any(a: search.in(a, 'n1|n2', '|')) and SongId ne '<self>'`, faceting `Artists`. That
+  only runs for credits with ambiguous separators, and only once the field exists. Before that,
+  new songs get evidence-free splits only; the batch job catches up.
+- **Collaborators are computed client-side (§12)** from the returned songs' `effectiveArtists`, so
+  there's no facet query.
+- **Artist index (§11).** Unknown/Various are excluded, the default minimum is 2 songs, "Most
+  popular artists" (top 100) is shown when no letter is picked, and search is server-side over the
+  snapshot. `ArtistIndexCache` always builds in the background: the first request waits up to 10s
+  and otherwise the page says the index is being built.
+- **Spotify capture (§9.3)** is wired only into the client add-song-from-track flow
+  (`SongHistory.fromTrack`). That flow folds the service's edits into the creating user's block
+  (existing behavior), so these lists are recorded as `User`, not `Service`. The server-side
+  `Song.CreateFromTrack` paths (playlist/bulk import) don't record `Artists` yet, but the save hook
+  covers title "feat." for them.
+- **Not done:** `ARTISTS` upload column, CSV export column, sitemap/crawler decisions (§11.5),
+  navigation links to `/song/artists` (only the artist page links to it), sandbox fixture refresh,
+  Diagnostics display of the field/flag, public API DTOs.
+
+### 0.3 Phase 0 Findings (index backup 2026-09-16, splitter v1)
+
+From `local/artist-analysis/summary.md` (regenerate with the harness; see §6.2):
+
+- 104,033 songs; 31,967 distinct credits; **4,431 songs (4.3%) split** from 2,838 distinct credits;
+  32,434 distinct individual artists (case-insensitive).
+- By rule: title feat 3,011 · evidence 803 · artist feat 359 · comma list 352 · semicolon
+  (classical credits) 339 · slash 33 · partial evidence in feat clauses 22.
+- Title "feat." is by far the biggest source. In the artist field, `&`/`and`/`y`/`und` are mostly
+  band names ("Tony Evans & His Orchestra", "David Calzado y su Charanga Habanera"), which is why
+  those need evidence.
+- Evidence splits sampled by hand look very precise. Leader-and-band credits where the band is
+  also a standalone artist ("Gloria Estefan & Miami Sound Machine", "Michael Franti & Spearhead")
+  do split, which is arguably right for browsing.
+- Known misses (left unsplit, fixable by hand): collaborations where neither half is a standalone
+  artist ("Walter Laird & Nico Gomez", "Vienna State Opera Orchestra & Felix Prohaska").
+- Case and diacritic variants are common ("Michael Bublé"/"Michael Buble", "Céline Dion"/"Celine
+  Dion", `case-variants.tsv` has 535 groups), so key-based artist matching was pulled into the
+  first cut.
+- A Spotify ground-truth sample (§6.3) was **not** run. It needs dev Spotify credentials.
+
+### 0.4 Rollout Runbook
+
+All steps are admin actions on **Admin → Initialization Tasks** unless noted. Do the test index
+first, then production.
+
+1. Deploy the branch with `ArtistIndex` **off**. Nothing changes: the field isn't in the live index,
+   so documents don't include it, and the save hook stays dormant until the `artist-bot` pseudo user
+   exists (history would otherwise show an unknown user to anonymous visitors).
+2. **Take an index backup** (`/Admin/IndexBackup`). It's the rollback artifact.
+3. **Add Missing Fields** for the index. Adds `Artists` in place.
+4. **Wait at least 10 minutes** (the schema cache lifetime), or restart the app, so every instance
+   includes the field in uploads (§7.4 trap).
+5. **BatchArtists → Report.** Creates the `artist-bot` pseudo user, which also activates the save
+   hook for newly saved songs. Review the logged changes (first 200, in the app log) and the
+   completion totals on Admin Status. It builds knowledge from a light pass over the whole index,
+   then streams every song without writing any.
+6. **BatchArtists → Apply.** Appends bot edits and re-saves every song, which populates `Artists`
+   everywhere.
+7. Verify: spot-check a few songs' history (Artist Bot entries) and search for a collaborator.
+8. Turn `ArtistIndex` **on** (Azure App Configuration feature flag). Check an artist page for a
+   collaborator (e.g. "Kenny Rogers"), song details links and editing, and `/song/artists` (the
+   first visit may say it's building).
+9. After heuristic changes: bump `ArtistSplitter.Version`, run the analysis harness, then
+   **BatchArtists → Report**, then **ApplyChanged**.
+
+Rollback: turn the flag off. Bad bot edits are corrected by re-running with a fixed splitter
+(human/service lists are never touched). The unused field is harmless.
+
+### 0.5 Open Items Needing a Decision
+
+- §18 questions 3-10 still stand. In particular: whether "Various Artists" credits should be
+  browsable, whether artist pages belong in the sitemap, and whether to add a nav link.
+- Whether `Artist` editing should also open up to `canEdit` (currently `dbAdmin`/creator, while
+  `Artists` is `dbAdmin`/`canEdit`/creator).
+- Whether to also record Spotify's artist list in server-side import paths (§0.2).
 
 ---
 
@@ -789,30 +920,32 @@ Each phase is a separate PR unless noted. **Always test index first, then produc
 
 ### Phase 0 — Heuristic and Analysis (no production changes)
 
-- [ ] `ArtistSplitter` + curated JSON files + test vectors + unit tests
-- [ ] Analysis harness (manual category) reading a `local/` index backup; reports in
+- [x] `ArtistSplitter` + curated JSON files + test vectors + unit tests (lists ended up in code, §0.2)
+- [x] Analysis harness (manual category) reading a `local/` index backup; reports in
       `local/artist-analysis/`
 - [ ] Optional Spotify ground-truth sampler
-- [ ] Iterate rules until the §6.4 exit criteria are met; record decisions in this doc
+- [x] Iterate rules until the §6.4 exit criteria are met; record decisions in this doc
 
 ### Phase 1 — Model and Replay (dormant)
 
-- [ ] `Artists` property constants (C# + TS), replay rules (§4), `EffectiveArtists`, `ArtistsSource`
-- [ ] Shared C#/TS replay test vectors
-- [ ] `artist-bot` user: display name, algorithmic lists, `IsAlgorithmicUser` helper
-- [ ] History display of `Artists`
-- [ ] Merge handling
+- [x] `Artists` property constants (C# + TS), replay rules (§4), `EffectiveArtists`, `ArtistsSource`
+- [x] Shared C#/TS replay test vectors
+- [x] `artist-bot` user: display name, algorithmic lists (no shared `IsAlgorithmicUser` helper; the
+      dance vote cap still exempts only `batch*`/`tempo-bot`, which doesn't matter since artist-bot
+      never votes)
+- [x] History display of `Artists`
+- [x] Merge handling (no code needed: merges replay every source song's log)
 - Ships dormant: nothing writes `Artists` yet.
 
 ### Phase 2 — Index Capability and Backfill
 
-- [ ] `SearchServiceInfo.HasFieldAsync` + cache + diagnostics display
-- [ ] `ArtistsField` in `BuildIndex()`; conditional inclusion in `DocumentFromSong`
-- [ ] `Admin/AddIndexFields`
-- [ ] Key-set (`SongId`) batch job `Admin/BatchArtists` with `Report | IndexOnly | Apply`, partial
-      merges, resume, and a verify pass
-- [ ] Feature flag `ArtistIndex` (read switch) + `FindArtist` switch + fallback
-- [ ] Save hook (§9) behind the write switch
+- [x] `SearchServiceInfo.HasFieldAsync` + cache (diagnostics display not done)
+- [x] `ArtistsField` in `BuildIndex()`; conditional inclusion in `DocumentFromSong`
+- [x] `Admin/AddIndexFields`
+- [x] Batch job `Admin/BatchArtists` with `Report | Apply | ApplyChanged` (reuses
+      `StreamAllSongsAsync`; no partial merges, resume, or automated verify pass, §0.2)
+- [x] Feature flag `ArtistIndex` (read switch) + `FindArtist` switch + fallback
+- [x] Save hook (§9) behind the write switch
 - **Rollout, test index:** add field → wait for cache TTL/restart → `Report` → review →
   `Apply` → verify → flag on → smoke test.
 - **Rollout, production:** repeat. Take a fresh `/Admin/IndexBackup` **before** `Apply` as the
@@ -820,16 +953,16 @@ Each phase is a separate PR unless noted. **Always test index first, then produc
 
 ### Phase 3 — UI
 
-- [ ] Song details display (substring links) + editing (`canEdit`/`dbAdmin`/creator) + split preview
-      endpoint
-- [ ] Artist page: collaborators panel, artist column visibility
-- [ ] Artist index snapshot + `/song/artists` page + search endpoint
-- [ ] Crawler/sitemap decisions (§11.5)
-- [ ] Link from nav/footer/site map
+- [x] Song details display (substring links) + editing (`canEdit`/`dbAdmin`/creator). The split
+      preview endpoint was not built: the save hook applies the split on save.
+- [x] Artist page: collaborators panel, artist column visibility
+- [x] Artist index snapshot + `/song/artists` page + search endpoint
+- [ ] Crawler/sitemap decisions (§11.5) - needs a decision
+- [ ] Link from nav/footer/site map (only the artist page links to the index so far)
 
 ### Phase 4 — Better Sources
 
-- [ ] Spotify `artists[]` capture on create/enrich (§9.3)
+- [x] Spotify `artists[]` capture on create/enrich (§9.3)
 - [ ] Optional: re-enrich the ambiguous backlog from Spotify via a batch
 
 ### Phase 5 — Canonicalization (optional)

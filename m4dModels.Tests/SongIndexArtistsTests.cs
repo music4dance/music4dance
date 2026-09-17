@@ -14,6 +14,7 @@ public class SongIndexArtistsTests
     {
         await DanceMusicTester.LoadDances();
         var dms = await DanceMusicTester.CreateService(name, useTestSongIndex: true);
+        _ = await dms.AddPseudoUser(Song.ArtistBotUser, "artist-bot@music4dance.net");
         return (dms, (TestSongIndex)dms.SongIndex);
     }
 
@@ -71,6 +72,21 @@ public class SongIndexArtistsTests
         CollectionAssert.AreEqual(new[] { "Lindsey Stirling", "ZZ Ward" }, saved.Artists.ToList());
         Assert.AreEqual(ArtistsSource.Heuristic, saved.ArtistsSource);
         Assert.IsTrue(saved.SongProperties.Any(p => p.Name == Song.UserField && p.Value == "artist-bot|P"));
+    }
+
+    [TestMethod]
+    public async Task SaveSong_SplitterIsDormantWithoutArtistBotUser()
+    {
+        await DanceMusicTester.LoadDances();
+        var dms = await DanceMusicTester.CreateService("ArtistsDormant", useTestSongIndex: true);
+        var index = (TestSongIndex)dms.SongIndex;
+        var song = await CreateSong(dms, "Hold My Heart (feat. ZZ Ward)", "Lindsey Stirling");
+
+        await index.SaveSong(song);
+
+        var saved = await index.FindSong(song.SongId);
+        Assert.IsNull(saved.Artists);
+        Assert.IsFalse(saved.SongProperties.Any(p => p.Value == "artist-bot|P"));
     }
 
     [TestMethod]

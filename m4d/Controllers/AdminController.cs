@@ -463,8 +463,9 @@ public class AdminController(
     //
     // POST: /Admin/BatchArtists
     // Runs ArtistSplitter over every song in the named index (see
-    // architecture/artist-index-plan.md §8). Modes:
-    //   Report     - no writes; logs what would change
+    // architecture/artist-index-plan.md §8). Every mode first creates the artist-bot pseudo user,
+    // which also switches on the artist splitter in the song save hook. Modes:
+    //   Report     - no song writes; logs what would change
     //   Apply      - appends artist-bot edits where the individual artists change and re-saves
     //                every song, populating the Artists index field everywhere
     //   ApplyChanged - like Apply but only re-saves songs whose artists changed (for re-runs
@@ -482,7 +483,7 @@ public class AdminController(
 
             var apply = mode is "Apply" or "ApplyChanged";
             var saveAll = mode == "Apply";
-            if (apply && await Database.FindUser(Song.ArtistBotUser) == null)
+            if (await Database.FindUser(Song.ArtistBotUser) == null)
             {
                 _ = await Database.AddPseudoUser(Song.ArtistBotUser, $"{Song.ArtistBotUser}@music4dance.net");
             }
