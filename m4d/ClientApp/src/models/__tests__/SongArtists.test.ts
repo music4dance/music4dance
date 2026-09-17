@@ -1,8 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { Song } from "../Song";
 import { SongHistory } from "../SongHistory";
-import { SongProperty } from "../SongProperty";
-import { cleanArtistName, deserializeArtists, serializeArtists } from "../ArtistNames";
+import { PropertyType, SongProperty } from "../SongProperty";
+import { SongEditor } from "../SongEditor";
+import {
+  artistCreditLayout,
+  cleanArtistName,
+  deserializeArtists,
+  serializeArtists,
+} from "../ArtistNames";
 import cases from "./artists-replay-cases.json";
 
 // Shared with m4dModels.Tests/ArtistsPropertyTests.cs so the C# and TypeScript replays can't drift.
@@ -43,5 +49,82 @@ describe("ArtistNames", () => {
     expect(deserializeArtists(value)).toEqual(["Dolly Parton", "Kenny Rogers", "A/B"]);
     expect(deserializeArtists("")).toEqual([]);
     expect(deserializeArtists(undefined)).toEqual([]);
+  });
+});
+
+describe("artistCreditLayout", () => {
+  it("links each individual artist in place", () => {
+    const layout = artistCreditLayout("Dolly Parton & Kenny Rogers", [
+      "Dolly Parton",
+      "Kenny Rogers",
+    ]);
+    expect(layout.segments).toEqual([
+      { text: "Dolly Parton", artist: "Dolly Parton" },
+      { text: " & " },
+      { text: "Kenny Rogers", artist: "Kenny Rogers" },
+    ]);
+    expect(layout.extra).toEqual([]);
+  });
+
+  it("matches case-insensitively and keeps the credit's spelling", () => {
+    const layout = artistCreditLayout("PITBULL feat. Ne-Yo", ["Pitbull", "Ne-Yo"]);
+    expect(layout.segments[0]).toEqual({ text: "PITBULL", artist: "Pitbull" });
+    expect(layout.segments[2]).toEqual({ text: "Ne-Yo", artist: "Ne-Yo" });
+  });
+
+  it("returns artists missing from the credit as extras", () => {
+    const layout = artistCreditLayout("Lindsey Stirling", ["Lindsey Stirling", "ZZ Ward"]);
+    expect(layout.segments).toEqual([{ text: "Lindsey Stirling", artist: "Lindsey Stirling" }]);
+    expect(layout.extra).toEqual(["ZZ Ward"]);
+  });
+
+  it("doesn't overlap matches", () => {
+    const layout = artistCreditLayout("Tony Evans & Tony Evans Orchestra", [
+      "Tony Evans Orchestra",
+      "Tony Evans",
+    ]);
+    expect(layout.segments.filter((s) => s.artist).map((s) => s.text)).toEqual([
+      "Tony Evans",
+      "Tony Evans Orchestra",
+    ]);
+  });
+});
+
+describe("SongEditor artists", () => {
+  const baseLog = [
+    ".Create=",
+    "User=dwgray",
+    "Time=01/15/2024 14:30:00",
+    "Title=Islands in the Stream",
+    "Artist=Dolly Parton",
+  ];
+
+  function editor(): SongEditor {
+    const properties = baseLog.map((entry) => {
+      const eq = entry.indexOf("=");
+      return new SongProperty({ name: entry.slice(0, eq), value: entry.slice(eq + 1) });
+    });
+    return new SongEditor(undefined, "alice", new SongHistory({ id: "s1", properties }));
+  }
+
+  it("keeps a new Artists edit when the credit is edited afterwards", () => {
+    const e = editor();
+    e.setArtists(["Dolly Parton", "Kenny Rogers"]);
+    e.modifyProperty(PropertyType.artistField, "Dolly Parton & Kenny Rogers");
+
+    const names = e.editHistory.properties.map((p) => p.baseName);
+    expect(names.indexOf(PropertyType.artistsField)).toBeGreaterThan(
+      names.indexOf(PropertyType.artistField),
+    );
+    expect(e.song.artists).toEqual(["Dolly Parton", "Kenny Rogers"]);
+    expect(e.song.artistsSource).toBe("User");
+  });
+
+  it("clears the list when reset to automatic", () => {
+    const e = editor();
+    e.setArtists(["Dolly Parton", "Kenny Rogers"]);
+    e.setArtists(undefined);
+    expect(e.song.artists).toBeUndefined();
+    expect(e.song.artistsSource).toBe("None");
   });
 });

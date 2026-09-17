@@ -1,4 +1,5 @@
 import { DanceRatingDelta, DanceRatingVote, VoteDirection } from "./DanceRatingDelta";
+import { serializeArtists } from "./ArtistNames";
 import type { AxiosInstance } from "axios";
 import { Song } from "./Song";
 import { SongHistory } from "./SongHistory";
@@ -307,12 +308,39 @@ export class SongEditor {
   public modifyProperty(name: string, value?: PropertyValue): SongProperty {
     this.modified = true;
     this.setupEdit();
-    const property = this.findModified(name);
+    let property = this.findModified(name);
     if (!property) {
-      return this.createProperty(name, value);
+      property = this.createProperty(name, value);
+    } else {
+      property.value = value ? value.toString() : "";
     }
-    property.value = value ? value.toString() : "";
+    if (name === PropertyType.artistField || name === PropertyType.artistsField) {
+      this.keepArtistsAfterCredit();
+    }
     return property;
+  }
+
+  /**
+   * Set the song's individual artists. An empty list (or undefined) hands the list back to the
+   * automatic splitter; see architecture/artist-index-plan.md §4.
+   */
+  public setArtists(artists?: string[]): SongProperty {
+    return this.modifyProperty(PropertyType.artistsField, serializeArtists(artists ?? []));
+  }
+
+  /**
+   * Replay clears Artists whenever the Artist credit changes, so within one edit an Artists
+   * property must always follow any Artist property or it would be discarded.
+   */
+  private keepArtistsAfterCredit(): void {
+    const start = this.initialCount;
+    const edits = this.properties.slice(start);
+    const artistsIndex = edits.findIndex((p) => p.baseName === PropertyType.artistsField);
+    const artistIndex = edits.findIndex((p) => p.baseName === PropertyType.artistField);
+    if (artistsIndex !== -1 && artistIndex > artistsIndex) {
+      const [artists] = this.properties.splice(start + artistsIndex, 1);
+      this.properties.push(artists!);
+    }
   }
 
   /**

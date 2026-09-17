@@ -42,6 +42,57 @@ export function artistPageUrl(name: string): string {
   return `/song/artist?name=${encodeURIComponent(name)}`;
 }
 
+export interface ArtistCreditSegment {
+  text: string;
+  /** Set when this segment of the credit is one of the song's individual artists */
+  artist?: string;
+}
+
+export interface ArtistCreditLayout {
+  segments: ArtistCreditSegment[];
+  /** Individual artists that don't appear in the credit text (e.g. from a title "feat.") */
+  extra: string[];
+}
+
+/**
+ * Splits a credit ("Dolly Parton & Kenny Rogers") into text segments so each individual artist
+ * that appears in it can be linked in place. Matching is case-insensitive.
+ */
+export function artistCreditLayout(credit: string, artists: string[]): ArtistCreditLayout {
+  const lower = credit.toLowerCase();
+  const matches: { start: number; end: number; artist: string }[] = [];
+  const extra: string[] = [];
+
+  for (const artist of artists) {
+    const needle = artist.toLowerCase();
+    let start = needle ? lower.indexOf(needle) : -1;
+    while (start !== -1 && matches.some((m) => start < m.end && start + needle.length > m.start)) {
+      start = lower.indexOf(needle, start + 1);
+    }
+    if (start === -1) {
+      extra.push(artist);
+    } else {
+      matches.push({ start, end: start + needle.length, artist });
+    }
+  }
+
+  matches.sort((a, b) => a.start - b.start);
+  const segments: ArtistCreditSegment[] = [];
+  let cursor = 0;
+  for (const m of matches) {
+    if (m.start > cursor) {
+      segments.push({ text: credit.slice(cursor, m.start) });
+    }
+    segments.push({ text: credit.slice(m.start, m.end), artist: m.artist });
+    cursor = m.end;
+  }
+  if (cursor < credit.length) {
+    segments.push({ text: credit.slice(cursor) });
+  }
+
+  return { segments, extra };
+}
+
 export function deserializeArtists(value?: string | null): string[] {
   return (value ?? "")
     .split(ARTISTS_DELIMITER)

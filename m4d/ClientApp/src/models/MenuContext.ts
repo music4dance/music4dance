@@ -25,6 +25,8 @@ export interface MenuContextInterface {
   configurationHealthy?: boolean;
   useClientSideTracking?: boolean;
   googleAdsActive?: boolean;
+  /** ArtistIndex feature flag: individual-artist links, artist page matching, artist index */
+  artistIndex?: boolean;
   usageTracking?: {
     enabled: boolean;
     anonymousThreshold: number;
@@ -55,6 +57,7 @@ export class MenuContext implements MenuContextInterface {
   public configurationHealthy?: boolean;
   public useClientSideTracking?: boolean;
   public googleAdsActive?: boolean;
+  public artistIndex?: boolean;
   public usageTracking?: {
     enabled: boolean;
     anonymousThreshold: number;

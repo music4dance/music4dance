@@ -111,10 +111,12 @@ const modified = computed(() => {
   return value;
 });
 
-const artistLink = computed(() => {
-  const artist = song.value.artist;
-  return artist ? `/song/artist?name=${encodeURIComponent(artist)}` : undefined;
-});
+const canEditArtists = computed(
+  () => !!context.artistIndex && (context.isAdmin || context.canEdit || isCreator.value),
+);
+const updateArtists = (artists?: string[]): void => {
+  safeEditor.value.setArtists(artists);
+};
 
 const explicitDanceIds = computed(() => {
   return song.value.explicitDanceIds;
@@ -386,10 +388,16 @@ onBeforeUnmount(() => {
             @update-field="updateField($event)"
           >
             <span v-if="song.artist" style="font-size: 0.75em"
-              ><a :href="artistLink">{{ song.artist }}</a></span
-            >
+              ><ArtistCredit :song="song as Song" :individual="context.artistIndex"
+            /></span>
           </FieldEditor>
         </h1>
+        <ArtistsEditor
+          v-if="editing && canEditArtists && song.artist"
+          :song="song as Song"
+          class="mb-2"
+          @update-artists="updateArtists"
+        />
       </BCol>
       <BCol v-if="editing || context.canTag" cols="auto">
         <span v-if="context.isAdmin">
