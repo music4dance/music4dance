@@ -384,7 +384,7 @@ onBeforeUnmount(() => {
             :value="song.artist"
             :editing="editing"
             :is-creator="isCreator"
-            role="dbAdmin"
+            :roles="['dbAdmin', 'canEdit']"
             @update-field="updateField($event)"
           >
             <span v-if="song.artist" style="font-size: 0.75em"

@@ -201,8 +201,9 @@ Rollback: turn the flag off. Bad bot edits are corrected by re-running with a fi
   further heuristic work.
 - §18 questions 3-10 still stand. In particular: whether "Various Artists" credits should be
   browsable, whether artist pages belong in the sitemap, and whether to add a nav link.
-- Whether `Artist` editing should also open up to `canEdit` (currently `dbAdmin`/creator, while
-  `Artists` is `dbAdmin`/`canEdit`/creator).
+- **Resolved:** `Artist` is now editable by `dbAdmin`, `canEdit` or the song's creator, matching
+  `Artists`. Note this is a UI gate only - the song PATCH endpoint is `[Authorize]` with no
+  per-field role check, as it has always been.
 - Whether to also record Spotify's artist list in server-side import paths (§0.2).
 
 ---
@@ -1163,8 +1164,8 @@ Each phase is a separate PR unless noted. **Always test index first, then produc
 ## 18. Open Questions
 
 1. **Name:** `Artists` vs. `IndividualArtists` / `Performers` (§4.1). Decide before Phase 1.
-2. **Who can edit `Artists`?** `canEdit` + `dbAdmin` + creator? And should `Artist` itself move from
-   `dbAdmin` to `canEdit` at the same time?
+2. ~~**Who can edit `Artists`?**~~ Resolved: `dbAdmin` + `canEdit` + creator, and `Artist` now
+   matches (`FieldEditor` gained a `roles` list for this).
 3. **Medium/Low rule policy** after Phase 0 numbers: evidence threshold N, and whether `and`/`y`/`e`
    splits ever apply without evidence.
 4. **Classical credits** (orchestra, conductor, soloist): split or not?
