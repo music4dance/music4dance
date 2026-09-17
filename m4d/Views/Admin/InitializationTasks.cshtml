@@ -60,6 +60,27 @@
                     <strong class="text-warning">absent</strong>
                     <text>- run Add Missing Fields</text>
                 }
+                @{
+                    var coverage = ViewBag.ArtistsCoverage as Dictionary<string, (long Total, long? WithArtists)>;
+                    var counts = coverage != null && coverage.TryGetValue(id, out var c)
+                        ? c
+                        : ((long Total, long? WithArtists)?)null;
+                }
+                @if (counts?.WithArtists is long populated)
+                {
+                    var missing = counts.Value.Total - populated;
+                    <text>
+                        &mdash; <strong>@populated.ToString("N0")</strong> of
+                        @counts.Value.Total.ToString("N0") songs populated
+                    </text>
+                    @if (missing > 0)
+                    {
+                        <text>
+                            (<strong class="text-warning">@missing.ToString("N0") still empty</strong>
+                            - run the backfill below)
+                        </text>
+                    }
+                }
                 @if (status.RefreshesAt.HasValue)
                 {
                     var wait = status.RefreshesAt.Value - DateTime.UtcNow;

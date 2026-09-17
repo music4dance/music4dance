@@ -98,7 +98,7 @@ These supersede the corresponding sections; fold them in when converting to an a
   covers title "feat." for them.
 - **Not done:** `ARTISTS` upload column, CSV export column, sitemap/crawler decisions (§11.5),
   navigation links to `/song/artists` (only the artist page links to it), sandbox fixture refresh,
-  Diagnostics display of the field/flag, public API DTOs.
+  public API DTOs.
 
 ### 0.3 Phase 0 Findings (index backup 2026-09-16)
 
@@ -753,24 +753,35 @@ bot edits) can skip or repeat rows. Use one of these:
   snapshot in chunks via `FindSongs(ids)`.
 - Or paginate on `SongId` alone (it's the key, so it's sortable/filterable) instead of `Modified`.
 
-**Recommendation:** paginate on `SongId asc`. It's simpler and stable under modification.
+**What was built:** the existing `SongIndex.StreamAllSongsAsync`, which pages `Modified desc,
+SongId desc`. The warning above turns out not to bite, for a reason worth writing down: the cursor
+walks from newest to oldest and each page asks for rows strictly *older* than it. Appending a bot
+edit sets `Modified` to now, which moves that song *above* the cursor, into the range already
+passed. So a re-saved song is never revisited and never skipped. Unchanged songs re-uploaded by
+**Apply** keep their `Modified` (`DocumentFromSong` copies `song.Modified`), so they don't move at
+all. The one real gap is a *user* editing a song the job hasn't reached yet, which does move it out
+of range - and that song is covered by the save hook anyway.
 
 ### 8.2 Per-Song Logic
 
+All of this lives in `Song.UpdateArtists`, which the save hook calls too, so the batch and a
+single save can't drift apart:
+
 ```text
+if song.ArtistsSource is User or Service:                   return false (no change)
 split = ArtistSplitter.Split(song.Artist, song.Title, knowledge)
-desired = (split.Confidence passes gate) ? split.Artists : [song.Artist]
-if song.ArtistsSource is User or Service (and not stale):   skip log change
-else if desired == [song.Artist] and song.Artists is null:  no log change
-else if desired sequence-equals song.EffectiveArtists:      no log change
-else: append .Edit / User=artist-bot|P / Time=now / Artists=<desired or empty>
-index: full Upload if log changed; else partial MergeDocuments {SongId, Artists=EffectiveArtists}
-       (partial merge skipped when the index value already equals EffectiveArtists)
+desired = split.IsSplit(song.Artist) ? split.Artists : null
+if desired and song.Artists are both null, or sequence-equal: return false
+append .Edit / User=artist-bot|P / Time=now / Artists=<desired, or empty to clear>
 ```
 
-- A partial **merge** (`IndexDocumentsBatch.Merge`) of just `{SongId, Artists}` is much cheaper
-  than rebuilding the whole document. It's the right tool to populate the field on the ~90% of
-  songs whose log doesn't change.
+- There are **no partial `Merge` uploads**. **Apply** re-saves every song in full (like Reload All
+  Songs), which is what populates the field across an index that already had it added in place;
+  **ApplyChanged** re-saves only the songs whose list changed. A merge path was considered and
+  dropped: it is a second write path to keep correct, and the full re-save is a known quantity.
+- `EffectiveArtists` falls back to the cleaned credit when `Artists` is null, so **any** full
+  re-save populates the field, whether or not the splitter changed anything. That is why a restore
+  into a freshly built index arrives fully populated.
 - When the heuristic *no longer* splits a song that `artist-bot` previously split, the job writes
   `Artists=` (clear) as `artist-bot`. That only works because the bot, not a human, owns the current
   value.
@@ -779,22 +790,32 @@ index: full Upload if log changed; else partial MergeDocuments {SongId, Artists=
 
 ### 8.3 Controls
 
-Admin page/action `Admin/BatchArtists` (`dbAdmin`), with parameters:
+`Admin/BatchArtists` (`dbAdmin`), from **Admin → Initialization Tasks**, one set of buttons per
+index id:
 
-- `index` (default: current; run `SongIndexTest` first)
-- `mode`: `Report` (no writes; produces the same TSVs as Phase 0, from the live index) |
-  `IndexOnly` (partial merges only, no log changes) | `Apply`
-- `count` (cap for trial runs), `startAfterSongId` (resume)
-- `minConfidence`
+| Parameter | Built as |
+| --------- | -------- |
+| `idxName` | Per-index buttons on the page. Run the test index first. |
+| `mode` | `Report` (no writes) \| `Apply` (re-save every song) \| `ApplyChanged` (re-save only changed songs) |
+| `count` | Cap for trial runs (`-1` = all). Not exposed as a button; append `&count=` by hand. |
 
-It runs as an `AdminMonitor` background task like the existing batches, logging progress and totals
-per rule, and writes a before/after log like `BatchProcess`'s `log` option.
+It runs as an `AdminMonitor` background task, logs the first 200 changes as
+`[before] -> [after]`, and finishes with `Tried / Changed / HumanOrServiceLists`. Every mode
+creates the `artist-bot` pseudo user if it is missing, which is also what activates the save hook.
+
+Not built, and not missed so far: `IndexOnly` (there is no merge path), `startAfterSongId` (a run
+is ~104K songs and restartable from the top, since re-running is idempotent) and `minConfidence`
+(there are no confidence tiers).
 
 ### 8.4 Verification Pass
 
-After `Apply`: `$count` of `Artists/any()` vs. `$count` of `Artist ne null`. `Artist` isn't
-filterable today, so compare against total non-null-title documents instead, which is also fine.
-Also spot-check the top 200 credits by song count. Only then enable the `ArtistIndex` flag.
+**Admin → Initialization Tasks reports this per index**, next to the field status: `$count` of
+`Artists/any()` against the total document count, with anything still empty called out
+(`SongIndex.ArtistsCoverageAsync`). After a successful **Apply** the two numbers should match.
+
+A shortfall is the §7.4 trap: documents uploaded by an instance whose schema cache still said the
+field was absent. Re-running **Apply** repairs it. Also spot-check the top credits by song count in
+`splits.tsv`. Only then enable the `ArtistIndex` flag.
 
 ### 8.5 Re-running After Heuristic Changes
 

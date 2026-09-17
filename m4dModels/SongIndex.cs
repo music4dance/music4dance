@@ -1658,6 +1658,26 @@ public class SongIndex
     }
 
     /// <summary>
+    /// How many documents actually carry an Artists value, against the whole index. This is the
+    /// rollout's verification step (architecture/artist-index-plan.md §8.4): after a backfill every
+    /// song with a credit should have one, and a shortfall means documents were uploaded by an
+    /// instance whose schema cache still said the field was absent (the §7.4 trap). Returns nulls
+    /// when the field isn't there yet.
+    /// </summary>
+    public virtual async Task<(long Total, long? WithArtists)> ArtistsCoverageAsync()
+    {
+        var total = await CountWhere(null);
+        return (total, await HasArtistsFieldAsync() ? await CountWhere($"{Song.ArtistsField}/any()") : null);
+    }
+
+    private async Task<long> CountWhere(string filter)
+    {
+        var parameters = new SearchOptions { Size = 0, IncludeTotalCount = true, Filter = filter };
+        var response = await DoSearch("*", parameters, CruftFilter.AllCruft);
+        return response.TotalCount ?? 0;
+    }
+
+    /// <summary>
     /// What this instance believes about the Artists field, and when it will look at the live
     /// schema again. For the admin display only: the rollout adds the field to the index and then
     /// waits for every instance to notice (architecture/artist-index-plan.md §7.4), and this makes

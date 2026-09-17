@@ -807,12 +807,24 @@ public class AdminController(
         // Per-index Artists field state, so the rollout's "add the field, then wait for every
         // instance to see it" step (artist-index-plan.md §7.4) is visible on the page that runs it
         var artistsField = new Dictionary<string, (bool Present, DateTime? RefreshesAt)>();
+        var artistsCoverage = new Dictionary<string, (long Total, long? WithArtists)>();
         foreach (var id in Database.SearchService.GetAvailableIds())
         {
-            artistsField[id] = await Database.GetSongIndex(id).ArtistsFieldStatusAsync();
+            var index = Database.GetSongIndex(id);
+            artistsField[id] = await index.ArtistsFieldStatusAsync();
+            try
+            {
+                artistsCoverage[id] = await index.ArtistsCoverageAsync();
+            }
+            catch (Exception e)
+            {
+                // Never let a status line take down the page that runs the recovery actions
+                Logger.LogWarning(e, "ArtistsCoverage ({Index}) failed", id);
+            }
         }
 
         ViewBag.ArtistsFieldStatus = artistsField;
+        ViewBag.ArtistsCoverage = artistsCoverage;
         ViewBag.ArtistIndexEnabled = await FeatureManager.IsEnabledAsync(FeatureFlags.ArtistIndex);
 
         return View();
