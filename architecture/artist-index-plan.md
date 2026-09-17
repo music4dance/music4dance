@@ -1122,7 +1122,8 @@ Each phase is a separate PR unless noted. **Always test index first, then produc
 
 - [ ] **Convert this doc to an architecture doc** (see the banner at the top); update
       `artist-pages.md` and `song-internal-format.md`
-- [ ] Next versioned index (`songs-*-4`): add `Artists` to the suggester; remove any `TODOIDX`
+- [ ] Next versioned index (`songs-*-4`): add `Artists` to the suggester
+      ([#277](https://github.com/music4dance/music4dance/issues/277)); remove any `TODOIDX`
       shims added here
 
 ---
