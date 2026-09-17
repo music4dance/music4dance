@@ -76,8 +76,8 @@
                     @if (missing > 0)
                     {
                         <text>
-                            (<strong class="text-warning">@missing.ToString("N0") still empty</strong>
-                            - run the backfill below)
+                            (@missing.ToString("N0") empty - expected for songs with no credit at
+                            all; a larger gap means the backfill hasn't run or didn't finish)
                         </text>
                     }
                 }
