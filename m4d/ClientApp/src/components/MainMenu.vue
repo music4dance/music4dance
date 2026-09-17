@@ -222,6 +222,7 @@ function search(s?: string): void {
             <BDropdownItem href="/song/newmusic" class="nav-subitem"
               >&nbsp;&nbsp;New Music</BDropdownItem
             >
+            <BDropdownItem v-if="context.artistIndex" href="/song/artists">Artists</BDropdownItem>
             <BDropdownItem href="/dances/wedding-music">Wedding</BDropdownItem>
             <BDropdownItem href="/customsearch?name=holiday">Holiday</BDropdownItem>
             <BDropdownItem href="/customsearch?name=halloween">Halloween</BDropdownItem>

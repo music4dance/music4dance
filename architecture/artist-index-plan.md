@@ -96,9 +96,8 @@ These supersede the corresponding sections; fold them in when converting to an a
   (existing behavior), so these lists are recorded as `User`, not `Service`. The server-side
   `Song.CreateFromTrack` paths (playlist/bulk import) don't record `Artists` yet, but the save hook
   covers title "feat." for them.
-- **Not done:** `ARTISTS` upload column, CSV export column, sitemap/crawler decisions (§11.5),
-  navigation links to `/song/artists` (only the artist page links to it), sandbox fixture refresh,
-  public API DTOs.
+- **Not done:** `ARTISTS` upload column, CSV export column, sandbox fixture refresh, public API
+  DTOs.
 
 ### 0.3 Phase 0 Findings (index backup 2026-09-16)
 
@@ -199,8 +198,8 @@ Rollback: turn the flag off. Bad bot edits are corrected by re-running with a fi
 - Whether to chase the recall ceiling above: re-enriching the ambiguous backlog from Spotify
   (§6.3 / the last item in §19) is now the highest-value follow-on, and is a bigger win than any
   further heuristic work.
-- §18 questions 3-10 still stand. In particular: whether "Various Artists" credits should be
-  browsable, whether artist pages belong in the sitemap, and whether to add a nav link.
+- §18 questions 3-10 still stand, minus the crawler/sitemap and nav-link items, which are now
+  settled in §11.5.
 - **Resolved:** `Artist` is now editable by `dbAdmin`, `canEdit` or the song's creator, matching
   `Artists`. Note this is a UI gate only - the song PATCH endpoint is `[Authorize]` with no
   per-field role check, as it has always been.
@@ -981,13 +980,26 @@ A future alias table ("Beyonce" ≡ "Beyoncé Knowles") would plug into the same
 
 ### 11.5 Crawlers and SEO
 
-The index page creates crawlable links to every artist page. Artist pages already run
-`CheckSpiders()`. Before launch, decide:
+The index page creates crawlable links to every artist page, and splitting credits turns ~32,500
+individual artists into that many URLs. Artist pages already run `CheckSpiders()`.
 
-- Whether artist pages go in the sitemap (probably only those with ≥ N songs).
-- Whether the index uses `rel="nofollow"` for low-count artists.
-- Whether the rate-limit/crawler rules in [meta-crawler-mitigation.md](meta-crawler-mitigation.md)
-  and [distributed-attack-mitigation.md](distributed-attack-mitigation.md) cover the new URL fan-out.
+**Decided (2026-09-17):**
+
+- **No sitemap.** A `sitemap.xml` invites crawling rather than limiting it, so it is the wrong tool
+  for a fan-out problem. The site has a user-facing site map page and no machine-readable one; that
+  stays true. A sitemap for the *valuable* artist pages is a possible later SEO project, and would
+  want a `Sitemap:` line in `robots.txt`, which has none today.
+- **Thin artist pages ask not to be indexed, but to be followed.** Under five songs,
+  `SongController.Artist` sets `ViewData["Robots"] = "noindex, follow"`. The songs behind those
+  pages are worth crawling even when the page itself isn't worth indexing. By the 2026-09-16
+  numbers that leaves about 5,100 artist pages indexable out of 32,500.
+- `_head.cshtml` grew a `ViewData["Robots"]` string for this. `ViewData["NoIndex"]` and the
+  off-site host check still force `noindex, nofollow`, which is what staging and identity pages
+  want.
+- **Still open:** whether the rate-limit rules in
+  [meta-crawler-mitigation.md](meta-crawler-mitigation.md) and
+  [distributed-attack-mitigation.md](distributed-attack-mitigation.md) need anything for the new
+  URL shape. Nothing about the fan-out is special, but it hasn't been reviewed.
 
 ---
 
@@ -1091,8 +1103,8 @@ Each phase is a separate PR unless noted. **Always test index first, then produc
       preview endpoint was not built: the save hook applies the split on save.
 - [x] Artist page: collaborators panel, artist column visibility
 - [x] Artist index snapshot + `/song/artists` page + search endpoint
-- [ ] Crawler/sitemap decisions (§11.5) - needs a decision
-- [ ] Link from nav/footer/site map (only the artist page links to the index so far)
+- [x] Crawler/sitemap decisions (§11.5): no sitemap; `noindex, follow` under five songs
+- [x] Link from the Music menu (behind the `ArtistIndex` flag)
 
 ### Phase 4 — Better Sources
 

@@ -29,6 +29,13 @@ public class SongController : ContentController
     private static readonly HttpClient HttpClient = new();
     private readonly SpotifyAuthService _spotifyAuthService;
 
+    /// <summary>
+    /// Below this many songs an artist page is too thin to be worth a search engine's index. See
+    /// architecture/artist-index-plan.md §11.5: about 27,000 of the ~32,500 individual artists
+    /// have fewer than five songs.
+    /// </summary>
+    private const int MinimumSongsToIndexArtist = 5;
+
     public SongController(
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
@@ -889,6 +896,15 @@ public class SongController : ContentController
             var model = await ArtistViewModel.Create(
                 name, Mapper, DefaultCruftFilter(), Database,
                 await FeatureManager.IsEnabledAsync(FeatureFlags.ArtistIndex));
+
+            // Splitting credits turns one artist page into tens of thousands, most of them a
+            // single song. Those are too thin to be worth indexing, but their songs are worth
+            // crawling, so they ask to be followed and not indexed rather than shut out.
+            if (model.Histories.Count < MinimumSongsToIndexArtist)
+            {
+                ViewData["Robots"] = "noindex, follow";
+            }
+
             return Vue3(
                 $"Artist: {name}", $"Songs for dancing by {name}", "artist",
                 model, danceEnvironment: true);
