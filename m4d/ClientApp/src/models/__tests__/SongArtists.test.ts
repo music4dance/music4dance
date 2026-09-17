@@ -5,7 +5,9 @@ import { PropertyType, SongProperty } from "../SongProperty";
 import { SongEditor } from "../SongEditor";
 import {
   artistCreditLayout,
+  artistKey,
   cleanArtistName,
+  collaborators,
   deserializeArtists,
   serializeArtists,
 } from "../ArtistNames";
@@ -126,5 +128,33 @@ describe("SongEditor artists", () => {
     e.setArtists(undefined);
     expect(e.song.artists).toBeUndefined();
     expect(e.song.artistsSource).toBe("None");
+  });
+});
+
+describe("artistKey and collaborators", () => {
+  it.each(cases.artistKey.map(([input, expected]) => [input, expected] as const))(
+    "keys %j as %j",
+    (input, expected) => {
+      expect(artistKey(input)).toBe(expected);
+    },
+  );
+
+  it("ignores case, spacing and diacritics", () => {
+    expect(artistKey(" Michael  Bublé ")).toBe(artistKey("michael buble"));
+    expect(artistKey("Céline Dion")).toBe("celine dion");
+  });
+
+  it("counts co-credited artists, grouping spelling variants", () => {
+    const songs = [
+      { effectiveArtists: ["Michael Bublé", "Meghan Trainor"] },
+      { effectiveArtists: ["Michael Buble", "Meghan Trainor"] },
+      { effectiveArtists: ["michael bublé", "Barry Manilow"] },
+      { effectiveArtists: ["Meghan Trainor", "John Legend"] },
+      { effectiveArtists: ["Michael Bublé"] },
+    ];
+    expect(collaborators("Michael Buble", songs)).toEqual([
+      { artist: "Meghan Trainor", count: 2 },
+      { artist: "Barry Manilow", count: 1 },
+    ]);
   });
 });

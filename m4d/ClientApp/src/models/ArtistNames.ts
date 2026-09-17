@@ -37,6 +37,53 @@ export function cleanArtistName(name?: string | null): string {
   return s.replace(edgePunctuation, "");
 }
 
+/** Must match ArtistSplitter.ArtistKey: case- and diacritic-insensitive artist identity. */
+export function artistKey(name?: string | null): string {
+  return cleanArtistName(name)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Mn}/gu, "");
+}
+
+export interface ArtistCount {
+  artist: string;
+  count: number;
+}
+
+/**
+ * Other individual artists credited alongside `artist` across `songs`, most frequent first.
+ * Spelling variants are grouped by artistKey, keeping the most common spelling.
+ */
+export function collaborators(artist: string, songs: { effectiveArtists: string[] }[]): ArtistCount[] {
+  const self = artistKey(artist);
+  const groups = new Map<string, Map<string, number>>();
+  for (const song of songs) {
+    const keys = new Set(song.effectiveArtists.map(artistKey));
+    if (!keys.has(self)) {
+      continue;
+    }
+    for (const name of song.effectiveArtists) {
+      const key = artistKey(name);
+      if (key === self) {
+        continue;
+      }
+      const spellings = groups.get(key) ?? new Map<string, number>();
+      spellings.set(name, (spellings.get(name) ?? 0) + 1);
+      groups.set(key, spellings);
+    }
+  }
+
+  return [...groups.values()]
+    .map((spellings) => {
+      const sorted = [...spellings.entries()].sort((a, b) => b[1] - a[1]);
+      return {
+        artist: sorted[0]![0],
+        count: sorted.reduce((sum, [, count]) => sum + count, 0),
+      };
+    })
+    .sort((a, b) => b.count - a.count || a.artist.localeCompare(b.artist));
+}
+
 /** URL of the artist page for one individual artist (or a whole credit). */
 export function artistPageUrl(name: string): string {
   return `/song/artist?name=${encodeURIComponent(name)}`;

@@ -21,6 +21,7 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
                 </div>
               </transition-stub></span><i><span data-v-b2e59ff0=""><span data-v-b2e59ff0="">Hey Santa Claus</span></span></i><span style="font-size: 0.75em; padding-left: 0.5em;"> by </span><span data-v-b2e59ff0=""><span data-v-b2e59ff0=""><span style="font-size: 0.75em;"><a href="/song/artist?name=Moonglows">Moonglows</a></span></span></span>
             </h1>
+            <!--v-if-->
           </div>
           <!--v-if-->
         </div>

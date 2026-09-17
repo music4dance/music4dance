@@ -75,6 +75,20 @@ public class ArtistsPropertyTests
     }
 
     [TestMethod]
+    public async Task SharedArtistKeyCases()
+    {
+        var path = FindRepoFile(Path.Combine("m4d", "ClientApp", "src", "models", "__tests__", "artists-replay-cases.json"));
+        var cases = (JArray)JObject.Parse(await File.ReadAllTextAsync(path))["artistKey"];
+        Assert.IsTrue(cases.Count > 0);
+
+        foreach (var c in cases)
+        {
+            var input = (string)c[0];
+            Assert.AreEqual((string)c[1], ArtistSplitter.ArtistKey(input), $"input: '{input}'");
+        }
+    }
+
+    [TestMethod]
     public async Task UpdateArtists_AppendsBotBlockWhenSplit()
     {
         var song = await CreateSong([".Create=", "User=dwgray", "Time=01/15/2024 14:30:00",

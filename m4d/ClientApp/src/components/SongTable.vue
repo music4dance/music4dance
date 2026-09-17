@@ -538,7 +538,8 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
         />
       </template>
       <template #cell(artist)="data">
-        <a :href="artistRef(data.item.song)">{{ data.item.song.artist }}</a>
+        <ArtistCredit v-if="context.artistIndex" :song="data.item.song" individual />
+        <a v-else :href="artistRef(data.item.song)">{{ data.item.song.artist }}</a>
       </template>
       <template #head(track)>
         <SortableHeader
@@ -760,7 +761,8 @@ const onEditSong = (history: SongHistory, remove: boolean = false): void => {
         <a :href="songRef(data.item.song)" class="ms-1">{{ data.item.song.title }}</a>
         <template v-if="!isHidden('artist')">
           by
-          <a :href="artistRef(data.item.song)">{{ data.item.song.artist }}</a>
+          <ArtistCredit v-if="context.artistIndex" :song="data.item.song" individual />
+          <a v-else :href="artistRef(data.item.song)">{{ data.item.song.artist }}</a>
         </template>
         <span v-if="tempoValue(data.item.song)">
           @
