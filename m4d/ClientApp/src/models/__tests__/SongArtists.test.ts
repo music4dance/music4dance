@@ -3,6 +3,7 @@ import { Song } from "../Song";
 import { SongHistory } from "../SongHistory";
 import { PropertyType, SongProperty } from "../SongProperty";
 import { SongEditor } from "../SongEditor";
+import { ServiceName, TrackModel } from "../TrackModel";
 import {
   artistCreditLayout,
   artistKey,
@@ -156,5 +157,41 @@ describe("artistKey and collaborators", () => {
       { artist: "Meghan Trainor", count: 2 },
       { artist: "Barry Manilow", count: 1 },
     ]);
+  });
+});
+
+describe("SongHistory.fromTrack artists", () => {
+  const track = (): TrackModel => new TrackModel();
+
+  it("records structured service credits as a service Artists list", () => {
+    const t = Object.assign(track(), {
+      service: ServiceName.Spotify,
+      trackId: "t1",
+      name: "Islands in the Stream",
+      collectionId: "c1",
+      artist: "Dolly Parton",
+      artists: ["Dolly Parton", "Kenny Rogers"],
+      album: "Greatest Hits",
+    });
+    const song = Song.fromHistory(SongHistory.fromTrack(undefined!, t, "alice"));
+    expect(song.artist).toBe("Dolly Parton");
+    expect(song.artists).toEqual(["Dolly Parton", "Kenny Rogers"]);
+    // fromTrack currently folds the service's edits into the creating user's block (setupEdit
+    // doesn't open a second block), so the list is attributed to the user rather than batch-s
+    expect(song.artistsSource).toBe("User");
+  });
+
+  it("doesn't record a single-artist credit", () => {
+    const t = Object.assign(track(), {
+      service: ServiceName.Spotify,
+      trackId: "t1",
+      name: "Jolene",
+      collectionId: "c1",
+      artist: "Dolly Parton",
+      artists: ["Dolly Parton"],
+      album: "Jolene",
+    });
+    const history = SongHistory.fromTrack(undefined!, t, "alice");
+    expect(history.properties.some((p) => p.baseName === PropertyType.artistsField)).toBe(false);
   });
 });

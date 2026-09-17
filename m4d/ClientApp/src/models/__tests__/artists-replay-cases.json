@@ -360,6 +360,55 @@
         "Kenny Rogers"
       ],
       "source": "User"
+    },
+    {
+      "name": "undecorated service user is still a service",
+      "log": [
+        ".Create=",
+        "User=alice",
+        "Time=01/15/2024 14:30:00",
+        ".Edit=",
+        "User=batch-s",
+        "Time=01/15/2024 14:30:00",
+        "Title=Islands in the Stream",
+        "Artist=Dolly Parton",
+        "Artists=Dolly Parton|Kenny Rogers",
+        ".Edit=",
+        "User=artist-bot|P",
+        "Time=01/16/2024 14:30:00",
+        "Artists="
+      ],
+      "artists": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "effective": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "source": "Service"
+    },
+    {
+      "name": "human list beats an undecorated service list",
+      "log": [
+        ".Create=",
+        "User=alice",
+        "Time=01/15/2024 14:30:00",
+        "Title=Islands in the Stream",
+        "Artist=Dolly Parton",
+        "Artists=Dolly Parton",
+        ".Edit=",
+        "User=batch-s",
+        "Time=01/16/2024 14:30:00",
+        "Artists=Dolly Parton|Kenny Rogers"
+      ],
+      "artists": [
+        "Dolly Parton"
+      ],
+      "effective": [
+        "Dolly Parton"
+      ],
+      "source": "User"
     }
   ],
   "cleanName": [

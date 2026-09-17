@@ -597,11 +597,15 @@ export class Song extends TaggableObject {
   /** Must match Song.LoadArtists in m4dModels/Song.cs. */
   private loadArtists(value: string, userName: string | undefined, pseudo: boolean): void {
     const field = PropertyType.artistsField;
-    if (pseudo && this.userModifiedProperties.has(field)) {
+    // Service imports are sometimes logged without the |P decoration (e.g. songs added from a
+    // track in the client), so batch-* accounts count as services either way
+    const isService = !!userName && userName.toLowerCase().startsWith("batch-");
+    const isUser = !isService && userName !== ARTIST_BOT_USER && !pseudo;
+    if (!isUser && this.userModifiedProperties.has(field)) {
       return;
     }
 
-    const source: ArtistsSource = !pseudo
+    const source: ArtistsSource = isUser
       ? "User"
       : userName === ARTIST_BOT_USER
         ? "Heuristic"
@@ -622,7 +626,7 @@ export class Song extends TaggableObject {
 
     this.artists = artists;
     this.artistsSource = source;
-    if (!pseudo) {
+    if (isUser) {
       this.userModifiedProperties.add(field);
       if (userName) {
         this.propLastSetByMap.set(field, userName);

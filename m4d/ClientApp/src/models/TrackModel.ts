@@ -22,6 +22,8 @@ export class TrackModel {
   @jsonMember(String) public collectionId!: string;
   @jsonMember(String) public altId?: string;
   @jsonMember(String) public artist!: string;
+  /** Every credited artist, primary first, when the service provides structured credits */
+  @jsonArrayMember(String) public artists?: string[];
   @jsonMember(String) public album?: string;
   @jsonMember(String) public imageUrl?: string;
   @jsonMember(String) public purchaseInfo?: string;

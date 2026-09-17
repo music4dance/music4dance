@@ -1864,7 +1864,11 @@ public class Song : TaggableObject
     private void LoadArtists(string value, string user, ModifiedRecord currentModified,
         HashSet<string> isUserModified)
     {
-        var isUser = !currentModified?.ApplicationUser?.IsPseudo ?? false;
+        // Service imports are sometimes logged without the |P decoration (e.g. songs added from a
+        // track in the client), so batch-* accounts count as services either way
+        var isService = user != null && user.StartsWith("batch-", StringComparison.OrdinalIgnoreCase);
+        var isUser = !isService && user != ArtistBotUser &&
+            (!currentModified?.ApplicationUser?.IsPseudo ?? false);
         if (!isUser && isUserModified.Contains(ArtistsField))
         {
             return;
