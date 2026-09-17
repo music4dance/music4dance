@@ -12,6 +12,18 @@
 
 <h3>Search Indexing</h3>
 <ul>
+    <li>
+        Artist index page (<code>ArtistIndex</code> feature flag):
+        @if (ViewBag.ArtistIndexEnabled == true)
+        {
+            <strong class="text-success">on</strong>
+        }
+        else
+        {
+            <strong class="text-secondary">off</strong>
+            <text>- artist pages and /song/artists still use the Artist credit</text>
+        }
+    </li>
     @foreach (var id in SearchService.GetAvailableIds()){
         <li>
             @id: @Html.ActionLink("Reset", "ResetSearchIdx", new { id = id }, null)
@@ -29,6 +41,35 @@
                 <input type="submit" value="Add Missing Fields"
                        onclick="return confirm('Add any new fields (e.g. Artists) to @id in place?');" />
             }
+            <br />
+            @{
+                var artistsStatus =
+                    ViewBag.ArtistsFieldStatus as Dictionary<string, (bool Present, DateTime? RefreshesAt)>;
+                var status = artistsStatus != null && artistsStatus.TryGetValue(id, out var s)
+                    ? s
+                    : (Present: false, RefreshesAt: (DateTime?)null);
+            }
+            <small class="text-muted">
+                Artists field:
+                @if (status.Present)
+                {
+                    <strong class="text-success">present</strong>
+                }
+                else
+                {
+                    <strong class="text-warning">absent</strong>
+                    <text>- run Add Missing Fields</text>
+                }
+                @if (status.RefreshesAt.HasValue)
+                {
+                    var wait = status.RefreshesAt.Value - DateTime.UtcNow;
+                    <text>
+                        (this instance re-reads the schema
+                        @(wait > TimeSpan.Zero ? $"in {wait.TotalMinutes:F0} min" : "on the next call");
+                        others may lag by up to @SearchServiceInfo.SchemaCacheDuration.TotalMinutes min)
+                    </text>
+                }
+            </small>
             <br />
             Individual artists:
             @foreach (var mode in new[] { "Report", "Apply", "ApplyChanged" })

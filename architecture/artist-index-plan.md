@@ -176,7 +176,8 @@ first, then production.
 2. **Take an index backup** (`/Admin/IndexBackup`). It's the rollback artifact.
 3. **Add Missing Fields** for the index. Adds `Artists` in place.
 4. **Wait at least 10 minutes** (the schema cache lifetime), or restart the app, so every instance
-   includes the field in uploads (§7.4 trap).
+   includes the field in uploads (§7.4 trap). Initialization Tasks now reports the field as present
+   and shows when the serving instance last looked.
 5. **BatchArtists → Report.** Creates the `artist-bot` pseudo user, which also activates the save
    hook for newly saved songs. Review the logged changes (first 200, in the app log) and the
    completion totals on Admin Status. It builds knowledge from a light pass over the whole index,
@@ -626,10 +627,11 @@ new(ArtistsField, SearchFieldDataType.Collection(SearchFieldDataType.String))
 }
 ```
 
-- **Filterable:** needed for `Artists/any(a: a eq 'Kenny Rogers')`. In `any` lambdas over string
-  collections, OData supports `eq` and `search.in`, not range operators. *(Verify against current
-  Azure AI Search docs; this determines whether A–Z bucketing can be done in-index. §11 assumes it
-  can't.)*
+- **Filterable:** needed for `Artists/any(a: a eq 'Kenny Rogers')`. **Confirmed:** in `any` lambdas
+  over `Collection(Edm.String)`, Azure allows only comparisons with `eq` or `search.in`, combined
+  with `or` — no range operators ([OData collection operator
+  reference](https://learn.microsoft.com/en-us/azure/search/search-query-odata-collection-operators)).
+  So A–Z bucketing cannot be done in-index, which is the assumption §11 is built on.
 - **Facetable:** "top artists for this search or dance", collaborator lists, cheap counts.
 - **Searchable:** so keyword search matches individual names. Don't add it to the `Default` scoring
   profile's `TextWeights` at first, because `Artist` already carries weight 10 and double-counting
@@ -652,9 +654,12 @@ Existing documents read the new field as `null`. So no v3→v4 migration is need
 **What can't be done in place** (defer to the next versioned index, see
 [search-index-versioning.md](search-index-versioning.md)):
 
-- Adding `Artists` to the existing `songs` **suggester**. Suggesters can only include fields that
-  existed when the suggester was created. *(Verify.)* Artist autocomplete on the index page doesn't
-  need the suggester anyway (§11.3).
+- Adding `Artists` to the existing `songs` **suggester**. **Confirmed:** "If you try to create a
+  suggester using preexisting fields, the API disallows it... you have to rebuild the index if you
+  want to add them to a suggester", because prefixes are generated at indexing time and existing
+  fields are already tokenized ([Configure a
+  suggester](https://learn.microsoft.com/en-us/azure/search/index-add-suggesters)). Artist
+  autocomplete on the index page doesn't need the suggester anyway (§11.3).
 - Changing attributes on the existing `Artist` field.
 
 Scoring profiles *can* be updated in place if we later want `Artists` weights.
@@ -673,6 +678,11 @@ void InvalidateSchemaCache();
 - If the schema can't be read, assume **absent**. That is the safe direction for the write path (see
   the trap below) and the read path falls back.
 - `AddIndexFields` invalidates the cache on the instance that ran it.
+- **Admin → Initialization Tasks shows, per index, whether `Artists` is present and when this
+  instance will re-read the schema**, plus the `ArtistIndex` flag state
+  (`SongIndex.ArtistsFieldStatusAsync` / `SearchServiceInfo.SchemaCacheExpiry`). That turns step 4
+  of the runbook from a blind wait into something readable. It reflects only the instance serving
+  the page; others can still lag by up to the cache duration.
 - Tests: mock both states. `SongIndexLocal` (sandbox) always reports present and implements the
   query in memory (§13).
 
@@ -1035,7 +1045,8 @@ Each phase is a separate PR unless noted. **Always test index first, then produc
 
 ### Phase 2 — Index Capability and Backfill
 
-- [x] `SearchServiceInfo.HasFieldAsync` + cache (diagnostics display not done)
+- [x] `SearchServiceInfo.HasFieldAsync` + cache, with field/flag state on Admin → Initialization
+      Tasks
 - [x] `ArtistsField` in `BuildIndex()`; conditional inclusion in `DocumentFromSong`
 - [x] `Admin/AddIndexFields`
 - [x] Batch job `Admin/BatchArtists` with `Report | Apply | ApplyChanged` (reuses

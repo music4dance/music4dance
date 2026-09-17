@@ -264,6 +264,14 @@ public class SearchServiceInfo(string id, int version, string name,
 
     public void InvalidateSchemaCache() => _schemaCache.Clear();
 
+    /// <summary>
+    /// When this instance will next re-read the live index schema, or null if it holds no cached
+    /// view. Surfaced on Admin -> Initialization Tasks so the wait after adding a field (see
+    /// architecture/artist-index-plan.md §0.4) is something to read rather than guess at.
+    /// </summary>
+    public DateTime? SchemaCacheExpiry(bool isNext) =>
+        _schemaCache.TryGetValue(GetVersionedName(isNext), out var cached) ? cached.ExpiresAt : null;
+
     public async Task<Response> DeleteIndexAsync(bool isNext)
     {
         var client = GetSearchIndexClient(isNext);

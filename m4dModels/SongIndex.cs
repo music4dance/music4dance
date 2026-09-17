@@ -1658,6 +1658,15 @@ public class SongIndex
     }
 
     /// <summary>
+    /// What this instance believes about the Artists field, and when it will look at the live
+    /// schema again. For the admin display only: the rollout adds the field to the index and then
+    /// waits for every instance to notice (architecture/artist-index-plan.md §7.4), and this makes
+    /// that wait visible.
+    /// </summary>
+    public virtual async Task<(bool Present, DateTime? RefreshesAt)> ArtistsFieldStatusAsync() =>
+        (await HasArtistsFieldAsync(), Info.SchemaCacheExpiry(IsNext));
+
+    /// <summary>
     /// Save hook: runs the artist splitter over songs about to be saved and appends an artist-bot
     /// edit to any whose individual artists change. Human- and service-supplied lists are left
     /// alone (see Song.UpdateArtists). Ambiguous splits get their evidence from the index.

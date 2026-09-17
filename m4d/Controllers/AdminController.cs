@@ -802,8 +802,19 @@ public class AdminController(
     //
     // GET: /Admin/InitializaitonTasks
     [Authorize(Roles = "showDiagnostics")]
-    public ActionResult InitializationTasks()
+    public async Task<ActionResult> InitializationTasks()
     {
+        // Per-index Artists field state, so the rollout's "add the field, then wait for every
+        // instance to see it" step (artist-index-plan.md §7.4) is visible on the page that runs it
+        var artistsField = new Dictionary<string, (bool Present, DateTime? RefreshesAt)>();
+        foreach (var id in Database.SearchService.GetAvailableIds())
+        {
+            artistsField[id] = await Database.GetSongIndex(id).ArtistsFieldStatusAsync();
+        }
+
+        ViewBag.ArtistsFieldStatus = artistsField;
+        ViewBag.ArtistIndexEnabled = await FeatureManager.IsEnabledAsync(FeatureFlags.ArtistIndex);
+
         return View();
     }
 
