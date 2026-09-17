@@ -22,6 +22,26 @@
                 <input type="submit" value="Reload All Songs"
                        onclick="return confirm('Reload every song in @id in place? This re-reads and re-saves the whole index.');" />
             }
+            @using (Html.BeginForm("AddIndexFields", "Admin", FormMethod.Post, new { style = "display:inline" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("idxName", id)
+                <input type="submit" value="Add Missing Fields"
+                       onclick="return confirm('Add any new fields (e.g. Artists) to @id in place?');" />
+            }
+            <br />
+            Individual artists:
+            @foreach (var mode in new[] { "Report", "Apply", "ApplyChanged" })
+            {
+                using (Html.BeginForm("BatchArtists", "Admin", FormMethod.Post, new { style = "display:inline" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("idxName", id)
+                    @Html.Hidden("mode", mode)
+                    <input type="submit" value="@mode"
+                           onclick="return confirm('Run the artist splitter over @id in @mode mode?');" />
+                }
+            }
         </li>
     }
 

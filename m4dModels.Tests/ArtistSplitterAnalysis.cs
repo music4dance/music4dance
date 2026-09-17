@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -18,10 +17,6 @@ public class ArtistSplitterAnalysis
     private const string IndexVariable = "M4D_ARTIST_ANALYSIS_INDEX";
     private const string OutputVariable = "M4D_ARTIST_ANALYSIS_OUT";
     private const string MinimumSongsVariable = "M4D_ARTIST_ANALYSIS_MIN_SONGS";
-
-    // Rules that don't depend on corpus evidence; names they produce seed the knowledge base
-    private static readonly HashSet<string> StrongRules =
-        ["feat", "title-feat", "semicolon", "slash", "comma-list"];
 
     private record SongCredit(string Title, string Artist);
 
@@ -60,27 +55,8 @@ public class ArtistSplitterAnalysis
         WriteCaseVariants(output, results);
     }
 
-    internal static ArtistKnowledge BuildKnowledge(IReadOnlyList<(string Title, string Artist)> songs, int minimumSongs)
-    {
-        var knowledge = new ArtistKnowledge(minimumSongs);
-        foreach (var (title, artist) in songs)
-        {
-            knowledge.Add(artist);
-            var split = ArtistSplitter.Split(artist, title);
-            if (split.IsSplit(artist) && split.Rules.Any(StrongRules.Contains))
-            {
-                foreach (var name in split.Artists.Where(a =>
-                    !string.Equals(a, ArtistSplitter.CleanName(artist), StringComparison.OrdinalIgnoreCase)))
-                {
-                    knowledge.Add(name);
-                }
-            }
-        }
-        return knowledge;
-    }
-
     private static ArtistKnowledge BuildKnowledge(List<SongCredit> songs, int minimumSongs) =>
-        BuildKnowledge([.. songs.Select(s => (s.Title, s.Artist))], minimumSongs);
+        ArtistKnowledge.FromCredits(songs.Select(s => (s.Title, s.Artist)), minimumSongs);
 
     /// <summary>
     /// Effective Title/Artist from one backup line, applying the scalar rule that a pseudo-user
@@ -229,19 +205,12 @@ public class ArtistSplitterAnalysis
             .SelectMany(r => r.split.Artists)
             .GroupBy(a => a)
             .Select(g => (name: g.Key, count: g.Count()))
-            .GroupBy(x => FoldKey(x.name))
+            .GroupBy(x => ArtistSplitter.ArtistKey(x.name))
             .Where(g => g.Count() > 1)
             .OrderByDescending(g => g.Sum(x => x.count))
             .Select(g => Tsv(g.Sum(x => x.count),
                 string.Join(" | ", g.OrderByDescending(x => x.count).Select(x => $"{x.name} ({x.count})"))));
 
         File.WriteAllLines(Path.Combine(output, "case-variants.tsv"), [Tsv("songs", "variants"), .. lines]);
-    }
-
-    private static string FoldKey(string name)
-    {
-        var normalized = name.ToLowerInvariant().Normalize(NormalizationForm.FormD);
-        return new string([.. normalized.Where(c =>
-            CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)]);
     }
 }

@@ -3,6 +3,7 @@
 public static class FeatureFlags
 {
     public const string ActivityLogging = "ActivityLogging";
+    public const string ArtistIndex = "ArtistIndex";
     public const string Captcha = "Captcha";
     public const string ClientSideUsageLogging = "ClientSideUsageLogging";
     public const string CustomerReminder = "CustomerReminder";

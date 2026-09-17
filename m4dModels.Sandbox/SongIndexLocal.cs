@@ -59,6 +59,7 @@ public class SongIndexLocal : SongIndex
     /// </summary>
     public override async Task SaveSong(Song song, string id = "default")
     {
+        await UpdateArtists([song]);
         _songStore[song.SongId] = song;
 
         // Update stats but skip Azure Search index update
@@ -78,6 +79,8 @@ public class SongIndexLocal : SongIndex
         {
             return;
         }
+
+        await UpdateArtists(songs);
 
         // Update stats but skip Azure Search index update
         var stats = DanceMusicService.DanceStats;
@@ -157,7 +160,52 @@ public class SongIndexLocal : SongIndex
     /// <summary>
     /// Exposes the protected DocumentFromSong for direct assertion in index-shape tests.
     /// </summary>
-    public object CallDocumentFromSong(Song song) => DocumentFromSong(song);
+    public object CallDocumentFromSong(Song song, bool includeArtists = false) =>
+        DocumentFromSong(song, includeArtists);
+
+    /// <summary>
+    /// The in-memory store always "has" the Artists field - EffectiveArtists is computed from
+    /// each stored song.
+    /// </summary>
+    public override Task<bool> HasArtistsFieldAsync() => Task.FromResult(true);
+
+    /// <summary>
+    /// Mirrors SongIndex.FindArtist against the in-memory store: individual artists matched
+    /// case- and diacritic-insensitively, falling back to the whole credit.
+    /// </summary>
+    public override Task<IEnumerable<Song>> FindArtist(string name,
+        CruftFilter cruft = CruftFilter.NoCruft, bool individualArtists = false)
+    {
+        var key = ArtistSplitter.ArtistKey(name);
+        var candidates = _songStore.Values.Where(s => !s.IsNull && PassesCruft(s, cruft)).ToList();
+
+        var matches = individualArtists
+            ? candidates.Where(s => s.EffectiveArtists.Any(a => ArtistSplitter.ArtistKey(a) == key)).ToList()
+            : [];
+        if (matches.Count == 0)
+        {
+            matches = [.. candidates.Where(s => ArtistSplitter.ArtistKey(s.Artist) == key)];
+        }
+
+        return Task.FromResult<IEnumerable<Song>>(
+            [.. matches.OrderByDescending(s => s.DanceRatings.Sum(dr => dr.Weight))]);
+    }
+
+    /// <summary>
+    /// Evidence for ambiguous artist splits from the in-memory store instead of an index facet query.
+    /// </summary>
+    protected override Task<IArtistKnowledge> GetArtistKnowledge(Song song)
+    {
+        var knowledge = new ArtistKnowledge();
+        foreach (var other in _songStore.Values.Where(s => s.SongId != song.SongId && !s.IsNull))
+        {
+            foreach (var artist in other.EffectiveArtists)
+            {
+                knowledge.Add(artist);
+            }
+        }
+        return Task.FromResult<IArtistKnowledge>(knowledge);
+    }
 
     /// <summary>
     /// Evaluates a SongFilter's already-parsed sub-query objects (DanceQuery, TagQuery,

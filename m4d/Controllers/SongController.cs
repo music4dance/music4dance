@@ -887,7 +887,8 @@ public class SongController : ContentController
         if (!string.IsNullOrWhiteSpace(name))
         {
             var model = await ArtistViewModel.Create(
-                name, Mapper, DefaultCruftFilter(), Database);
+                name, Mapper, DefaultCruftFilter(), Database,
+                await FeatureManager.IsEnabledAsync(FeatureFlags.ArtistIndex));
             return Vue3(
                 $"Artist: {name}", $"Songs for dancing by {name}", "artist",
                 model, danceEnvironment: true);

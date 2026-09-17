@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace m4dModels;
@@ -259,6 +261,17 @@ public static class ArtistSplitter
         }
 
         return s.Trim(' ', ',', ';', ':', '-');
+    }
+
+    /// <summary>
+    /// Case- and diacritic-insensitive identity for an individual artist name, so "Michael Bublé"
+    /// and "michael buble" land on the same artist page.
+    /// </summary>
+    public static string ArtistKey(string name)
+    {
+        var normalized = CleanName(name).ToLowerInvariant().Normalize(NormalizationForm.FormD);
+        return new string([.. normalized.Where(c =>
+            CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)]);
     }
 
     public static string Serialize(IEnumerable<string> artists) =>

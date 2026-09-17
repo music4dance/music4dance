@@ -918,6 +918,8 @@ public class SongIndex
             return;
         }
 
+        await UpdateArtists(songs);
+
         var stats = DanceMusicService.DanceStats;
         foreach (var song in songs)
         {
@@ -938,6 +940,7 @@ public class SongIndex
         {
             var processed = 0;
             var list = songs as List<Song> ?? [.. songs];
+            var includeArtists = await HasArtistsFieldAsync();
 
             while (list.Count > 0)
             {
@@ -949,11 +952,11 @@ public class SongIndex
                 {
                     if (!song.IsNull)
                     {
-                        added.Add(DocumentFromSong(song));
+                        added.Add(DocumentFromSong(song, includeArtists));
                     }
                     else
                     {
-                        deleted.Add(DocumentFromSong(song));
+                        deleted.Add(DocumentFromSong(song, includeArtists));
                     }
 
                     if (added.Count > 990 || deleted.Count > 990)
@@ -1070,7 +1073,8 @@ public class SongIndex
         {
             try
             {
-                var docs = changes.Where(s => !s.IsNull).Select(DocumentFromSong);
+                var includeArtists = await HasArtistsFieldAsync();
+                var docs = changes.Where(s => !s.IsNull).Select(s => DocumentFromSong(s, includeArtists));
                 var batch = IndexDocumentsBatch.Upload(docs);
                 var results = await Client.IndexDocumentsAsync(batch);
                 Trace.WriteLine($"Added = {results.Value.Results.Count}");
@@ -1271,10 +1275,44 @@ public class SongIndex
         return await FindByField(AlbumsField, name, null, cruft);
     }
 
+    /// <summary>
+    /// Songs for an artist page. With <paramref name="individualArtists"/> (the ArtistIndex
+    /// feature flag) and an Artists index field, matches songs where the name is one of the song's
+    /// individual artists, case- and diacritic-insensitively; otherwise (or if that finds nothing)
+    /// falls back to a phrase match on the Artist credit.
+    /// </summary>
     public virtual async Task<IEnumerable<Song>> FindArtist(string name,
-        CruftFilter cruft = CruftFilter.NoCruft)
+        CruftFilter cruft = CruftFilter.NoCruft, bool individualArtists = false)
     {
+        if (individualArtists && await HasArtistsFieldAsync())
+        {
+            var songs = await FindIndividualArtist(name, cruft);
+            if (songs.Count > 0)
+            {
+                return songs;
+            }
+        }
+
         return await FindByField(Song.ArtistField, name, "dance_ALL/Votes desc", cruft);
+    }
+
+    private async Task<List<Song>> FindIndividualArtist(string name, CruftFilter cruft)
+    {
+        var key = ArtistSplitter.ArtistKey(name);
+        if (key.Length == 0)
+        {
+            return [];
+        }
+
+        // The analyzed phrase match is case-insensitive but also matches the name inside longer
+        // names ("Tony Evans" in "Tony Evans and His Orchestra"), so confirm against each song's
+        // own individual artists.
+        var options = new SearchOptions { Size = 1000 };
+        options.SearchFields.Add(Song.ArtistsField);
+        options.OrderBy.Add("dance_ALL/Votes desc");
+        var phrase = ArtistSplitter.CleanName(name).Replace('"', ' ');
+        var songs = await SongsFromAzureResult(await DoSearch($"\"{phrase}\"", options, cruft));
+        return [.. songs.Where(s => s.EffectiveArtists.Any(a => ArtistSplitter.ArtistKey(a) == key))];
     }
 
     public async Task<IEnumerable<Song>> FindByField(string field, string name,
@@ -1600,6 +1638,127 @@ public class SongIndex
     }
     #endregion
 
+    #region Individual Artists
+
+    /// <summary>
+    /// True when this index has the Artists field (added in place by AddMissingIndexFields).
+    /// Cached per index by SearchServiceInfo; false if the schema can't be read.
+    /// </summary>
+    public virtual async Task<bool> HasArtistsFieldAsync()
+    {
+        try
+        {
+            return await Info.HasFieldAsync(Song.ArtistsField, IsNext);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"HasArtistsFieldAsync failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Save hook: runs the artist splitter over songs about to be saved and appends an artist-bot
+    /// edit to any whose individual artists change. Human- and service-supplied lists are left
+    /// alone (see Song.UpdateArtists). Ambiguous splits get their evidence from the index.
+    /// </summary>
+    public async Task UpdateArtists(IEnumerable<Song> songs)
+    {
+        foreach (var song in songs.Where(s => !s.IsNull &&
+                     s.ArtistsSource is ArtistsSource.None or ArtistsSource.Heuristic))
+        {
+            try
+            {
+                var knowledge = await GetArtistKnowledge(song);
+                _ = await song.UpdateArtists(knowledge, DanceMusicService);
+            }
+            catch (Exception ex)
+            {
+                // Never let the heuristic block a save; the batch job can catch up later
+                Trace.WriteLine($"UpdateArtists failed for {song.SongId}: {ex.Message}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Evidence for the ambiguous separators in one song's credit: how many other songs list each
+    /// candidate name as an individual artist. Null (strong rules only) when the credit has no
+    /// ambiguous separators or the index doesn't have the Artists field yet.
+    /// </summary>
+    protected virtual async Task<IArtistKnowledge> GetArtistKnowledge(Song song)
+    {
+        var recorder = new RecordingArtistKnowledge();
+        _ = ArtistSplitter.Split(song.Artist, song.Title, recorder);
+        if (recorder.Names.Count == 0 || !await HasArtistsFieldAsync())
+        {
+            return null;
+        }
+
+        var names = recorder.Names.Select(n => n.Replace("'", "''")).ToList();
+        var options = new SearchOptions
+        {
+            Size = 0,
+            Filter = $"{Song.ArtistsField}/any(a: search.in(a, '{string.Join("|", names)}', '|')) " +
+                $"and {SongIdField} ne '{song.SongId}'"
+        };
+        // Facet values include co-artists of the matching songs, so leave headroom
+        options.Facets.Add($"{Song.ArtistsField},count:{Math.Max(100, names.Count * 20)}");
+
+        var result = await DoSearch(null, options, CruftFilter.AllCruft);
+        var knowledge = new ArtistKnowledge();
+        if (result.Facets != null && result.Facets.TryGetValue(Song.ArtistsField, out var facets))
+        {
+            foreach (var facet in facets.Where(f => recorder.Names.Contains(f.Value?.ToString() ?? "")))
+            {
+                knowledge.Add(facet.Value.ToString(), (int)(facet.Count ?? 0));
+            }
+        }
+        return knowledge;
+    }
+
+    /// <summary>
+    /// Adds any top-level fields from <see cref="BuildIndex"/> that the live index doesn't have
+    /// yet. Adding fields is non-breaking in Azure AI Search (existing documents read as null), so
+    /// additive schema changes don't need a versioned index migration. Returns the added names.
+    /// </summary>
+    public async Task<IReadOnlyList<string>> AddMissingIndexFields()
+    {
+        // Deliberately not GetSearchIndex(), which resets the index when it can't be read
+        var index = await Info.GetIndexAsync(IsNext);
+        var missing = BuildIndexFields()
+            .Where(f => index.Fields.All(existing => existing.Name != f.Name))
+            .ToList();
+
+        if (missing.Count > 0)
+        {
+            foreach (var field in missing)
+            {
+                index.Fields.Add(field);
+            }
+
+            _ = await Info.CreateOrUpdateIndexAsync(index, IsNext);
+            Info.InvalidateSchemaCache();
+        }
+
+        return [.. missing.Select(f => f.Name)];
+    }
+
+    /// <summary>
+    /// Builds catalog-wide artist evidence from a light streaming pass over every song's Title and
+    /// Artist - the same knowledge the analysis harness uses.
+    /// </summary>
+    public async Task<ArtistKnowledge> BuildArtistKnowledge(CancellationToken cancellationToken = default)
+    {
+        var credits = new List<(string Title, string Artist)>();
+        await foreach (var song in LoadLightSongsStreamingAsync(cancellationToken))
+        {
+            credits.Add((song.Title, song.Artist));
+        }
+        return ArtistKnowledge.FromCredits(credits);
+    }
+
+    #endregion
+
     #region Index Management
 
     public async Task<SearchIndex> ResetIndex()
@@ -1632,6 +1791,17 @@ public class SongIndex
 
     public virtual SearchIndex BuildIndex()
     {
+        return Info.BuildIndex(
+            BuildIndexFields(),
+            suggesters: searchSuggesters,
+            scoringProfiles: searchScoringProfiles,
+            defaultScoringProfile: "Default",
+            isNext: IsNext
+        );
+    }
+
+    public virtual List<SearchField> BuildIndexFields()
+    {
         var fields = new List<SearchField>
             {
                 new(SongIdField, SearchFieldDataType.String) { IsKey = true },
@@ -1654,6 +1824,13 @@ public class SongIndex
                 {
                     IsSearchable = true, IsSortable = true, IsFilterable = false,
                     IsFacetable = false
+                },
+                // Added in place to existing indexes (AddMissingIndexFields) - code must tolerate
+                // its absence; see HasArtistsFieldAsync and architecture/artist-index-plan.md §7
+                new(
+                    Song.ArtistsField, SearchFieldDataType.Collection(SearchFieldDataType.String))
+                {
+                    IsSearchable = true, IsSortable = false, IsFilterable = true, IsFacetable = true
                 },
                 new(
                     AlbumsField, SearchFieldDataType.Collection(SearchFieldDataType.String))
@@ -1765,13 +1942,7 @@ public class SongIndex
         var ids = Dances.Instance.AllDanceTypes.Where(t => t.Id != "ALL").Select(t => IndexFieldFromDanceId(t.Id));
         fields.AddRange(ids);
 
-        return Info.BuildIndex(
-            fields,
-            suggesters: searchSuggesters,
-            scoringProfiles: searchScoringProfiles,
-            defaultScoringProfile: "Default",
-            isNext: IsNext
-        );
+        return fields;
     }
 
     protected virtual IList<SearchSuggester> searchSuggesters => [
@@ -1848,7 +2019,7 @@ public class SongIndex
         return response.Value != null;
     }
 
-    protected virtual object DocumentFromSong(Song song)
+    protected virtual object DocumentFromSong(Song song, bool includeArtists = false)
     {
         var tagMap = DanceMusicService.DanceStats.TagManager.TagMap;
 
@@ -1934,6 +2105,12 @@ public class SongIndex
             [PropertiesField] = SongPropertyCompression.Compress(SongProperty.Serialize(song.SongProperties, null))
         };
 
+        // Only when the live index has the field: uploading an unknown field fails the whole batch
+        if (includeArtists)
+        {
+            doc[Song.ArtistsField] = song.EffectiveArtists.ToArray();
+        }
+
         var allOther = new HashSet<string>();
         var allTempo = new HashSet<string>();
         var allStyle = new HashSet<string>();
@@ -2000,13 +2177,14 @@ public class SongIndex
         var added = 0;
         var delete = new List<string>();
         var chunk = new List<Song>();
+        var includeArtists = await HasArtistsFieldAsync();
 
         async Task FlushChunk()
         {
             if (chunk.Count == 0) return;
             try
             {
-                var docs = chunk.Where(s => !s.IsNull).Select(DocumentFromSong);
+                var docs = chunk.Where(s => !s.IsNull).Select(s => DocumentFromSong(s, includeArtists));
                 var batch = IndexDocumentsBatch.Upload(docs);
                 var results = await Client.IndexDocumentsAsync(batch);
                 added += results.Value.Results.Count;

@@ -12,9 +12,9 @@ public class ArtistViewModel : SongListModel
     public static async Task<ArtistViewModel> Create(
         string name,
         IMapper mapper,
-        CruftFilter cruft, DanceMusicService dms)
+        CruftFilter cruft, DanceMusicService dms, bool individualArtists = false)
     {
-        var list = (await dms.SongIndex.FindArtist(name, cruft)).Take(500);
+        var list = (await dms.SongIndex.FindArtist(name, cruft, individualArtists)).Take(500);
         var filter = dms.SearchService.GetSongFilter();
         filter.Action = "Artist";
 

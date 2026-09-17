@@ -437,6 +437,155 @@ public class AdminController(
     }
 
     //
+    // POST: /Admin/AddIndexFields
+    // Adds any fields defined in SongIndex.BuildIndex that the named live index doesn't have yet
+    // (e.g. Artists). Adding fields is non-breaking, so this doesn't need a versioned migration.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> AddIndexFields(string idxName = "default")
+    {
+        try
+        {
+            StartAdminTask("AddIndexFields");
+            var added = await Database.GetSongIndex(idxName).AddMissingIndexFields();
+            return CompleteAdminTask(true,
+                added.Count == 0
+                    ? $"AddIndexFields ({idxName}): index already has every field"
+                    : $"AddIndexFields ({idxName}): added {string.Join(", ", added)}");
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"AddIndexFields ({idxName}): {e.Message}", e);
+        }
+    }
+
+    //
+    // POST: /Admin/BatchArtists
+    // Runs ArtistSplitter over every song in the named index (see
+    // architecture/artist-index-plan.md §8). Modes:
+    //   Report     - no writes; logs what would change
+    //   Apply      - appends artist-bot edits where the individual artists change and re-saves
+    //                every song, populating the Artists index field everywhere
+    //   ApplyChanged - like Apply but only re-saves songs whose artists changed (for re-runs
+    //                after a heuristic update, once the field is already populated)
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> BatchArtists(string idxName = "default", string mode = "Report",
+        int count = -1)
+    {
+        try
+        {
+            StartAdminTask("BatchArtists");
+            AdminMonitor.UpdateTask("BatchArtists");
+
+            var apply = mode is "Apply" or "ApplyChanged";
+            var saveAll = mode == "Apply";
+            if (apply && await Database.FindUser(Song.ArtistBotUser) == null)
+            {
+                _ = await Database.AddPseudoUser(Song.ArtistBotUser, $"{Song.ArtistBotUser}@music4dance.net");
+            }
+
+            var dms = Database.GetTransientService();
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var idx = dms.GetSongIndex(idxName);
+
+                    AdminMonitor.UpdateTask("Building artist knowledge");
+                    var knowledge = await idx.BuildArtistKnowledge();
+
+                    var tried = 0;
+                    var changed = 0;
+                    var skipped = 0;
+                    var batch = new List<Song>();
+                    const int batchSize = 500;
+                    const int logLimit = 200;
+
+                    async Task FlushBatchAsync()
+                    {
+                        if (batch.Count == 0) return;
+                        await idx.UpdateAzureIndex(batch, dms);
+                        batch.Clear();
+                    }
+
+                    await foreach (var song in idx.StreamAllSongsAsync())
+                    {
+                        if (song.IsNull)
+                        {
+                            continue;
+                        }
+
+                        tried++;
+                        if (song.ArtistsSource is ArtistsSource.User or ArtistsSource.Service)
+                        {
+                            skipped++;
+                        }
+
+                        var before = string.Join(" | ", song.EffectiveArtists);
+                        var didChange = await song.UpdateArtists(knowledge, dms);
+                        if (didChange)
+                        {
+                            changed++;
+                            if (changed <= logLimit)
+                            {
+                                Logger.LogInformation(
+                                    "BatchArtists {Mode}: {Title} by {Artist}: [{Before}] -> [{After}]",
+                                    mode, song.Title, song.Artist, before, string.Join(" | ", song.EffectiveArtists));
+                            }
+                        }
+
+                        if (apply && (saveAll || didChange))
+                        {
+                            batch.Add(song);
+                            if (batch.Count >= batchSize)
+                            {
+                                await FlushBatchAsync();
+                            }
+                        }
+
+                        if (tried % 1000 == 0)
+                        {
+                            AdminMonitor.UpdateTask($"{mode}: changed {changed}", tried);
+                        }
+
+                        if (count > 0 && tried >= count)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (apply)
+                    {
+                        await FlushBatchAsync();
+                    }
+
+                    AdminMonitor.CompleteTask(true,
+                        $"BatchArtists ({idxName}, {mode}, splitter v{ArtistSplitter.Version}): " +
+                        $"Tried={tried}, Changed={changed}, HumanOrServiceLists={skipped}");
+                }
+                catch (Exception e)
+                {
+                    AdminMonitor.CompleteTask(false, $"BatchArtists ({idxName}, {mode}): Failed={e.Message}");
+                }
+                finally
+                {
+                    dms.Dispose();
+                }
+            });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"BatchArtists ({idxName}, {mode}): {e.Message}", e);
+        }
+    }
+
+    //
     // GET: /Admin/Diagnostics
     [Authorize(Roles = "showDiagnostics")]
     public ActionResult Diagnostics(Http4xxUrlFilter http4xxFilter = Http4xxUrlFilter.All)
