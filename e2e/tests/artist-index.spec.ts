@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 import { contentHeading, openArtistIndex } from "../fixtures/artists";
 
 // The browsable index of individual artists (/song/artists), behind the ArtistIndex feature
-// flag, which m4d.Sandbox/appsettings.json turns on. See architecture/artist-index-plan.md §11.
+// flag, which m4d.Sandbox/appsettings.json turns on. See architecture/individual-artists.md §9.
 test("browses artists by letter", async ({ page }) => {
   await openArtistIndex(page);
 

@@ -226,7 +226,7 @@ public class SearchServiceInfo(string id, int version, string name,
 
     /// <summary>
     /// How long a successfully read index schema is trusted. Short enough that every app instance
-    /// notices a newly added field without a restart - see architecture/artist-index-plan.md §7.3.
+    /// notices a newly added field without a restart - see architecture/individual-artists.md §5.2.
     /// </summary>
     public static TimeSpan SchemaCacheDuration { get; set; } = TimeSpan.FromMinutes(10);
 
@@ -267,14 +267,14 @@ public class SearchServiceInfo(string id, int version, string name,
     /// <summary>
     /// When this instance will next re-read the live index schema, or null if it holds no cached
     /// view. Surfaced on Admin -> Initialization Tasks so the wait after adding a field (see
-    /// architecture/artist-index-plan.md §0.4) is something to read rather than guess at.
+    /// architecture/individual-artists.md §11.1) is something to read rather than guess at.
     /// </summary>
     public DateTime? SchemaCacheExpiry(bool isNext) =>
         _schemaCache.TryGetValue(GetVersionedName(isNext), out var cached) ? cached.ExpiresAt : null;
 
     // Every method below changes the live schema, so each drops the cached view of it. Without
     // this, resetting an index and immediately reloading it reads a pre-reset answer and uploads
-    // documents that omit fields the new index actually has - see artist-index-plan.md §7.4.
+    // documents that omit fields the new index actually has - see individual-artists.md §5.2.
     public async Task<Response> DeleteIndexAsync(bool isNext)
     {
         var client = GetSearchIndexClient(isNext);

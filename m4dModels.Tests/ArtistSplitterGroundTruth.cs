@@ -10,7 +10,7 @@ namespace m4dModels.Tests;
 
 /// <summary>
 /// Manual-only accuracy sample for ArtistSplitter, measured against Spotify's structured
-/// <c>track.artists[]</c> lists (architecture/artist-index-plan.md §6.3). Needs the network and
+/// <c>track.artists[]</c> lists (architecture/individual-artists.md §4.2). Needs the network and
 /// dev Spotify credentials, so it is skipped unless both an index backup and credentials are
 /// configured:
 /// <list type="bullet">

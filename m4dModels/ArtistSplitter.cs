@@ -51,7 +51,7 @@ public record ArtistSplit(
 /// <summary>
 /// Heuristically splits a song's single <c>Artist</c> credit (plus any "feat." clause in its
 /// title) into individual artists. Pure and dependency free so it can run in unit tests, over an
-/// index backup file, and in the song save pipeline. See architecture/artist-index-plan.md §5.
+/// index backup file, and in the song save pipeline. See architecture/individual-artists.md §3.
 /// </summary>
 public static class ArtistSplitter
 {

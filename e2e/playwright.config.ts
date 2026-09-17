@@ -55,7 +55,12 @@ export default defineConfig({
   webServer: externalSandboxUrl
     ? undefined
     : {
-        command: "dotnet run --project ../m4d.Sandbox --no-launch-profile",
+        // -p:BaseOutputPath redirects the build to local/build-out, the same escape hatch
+        // CLAUDE.md documents for `Server: Build (Unlocked)`. m4d.Sandbox references m4d, so
+        // without it this rebuild collides with a running dev server's locked bin/*.dll and the
+        // whole run dies before a single test starts. Harmless when no dev server is up.
+        command:
+          "dotnet run --project ../m4d.Sandbox --no-launch-profile -p:BaseOutputPath=local/build-out/",
         url: `http://localhost:${port}`,
         reuseExistingServer: !process.env.CI,
         // Seeding ~400 songs and building SongIndexLocal at startup, plus dotnet run's own

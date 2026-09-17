@@ -8,7 +8,7 @@ namespace m4dModels.Tests;
 internal record CorpusSong(Guid SongId, string Title, string Artist, string SpotifyTrackId);
 
 /// <summary>
-/// Loads an index backup for the manual artist analyses (see architecture/artist-index-plan.md §6).
+/// Loads an index backup for the manual artist analyses (see architecture/individual-artists.md §12).
 /// Shared so the accuracy sample and the report harness always replay a backup line the same way.
 /// </summary>
 internal static class ArtistAnalysisCorpus

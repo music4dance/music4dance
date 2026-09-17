@@ -31,7 +31,7 @@ public class SongController : ContentController
 
     /// <summary>
     /// Below this many songs an artist page is too thin to be worth a search engine's index. See
-    /// architecture/artist-index-plan.md §11.5: about 27,000 of the ~32,500 individual artists
+    /// architecture/individual-artists.md §9.3: about 27,000 of the ~32,500 individual artists
     /// have fewer than five songs.
     /// </summary>
     private const int MinimumSongsToIndexArtist = 5;

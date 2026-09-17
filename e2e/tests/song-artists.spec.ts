@@ -5,7 +5,7 @@ import { artistLinks, contentHeading, findSplitSong } from "../fixtures/artists"
 
 // Individual artists on the song-details page: the credit renders verbatim with each derived
 // artist linked inside it (ArtistCredit.vue), and privileged users can correct the derived list
-// (ArtistsEditor.vue). See architecture/artist-index-plan.md §10.
+// (ArtistsEditor.vue). See architecture/individual-artists.md §8.
 test("links each individual artist inside the credit", async ({ page }) => {
   const song = await findSplitSong(page);
   await page.goto(song);
@@ -21,8 +21,8 @@ test("links each individual artist inside the credit", async ({ page }) => {
   await expect(contentHeading(page, 1)).toContainText(name);
 });
 
-test("edits and restores the individual artist list", async ({ page }) => {
-  await login(page, "admin");
+test("edits and restores the individual artist list as a canEdit account", async ({ page }) => {
+  await login(page, "editor");
 
   const song = await findSplitSong(page);
   await page.goto(song);
@@ -56,41 +56,26 @@ test("edits and restores the individual artist list", async ({ page }) => {
   await expect(artistLinks(page)).toHaveCount(before);
 });
 
-// The credit itself used to be dbAdmin-only and now names canEdit as well. The seeded admin has
-// both roles, so this only checks the field is editable at all - see the canTag note below for
-// why the canEdit-only account can't be used to tell the two apart yet.
-test("exposes the artist credit as an editable field", async ({ page }) => {
-  await login(page, "admin");
+// canEdit opens the Artist credit but not the Title, which is still dbAdmin-only - the seeded
+// "editor" account holds canEdit and nothing else, so it tells those two apart.
+test("lets a canEdit account edit the credit but not the title", async ({ page }) => {
+  await login(page, "editor");
 
   const song = await findSplitSong(page);
   await page.goto(song);
   await page.getByRole("button", { name: "Edit", exact: true }).click();
 
   await expect(page.locator('input[data-field-name="Artist"]')).toBeVisible();
+  await expect(page.locator('input[data-field-name="Title"]')).toBeHidden();
 });
 
-// Current behaviour, not necessarily the desired one: the edit/save button column is gated on
-// `editing || context.canTag` (SongCore.vue), so the seeded "editor" account - canEdit and
-// nothing else - has no way into song editing at all, and the Artist/Artists editors it is now
-// permitted to use stay out of reach. If that gate is widened to include canEdit, this test
-// should fail, and the two tests above should be rewritten to drive the editor account instead.
-test("a canEdit-only account has no way into song editing", async ({ page }) => {
-  await login(page, "editor");
-
-  const song = await findSplitSong(page);
-  await page.goto(song);
-
-  await expect(page.getByRole("button", { name: "Edit", exact: true })).toBeHidden();
-  await expect(page.locator('[data-edit-target="song-artists"]')).toBeHidden();
-});
-
-test("shows an ordinary user the artist links but no editing", async ({ page }) => {
+test("shows an ordinary user the artist links but no way to edit them", async ({ page }) => {
   await login(page, "tester");
 
   const song = await findSplitSong(page);
   await page.goto(song);
 
   await expect(artistLinks(page).first()).toBeVisible();
-  await expect(page.locator('input[data-field-name="Artist"]')).toBeHidden();
+  await expect(page.getByRole("button", { name: "Edit", exact: true })).toBeHidden();
   await expect(page.locator('[data-edit-target="song-artists"]')).toBeHidden();
 });

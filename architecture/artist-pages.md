@@ -2,30 +2,43 @@
 
 ## Overview
 
-The Artist page shows every song whose `Artist` field exactly matches a given string, along with a
-per-dance breakdown of how many of those songs are rated for each dance. It's a read-only,
-anonymous-accessible page reached at `/song/artist?name={artist}` — most often via an artist-name
-link rendered elsewhere in the app (song tables, song detail, album page).
+The Artist page shows every song by a given artist, along with a per-dance breakdown of how many of
+those songs are rated for each dance. It's a read-only, anonymous-accessible page reached at
+`/song/artist?name={artist}` — most often via an artist-name link rendered elsewhere in the app
+(song tables, song detail, album page).
 
-There is no artist entity in the domain model — an "artist page" is just a filtered song list keyed
-off the literal string stored in `Song.Artist`. Two artists credited together (`"Dolly Parton"` vs.
-`"Dolly Parton & Kenny Rogers"`) are unrelated strings as far as this page is concerned; see
-[[song-filter]] for the separate, tokenized search path that can approximate a broader match.
+There is still no artist entity in the domain model — an "artist page" is a filtered song list keyed
+off a string. **What that string is matched against depends on the `ArtistIndex` feature flag:**
+
+| Flag | Matches |
+| ---- | ------- |
+| Off | The whole `Artist` credit, as a phrase. `"Dolly Parton"` does not match `"Dolly Parton & Kenny Rogers"`. |
+| On | The song's **individual artists** — the derived `Artists` list — so collaborations, featured credits and leader-of-a-band credits all appear. |
+
+How that list is derived, stored and matched is covered in
+[individual-artists.md](individual-artists.md); this document covers the page itself.
 
 ## Server-Side Wiring
 
 - **Route**: no `[Route]` attribute — resolved by the default MVC route
-  (`{controller=Home}/{action=Index}/{id?}`, `m4d/Configuration/M4dApplicationExtensions.cs:871-873`)
-  to `SongController.Artist(string name)`. `name` is a plain query-string parameter, not a path
-  segment or route value, so the URL is always `/song/artist?name=...` (or `/song/artist/?name=...`).
-- **Controller action** — `m4d/Controllers/SongController.cs:878-897`:
+  (`{controller=Home}/{action=Index}/{id?}`) to `SongController.Artist(string name)`. `name` is a
+  plain query-string parameter, not a path segment, so the URL is always `/song/artist?name=...`.
+- **Controller action** — `m4d/Controllers/SongController.cs`:
 
   ```csharp
   [AllowAnonymous]
   public async Task<ActionResult> Artist(string name)
   {
       ...
-      var model = await ArtistViewModel.Create(name, Mapper, DefaultCruftFilter(), Database);
+      var model = await ArtistViewModel.Create(
+          name, Mapper, DefaultCruftFilter(), Database,
+          await FeatureManager.IsEnabledAsync(FeatureFlags.ArtistIndex));
+
+      if (model.Histories.Count < MinimumSongsToIndexArtist)
+      {
+          ViewData["Robots"] = "noindex, follow";
+      }
+
       return Vue3($"Artist: {name}", $"Songs for dancing by {name}", "artist", model, danceEnvironment: true);
   }
   ```
@@ -34,78 +47,88 @@ off the literal string stored in `Song.Artist`. Two artists credited together (`
   `danceEnvironment: true` makes the generic `Vue3.cshtml` host view emit `window.danceDatabaseJson`
   so the client can compute the per-dance breakdown without a second round trip.
 
-- **View model** — `ArtistViewModel.Create` (`m4d/ViewModels/ArtistViewModel.cs:12-27`) does the
-  actual lookup:
+  Splitting credits turned one artist page into roughly 32,500, most of them a single song. Pages
+  under five songs ask crawlers to follow but not index them — see
+  [individual-artists.md §9.3](individual-artists.md#93-crawlers-and-seo).
+
+- **View model** — `ArtistViewModel.Create` (`m4d/ViewModels/ArtistViewModel.cs`) does the lookup,
+  capped at 500 songs and filtered by the caller's default cruft setting (hides withdrawn/cruft
+  songs for anonymous/non-admin users).
+
+- **Song lookup** — `SongIndex.FindArtist`:
 
   ```csharp
-  var list = (await dms.SongIndex.FindArtist(name, cruft)).Take(500);
-  ```
-
-  capped at 500 songs, filtered by the caller's default cruft setting (hides withdrawn/cruft songs
-  for anonymous/non-admin users).
-
-- **Song lookup — exact/phrase match, not substring** — `SongIndex.FindArtist` /
-  `FindByField` (`m4dModels/SongIndex.cs:1274-1287`):
-
-  ```csharp
-  public virtual async Task<IEnumerable<Song>> FindArtist(string name, CruftFilter cruft = CruftFilter.NoCruft)
-      => await FindByField(Song.ArtistField, name, "dance_ALL/Votes desc", cruft);
-
-  public async Task<IEnumerable<Song>> FindByField(string field, string name, string sort = null, CruftFilter cruft = CruftFilter.NoCruft)
+  public virtual async Task<IEnumerable<Song>> FindArtist(string name,
+      CruftFilter cruft = CruftFilter.NoCruft, bool individualArtists = false)
   {
-      var options = new SearchOptions();
-      options.SearchFields.Add(field);
-      options.OrderBy.Add(sort);
-      return await SongsFromAzureResult(await DoSearch($"\"{name}\"", options, cruft));
+      if (individualArtists && await HasArtistsFieldAsync())
+      {
+          var songs = await FindIndividualArtist(name, cruft);
+          if (songs.Count > 0)
+          {
+              return songs;
+          }
+      }
+
+      return await FindByField(Song.ArtistField, name, "dance_ALL/Votes desc", cruft);
   }
   ```
 
-  The name is quoted and searched only against the `Artist` field with Azure Cognitive Search's
-  default **Simple** query type, so a quoted string is a phrase match after analysis — effectively
-  exact-string matching. There is no `Contains`/`LIKE`/wildcard behavior here: `"Dolly Parton"` will
-  not match a song credited to `"Dolly Parton & Kenny Rogers"`.
+  `FindIndividualArtist` runs an analyzed phrase search against the `Artists` collection and then
+  post-filters each song on `ArtistSplitter.ArtistKey`, so matching is case- and
+  diacritic-insensitive and a name inside a longer name (`Tony Evans` within `Tony Evans and His
+  Orchestra`) is rejected. Finding nothing falls through to the credit search, so the page degrades
+  rather than breaking — which is also what happens for every song the backfill hasn't reached.
+
+  In that fallback the name is quoted and searched only against the `Artist` field with Azure AI
+  Search's default **Simple** query type, so a quoted string is a phrase match after analysis —
+  effectively exact-string matching, with no `Contains`/`LIKE`/wildcard behaviour.
 
 ## Client-Side Rendering
 
 - `m4d/ClientApp/src/pages/artist/App.vue` parses the server-serialized model
-  (`TypedJSON.parse(model_, ArtistModel)`, line 12) — the songs are already fetched server-side;
-  there is no client-side data fetch for the song list itself.
-- `ArtistModel` (`m4d/ClientApp/src/models/ArtistModel.ts:5-7`) extends `SongListModel` and adds
+  (`TypedJSON.parse(model_, ArtistModel)`) — the songs are already fetched server-side; there is no
+  client-side fetch for the song list.
+- `ArtistModel` (`m4d/ClientApp/src/models/ArtistModel.ts`) extends `SongListModel` and adds
   `artist: string`.
-- The song list renders via the shared `SongTable` component
-  (`m4d/ClientApp/src/components/SongTable.vue`), with the `artist` column hidden since every row
-  shares the same value (`App.vue:69-76`).
-- **Per-dance breakdown links**: `App.vue:44-49` builds, for each dance the returned songs are rated
-  for, a link to the tokenized/Lucene search path instead of the exact-match path:
+- The song list renders via the shared `SongTable` component. With the flag **off** the `artist`
+  column is hidden, since every row shares the same value; with it **on** the column stays, because
+  rows now differ — a collaboration shows its full credit with each individual artist linked.
+- **Collaborators**: with the flag on, the page lists the other artists appearing on these songs,
+  computed client-side from the returned songs' `effectiveArtists` (`collaborators` in
+  `ArtistNames.ts`) — no extra query — and links on to the browsable index at `/song/artists`.
+- **Per-dance breakdown links**: for each dance the returned songs are rated for, a link to the
+  tokenized/Lucene search path rather than the exact-match path:
 
   ```ts
   KeywordQuery.fromParts(new Map([["Artist", artist]]));
   ```
 
-  fed into a `SongFilter` and linked as `/song/filtersearch?filter=...`. This is the one place the
-  Artist page already departs from exact matching — see [[song-filter]] for what that search type
-  actually does (word/token-level match via Azure Lucene `QueryType.Full`, still not a raw
-  character-substring match).
+  fed into a `SongFilter` and linked as `/song/filtersearch?filter=...`. See [[song-filter]] for
+  what that search type actually does (word/token match via Azure Lucene `QueryType.Full`, still
+  not a raw character-substring match).
 
 ## Where Artist-Page Links Are Generated
 
-Several components link to `/song/artist?name={artist}` from elsewhere in the site; these are the
-templates for any new artist-related link:
+Use `artistPageUrl(name)` from `m4d/ClientApp/src/models/ArtistNames.ts` for new links rather than
+building the query string by hand.
 
-- `m4d/ClientApp/src/components/SongTable.vue:273-275` — `artistRef(song)`
-- `m4d/ClientApp/src/pages/song/components/SongCore.vue:114-117` — `artistLink` computed
-- `m4d/ClientApp/src/pages/album/App.vue:13` — `artistRef` computed
+- `m4d/ClientApp/src/components/ArtistCredit.vue` — renders a credit with each individual artist
+  linked inside it, falling back to linking the whole credit when the flag is off or the song has
+  no derived list. This is what song tables and song detail use.
+- `m4d/ClientApp/src/components/SongTable.vue` — `ArtistCredit` when the flag is on, `artistRef`
+  otherwise.
+- `m4d/ClientApp/src/pages/album/App.vue` — still builds its own URL for the album's credit.
 
-All three build the URL manually (`` `/song/artist/?name=${encodeURIComponent(song.artist)}` ``)
-since it's a plain query string, not a `SongFilter`-encoded route — the "don't hand-build filter
-strings" rule in `CLAUDE.md` applies to `SongFilter`/`KeywordQuery`/`DanceQueryItem`/tag strings,
-not this simple one-parameter route.
+## Known Limitations
 
-## Known Limitation
-
-Because matching is exact-string on the literal `Artist` field, the Artist page cannot find
-collaborations, featured-artist credits, or alternate creditings of the same performer. The
-tokenized `filtersearch` path (`KeywordQuery.fromParts` → `Artist:(...)` Lucene query) used for the
-per-dance breakdown links is the closest existing broader-match mechanism in the codebase, and is
-the natural building block for a "search all songs mentioning this artist" link. See
-[[song-filter]] for how that query type is compiled and what it does and doesn't match.
+- **Only what the credit named.** Individual artists come from the credit string and the title's
+  `feat.` clause, so a collaborator neither mentions is invisible — about 80% of the collaborations
+  Spotify knows about, see
+  [individual-artists.md §4.3](individual-artists.md#43-the-ceiling).
+- **Spelling variants are separate artists.** `ArtistKey` folds case and diacritics, so
+  `Michael Bublé` and `Michael Buble` share a page; `P!nk` and `Pink` do not.
+- **Capped** at 1,000 songs by the individual-artist query and 500 by the view model. The most
+  prolific artist in the corpus has 356.
+- With the flag **off**, the original limitation stands in full: exact-string matching on `Artist`
+  finds no collaborations, featured credits or alternate creditings at all.

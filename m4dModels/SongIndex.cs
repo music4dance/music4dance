@@ -1659,7 +1659,7 @@ public class SongIndex
 
     /// <summary>
     /// How many documents actually carry an Artists value, against the whole index. This is the
-    /// rollout's verification step (architecture/artist-index-plan.md §8.4): after a backfill every
+    /// rollout's verification step (architecture/individual-artists.md §6.3): after a backfill every
     /// song with a credit should have one, and a shortfall means documents were uploaded by an
     /// instance whose schema cache still said the field was absent (the §7.4 trap). Returns nulls
     /// when the field isn't there yet.
@@ -1680,7 +1680,7 @@ public class SongIndex
     /// <summary>
     /// What this instance believes about the Artists field, and when it will look at the live
     /// schema again. For the admin display only: the rollout adds the field to the index and then
-    /// waits for every instance to notice (architecture/artist-index-plan.md §7.4), and this makes
+    /// waits for every instance to notice (architecture/individual-artists.md §5.3), and this makes
     /// that wait visible.
     /// </summary>
     public virtual async Task<(bool Present, DateTime? RefreshesAt)> ArtistsFieldStatusAsync() =>
@@ -1939,7 +1939,7 @@ public class SongIndex
                     IsFacetable = false
                 },
                 // Added in place to existing indexes (AddMissingIndexFields) - code must tolerate
-                // its absence; see HasArtistsFieldAsync and architecture/artist-index-plan.md §7
+                // its absence; see HasArtistsFieldAsync and architecture/individual-artists.md §5
                 new(
                     Song.ArtistsField, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {

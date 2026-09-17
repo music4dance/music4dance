@@ -111,6 +111,11 @@ const modified = computed(() => {
   return value;
 });
 
+// Who gets the Edit button at all. canEdit belongs here alongside canTag: without it an account
+// can be permitted to change a field (the Artist credit, the individual artist list) and still
+// have no way to reach the editor.
+const canOpenEditor = computed(() => context.canTag || context.canEdit);
+
 const canEditArtists = computed(
   () => !!context.artistIndex && (context.isAdmin || context.canEdit || isCreator.value),
 );
@@ -399,7 +404,7 @@ onBeforeUnmount(() => {
           @update-artists="updateArtists"
         />
       </BCol>
-      <BCol v-if="editing || context.canTag" cols="auto">
+      <BCol v-if="editing || canOpenEditor" cols="auto">
         <span v-if="context.isAdmin">
           <BButton
             v-if="!context.isProduction"

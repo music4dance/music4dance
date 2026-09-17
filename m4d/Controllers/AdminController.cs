@@ -463,7 +463,7 @@ public class AdminController(
     //
     // POST: /Admin/BatchArtists
     // Runs ArtistSplitter over every song in the named index (see
-    // architecture/artist-index-plan.md §8). Every mode first creates the artist-bot pseudo user,
+    // architecture/individual-artists.md §6). Every mode first creates the artist-bot pseudo user,
     // which also switches on the artist splitter in the song save hook. Modes:
     //   Report     - no song writes; logs what would change
     //   Apply      - appends artist-bot edits where the individual artists change and re-saves
@@ -811,7 +811,7 @@ public class AdminController(
     public async Task<ActionResult> InitializationTasks()
     {
         // Per-index Artists field state, so the rollout's "add the field, then wait for every
-        // instance to see it" step (artist-index-plan.md §7.4) is visible on the page that runs it
+        // instance to see it" step (individual-artists.md §5.3) is visible on the page that runs it
         var artistsField = new Dictionary<string, (bool Present, DateTime? RefreshesAt)>();
         var artistsCoverage = new Dictionary<string, (long Total, long? WithArtists)>();
         foreach (var id in Database.SearchService.GetAvailableIds())

@@ -107,7 +107,8 @@ These fields hold a single value; later writes by non-pseudo users win.
 | Name           | Type    | Notes                                                                                 |
 | -------------- | ------- | ------------------------------------------------------------------------------------- |
 | `Title`        | string  | Song title. Required — a song without a title is considered null/deleted              |
-| `Artist`       | string  | Performing artist                                                                     |
+| `Artist`       | string  | Performing artist, as credited                                                        |
+| `Artists`      | string  | The credit's individual artists, pipe-delimited and ordered (see below)               |
 | `Tempo`        | decimal | Beats per minute, stored as `F1` (one decimal place, e.g. `120.0`). Valid range 5–500 |
 | `Length`       | int     | Duration in seconds                                                                   |
 | `Sample`       | string  | URL of audio sample. Value `.` means "explicitly no sample"                           |
@@ -118,6 +119,31 @@ These fields hold a single value; later writes by non-pseudo users win.
 **Bot override rule**: When loading properties, scalar field writes by pseudo users (`|P`) are
 silently ignored if the same field was already set by a real (non-pseudo) user. This means human
 edits always take precedence over service-imported metadata.
+
+#### `Artists`
+
+`Artist` is the credit exactly as written; `Artists` is the list of individual performers derived
+from it, so `Artist=Pitbull feat. Ne-Yo` gets `Artists=Pitbull|Ne-Yo`. It is one pipe-delimited
+scalar rather than an add/remove field because the list is ordered (primary artist first) and is
+always replaced as a unit.
+
+An empty value (`Artists=`) clears the list. Most songs never carry the property at all; consumers
+read `Song.EffectiveArtists`, which falls back to the cleaned credit.
+
+Replay derives `Song.ArtistsSource` from who wrote it, which is what decides whether the heuristic
+may recompute it:
+
+| Source | Written by | Recomputed? |
+| ------ | ---------- | ----------- |
+| `User` | any real user | No |
+| `Service` | a `batch-*` pseudo user | No |
+| `Heuristic` | `artist-bot` | Yes |
+
+A later write that changes the **cleaned** `Artist` credit clears a derived list, since it was
+computed from the old credit. A write that leaves the cleaned credit identical does not — services
+rewrite `Artist` with the same value routinely.
+
+Full description: [individual-artists.md](individual-artists.md).
 
 ### 3.2 Add/Remove Fields and the `+`/`-` Convention
 
@@ -387,8 +413,12 @@ Key behaviors of pseudo users:
 
 ### 5.3 Batch / Algorithmic Users
 
-Batch and algorithmic users (`batch-*`, `tempo-bot`) are **excluded** from the default
-`userChanges` history view and from the `humanOnly` history filter.
+Batch and algorithmic users (`batch-*`, `tempo-bot`, `artist-bot`) are **excluded** from the
+default `userChanges` history view and from the `humanOnly` history filter.
+
+`artist-bot` writes only the `Artists` property, from the credit-splitting heuristic. It is created
+on demand by **Admin -> BatchArtists**, and the save hook that writes as it stays dormant until the
+account exists - so deploying that code changes nothing until someone runs the batch.
 
 `batch|P` is additionally considered "invalid" if it carries a `DanceRating` property
 (`ChunkedSong.HasInvalidBatch()`). Dance ratings from `batch|P` blocks are removed during catalog

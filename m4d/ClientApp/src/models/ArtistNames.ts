@@ -1,7 +1,7 @@
 /**
  * Client-side counterparts of m4dModels/ArtistSplitter.cs helpers for the Artists song property
  * (an ordered, pipe-delimited list of individual artists). The splitting heuristic itself only
- * runs on the server. See architecture/artist-index-plan.md.
+ * runs on the server. See architecture/individual-artists.md.
  */
 
 export const ARTISTS_DELIMITER = "|";

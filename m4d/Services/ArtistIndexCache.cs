@@ -5,7 +5,7 @@ namespace m4d.Services;
 /// one streaming pass over the search index, which is too slow to do inside a request, so builds
 /// always run in the background: callers wait briefly for a first build and otherwise get null
 /// ("still building"), and once a snapshot is older than <see cref="Lifetime"/> they keep getting
-/// it while a rebuild runs. See architecture/artist-index-plan.md §11.2.
+/// it while a rebuild runs. See architecture/individual-artists.md §9.2.
 /// </summary>
 public class ArtistIndexCache(ILogger<ArtistIndexCache> logger)
 {

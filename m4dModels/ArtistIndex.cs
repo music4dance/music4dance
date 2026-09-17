@@ -8,7 +8,7 @@ public record ArtistIndexBucket(string Bucket, int Artists);
 /// Snapshot of every individual artist in the catalog with a song count, grouped by
 /// <see cref="ArtistSplitter.ArtistKey"/> (so case and diacritic variants merge, displayed with the
 /// most common spelling) and bucketed A-Z for browsing. Built from one streaming pass over the
-/// index and cached - see architecture/artist-index-plan.md §11.
+/// index and cached - see architecture/individual-artists.md §9.
 /// </summary>
 public class ArtistIndex
 {

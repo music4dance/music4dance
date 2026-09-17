@@ -227,7 +227,7 @@ public class Song : TaggableObject
     public const string TitleField = "Title";
     public const string ArtistField = "Artist";
     // Ordered, pipe-delimited individual artists derived from Artist - see ArtistSplitter and
-    // architecture/artist-index-plan.md
+    // architecture/individual-artists.md
     public const string ArtistsField = "Artists";
     public const string TempoField = "Tempo";
     public const string LengthField = "Length";

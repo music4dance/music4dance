@@ -322,7 +322,7 @@ export class SongEditor {
 
   /**
    * Set the song's individual artists. An empty list (or undefined) hands the list back to the
-   * automatic splitter; see architecture/artist-index-plan.md §4.
+   * automatic splitter; see architecture/individual-artists.md §2.
    */
   public setArtists(artists?: string[]): SongProperty {
     return this.modifyProperty(PropertyType.artistsField, serializeArtists(artists ?? []));

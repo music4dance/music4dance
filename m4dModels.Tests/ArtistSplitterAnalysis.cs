@@ -9,7 +9,7 @@ namespace m4dModels.Tests;
 /// (/Admin/IndexBackup -> local/index-YYYY-MM-DD.txt). Skipped unless
 /// M4D_ARTIST_ANALYSIS_INDEX points at a backup file. Writes TSV/Markdown reports to
 /// M4D_ARTIST_ANALYSIS_OUT (default: an "artist-analysis" folder next to the backup).
-/// See architecture/artist-index-plan.md §6.
+/// See architecture/individual-artists.md §12.
 /// </summary>
 [TestClass]
 public class ArtistSplitterAnalysis
