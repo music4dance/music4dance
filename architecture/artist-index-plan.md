@@ -677,7 +677,12 @@ void InvalidateSchemaCache();
   Service instances notice a newly added field without a restart.
 - If the schema can't be read, assume **absent**. That is the safe direction for the write path (see
   the trap below) and the read path falls back.
-- `AddIndexFields` invalidates the cache on the instance that ran it.
+- `AddIndexFields` invalidates the cache on the instance that ran it, as do
+  `CreateIndexAsync` / `CreateOrUpdateIndexAsync` / `DeleteIndexAsync`. That last group matters
+  more than it looks: **Reload the Index** resets an index and reloads it in one action, and
+  without invalidation the reload asks about the schema of the index that was just deleted. The
+  answer is cached for 10 minutes, so every uploaded document would omit `Artists` even though the
+  fresh index has the field.
 - **Admin → Initialization Tasks shows, per index, whether `Artists` is present and when this
   instance will re-read the schema**, plus the `ArtistIndex` flag state
   (`SongIndex.ArtistsFieldStatusAsync` / `SearchServiceInfo.SchemaCacheExpiry`). That turns step 4

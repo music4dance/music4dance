@@ -272,21 +272,27 @@ public class SearchServiceInfo(string id, int version, string name,
     public DateTime? SchemaCacheExpiry(bool isNext) =>
         _schemaCache.TryGetValue(GetVersionedName(isNext), out var cached) ? cached.ExpiresAt : null;
 
+    // Every method below changes the live schema, so each drops the cached view of it. Without
+    // this, resetting an index and immediately reloading it reads a pre-reset answer and uploads
+    // documents that omit fields the new index actually has - see artist-index-plan.md §7.4.
     public async Task<Response> DeleteIndexAsync(bool isNext)
     {
         var client = GetSearchIndexClient(isNext);
+        InvalidateSchemaCache();
         return await client.DeleteIndexAsync(GetVersionedName(isNext), CancellationToken.None);
     }
 
     public async Task<Response<SearchIndex>> CreateIndexAsync(SearchIndex index, bool isNext)
     {
         var client = GetSearchIndexClient(isNext);
+        InvalidateSchemaCache();
         return await client.CreateIndexAsync(index);
     }
 
     public async Task<Response<SearchIndex>> CreateOrUpdateIndexAsync(SearchIndex index, bool isNext)
     {
         var client = GetSearchIndexClient(isNext);
+        InvalidateSchemaCache();
         return await client.CreateOrUpdateIndexAsync(index);
     }
     public bool HasNextVersion => HasVersion(manager.CodeVersion + 1);
