@@ -898,6 +898,29 @@ public class SongController : ContentController
     }
 
     //
+    // GET: /Song/Artists?letter=B&q=bub&all=true
+    // Browsable index of individual artists (ArtistIndex feature flag)
+    [AllowAnonymous]
+    public async Task<ActionResult> Artists(
+        [FromServices] ArtistIndexCache artistIndexCache, string letter = null, string q = null, bool all = false)
+    {
+        var spider = CheckSpiders();
+        if (spider != null)
+        {
+            return spider;
+        }
+
+        if (!await FeatureManager.IsEnabledAsync(FeatureFlags.ArtistIndex))
+        {
+            return ReturnError(HttpStatusCode.NotFound, "The artist index isn't available yet.");
+        }
+
+        var index = await artistIndexCache.GetAsync(Database);
+        var model = ArtistIndexModel.Create(index, letter, q, all ? 1 : 2);
+        return Vue3("Artists", "Browse the artists behind songs for dancing", "artist-index", model);
+    }
+
+    //
     // GET: /Song/Add
     [AllowAnonymous]
     public ActionResult Augment(string title = null, string artist = null, string id = null, string dance = null)

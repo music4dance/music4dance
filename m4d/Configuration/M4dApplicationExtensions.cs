@@ -505,6 +505,8 @@ public static class M4dApplicationExtensions
         services.AddSingleton<m4d.Security.RateLimitingTracker>();
         services.AddSingleton<m4d.Security.Http4xxTracker>();
 
+        services.AddSingleton<m4d.Services.ArtistIndexCache>();
+
         services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
         services.AddHostedService<BackgroundQueueHostedService>();
 

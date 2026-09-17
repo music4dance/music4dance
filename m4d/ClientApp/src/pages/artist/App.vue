@@ -96,6 +96,9 @@ const danceCount = (dance: DanceType) => {
       <a :href="'/song/filtersearch?filter=' + artistSearchFilter().query">
         Search all songs with "{{ model.artist }}" in the artist field
       </a>
+      <template v-if="individualArtists">
+        &middot; <a href="/song/artists">Browse all artists</a>
+      </template>
     </p>
     <SongTable
       :histories="histories"

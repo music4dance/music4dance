@@ -1744,6 +1744,75 @@ public class SongIndex
     }
 
     /// <summary>
+    /// Streams each song's individual artists (the indexed Artists field when present and
+    /// populated, otherwise the cleaned credit) using key-set pagination, for building the
+    /// <see cref="ArtistIndex"/> snapshot.
+    /// </summary>
+    public virtual async IAsyncEnumerable<IReadOnlyList<string>> StreamSongArtistsAsync(
+        CruftFilter cruft = CruftFilter.NoCruft,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        const int pageSize = 1000;
+        var hasArtists = await HasArtistsFieldAsync();
+
+        DateTimeOffset? lastModified = null;
+        string lastId = null;
+        var hasMore = true;
+
+        while (hasMore)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var parameters = new SearchOptions { Size = pageSize, IncludeTotalCount = false };
+            parameters.OrderBy.Add($"{ModifiedField} desc");
+            parameters.OrderBy.Add($"{SongIdField} desc");
+            parameters.Select.AddRange([SongIdField, ModifiedField, Song.ArtistField]);
+            if (hasArtists)
+            {
+                parameters.Select.Add(Song.ArtistsField);
+            }
+
+            if (lastModified != null && lastId != null)
+            {
+                var modifiedStr = lastModified.Value.ToString("o");
+                // Parenthesized: DoSearch prepends the cruft filter with "and"
+                parameters.Filter =
+                    $"(({ModifiedField} lt {modifiedStr}) or ({ModifiedField} eq {modifiedStr} and {SongIdField} lt '{lastId}'))";
+            }
+
+            var response = await DoSearch(null, parameters, cruft);
+
+            var batchCount = 0;
+            foreach (var result in response.GetResults())
+            {
+                var doc = result.Document;
+                lastModified = doc.GetDateTimeOffset(ModifiedField);
+                lastId = doc.GetString(SongIdField);
+                batchCount++;
+
+                if (hasArtists && doc.TryGetValue(Song.ArtistsField, out var value) &&
+                    value is IEnumerable<object> indexed)
+                {
+                    var artists = indexed.Select(a => a?.ToString()).Where(a => !string.IsNullOrWhiteSpace(a)).ToList();
+                    if (artists.Count > 0)
+                    {
+                        yield return artists;
+                        continue;
+                    }
+                }
+
+                var credit = ArtistSplitter.CleanName(doc.GetString(Song.ArtistField));
+                if (credit.Length > 0)
+                {
+                    yield return [credit];
+                }
+            }
+
+            hasMore = batchCount == pageSize;
+        }
+    }
+
+    /// <summary>
     /// Builds catalog-wide artist evidence from a light streaming pass over every song's Title and
     /// Artist - the same knowledge the analysis harness uses.
     /// </summary>

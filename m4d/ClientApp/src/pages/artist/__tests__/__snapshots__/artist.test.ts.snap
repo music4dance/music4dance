@@ -11,7 +11,9 @@ exports[`Artist > renders an artist page 1`] = `
         <!--v-if--></span>
       </p>
       <!--v-if-->
-      <p><a href="/song/filtersearch?filter=v2-index---\`Artist:(Ricky Martin)"> Search all songs with "Ricky Martin" in the artist field </a></p>
+      <p><a href="/song/filtersearch?filter=v2-index---\`Artist:(Ricky Martin)"> Search all songs with "Ricky Martin" in the artist field </a>
+        <!--v-if-->
+      </p>
       <div data-v-a7ef304f="">
         <table data-v-a7ef304f="" id="BootstrapVueNext__ID__v-0__" class="table b-table table-borderless table-hover table-striped" aria-busy="false">
           <!---->

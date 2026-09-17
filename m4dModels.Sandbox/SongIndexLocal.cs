@@ -191,6 +191,19 @@ public class SongIndexLocal : SongIndex
             [.. matches.OrderByDescending(s => s.DanceRatings.Sum(dr => dr.Weight))]);
     }
 
+    public override async IAsyncEnumerable<IReadOnlyList<string>> StreamSongArtistsAsync(
+        CruftFilter cruft = CruftFilter.NoCruft,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        foreach (var song in _songStore.Values.Where(s => !s.IsNull && PassesCruft(s, cruft)).ToList())
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            yield return song.EffectiveArtists;
+        }
+
+        await Task.CompletedTask;
+    }
+
     /// <summary>
     /// Evidence for ambiguous artist splits from the in-memory store instead of an index facet query.
     /// </summary>
