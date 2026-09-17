@@ -46,7 +46,9 @@ public class ArtistSplitterTests
     [DataRow("Delano Weltevreden (feat. Carin Verhoeven)", "Delano Weltevreden|Carin Verhoeven")]
     [DataRow("B.o.B. w/ Bruno Mars", "B.o.B.|Bruno Mars")]
     [DataRow("Duke Ellington and His Cotton Club Orchestra feat. Teddy Bunn", "Duke Ellington|Teddy Bunn")]
-    [DataRow("Featuring Hilary Alexander Jonathan Stout", "Featuring Hilary Alexander Jonathan Stout")]
+    // A leading role marker isn't part of a name. Two names with nothing between them can't be
+    // told apart, so this one stays glued; dropping "Featuring" is still the better answer.
+    [DataRow("Featuring Hilary Alexander Jonathan Stout", "Hilary Alexander Jonathan Stout")]
     public void ArtistFeaturing(string artist, string expected)
     {
         AssertSplit(artist, null, null, expected);
@@ -151,6 +153,10 @@ public class ArtistSplitterTests
     [DataRow("Teddy Wilson And His Orchestra With Billie Holliday", "Teddy Wilson|Billie Holliday")]
     [DataRow("Benny Goodman & His Orchestra; Vocal By Helen Forrest", "Benny Goodman|Helen Forrest")]
     [DataRow("Alan Campbell, Judy Kuhn, George Hearn & Orchestra", "Alan Campbell|Judy Kuhn|George Hearn")]
+    // A backing-group label is never an artist of its own, however the credit reaches it
+    [DataRow("Mitch Miller, His Orchestra And Chorus", "Mitch Miller")]
+    [DataRow("Hank Snow, The Singing Ranger, And His Rainbow Ranch Boys", "Hank Snow|The Singing Ranger")]
+    [DataRow("Count Basie & His Orchestra; With Lester Young", "Count Basie|Lester Young")]
     public void LeaderOfBackingGroup(string artist, string expected)
     {
         AssertSplit(artist, null, null, expected);

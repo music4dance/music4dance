@@ -203,7 +203,7 @@ public static class ArtistSplitter
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static readonly Regex LeadingConjunction = new(
-        @"^(?:&|and)\s+",
+        @"^(?:&|\+|and|with)\s+",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private const char MaskStart = '\uE000';
@@ -252,8 +252,8 @@ public static class ArtistSplitter
 
         var artists = names
             .Select(context.Unmask)
-            .Select(CleanName)
-            .Where(n => n.Length > 0 && !IsFiller(n))
+            .Select(FinalizeName)
+            .Where(n => n.Length > 0 && !IsFiller(n) && !IsBackingGroup(n))
             .DistinctBy(n => n.ToLowerInvariant())
             .ToList();
 
@@ -263,6 +263,28 @@ public static class ArtistSplitter
         }
 
         return new ArtistSplit(artists, [.. context.Rules.Distinct()], [.. context.Unresolved.Distinct()]);
+    }
+
+    /// <summary>
+    /// Last pass over one individual name: a role marker, conjunction or backing-group label the
+    /// segmenting left in front of it is not part of the artist's name. "Featuring Hilary
+    /// Alexander" is Hilary Alexander, "With Lester Young" is Lester Young, and "His Band Ross
+    /// Mitchell" is Ross Mitchell. A name that is nothing but such a label ("His Orchestra",
+    /// "Chorus") is dropped by the caller.
+    /// </summary>
+    private static string FinalizeName(string name)
+    {
+        var current = CleanName(name);
+        for (var previous = string.Empty; current != previous;)
+        {
+            previous = current;
+            current = RolePrefix.Replace(current, string.Empty);
+            current = LeadingConjunction.Replace(current, string.Empty);
+            current = LeadingGroupLabel.Replace(current, string.Empty);
+            current = CleanName(current);
+        }
+
+        return current;
     }
 
     /// <summary>
@@ -324,6 +346,32 @@ public static class ArtistSplitter
         ProtectedActs.Any(a => string.Equals(a, name, StringComparison.OrdinalIgnoreCase));
 
     private static bool IsFiller(string name) => Fillers.Contains(name);
+
+    private static List<string> Words(string text) =>
+        [.. CleanName(text).Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Select(w => w.Trim('.', ',', '\'', '"', '(', ')'))
+            .Where(w => w.Length > 0)];
+
+    /// <summary>
+    /// "His Orchestra", "all his Stars", "Orchestra & Singers", "the Orchestra".
+    /// </summary>
+    private static bool IsBackingGroup(string text)
+    {
+        var words = Words(text);
+        if (words.Count > 0 && string.Equals(words[0], "all", StringComparison.OrdinalIgnoreCase))
+        {
+            words.RemoveAt(0);
+        }
+
+        if (words.Count == 0)
+        {
+            return false;
+        }
+
+        return Possessives.Contains(words[0]) ||
+            words.Any(GenericEnsembleWords.Contains) &&
+            words.All(w => GenericEnsembleWords.Contains(w) || Articles.Contains(w) || JoinWords.Contains(w));
+    }
 
     private static IEnumerable<string> TitleFeaturedClauses(string title)
     {
@@ -657,32 +705,6 @@ public static class ArtistSplitter
 
         private static bool LooksLikeName(string text) =>
             IsMultiWord(text) && !Articles.Contains(FirstWord(text)) && !AmbiguousSeparator.IsMatch(text);
-
-        private static List<string> Words(string text) =>
-            [.. CleanName(text).Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                .Select(w => w.Trim('.', ',', '\'', '"', '(', ')'))
-                .Where(w => w.Length > 0)];
-
-        /// <summary>
-        /// "His Orchestra", "all his Stars", "Orchestra & Singers", "the Orchestra".
-        /// </summary>
-        private static bool IsBackingGroup(string text)
-        {
-            var words = Words(text);
-            if (words.Count > 0 && string.Equals(words[0], "all", StringComparison.OrdinalIgnoreCase))
-            {
-                words.RemoveAt(0);
-            }
-
-            if (words.Count == 0)
-            {
-                return false;
-            }
-
-            return Possessives.Contains(words[0]) ||
-                words.Any(GenericEnsembleWords.Contains) &&
-                words.All(w => GenericEnsembleWords.Contains(w) || Articles.Contains(w) || JoinWords.Contains(w));
-        }
 
         /// <summary>
         /// Splits the text after a join into the part that could be a backing group and whatever is

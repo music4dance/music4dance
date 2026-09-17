@@ -14,20 +14,18 @@ namespace m4dModels.Tests;
 [TestClass]
 public class ArtistSplitterAnalysis
 {
-    private const string IndexVariable = "M4D_ARTIST_ANALYSIS_INDEX";
     private const string OutputVariable = "M4D_ARTIST_ANALYSIS_OUT";
     private const string MinimumSongsVariable = "M4D_ARTIST_ANALYSIS_MIN_SONGS";
-
-    private record SongCredit(string Title, string Artist);
 
     [TestMethod]
     [TestCategory("Manual")]
     public void AnalyzeIndexBackup()
     {
-        var path = Environment.GetEnvironmentVariable(IndexVariable);
-        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+        var path = ArtistAnalysisCorpus.IndexPath;
+        if (path == null)
         {
-            Assert.Inconclusive($"Set {IndexVariable} to an index backup file to run this analysis.");
+            Assert.Inconclusive(
+                $"Set {ArtistAnalysisCorpus.IndexVariable} to an index backup file to run this analysis.");
             return;
         }
 
@@ -41,9 +39,9 @@ public class ArtistSplitterAnalysis
         var minimumSongs = int.TryParse(
             Environment.GetEnvironmentVariable(MinimumSongsVariable), out var m) ? m : 1;
 
-        var songs = File.ReadLines(path).Select(ParseLine).Where(s => s != null).ToList();
+        var songs = ArtistAnalysisCorpus.Load(path);
 
-        var knowledge = BuildKnowledge(songs, minimumSongs);
+        var knowledge = ArtistAnalysisCorpus.Knowledge(songs, minimumSongs);
         var results = songs
             .Select(s => (song: s, split: ArtistSplitter.Split(s.Artist, s.Title, knowledge)))
             .ToList();
@@ -55,64 +53,11 @@ public class ArtistSplitterAnalysis
         WriteCaseVariants(output, results);
     }
 
-    private static ArtistKnowledge BuildKnowledge(List<SongCredit> songs, int minimumSongs) =>
-        ArtistKnowledge.FromCredits(songs.Select(s => (s.Title, s.Artist)), minimumSongs);
-
-    /// <summary>
-    /// Effective Title/Artist from one backup line, applying the scalar rule that a pseudo-user
-    /// write never overrides a real user's.
-    /// </summary>
-    private static SongCredit ParseLine(string line)
-    {
-        var ich = Song.TryParseId(line, out _);
-        var properties = SongProperty.Load(ich > 0 ? line[ich..] : line);
-
-        string title = null;
-        string artist = null;
-        var userTitle = false;
-        var userArtist = false;
-        var pseudo = false;
-
-        foreach (var prop in properties)
-        {
-            switch (prop.BaseName)
-            {
-                case Song.UserField:
-                case Song.UserProxy:
-                    pseudo = prop.Value?.EndsWith("|P", StringComparison.OrdinalIgnoreCase) ?? false;
-                    break;
-                case Song.TitleField:
-                    if (!pseudo || !userTitle)
-                    {
-                        title = prop.Value;
-                        userTitle |= !pseudo;
-                    }
-                    break;
-                case Song.ArtistField:
-                    if (!pseudo || !userArtist)
-                    {
-                        artist = prop.Value;
-                        userArtist |= !pseudo;
-                    }
-                    break;
-                case Song.DeleteCommand:
-                    if (string.IsNullOrEmpty(prop.Value) ||
-                        string.Equals(prop.Value, "true", StringComparison.OrdinalIgnoreCase))
-                    {
-                        title = null;
-                    }
-                    break;
-            }
-        }
-
-        return string.IsNullOrWhiteSpace(title) ? null : new SongCredit(title, artist);
-    }
-
     private static string Tsv(params object[] values) =>
         string.Join('\t', values.Select(v => (v?.ToString() ?? "").Replace('\t', ' ')));
 
-    private static void WriteSummary(string output, List<SongCredit> songs,
-        List<(SongCredit song, ArtistSplit split)> results, int minimumSongs)
+    private static void WriteSummary(string output, List<CorpusSong> songs,
+        List<(CorpusSong song, ArtistSplit split)> results, int minimumSongs)
     {
         var split = results.Where(r => r.split.IsSplit(r.song.Artist)).ToList();
         var sb = new StringBuilder();
@@ -159,7 +104,7 @@ public class ArtistSplitterAnalysis
         File.WriteAllText(Path.Combine(output, "summary.md"), sb.ToString());
     }
 
-    private static void WriteSplits(string output, List<(SongCredit song, ArtistSplit split)> results)
+    private static void WriteSplits(string output, List<(CorpusSong song, ArtistSplit split)> results)
     {
         var lines = results
             .Where(r => r.split.IsSplit(r.song.Artist))
@@ -173,7 +118,7 @@ public class ArtistSplitterAnalysis
             [Tsv("songs", "artist", "result", "rules", "sample title"), .. lines]);
     }
 
-    private static void WriteUnresolved(string output, List<(SongCredit song, ArtistSplit split)> results)
+    private static void WriteUnresolved(string output, List<(CorpusSong song, ArtistSplit split)> results)
     {
         var lines = results
             .Where(r => r.split.Unresolved.Count > 0)
@@ -187,7 +132,7 @@ public class ArtistSplitterAnalysis
             [Tsv("songs", "artist", "unresolved", "result", "sample title"), .. lines]);
     }
 
-    private static void WriteArtists(string output, List<(SongCredit song, ArtistSplit split)> results)
+    private static void WriteArtists(string output, List<(CorpusSong song, ArtistSplit split)> results)
     {
         var lines = results
             .SelectMany(r => r.split.Artists)
@@ -199,7 +144,7 @@ public class ArtistSplitterAnalysis
         File.WriteAllLines(Path.Combine(output, "artists.tsv"), [Tsv("songs", "artist"), .. lines]);
     }
 
-    private static void WriteCaseVariants(string output, List<(SongCredit song, ArtistSplit split)> results)
+    private static void WriteCaseVariants(string output, List<(CorpusSong song, ArtistSplit split)> results)
     {
         var lines = results
             .SelectMany(r => r.split.Artists)

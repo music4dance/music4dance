@@ -102,12 +102,19 @@ These supersede the corresponding sections; fold them in when converting to an a
 
 ### 0.3 Phase 0 Findings (index backup 2026-09-16)
 
-**Splitter v2 (current):** 7,535 songs (7.2%) split from 3,929 distinct credits. By rule: title
+**Splitter v2 (current):** 7,538 songs (7.2%) split from 3,932 distinct credits. By rule: title
 feat 3,011 · leader 2,082 · evidence 852 · one known side 657 · named ensemble 407 · artist feat
 359 · comma list 352 · semicolon 339 · slash 33. `unresolved.tsv` went from 2,468 credits (v1) to
 1,318, and 904 of those aren't single-word duos. Most of the rest are genuine act names ("Belle &
 Sebastian") or leader-and-band credits where the leader has no songs of their own ("Nathaniel
 Rateliff & The Night Sweats").
+
+A final pass over each produced name (added after the §6.3 sample) strips a role marker,
+conjunction or backing-group label the segmenting left in front of it ("Featuring Hilary
+Alexander", "With Lester Young", "His Band Ross Mitchell") and drops a name that is nothing but
+such a label ("His Orchestra", "Chorus"). That removed every junk entry the corpus produced; the
+seven that remain are songs whose entire `Artist` field is one of those strings, where falling back
+to the credit is correct.
 
 **Splitter v1** (kept for comparison in `local/artist-analysis-v1/`):
 
@@ -128,7 +135,35 @@ From `local/artist-analysis/summary.md` (regenerate with the harness; see §6.2)
 - Case and diacritic variants are common ("Michael Bublé"/"Michael Buble", "Céline Dion"/"Celine
   Dion", `case-variants.tsv` has 535 groups), so key-based artist matching was pulled into the
   first cut.
-- A Spotify ground-truth sample (§6.3) was **not** run. It needs dev Spotify credentials.
+**Spotify ground-truth sample (§6.3), run 2026-09-17** — 1,600 distinct credits, from
+`local/artist-analysis/spotify-accuracy.md`:
+
+- **Agreement per rule runs 80-93% of credits** (77-97% song-weighted), counting exact matches plus
+  the cases where Spotify names the same act at a different length ("Duke Ellington & His
+  Orchestra" against our "Duke Ellington"). `(not split)` scores 97.4%, so we are not splitting
+  things we shouldn't.
+- **The `extra` column is not error.** All 57 sampled cases are Spotify being less complete than we
+  are: it credits only the lead artist of a `feat.` track (17 cases where our own title names the
+  collaborator), only one member of a comma list ("DJ Khaled, T-Pain, Ludacris, Rick Ross & Snoop
+  Dogg" → just DJ Khaled), or only the leader of a leader-and-band credit ("Tommy James & The
+  Shondells"). Counting those as agreement puts most rules above 95%.
+- **Only 21 of 1,600 credits are real misses**, and most of those are Spotify counting a remixer as
+  an artist. The 62 `differ` rows are overwhelmingly name variants, not splitting mistakes: our own
+  typos ("Antony Santos" for "Anthony Santos"), stylization Spotify spells differently ("P!nk",
+  "A$AP Ferg", "LØLØ", "98º" with a masculine ordinal for our degree sign), words in the wrong
+  order in our data ("Sweat Blood & Tears"), and tracks whose Spotify id points at a different
+  recording. Note that `Ø` survives the NFD fold in `ArtistKey`, which matters for §11.4.
+- **The one structural weakness is classical credits that glue an ensemble to a person with no
+  separator** ("Württemberg Philharmonic Orchestra and Jorge Rotter Aldo Antognazzi", where the
+  right side is two people). Splitting these needs a name dictionary, and they are 1-5 song
+  credits, so they are left alone.
+- **Recall is the real finding.** In an unbiased 400-credit sample, Spotify lists 2+ artists for
+  27.8% of credits (32.8% of songs), but **80% of those credits contain no separator at all** —
+  our `Artist` string simply never mentions the collaborator (Spotify says "J Balvin | Chencho
+  Corleone"; we have "J Balvin"). A separator-based heuristic can therefore only ever reach about a
+  fifth of the collaborations Spotify knows about, which it does: 18.9% of those credits, 9.1%
+  song-weighted. **Everything beyond that has to come from service data (§9.3), not a better
+  heuristic.**
 
 ### 0.4 Rollout Runbook
 
@@ -160,6 +195,9 @@ Rollback: turn the flag off. Bad bot edits are corrected by re-running with a fi
 
 ### 0.5 Open Items Needing a Decision
 
+- Whether to chase the recall ceiling above: re-enriching the ambiguous backlog from Spotify
+  (§6.3 / the last item in §19) is now the highest-value follow-on, and is a bigger win than any
+  further heuristic work.
 - §18 questions 3-10 still stand. In particular: whether "Various Artists" credits should be
   browsable, whether artist pages belong in the sitemap, and whether to add a nav link.
 - Whether `Artist` editing should also open up to `canEdit` (currently `dbAdmin`/creator, while
@@ -516,29 +554,64 @@ backup path from an env var and writes reports into `local/artist-analysis/`:
 Review the reports sorted by song count. The top few hundred distinct credits probably cover most of
 the value.
 
-### 6.3 Ground Truth from Spotify (optional but recommended)
+### 6.3 Ground Truth from Spotify
 
-Most songs carry Spotify track IDs (`Purchase:NN:SS`). For a **stratified random sample** of
-credits containing separators (for example 500 per rule), fetch `GET /v1/tracks?ids=` (50 IDs per
-call, so ~10–20 calls per 500 songs) and compare `track.artists[].name` to the splitter output.
+`ArtistSplitterGroundTruth.CompareToSpotify` (manual-only, same project). Most songs carry a Spotify
+track id (`Purchase:NN:SS`), so it samples distinct credits, fetches `GET /v1/tracks?ids=` 50 at a
+time, and compares `track.artists[].name` to the splitter output. Results are in §0.3; reports are
+`spotify-accuracy.md` and `spotify-mismatches.tsv`.
 
-- **Precision per rule:** of the songs we split, how many match Spotify's artist count and names
-  (after normalization).
-- **Recall:** of the songs Spotify lists with 2+ artists, how many we split.
-- Spotify isn't perfect ("Bob Marley & The Wailers" is one artist there, which matches what we
-  want; orchestras vary). Treat it as a strong signal, not an oracle.
+```pwsh
+$env:M4D_ARTIST_ANALYSIS_INDEX = "C:/projects/music4dance/local/index-2026-09-16.txt"
+$env:M4D_ARTIST_ANALYSIS_OUT   = "C:/projects/music4dance/local/artist-analysis"
+dotnet test m4dModels.Tests -p:BaseOutputPath=local/build-out/ --filter "TestCategory=Manual"
+```
 
-This runs in the harness with dev Spotify credentials, reusing the `SpotifyService` auth plumbing.
-It needs the network, so keep it in the manual category.
+Credentials come from m4d's user secrets (`Authentication:Spotify:ClientId` / `:ClientSecret`), so
+there is nothing to set up if the site runs locally; `M4D_SPOTIFY_CLIENT_ID` /
+`M4D_SPOTIFY_CLIENT_SECRET` override them. The test skips itself when either the backup or the
+credentials are missing. It needs the network, which is why it stays in the manual category. A full
+run is ~35 API calls and about 12 seconds.
+
+Three things the harness gets right that a naive comparison wouldn't, and that are worth preserving
+if it is ever rewritten:
+
+1. **Two samples, not one.** Precision is sampled per rule (up to `M4D_ARTIST_TRUTH_SAMPLE`, default
+   150, distinct credits per rule, so popular credits can't dominate); recall is sampled separately
+   across all credits (`M4D_ARTIST_TRUTH_OVERALL`, default 400), because the rule buckets
+   over-represent exactly the credits recall is asking about. Both are seeded
+   (`M4D_ARTIST_TRUTH_SEED`) so a re-run of the same splitter version reproduces the sample.
+2. **Names are compared more loosely than the index matches them.** Punctuation, conjunctions and
+   leading articles are folded, so "Earth, Wind & Fire" and "Earth Wind And Fire" agree. Name
+   variants are §11.4's problem; counting them here would bury real splitting mistakes.
+3. **A collaborator our `Artist` string never mentions is not a precision failure.** Those are
+   reported as `incomplete` and excluded from the per-rule denominator, because no heuristic could
+   have found them. Conflating the two is what made the first cut of this report useless.
+
+Spotify isn't an oracle. It models "Duke Ellington & His Orchestra" as one artist, often credits
+only a track's lead artist, and sometimes counts a remixer as an artist. Treat it as a strong
+signal.
 
 ### 6.4 Exit Criteria for Phase 0
 
-To agree on before moving on. Suggested targets:
+Targets set before the sample existed:
 
 - **High** rules: ≥ 99% precision on the sample.
 - **Medium** rules enabled without evidence only if ≥ 97% precision; otherwise gate them on evidence.
 - No **protected act** in the top 1,000 credits by song count is split.
 - The `ambiguous.tsv` head has been reviewed and the protected-acts list seeded.
+
+**How they came out.** The 99%/97% thresholds turned out not to be measurable against Spotify,
+because most disagreement isn't a splitting mistake: Spotify names acts at a different length,
+credits fewer artists than the credit string does, and spells names its own way. Measured as
+"agreement or Spotify being less complete", every rule is above 95%; measured strictly, 80-93%
+(§0.3). Real misses are 21 of 1,600 sampled credits, and no protected act in the sample was split.
+
+That is good enough to roll out. The judgement being made here is that a wrong entry in the
+`Artists` array is cheap — it is one extra name on an artist page, correctable by hand or by a
+re-run — whereas the alternative is no artist index at all. Precision per rule is not the
+number that should gate the next round of work; recall is, and the ceiling on recall is the
+`Artist` string itself, not the heuristic.
 
 ---
 
@@ -946,7 +1019,7 @@ Each phase is a separate PR unless noted. **Always test index first, then produc
 - [x] `ArtistSplitter` + curated JSON files + test vectors + unit tests (lists ended up in code, §0.2)
 - [x] Analysis harness (manual category) reading a `local/` index backup; reports in
       `local/artist-analysis/`
-- [ ] Optional Spotify ground-truth sampler
+- [x] Spotify ground-truth sampler (`ArtistSplitterGroundTruth`, manual; findings in §0.3)
 - [x] Iterate rules until the §6.4 exit criteria are met; record decisions in this doc
 
 ### Phase 1 — Model and Replay (dormant)
@@ -986,7 +1059,9 @@ Each phase is a separate PR unless noted. **Always test index first, then produc
 ### Phase 4 — Better Sources
 
 - [x] Spotify `artists[]` capture on create/enrich (§9.3)
-- [ ] Optional: re-enrich the ambiguous backlog from Spotify via a batch
+- [ ] Re-enrich the backlog from Spotify via a batch. §6.3 showed this is where the remaining
+      collaborations are: 80% of the credits Spotify lists with 2+ artists contain no separator for
+      any heuristic to find.
 
 ### Phase 5 — Canonicalization (optional)
 
