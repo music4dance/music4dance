@@ -13,6 +13,12 @@ import { Tag } from "./Tag";
 import { TagList } from "./TagList";
 import { TaggableObject } from "./TaggableObject";
 import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
+import {
+  ARTIST_BOT_USER,
+  type ArtistsSource,
+  cleanArtistName,
+  deserializeArtists,
+} from "./ArtistNames";
 
 @jsonObject
 export class Song extends TaggableObject {
@@ -38,6 +44,9 @@ export class Song extends TaggableObject {
   @jsonArrayMember(DanceRating) public danceRatings?: DanceRating[];
   @jsonArrayMember(ModifiedRecord) public modifiedBy?: ModifiedRecord[];
   @jsonArrayMember(AlbumDetails) public albums?: AlbumDetails[];
+  /** Individual artists explicitly recorded in the log, or undefined when the credit is one artist. */
+  @jsonArrayMember(String) public artists?: string[];
+  public artistsSource: ArtistsSource = "None";
 
   private userModifiedProperties = new Set<string>();
   /** Maps field baseName → username of the last non-pseudo editor of that field. */
@@ -52,6 +61,21 @@ export class Song extends TaggableObject {
   public constructor(init?: Partial<Song>) {
     super();
     Object.assign(this, init);
+  }
+
+  /** The individual artists for display and linking: the explicit list, else the cleaned credit. */
+  public get effectiveArtists(): string[] {
+    if (this.artists) {
+      return this.artists;
+    }
+    const credit = cleanArtistName(this.artist);
+    return credit ? [credit] : [];
+  }
+
+  /** True when the individual artists say something beyond "the credit is a single artist". */
+  public get hasIndividualArtists(): boolean {
+    const effective = this.effectiveArtists;
+    return !(effective.length === 1 && effective[0] === cleanArtistName(this.artist));
   }
 
   /**
@@ -461,6 +485,9 @@ export class Song extends TaggableObject {
           }
           break;
         }
+        case PropertyType.artistsField:
+          this.loadArtists(property.value, currentModified?.userName, pseudo);
+          break;
         case PropertyType.deleteTag:
           this.forceDeleteTag(property.danceQualifier, property.value);
           break;
@@ -535,6 +562,17 @@ export class Song extends TaggableObject {
               break;
             }
 
+            // An effective change to the credit invalidates individual artists derived from
+            // (or entered against) the old credit
+            if (
+              baseName === PropertyType.artistField &&
+              cleanArtistName(this.artist) !== cleanArtistName(property.value)
+            ) {
+              this.artists = undefined;
+              this.artistsSource = "None";
+              this.userModifiedProperties.delete(PropertyType.artistsField);
+            }
+
             /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
             (this as any)[pascalToCamel(baseName)] = value;
 
@@ -553,6 +591,42 @@ export class Song extends TaggableObject {
       this.clear();
     } else {
       this.albums = this.buildAlbumInfo(properties);
+    }
+  }
+
+  /** Must match Song.LoadArtists in m4dModels/Song.cs. */
+  private loadArtists(value: string, userName: string | undefined, pseudo: boolean): void {
+    const field = PropertyType.artistsField;
+    if (pseudo && this.userModifiedProperties.has(field)) {
+      return;
+    }
+
+    const source: ArtistsSource = !pseudo
+      ? "User"
+      : userName === ARTIST_BOT_USER
+        ? "Heuristic"
+        : "Service";
+
+    if (source === "Heuristic" && this.artistsSource === "Service") {
+      return;
+    }
+
+    const artists = deserializeArtists(value);
+    if (artists.length === 0) {
+      this.artists = undefined;
+      this.artistsSource = "None";
+      this.userModifiedProperties.delete(field);
+      this.propLastSetByMap.delete(field);
+      return;
+    }
+
+    this.artists = artists;
+    this.artistsSource = source;
+    if (!pseudo) {
+      this.userModifiedProperties.add(field);
+      if (userName) {
+        this.propLastSetByMap.set(field, userName);
+      }
     }
   }
 
@@ -664,6 +738,8 @@ export class Song extends TaggableObject {
     this.danceRatings = [];
     this.modifiedBy = [];
     this.albums = [];
+    this.artists = undefined;
+    this.artistsSource = "None";
   }
 
   private forceDeleteTag(danceQualifier: string | undefined, value: string): void {

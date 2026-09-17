@@ -13,6 +13,17 @@ public interface IArtistKnowledge
 }
 
 /// <summary>
+/// Who supplied a song's explicit <c>Artists</c> list. Precedence is User &gt; Service &gt; Heuristic.
+/// </summary>
+public enum ArtistsSource
+{
+    None,
+    Heuristic,
+    Service,
+    User,
+}
+
+/// <summary>
 /// Result of splitting an artist credit into individual artists.
 /// </summary>
 /// <param name="Artists">Normalized, ordered (primary first), de-duplicated individual artists.

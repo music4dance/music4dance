@@ -10,6 +10,7 @@ export class UserQuery {
     "batch-x": "Xbox Music",
     "batch-e": "EchoNest",
     "tempo-bot": "Tempo Bot",
+    "artist-bot": "Artist Bot",
   };
 
   /** Service imports and algo bots — excludes Catalog ("batch") which is human-curated. */
@@ -20,6 +21,7 @@ export class UserQuery {
     "batch-x",
     "batch-e",
     "tempo-bot",
+    "artist-bot",
   ]);
 
   public static fromParts(parts?: string, user?: string): UserQuery {

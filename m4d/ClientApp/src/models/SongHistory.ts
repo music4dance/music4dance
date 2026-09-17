@@ -261,7 +261,8 @@ export class SongHistory {
             p.baseName === PropertyType.likeTag ||
             p.baseName === PropertyType.addCommentField ||
             p.baseName === PropertyType.removeCommentField ||
-            p.baseName === PropertyType.tempoField,
+            p.baseName === PropertyType.tempoField ||
+            p.baseName === PropertyType.artistsField,
         ),
     );
   }
