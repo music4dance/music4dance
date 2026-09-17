@@ -44,11 +44,25 @@ These supersede the corresponding sections; fold them in when converting to an a
   `ArtistSplit` reports `Rules` and `Unresolved` instead of a confidence.
 - **Protected lists live in code (§5.4).** They're in `ArtistSplitter.cs` (`ProtectedActs`,
   `GroupWords`, `Articles`, `Fillers`), not JSON. Any change still bumps `ArtistSplitter.Version`.
-- **Extra protections found in the data (§5.2).** Joins followed by a possessive or group word
-  ("& His Orchestra", "y Su Charanga", "& Sons", "& Friends", "& Girls") or, for `&`/`and`/`y`/...,
-  by an article ("& The News", "y la Verdad") never split. Two single words ("Rodrigo y Gabriela",
-  "Sonny & Cher") never split outside a feat clause, even with evidence. `Last, First` un-sorting
-  was dropped: the corpus has almost no sorted names, and `, Jr.`/`, Sr.` suffixes are protected.
+- **Joins, as of splitter v2 (2026-09-17, after reviewing `unresolved.tsv`) (§5.2):**
+  - *Leader and backing group:* a join followed by a possessive ("and His Orchestra", "y Su
+    Charanga", "und sein Tanzorchester", "& All His Stars") or by nothing but generic ensemble
+    words ("with Orchestra", "and Singers") keeps only the leader, with no evidence needed:
+    "Duke Ellington and His Orchestra" becomes `[Duke Ellington]`. Anything credited after the
+    group is split on its own ("Teddy Wilson And His Orchestra With Billie Holliday").
+  - *Named ensembles:* a multi-word name containing an ensemble word (Orchestra, Philharmonic,
+    Symphony, Sinfonietta, Choir, Ensemble, Trio, Collegium, ...) joined with another multi-word
+    name always splits: "London Symphony Orchestra and Árpád Joó".
+  - *One known side:* a join splits when either half is a standalone artist, as long as both halves
+    are multi-word. One-word names collide with unrelated artists too often ("Fitz and The
+    Tantrums"). For article joins ("Bob Marley & The Wailers"), the known half must be the leader.
+  - *Still protected:* act nouns after the join ("& Sons", "& The Gang", "& Friends"), article on
+    both sides ("The Mamas & The Papas"), joins inside brackets ("BnB (Blanco & Black)"), and two
+    single words outside a feat clause ("Rodrigo y Gabriela", reported as `duo`).
+  - `Last, First` un-sorting was dropped: the corpus has almost no sorted names, and `, Jr.`/`, Sr.`
+    suffixes are protected.
+  - "Various"/"Various Artists" are left alone by the splitter (a possible future pass could ask
+    Spotify for the real artists). The artist index page still leaves them out of browsing.
 - **Replay: `batch-*` is always a service (§4.4).** Songs added from a track in the client log the
   service block as plain `batch-s` (no `|P`), so replay classifies `batch-*` accounts as `Service`
   either way.
@@ -86,7 +100,16 @@ These supersede the corresponding sections; fold them in when converting to an a
   navigation links to `/song/artists` (only the artist page links to it), sandbox fixture refresh,
   Diagnostics display of the field/flag, public API DTOs.
 
-### 0.3 Phase 0 Findings (index backup 2026-09-16, splitter v1)
+### 0.3 Phase 0 Findings (index backup 2026-09-16)
+
+**Splitter v2 (current):** 7,535 songs (7.2%) split from 3,929 distinct credits. By rule: title
+feat 3,011 · leader 2,082 · evidence 852 · one known side 657 · named ensemble 407 · artist feat
+359 · comma list 352 · semicolon 339 · slash 33. `unresolved.tsv` went from 2,468 credits (v1) to
+1,318, and 904 of those aren't single-word duos. Most of the rest are genuine act names ("Belle &
+Sebastian") or leader-and-band credits where the leader has no songs of their own ("Nathaniel
+Rateliff & The Night Sweats").
+
+**Splitter v1** (kept for comparison in `local/artist-analysis-v1/`):
 
 From `local/artist-analysis/summary.md` (regenerate with the harness; see §6.2):
 

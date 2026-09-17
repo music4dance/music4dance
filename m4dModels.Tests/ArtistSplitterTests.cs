@@ -45,7 +45,7 @@ public class ArtistSplitterTests
     [DataRow("Lil' Kim (Featuring Lil' Cease)", "Lil' Kim|Lil' Cease")]
     [DataRow("Delano Weltevreden (feat. Carin Verhoeven)", "Delano Weltevreden|Carin Verhoeven")]
     [DataRow("B.o.B. w/ Bruno Mars", "B.o.B.|Bruno Mars")]
-    [DataRow("Duke Ellington and His Cotton Club Orchestra feat. Teddy Bunn", "Duke Ellington and His Cotton Club Orchestra|Teddy Bunn")]
+    [DataRow("Duke Ellington and His Cotton Club Orchestra feat. Teddy Bunn", "Duke Ellington|Teddy Bunn")]
     [DataRow("Featuring Hilary Alexander Jonathan Stout", "Featuring Hilary Alexander Jonathan Stout")]
     public void ArtistFeaturing(string artist, string expected)
     {
@@ -69,7 +69,7 @@ public class ArtistSplitterTests
     [TestMethod]
     [DataRow("Carly Rae Jepsen", "Good Time (Feat. Owl City and Carly Rae Jepsen)", "Owl City", "Carly Rae Jepsen|Owl City")]
     [DataRow("Blake Shelton", "Boys 'Round Here (feat. Pistol Annies & Friends)", "Pistol Annies", "Blake Shelton|Pistol Annies & Friends")]
-    [DataRow("Charlie Christian", "Honeysuckle Rose (feat. Benny Goodman and His Orchestra)", "Benny Goodman", "Charlie Christian|Benny Goodman and His Orchestra")]
+    [DataRow("Charlie Christian", "Honeysuckle Rose (feat. Benny Goodman and His Orchestra)", "", "Charlie Christian|Benny Goodman")]
     [DataRow("Yandel", "Báilame (feat. Shaggy & Alex Sensation)", "Shaggy", "Yandel|Shaggy|Alex Sensation")]
     public void TitleFeaturingLists(string artist, string title, string known, string expected)
     {
@@ -78,7 +78,13 @@ public class ArtistSplitterTests
 
     [TestMethod]
     [DataRow("Dolly Parton & Kenny Rogers", "Dolly Parton|Kenny Rogers", "Dolly Parton|Kenny Rogers")]
-    [DataRow("Dolly Parton & Kenny Rogers", "Dolly Parton", "Dolly Parton & Kenny Rogers")]
+    [DataRow("Dolly Parton & Kenny Rogers", "Dolly Parton", "Dolly Parton|Kenny Rogers")]
+    [DataRow("Dolly Parton & Kenny Rogers", "Kenny Rogers", "Dolly Parton|Kenny Rogers")]
+    [DataRow("Dolly Parton & Kenny Rogers", "", "Dolly Parton & Kenny Rogers")]
+    [DataRow("Lisa Loeb & Nine Stories", "Lisa Loeb", "Lisa Loeb|Nine Stories")]
+    [DataRow("Bob Marley & The Wailers", "Bob Marley", "Bob Marley|The Wailers")]
+    [DataRow("Bob Marley & The Wailers", "The Wailers", "Bob Marley & The Wailers")]
+    [DataRow("Angus & Julia Stone", "Julia Stone", "Angus & Julia Stone")]
     [DataRow("Whitney Houston with Jermaine Jackson", "Whitney Houston|Jermaine Jackson", "Whitney Houston|Jermaine Jackson")]
     [DataRow("Chris Brown X Tyga", "Chris Brown|Tyga", "Chris Brown|Tyga")]
     [DataRow("Bill Evans And Paul Motian And Scott LaFaro", "Bill Evans|Paul Motian|Scott LaFaro", "Bill Evans|Paul Motian|Scott LaFaro")]
@@ -94,15 +100,16 @@ public class ArtistSplitterTests
     [DataRow("Earth, Wind & Fire", "Earth|Wind|Fire")]
     [DataRow("Crosby, Stills, Nash  & Young", "Crosby|Stills|Nash|Young")]
     [DataRow("Peter, Paul and Mary", "Peter|Paul|Mary")]
-    [DataRow("Tony Evans & His Orchestra", "Tony Evans")]
-    [DataRow("Tony Evans and His Orchestra", "Tony Evans")]
-    [DataRow("Huey Lewis & The News", "Huey Lewis|The News")]
-    [DataRow("Bob Marley & The Wailers", "Bob Marley|The Wailers")]
     [DataRow("Mumford & Sons", "Mumford")]
-    [DataRow("David Calzado y su Charanga Habanera", "David Calzado")]
-    [DataRow("El Niño y la Verdad", "El Niño")]
-    [DataRow("Hugo Strasser Und Sein Tanzorchester", "Hugo Strasser")]
-    [DataRow("Kay Starr with Orchestra", "Kay Starr")]
+    [DataRow("Kool & The Gang", "Kool|The Gang")]
+    [DataRow("The Mamas & The Papas", "The Mamas|The Papas")]
+    [DataRow("Fitz and The Tantrums", "Fitz")]
+    [DataRow("Benny y Erik Sasha", "Benny")]
+    [DataRow("BnB (Blanco & Black)", "Blanco|Black")]
+    [DataRow("Dimitri Vegas & Like Mike", "Dimitri Vegas")]
+    [DataRow("Huey Lewis & The News", "The News")]
+    [DataRow("Musica & Poesia Orchestra", "")]
+    [DataRow("Orquesta Tabaco Y Ron", "")]
     [DataRow("Ike & Tina Turner", "Ike|Tina Turner")]
     [DataRow("Tyler, the Creator", "Tyler")]
     [DataRow("Harry Connick, Jr.", "Harry Connick")]
@@ -115,7 +122,6 @@ public class ArtistSplitterTests
     [DataRow("Rodrigo y Gabriela", "Rodrigo|Gabriela")]
     [DataRow("Sonny & Cher", "Sonny|Cher")]
     [DataRow("Bebe Neuwirth & Girls", "Bebe Neuwirth|Girls")]
-    [DataRow("Louis Armstrong & All His Stars", "Louis Armstrong|All His Stars")]
     public void DuosAndGroupsDespiteEvidence(string artist, string known)
     {
         AssertSplit(artist, null, known, artist);
@@ -131,6 +137,47 @@ public class ArtistSplitterTests
     }
 
     [TestMethod]
+    [DataRow("Duke Ellington and His Orchestra", "Duke Ellington")]
+    [DataRow("Tony Evans & His Orchestra", "Tony Evans")]
+    [DataRow("Louis Armstrong & All His Stars", "Louis Armstrong")]
+    [DataRow("Naomi & Her Handsome Devils", "Naomi")]
+    [DataRow("David Calzado y su Charanga Habanera", "David Calzado")]
+    [DataRow("Fruko Y Sus Tesos", "Fruko")]
+    [DataRow("Hugo Strasser Und Sein Tanzorchester", "Hugo Strasser")]
+    [DataRow("Kay Starr with Orchestra", "Kay Starr")]
+    [DataRow("Ballroom Orchestra and Singers", "Ballroom Orchestra")]
+    [DataRow("Andy Ross with His Orchestra & Singers", "Andy Ross")]
+    [DataRow("His Band Ross Mitchell & Singers", "Ross Mitchell")]
+    [DataRow("Teddy Wilson And His Orchestra With Billie Holliday", "Teddy Wilson|Billie Holliday")]
+    [DataRow("Benny Goodman & His Orchestra; Vocal By Helen Forrest", "Benny Goodman|Helen Forrest")]
+    [DataRow("Alan Campbell, Judy Kuhn, George Hearn & Orchestra", "Alan Campbell|Judy Kuhn|George Hearn")]
+    public void LeaderOfBackingGroup(string artist, string expected)
+    {
+        AssertSplit(artist, null, null, expected);
+    }
+
+    [TestMethod]
+    [DataRow("London Symphony Orchestra and Árpád Joó", "London Symphony Orchestra|Árpád Joó")]
+    [DataRow("Vienna State Opera Orchestra & Felix Prohaska", "Vienna State Opera Orchestra|Felix Prohaska")]
+    [DataRow("Glenn Miller Orchestra & Ray Eberle", "Glenn Miller Orchestra|Ray Eberle")]
+    [DataRow("Herbert von Karajan and Philharmonia Orchestra", "Herbert von Karajan|Philharmonia Orchestra")]
+    [DataRow("Peggy Lee With The Benny Goodman Orchestra", "Peggy Lee|The Benny Goodman Orchestra")]
+    [DataRow("The Dave Brubeck Trio & Gerry Mulligan", "The Dave Brubeck Trio|Gerry Mulligan")]
+    [DataRow("Bach Collegium Japan and Masaaki Suzuki", "Bach Collegium Japan|Masaaki Suzuki")]
+    public void NamedEnsembles(string artist, string expected)
+    {
+        AssertSplit(artist, null, null, expected);
+    }
+
+    [TestMethod]
+    public void VariousArtistsIsLeftAlone()
+    {
+        AssertSplit("Various Artists", null, null, "Various Artists");
+        AssertSplit("Various Artists, Budapest Strings, Béla Bánfalvi", null, null,
+            "Various Artists|Budapest Strings|Béla Bánfalvi");
+    }
+
+    [TestMethod]
     public void MaskedActInsideLongerCredit()
     {
         AssertSplit("Earth, Wind & Fire with The Emotions", null, "Earth, Wind & Fire|The Emotions",
@@ -141,7 +188,6 @@ public class ArtistSplitterTests
     [DataRow("London Philharmonic Orchestra, London Philharmonic Choir, The London Chorus and David Parry", "", "London Philharmonic Orchestra|London Philharmonic Choir|The London Chorus|David Parry")]
     [DataRow("Madonna, Antonio Banderas, Jonathon Pryce, Jimmy Nail", "Madonna", "Madonna|Antonio Banderas|Jonathon Pryce|Jimmy Nail")]
     [DataRow("Bette Midler, Sarah Jessica Parker & Kathy Najimy", "", "Bette Midler|Sarah Jessica Parker|Kathy Najimy")]
-    [DataRow("Various Artists, Budapest Strings, Béla Bánfalvi", "", "Budapest Strings|Béla Bánfalvi")]
     [DataRow("Kenneth Gilbert, Lars Ulrik Mortensen, Nicholas Kraemer", "", "Kenneth Gilbert|Lars Ulrik Mortensen|Nicholas Kraemer")]
     public void CommaLists(string artist, string known, string expected)
     {
@@ -150,7 +196,6 @@ public class ArtistSplitterTests
 
     [TestMethod]
     [DataRow("Itzhak Perlman; James Levine: Vienna Philharmonic Orchestra", "Itzhak Perlman|James Levine|Vienna Philharmonic Orchestra")]
-    [DataRow("Benny Goodman & His Orchestra; Vocal By Helen Forrest", "Benny Goodman & His Orchestra|Helen Forrest")]
     [DataRow("Christa Ludwig; alto; Herbert von Karajan: Berlin Philharmonic Orchestra", "Christa Ludwig|Herbert von Karajan|Berlin Philharmonic Orchestra")]
     [DataRow("Dave Brubeck;Gerry Mulligan", "Dave Brubeck|Gerry Mulligan")]
     [DataRow("Yusuf / Cat Stevens", "Yusuf|Cat Stevens")]

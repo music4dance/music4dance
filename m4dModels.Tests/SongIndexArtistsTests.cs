@@ -93,11 +93,10 @@ public class SongIndexArtistsTests
     public async Task SaveSong_UsesCatalogEvidenceForAmbiguousSplits()
     {
         var (dms, index) = await CreateService("ArtistsEvidence");
-        await index.SaveSong(await CreateSong(dms, "Jolene", "Dolly Parton"));
 
         var duet = await CreateSong(dms, "Islands in the Stream", "Dolly Parton & Kenny Rogers");
         await index.SaveSong(duet);
-        Assert.IsNull((await index.FindSong(duet.SongId)).Artists, "Only one half is a known artist");
+        Assert.IsNull((await index.FindSong(duet.SongId)).Artists, "Neither half is a known artist");
 
         await index.SaveSong(await CreateSong(dms, "The Gambler", "Kenny Rogers"));
         var resaved = await index.FindSong(duet.SongId);

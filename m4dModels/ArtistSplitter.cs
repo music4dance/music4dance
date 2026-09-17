@@ -59,7 +59,7 @@ public static class ArtistSplitter
     /// Bump on any behavior change (including the protected lists below) so batch re-runs and
     /// analysis reports can be tied to a heuristic version.
     /// </summary>
-    public const int Version = 1;
+    public const int Version = 2;
 
     public const char Delimiter = '|';
 
@@ -88,6 +88,7 @@ public static class ArtistSplitter
         "Wisin & Yandel",
         "Dan + Shay",
         "Chloe x Halle",
+        "Dimitri Vegas & Like Mike",
         "TOMORROW X TOGETHER",
         "Lil Nas X",
         "Monét X Change",
@@ -97,19 +98,51 @@ public static class ArtistSplitter
         "Hank Williams, Jr.",
     ];
 
-    // Words that, starting the text after a separator, mean the separator is part of an act name:
-    // "Tony Evans & His Orchestra", "Mumford & Sons", "Fruko Y Sus Tesos".
-    private static readonly HashSet<string> GroupWords = new(StringComparer.OrdinalIgnoreCase)
+    // Possessives that, starting the text after a join, mean the rest is the leader's backing
+    // group: "Duke Ellington and His Orchestra", "Fruko Y Sus Tesos", "Igor und seine Oberkrainer".
+    // The leader alone becomes the individual artist.
+    private static readonly HashSet<string> Possessives = new(StringComparer.OrdinalIgnoreCase)
     {
         "his", "her", "their", "its", "sein", "seine", "seinem", "seinen", "seiner", "su", "sus",
-        "orchestra", "orchestre", "orquesta", "orchester", "tanzorchester", "band", "singers",
-        "chorus", "choir", "friends", "sons", "daughters", "company", "co", "co.", "ensemble",
-        "quartet", "quintet", "trio", "combo", "conjunto", "strings", "rhythm", "all-stars",
-        "all", "girls", "boys", "brothers", "sisters", "gang", "crew", "family", "cast",
     };
 
-    // Articles that, starting the text after "&"/"and"/"y"/..., almost always mean a band name:
-    // "Huey Lewis & The News", "El Niño y la Verdad". Not applied to "with"/"x"/"vs".
+    // A join to nothing but these ("with Orchestra", "and Singers", "& The Orchestra") is also a
+    // backing group
+    private static readonly HashSet<string> GenericEnsembleWords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "orchestra", "orchestre", "orquesta", "orquestra", "orchester", "tanzorchester", "band",
+        "singers", "chorus", "choir", "ensemble", "quartet", "quintet", "trio", "combo", "conjunto",
+        "strings", "rhythm",
+    };
+
+    // Words that make a multi-word name a named ensemble ("London Symphony Orchestra", "Berliner
+    // Philharmoniker"), which is always its own individual artist
+    private static readonly HashSet<string> EnsembleWords = new(
+        GenericEnsembleWords.Concat(
+        [
+            "philharmonic", "philharmonia", "philharmoniker", "philharmonie", "symphony",
+            "symphoniker", "symphonique", "sinfonietta", "sinfonica", "sinfonia", "chorale",
+            "sextet", "septet", "octet", "soloists", "solisti", "consort", "collegium", "capella",
+            "cappella", "orkest", "orkester", "orkestra", "filharmonie", "filarmonica",
+        ]),
+        StringComparer.OrdinalIgnoreCase);
+
+    // Nouns that, starting the text after a join (optionally after an article), mean the whole
+    // credit is one act: "Mumford & Sons", "Kool & The Gang", "Pistol Annies & Friends"
+    private static readonly HashSet<string> ActNouns = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "friends", "sons", "daughters", "company", "co", "all-stars", "girls", "boys", "brothers",
+        "sisters", "gang", "crew", "family", "cast",
+    };
+
+    private static readonly HashSet<string> JoinWords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "&", "+", "and", "y", "e", "et", "und",
+    };
+
+    // Articles that, starting the text after "&"/"and"/"y"/..., usually mean a band name ("Huey Lewis
+    // & The News"): those joins only split when the leader is a known artist. Not applied to
+    // "with"/"x"/"vs".
     private static readonly HashSet<string> Articles = new(StringComparer.OrdinalIgnoreCase)
     {
         "the", "la", "el", "los", "las", "le", "les", "die", "der", "das", "il", "lo",
@@ -120,7 +153,7 @@ public static class ArtistSplitter
 
     private static readonly HashSet<string> Fillers = new(StringComparer.OrdinalIgnoreCase)
     {
-        "various artists", "various", "etc", "etc.", "and others", "others",
+        "etc", "etc.", "and others", "others",
         // Role annotations that show up as list entries in classical credits
         "alto", "soprano", "mezzo-soprano", "tenor", "baritone", "bass", "piano", "violin", "cello",
         "guitar", "organ", "drums", "vocals", "vocal", "conductor",
@@ -162,6 +195,11 @@ public static class ArtistSplitter
 
     private static readonly Regex FinalConjunction = new(
         @"^(?<head>.*\S)\s+(?:&|and)\s+(?<tail>\S.*)$",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    // "His Band Ross Mitchell" - a backing-group label left in front of the leader's name
+    private static readonly Regex LeadingGroupLabel = new(
+        @"^(?:his|her|their)\s+(?:orchestra|band)\s+(?=\S)",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static readonly Regex LeadingConjunction = new(
@@ -466,8 +504,10 @@ public static class ArtistSplitter
                 .Where(p => p.Length > 0 && !Fillers.Contains(p))
                 .ToList();
 
+            // "A, B & His Orchestra" / "A, B & The News": leave the last join for SplitAmbiguous
             var last = FinalConjunction.Match(parts[^1]);
-            if (last.Success && !GroupWords.Contains(FirstWord(last.Groups["tail"].Value)) &&
+            if (last.Success && !IsBackingGroup(last.Groups["tail"].Value) &&
+                !IsActNounJoin(last.Groups["tail"].Value) &&
                 !Articles.Contains(FirstWord(last.Groups["tail"].Value)))
             {
                 parts[^1] = last.Groups["head"].Value;
@@ -481,16 +521,55 @@ public static class ArtistSplitter
 
         private List<string> SplitAmbiguous(string segment, bool listContext)
         {
-            var candidates = AmbiguousSeparator.Matches(segment)
-                .Where(m => !IsProtectedJoin(m, segment))
+            // Joins inside brackets are part of an alias: "BnB (Blanco & Black)"
+            var matches = AmbiguousSeparator.Matches(segment)
+                .Where(m => !IsInsideBrackets(segment, m.Index))
                 .ToList();
+            if (matches.Count == 0)
+            {
+                return [segment];
+            }
 
+            // A leader and their backing group: "Duke Ellington and His Orchestra" -> Duke Ellington,
+            // "Andy Ross with His Orchestra & Singers" -> Andy Ross. Anything credited after the
+            // group ("Teddy Wilson And His Orchestra With Billie Holliday") is split on its own.
+            foreach (var m in matches)
+            {
+                var leader = segment[..m.Index];
+                var (group, tail) = BackingGroupAndTail(segment[(m.Index + m.Length)..]);
+                if (CleanName(leader).Length == 0 || !IsBackingGroup(group))
+                {
+                    continue;
+                }
+
+                AddRule("leader");
+                var leaders = SplitAmbiguous(LeadingGroupLabel.Replace(CleanName(leader), string.Empty), listContext);
+                return tail == null ? leaders : [.. leaders, .. SplitSegment(tail, listContext)];
+            }
+
+            // A named ensemble joined with another full name: "London Symphony Orchestra and Árpád
+            // Joó", "Peggy Lee With The Benny Goodman Orchestra"
+            {
+                var m = matches[0];
+                var left = segment[..m.Index];
+                var right = segment[(m.Index + m.Length)..];
+                var rightHead = FirstJoinPart(right);
+                if (IsNamedEnsemble(left) && IsMultiWord(rightHead) && !IsActNounJoin(right) ||
+                    IsNamedEnsemble(rightHead) && IsMultiWord(left))
+                {
+                    AddRule("ensemble");
+                    return [left, .. SplitAmbiguous(right, listContext)];
+                }
+            }
+
+            // "Mumford & Sons", "Kool & The Gang", "The Mamas & The Papas"
+            var candidates = matches
+                .Where(m => !IsActNounJoin(segment[(m.Index + m.Length)..]) &&
+                    !(IsArticleJoin(segment, m) && Articles.Contains(FirstWord(segment[..m.Index]))))
+                .ToList();
             if (candidates.Count == 0)
             {
-                if (AmbiguousSeparator.IsMatch(segment))
-                {
-                    Unresolved.Add("protected-join");
-                }
+                Unresolved.Add("act-name");
                 return [segment];
             }
 
@@ -510,52 +589,136 @@ public static class ArtistSplitter
                 return pieces;
             }
 
-            // A single join between two known artists: "Dolly Parton & Kenny Rogers"
+            var duos = 0;
             foreach (var m in candidates)
             {
                 var left = segment[..m.Index];
                 var right = segment[(m.Index + m.Length)..];
                 var leftKnown = IsKnown(left);
                 var rightKnown = IsKnown(right);
+                var articleJoin = IsArticleJoin(segment, m);
 
                 // Two single words ("Rodrigo y Gabriela", "Sonny & Cher") are almost always a duo
                 // act, even when unrelated one-word artists share those names
                 if (!listContext && IsSingleWord(left) && IsSingleWord(right))
                 {
+                    duos++;
                     continue;
                 }
 
+                // Both halves are known artists: "Dolly Parton & Kenny Rogers"
                 if (leftKnown && rightKnown)
                 {
                     AddRule("evidence");
                     return [left, right];
                 }
 
+                // One half is a known artist and the other is a full name rather than an act
+                // fragment: "Lisa Loeb & Nine Stories", "Bob Marley & The Wailers" (an article
+                // join needs the leader to be the known one). Both halves must be multi-word:
+                // one-word names ("Fitz and The Tantrums", "Benny y Erik Sasha") collide with
+                // unrelated artists too often to count as evidence.
+                if (IsMultiWord(left) && IsMultiWord(right) &&
+                    (leftKnown && !AmbiguousSeparator.IsMatch(right) ||
+                     rightKnown && !articleJoin && !AmbiguousSeparator.IsMatch(left)))
+                {
+                    AddRule("evidence-partial");
+                    return [left, right];
+                }
+
                 // Inside a featured list, a side doesn't need evidence as long as it looks like a
-                // full name rather than an act fragment ("feat. Owl City and Carly Rae Jepsen")
-                if (listContext && (leftKnown || LooksLikeName(left)) && (rightKnown || LooksLikeName(right)))
+                // full name ("feat. Owl City and Carly Rae Jepsen", "feat. Shaggy & Alex Sensation")
+                if (listContext && !articleJoin && (leftKnown || LooksLikeName(left)) &&
+                    (rightKnown || LooksLikeName(right)))
                 {
                     AddRule(leftKnown || rightKnown ? "evidence-partial" : "list-names");
                     return [left, right];
                 }
             }
 
-            Unresolved.Add(candidates[0].Groups["sep"].Value.ToLowerInvariant());
+            Unresolved.Add(duos == candidates.Count ? "duo" : candidates[0].Groups["sep"].Value.ToLowerInvariant());
             return [segment];
         }
 
         private static bool IsSingleWord(string text) => !CleanName(text).Contains(' ');
 
-        private static bool LooksLikeName(string text) =>
-            !IsSingleWord(text) && !Articles.Contains(FirstWord(text)) && !AmbiguousSeparator.IsMatch(text);
+        private static bool IsArticleJoin(string segment, Match separator) =>
+            ArticleSensitiveSeparators.Contains(separator.Groups["sep"].Value) &&
+            Articles.Contains(FirstWord(segment[(separator.Index + separator.Length)..]));
 
-        private static bool IsProtectedJoin(Match separator, string segment)
+        private static bool IsInsideBrackets(string text, int index)
         {
-            var right = segment[(separator.Index + separator.Length)..];
-            var first = FirstWord(right).TrimEnd('.', ',');
-            return GroupWords.Contains(first) ||
-                ArticleSensitiveSeparators.Contains(separator.Groups["sep"].Value) &&
-                Articles.Contains(first);
+            var before = text[..index];
+            return before.Count(c => c == '(') > before.Count(c => c == ')') ||
+                before.Count(c => c == '[') > before.Count(c => c == ']');
+        }
+
+        private static bool IsMultiWord(string text) => !IsSingleWord(text);
+
+        private static bool LooksLikeName(string text) =>
+            IsMultiWord(text) && !Articles.Contains(FirstWord(text)) && !AmbiguousSeparator.IsMatch(text);
+
+        private static List<string> Words(string text) =>
+            [.. CleanName(text).Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Select(w => w.Trim('.', ',', '\'', '"', '(', ')'))
+                .Where(w => w.Length > 0)];
+
+        /// <summary>
+        /// "His Orchestra", "all his Stars", "Orchestra & Singers", "the Orchestra".
+        /// </summary>
+        private static bool IsBackingGroup(string text)
+        {
+            var words = Words(text);
+            if (words.Count > 0 && string.Equals(words[0], "all", StringComparison.OrdinalIgnoreCase))
+            {
+                words.RemoveAt(0);
+            }
+
+            if (words.Count == 0)
+            {
+                return false;
+            }
+
+            return Possessives.Contains(words[0]) ||
+                words.Any(GenericEnsembleWords.Contains) &&
+                words.All(w => GenericEnsembleWords.Contains(w) || Articles.Contains(w) || JoinWords.Contains(w));
+        }
+
+        /// <summary>
+        /// Splits the text after a join into the part that could be a backing group and whatever is
+        /// credited after it: "His Orchestra With Billie Holliday" -> ("His Orchestra", "Billie Holliday").
+        /// </summary>
+        private static (string Group, string Tail) BackingGroupAndTail(string text)
+        {
+            foreach (Match m in AmbiguousSeparator.Matches(text))
+            {
+                var rest = text[(m.Index + m.Length)..];
+                if (!IsBackingGroup(FirstJoinPart(rest)))
+                {
+                    return (text[..m.Index], rest);
+                }
+            }
+            return (text, null);
+        }
+
+        private static string FirstJoinPart(string text)
+        {
+            var m = AmbiguousSeparator.Match(text);
+            return m.Success ? text[..m.Index] : text;
+        }
+
+        private static bool IsNamedEnsemble(string text)
+        {
+            var words = Words(text);
+            return words.Count >= 2 && !AmbiguousSeparator.IsMatch(text) && !IsBackingGroup(text) &&
+                words.Any(EnsembleWords.Contains);
+        }
+
+        private static bool IsActNounJoin(string textAfterJoin)
+        {
+            var words = Words(textAfterJoin);
+            var first = words.Count > 1 && Articles.Contains(words[0]) ? words[1] : words.FirstOrDefault();
+            return first != null && ActNouns.Contains(first);
         }
     }
 }
