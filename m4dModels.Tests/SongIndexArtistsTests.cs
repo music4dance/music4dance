@@ -40,7 +40,7 @@ public class SongIndexArtistsTests
     {
         var (dms, index) = await CreateService("ArtistsDocument");
         var song = await CreateSong(dms, "Hold My Heart (feat. ZZ Ward)", "Lindsey Stirling");
-        _ = await song.UpdateArtists(null, dms);
+        _ = song.UpdateArtists(null);
 
         var without = (SearchDocument)index.CallDocumentFromSong(song);
         Assert.IsFalse(without.ContainsKey(Song.ArtistsField));

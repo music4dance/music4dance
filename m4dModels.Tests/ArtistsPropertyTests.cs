@@ -95,7 +95,7 @@ public class ArtistsPropertyTests
             "Title=Hold My Heart (feat. ZZ Ward)", "Artist=Lindsey Stirling"]);
         var count = song.SongProperties.Count;
 
-        Assert.IsTrue(await song.UpdateArtists(null, _dms, new DateTime(2024, 1, 16)));
+        Assert.IsTrue(song.UpdateArtists(null, new DateTime(2024, 1, 16)));
 
         CollectionAssert.AreEqual(new[] { "Lindsey Stirling", "ZZ Ward" }, song.Artists.ToList());
         Assert.AreEqual(ArtistsSource.Heuristic, song.ArtistsSource);
@@ -105,7 +105,12 @@ public class ArtistsPropertyTests
         Assert.AreEqual("Artists=Lindsey Stirling|ZZ Ward", added[^1]);
 
         // Idempotent
-        Assert.IsFalse(await song.UpdateArtists(null, _dms));
+        Assert.IsFalse(song.UpdateArtists(null));
+
+        // In-memory state matches what replaying the log produces
+        var reloaded = await Song.Create(song.Serialize(null), _dms);
+        CollectionAssert.AreEqual(song.Artists.ToList(), reloaded.Artists.ToList());
+        Assert.AreEqual(song.ArtistsSource, reloaded.ArtistsSource);
     }
 
     [TestMethod]
@@ -115,7 +120,7 @@ public class ArtistsPropertyTests
             "Title=Come Away With Me", "Artist=Norah Jones"]);
         var count = song.SongProperties.Count;
 
-        Assert.IsFalse(await song.UpdateArtists(null, _dms));
+        Assert.IsFalse(song.UpdateArtists(null));
         Assert.AreEqual(count, song.SongProperties.Count);
         Assert.IsNull(song.Artists);
     }
@@ -127,7 +132,7 @@ public class ArtistsPropertyTests
             "Title=Rolex", "Artist=Ayo & Teo",
             ".Edit=", "User=artist-bot|P", "Time=01/16/2024 14:30:00", "Artists=Ayo|Teo"]);
 
-        Assert.IsTrue(await song.UpdateArtists(null, _dms));
+        Assert.IsTrue(song.UpdateArtists(null));
         Assert.IsNull(song.Artists);
         Assert.AreEqual("Artists=", $"{song.SongProperties[^1].Name}={song.SongProperties[^1].Value}");
     }
@@ -137,12 +142,12 @@ public class ArtistsPropertyTests
     {
         var human = await CreateSong([".Create=", "User=dwgray", "Time=01/15/2024 14:30:00",
             "Title=Hold My Heart (feat. ZZ Ward)", "Artist=Lindsey Stirling", "Artists=Lindsey Stirling"]);
-        Assert.IsFalse(await human.UpdateArtists(null, _dms));
+        Assert.IsFalse(human.UpdateArtists(null));
 
         var service = await CreateSong([".Create=", "User=dwgray", "Time=01/15/2024 14:30:00",
             "Title=Hold My Heart (feat. ZZ Ward)", "Artist=Lindsey Stirling",
             ".Edit=", "User=batch-s|P", "Time=01/16/2024 14:30:00", "Artists=Lindsey Stirling|Zz Ward"]);
-        Assert.IsFalse(await service.UpdateArtists(null, _dms));
+        Assert.IsFalse(service.UpdateArtists(null));
     }
 
     [TestMethod]

@@ -18,6 +18,7 @@ export class ArtistIndexModel {
   @jsonMember(String) public letter?: string;
   @jsonMember(String) public query?: string;
   @jsonMember(Number) public minSongs!: number;
+  @jsonMember(Boolean) public building?: boolean;
   @jsonMember(Number) public totalArtists!: number;
   @jsonMember(Date) public built?: Date;
   @jsonArrayMember(ArtistIndexBucket) public buckets!: ArtistIndexBucket[];

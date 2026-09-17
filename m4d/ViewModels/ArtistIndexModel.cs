@@ -9,6 +9,9 @@ public class ArtistIndexModel
 
     public int MinSongs { get; set; }
 
+    /// <summary>True while the first snapshot is still being built; everything else is empty</summary>
+    public bool Building { get; set; }
+
     public int TotalArtists { get; set; }
 
     public DateTime Built { get; set; }
@@ -19,6 +22,19 @@ public class ArtistIndexModel
 
     public static ArtistIndexModel Create(ArtistIndex index, string letter, string query, int minSongs)
     {
+        if (index == null)
+        {
+            return new ArtistIndexModel
+            {
+                Letter = ArtistIndex.NormalizeBucket(letter),
+                Query = query?.Trim(),
+                MinSongs = minSongs,
+                Building = true,
+                Buckets = [],
+                Artists = [],
+            };
+        }
+
         const int topCount = 100;
 
         var bucket = ArtistIndex.NormalizeBucket(letter);

@@ -1904,9 +1904,10 @@ public class Song : TaggableObject
     /// Runs <see cref="ArtistSplitter"/> and, when the result differs from the current effective
     /// artists, appends an artist-bot edit block and reloads the song. Never overrides a list
     /// entered by a human or supplied by a music service. Returns true if the song changed.
+    /// Updates the in-memory state to match the appended block rather than reloading the log,
+    /// so callers' unsaved in-memory changes survive.
     /// </summary>
-    public async Task<bool> UpdateArtists(IArtistKnowledge knowledge, DanceMusicCoreService database,
-        DateTime? time = null)
+    public bool UpdateArtists(IArtistKnowledge knowledge, DateTime? time = null)
     {
         if (IsNull || ArtistsSource is ArtistsSource.User or ArtistsSource.Service)
         {
@@ -1924,7 +1925,8 @@ public class Song : TaggableObject
 
         CreateEditProperties(new ApplicationUser(ArtistBotUser, pseudo: true), EditCommand, time);
         SongProperties.Add(new SongProperty(ArtistsField, desired == null ? string.Empty : ArtistSplitter.Serialize(desired)));
-        await Load(SongId, SongProperties, database);
+        Artists = desired;
+        ArtistsSource = desired == null ? ArtistsSource.None : ArtistsSource.Heuristic;
         return true;
     }
 

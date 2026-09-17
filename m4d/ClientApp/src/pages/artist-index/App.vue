@@ -62,7 +62,11 @@ const search = () => {
       </BInputGroup>
     </BForm>
 
-    <nav aria-label="Artists by letter" class="mb-3">
+    <BAlert v-if="model.building" :model-value="true" variant="info">
+      We're putting the artist index together. Please refresh this page in a minute or two.
+    </BAlert>
+
+    <nav v-if="!model.building" aria-label="Artists by letter" class="mb-3">
       <BNav pills small class="flex-wrap">
         <BNavItem
           v-for="bucket in model.buckets"
@@ -76,8 +80,8 @@ const search = () => {
       </BNav>
     </nav>
 
-    <h2 class="h4">{{ heading }}</h2>
-    <p class="text-body-secondary">
+    <h2 v-if="!model.building" class="h4">{{ heading }}</h2>
+    <p v-if="!model.building" class="text-body-secondary">
       <template v-if="includeAll">Showing every artist.</template>
       <template v-else>Showing artists with at least {{ model.minSongs }} songs.</template>
       <a :href="toggleAllUrl" class="ms-1">{{
@@ -91,7 +95,7 @@ const search = () => {
         <small class="text-body-secondary"> ({{ artist.songs }})</small>
       </li>
     </ul>
-    <p v-else>No artists found.</p>
+    <p v-else-if="!model.building">No artists found.</p>
   </PageFrame>
 </template>
 

@@ -23,6 +23,7 @@ exports[`Artist Index > renders an artist index page 1`] = `
           <!---->
         </div>
       </form>
+      <!--v-if-->
       <nav data-v-98cf8e17="" aria-label="Artists by letter" class="mb-3">
         <ul data-v-98cf8e17="" class="nav nav-pills small flex-wrap">
           <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=A" tabindex="-1" aria-disabled="true" to="" replace="false">A</a></li>

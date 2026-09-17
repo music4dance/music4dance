@@ -526,7 +526,7 @@ public class AdminController(
                         }
 
                         var before = string.Join(" | ", song.EffectiveArtists);
-                        var didChange = await song.UpdateArtists(knowledge, dms);
+                        var didChange = song.UpdateArtists(knowledge);
                         if (didChange)
                         {
                             changed++;

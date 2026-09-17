@@ -1670,7 +1670,7 @@ public class SongIndex
             try
             {
                 var knowledge = await GetArtistKnowledge(song);
-                _ = await song.UpdateArtists(knowledge, DanceMusicService);
+                _ = song.UpdateArtists(knowledge);
             }
             catch (Exception ex)
             {

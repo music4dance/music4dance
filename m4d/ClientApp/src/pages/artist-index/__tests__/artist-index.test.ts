@@ -8,6 +8,19 @@ describe("Artist Index", () => {
     testPageSnapshot(App, model);
   }, 50000);
 
+  test("tells visitors when the index is still being built", () => {
+    const wrapper = loadTestPage(App, {
+      ...model,
+      letter: null,
+      building: true,
+      buckets: [],
+      artists: [],
+    });
+    expect(wrapper.text()).toContain("putting the artist index together");
+    expect(wrapper.find("ul.artist-list").exists()).toBe(false);
+    expect(wrapper.text()).not.toContain("No artists found");
+  }, 50000);
+
   test("links artists, letters and the song-count toggle", () => {
     const wrapper = loadTestPage(App, model);
     expect(wrapper.findAll("ul.artist-list a").map((a) => a.attributes("href"))).toEqual([
