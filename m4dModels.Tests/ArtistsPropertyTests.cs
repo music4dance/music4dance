@@ -150,6 +150,33 @@ public class ArtistsPropertyTests
         Assert.IsFalse(service.UpdateArtists(null));
     }
 
+    /// <summary>
+    /// "Undo My Changes" strips the user's own blocks and replays what is left, so an artist-bot
+    /// split written before the user touched it should come back.
+    /// </summary>
+    [TestMethod]
+    public async Task UndoUserChanges_RestoresTheBotSplit()
+    {
+        var song = await CreateSong([".Create=", "User=dwgray", "Time=01/15/2024 14:30:00",
+            "Title=Fireball", "Artist=Pitbull feat. John Ryan",
+            ".Edit=", "User=artist-bot|P", "Time=01/16/2024 14:30:00",
+            "Artists=Pitbull|John Ryan"]);
+        CollectionAssert.AreEqual(new[] { "Pitbull", "John Ryan" }, song.Artists.ToList());
+
+        var editor = await _dms.FindUser("Charlie");
+        song.SongProperties.AddRange(SongProperty.Load(
+            ".Edit=	User=Charlie	Time=01/17/2024 14:30:00	Artists=John Ryan"));
+        await song.Reload([.. song.SongProperties], _dms);
+        CollectionAssert.AreEqual(new[] { "John Ryan" }, song.Artists.ToList());
+        Assert.AreEqual(ArtistsSource.User, song.ArtistsSource);
+
+        Assert.IsTrue(await song.UndoUserChanges(editor, _dms));
+        Assert.IsNotNull(song.Artists, "log after undo: " + song.Serialize(null).Replace("	", " | "));
+
+        CollectionAssert.AreEqual(new[] { "Pitbull", "John Ryan" }, song.Artists.ToList());
+        Assert.AreEqual(ArtistsSource.Heuristic, song.ArtistsSource);
+    }
+
     [TestMethod]
     public async Task ArtistsSurviveSerializationRoundTrip()
     {

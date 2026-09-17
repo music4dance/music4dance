@@ -473,8 +473,9 @@ public class AdminController(
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "dbAdmin")]
-    public async Task<ActionResult> BatchArtists(string idxName = "default", string mode = "Report",
-        int count = -1)
+    public async Task<ActionResult> BatchArtists(
+        [FromServices] ArtistIndexCache artistIndexCache,
+        string idxName = "default", string mode = "Report", int count = -1)
     {
         try
         {
@@ -562,6 +563,11 @@ public class AdminController(
                     if (apply)
                     {
                         await FlushBatchAsync();
+
+                        // The browsable index is a 6-hour snapshot, so without this the page
+                        // keeps serving pre-backfill artists for hours. Only this instance's
+                        // copy is dropped; others catch up when their own snapshot expires.
+                        artistIndexCache.Invalidate();
                     }
 
                     AdminMonitor.CompleteTask(true,

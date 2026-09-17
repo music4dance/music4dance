@@ -96,8 +96,16 @@ These supersede the corresponding sections; fold them in when converting to an a
   (existing behavior), so these lists are recorded as `User`, not `Service`. The server-side
   `Song.CreateFromTrack` paths (playlist/bulk import) don't record `Artists` yet, but the save hook
   covers title "feat." for them.
-- **Not done:** `ARTISTS` upload column, CSV export column, sandbox fixture refresh, public API
-  DTOs.
+- **Not done:** `ARTISTS` upload column, CSV export column, public API DTOs.
+- **Sandbox and e2e.** `m4d.Sandbox` turns the `ArtistIndex` flag on and seeds the `artist-bot`
+  pseudo user before seeding songs, so the save hook splits the ~400 seeded credits on the way in
+  and the artist pages have something to show. `e2e/tests/artist-index.spec.ts` and
+  `e2e/tests/song-artists.spec.ts` cover browsing, search, the linked credit, editing the list and
+  the two unprivileged cases.
+- **A `canEdit`-only account still can't reach song editing.** The edit/save column in
+  `SongCore.vue` is gated on `editing || context.canTag`, so opening `Artist` up to `canEdit`
+  (§18.2) only helps accounts that also hold `canTag`. Widening that gate is an open question;
+  `song-artists.spec.ts` pins the current behaviour so the decision surfaces rather than drifting.
 
 ### 0.3 Phase 0 Findings (index backup 2026-09-16)
 
@@ -1099,6 +1107,7 @@ Each phase is a separate PR unless noted. **Always test index first, then produc
 
 ### Phase 3 — UI
 
+- [x] Playwright coverage of the index page, the linked credit and artist editing
 - [x] Song details display (substring links) + editing (`canEdit`/`dbAdmin`/creator). The split
       preview endpoint was not built: the save hook applies the split on save.
 - [x] Artist page: collaborators panel, artist column visibility
