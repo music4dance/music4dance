@@ -27,8 +27,14 @@ internal static class ArtistAnalysisCorpus
         }
     }
 
-    public static List<CorpusSong> Load(string path) =>
-        [.. File.ReadLines(path).Select(ParseLine).Where(s => s != null)];
+    public static List<CorpusSong> Load(string path) => [.. Stream(path)];
+
+    /// <summary>
+    /// The same songs without holding the whole backup, for measuring what a streaming pass over
+    /// the catalog actually costs (see <c>ArtistIndexMemory</c>).
+    /// </summary>
+    public static IEnumerable<CorpusSong> Stream(string path) =>
+        File.ReadLines(path).Select(ParseLine).Where(s => s != null);
 
     public static ArtistKnowledge Knowledge(List<CorpusSong> songs, int minimumSongs) =>
         ArtistKnowledge.FromCredits(songs.Select(s => (s.Title, s.Artist)), minimumSongs);

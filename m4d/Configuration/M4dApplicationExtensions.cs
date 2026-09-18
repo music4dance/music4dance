@@ -521,7 +521,16 @@ public static class M4dApplicationExtensions
         services.AddSingleton<m4d.Security.RateLimitingTracker>();
         services.AddSingleton<m4d.Security.Http4xxTracker>();
 
-        services.AddSingleton<m4d.Services.ArtistIndexCache>();
+        // The snapshot is persisted beside dance-environment.json so a restart doesn't cost the
+        // first visitor a full streaming pass. Gated on ConfigureSearch, like the dance stats file
+        // manager above: the sandbox builds its index from seeded songs in memory, and its
+        // WebRootPath is m4d/wwwroot, so persisting would have it trade snapshots with the real
+        // dev app - each one reading back the other's catalog on its next start.
+        services.AddSingleton(sp => new m4d.Services.ArtistIndexCache(
+            sp.GetRequiredService<ILogger<m4d.Services.ArtistIndexCache>>(),
+            appOptions.ConfigureSearch && !string.IsNullOrEmpty(environment.WebRootPath)
+                ? new ArtistIndexFileManager(environment.WebRootPath)
+                : null));
 
         services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
         services.AddHostedService<BackgroundQueueHostedService>();

@@ -399,10 +399,19 @@ leading articles stripped.
 
 `ArtistIndexCache` holds one snapshot **per app instance**:
 
-- Built in the background on first request. The first visitor waits up to 10s and otherwise sees
-  "we're putting the artist index together".
+- Served from memory, or failing that from the snapshot on disk ([§9.6](#96-the-snapshot-on-disk)).
+  Only when there is neither does a visitor wait for a build - up to 10s, and otherwise see "we're
+  putting the artist index together".
 - **Lifetime 6 hours**, stale-while-revalidate: once expired, the next visitor gets the stale
   snapshot immediately while a rebuild runs.
+- Builds run in the background, one at a time, and **never fail a request**. Everything that can
+  throw - including acquiring the transient service, which is what fails when the database is
+  unreachable - is inside the build task. A failure leaves the existing snapshot in place and is
+  not retried for `RetryAfterFailure` (5 minutes), so an outage doesn't turn every request into a
+  fresh streaming pass.
+- A build that returns **zero** artists is treated as a failure when a non-empty snapshot is
+  already held. An index mid-rebuild answers every page with no results without erroring, and
+  publishing that would blank the page and then write the blank to disk.
 - `BatchArtists` invalidates it after `Apply`/`ApplyChanged`, so a backfill is visible at once on
   the instance that ran it. Other instances wait out their own 6 hours.
 
@@ -476,6 +485,78 @@ Site-wide search autocomplete over `Artists` is a different problem and still ne
 
 ---
 
+### 9.5 What it costs in memory
+
+Measured against the 2026-09-16 backup (104,033 songs, 31,957 artists) by `ArtistIndexMemory`
+([§12](#12-analysis-harnesses)). The site runs on a small instance, so these are worth knowing:
+
+| | |
+| --- | --- |
+| Retained snapshot, per instance | **6.0 MB** (197 bytes/artist) |
+| Peak over idle while building | **18.7 MB** |
+| Allocated while building | **223 MB** |
+| Serialized as JSON | **0.5 MB** |
+
+Only 2.3 MB of the snapshot is characters; the rest is per-object overhead - an entry object and
+three strings (display name, match key, sort key) per artist. The keys are kept rather than
+recomputed because `Search` runs over them on every keystroke.
+
+Two things follow from these numbers:
+
+- **`BuildAsync` groups as the stream arrives.** It used to drain the whole stream into a list
+  first, which held every song's artist list at once: 11.9 MB, about twice the snapshot it was
+  building, for no benefit. Streaming takes the peak from ~30 MB to ~19 MB.
+- **223 MB of allocation** is churn, not footprint - short-lived strings from `CleanName` and
+  `ArtistKey`, and one `Dictionary` per artist to count spellings. It runs on a background thread
+  once per 6 hours. Collapsing the per-artist dictionary (most artists have exactly one spelling)
+  would cut it substantially and is the obvious next step if GC pressure ever shows up.
+
+### 9.6 The snapshot on disk
+
+`ArtistIndexFileManager` persists the snapshot beside `dance-environment.json`, and mirrors how
+that file works:
+
+| | |
+| --- | --- |
+| Runtime snapshot | `wwwroot/AppData/artist-index.json`, written after every successful build |
+| Fallback in source control | `ClientApp/src/assets/content/artist-index-fallback.json`, copied to `wwwroot/content/` by m4d's `assets` build target |
+
+Read order is runtime, then fallback. It buys three things:
+
+- **A restart costs the first visitor nothing.** They get the previous snapshot immediately and a
+  rebuild starts behind them, instead of waiting out a streaming pass or timing out into "still
+  building".
+- **A search outage costs freshness, not the page.** A failed build leaves whatever was loaded in
+  place, so the index and its type-ahead keep answering from the last good pass.
+- **A brand-new instance has something to serve**, which is what the checked-in fallback is for -
+  a deploy to an App Service with an empty `AppData` still renders artist pages on its first
+  request.
+
+Details that matter:
+
+- The file stores the **display name and song count** only. The match and sort keys are derived
+  from the name, so leaving them out roughly halves the file and cannot drift from the code that
+  derives them. It stores what was already grouped, so a reload re-sorts but never re-groups.
+- **`Built` is kept, and round-trips in UTC.** Staleness is measured against `DateTime.UtcNow`, so
+  an aged file is recognized as stale and triggers a rebuild on first use. Left to Newtonsoft's
+  defaults the timestamp comes back as local time, which would shift the snapshot's age by the
+  server's offset - silently, and only outside UTC.
+- **Writes go to a temp file and are moved into place.** On a multi-instance app this file lives on
+  a shared Azure Files volume, so two instances can finish builds at once; a move replaces it in
+  one step where a direct write can be read half-finished.
+- **`Invalidate` deletes it**, rather than only dropping the in-memory copy. After a backfill the
+  persisted snapshot is wrong rather than merely old, and reloading it would put the pre-backfill
+  artists straight back - and leave them there for the next instance to restart.
+- **Anything unreadable is treated as a miss.** A snapshot is a cache; a corrupt one is worth no
+  more than none.
+- **Persistence is off in the sandbox** (gated on `ConfigureSearch`, like the dance stats file
+  manager). The sandbox's `WebRootPath` is `m4d/wwwroot`, so persisting would have it trade
+  snapshots with the real dev app - each reading back the other's catalog on its next start.
+- **Writing is best-effort.** A read-only or full volume is logged and costs the next restart a
+  slow first request; it never costs a build its result.
+
+---
+
 ## 10. Artist Pages
 
 With the flag on, `/song/artist?name=…` matches on individual artists
@@ -536,12 +617,21 @@ dotnet test m4dModels.Tests -p:BaseOutputPath=local/build-out/ --filter "TestCat
 | ------- | ------ |
 | `ArtistSplitterAnalysis` | `summary.md`, `splits.tsv`, `unresolved.tsv`, `artists.tsv`, `case-variants.tsv` |
 | `ArtistSplitterGroundTruth` | `spotify-accuracy.md`, `spotify-mismatches.tsv` |
+| `ArtistIndexMemory` | Console only - the numbers in [§9.5](#95-what-it-costs-in-memory) |
+| `ArtistIndexSnapshot` | `m4d/ClientApp/src/assets/content/artist-index-fallback.json` ([§9.6](#96-the-snapshot-on-disk)) |
 
 The Spotify sampler needs the network and reads `Authentication:Spotify:ClientId` / `:ClientSecret`
 from m4d's user secrets (or `M4D_SPOTIFY_CLIENT_ID` / `M4D_SPOTIFY_CLIENT_SECRET`). It skips itself
 when either the backup or the credentials are missing. A full run is ~35 API calls.
 
 Review `unresolved.tsv` sorted by song count — the top few hundred credits carry most of the value.
+
+`ArtistIndexSnapshot` rewrites a checked-in file, so run it deliberately: after a backfill that
+materially changes the artist list, and not as part of a routine `TestCategory=Manual` sweep. It
+dates the snapshot from the backup's own timestamp, not from when it ran, so the cache treats a
+stale one as stale. It writes compact JSON, so run `yarn format` in `m4d/ClientApp`
+afterwards - prettier owns the formatting of everything under `src/`, and would otherwise reformat
+it on someone else's next run.
 
 ---
 
