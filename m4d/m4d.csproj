@@ -11,6 +11,29 @@
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!--
+      The Web SDK defaults server GC on, which is the wrong trade for the single-core Basic B1
+      App Service this runs on. Server GC sizes itself for throughput on a machine with memory to
+      spare: one heap per core, far larger gen0 budgets, and far more reluctance to return pages
+      to the OS. On App Service it also sizes those budgets against the HOST's memory rather than
+      the plan's 1.75 GB, so on a shared worker its idea of "plenty of room" can be considerably
+      more than we are paying for - and the site has been sitting at 80-90% of the plan.
+
+      Workstation GC collects more often and gives memory back sooner. Measured on the artist
+      index build (architecture/individual-artists.md section 9.5), the same 226 MB of allocation
+      cost 27.6 MB of working set under server GC and 4.6 MB under workstation - 3 gen0
+      collections against 36. That was a many-core dev box, where server GC allocates more heaps
+      than a 1-core B1 would, so treat the ratio as directional; the direction is not in doubt.
+
+      The cost is throughput under concurrent load, which is what server GC buys. On one core
+      there is no parallelism to buy it with. Background (concurrent) GC stays on, so gen2
+      collections still run mostly off the request path. Revisit if the plan is ever scaled up.
+    -->
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+  </PropertyGroup>
+
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
       <_Parameter1>m4d.Tests</_Parameter1>

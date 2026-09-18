@@ -513,14 +513,14 @@ recomputed because `Search` runs over them on every keystroke.
 holding every song's artist list at once - 13 MB, about twice the snapshot it was building, for no
 benefit.
 
-The GC mode matters more than anything in this code. ASP.NET Core defaults `System.GC.Server` to
-true (it is not set in `m4d.csproj`), and server GC trades memory for throughput: far larger gen0
-budgets, far lazier return to the OS. The columns above were measured on a many-core dev machine,
-where server GC allocates more heaps than a 1-core B1 would, so treat the gap as directional rather
-than exact - but the direction is the documented one. On a Basic B1 App Service, where the runtime
-also sizes its budgets against the host's memory rather than the plan's 1.75 GB,
-`<ServerGarbageCollection>false</ServerGarbageCollection>` is the usual remedy and would move far
-more memory than this build ever allocates.
+The GC mode matters more than anything in this code, and measuring this build is what turned it
+up. Server GC trades memory for throughput: far larger gen0 budgets, far lazier return to the OS.
+The Web SDK defaults it on, and on App Service it sizes those budgets against the host's memory
+rather than the plan's 1.75 GB. **`m4d.csproj` now sets `<ServerGarbageCollection>false</ServerGarbageCollection>`**,
+so the Workstation column is what production runs; the Server column is kept for the comparison
+that motivated it. Both were measured on a many-core dev machine, where server GC allocates more
+heaps than a 1-core B1 would, so treat the gap as directional rather than exact - the direction is
+the documented one.
 
 If GC pressure does need reducing here, collapsing the per-artist spelling `Dictionary` (most
 artists have exactly one spelling) is the obvious next cut.
