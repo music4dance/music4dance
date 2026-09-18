@@ -30,11 +30,11 @@ How that list is derived, stored and matched is covered in
   public async Task<ActionResult> Artist(string name)
   {
       ...
+      var artistIndex = await FeatureManager.IsEnabledAsync(FeatureFlags.ArtistIndex);
       var model = await ArtistViewModel.Create(
-          name, Mapper, DefaultCruftFilter(), Database,
-          await FeatureManager.IsEnabledAsync(FeatureFlags.ArtistIndex));
+          name, Mapper, DefaultCruftFilter(), Database, artistIndex);
 
-      if (model.Histories.Count < MinimumSongsToIndexArtist)
+      if (artistIndex && model.Histories.Count < MinimumSongsToIndexArtist)
       {
           ViewData["Robots"] = "noindex, follow";
       }

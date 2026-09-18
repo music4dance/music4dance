@@ -893,14 +893,18 @@ public class SongController : ContentController
 
         if (!string.IsNullOrWhiteSpace(name))
         {
+            var artistIndex = await FeatureManager.IsEnabledAsync(FeatureFlags.ArtistIndex);
             var model = await ArtistViewModel.Create(
-                name, Mapper, DefaultCruftFilter(), Database,
-                await FeatureManager.IsEnabledAsync(FeatureFlags.ArtistIndex));
+                name, Mapper, DefaultCruftFilter(), Database, artistIndex);
 
             // Splitting credits turns one artist page into tens of thousands, most of them a
             // single song. Those are too thin to be worth indexing, but their songs are worth
             // crawling, so they ask to be followed and not indexed rather than shut out.
-            if (model.Histories.Count < MinimumSongsToIndexArtist)
+            //
+            // Gated on the flag along with the fan-out that motivates it. Unconditionally, this
+            // would de-index the thin pages that already exist the moment the code deploys -
+            // before the feature is on, and slow to undo once a crawler has acted on it.
+            if (artistIndex && model.Histories.Count < MinimumSongsToIndexArtist)
             {
                 ViewData["Robots"] = "noindex, follow";
             }

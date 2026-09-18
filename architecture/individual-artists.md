@@ -419,6 +419,11 @@ Splitting credits turns one artist page into ~32,500. Decisions:
   `MinimumSongsToIndexArtist` (5) songs, `SongController.Artist` sets `ViewData["Robots"] =
   "noindex, follow"`: the page isn't worth indexing, the songs it links to are. That leaves about
   5,100 artist pages indexable out of 32,500.
+- **That directive is gated on the flag**, along with the fan-out that justifies it. Ungated, it
+  would de-index the thin pages that already exist — the ones whose whole-credit match finds fewer
+  than 5 songs — as soon as the code deployed, with the feature still off. De-indexing is cheap to
+  emit and slow to undo once a crawler has acted on it, so it waits for the flag like everything
+  else.
 - `_head.cshtml` takes a `ViewData["Robots"]` string for this. `ViewData["NoIndex"]` and the
   off-site host check still force `noindex, nofollow`, which is what staging and identity pages want.
 
