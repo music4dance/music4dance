@@ -16,7 +16,8 @@ public class ArtistIndexMemory
 {
     private record Measurements(
         int Songs, int Artists, long Source, long Snapshot, long Uncollected, long Churn,
-        long Json, long Chars, long NameChars);
+        long Json, long Chars, long NameChars, long Loh, long Committed, long WorkingSet,
+        int Gen0, int Gen1, int Gen2);
 
     [TestMethod]
     [TestCategory("Manual")]
@@ -54,6 +55,12 @@ public class ArtistIndexMemory
         _ = sb.AppendLine($"  would add to the peak:   {Mb(m.Source),12}");
         _ = sb.AppendLine();
         _ = sb.AppendLine($"Serialized as JSON:        {Mb(m.Json),12}");
+        _ = sb.AppendLine();
+        _ = sb.AppendLine($"GC mode:                   {(System.Runtime.GCSettings.IsServerGC ? "server" : "workstation"),12}");
+        _ = sb.AppendLine($"Collections (gen0/1/2):    {$"{m.Gen0}/{m.Gen1}/{m.Gen2}",12}");
+        _ = sb.AppendLine($"LOH after the build:       {Mb(m.Loh),12}");
+        _ = sb.AppendLine($"Committed heap delta:      {Mb(m.Committed),12}");
+        _ = sb.AppendLine($"Working set delta:         {Mb(m.WorkingSet),12}");
 
         Console.WriteLine(sb.ToString());
         Assert.IsTrue(m.Artists > 0);
@@ -74,9 +81,26 @@ public class ArtistIndexMemory
         var withSource = Settled();
 
         var allocBefore = GC.GetTotalAllocatedBytes(true);
+        var (gen0, gen1, gen2) = (GC.CollectionCount(0), GC.CollectionCount(1), GC.CollectionCount(2));
+        var committedBefore = GC.GetGCMemoryInfo().TotalCommittedBytes;
+        var workingSetBefore = Environment.WorkingSet;
+
         var index = ArtistIndex.BuildAsync(AsAsync(source)).GetAwaiter().GetResult();
+
         var uncollected = GC.GetTotalMemory(false);
         var churn = GC.GetTotalAllocatedBytes(true) - allocBefore;
+        var info = GC.GetGCMemoryInfo();
+        var committed = info.TotalCommittedBytes - committedBefore;
+        var workingSet = Environment.WorkingSet - workingSetBefore;
+
+        // The large object heap is the part that doesn't compact by default and is only reclaimed
+        // by a gen2 collection - so it's what can sit in RSS after the build is over.
+        var loh = info.GenerationInfo.Length > 3 ? info.GenerationInfo[3].SizeAfterBytes : 0;
+
+        gen0 = GC.CollectionCount(0) - gen0;
+        gen1 = GC.CollectionCount(1) - gen1;
+        gen2 = GC.CollectionCount(2) - gen2;
+
         var withSnapshot = Settled();
 
         var json = ArtistIndexJson(index);
@@ -85,7 +109,7 @@ public class ArtistIndexMemory
         GC.KeepAlive(source);
         return new Measurements(
             songs, index.Count, withSource - baseline, withSnapshot - withSource, uncollected,
-            churn, json, chars, names);
+            churn, json, chars, names, loh, committed, workingSet, gen0, gen1, gen2);
     }
 
     private static async IAsyncEnumerable<IReadOnlyList<string>> AsAsync(

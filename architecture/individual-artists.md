@@ -490,26 +490,40 @@ Site-wide search autocomplete over `Artists` is a different problem and still ne
 Measured against the 2026-09-16 backup (104,033 songs, 31,957 artists) by `ArtistIndexMemory`
 ([§12](#12-analysis-harnesses)). The site runs on a small instance, so these are worth knowing:
 
-| | |
-| --- | --- |
-| Retained snapshot, per instance | **6.0 MB** (197 bytes/artist) |
-| Peak over idle while building | **18.7 MB** |
-| Allocated while building | **223 MB** |
-| Serialized as JSON | **0.5 MB** |
+| | Server GC | Workstation GC |
+| --- | --- | --- |
+| Retained snapshot, per instance | 6.8 MB | 6.8 MB |
+| **Working set added by a build** | **27.6 MB** | **4.6 MB** |
+| Committed heap added by a build | 21.9 MB | 2.6 MB |
+| Managed peak over idle | 45.4 MB | 21.8 MB |
+| Allocated during a build | 225.6 MB | 225.6 MB |
+| Collections (gen0/gen1/gen2) | 3/1/0 | 36/12/0 |
+| Serialized as JSON | 0.5 MB | 0.5 MB |
+
+**The 226 MB is churn, not footprint.** It is short-lived strings from `CleanName` and `ArtistKey`
+plus one `Dictionary` per artist to count spellings, essentially all of which dies in gen0 - note
+the zero gen2 collections in either mode. What reaches RSS is the working-set row, and a build runs
+once per 6 hours on a background thread.
 
 Only 2.3 MB of the snapshot is characters; the rest is per-object overhead - an entry object and
 three strings (display name, match key, sort key) per artist. The keys are kept rather than
 recomputed because `Search` runs over them on every keystroke.
 
-Two things follow from these numbers:
+`BuildAsync` **groups as the stream arrives**. It used to drain the whole stream into a list first,
+holding every song's artist list at once - 13 MB, about twice the snapshot it was building, for no
+benefit.
 
-- **`BuildAsync` groups as the stream arrives.** It used to drain the whole stream into a list
-  first, which held every song's artist list at once: 11.9 MB, about twice the snapshot it was
-  building, for no benefit. Streaming takes the peak from ~30 MB to ~19 MB.
-- **223 MB of allocation** is churn, not footprint - short-lived strings from `CleanName` and
-  `ArtistKey`, and one `Dictionary` per artist to count spellings. It runs on a background thread
-  once per 6 hours. Collapsing the per-artist dictionary (most artists have exactly one spelling)
-  would cut it substantially and is the obvious next step if GC pressure ever shows up.
+The GC mode matters more than anything in this code. ASP.NET Core defaults `System.GC.Server` to
+true (it is not set in `m4d.csproj`), and server GC trades memory for throughput: far larger gen0
+budgets, far lazier return to the OS. The columns above were measured on a many-core dev machine,
+where server GC allocates more heaps than a 1-core B1 would, so treat the gap as directional rather
+than exact - but the direction is the documented one. On a Basic B1 App Service, where the runtime
+also sizes its budgets against the host's memory rather than the plan's 1.75 GB,
+`<ServerGarbageCollection>false</ServerGarbageCollection>` is the usual remedy and would move far
+more memory than this build ever allocates.
+
+If GC pressure does need reducing here, collapsing the per-artist spelling `Dictionary` (most
+artists have exactly one spelling) is the obvious next cut.
 
 ### 9.6 The snapshot on disk
 
@@ -617,7 +631,7 @@ dotnet test m4dModels.Tests -p:BaseOutputPath=local/build-out/ --filter "TestCat
 | ------- | ------ |
 | `ArtistSplitterAnalysis` | `summary.md`, `splits.tsv`, `unresolved.tsv`, `artists.tsv`, `case-variants.tsv` |
 | `ArtistSplitterGroundTruth` | `spotify-accuracy.md`, `spotify-mismatches.tsv` |
-| `ArtistIndexMemory` | Console only - the numbers in [§9.5](#95-what-it-costs-in-memory) |
+| `ArtistIndexMemory` | Console only - the numbers in [§9.5](#95-what-it-costs-in-memory). Set `DOTNET_gcServer=0`/`1` to compare GC modes |
 | `ArtistIndexSnapshot` | `m4d/ClientApp/src/assets/content/artist-index-fallback.json` ([§9.6](#96-the-snapshot-on-disk)) |
 
 The Spotify sampler needs the network and reads `Authentication:Spotify:ClientId` / `:ClientSecret`
