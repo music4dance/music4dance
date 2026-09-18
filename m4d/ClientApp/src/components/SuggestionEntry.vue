@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { useDropTarget } from "@/composables/useDropTarget";
 import { getAxiosXsrf } from "@/helpers/GetMenuContext";
+import { ServiceMatcher } from "@/helpers/ServiceMatcher";
 import { ref, watch } from "vue";
 import { type Size } from "bootstrap-vue-next";
+
+const matcher = new ServiceMatcher();
 
 interface Suggestion {
   value: string;
@@ -55,6 +58,12 @@ watch(
   () => model.value,
   (s?: string) => {
     if (!s || s.length < 2) {
+      return;
+    }
+    // A Spotify/Apple Music id or share URL is handled by checkServiceAndWarn (below,
+    // wired to @input) instead - fetching text suggestions for it as well just adds
+    // 400/404 noise, since it's not the kind of free text the suggester indexes.
+    if (matcher.match(s)) {
       return;
     }
     getAxiosXsrf()

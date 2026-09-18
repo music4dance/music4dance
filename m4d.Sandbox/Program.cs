@@ -15,6 +15,8 @@ using Microsoft.Extensions.FileProviders;
 // architecture/contributor-test-environments.md, L1b.
 
 const string SandboxDbName = "m4d-sandbox";
+const string DefaultLocalDbConnectionString =
+    "Server=(localdb)\\mssqllocaldb;Database=m4d;Trusted_Connection=True;MultipleActiveResultSets=true";
 
 // Resets the static DanceLibrary.Dances registry from the embedded sandbox dataset before
 // anything touches DanceStatsManager - DanceStats.DanceObject/.DanceName resolve against this
@@ -39,8 +41,29 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 
 builder.AddM4dApplication(connectionString: null, appOptions: sandboxOptions);
 
+// Opt-in (SANDBOX_USE_LOCALDB=true): back this host with the real, persistent SQL LocalDB (the
+// same "m4d" database the contributor-setup.md real-app path creates via
+// `dotnet ef database update`) instead of the default in-memory provider. Everything else about
+// the sandbox is unchanged - still LocalSearchServiceManager, still reseeds the same songs into
+// an in-memory search index every run (songs are search-index-backed, never SQL-backed, so this
+// doesn't make them persist) - the persistence this buys is for SQL-backed state: user accounts,
+// activity log, playlists, saved searches. Requires the real-app path's migrations to already be
+// applied; this host doesn't run them itself (ConfigureDatabase: false above skips that).
+var useLocalDb = builder.Configuration.GetValue<bool>("SANDBOX_USE_LOCALDB");
+var localDbConnectionString =
+    builder.Configuration.GetConnectionString("DanceMusicContextConnection") ?? DefaultLocalDbConnectionString;
+
 builder.Services.AddDbContext<DanceMusicContext>(options =>
-    options.UseInMemoryDatabase(SandboxDbName));
+{
+    if (useLocalDb)
+    {
+        options.UseSqlServer(localDbConnectionString);
+    }
+    else
+    {
+        options.UseInMemoryDatabase(SandboxDbName);
+    }
+});
 
 builder.Services.AddSingleton<ISearchServiceManager, LocalSearchServiceManager>();
 builder.Services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(new LocalDanceStatsFileManager()));
@@ -99,7 +122,7 @@ using (var scope = app.Services.CreateScope())
     seededSongs = await SeedSongs(dms);
 }
 
-PrintStartupBanner(app, builder.Configuration, seededSongs);
+PrintStartupBanner(app, builder.Configuration, seededSongs, useLocalDb);
 
 await app.WaitForShutdownAsync();
 
@@ -138,7 +161,7 @@ static async Task<List<(Guid Id, string Title)>> SeedSongs(DanceMusicService dms
 }
 
 static void PrintStartupBanner(
-    WebApplication app, IConfiguration configuration, List<(Guid Id, string Title)> seededSongs)
+    WebApplication app, IConfiguration configuration, List<(Guid Id, string Title)> seededSongs, bool useLocalDb)
 {
     var addresses = app.Urls.Count > 0 ? string.Join(", ", app.Urls) : "(see 'Now listening on' above)";
     var baseUrl = app.Urls.FirstOrDefault();
@@ -148,6 +171,13 @@ static void PrintStartupBanner(
     Console.WriteLine(" music4dance sandbox — no external services, nothing installed");
     Console.WriteLine("========================================================================");
     Console.WriteLine($" Listening on: {addresses}");
+    if (useLocalDb)
+    {
+        Console.WriteLine(" SANDBOX_USE_LOCALDB=true: using the real, persistent SQL LocalDB (\"m4d\")");
+        Console.WriteLine(" instead of in-memory - user accounts/activity/playlists persist across");
+        Console.WriteLine(" restarts. Songs still reseed fresh each run (they're search-index-backed,");
+        Console.WriteLine(" not SQL-backed, so this doesn't change that part).");
+    }
     Console.WriteLine();
     Console.WriteLine(" Seeded accounts (see appsettings.json to change, or set the env vars");
     Console.WriteLine(" M4D_ADMIN_USER/M4D_TEST_USER/M4D_EDITOR_USER + _PASSWORD before running):");
@@ -167,7 +197,10 @@ static void PrintStartupBanner(
     Console.WriteLine();
     Console.WriteLine(" ⚠ Search relevance is NOT representative - SongIndexLocal is an in-memory");
     Console.WriteLine("   stand-in for Azure Search using simple substring/LINQ matching, not real ranking.");
-    Console.WriteLine(" ⚠ All state is in-memory. Ctrl+C and re-run for a clean slate.");
+    Console.WriteLine(useLocalDb
+        ? " ⚠ Songs are in-memory and reseed fresh every run; SQL-backed state (accounts,"
+            + " activity, playlists) persists in the LocalDB."
+        : " ⚠ All state is in-memory. Ctrl+C and re-run for a clean slate.");
     Console.WriteLine("========================================================================");
     Console.WriteLine();
 }
