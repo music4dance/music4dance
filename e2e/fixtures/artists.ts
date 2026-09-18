@@ -41,6 +41,14 @@ export async function findSplitSong(page: Page): Promise<string> {
   );
 }
 
+// The artist index's search box. Located by label rather than by role on purpose: the datalist
+// behind its type-ahead means the input carries a `list` attribute, and that alone changes its
+// implicit ARIA role from searchbox to combobox - so getByRole("searchbox") silently stops
+// matching the moment suggestions are wired up.
+export function artistSearchBox(page: Page) {
+  return page.getByLabel("Find an artist");
+}
+
 // The sandbox reports its stand-in services as unavailable, so ServiceStatusBanner renders an
 // accordion whose header is also an <h2>. It sits outside #body-content (PageFrame.vue), so
 // scoping there picks out the page's own heading without depending on Bootstrap classes.

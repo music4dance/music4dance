@@ -54,7 +54,10 @@ export interface ArtistCount {
  * Other individual artists credited alongside `artist` across `songs`, most frequent first.
  * Spelling variants are grouped by artistKey, keeping the most common spelling.
  */
-export function collaborators(artist: string, songs: { effectiveArtists: string[] }[]): ArtistCount[] {
+export function collaborators(
+  artist: string,
+  songs: { effectiveArtists: string[] }[],
+): ArtistCount[] {
   const self = artistKey(artist);
   const groups = new Map<string, Map<string, number>>();
   for (const song of songs) {

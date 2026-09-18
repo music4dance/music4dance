@@ -34,7 +34,9 @@ const heading = computed(() => {
     return `Artists matching "${model.query}"`;
   }
   if (model.letter) {
-    return model.letter === "#" ? "Artists starting with other characters" : `Artists: ${model.letter}`;
+    return model.letter === "#"
+      ? "Artists starting with other characters"
+      : `Artists: ${model.letter}`;
   }
   return "Most popular artists";
 });
@@ -52,11 +54,11 @@ const search = () => {
   <PageFrame id="app" title="Artists" :breadcrumbs="breadcrumbs">
     <BForm class="mb-3" role="search" @submit.prevent="search">
       <BInputGroup>
-        <BFormInput
+        <ArtistSuggest
+          id="artist-search"
           v-model="query"
-          type="search"
-          placeholder="Find an artist"
-          aria-label="Find an artist"
+          :include-all="includeAll"
+          @search="search"
         />
         <BButton type="submit" variant="primary"><IBiSearch /> Search</BButton>
       </BInputGroup>

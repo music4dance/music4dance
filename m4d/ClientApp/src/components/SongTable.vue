@@ -99,12 +99,10 @@ const tagsFieldWithLabel = computed((): SongField => {
   };
 });
 
-const danceTagsFieldWithLabel = computed(
-  (): SongField => ({
-    key: "danceTags",
-    label: `${currentDanceName.value} Tags`,
-  }),
-);
+const danceTagsFieldWithLabel = computed((): SongField => ({
+  key: "danceTags",
+  label: `${currentDanceName.value} Tags`,
+}));
 
 const buildEditor = (history: SongHistory) => {
   const userId = context.userId;

@@ -251,9 +251,11 @@ Two Azure behaviours this design depends on, both confirmed against current docs
   an in-memory snapshot.
 - A suggester **cannot take a field that already existed**: "you have to rebuild the index if you
   want to add them to a suggester"
-  ([reference](https://learn.microsoft.com/en-us/azure/search/index-add-suggesters)). Artist
-  autocomplete therefore waits for the next versioned index —
-  [#277](https://github.com/music4dance/music4dance/issues/277).
+  ([reference](https://learn.microsoft.com/en-us/azure/search/index-add-suggesters)). Adding
+  `Artists` to the site-wide `songs` suggester therefore waits for the next versioned index —
+  [#277](https://github.com/music4dance/music4dance/issues/277). The artist index page's own
+  type-ahead doesn't wait on it and doesn't want it: it answers from the snapshot
+  ([§9.4](#94-type-ahead)).
 
 ### 5.2 Capability detection
 
@@ -423,6 +425,50 @@ Splitting credits turns one artist page into ~32,500. Decisions:
 A sitemap for the ~5,100 indexable pages is a reasonable later project; `robots.txt` has no
 `Sitemap:` line to hook it to yet.
 
+### 9.4 Type-ahead
+
+The search box suggests artists as you type, from `GET /api/suggestion/artist?q=…&all=…`
+(`SuggestionController.Artist` → `ArtistSuggest.vue`).
+
+**It does not use an Azure suggester**, and deliberately so. Azure can only attach a suggester to a
+field when the index is created ([§5.1](#51-the-field)), so the obvious implementation would have
+cost a full index rebuild — and would have been worse:
+
+| | Azure suggester on `Artists` | The snapshot |
+| --- | --- | --- |
+| Index rebuild | Required | None |
+| What it suggests | Raw per-document field values | The entries the page can actually show |
+| Spelling variants | Each one separately | Folded by `ArtistKey`, most common spelling wins |
+| `Various Artists` | Suggested | Excluded, as on the page |
+| Song counts | Not available | Included |
+
+The decisive one is the second row: the index page browses the in-memory snapshot, so answering
+from anything else lets it suggest a name whose search then finds nothing.
+
+Costs and guards:
+
+- **Never waits on a build.** `ArtistIndexCache.Current` returns whatever snapshot exists and kicks
+  off a build if there isn't one, rather than blocking a keystroke for `FirstBuildWait`. No snapshot
+  means no suggestions, which is invisible next to a 10-second hang.
+- **Queries under 2 characters are refused server-side**, and results capped at 10 — a one-character
+  substring matches most of the catalog and sorting it achieves nothing.
+- **`all` is passed through** so suggestions can't offer artists the page's own filter would hide.
+- Answers are as stale as the snapshot — up to 6 hours, exactly like the page.
+- `JsonCamelCase`, not `Ok`: API controllers here serialize with `DefaultContractResolver`, which
+  keeps C# casing.
+
+Two traps worth keeping in mind if this is touched:
+
+1. **Debounce the lookup, not the input.** `BFormInput`'s own `debounce` delays the model, so
+   submitting straight after typing searches the *previous* value. `ArtistSuggest` debounces its
+   fetch internally and lets the model update immediately.
+2. **A `list` attribute changes the input's implicit ARIA role** from `searchbox` to `combobox`, so
+   `getByRole("searchbox")` stops matching once type-ahead is wired up. The e2e fixture locates it
+   by label instead.
+
+Site-wide search autocomplete over `Artists` is a different problem and still needs the rebuild —
+[#277](https://github.com/music4dance/music4dance/issues/277).
+
 ---
 
 ## 10. Artist Pages
@@ -500,9 +546,10 @@ Review `unresolved.tsv` sorted by song count — the top few hundred credits car
   heuristic because the credit string never names them ([§4.3](#43-the-ceiling)). Re-enriching the
   backlog from Spotify is the highest-value follow-on by a wide margin, and a much better
   investment than further splitter rules.
-- **Artist autocomplete** waits for the next versioned index —
-  [#277](https://github.com/music4dance/music4dance/issues/277). The index page's own search works
-  without it.
+- **Artists in the site-wide search suggester** waits for the next versioned index —
+  [#277](https://github.com/music4dance/music4dance/issues/277). The artist index page has its own
+  type-ahead, which needs no suggester ([§9.4](#94-type-ahead)); what's missing is typing an artist
+  into the main search box and being completed there.
 - **Name variants are not reconciled.** `Michael Bublé` / `Michael Buble` fold together via
   `ArtistKey`, but `P!nk` / `Pink` and `LØLØ` / `Lolo` do not. An alias table would plug into the
   same key→variants lookup.

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { contentHeading, openArtistIndex } from "../fixtures/artists";
+import { artistSearchBox, contentHeading, openArtistIndex } from "../fixtures/artists";
 
 // The browsable index of individual artists (/song/artists), behind the ArtistIndex feature
 // flag, which m4d.Sandbox/appsettings.json turns on. See architecture/individual-artists.md §9.
@@ -31,7 +31,7 @@ test("searches for an artist and follows the result to their page", async ({ pag
   await expect(first).toBeVisible();
   const name = (await first.textContent())!.trim();
 
-  await page.getByRole("searchbox", { name: "Find an artist" }).fill(name);
+  await artistSearchBox(page).fill(name);
   await page.getByRole("button", { name: "Search" }).click();
   await page.waitForURL(/[?&]q=/);
 
@@ -43,6 +43,29 @@ test("searches for an artist and follows the result to their page", async ({ pag
 
   await page.waitForURL(/\/song\/artist\?/);
   await expect(contentHeading(page, 1)).toContainText(name);
+});
+
+// Type-ahead comes from the same in-memory snapshot the page browses (not an Azure suggester),
+// so a suggestion is always something the search can actually find - individual-artists.md §9.4.
+test("suggests artists as you type", async ({ page }) => {
+  await openArtistIndex(page);
+
+  const first = page.locator(".artist-list a").first();
+  await expect(first).toBeVisible();
+  const name = (await first.textContent())!.trim();
+
+  const options = page.locator("#artist-search-suggestions option");
+  await expect(options).toHaveCount(0);
+
+  await artistSearchBox(page).fill(name.slice(0, 4));
+
+  // Suggestions are capped at 10 and this artist is one of the most popular, so it should be among
+  // them for its own opening characters.
+  await expect
+    .poll(async () =>
+      options.evaluateAll((els) => els.map((el) => (el as HTMLOptionElement).value)),
+    )
+    .toContain(name);
 });
 
 test("toggles single-song artists in and out of the listing", async ({ page }) => {

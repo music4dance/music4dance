@@ -17,7 +17,7 @@ exports[`Artist Index > renders an artist index page 1`] = `
     <div>
       <form data-v-98cf8e17="" class="mb-3" role="search">
         <div data-v-98cf8e17="" class="input-group" role="group">
-          <!----><input data-v-98cf8e17="" id="BootstrapVueNext__ID__v-0__input___" class="form-control" type="search" placeholder="Find an artist" aria-label="Find an artist" value=""><button data-v-98cf8e17="" class="btn btn-primary" type="submit"><svg data-v-98cf8e17="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+          <!----><input id="artist-search" class="form-control" type="search" placeholder="Find an artist" autocomplete="off" list="artist-search-suggestions" aria-label="Find an artist" value=""><datalist id="artist-search-suggestions"></datalist><button data-v-98cf8e17="" class="btn btn-primary" type="submit"><svg data-v-98cf8e17="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
               <path fill="currentColor" d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0a5.5 5.5 0 0 1 11 0"></path>
             </svg> Search</button>
           <!---->

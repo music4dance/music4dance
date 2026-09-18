@@ -88,8 +88,8 @@ const danceCount = (dance: DanceType) => {
     <p v-if="appearsWith.length">
       Also appears with:
       <span v-for="(other, idx) in appearsWith" :key="other.artist"
-        ><span v-if="idx > 0">, </span><a :href="artistPageUrl(other.artist)">{{ other.artist }}</a>
-        ({{ other.count }})</span
+        ><span v-if="idx > 0">, </span
+        ><a :href="artistPageUrl(other.artist)">{{ other.artist }}</a> ({{ other.count }})</span
       >
     </p>
     <p>

@@ -38,6 +38,22 @@ public class ArtistIndexCache(ILogger<ArtistIndexCache> logger)
         return finished == build && build.IsCompletedSuccessfully ? build.Result : _index;
     }
 
+    /// <summary>
+    /// The snapshot as it stands right now, without waiting for one - null until a build finishes.
+    /// Starts a build when there isn't a usable snapshot, so a caller that never waits still gets
+    /// one eventually. For type-ahead, where a slow answer is worse than no answer: blocking a
+    /// keystroke for <see cref="FirstBuildWait"/> would be far worse than showing no suggestions.
+    /// </summary>
+    public ArtistIndex Current(DanceMusicCoreService dms)
+    {
+        var current = _index;
+        if (current == null || DateTime.UtcNow - current.Built > Lifetime)
+        {
+            _ = StartBuild(dms);
+        }
+        return current;
+    }
+
     public void Invalidate() => _index = null;
 
     private Task<ArtistIndex> StartBuild(DanceMusicCoreService dms)
