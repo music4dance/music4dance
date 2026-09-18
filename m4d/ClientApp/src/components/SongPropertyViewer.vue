@@ -6,6 +6,7 @@ import { TagList } from "@/models/TagList";
 import type { DanceHandler } from "@/models/DanceHandler";
 import type { TagHandler } from "@/models/TagHandler";
 import TagViewer from "@/components/TagViewer.vue";
+import { artistPageUrl, deserializeArtists } from "@/models/ArtistNames";
 import DanceViewer from "@/components/DanceViewer.vue";
 
 const props = defineProps<{
@@ -32,6 +33,8 @@ const isTempo = computed(
 const isDanceTempo = computed(
   () => props.property.baseName === PropertyType.tempoField && !!danceId.value,
 );
+const isArtists = computed(() => props.property.baseName === PropertyType.artistsField);
+const artists = computed(() => deserializeArtists(props.property.value));
 const viewer = (tag: Tag) => (isDance(tag) ? DanceViewer : TagViewer);
 const isDance = (tag: Tag) => tag.category === TagCategory.Dance;
 </script>
@@ -40,6 +43,16 @@ const isDance = (tag: Tag) => tag.category === TagCategory.Dance;
   <div>
     <CommentViewer v-if="isComment" :comment="property.value" :added="isAdd" :dance-id="danceId" />
     <span v-else-if="isTempo"> tempo = {{ property.value }} BPM</span>
+    <span v-else-if="isArtists">
+      artists =
+      <template v-if="artists.length">
+        <template v-for="(artist, index) in artists" :key="index"
+          ><span v-if="index > 0"> · </span
+          ><a :href="artistPageUrl(artist)">{{ artist }}</a></template
+        >
+      </template>
+      <template v-else>(automatic)</template>
+    </span>
     <span v-else-if="isDanceTempo">
       {{ danceId }} tempo = {{ property.value || "(cleared)" }} BPM</span
     >

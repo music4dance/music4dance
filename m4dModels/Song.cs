@@ -172,6 +172,9 @@ public class Song : TaggableObject
         DanceRatings?.Clear();
         ModifiedBy?.Clear();
 
+        Artists = null;
+        ArtistsSource = ArtistsSource.None;
+
         _albums = null;
     }
 
@@ -223,6 +226,9 @@ public class Song : TaggableObject
     public const string TimeField = "Time";
     public const string TitleField = "Title";
     public const string ArtistField = "Artist";
+    // Ordered, pipe-delimited individual artists derived from Artist - see ArtistSplitter and
+    // architecture/individual-artists.md
+    public const string ArtistsField = "Artists";
     public const string TempoField = "Tempo";
     public const string LengthField = "Length";
     public const string SampleField = "Sample";
@@ -259,6 +265,9 @@ public class Song : TaggableObject
 
     // Proxy Fields
     public const string UserProxy = "UserProxy";
+
+    // Algorithmic users
+    public const string ArtistBotUser = "artist-bot";
 
     // Curator Fields
     public const string DeleteTagLabel = "DeleteTag";
@@ -1738,6 +1747,9 @@ public class Song : TaggableObject
                         }
                     }
                     break;
+                case ArtistsField:
+                    LoadArtists(prop.Value, user, currentModified, isUserModified);
+                    break;
                 case DeleteTagLabel:
                     ForceDeleteTag(prop.DanceQualifier, prop.Value, stats);
                     break;
@@ -1798,6 +1810,17 @@ public class Song : TaggableObject
                         break;
                     }
 
+                    // An effective change to the credit invalidates any individual artists
+                    // derived from (or entered against) the old credit
+                    if (bn == ArtistField && !string.Equals(
+                            ArtistSplitter.CleanName(Artist), ArtistSplitter.CleanName(prop.Value),
+                            StringComparison.Ordinal))
+                    {
+                        Artists = null;
+                        ArtistsSource = ArtistsSource.None;
+                        _ = isUserModified.Remove(ArtistsField);
+                    }
+
                     var pi = GetType().GetProperty(bn);
                     pi?.SetValue(this, prop.ObjectValue);
 
@@ -1833,6 +1856,80 @@ public class Song : TaggableObject
         }
     }
 
+    /// <summary>
+    /// Replays one Artists property. Precedence is human &gt; service &gt; artist-bot: a pseudo
+    /// user can't override a human's list, artist-bot can't override a service's list, and an
+    /// empty value from a human clears the list and hands control back to the bots.
+    /// </summary>
+    private void LoadArtists(string value, string user, ModifiedRecord currentModified,
+        HashSet<string> isUserModified)
+    {
+        // Service imports are sometimes logged without the |P decoration (e.g. songs added from a
+        // track in the client), so batch-* accounts count as services either way
+        var isService = user != null && user.StartsWith("batch-", StringComparison.OrdinalIgnoreCase);
+        var isUser = !isService && user != ArtistBotUser &&
+            (!currentModified?.ApplicationUser?.IsPseudo ?? false);
+        if (!isUser && isUserModified.Contains(ArtistsField))
+        {
+            return;
+        }
+
+        var source = isUser
+            ? ArtistsSource.User
+            : user == ArtistBotUser ? ArtistsSource.Heuristic : ArtistsSource.Service;
+
+        if (source == ArtistsSource.Heuristic && ArtistsSource == ArtistsSource.Service)
+        {
+            return;
+        }
+
+        var artists = ArtistSplitter.Deserialize(value);
+        if (artists.Count == 0)
+        {
+            Artists = null;
+            ArtistsSource = ArtistsSource.None;
+            _ = isUserModified.Remove(ArtistsField);
+            return;
+        }
+
+        Artists = artists;
+        ArtistsSource = source;
+        if (isUser)
+        {
+            _ = isUserModified.Add(ArtistsField);
+        }
+    }
+
+    /// <summary>
+    /// Runs <see cref="ArtistSplitter"/> and, when the result differs from the current effective
+    /// artists, appends an artist-bot edit block and reloads the song. Never overrides a list
+    /// entered by a human or supplied by a music service. Returns true if the song changed.
+    /// Updates the in-memory state to match the appended block rather than reloading the log,
+    /// so callers' unsaved in-memory changes survive.
+    /// </summary>
+    public bool UpdateArtists(IArtistKnowledge knowledge, DateTime? time = null)
+    {
+        if (IsNull || ArtistsSource is ArtistsSource.User or ArtistsSource.Service)
+        {
+            return false;
+        }
+
+        var split = ArtistSplitter.Split(Artist, Title, knowledge);
+        var desired = split.IsSplit(Artist) ? split.Artists : null;
+
+        if (desired == null && Artists == null ||
+            desired != null && Artists != null && desired.SequenceEqual(Artists))
+        {
+            return false;
+        }
+
+        CreateEditProperties(new ApplicationUser(ArtistBotUser, pseudo: true), EditCommand, time);
+        SongProperties.Add(new SongProperty(ArtistsField, desired == null ? string.Empty : ArtistSplitter.Serialize(desired)));
+        Artists = desired;
+        ArtistsSource = desired == null ? ArtistsSource.None : ArtistsSource.Heuristic;
+        return true;
+    }
+
     public SongHistory GetHistory(IMapper mapper)
     {
         return new SongHistory
@@ -1858,6 +1955,31 @@ public class Song : TaggableObject
 
     [DataMember]
     public string Artist { get; set; }
+
+    /// <summary>
+    /// Individual artists explicitly recorded in the log (by a human, a music service, or
+    /// artist-bot), or null when the credit is treated as a single artist.
+    /// </summary>
+    public IReadOnlyList<string> Artists { get; private set; }
+
+    public ArtistsSource ArtistsSource { get; private set; }
+
+    /// <summary>
+    /// The individual artists for indexing and display: the explicit list, else the cleaned credit.
+    /// </summary>
+    public IReadOnlyList<string> EffectiveArtists
+    {
+        get
+        {
+            if (Artists != null)
+            {
+                return Artists;
+            }
+
+            var credit = ArtistSplitter.CleanName(Artist);
+            return credit.Length == 0 ? [] : [credit];
+        }
+    }
 
     [Range(0, 9999)]
     [DataMember]

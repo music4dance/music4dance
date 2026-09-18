@@ -1,3 +1,4 @@
+using Azure.Core;
 using Azure.Identity;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
@@ -113,7 +114,7 @@ public static class M4dApplicationExtensions
 
         // Create optimized DefaultAzureCredential once for reuse across all Azure services
         // Excludes slower credential types (VisualStudio, AzureCLI, AzurePowerShell) for faster startup
-        DefaultAzureCredential azureCredential;
+        TokenCredential azureCredential;
         if (!isDevelopment)
         {
             Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] [Azure] Creating DefaultAzureCredential with optimized chain...");
@@ -127,6 +128,18 @@ public static class M4dApplicationExtensions
                 // Only try ManagedIdentityCredential and EnvironmentCredential in Azure
             });
             Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] [Azure] DefaultAzureCredential created successfully (optimized)");
+        }
+        else if (!string.IsNullOrEmpty(configuration["AZURE_TENANT_ID"]) &&
+                 !string.IsNullOrEmpty(configuration["AZURE_CLIENT_ID"]) &&
+                 !string.IsNullOrEmpty(configuration["AZURE_CLIENT_SECRET"]))
+        {
+            // Development mode with a service principal: EnvironmentCredential only reads real environment
+            // variables, so read the same AZURE_* keys from configuration to also allow them in user secrets
+            Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] [Azure] Creating ClientSecretCredential from AZURE_* configuration for development...");
+            azureCredential = new ClientSecretCredential(
+                configuration["AZURE_TENANT_ID"],
+                configuration["AZURE_CLIENT_ID"],
+                configuration["AZURE_CLIENT_SECRET"]);
         }
         else
         {
@@ -507,6 +520,17 @@ public static class M4dApplicationExtensions
         services.AddSingleton<m4d.Security.AuthenticationTracker>();
         services.AddSingleton<m4d.Security.RateLimitingTracker>();
         services.AddSingleton<m4d.Security.Http4xxTracker>();
+
+        // The snapshot is persisted beside dance-environment.json so a restart doesn't cost the
+        // first visitor a full streaming pass. Gated on ConfigureSearch, like the dance stats file
+        // manager above: the sandbox builds its index from seeded songs in memory, and its
+        // WebRootPath is m4d/wwwroot, so persisting would have it trade snapshots with the real
+        // dev app - each one reading back the other's catalog on its next start.
+        services.AddSingleton(sp => new m4d.Services.ArtistIndexCache(
+            sp.GetRequiredService<ILogger<m4d.Services.ArtistIndexCache>>(),
+            appOptions.ConfigureSearch && !string.IsNullOrEmpty(environment.WebRootPath)
+                ? new ArtistIndexFileManager(environment.WebRootPath)
+                : null));
 
         services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
         services.AddHostedService<BackgroundQueueHostedService>();

@@ -437,6 +437,162 @@ public class AdminController(
     }
 
     //
+    // POST: /Admin/AddIndexFields
+    // Adds any fields defined in SongIndex.BuildIndex that the named live index doesn't have yet
+    // (e.g. Artists). Adding fields is non-breaking, so this doesn't need a versioned migration.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> AddIndexFields(string idxName = "default")
+    {
+        try
+        {
+            StartAdminTask("AddIndexFields");
+            var added = await Database.GetSongIndex(idxName).AddMissingIndexFields();
+            return CompleteAdminTask(true,
+                added.Count == 0
+                    ? $"AddIndexFields ({idxName}): index already has every field"
+                    : $"AddIndexFields ({idxName}): added {string.Join(", ", added)}");
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"AddIndexFields ({idxName}): {e.Message}", e);
+        }
+    }
+
+    //
+    // POST: /Admin/BatchArtists
+    // Runs ArtistSplitter over every song in the named index (see
+    // architecture/individual-artists.md §6). Every mode first creates the artist-bot pseudo user,
+    // which also switches on the artist splitter in the song save hook. Modes:
+    //   Report     - no song writes; logs what would change
+    //   Apply      - appends artist-bot edits where the individual artists change and re-saves
+    //                every song, populating the Artists index field everywhere
+    //   ApplyChanged - like Apply but only re-saves songs whose artists changed (for re-runs
+    //                after a heuristic update, once the field is already populated)
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> BatchArtists(
+        [FromServices] ArtistIndexCache artistIndexCache,
+        string idxName = "default", string mode = "Report", int count = -1)
+    {
+        try
+        {
+            StartAdminTask("BatchArtists");
+            AdminMonitor.UpdateTask("BatchArtists");
+
+            var apply = mode is "Apply" or "ApplyChanged";
+            var saveAll = mode == "Apply";
+            if (await Database.FindUser(Song.ArtistBotUser) == null)
+            {
+                _ = await Database.AddPseudoUser(Song.ArtistBotUser, $"{Song.ArtistBotUser}@music4dance.net");
+            }
+
+            var dms = Database.GetTransientService();
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var idx = dms.GetSongIndex(idxName);
+
+                    AdminMonitor.UpdateTask("Building artist knowledge");
+                    var knowledge = await idx.BuildArtistKnowledge();
+
+                    var tried = 0;
+                    var changed = 0;
+                    var skipped = 0;
+                    var batch = new List<Song>();
+                    const int batchSize = 500;
+                    const int logLimit = 200;
+
+                    async Task FlushBatchAsync()
+                    {
+                        if (batch.Count == 0) return;
+                        await idx.UpdateAzureIndex(batch, dms);
+                        batch.Clear();
+                    }
+
+                    await foreach (var song in idx.StreamAllSongsAsync())
+                    {
+                        if (song.IsNull)
+                        {
+                            continue;
+                        }
+
+                        tried++;
+                        if (song.ArtistsSource is ArtistsSource.User or ArtistsSource.Service)
+                        {
+                            skipped++;
+                        }
+
+                        var before = string.Join(" | ", song.EffectiveArtists);
+                        var didChange = song.UpdateArtists(knowledge);
+                        if (didChange)
+                        {
+                            changed++;
+                            if (changed <= logLimit)
+                            {
+                                Logger.LogInformation(
+                                    "BatchArtists {Mode}: {Title} by {Artist}: [{Before}] -> [{After}]",
+                                    mode, song.Title, song.Artist, before, string.Join(" | ", song.EffectiveArtists));
+                            }
+                        }
+
+                        if (apply && (saveAll || didChange))
+                        {
+                            batch.Add(song);
+                            if (batch.Count >= batchSize)
+                            {
+                                await FlushBatchAsync();
+                            }
+                        }
+
+                        if (tried % 1000 == 0)
+                        {
+                            AdminMonitor.UpdateTask($"{mode}: changed {changed}", tried);
+                        }
+
+                        if (count > 0 && tried >= count)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (apply)
+                    {
+                        await FlushBatchAsync();
+
+                        // The browsable index is a 6-hour snapshot, so without this the page
+                        // keeps serving pre-backfill artists for hours. Only this instance's
+                        // copy is dropped; others catch up when their own snapshot expires.
+                        artistIndexCache.Invalidate();
+                    }
+
+                    AdminMonitor.CompleteTask(true,
+                        $"BatchArtists ({idxName}, {mode}, splitter v{ArtistSplitter.Version}): " +
+                        $"Tried={tried}, Changed={changed}, HumanOrServiceLists={skipped}");
+                }
+                catch (Exception e)
+                {
+                    AdminMonitor.CompleteTask(false, $"BatchArtists ({idxName}, {mode}): Failed={e.Message}");
+                }
+                finally
+                {
+                    dms.Dispose();
+                }
+            });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"BatchArtists ({idxName}, {mode}): {e.Message}", e);
+        }
+    }
+
+    //
     // GET: /Admin/Diagnostics
     [Authorize(Roles = "showDiagnostics")]
     public ActionResult Diagnostics(Http4xxUrlFilter http4xxFilter = Http4xxUrlFilter.All)
@@ -652,8 +808,31 @@ public class AdminController(
     //
     // GET: /Admin/InitializaitonTasks
     [Authorize(Roles = "showDiagnostics")]
-    public ActionResult InitializationTasks()
+    public async Task<ActionResult> InitializationTasks()
     {
+        // Per-index Artists field state, so the rollout's "add the field, then wait for every
+        // instance to see it" step (individual-artists.md §5.3) is visible on the page that runs it
+        var artistsField = new Dictionary<string, (bool Present, DateTime? RefreshesAt)>();
+        var artistsCoverage = new Dictionary<string, (long Total, long? WithArtists)>();
+        foreach (var id in Database.SearchService.GetAvailableIds())
+        {
+            var index = Database.GetSongIndex(id);
+            artistsField[id] = await index.ArtistsFieldStatusAsync();
+            try
+            {
+                artistsCoverage[id] = await index.ArtistsCoverageAsync();
+            }
+            catch (Exception e)
+            {
+                // Never let a status line take down the page that runs the recovery actions
+                Logger.LogWarning(e, "ArtistsCoverage ({Index}) failed", id);
+            }
+        }
+
+        ViewBag.ArtistsFieldStatus = artistsField;
+        ViewBag.ArtistsCoverage = artistsCoverage;
+        ViewBag.ArtistIndexEnabled = await FeatureManager.IsEnabledAsync(FeatureFlags.ArtistIndex);
+
         return View();
     }
 

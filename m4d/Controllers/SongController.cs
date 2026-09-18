@@ -29,6 +29,13 @@ public class SongController : ContentController
     private static readonly HttpClient HttpClient = new();
     private readonly SpotifyAuthService _spotifyAuthService;
 
+    /// <summary>
+    /// Below this many songs an artist page is too thin to be worth a search engine's index. See
+    /// architecture/individual-artists.md §9.3: about 27,000 of the ~32,500 individual artists
+    /// have fewer than five songs.
+    /// </summary>
+    private const int MinimumSongsToIndexArtist = 5;
+
     public SongController(
         DanceMusicContext context, UserManager<ApplicationUser> userManager,
         ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
@@ -886,14 +893,51 @@ public class SongController : ContentController
 
         if (!string.IsNullOrWhiteSpace(name))
         {
+            var artistIndex = await FeatureManager.IsEnabledAsync(FeatureFlags.ArtistIndex);
             var model = await ArtistViewModel.Create(
-                name, Mapper, DefaultCruftFilter(), Database);
+                name, Mapper, DefaultCruftFilter(), Database, artistIndex);
+
+            // Splitting credits turns one artist page into tens of thousands, most of them a
+            // single song. Those are too thin to be worth indexing, but their songs are worth
+            // crawling, so they ask to be followed and not indexed rather than shut out.
+            //
+            // Gated on the flag along with the fan-out that motivates it. Unconditionally, this
+            // would de-index the thin pages that already exist the moment the code deploys -
+            // before the feature is on, and slow to undo once a crawler has acted on it.
+            if (artistIndex && model.Histories.Count < MinimumSongsToIndexArtist)
+            {
+                ViewData["Robots"] = "noindex, follow";
+            }
+
             return Vue3(
                 $"Artist: {name}", $"Songs for dancing by {name}", "artist",
                 model, danceEnvironment: true);
         }
 
         return ReturnError(HttpStatusCode.NotFound, @"Empty artist name not valid.");
+    }
+
+    //
+    // GET: /Song/Artists?letter=B&q=bub&all=true
+    // Browsable index of individual artists (ArtistIndex feature flag)
+    [AllowAnonymous]
+    public async Task<ActionResult> Artists(
+        [FromServices] ArtistIndexCache artistIndexCache, string letter = null, string q = null, bool all = false)
+    {
+        var spider = CheckSpiders();
+        if (spider != null)
+        {
+            return spider;
+        }
+
+        if (!await FeatureManager.IsEnabledAsync(FeatureFlags.ArtistIndex))
+        {
+            return ReturnError(HttpStatusCode.NotFound, "The artist index isn't available yet.");
+        }
+
+        var index = await artistIndexCache.GetAsync(Database);
+        var model = ArtistIndexModel.Create(index, letter, q, all ? 1 : 2);
+        return Vue3("Artists", "Browse the artists behind songs for dancing", "artist-index", model);
     }
 
     //

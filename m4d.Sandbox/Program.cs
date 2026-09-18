@@ -130,6 +130,15 @@ static async Task<List<(Guid Id, string Title)>> SeedSongs(DanceMusicService dms
 {
     var rawSongs = await SandboxServiceFactory.LoadCachedSongs();
 
+    // The artist splitter's save hook stays dormant until this pseudo user exists (so that
+    // deploying it to production changes nothing on its own - see individual-artists.md §7).
+    // Creating it here means the seeded songs arrive with their individual artists already
+    // split, which is what the artist index and artist pages need to show anything.
+    if (await dms.FindUser(Song.ArtistBotUser) == null)
+    {
+        _ = await dms.AddPseudoUser(Song.ArtistBotUser, $"{Song.ArtistBotUser}@music4dance.net");
+    }
+
     var songs = new List<Song>();
     foreach (var raw in rawSongs)
     {

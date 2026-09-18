@@ -1,3 +1,4 @@
+import { deserializeArtists, serializeArtists } from "./ArtistNames";
 import type { AxiosInstance } from "axios";
 import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { v4 as uuidv4 } from "uuid";
@@ -44,6 +45,11 @@ export class SongHistory {
     editor.setupEdit(this.serviceUserFromType(track.service));
     editor.addProperty(PropertyType.titleField, track.name);
     editor.addProperty(PropertyType.artistField, track.artist);
+    // Structured credits from the service outrank the artist splitter (see Song.loadArtists)
+    const artists = deserializeArtists(serializeArtists(track.artists ?? []));
+    if (artists.length > 1) {
+      editor.addProperty(PropertyType.artistsField, serializeArtists(artists));
+    }
     editor.addAlbumFromTrack(track);
     if (track.genres) {
       editor.addProperty(PropertyType.addedTags, track.genres.map((t) => `${t}:Music`).join("|"));
@@ -261,7 +267,8 @@ export class SongHistory {
             p.baseName === PropertyType.likeTag ||
             p.baseName === PropertyType.addCommentField ||
             p.baseName === PropertyType.removeCommentField ||
-            p.baseName === PropertyType.tempoField,
+            p.baseName === PropertyType.tempoField ||
+            p.baseName === PropertyType.artistsField,
         ),
     );
   }

@@ -21,6 +21,7 @@ exports[`Song Merge > Renders the Merge Page 1`] = `
                 </div>
               </transition-stub></span><i><span data-v-b2e59ff0=""><input data-v-b2e59ff0="" name="Title" data-field-name="Title" type="text" class="form-control ml-2 text" style="display: inline;"></span></i><span style="font-size: 0.75em; padding-left: 0.5em;"> by </span><span data-v-b2e59ff0=""><input data-v-b2e59ff0="" name="Artist" data-field-name="Artist" type="text" class="form-control ml-2 text" style="display: inline;"></span>
             </h1>
+            <!--v-if-->
           </div>
           <div class="col-auto"><span><a class="btn btn-secondary me-1" href="https://music4dance.net/song/details?id=9b447ea1-fc98-496e-9af1-f58f1eea273a" role="button" target="_blank">Production</a><a class="btn btn-secondary me-1" href="https://m4d-linux.azurewebsites.net/song/details?id=9b447ea1-fc98-496e-9af1-f58f1eea273a" role="button" target="_blank">Test</a><!--v-if--></span>
             <!--v-if--><button class="btn btn-outline-primary me-1" type="button">Cancel</button><button class="btn btn-primary" type="button">Add Song</button>

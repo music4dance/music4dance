@@ -23,4 +23,24 @@ describe("MainMenu.vue", () => {
     });
     expect(wrapper.html()).toMatchSnapshot();
   });
+
+  test.each([
+    [true, true],
+    [false, false],
+  ])("Artists menu item follows the ArtistIndex flag (%s)", (artistIndex, expected) => {
+    mockResizObserver();
+    const context = new MenuContext();
+    context.artistIndex = artistIndex;
+
+    const AppWrapper = {
+      name: "AppWrapper",
+      render() {
+        return h(BApp, null, { default: () => h(MainMenu, { context }) });
+      },
+    };
+
+    const wrapper = mount(AppWrapper, { props: { context } });
+    const artists = wrapper.findAll('a[href="/song/artists"]');
+    expect(artists.length > 0).toBe(expected);
+  });
 });

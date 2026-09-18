@@ -28,7 +28,8 @@ const viewableProperties = computed(() =>
     (t) =>
       t.baseName.startsWith("Tag") ||
       t.baseName.startsWith("Comment") ||
-      t.baseName === PropertyType.tempoField,
+      t.baseName === PropertyType.tempoField ||
+      t.baseName === PropertyType.artistsField,
   ),
 );
 </script>

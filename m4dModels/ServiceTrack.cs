@@ -27,6 +27,13 @@ public class ServiceTrack
     [DataMember]
     public string Artist { get; set; }
 
+    /// <summary>
+    /// Every credited artist, primary first, when the service provides structured credits
+    /// (Spotify's track.artists). Artist holds only the primary artist.
+    /// </summary>
+    [DataMember]
+    public string[] Artists { get; set; }
+
     [DataMember]
     public string Album { get; set; }
 

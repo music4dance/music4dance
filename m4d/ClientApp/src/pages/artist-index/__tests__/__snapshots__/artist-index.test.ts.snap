@@ -1,0 +1,73 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Artist Index > renders an artist index page 1`] = `
+"<div data-v-98cf8e17=""><span context="[object Object]">MainMenu</span>
+  <!--v-if-->
+  <nav aria-label="breadcrumb">
+    <nav aria-label="breadcrumb" style="padding: 0.25rem 0.5rem;">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a class="" href="/" to="" replace="false">music4dance</a></li>
+        <li class="breadcrumb-item"><a class="" href="/song" to="" replace="false">Song Library</a></li>
+        <li class="breadcrumb-item active"><span aria-current="location">Artists</span></li>
+      </ol>
+    </nav>
+  </nav>
+  <div id="body-content" class="container-fluid body-content">
+    <h1>Artists</h1>
+    <div>
+      <form data-v-98cf8e17="" class="mb-3" role="search">
+        <div data-v-98cf8e17="" class="input-group" role="group">
+          <!----><input id="artist-search" class="form-control" type="search" placeholder="Find an artist" autocomplete="off" list="artist-search-suggestions" aria-label="Find an artist" value=""><datalist id="artist-search-suggestions"></datalist><button data-v-98cf8e17="" class="btn btn-primary" type="submit"><svg data-v-98cf8e17="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+              <path fill="currentColor" d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0a5.5 5.5 0 0 1 11 0"></path>
+            </svg> Search</button>
+          <!---->
+        </div>
+      </form>
+      <!--v-if-->
+      <nav data-v-98cf8e17="" aria-label="Artists by letter" class="mb-3">
+        <ul data-v-98cf8e17="" class="nav nav-pills small flex-wrap">
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=A" tabindex="-1" aria-disabled="true" to="" replace="false">A</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="2 artists"><a class="nav-link active active nav-link" href="/song/artists?letter=B" to="" replace="false">B</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=C" tabindex="-1" aria-disabled="true" to="" replace="false">C</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="1 artists"><a class="nav-link" href="/song/artists?letter=D" to="" replace="false">D</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=E" tabindex="-1" aria-disabled="true" to="" replace="false">E</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=F" tabindex="-1" aria-disabled="true" to="" replace="false">F</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=G" tabindex="-1" aria-disabled="true" to="" replace="false">G</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=H" tabindex="-1" aria-disabled="true" to="" replace="false">H</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=I" tabindex="-1" aria-disabled="true" to="" replace="false">I</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=J" tabindex="-1" aria-disabled="true" to="" replace="false">J</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=K" tabindex="-1" aria-disabled="true" to="" replace="false">K</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=L" tabindex="-1" aria-disabled="true" to="" replace="false">L</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=M" tabindex="-1" aria-disabled="true" to="" replace="false">M</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=N" tabindex="-1" aria-disabled="true" to="" replace="false">N</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=O" tabindex="-1" aria-disabled="true" to="" replace="false">O</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=P" tabindex="-1" aria-disabled="true" to="" replace="false">P</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=Q" tabindex="-1" aria-disabled="true" to="" replace="false">Q</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=R" tabindex="-1" aria-disabled="true" to="" replace="false">R</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=S" tabindex="-1" aria-disabled="true" to="" replace="false">S</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=T" tabindex="-1" aria-disabled="true" to="" replace="false">T</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=U" tabindex="-1" aria-disabled="true" to="" replace="false">U</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=V" tabindex="-1" aria-disabled="true" to="" replace="false">V</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=W" tabindex="-1" aria-disabled="true" to="" replace="false">W</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=X" tabindex="-1" aria-disabled="true" to="" replace="false">X</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=Y" tabindex="-1" aria-disabled="true" to="" replace="false">Y</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=Z" tabindex="-1" aria-disabled="true" to="" replace="false">Z</a></li>
+          <li data-v-98cf8e17="" class="nav-item" title="0 artists"><a class="nav-link disabled nav-link" href="/song/artists?letter=%23" tabindex="-1" aria-disabled="true" to="" replace="false">#</a></li>
+        </ul>
+      </nav>
+      <h2 data-v-98cf8e17="" class="h4">Artists: B</h2>
+      <p data-v-98cf8e17="" class="text-body-secondary">Showing artists with at least 2 songs.<a data-v-98cf8e17="" href="/song/artists?letter=B&amp;all=true" class="ms-1">Include artists with only one song</a></p>
+      <ul data-v-98cf8e17="" class="artist-list list-unstyled">
+        <li data-v-98cf8e17=""><a data-v-98cf8e17="" href="/song/artist?name=The%20Beatles">The Beatles</a><small data-v-98cf8e17="" class="text-body-secondary"> (12)</small></li>
+        <li data-v-98cf8e17=""><a data-v-98cf8e17="" href="/song/artist?name=Michael%20Bubl%C3%A9">Michael Bublé</a><small data-v-98cf8e17="" class="text-body-secondary"> (7)</small></li>
+      </ul>
+    </div>
+  </div>
+  <div id="footer-content">
+    <hr>
+    <footer>
+      <p> © 2026 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a href="https://github.com/music4dance/music4dance" target="_blank">Code</a> - <a>Help</a></p>
+    </footer>
+  </div>
+</div>"
+`;

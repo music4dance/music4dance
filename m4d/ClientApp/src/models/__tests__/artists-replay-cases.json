@@ -1,0 +1,490 @@
+{
+  "description": "Shared replay cases for the Artists song property. Run by m4dModels.Tests/ArtistsPropertyTests.cs and src/models/__tests__/SongArtists.test.ts so the C# and TypeScript replays can't drift. Each 'log' entry is one property; header lines ('.Create=', 'User=...', 'Time=...') start blocks. See architecture/artist-index-plan.md section 4.",
+  "cases": [
+    {
+      "name": "absent property falls back to the credit",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=01/15/2024 14:30:00",
+        "Title=Come Away With Me",
+        "Artist=Norah  Jones "
+      ],
+      "artists": null,
+      "effective": [
+        "Norah Jones"
+      ],
+      "source": "None"
+    },
+    {
+      "name": "no artist means no effective artists",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=01/15/2024 14:30:00",
+        "Title=Mystery"
+      ],
+      "artists": null,
+      "effective": [],
+      "source": "None"
+    },
+    {
+      "name": "artist-bot list",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=01/15/2024 14:30:00",
+        "Title=Islands in the Stream",
+        "Artist=Dolly Parton & Kenny Rogers",
+        ".Edit=",
+        "User=artist-bot|P",
+        "Time=01/16/2024 14:30:00",
+        "Artists=Dolly Parton|Kenny Rogers"
+      ],
+      "artists": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "effective": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "source": "Heuristic"
+    },
+    {
+      "name": "list values are normalized",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=01/15/2024 14:30:00",
+        "Title=Islands in the Stream",
+        "Artist=Dolly Parton & Kenny Rogers",
+        "Artists= Dolly  Parton ||Kenny Rogers|"
+      ],
+      "artists": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "effective": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "source": "User"
+    },
+    {
+      "name": "human list is not overridden by artist-bot",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=01/15/2024 14:30:00",
+        "Title=Islands in the Stream",
+        "Artist=Dolly Parton & Kenny Rogers",
+        ".Edit=",
+        "User=dwgray",
+        "Time=01/16/2024 14:30:00",
+        "Artists=Dolly Parton & Kenny Rogers",
+        ".Edit=",
+        "User=artist-bot|P",
+        "Time=01/17/2024 14:30:00",
+        "Artists=Dolly Parton|Kenny Rogers"
+      ],
+      "artists": [
+        "Dolly Parton & Kenny Rogers"
+      ],
+      "effective": [
+        "Dolly Parton & Kenny Rogers"
+      ],
+      "source": "User"
+    },
+    {
+      "name": "service list is not overridden by artist-bot",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=01/15/2024 14:30:00",
+        "Title=Get Back",
+        "Artist=The Beatles",
+        ".Edit=",
+        "User=batch-s|P",
+        "Time=01/16/2024 14:30:00",
+        "Artists=The Beatles|Billy Preston",
+        ".Edit=",
+        "User=artist-bot|P",
+        "Time=01/17/2024 14:30:00",
+        "Artists="
+      ],
+      "artists": [
+        "The Beatles",
+        "Billy Preston"
+      ],
+      "effective": [
+        "The Beatles",
+        "Billy Preston"
+      ],
+      "source": "Service"
+    },
+    {
+      "name": "service list replaces an artist-bot list",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=01/15/2024 14:30:00",
+        "Title=Get Back",
+        "Artist=The Beatles feat. Billy Preston",
+        ".Edit=",
+        "User=artist-bot|P",
+        "Time=01/16/2024 14:30:00",
+        "Artists=The Beatles|Billy Preston",
+        ".Edit=",
+        "User=batch-s|P",
+        "Time=01/17/2024 14:30:00",
+        "Artists=The Beatles"
+      ],
+      "artists": [
+        "The Beatles"
+      ],
+      "effective": [
+        "The Beatles"
+      ],
+      "source": "Service"
+    },
+    {
+      "name": "human clear hands control back to the bots",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=01/15/2024 14:30:00",
+        "Title=Islands in the Stream",
+        "Artist=Dolly Parton & Kenny Rogers",
+        ".Edit=",
+        "User=dwgray",
+        "Time=01/16/2024 14:30:00",
+        "Artists=Dolly Parton & Kenny Rogers",
+        ".Edit=",
+        "User=dwgray",
+        "Time=01/17/2024 14:30:00",
+        "Artists=",
+        ".Edit=",
+        "User=artist-bot|P",
+        "Time=01/18/2024 14:30:00",
+        "Artists=Dolly Parton|Kenny Rogers"
+      ],
+      "artists": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "effective": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "source": "Heuristic"
+    },
+    {
+      "name": "human clear alone reverts to the credit",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=01/15/2024 14:30:00",
+        "Title=Islands in the Stream",
+        "Artist=Dolly Parton & Kenny Rogers",
+        ".Edit=",
+        "User=artist-bot|P",
+        "Time=01/16/2024 14:30:00",
+        "Artists=Dolly Parton|Kenny Rogers",
+        ".Edit=",
+        "User=dwgray",
+        "Time=01/17/2024 14:30:00",
+        "Artists="
+      ],
+      "artists": null,
+      "effective": [
+        "Dolly Parton & Kenny Rogers"
+      ],
+      "source": "None"
+    },
+    {
+      "name": "effective artist change invalidates a human list",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=01/15/2024 14:30:00",
+        "Title=Islands in the Stream",
+        "Artist=Dolly Parton & Kenny Rogers",
+        ".Edit=",
+        "User=dwgray",
+        "Time=01/16/2024 14:30:00",
+        "Artists=Dolly Parton|Kenny Rogers",
+        ".Edit=",
+        "User=alice",
+        "Time=01/17/2024 14:30:00",
+        "Artist=Kenny Rogers",
+        ".Edit=",
+        "User=artist-bot|P",
+        "Time=01/18/2024 14:30:00",
+        "Artists=Kenny Rogers|Someone Else"
+      ],
+      "artists": [
+        "Kenny Rogers",
+        "Someone Else"
+      ],
+      "effective": [
+        "Kenny Rogers",
+        "Someone Else"
+      ],
+      "source": "Heuristic"
+    },
+    {
+      "name": "artist change clears the list",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=01/15/2024 14:30:00",
+        "Title=Islands in the Stream",
+        "Artist=Dolly Parton & Kenny Rogers",
+        ".Edit=",
+        "User=artist-bot|P",
+        "Time=01/16/2024 14:30:00",
+        "Artists=Dolly Parton|Kenny Rogers",
+        ".Edit=",
+        "User=alice",
+        "Time=01/17/2024 14:30:00",
+        "Artist=Kenny Rogers"
+      ],
+      "artists": null,
+      "effective": [
+        "Kenny Rogers"
+      ],
+      "source": "None"
+    },
+    {
+      "name": "service rewriting the same credit keeps the list",
+      "log": [
+        ".Create=",
+        "User=batch-s|P",
+        "Time=01/15/2024 14:30:00",
+        "Title=Islands in the Stream",
+        "Artist=Dolly Parton & Kenny Rogers",
+        ".Edit=",
+        "User=dwgray",
+        "Time=01/16/2024 14:30:00",
+        "Artists=Dolly Parton|Kenny Rogers",
+        ".Edit=",
+        "User=batch-s|P",
+        "Time=01/17/2024 14:30:00",
+        "Artist=Dolly Parton  & Kenny Rogers"
+      ],
+      "artists": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "effective": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "source": "User"
+    },
+    {
+      "name": "ignored pseudo credit change keeps the list",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=01/15/2024 14:30:00",
+        "Title=Islands in the Stream",
+        "Artist=Dolly Parton & Kenny Rogers",
+        ".Edit=",
+        "User=dwgray",
+        "Time=01/16/2024 14:30:00",
+        "Artists=Dolly Parton|Kenny Rogers",
+        ".Edit=",
+        "User=batch-s|P",
+        "Time=01/17/2024 14:30:00",
+        "Artist=Kenny Rogers"
+      ],
+      "artists": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "effective": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "source": "User"
+    },
+    {
+      "name": "credit and list in the same block keep the list",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=01/15/2024 14:30:00",
+        "Title=Islands in the Stream",
+        "Artist=Dolly Parton",
+        ".Edit=",
+        "User=dwgray",
+        "Time=01/16/2024 14:30:00",
+        "Artist=Dolly Parton & Kenny Rogers",
+        "Artists=Dolly Parton|Kenny Rogers"
+      ],
+      "artists": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "effective": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "source": "User"
+    },
+    {
+      "name": "title change keeps a human list",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=01/15/2024 14:30:00",
+        "Title=Islands in the Stream",
+        "Artist=Dolly Parton & Kenny Rogers",
+        ".Edit=",
+        "User=dwgray",
+        "Time=01/16/2024 14:30:00",
+        "Artists=Dolly Parton|Kenny Rogers",
+        ".Edit=",
+        "User=alice",
+        "Time=01/17/2024 14:30:00",
+        "Title=Islands In The Stream"
+      ],
+      "artists": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "effective": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "source": "User"
+    },
+    {
+      "name": "undecorated service user is still a service",
+      "log": [
+        ".Create=",
+        "User=alice",
+        "Time=01/15/2024 14:30:00",
+        ".Edit=",
+        "User=batch-s",
+        "Time=01/15/2024 14:30:00",
+        "Title=Islands in the Stream",
+        "Artist=Dolly Parton",
+        "Artists=Dolly Parton|Kenny Rogers",
+        ".Edit=",
+        "User=artist-bot|P",
+        "Time=01/16/2024 14:30:00",
+        "Artists="
+      ],
+      "artists": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "effective": [
+        "Dolly Parton",
+        "Kenny Rogers"
+      ],
+      "source": "Service"
+    },
+    {
+      "name": "human list beats an undecorated service list",
+      "log": [
+        ".Create=",
+        "User=alice",
+        "Time=01/15/2024 14:30:00",
+        "Title=Islands in the Stream",
+        "Artist=Dolly Parton",
+        "Artists=Dolly Parton",
+        ".Edit=",
+        "User=batch-s",
+        "Time=01/16/2024 14:30:00",
+        "Artists=Dolly Parton|Kenny Rogers"
+      ],
+      "artists": [
+        "Dolly Parton"
+      ],
+      "effective": [
+        "Dolly Parton"
+      ],
+      "source": "User"
+    }
+  ],
+  "cleanName": [
+    [
+      null,
+      ""
+    ],
+    [
+      "",
+      ""
+    ],
+    [
+      "   ",
+      ""
+    ],
+    [
+      "  Norah   Jones ",
+      "Norah Jones"
+    ],
+    [
+      "A|B",
+      "A/B"
+    ],
+    [
+      "(Lil' Cease)",
+      "Lil' Cease"
+    ],
+    [
+      "Lil' Cease)",
+      "Lil' Cease"
+    ],
+    [
+      "[ZZ Ward",
+      "ZZ Ward"
+    ],
+    [
+      "Dolly Parton, ",
+      "Dolly Parton"
+    ],
+    [
+      "- Snoop Dogg -",
+      "Snoop Dogg"
+    ],
+    [
+      "BnB (Blanco & Black)",
+      "BnB (Blanco & Black)"
+    ],
+    [
+      "Sammy Davis, Jr.",
+      "Sammy Davis, Jr."
+    ]
+  ],
+  "artistKey": [
+    [
+      "Michael Bublé",
+      "michael buble"
+    ],
+    [
+      " Céline  Dion ",
+      "celine dion"
+    ],
+    [
+      "BEYONCÉ",
+      "beyonce"
+    ],
+    [
+      "Víctor Manuelle",
+      "victor manuelle"
+    ],
+    [
+      "Oscar D'León",
+      "oscar d'leon"
+    ],
+    [
+      "",
+      ""
+    ]
+  ]
+}

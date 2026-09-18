@@ -28,6 +28,21 @@ describe("SongPropertyViewer.vue", () => {
       expect(wrapper.text()).toContain("tempo = 174.0 BPM");
     });
 
+    it("renders linked individual artists for an Artists property", () => {
+      const wrapper = mountViewer(
+        new SongProperty({ name: "Artists", value: "Dolly Parton|Kenny Rogers" }),
+      );
+      expect(wrapper.text()).toContain("artists =");
+      const links = wrapper.findAll("a");
+      expect(links.map((l) => l.text())).toEqual(["Dolly Parton", "Kenny Rogers"]);
+      expect(links[1]!.attributes("href")).toBe("/song/artist?name=Kenny%20Rogers");
+    });
+
+    it("renders a cleared Artists property as automatic", () => {
+      const wrapper = mountViewer(new SongProperty({ name: "Artists", value: "" }));
+      expect(wrapper.text()).toContain("artists = (automatic)");
+    });
+
     it("renders dance viewer stub for a Tag+ dance property", () => {
       const wrapper = mountViewer(new SongProperty({ name: "Tag+", value: "Jive:Dance" }));
       expect(wrapper.find("dance-viewer-stub").exists()).toBe(true);

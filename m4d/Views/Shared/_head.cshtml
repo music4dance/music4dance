@@ -80,9 +80,18 @@
     </script>
 }
 
-@if ((Context.Request.Host.HasValue && !Context.Request.Host.Value.Contains("music4dance.net")) || ViewData["NoIndex"] as bool? == true)
+@{
+    // A page can ask to be left out of the index without cutting the crawler off from what it
+    // links to, by setting ViewData["Robots"] = "noindex, follow" - thin artist pages do this so
+    // their songs still get crawled. Staging hosts and NoIndex stay fully closed.
+    var offSite = Context.Request.Host.HasValue && !Context.Request.Host.Value.Contains("music4dance.net");
+    var robots = offSite || ViewData["NoIndex"] as bool? == true
+        ? "noindex, nofollow"
+        : ViewData["Robots"] as string;
+}
+@if (!string.IsNullOrEmpty(robots))
 {
-    <meta name="robots" content="noindex, nofollow" />
+    <meta name="robots" content="@robots" />
 }
 
 <!-- TradeDoubler site verification 2516966 -->
@@ -135,6 +144,7 @@
         configurationHealthy: @(_serviceHealth.IsServiceHealthy("AppConfiguration").ToString().ToLower()),
         useClientSideTracking: @((shouldTrack && clientSideTracking).ToString().ToLower()),
         googleAdsActive: @(googleAdsLoaded.ToString().ToLower()),
+        artistIndex: @((await _featureManager.IsEnabledAsync(FeatureFlags.ArtistIndex)).ToString().ToLower()),
         usageTracking: {
             enabled: @(_configuration.GetValue<bool>("UsageTracking:Enabled", true).ToString().ToLower()),
             anonymousThreshold: @(_configuration.GetValue<int>("UsageTracking:AnonymousThreshold", 3)),

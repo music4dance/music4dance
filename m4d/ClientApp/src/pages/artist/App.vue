@@ -8,11 +8,14 @@ import { useSongSelector } from "@/composables/useSongSelector";
 import type { DanceType } from "@/models/DanceDatabase/DanceType";
 import { KeywordQuery } from "@/models/KeywordQuery";
 import { SongSort, SortOrder } from "@/models/SongSort";
+import { getMenuContext } from "@/helpers/GetMenuContext";
+import { artistKey, artistPageUrl, collaborators } from "@/models/ArtistNames";
 
 declare const model_: string;
 
 const model = TypedJSON.parse(model_, ArtistModel)!;
 
+const context = getMenuContext();
 const danceDB = safeDanceDatabase();
 const { songs: selected, select: selectSong } = useSongSelector();
 
@@ -52,6 +55,19 @@ const artistSearchFilter = () => {
   return f;
 };
 
+// With individual artists, the page includes collaborations credited differently, so the artist
+// column is only redundant when every credit is exactly this artist
+const individualArtists = !!context.artistIndex;
+const hiddenColumns = [
+  ...(individualArtists && songs.some((s) => artistKey(s.artist) !== artistKey(model.artist))
+    ? []
+    : ["artist"]),
+  "danceTags",
+  "length",
+  "track",
+];
+const appearsWith = individualArtists ? collaborators(model.artist, songs).slice(0, 20) : [];
+
 const danceCount = (dance: DanceType) => {
   return songs.filter((s) => s.danceRatings?.some((r) => r.danceId === dance.id)).length;
 };
@@ -69,16 +85,26 @@ const danceCount = (dance: DanceType) => {
         ><span v-if="idx + 1 < dances.length && dances.length > 2">, </span></span
       >
     </p>
+    <p v-if="appearsWith.length">
+      Also appears with:
+      <span v-for="(other, idx) in appearsWith" :key="other.artist"
+        ><span v-if="idx > 0">, </span
+        ><a :href="artistPageUrl(other.artist)">{{ other.artist }}</a> ({{ other.count }})</span
+      >
+    </p>
     <p>
       <a :href="'/song/filtersearch?filter=' + artistSearchFilter().query">
         Search all songs with "{{ model.artist }}" in the artist field
       </a>
+      <template v-if="individualArtists">
+        &middot; <a href="/song/artists">Browse all artists</a>
+      </template>
     </p>
     <SongTable
       :histories="histories"
       :filter="filter"
       :hide-sort="true"
-      :hidden-columns="['artist', 'danceTags', 'length', 'track']"
+      :hidden-columns="hiddenColumns"
       @song-selected="selectSong"
     />
     <AdminFooter :model="model" :selected="selected" />

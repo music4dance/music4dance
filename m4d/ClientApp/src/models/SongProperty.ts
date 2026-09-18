@@ -39,6 +39,7 @@ export enum PropertyType {
   timeField = "Time",
   titleField = "Title",
   artistField = "Artist",
+  artistsField = "Artists",
   tempoField = "Tempo",
   lengthField = "Length",
   sampleField = "Sample",

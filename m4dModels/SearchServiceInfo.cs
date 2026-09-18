@@ -6,6 +6,9 @@ using Azure.Search.Documents.Indexes.Models;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 
+using System.Collections.Concurrent;
+using System.Diagnostics;
+
 namespace m4dModels;
 
 public interface ISearchServiceManager
@@ -221,21 +224,75 @@ public class SearchServiceInfo(string id, int version, string name,
         return index;
     }
 
+    /// <summary>
+    /// How long a successfully read index schema is trusted. Short enough that every app instance
+    /// notices a newly added field without a restart - see architecture/individual-artists.md §5.2.
+    /// </summary>
+    public static TimeSpan SchemaCacheDuration { get; set; } = TimeSpan.FromMinutes(10);
+
+    private static readonly TimeSpan SchemaFailureCacheDuration = TimeSpan.FromMinutes(1);
+
+    private readonly ConcurrentDictionary<string, (HashSet<string> Fields, DateTime ExpiresAt)> _schemaCache = new();
+
+    /// <summary>
+    /// True when the live index has a top-level field with this name. Lets code roll out additive
+    /// fields incrementally instead of through a versioned index migration. Reports false when the
+    /// schema can't be read - omitting a field is always safe, writing an unknown one fails the batch.
+    /// </summary>
+    public async Task<bool> HasFieldAsync(string fieldName, bool isNext)
+    {
+        var indexName = GetVersionedName(isNext);
+        if (_schemaCache.TryGetValue(indexName, out var cached) && cached.ExpiresAt > DateTime.UtcNow)
+        {
+            return cached.Fields.Contains(fieldName);
+        }
+
+        try
+        {
+            var index = await GetIndexAsync(isNext);
+            var fields = index.Fields.Select(f => f.Name).ToHashSet(StringComparer.Ordinal);
+            _schemaCache[indexName] = (fields, DateTime.UtcNow + SchemaCacheDuration);
+            return fields.Contains(fieldName);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"HasFieldAsync({indexName}, {fieldName}) failed: {ex.Message}");
+            _schemaCache[indexName] = ([], DateTime.UtcNow + SchemaFailureCacheDuration);
+            return false;
+        }
+    }
+
+    public void InvalidateSchemaCache() => _schemaCache.Clear();
+
+    /// <summary>
+    /// When this instance will next re-read the live index schema, or null if it holds no cached
+    /// view. Surfaced on Admin -> Initialization Tasks so the wait after adding a field (see
+    /// architecture/individual-artists.md §11.1) is something to read rather than guess at.
+    /// </summary>
+    public DateTime? SchemaCacheExpiry(bool isNext) =>
+        _schemaCache.TryGetValue(GetVersionedName(isNext), out var cached) ? cached.ExpiresAt : null;
+
+    // Every method below changes the live schema, so each drops the cached view of it. Without
+    // this, resetting an index and immediately reloading it reads a pre-reset answer and uploads
+    // documents that omit fields the new index actually has - see individual-artists.md §5.2.
     public async Task<Response> DeleteIndexAsync(bool isNext)
     {
         var client = GetSearchIndexClient(isNext);
+        InvalidateSchemaCache();
         return await client.DeleteIndexAsync(GetVersionedName(isNext), CancellationToken.None);
     }
 
     public async Task<Response<SearchIndex>> CreateIndexAsync(SearchIndex index, bool isNext)
     {
         var client = GetSearchIndexClient(isNext);
+        InvalidateSchemaCache();
         return await client.CreateIndexAsync(index);
     }
 
     public async Task<Response<SearchIndex>> CreateOrUpdateIndexAsync(SearchIndex index, bool isNext)
     {
         var client = GetSearchIndexClient(isNext);
+        InvalidateSchemaCache();
         return await client.CreateOrUpdateIndexAsync(index);
     }
     public bool HasNextVersion => HasVersion(manager.CodeVersion + 1);

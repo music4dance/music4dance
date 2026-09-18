@@ -1,6 +1,6 @@
 # Playwright End-to-End Testing
 
-**Status:** 📋 Proposed
+**Status:** ✅ Implemented — 8 spec files, 17 tests
 
 **Context:** [contributor-test-environments.md](contributor-test-environments.md) built
 `m4d.Sandbox` — a second ASP.NET Core host that boots the real controllers/views/middleware
@@ -115,7 +115,14 @@ cd e2e && yarn test
 
 `playwright.config.ts`'s `webServer` option launches `dotnet run --project ../m4d.Sandbox`
 itself (Playwright's built-in support for "start a server, wait for it to respond, then run
-tests, then tear it down") — so a contributor doesn't need two terminals. Point `baseURL` at the
+tests, then tear it down") — so a contributor doesn't need two terminals.
+
+That command passes **`-p:BaseOutputPath=local/build-out/`**, the same escape hatch CLAUDE.md
+documents for `Server: Build (Unlocked)`. `m4d.Sandbox` references `m4d`, so without it the
+rebuild collides with a running dev server's locked `bin/*.dll` and the whole run dies before a
+single test starts (`MSB3027: ... The file is locked by: "m4d"`). It costs nothing when no dev
+server is up. `M4D_SANDBOX_URL` still skips the `webServer` block entirely and points the suite
+at a sandbox started some other way. Point `baseURL` at the
 **HTTP** URL (`http://localhost:65085`), not HTTPS: `m4d.Sandbox/appsettings.json` already sets
 `DISABLE_HTTPS_REDIRECT: true` for exactly this kind of no-friction scenario, and using HTTP
 sidesteps the dev-cert-trust step entirely, locally and in CI alike. If a test specifically needs
@@ -280,7 +287,7 @@ exhaustive coverage of every page listed under `m4d/ClientApp/src/pages/`. Pick 
 representative slice through the stack per concern, and let unit/integration tests (which are
 much cheaper to write and run) continue to carry the depth.
 
-### Tier 1 — the set to build first (~6 spec files)
+### Tier 1 — built
 
 | Spec                        | Exercises                                                                                                                   | Why it earns a slot                                                                                                                                                             |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -293,6 +300,40 @@ much cheaper to write and run) continue to carry the depth.
 
 Each of these should be **one or two tests per file**, not a matrix — e.g. `auth.spec.ts` is
 three short tests (one per tier), not a combinatorial sweep of every role-gated button.
+
+### Added since: individual artists
+
+| Spec | Exercises |
+| ---- | --------- |
+| `artist-index.spec.ts` | `/song/artists`: browse by letter, search and follow a result through to the artist page, toggle single-song artists in and out |
+| `song-artists.spec.ts` | Song details: each individual artist linked inside the credit, editing the derived list and handing it back to the splitter, and what the `canEdit` and roleless tiers can reach |
+
+Both share `e2e/fixtures/artists.ts`, which is worth reading before adding more artist tests:
+
+- `openArtistIndex` reloads until the page stops saying it is building. The index is a background
+  snapshot ([individual-artists.md §9.2](individual-artists.md#92-the-cache)), so a cold sandbox
+  serves that message for the first few seconds.
+- `findSplitSong` locates a subject through the search UI (`searchString=feat.`) rather than naming
+  a seeded artist, so the seed set can change underneath it.
+- `contentHeading` scopes headings to `#body-content`. The sandbox reports its stand-in services as
+  unavailable, so `ServiceStatusBanner` renders an accordion whose header is also an `<h2>` and an
+  unscoped `getByRole("heading", { level: 2 })` hits a strict-mode violation.
+
+Two things these tests had to be written around, both of which will bite the next author:
+
+- **`getByRole(..., { name })` matches substrings.** `{ name: "Edit" }` also matches "Edit tags".
+  Use `exact: true`.
+- **Re-splitting happens server-side**, in the save hook. After saving an artist edit the client
+  shows its own state, so anything asserting what was *stored* has to `page.reload()` first.
+
+### Sandbox prerequisites for these
+
+`m4d.Sandbox` needs two things for artist features to do anything, both now in place:
+
+- `"ArtistIndex": true` in its `appsettings.json`, or the pages 404 and the chips never render.
+- The `artist-bot` pseudo user, seeded **before** the songs. The save hook is dormant until that
+  account exists, so seeding songs first would store them unsplit and leave the artist pages
+  working but empty.
 
 **`playlist.spec.ts` was dropped from this table** (folded into the non-goals below) once
 `PlayListController` was actually read: `Create`/`Update`/`BulkCreate*` are all
@@ -342,8 +383,11 @@ add them opportunistically when someone is already touching that area, not as a 
   e2e, not a hunt through the real dataset for a stable example. Not needed until it's actually a
   problem.
 - **`/sandbox/reset`.** Still not built (contributor-test-environments.md's own open question).
-  This plan's answer for now is "tests clean up after themselves + serial execution"; revisit if
-  that proves insufficient once the suite exists.
+  The answer for now is "tests clean up after themselves + serial execution". That held up while
+  writing `song-artists.spec.ts`, but only just: a test that mutates a song and fails *before* its
+  cleanup leaves the shared instance dirty, and the next run's failure looks like a product bug
+  rather than residue. The tell is a first assertion about starting state failing. Restarting the
+  sandbox is the current workaround, and it is the strongest argument yet for a reset endpoint.
 
 ---
 

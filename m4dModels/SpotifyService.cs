@@ -157,6 +157,18 @@ internal class SpotifyService : MusicService
         {
             dynamic artists = track.artists;
             var artist = artists != null && artists.Count > 0 ? artists[0] : null;
+            var artistNames = new List<string>();
+            if (artists != null)
+            {
+                foreach (var a in artists)
+                {
+                    string artistName = a?.name;
+                    if (!string.IsNullOrWhiteSpace(artistName))
+                    {
+                        artistNames.Add(artistName);
+                    }
+                }
+            }
             var album = track.album;
 
             int trackNum = track.track_number;
@@ -219,6 +231,7 @@ internal class SpotifyService : MusicService
                 Name = track.name,
                 //AltId = altId,
                 Artist = artist?.name,
+                Artists = artistNames.Count > 0 ? [.. artistNames] : null,
                 Album = album?.name,
                 CollectionId = album?.id,
                 ImageUrl = imageUrl,

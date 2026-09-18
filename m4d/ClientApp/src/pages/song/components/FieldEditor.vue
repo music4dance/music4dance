@@ -11,6 +11,8 @@ const props = defineProps<{
   editing?: boolean;
   type?: string;
   role?: string;
+  /** Any one of these roles may edit. Use instead of `role` when more than one qualifies. */
+  roles?: string[];
   isCreator?: boolean;
   overridePermission?: boolean;
   placeholder?: string;
@@ -41,13 +43,12 @@ const commitValue = () => {
 const isNumber = computed(() => props.type === "number");
 const computedType = computed(() => props.type ?? "text");
 const hasEditPermission = computed(() => {
-  const role = props.role;
-
-  if (props.overridePermission) {
+  if (props.overridePermission || props.isCreator) {
     return true;
   }
 
-  return !!props.isCreator || (!!role && context.hasRole(role));
+  const roles = props.roles ?? (props.role ? [props.role] : []);
+  return roles.some((role) => context.hasRole(role));
 });
 </script>
 

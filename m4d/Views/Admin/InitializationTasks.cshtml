@@ -12,6 +12,18 @@
 
 <h3>Search Indexing</h3>
 <ul>
+    <li>
+        Artist index page (<code>ArtistIndex</code> feature flag):
+        @if (ViewBag.ArtistIndexEnabled == true)
+        {
+            <strong class="text-success">on</strong>
+        }
+        else
+        {
+            <strong class="text-secondary">off</strong>
+            <text>- artist pages and /song/artists still use the Artist credit</text>
+        }
+    </li>
     @foreach (var id in SearchService.GetAvailableIds()){
         <li>
             @id: @Html.ActionLink("Reset", "ResetSearchIdx", new { id = id }, null)
@@ -21,6 +33,76 @@
                 @Html.Hidden("idxName", id)
                 <input type="submit" value="Reload All Songs"
                        onclick="return confirm('Reload every song in @id in place? This re-reads and re-saves the whole index.');" />
+            }
+            @using (Html.BeginForm("AddIndexFields", "Admin", FormMethod.Post, new { style = "display:inline" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("idxName", id)
+                <input type="submit" value="Add Missing Fields"
+                       onclick="return confirm('Add any new fields (e.g. Artists) to @id in place?');" />
+            }
+            <br />
+            @{
+                var artistsStatus =
+                    ViewBag.ArtistsFieldStatus as Dictionary<string, (bool Present, DateTime? RefreshesAt)>;
+                var status = artistsStatus != null && artistsStatus.TryGetValue(id, out var s)
+                    ? s
+                    : (Present: false, RefreshesAt: (DateTime?)null);
+            }
+            <small class="text-muted">
+                Artists field:
+                @if (status.Present)
+                {
+                    <strong class="text-success">present</strong>
+                }
+                else
+                {
+                    <strong class="text-warning">absent</strong>
+                    <text>- run Add Missing Fields</text>
+                }
+                @{
+                    var coverage = ViewBag.ArtistsCoverage as Dictionary<string, (long Total, long? WithArtists)>;
+                    var counts = coverage != null && coverage.TryGetValue(id, out var c)
+                        ? c
+                        : ((long Total, long? WithArtists)?)null;
+                }
+                @if (counts?.WithArtists is long populated)
+                {
+                    var missing = counts.Value.Total - populated;
+                    <text>
+                        &mdash; <strong>@populated.ToString("N0")</strong> of
+                        @counts.Value.Total.ToString("N0") songs populated
+                    </text>
+                    @if (missing > 0)
+                    {
+                        <text>
+                            (@missing.ToString("N0") empty - expected for songs with no credit at
+                            all; a larger gap means the backfill hasn't run or didn't finish)
+                        </text>
+                    }
+                }
+                @if (status.RefreshesAt.HasValue)
+                {
+                    var wait = status.RefreshesAt.Value - DateTime.UtcNow;
+                    <text>
+                        (this instance re-reads the schema
+                        @(wait > TimeSpan.Zero ? $"in {wait.TotalMinutes:F0} min" : "on the next call");
+                        others may lag by up to @SearchServiceInfo.SchemaCacheDuration.TotalMinutes min)
+                    </text>
+                }
+            </small>
+            <br />
+            Individual artists:
+            @foreach (var mode in new[] { "Report", "Apply", "ApplyChanged" })
+            {
+                using (Html.BeginForm("BatchArtists", "Admin", FormMethod.Post, new { style = "display:inline" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("idxName", id)
+                    @Html.Hidden("mode", mode)
+                    <input type="submit" value="@mode"
+                           onclick="return confirm('Run the artist splitter over @id in @mode mode?');" />
+                }
             }
         </li>
     }

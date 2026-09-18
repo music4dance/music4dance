@@ -24,6 +24,7 @@ exports[`MainMenu.vue > Renders MainMenu for an anonymous user 1`] = `
                     <li role="presentation" class="nav-subitem"><a class="dropdown-item" href="/song/advancedsearchform" to="" replace="false" role="menuitem">&nbsp;&nbsp;Advanced Search</a></li>
                     <li role="presentation" class="nav-subitem"><a class="dropdown-item" href="/song/augment" to="" replace="false" role="menuitem">&nbsp;&nbsp;Add Song</a></li>
                     <li role="presentation" class="nav-subitem"><a class="dropdown-item" href="/song/newmusic" to="" replace="false" role="menuitem">&nbsp;&nbsp;New Music</a></li>
+                    <!--v-if-->
                     <li role="presentation"><a class="dropdown-item" href="/dances/wedding-music" to="" replace="false" role="menuitem">Wedding</a></li>
                     <li role="presentation"><a class="dropdown-item" href="/customsearch?name=holiday" to="" replace="false" role="menuitem">Holiday</a></li>
                     <li role="presentation"><a class="dropdown-item" href="/customsearch?name=halloween" to="" replace="false" role="menuitem">Halloween</a></li>
