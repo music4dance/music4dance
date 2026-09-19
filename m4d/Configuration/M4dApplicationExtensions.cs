@@ -173,8 +173,15 @@ public static class M4dApplicationExtensions
                             kv => { _ = kv.SetCredential(azureCredential!); })
                         .UseFeatureFlags(featureFlagOptions =>
                         {
-                            _ = featureFlagOptions.Select(LabelFilter.Null);
-                            _ = featureFlagOptions.Select(environment.EnvironmentName);
+                            // Both arguments matter. FeatureFlagOptions.Select takes the flag NAME
+                            // filter first and the label second - it is not the single-argument
+                            // label overload it looks like, and there is no such overload. Passing a
+                            // label alone asks for a flag literally named "Staging", matches nothing,
+                            // and fails silently: flags simply fall back to appsettings.json, which
+                            // looks exactly like a flag that is switched off. Mirror the key-value
+                            // Select calls below, which had it right.
+                            _ = featureFlagOptions.Select(KeyFilter.Any, LabelFilter.Null);
+                            _ = featureFlagOptions.Select(KeyFilter.Any, environment.EnvironmentName);
                             _ = featureFlagOptions.SetRefreshInterval(TimeSpan.FromMinutes(5));
                         })
                         .Select(KeyFilter.Any, LabelFilter.Null)
