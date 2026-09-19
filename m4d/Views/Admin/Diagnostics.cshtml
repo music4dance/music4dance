@@ -5,7 +5,9 @@
 @using m4d.Services.Diagnostics
 @using m4dModels
 @using System
+@using Microsoft.AspNetCore.Hosting
 @inject ISearchServiceManager SearchService
+@inject IWebHostEnvironment HostEnvironment
 @inject IConfiguration Configuration
 @inject IFeatureManagerSnapshot FeatureManager
 
@@ -61,6 +63,9 @@
         <b>Version:</b> @Environment.Version
     </li>
     <li><b>Build Flavor:</b> @(ViewBag.Debug ? "Debug" : "Release")</li>
+    <li>
+        <b>Environment Name:</b> @HostEnvironment.EnvironmentName
+    </li>
     <li>
         Sentinel: @Configuration["Configuration:Sentinel"]
     </li>
@@ -302,6 +307,12 @@ else
 
 <hr />
 <h3>Features</h3>
+<p class="text-muted">
+    App Configuration is queried twice for these: once for flags with no label, then for
+    flags labelled <b>@HostEnvironment.EnvironmentName</b>, which win. A flag labelled for
+    any other environment is not read at all and leaves no trace here - it looks exactly
+    like a flag that was never created.
+</p>
 <ul>
     @await foreach (var feature in FeatureManager.GetFeatureNamesAsync())
     {
