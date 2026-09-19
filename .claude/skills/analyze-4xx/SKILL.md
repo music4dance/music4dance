@@ -39,27 +39,44 @@ If there isn't one, offer to fetch it. The export is behind
 `[Authorize(Roles = "showDiagnostics")]`, so it needs the user's authenticated
 session — there is no API key. Two options, in order:
 
-**a. Browser (preferred, needs the user signed in to music4dance.net in Chrome)**
+**a. Browser (preferred — verified working 2026-09-19)**
 
-Invoke the `claude-in-chrome` skill, then load the browser tools in one
-`ToolSearch` call and run:
+Needs the user signed in to music4dance.net in Chrome with an account holding
+the `showDiagnostics` role. Invoke the `claude-in-chrome` skill, load the
+browser tools in one `ToolSearch` call, then:
 
-```
-tabs_create_mcp  → https://www.music4dance.net/Admin/Diagnostics
-javascript_tool  → const r = await fetch('/Admin/Http4xxExportCsv', {credentials:'same-origin'});
-                   const t = await r.text();
-                   console.log('4XXCSV_START'); console.log(t); console.log('4XXCSV_END');
-read_console_messages → pattern "4XXCSV"
-```
+1. `navigate` a new tab to `https://www.music4dance.net/Admin/Diagnostics`
+   (any same-origin page works; this one confirms the session by its title).
+2. `javascript_tool` — fetch the export and check it before doing anything
+   with it:
 
-Write the captured text to `local/4xx-urls-<YYYY-MM-DD>.csv`. Close the tab
-when done.
+   ```js
+   const r = await fetch('/Admin/Http4xxExportCsv', { credentials: 'same-origin' });
+   const t = await r.text();
+   window.__csv = t;
+   ({ status: r.status, bytes: t.length, isCsv: t.trimStart().startsWith('Url,Status,Count') });
+   ```
+
+3. **Only if `isCsv` is true**, hand the file to the browser's downloader
+   rather than routing ~60 KB of CSV back through the console — it lands on
+   disk directly and never enters context:
+
+   ```js
+   const a = document.createElement('a');
+   a.href = URL.createObjectURL(new Blob([window.__csv], { type: 'text/csv' }));
+   a.download = '4xx-urls-<YYYY-MM-DD>.csv';
+   document.body.appendChild(a); a.click(); a.remove();
+   ```
+
+4. Move it out of the download directory into `local/`:
+   `mv ~/Downloads/4xx-urls-<date>.csv local/`
+5. Close the tab.
 
 An unauthenticated session does **not** fail loudly: the fetch follows the
 redirect to `/Identity/Account/Login` and returns **status 200 with the login
-page's HTML**. Check that the body starts with `Url,Status,Count` before saving
-it, and fall back to (b) if it doesn't. Don't try to sign in — entering
-credentials is out of scope; ask the user to log in and re-run.
+page's HTML**, which is why step 2 checks the body rather than the status. If
+`isCsv` is false, fall back to (b) — don't try to sign in, entering credentials
+is out of scope.
 
 **b. Ask the user** to visit `/Admin/Diagnostics`, click "Export CSV", and drop
 the file in `local/`.
