@@ -5,7 +5,9 @@
 The Artist page shows every song by a given artist, along with a per-dance breakdown of how many of
 those songs are rated for each dance. It's a read-only, anonymous-accessible page reached at
 `/song/artist?name={artist}` — most often via an artist-name link rendered elsewhere in the app
-(song tables, song detail, album page).
+(song tables, song detail, album page), or by searching the artist index at `/song/artists` and
+matching exactly one artist, which redirects here
+([individual-artists.md §9](individual-artists.md#9-artist-index-page)).
 
 There is still no artist entity in the domain model — an "artist page" is a filtered song list keyed
 off a string. **What that string is matched against depends on the `ArtistIndex` feature flag:**
