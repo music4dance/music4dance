@@ -16,31 +16,155 @@ public class Http4xxTracker
     // scanning, etc). Matched against the start of the path only (query string stripped).
     private static readonly string[] KnownAttackPathPrefixes =
     [
-        "/wp-",
-        "/wp/",
+        "/wp",             // /wp-admin, /wp-login.php, /wp/, and bare /wp - never a real path here
+        "/wordpress",
         "/administrator",
+        "/sitecore/",
+        "/solr/",
+        "/owa/",
+        "/_profiler/",     // Symfony debug toolbar
+        "/engine-ui/",     // Spark/Flink UI probe, usually with an embedded host:port
+        "/storage/logs/",  // Laravel log disclosure
+        "/userfiles",      // file-manager path traversal (?path=../../../.env)
     ];
 
     // Substrings for the same category of probe, but ones scanners prefix with a guessed
     // app/framework directory (e.g. "/admin/.env", "/laravel/.env"), so a StartsWith check
     // against the bare pattern would miss most hits. Matched anywhere in the path.
+    //
+    // Everything here names a file or route that this app has never served and never will.
+    // Deliberately *not* here: short generic segments a future feature could plausibly use
+    // (/login, /dashboard, /account, /mcp, /sse, /manifest.json), and benign platform probes
+    // (/sitemap.xml, /.well-known/*, /apple-touch-icon*.png) that are worth keeping visible.
+    // See architecture/distributed-attack-mitigation.md's triage log.
     private static readonly string[] KnownAttackPathSubstrings =
     [
+        // Language/runtime fingerprinting
         ".php",
-        "/.env",
+        "phpinfo",
+        ".jsp",
+        ".shtml",
+        "/cgi-bin",
+        "/server/php/",        // blueimp jQuery-File-Upload RCE, probed under many prefixes
+        "jquery-file-upload",
+        "/proc/self/",
+
+        // Dotfile / VCS / editor-config disclosure
+        ".env",                // /.env, /admin/.env, /secrets.env, aws_credentials.env
         "/.git",
+        "/.svn",
+        "/.hg/",
+        "/.ssh/",
         "/.aws/",
+        "/.docker",            // /.docker/config.json, /.dockercfg, /.dockerenv
+        "/.vscode/",
+        "/.idea/",
+        "/.claude/",
+        "/.config/",
+        "/.composer",
+        "/.circleci/",
+        "/.github/",
+        "/.gitlab-ci",
+        "/.travis",
         "/.npmrc",
+        "/.yarnrc",
         "/.s3cfg",
         "/.boto",
-        "/proc/self/",
-        "editor/filemanager/browser/default/browser.html", // FCKeditor/CKEditor file-manager exploit probe
-        "kubernetes.io/serviceaccount",
-        "/graphql",
-        "service-account.json",
-        "firebase-adminsdk",
-        "credentials.json",
+        "/.htpasswd",
+        "/.htaccess",
+        "/.netrc",
+        "/.bash",              // /.bashrc, /.bash_profile, /.bash_history
+        "/.zsh",
+        "/.profile",
+
+        // Key material
+        "id_rsa",
+        "id_dsa",
+        "id_ecdsa",
+        "id_ed25519",
+        "authorized_keys",
+        "known_hosts",
+        ".pem",
+        ".key",                // server.key, privatekey.key, localhost.key
+        "private-key",
+
+        // Cloud / CI / app secrets
+        "credentials",         // credentials.json/.yml/.db, aws_credentials.env, .git-credentials
+        "secrets.",            // secrets.env/.yml/.json
+        "serviceaccount",      // kubernetes.io/serviceaccount, serviceAccountKey.json
+        "service-account",
+        "service_account",
+        "firebase",
+        "gcp-key",
+        "gcp-sa",
+        "google-key",
+        "/sa.json",
+        "/key.json",
+        "keyfile.json",
+        "auth.json",
+        "composer.json",
+        "composer.lock",
+        "appsettings",         // appsettings.json, appsettings.Production.json
+        "local.settings.json",
+        "application.propert",
+        "application.y",       // application.yml / .yaml
+        "application-properties",  // Atlassian /rest/api/1.0/application-properties
         "terraform.tfstate",
+        ".tfvars",
+        "serverless.y",
+        "/values.yaml",
+        "rclone.conf",
+        "sftp-config.json",
+        "/_environment",
+        "/config/env",
+        "runtime-env.js",
+        "environment.rb",
+
+        // Container / orchestration manifests
+        "docker-compose",
+        "/compose.y",
+        "dockerfile",
+
+        // Database dumps and backup archives
+        ".sql",                // dump.sql, db.sql.gz, database.sql
+        "/db.",                // /db.zip, /db.tar.gz
+        "backup.zip",
+        "laravel.log",
+
+        // CMS / appliance exploit paths
+        "editor/filemanager/browser/default/browser.html", // FCKeditor/CKEditor file-manager exploit probe
+        "/sites/default/files",     // Drupal
+        "media/system/js/core.js",  // Joomla fingerprint
+        "/modules/mod_",            // Joomla modules, incl. mod_webshell
+        "webshell",
+        "/blocks/rce/",             // Moodle RCE block
+        "/plugins/",
+        "/admin/controller/extension/", // OpenCart
+        "sugar_version.json",       // SugarCRM
+        "telerik.web.ui",           // Telerik RadAsyncUpload deserialization
+        "showlogin.cc",             // Sangfor appliance
+        "/license.txt",             // WordPress/Joomla version fingerprint
+        "/.tmb/",                   // QNAP thumbnail traversal
+        "404error_test.html",
+
+        // Build-tool / bundler metadata disclosure
+        "__vite_rsc_findsourcemapurl",
+        "/.vite/",
+        "asset-manifest.json",
+        "webpack-stats.json",
+
+        // Exposed dev/AI-agent backdoors (a single sweep on 2026-09-17; see triage log)
+        "-debug-trigger",
+        "/api/fs/exec",
+        "inngest",
+        "/api/designer/",
+        "/api/templates/preview",
+        "/read-document",
+
+        // Miscellaneous
+        "/graphql",
+        "/ipfs/",
+        "/cdn-cgi/",
     ];
 
     public static bool IsKnownAttackUrl(string url)
