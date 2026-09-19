@@ -65,7 +65,7 @@
 @if (!hideAds && !isPremium &&!customerReminder && !userAgent.Contains("googlebot") )
 {
     <!-- Google Adsense Verifier -->
-    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
     <script>
         (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1;
         console.log("Ads are paused");
@@ -115,8 +115,12 @@
     <link rel="canonical" href="@ViewBag.Canonical"/>
 }
 
-<link rel="shortcut icon" href="~/images/favicon.png"/>
-<link href="//fonts.googleapis.com/css?family=Source+Sans+Pro|Merienda:700" rel="stylesheet" type="text/css">
+@* Browsers and crawlers request /favicon.ico from the site root whether or not it is
+   linked - it was the single highest-volume 404 in the 4xx log until wwwroot/favicon.ico
+   was added. Both links are declared so the root file is also the one used in-page. *@
+<link rel="icon" href="~/favicon.ico" sizes="48x48"/>
+<link rel="icon" type="image/png" href="~/images/favicon.png"/>
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro|Merienda:700" rel="stylesheet" type="text/css">
 
 @if (hasIcons)
 {
@@ -219,8 +223,8 @@
     catch(e){window.attachEvent("onload", $buo_f)}
 </script>
 
-<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css"/>
-<script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
 <script>
     window.addEventListener("load",
         function() {
@@ -242,7 +246,7 @@
                 },
                 theme: "classic",
                 content: {
-                    "href": "home/privacypolicy#GDPR"
+                    "href": "/home/privacypolicy#GDPR"
                 }
             });
         });
