@@ -937,6 +937,20 @@ public class SongController : ContentController
 
         var index = await artistIndexCache.GetAsync(Database);
         var model = ArtistIndexModel.Create(index, letter, q, all ? 1 : 2);
+
+        // Searching and getting one hit means the visitor was looking that artist up, so send them
+        // there rather than to an index page holding a single link. Search only - a letter bucket
+        // with one artist in it is still a browse, and its listing is the answer.
+        var sole = model.SoleSearchMatch();
+        if (sole != null)
+        {
+            // Built by hand rather than with RedirectToAction, which would route-generate
+            // "/Song/Artist?name=..." - every artist link the site emits is the lowercase
+            // "/song/artist?name=..." of ArtistNames.artistPageUrl, and one page reached under
+            // two casings is worth avoiding in logs, analytics and crawler eyes alike.
+            return Redirect($"/song/artist?name={Uri.EscapeDataString(sole)}");
+        }
+
         return Vue3("Artists", "Browse the artists behind songs for dancing", "artist-index", model);
     }
 

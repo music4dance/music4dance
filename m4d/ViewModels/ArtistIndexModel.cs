@@ -20,6 +20,18 @@ public class ArtistIndexModel
 
     public List<ArtistIndexEntry> Artists { get; set; }
 
+    /// <summary>
+    /// The one artist a search matched, or null when it matched none, several, or wasn't a search.
+    /// Landing on a single match means the visitor was looking someone up rather than browsing, so
+    /// the page redirects to that artist instead of listing one entry.
+    /// </summary>
+    /// <remarks>
+    /// A method rather than a property so it stays out of the JSON serialized to the Vue page -
+    /// the client never sees this case, because the redirect happens before the page renders.
+    /// </remarks>
+    public string SoleSearchMatch() =>
+        !string.IsNullOrWhiteSpace(Query) && Artists.Count == 1 ? Artists[0].Name : null;
+
     public static ArtistIndexModel Create(ArtistIndex index, string letter, string query, int minSongs)
     {
         if (index == null)

@@ -386,6 +386,14 @@ always been — history and attribution are the safety net.
 `/song/artists`, gated on the `ArtistIndex` flag. Letter navigation, server-side search, and a
 minimum-song-count toggle (default 2).
 
+**A search that matches exactly one artist redirects to that artist's page** rather than rendering
+an index holding a single link — `ArtistIndexModel.SoleSearchMatch` decides, `SongController.Artists`
+acts on it. It's a search-only rule: a letter bucket that happens to hold one artist is still a
+browse, and its listing is the answer. "One match" means one entry the page would have shown, so
+the song-count threshold counts too — the same search can redirect with singles included and find
+nothing without them. The redirect is built by hand as the lowercase `/song/artist?name=…` that
+`artistPageUrl` emits everywhere else, not route-generated as `/Song/Artist?name=…`.
+
 ### 9.1 Why a snapshot
 
 A–Z bucketing can't be expressed as an index filter ([§5.1](#51-the-field)), and faceting ~32,500

@@ -23,7 +23,7 @@ test("browses artists by letter", async ({ page }) => {
   await expect(page.locator(".artist-list a").first()).toBeVisible();
 });
 
-test("searches for an artist and follows the result to their page", async ({ page }) => {
+test("searches for an artist and lands on their page", async ({ page }) => {
   await openArtistIndex(page);
 
   // Take a real artist off the index rather than naming one, so the seed set can change
@@ -33,15 +33,22 @@ test("searches for an artist and follows the result to their page", async ({ pag
 
   await artistSearchBox(page).fill(name);
   await page.getByRole("button", { name: "Search" }).click();
-  await page.waitForURL(/[?&]q=/);
+  // Either the search results or, when the name matched one artist, that artist's page
+  await page.waitForURL(/\/song\/artists?\?/);
 
-  await expect(contentHeading(page, 2)).toContainText(name);
+  // A search with a single match redirects instead of listing it, and whether a name is unique in
+  // the catalog is the seed set's business - so accept either page and assert what they share.
+  if (!/\/song\/artist\?/.test(page.url())) {
+    await expect(contentHeading(page, 2)).toContainText(name);
+    // Whatever is still listed was ambiguous, so it is more than the one match
+    expect(await page.locator(".artist-list li").count()).toBeGreaterThan(1);
 
-  const match = page.locator(".artist-list a", { hasText: name }).first();
-  await expect(match).toBeVisible();
-  await match.click();
+    const match = page.locator(".artist-list a", { hasText: name }).first();
+    await expect(match).toBeVisible();
+    await match.click();
+    await page.waitForURL(/\/song\/artist\?/);
+  }
 
-  await page.waitForURL(/\/song\/artist\?/);
   await expect(contentHeading(page, 1)).toContainText(name);
 });
 
