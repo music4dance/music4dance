@@ -145,7 +145,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/cdcfe5f1-f765-4a14-a8b8-7c8e131aec3f?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Akin Ka Na Lang - Himig Handog Pop Lovesongs 2014 Version</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Morissette">Morissette</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Morissette">Morissette</a>
               </td>
               <td class=""></td>
               <td class="">
@@ -231,7 +231,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/374b10f3-0971-4362-94f1-45855a8e02db?filter=v2-newmusic--Created---%5C-UserAK%7Ca">The Witches Are Back (from Hocus Pocus 2)</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Bette%20Midler%2C%20Sarah%20Jessica%20Parker%20%26%20Kathy%20Najimy">Bette Midler, Sarah Jessica Parker &amp; Kathy Najimy</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Bette%20Midler%2C%20Sarah%20Jessica%20Parker%20%26%20Kathy%20Najimy">Bette Midler, Sarah Jessica Parker &amp; Kathy Najimy</a>
               </td>
               <td class="">
                 <!---->
@@ -538,7 +538,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/78b0d29e-22ff-491d-b048-588f42a392b8?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Shivers</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=District%2078%20%26%20Mikayla%20Lynn">District 78 &amp; Mikayla Lynn</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=District%2078%20%26%20Mikayla%20Lynn">District 78 &amp; Mikayla Lynn</a>
               </td>
               <td class=""></td>
               <td class="">
@@ -703,7 +703,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/92831596-1757-4853-8c43-e183bf0fd44c?filter=v2-newmusic--Created---%5C-UserAK%7Ca">I Wanna Be Your Slave</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=M%C3%A5neskin">Måneskin</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=M%C3%A5neskin">Måneskin</a>
               </td>
               <td class="">
                 <!---->
@@ -1009,7 +1009,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/b7ac9623-c671-40d7-a3d5-ce4631f8d239?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Halloween Theme</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=District%2078">District 78</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=District%2078">District 78</a>
               </td>
               <td class="">
                 <!---->
@@ -1216,7 +1216,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/8c3d0141-ff65-41b1-a32c-5ac5924638d9?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Get Ghost</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Mark%20Ronson%2C%20Passion%20Pit%20%26%20ASAP%20Ferg">Mark Ronson, Passion Pit &amp; ASAP Ferg</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Mark%20Ronson%2C%20Passion%20Pit%20%26%20ASAP%20Ferg">Mark Ronson, Passion Pit &amp; ASAP Ferg</a>
               </td>
               <td class="">
                 <!---->
@@ -1558,7 +1558,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/8401cfc7-79b9-4c10-828e-3215104c4bee?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Ghost (Acoustic)</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Justin%20Bieber">Justin Bieber</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Justin%20Bieber">Justin Bieber</a>
               </td>
               <td class="">
                 <!---->
@@ -1774,7 +1774,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/5ad1bda4-eff7-462a-98f0-51a8941b1617?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Oogie Boogie's Song</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ed%20Ivory%20%26%20Ken%20Page">Ed Ivory &amp; Ken Page</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Ed%20Ivory%20%26%20Ken%20Page">Ed Ivory &amp; Ken Page</a>
               </td>
               <td class="">
                 <!---->
@@ -2008,7 +2008,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/7f5731ac-7721-42db-a6f3-e7fdda062de7?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Leave Before You Love Me (with Jonas Brothers)</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Marshmello">Marshmello</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Marshmello">Marshmello</a>
               </td>
               <td class="">
                 <!---->
@@ -2194,7 +2194,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/c54a39f6-1062-4d77-a449-87e012cf88ed?filter=v2-newmusic--Created---%5C-UserAK%7Ca">El Flautista</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Chino%20Pons">Chino Pons</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Chino%20Pons">Chino Pons</a>
               </td>
               <td class=""></td>
               <td class="">
@@ -2266,7 +2266,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/2894cc65-c809-42f9-a49b-cd9ff932902c?filter=v2-newmusic--Created---%5C-UserAK%7Ca">I Get a Kick Out of You</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Michael%20Bubl%C3%A9">Michael Bublé</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Michael%20Bubl%C3%A9">Michael Bublé</a>
               </td>
               <td class="">
                 <!---->
@@ -2496,7 +2496,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/9ca25214-126c-4915-95dc-9d94631c79ca?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Come Fly with Me</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Michael%20Bubl%C3%A9">Michael Bublé</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Michael%20Bubl%C3%A9">Michael Bublé</a>
               </td>
               <td class="">
                 <!---->
@@ -2726,7 +2726,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/7aac455b-97e7-48d3-b42e-55deb43dbc0b?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Cavatina</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Francis%20Goya">Francis Goya</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Francis%20Goya">Francis Goya</a>
               </td>
               <td class=""></td>
               <td class="">
@@ -2812,7 +2812,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/d9d79760-b73f-4381-bb32-cf1e86bb8fd7?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Melhor de Mim - Diego Miranda Remix</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Mariza">Mariza</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Mariza">Mariza</a>
               </td>
               <td class=""></td>
               <td class="">
@@ -2898,7 +2898,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/2e654b5b-49ed-4d87-87ec-bd7fdf603219?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Otto Make That Riff Staccato</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=THE%20SCHWINGS%20BAND">THE SCHWINGS BAND</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=THE%20SCHWINGS%20BAND">THE SCHWINGS BAND</a>
               </td>
               <td class=""></td>
               <td class="">
@@ -3013,7 +3013,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/6633bec5-9416-41a1-bdac-eb5e13b450a8?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Lo Que Siento</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=La%20Nueva%20Luna">La Nueva Luna</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=La%20Nueva%20Luna">La Nueva Luna</a>
               </td>
               <td class=""></td>
               <td class="">
@@ -3085,7 +3085,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/09a10e7d-e92a-4f53-8392-0505dab6da99?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Roto</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Rodrigo%20Tapari">Rodrigo Tapari</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Rodrigo%20Tapari">Rodrigo Tapari</a>
               </td>
               <td class=""></td>
               <td class="">
@@ -3157,7 +3157,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/afd8e091-35fc-451c-a4c8-862954234da7?filter=v2-newmusic--Created---%5C-UserAK%7Ca">You Are Not Alone</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Klaus%20Hallen%20Tanzorchester">Klaus Hallen Tanzorchester</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Klaus%20Hallen%20Tanzorchester">Klaus Hallen Tanzorchester</a>
               </td>
               <td class=""></td>
               <td class="">
@@ -3232,7 +3232,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/3b5e2f24-ea3f-4c5f-b78a-60bc0af8b2f6?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Don't Forget to Say Goodnight</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Alicia%20Gianni">Alicia Gianni</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Alicia%20Gianni">Alicia Gianni</a>
               </td>
               <td class=""></td>
               <td class="">
@@ -3318,7 +3318,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/de8f1064-7184-4bd7-9659-3f46eab8f3fe?filter=v2-newmusic--Created---%5C-UserAK%7Ca">L'un près de l'autre</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=No%C3%A9e">Noée</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=No%C3%A9e">Noée</a>
               </td>
               <td class=""></td>
               <td class="">
@@ -3404,7 +3404,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/02d0246f-77f8-4b04-b6d3-cae0793794fd?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Adieu je t'aime</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ycare">Ycare</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Ycare">Ycare</a>
               </td>
               <td class=""></td>
               <td class="">
@@ -3490,7 +3490,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/d7f9cbc4-5f2a-4240-9f88-1c93fb921e30?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Never Seen Anything "Quite Like You" - Acoustic</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=The%20Script">The Script</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=The%20Script">The Script</a>
               </td>
               <td class="">
                 <!---->
@@ -3640,7 +3640,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/7b98f34f-bea4-4f2e-a0bd-124431750025?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Where We Land</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ed%20Sheeran">Ed Sheeran</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Ed%20Sheeran">Ed Sheeran</a>
               </td>
               <td class="">
                 <!---->
@@ -3772,7 +3772,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/1cfe4de8-38e8-4611-8530-92c8eac069d6?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Duetos De Etiqueta #1 - Roto Corazón</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Mario%20Luis">Mario Luis</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Mario%20Luis">Mario Luis</a>
               </td>
               <td class=""></td>
               <td class="">
@@ -3844,7 +3844,7 @@ exports[`New Music > renders a new music page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/3ac55d8f-d9c3-4d52-a8b0-c6382612d2df?filter=v2-newmusic--Created---%5C-UserAK%7Ca">Girl Named Summertime (feat. Jon Bellion)</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Brandyn%20Burnette">Brandyn Burnette</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Brandyn%20Burnette">Brandyn Burnette</a>
               </td>
               <td class=""></td>
               <td class="">

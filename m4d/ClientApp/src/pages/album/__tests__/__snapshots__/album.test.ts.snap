@@ -183,7 +183,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/9337da18-44c0-41e3-8524-05c3b42f7f24?filter=v2-Album">Vuelve</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Christian%20Alicea">Christian Alicea</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Christian%20Alicea">Christian Alicea</a>
               </td>
               <td class="">
                 <!---->1
@@ -254,7 +254,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/116ea88c-5a34-4cd1-8ff6-1e5215ced86c?filter=v2-Album">Vuelve</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ricky%20Martin">Ricky Martin</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Ricky%20Martin">Ricky Martin</a>
               </td>
               <td class="">
                 <!---->2
@@ -422,7 +422,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/9c898438-bbc1-4c58-9065-a1618ed18608?filter=v2-Album">Lola, Lola</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ricky%20Martin">Ricky Martin</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Ricky%20Martin">Ricky Martin</a>
               </td>
               <td class="">
                 <!---->3
@@ -497,7 +497,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/dedc039e-2964-4a57-b21b-d027c45872ee?filter=v2-Album">Casi un Bolero</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ricky%20Martin">Ricky Martin</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Ricky%20Martin">Ricky Martin</a>
               </td>
               <td class="">
                 <!---->4
@@ -685,7 +685,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/b9b59a4d-1576-4635-bc73-0064096d7ae4?filter=v2-Album">Corazonado</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ricky%20Martin">Ricky Martin</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Ricky%20Martin">Ricky Martin</a>
               </td>
               <td class="">
                 <!---->5
@@ -760,7 +760,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/b2457b84-c5b4-49cb-9bf4-0c920a9dab95?filter=v2-Album">La Bomba</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ricky%20Martin">Ricky Martin</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Ricky%20Martin">Ricky Martin</a>
               </td>
               <td class="">
                 <!---->6
@@ -948,7 +948,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/e27707d0-e9ff-4330-9f8f-a2cf8a76bdc0?filter=v2-Album">Hagamos El Amor</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ricky%20Martin">Ricky Martin</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Ricky%20Martin">Ricky Martin</a>
               </td>
               <td class="">
                 <!---->7
@@ -1023,7 +1023,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/036b2b84-f7de-4b37-8b42-c428a8a8f2b9?filter=v2-Album">La Copa De La Vida</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ricky%20Martin">Ricky Martin</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Ricky%20Martin">Ricky Martin</a>
               </td>
               <td class="">
                 <!---->8
@@ -1160,7 +1160,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/eee30b09-3c65-4a74-847d-9d53193c7952?filter=v2-Album">Perdido Sin Ti</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ricky%20Martin">Ricky Martin</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Ricky%20Martin">Ricky Martin</a>
               </td>
               <td class="">
                 <!---->9
@@ -1249,7 +1249,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/31843878-bcfe-4d85-b296-a3955b8f387d?filter=v2-Album">Asi Es La Vida</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ricky%20Martin">Ricky Martin</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Ricky%20Martin">Ricky Martin</a>
               </td>
               <td class="">
                 <!---->10
@@ -1324,7 +1324,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/88aca21d-73d1-4ae1-8643-e98f7e90823d?filter=v2-Album">Marcia Baila</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ricky%20Martin">Ricky Martin</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Ricky%20Martin">Ricky Martin</a>
               </td>
               <td class="">
                 <!---->11
@@ -1446,7 +1446,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/c2ebdd27-9d12-4c87-8fe0-8b76eb693319?filter=v2-Album">No Importa La Distancia</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ricky%20Martin">Ricky Martin</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Ricky%20Martin">Ricky Martin</a>
               </td>
               <td class="">
                 <!---->12
@@ -1521,7 +1521,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/a1ee0081-672d-45b1-bff3-2c7c8384bce4?filter=v2-Album">Gracias Por Pensar En Mi</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ricky%20Martin">Ricky Martin</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Ricky%20Martin">Ricky Martin</a>
               </td>
               <td class="">
                 <!---->13
@@ -1587,7 +1587,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/791d986d-10c9-4c3d-996c-a4bf64e1d614?filter=v2-Album">Vuelve</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Jerry%20Rivera">Jerry Rivera</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Jerry%20Rivera">Jerry Rivera</a>
               </td>
               <td class="">
                 <!---->1
@@ -1727,7 +1727,7 @@ exports[`Album > renders an album page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/427f6ff9-ef06-4d05-9cfd-393b199c76db?filter=v2-Album">Por Arriba, Por Abajo</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ricky%20Martin">Ricky Martin</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Ricky%20Martin">Ricky Martin</a>
               </td>
               <td class="">
                 <!---->1

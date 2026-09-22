@@ -178,7 +178,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/ee9680db-423e-47d2-851a-f08ddcbe9ff9?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Hey Santa Claus</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Moonglows">Moonglows</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Moonglows">Moonglows</a>
                 </td>
                 <td class="">
                   <!---->
@@ -404,7 +404,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/dd3e4932-1a1a-416f-bd21-be46d7c9ae2c?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Fairytale of New York (feat. Kirsty MacColl)</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=The%20Pogues">The Pogues</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=The%20Pogues">The Pogues</a>
                 </td>
                 <td class="">
                   <!---->
@@ -692,7 +692,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/8f39a828-617b-446b-a5fa-61a659408467?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">My Girl</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=The%20Temptations">The Temptations</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=The%20Temptations">The Temptations</a>
                 </td>
                 <td class="">
                   <!---->
@@ -978,7 +978,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/c4738932-3874-4171-806a-9a41a9090479?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Let It Snow! Let It Snow! Let It Snow!</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Dean%20Martin">Dean Martin</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Dean%20Martin">Dean Martin</a>
                 </td>
                 <td class="">
                   <!---->
@@ -1177,7 +1177,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/fa034007-870e-4e3f-97b0-66c12251ccfd?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">This Kiss</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Faith%20Hill">Faith Hill</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Faith%20Hill">Faith Hill</a>
                 </td>
                 <td class="">
                   <!---->
@@ -1347,7 +1347,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/131702bc-4662-4b3b-bc17-d9bf22f6debf?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Baby, It's Cold Outside</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Seth%20MacFarlane">Seth MacFarlane</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Seth%20MacFarlane">Seth MacFarlane</a>
                 </td>
                 <td class="">
                   <!---->
@@ -1541,7 +1541,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/6cb0c6f8-b8a7-4636-b943-7c2e9383bb64?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Little Shepherd (Slow Waltz / 29 Bpm)</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ballroom%20Orchestra%20and%20Singers">Ballroom Orchestra and Singers</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Ballroom%20Orchestra%20and%20Singers">Ballroom Orchestra and Singers</a>
                 </td>
                 <td class="">
                   <!---->
@@ -1667,7 +1667,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/d564f273-ea0d-4e41-b8f9-de4af61e84cb?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">The First Noel - Remastered 1999</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Frank%20Sinatra">Frank Sinatra</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Frank%20Sinatra">Frank Sinatra</a>
                 </td>
                 <td class="">
                   <!---->
@@ -1777,7 +1777,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/b4f56aef-26fa-4d6f-b193-09bd57882935?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Silent Night</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Michael%20Bubl%C3%A9">Michael Bublé</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Michael%20Bubl%C3%A9">Michael Bublé</a>
                 </td>
                 <td class="">
                   <!---->
@@ -1928,7 +1928,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/11ae2f96-7deb-4186-8f14-a1e92483041b?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Hang a String of Lights</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Great%20Lake%20Swimmers">Great Lake Swimmers</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Great%20Lake%20Swimmers">Great Lake Swimmers</a>
                 </td>
                 <td class="">
                   <!---->
@@ -2073,7 +2073,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/d6a4b680-394a-4541-b275-71ae5f9221ea?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Santa Baby</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ariana%20Grande">Ariana Grande</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Ariana%20Grande">Ariana Grande</a>
                 </td>
                 <td class="">
                   <!---->
@@ -2243,7 +2243,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/01f8367a-4515-489d-ba40-37fd9b3d4fac?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Silent Night</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Elenowen">Elenowen</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Elenowen">Elenowen</a>
                 </td>
                 <td class=""></td>
                 <td class="">
@@ -2311,7 +2311,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/4f3b3aba-cd2d-4d8e-a583-911bde7f654d?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Christmas Wish</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=She%20%26%20Him">She &amp; Him</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=She%20%26%20Him">She &amp; Him</a>
                 </td>
                 <td class="">
                   <!---->
@@ -2465,7 +2465,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/97d9d5d7-77a0-4baf-b051-4f2acc8a3649?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Christmas Tree Farm</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Taylor%20Swift">Taylor Swift</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Taylor%20Swift">Taylor Swift</a>
                 </td>
                 <td class="">
                   <!---->
@@ -2651,7 +2651,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/c8290cb1-4715-4f33-83cd-13229d493aa5?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Happy Xmas (War Is Over)</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Urban%20Bossa%20Club">Urban Bossa Club</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Urban%20Bossa%20Club">Urban Bossa Club</a>
                 </td>
                 <td class=""></td>
                 <td class="">
@@ -2728,7 +2728,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/0e2b4e52-464d-42a5-9ea2-0187052d84a3?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">The Little Drummer Boy</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Johnny%20Cash">Johnny Cash</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Johnny%20Cash">Johnny Cash</a>
                 </td>
                 <td class=""></td>
                 <td class="">
@@ -2814,7 +2814,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/391ae78e-ac51-4e7e-8fa9-303ffa06d840?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">What's Christmas Anyway</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Darin">Darin</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Darin">Darin</a>
                 </td>
                 <td class=""></td>
                 <td class="">
@@ -2882,7 +2882,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/48fd5f85-f607-4cc0-a882-2fe018e4911c?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Christmas Blues</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Sabrina%20Claudio">Sabrina Claudio</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Sabrina%20Claudio">Sabrina Claudio</a>
                 </td>
                 <td class="">
                   <!---->
@@ -3049,7 +3049,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/bac059fb-18fd-474c-881f-3d6d7d185a97?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">O Holy Night</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Nat%20King%20Cole">Nat King Cole</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Nat%20King%20Cole">Nat King Cole</a>
                 </td>
                 <td class="">
                   <!---->
@@ -3228,7 +3228,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/3a1fc999-333c-400e-a8f7-a42511c1df78?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Himlen I Min Favn</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Anne%20Vada">Anne Vada</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Anne%20Vada">Anne Vada</a>
                 </td>
                 <td class="">
                   <!---->
@@ -3347,7 +3347,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/a04488e4-6017-4402-bb20-3c1bfd942cbd?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Sausage Rolls for Everyone</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=LadBaby">LadBaby</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=LadBaby">LadBaby</a>
                 </td>
                 <td class=""></td>
                 <td class="">
@@ -3443,7 +3443,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/ddf826e7-c016-460e-b5bc-68ccc710be33?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">You're A Mean One, Mr. Grinch</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Thurl%20Ravenscroft">Thurl Ravenscroft</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Thurl%20Ravenscroft">Thurl Ravenscroft</a>
                 </td>
                 <td class="">
                   <!---->
@@ -3574,7 +3574,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/8a683aa7-b0bc-4c73-9cdd-d5f6ce4fb11a?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">christmas vacation</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=L%C3%98L%C3%98">LØLØ</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=L%C3%98L%C3%98">LØLØ</a>
                 </td>
                 <td class=""></td>
                 <td class="">
@@ -3656,7 +3656,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/131ddc4a-f952-4986-8bf7-6c6dcaa69977?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">Winter Things</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Ariana%20Grande">Ariana Grande</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Ariana%20Grande">Ariana Grande</a>
                 </td>
                 <td class="">
                   <!---->
@@ -3876,7 +3876,7 @@ exports[`Custom Search > renders a custom search page 1`] = `
                   <!----><a data-v-a7ef304f="" href="/song/details/ceb498ac-b818-490c-9606-ca3a457f609c?filter=customsearch-((OtherTags%2Fany(t%3A%20t%20eq%20'Holiday')%20or%20GenreTags%2Fany(t%3A%20t%20eq%20'Christmas'%20or%20t%20eq%20'Holiday'))%20and%20OtherTags%2Fall(t%3A%20t%20ne%20'Halloween'))">In The Summertime</a>
                 </td>
                 <td class="">
-                  <!----><a data-v-a7ef304f="" href="/song/artist/?name=Mungo%20Jerry">Mungo Jerry</a>
+                  <!----><a data-v-a7ef304f="" href="/song/artist?name=Mungo%20Jerry">Mungo Jerry</a>
                 </td>
                 <td class="">
                   <!---->

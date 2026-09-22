@@ -891,30 +891,41 @@ public class SongController : ContentController
             return spider;
         }
 
-        if (!string.IsNullOrWhiteSpace(name))
+        var artistIndex = await FeatureManager.IsEnabledAsync(FeatureFlags.ArtistIndex);
+
+        if (string.IsNullOrWhiteSpace(name))
         {
-            var artistIndex = await FeatureManager.IsEnabledAsync(FeatureFlags.ArtistIndex);
-            var model = await ArtistViewModel.Create(
-                name, Mapper, DefaultCruftFilter(), Database, artistIndex);
-
-            // Splitting credits turns one artist page into tens of thousands, most of them a
-            // single song. Those are too thin to be worth indexing, but their songs are worth
-            // crawling, so they ask to be followed and not indexed rather than shut out.
+            // Nothing the site emits links here without a name - a bare /song/artist is a crawler
+            // that truncated the query off one of our /song/artist?name=... links (see #284). The
+            // artist index is the honest answer to "which artist?", and 301 tells the crawler the
+            // bare form has a permanent home so it stops re-asking. Caches key a redirect on the
+            // whole target URI, query included, so this can't leak onto a real artist request.
             //
-            // Gated on the flag along with the fan-out that motivates it. Unconditionally, this
-            // would de-index the thin pages that already exist the moment the code deploys -
-            // before the feature is on, and slow to undo once a crawler has acted on it.
-            if (artistIndex && model.Histories.Count < MinimumSongsToIndexArtist)
-            {
-                ViewData["Robots"] = "noindex, follow";
-            }
-
-            return Vue3(
-                $"Artist: {name}", $"Songs for dancing by {name}", "artist",
-                model, danceEnvironment: true, helpPage: "artists");
+            // Only worth a hop when the index is actually reachable: with the flag off, Artists()
+            // itself 404s, so the plain error is the shorter honest answer.
+            return artistIndex
+                ? RedirectPermanent("/song/artists")
+                : ReturnError(HttpStatusCode.NotFound, @"Empty artist name not valid.");
         }
 
-        return ReturnError(HttpStatusCode.NotFound, @"Empty artist name not valid.");
+        var model = await ArtistViewModel.Create(
+            name, Mapper, DefaultCruftFilter(), Database, artistIndex);
+
+        // Splitting credits turns one artist page into tens of thousands, most of them a
+        // single song. Those are too thin to be worth indexing, but their songs are worth
+        // crawling, so they ask to be followed and not indexed rather than shut out.
+        //
+        // Gated on the flag along with the fan-out that motivates it. Unconditionally, this
+        // would de-index the thin pages that already exist the moment the code deploys -
+        // before the feature is on, and slow to undo once a crawler has acted on it.
+        if (artistIndex && model.Histories.Count < MinimumSongsToIndexArtist)
+        {
+            ViewData["Robots"] = "noindex, follow";
+        }
+
+        return Vue3(
+            $"Artist: {name}", $"Songs for dancing by {name}", "artist",
+            model, danceEnvironment: true, helpPage: "artists");
     }
 
     //

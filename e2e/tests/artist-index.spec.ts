@@ -89,3 +89,17 @@ test("toggles single-song artists in and out of the listing", async ({ page }) =
   // Relaxing the threshold can only add artists, never remove them
   expect(await listed.count()).toBeGreaterThanOrEqual(withoutSingles);
 });
+
+// Nothing the site links points at /song/artist without a name - these are crawlers that
+// truncated the query - so the bare forms redirect to the index instead of erroring (issue #284).
+// Both shapes are checked because the client used to emit the slashed one from song tables.
+for (const bare of ["/song/artist", "/song/artist/"]) {
+  test(`redirects ${bare} to the artist index`, async ({ page }) => {
+    // request, not page.goto: following the redirect would hide the status code, and 301 rather
+    // than 302 is the whole point - it's what tells a crawler to stop asking.
+    const response = await page.request.get(bare, { maxRedirects: 0 });
+
+    expect(response.status()).toBe(301);
+    expect(response.headers()["location"]).toBe("/song/artists");
+  });
+}
