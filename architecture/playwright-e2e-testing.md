@@ -305,7 +305,7 @@ three short tests (one per tier), not a combinatorial sweep of every role-gated 
 
 | Spec | Exercises |
 | ---- | --------- |
-| `artist-index.spec.ts` | `/song/artists`: browse by letter, search and follow a result through to the artist page, toggle single-song artists in and out |
+| `artist-index.spec.ts` | `/song/artists`: browse by letter, search and follow a result through to the artist page, toggle single-song artists in and out, and the 301 from a bare `/song/artist` (both trailing-slash shapes) to the index |
 | `song-artists.spec.ts` | Song details: each individual artist linked inside the credit, editing the derived list and handing it back to the splitter, and what the `canEdit` and roleless tiers can reach |
 
 Both share `e2e/fixtures/artists.ts`, which is worth reading before adding more artist tests:

@@ -163,7 +163,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/46157cfc-5f79-46cd-927e-7b426924ba95?filter=v2-Index">You Are The Reason</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Calum%20Scott">Calum Scott</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Calum%20Scott">Calum Scott</a>
               </td>
               <td class="">
                 <!---->
@@ -437,7 +437,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/2c8a56bb-0609-4e77-93a6-4131b64fb079?filter=v2-Index">Tip Toe (feat. French Montana)</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Jason%20Derulo">Jason Derulo</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Jason%20Derulo">Jason Derulo</a>
               </td>
               <td class="">
                 <!---->
@@ -637,7 +637,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/a20823ab-4478-4ae8-963e-e8de94b0d928?filter=v2-Index">Let's Get Married</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Jagged%20Edge">Jagged Edge</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Jagged%20Edge">Jagged Edge</a>
               </td>
               <td class="">
                 <!---->
@@ -873,7 +873,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/70b88100-cd46-45dc-8175-70473f9c2b26?filter=v2-Index">In The Mood</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Glenn%20Miller">Glenn Miller</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Glenn%20Miller">Glenn Miller</a>
               </td>
               <td class="">
                 <!---->
@@ -1189,7 +1189,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/d31c0524-aa8c-4620-981d-b905f6d53a14?filter=v2-Index">Hang On Sloopy</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=The%20McCoys">The McCoys</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=The%20McCoys">The McCoys</a>
               </td>
               <td class="">
                 <!---->
@@ -1427,7 +1427,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/6b3384e0-340f-4e0d-a877-f632ffc3d587?filter=v2-Index">Shake Your Groove Thing</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Peaches%20%26%20Herb">Peaches &amp; Herb</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Peaches%20%26%20Herb">Peaches &amp; Herb</a>
               </td>
               <td class="">
                 <!---->
@@ -1618,7 +1618,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/121ba515-8f4b-4c0f-941f-c8fd5de97153?filter=v2-Index">Rock Your Baby</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=George%20McCrae">George McCrae</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=George%20McCrae">George McCrae</a>
               </td>
               <td class="">
                 <!---->
@@ -1866,7 +1866,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/a2ad8895-2b6f-4322-a464-e48eadd890b9?filter=v2-Index">Beautiful Day</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=U2">U2</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=U2">U2</a>
               </td>
               <td class="">
                 <!---->
@@ -2048,7 +2048,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/47780cea-bb8b-45cf-b9b0-1e17fc4073f8?filter=v2-Index">Smooth Criminal</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Michael%20Jackson">Michael Jackson</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Michael%20Jackson">Michael Jackson</a>
               </td>
               <td class="">
                 <!---->
@@ -2231,7 +2231,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/431d7e0f-2419-4868-8328-889be9117f8f?filter=v2-Index">Right Round</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Flo%20Rida">Flo Rida</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Flo%20Rida">Flo Rida</a>
               </td>
               <td class="">
                 <!---->
@@ -2465,7 +2465,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/b861e272-18de-4381-ae5b-f6cc3838885f?filter=v2-Index">I Don't Want to Miss a Thing</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Aerosmith">Aerosmith</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Aerosmith">Aerosmith</a>
               </td>
               <td class="">
                 <!---->
@@ -2710,7 +2710,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/177fdf55-532c-44b3-b0f8-ad8da8c0cf5e?filter=v2-Index">Sexy And I Know It</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=LMFAO">LMFAO</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=LMFAO">LMFAO</a>
               </td>
               <td class="">
                 <!---->
@@ -2906,7 +2906,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/cc91a066-1e0b-4f6a-a8a8-ed9eadad4fb2?filter=v2-Index">That's What I Like</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Bruno%20Mars">Bruno Mars</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Bruno%20Mars">Bruno Mars</a>
               </td>
               <td class="">
                 <!---->
@@ -3149,7 +3149,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/8f39a828-617b-446b-a5fa-61a659408467?filter=v2-Index">My Girl</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=The%20Temptations">The Temptations</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=The%20Temptations">The Temptations</a>
               </td>
               <td class="">
                 <!---->
@@ -3483,7 +3483,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/03b20e2d-b769-4c13-af47-d9ef54103731?filter=v2-Index">Let's Stay Together</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Al%20Green">Al Green</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Al%20Green">Al Green</a>
               </td>
               <td class="">
                 <!---->
@@ -3765,7 +3765,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/0e28a93d-fbbf-4d76-a4ed-3558d0c978e3?filter=v2-Index">Sex on Fire</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Kings%20of%20Leon">Kings of Leon</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Kings%20of%20Leon">Kings of Leon</a>
               </td>
               <td class="">
                 <!---->
@@ -3920,7 +3920,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/5378cfc5-4e8e-412f-beff-5838e79a19d5?filter=v2-Index">Dance Monkey</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Tones%20And%20I">Tones And I</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Tones%20And%20I">Tones And I</a>
               </td>
               <td class="">
                 <!---->
@@ -4082,7 +4082,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/c60b89f8-0697-40b1-9a41-3451427d962b?filter=v2-Index">I'm Yours</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Jason%20Mraz">Jason Mraz</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Jason%20Mraz">Jason Mraz</a>
               </td>
               <td class="">
                 <!---->
@@ -4262,7 +4262,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/a31dba76-7db3-4cb7-b3b9-44f1e874a0a5?filter=v2-Index">Blinding Lights</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=The%20Weeknd">The Weeknd</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=The%20Weeknd">The Weeknd</a>
               </td>
               <td class="">
                 <!---->
@@ -4515,7 +4515,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/d838efa3-544e-41bf-afeb-d232521aee8b?filter=v2-Index">Girls Of Summer</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Naomi%20Cooke%20Johnson">Naomi Cooke Johnson</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Naomi%20Cooke%20Johnson">Naomi Cooke Johnson</a>
               </td>
               <td class="">
                 <!---->
@@ -4622,7 +4622,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/9558cc28-e625-40da-9f91-f98709419627?filter=v2-Index">Pretty Little Things</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=CHARLEY%20T">CHARLEY T</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=CHARLEY%20T">CHARLEY T</a>
               </td>
               <td class="">
                 <!---->
@@ -4720,7 +4720,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/cc177bfc-fd06-4e37-aff1-fc226bd6632d?filter=v2-Index">Ring Ring is that Dopamine?</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=MaeThePirate">MaeThePirate</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=MaeThePirate">MaeThePirate</a>
               </td>
               <td class=""></td>
               <td class="">
@@ -4785,7 +4785,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/7f1cddf3-49d8-4f95-90c1-c53bf35f566a?filter=v2-Index">Wolves</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Kleks">Kleks</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Kleks">Kleks</a>
               </td>
               <td class="">
                 <!---->
@@ -4910,7 +4910,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/eb68affb-e4ae-478c-95c7-df9c959f5707?filter=v2-Index">happy worstday</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=Esther%20Graf">Esther Graf</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=Esther%20Graf">Esther Graf</a>
               </td>
               <td class="">
                 <!---->
@@ -5035,7 +5035,7 @@ exports[`Song Index > renders a song index page 1`] = `
                 <!----><a data-v-a7ef304f="" href="/song/details/3c15c8c7-6b91-4347-8af9-8942b793540e?filter=v2-Index">Grown Man Cry</a>
               </td>
               <td class="">
-                <!----><a data-v-a7ef304f="" href="/song/artist/?name=EMELINE">EMELINE</a>
+                <!----><a data-v-a7ef304f="" href="/song/artist?name=EMELINE">EMELINE</a>
               </td>
               <td class="">
                 <!---->

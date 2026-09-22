@@ -12,6 +12,7 @@ import { SongSort, SortOrder } from "@/models/SongSort";
 import { Tag, TagContext } from "@/models/Tag";
 import { TaggableObject } from "@/models/TaggableObject";
 import { TagHandler } from "@/models/TagHandler";
+import { artistPageUrl } from "@/models/ArtistNames";
 import { displayTempoForSongTable } from "@/components/songTableTempo";
 import { computed, ref, watch } from "vue";
 import { getMenuContext } from "@/helpers/GetMenuContext";
@@ -269,7 +270,7 @@ const songRef = (song: Song): string => {
 };
 
 const artistRef = (song: Song): string => {
-  return `/song/artist/?name=${encodeURIComponent(song.artist)}`;
+  return artistPageUrl(song.artist);
 };
 
 const tempoRef = (song: Song): string | undefined => {

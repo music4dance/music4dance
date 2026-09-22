@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { AlbumModel } from "@/models/AlbumModel";
+import { artistPageUrl } from "@/models/ArtistNames";
 import { TypedJSON } from "typedjson";
 import { useSongSelector } from "@/composables/useSongSelector";
 import { computed } from "vue";
@@ -10,7 +11,7 @@ const model = TypedJSON.parse(model_, AlbumModel)!;
 
 const { songs: selected, select: selectSong } = useSongSelector();
 
-const artistRef = computed(() => `/song/artist?name=${encodeURIComponent(model.artist || "")}`);
+const artistRef = computed(() => artistPageUrl(model.artist || ""));
 const hidden = computed(() => (model.artist ? ["Artist"] : []));
 </script>
 

@@ -33,6 +33,14 @@ How that list is derived, stored and matched is covered in
   {
       ...
       var artistIndex = await FeatureManager.IsEnabledAsync(FeatureFlags.ArtistIndex);
+
+      if (string.IsNullOrWhiteSpace(name))
+      {
+          return artistIndex
+              ? RedirectPermanent("/song/artists")
+              : ReturnError(HttpStatusCode.NotFound, @"Empty artist name not valid.");
+      }
+
       var model = await ArtistViewModel.Create(
           name, Mapper, DefaultCruftFilter(), Database, artistIndex);
 
@@ -44,6 +52,12 @@ How that list is derived, stored and matched is covered in
       return Vue3($"Artist: {name}", $"Songs for dancing by {name}", "artist", model, danceEnvironment: true);
   }
   ```
+
+  A nameless request - `/song/artist` or `/song/artist/` with the query stripped - is always a
+  crawler, since nothing the site emits links there without a name. It 301s to the browsable index
+  rather than erroring, so the crawler stops re-asking for the bare form
+  ([#284](https://github.com/dwgray/music4dance/issues/284)); with the `ArtistIndex` flag off there
+  is no index to send it to, so the original 404 stands.
 
   `"artist"` selects the Vue3 page bundle (`m4d/ClientApp/src/pages/artist/App.vue`);
   `danceEnvironment: true` makes the generic `Vue3.cshtml` host view emit `window.danceDatabaseJson`
@@ -120,7 +134,11 @@ building the query string by hand.
   no derived list. This is what song tables and song detail use.
 - `m4d/ClientApp/src/components/SongTable.vue` — `ArtistCredit` when the flag is on, `artistRef`
   otherwise.
-- `m4d/ClientApp/src/pages/album/App.vue` — still builds its own URL for the album's credit.
+- `m4d/ClientApp/src/pages/album/App.vue` — links the album's credit.
+
+Both of those last two used to build the query string by hand, and disagreed about the trailing
+slash (`/song/artist/?name=` vs `/song/artist?name=`), which is why both shapes showed up in the
+4xx log; they go through `artistPageUrl` now.
 
 ## Known Limitations
 
