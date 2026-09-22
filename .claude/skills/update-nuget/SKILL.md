@@ -37,9 +37,13 @@ argument, since they represent a major framework-version upgrade (e.g.
 `SelfCrawler/SelfCrawler.csproj`, and the `*.Tests.csproj` projects
 (`DanceTests`, `m4dModels.Tests`, `m4d.Tests`). All target `net10.0`.
 
+There are also `m4dModels.Sandbox` and `m4d.Sandbox` in the solution, which
+carry a few package references of their own — `--outdated` lists them, so
+don't skip them just because they're absent from the list above.
+
 There is also a local tool manifest at `m4d/.config/dotnet-tools.json`
 (`dotnet-ef`) — check it for updates separately, it isn't covered by
-`dotnet list package`.
+`dotnet list package`. Keep it on the same version as the EF Core packages.
 
 ## Procedure
 
@@ -128,10 +132,21 @@ There is also a local tool manifest at `m4d/.config/dotnet-tools.json`
    git status --short
    ```
 
-   Expect **only** `*.csproj` files and, if the tool was bumped,
-   `m4d/.config/dotnet-tools.json`. Anything else (a `packages.lock.json`, a
-   source file) should be reviewed on its own merits and mentioned in the PR
-   body rather than riding along unexplained.
+   This solution uses **Central Package Management**, so versions live in
+   `Directory.Packages.props` at the repo root, not in the individual
+   `.csproj` files — `dotnet add package` edits that file. Expect **only**
+   `Directory.Packages.props` and, if the tool was bumped,
+   `m4d/.config/dotnet-tools.json`. Anything else (a `.csproj`, a
+   `packages.lock.json`, a source file) should be reviewed on its own merits
+   and mentioned in the PR body rather than riding along unexplained.
+
+   `dotnet add package` **strips the trailing newline** from
+   `Directory.Packages.props`, which shows up as `\ No newline at end of file`
+   in the diff. Restore it before committing:
+
+   ```sh
+   printf '\n' >> Directory.Packages.props
+   ```
 
 9. **Create a branch** — never commit dependency bumps straight to `main`:
 
@@ -197,3 +212,16 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
   unless the user asks for prerelease packages.
 - EF Core package bumps that touch `m4dModels` warrant a quick check that no
   new migration is required as a side effect of the version bump itself.
+- **`Microsoft.Build.*` and `Microsoft.NET.Test.Sdk` (the `18.x` line) are
+  tied to the SDK, not to the package's own semver.** A release can be built
+  against `net11.0` and warn `doesn't support net10.0 ... consider upgrading
+  your TargetFramework`, dragging `Microsoft.NET.StringTools` with it. Grep
+  the build output for `doesn't support net10.0` after bumping these and
+  step back to the last version that builds clean — as of 2026-09,
+  `Microsoft.Build.Tasks.Core` / `Microsoft.Build.Utilities.Core` 18.10.1
+  warn and 18.8.2 doesn't, while `Microsoft.NET.Test.Sdk` 18.10.1 is fine.
+- `dotnet add package --no-restore` makes a large batch of bumps much faster;
+  follow the batch with one `dotnet restore music4dance.sln`.
+- The build emits three pre-existing `EF1001` internal-API warnings in
+  `m4dModels/DanceMusicContext.cs`. They are baseline noise, not something a
+  bump introduced.
