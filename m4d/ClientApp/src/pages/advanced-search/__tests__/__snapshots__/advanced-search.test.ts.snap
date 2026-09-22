@@ -275,8 +275,8 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
           </fieldset>
           <fieldset id="services-group" class="mx-2 mb-2 b-form-group"><label id="BootstrapVueNext__ID__v-96___BV_label____" for="services" class="form-label d-block">Available on:</label>
             <div id="services" role="group" class="bv-no-focus-ring" tabindex="-1">
-              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-102__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-101__checkbox___" true-value="I" false-value="false" value="I"><label for="BootstrapVueNext__ID__v-102__form-check___" class="form-check-label">ITunes</label></div>
-              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-103__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-101__checkbox___" true-value="S" false-value="false" value="S"><label for="BootstrapVueNext__ID__v-103__form-check___" class="form-check-label">Spotify</label></div>
+              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-102__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-101__checkbox___" true-value="I" value="I"><label for="BootstrapVueNext__ID__v-102__form-check___" class="form-check-label">ITunes</label></div>
+              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-103__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-101__checkbox___" true-value="S" value="S"><label for="BootstrapVueNext__ID__v-103__form-check___" class="form-check-label">Spotify</label></div>
               <!--v-if-->
             </div>
             <!---->
@@ -286,9 +286,9 @@ exports[`AdvancedSearch.vue > renders the advanced search page 1`] = `
           <!--v-if-->
           <fieldset id="bonuses-group" class="mx-2 mb-2 b-form-group"><label id="BootstrapVueNext__ID__v-105___BV_label____" for="bonuses" class="form-label d-block">Bonus content:</label>
             <div id="bonuses" role="group" class="bv-no-focus-ring" tabindex="-1">
-              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-111__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-110__checkbox___" true-value="P" false-value="false" value="P"><label for="BootstrapVueNext__ID__v-111__form-check___" class="form-check-label">Not found in any publisher catalog</label></div>
-              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-112__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-110__checkbox___" true-value="D" false-value="false" value="D"><label for="BootstrapVueNext__ID__v-112__form-check___" class="form-check-label">Not categorized by dance</label></div>
-              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-113__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-110__checkbox___" true-value="U" false-value="false" value="U"><label for="BootstrapVueNext__ID__v-113__form-check___" class="form-check-label">Not confirmed by a dancer</label></div>
+              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-111__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-110__checkbox___" true-value="P" value="P"><label for="BootstrapVueNext__ID__v-111__form-check___" class="form-check-label">Not found in any publisher catalog</label></div>
+              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-112__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-110__checkbox___" true-value="D" value="D"><label for="BootstrapVueNext__ID__v-112__form-check___" class="form-check-label">Not categorized by dance</label></div>
+              <div class="form-check form-check-inline"><input id="BootstrapVueNext__ID__v-113__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-110__checkbox___" true-value="U" value="U"><label for="BootstrapVueNext__ID__v-113__form-check___" class="form-check-label">Not confirmed by a dancer</label></div>
             </div>
             <!---->
             <!----><small id="BootstrapVueNext__ID__v-108___BV_description____" class="text-body-secondary form-text"><a href="https://music4dance.blog/music4dance-help/subscriptions/">Premium content</a></small>

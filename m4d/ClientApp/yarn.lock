@@ -353,6 +353,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@floating-ui/core@npm:^1.8.0":
+  version: 1.8.0
+  resolution: "@floating-ui/core@npm:1.8.0"
+  dependencies:
+    "@floating-ui/utils": "npm:^0.2.12"
+  checksum: 10c0/cece958f6fab0f8cd7740cd57988c4f8bc5356dca39dd4c093433d44c91952c3a02c7a54d93d7ed6c078b6544d531a29f66621d2839c8bfbb4467dca6aed7df0
+  languageName: node
+  linkType: hard
+
 "@floating-ui/dom@npm:^1.6.13, @floating-ui/dom@npm:^1.7.6":
   version: 1.7.6
   resolution: "@floating-ui/dom@npm:1.7.6"
@@ -363,6 +372,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@floating-ui/dom@npm:^1.8.0":
+  version: 1.8.0
+  resolution: "@floating-ui/dom@npm:1.8.0"
+  dependencies:
+    "@floating-ui/core": "npm:^1.8.0"
+    "@floating-ui/utils": "npm:^0.2.12"
+  checksum: 10c0/c32b2de7a596b69cfffa909c7028825e14f6319be1b45da529f8943c89fe16b75a49c214e800c87ded3f172353d3b99163d50072f11410488e756961b7b629cc
+  languageName: node
+  linkType: hard
+
 "@floating-ui/utils@npm:^0.2.11":
   version: 0.2.11
   resolution: "@floating-ui/utils@npm:0.2.11"
@@ -370,7 +389,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@floating-ui/vue@npm:^1.1.11, @floating-ui/vue@npm:^1.1.6":
+"@floating-ui/utils@npm:^0.2.12":
+  version: 0.2.12
+  resolution: "@floating-ui/utils@npm:0.2.12"
+  checksum: 10c0/bb910b90d56991a62011afaf5f8e0c4b7fb6dab69403f4dd17fbd6eb25560b28d533dff9791f270b4f459852e9006a1077b5d73cbedb5e34d9424afc6a828314
+  languageName: node
+  linkType: hard
+
+"@floating-ui/vue@npm:^1.1.6":
   version: 1.1.11
   resolution: "@floating-ui/vue@npm:1.1.11"
   dependencies:
@@ -378,6 +404,18 @@ __metadata:
     "@floating-ui/utils": "npm:^0.2.11"
     vue-demi: "npm:>=0.13.0"
   checksum: 10c0/5b081a243925e201e83895631f6e3cb68c4563f2f67f21e9127ed8ca97bc2b86f32c44c506132d2827e989d1beb8bf8f6715a6f2e5d80ce70e847920aa758d38
+  languageName: node
+  linkType: hard
+
+"@floating-ui/vue@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "@floating-ui/vue@npm:2.0.1"
+  dependencies:
+    "@floating-ui/dom": "npm:^1.8.0"
+    "@floating-ui/utils": "npm:^0.2.12"
+  peerDependencies:
+    vue: ">=3.3.0"
+  checksum: 10c0/9c1480782a1d51b5f4b7f959fa235cd7f7d02652a54532184a54b6b88ee61bffb6d1abc84e1081b50e7c3e4a58ca3e182d841ae07a2f3baa26776ea31b6ddbf3
   languageName: node
   linkType: hard
 
@@ -1809,7 +1847,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vueuse/core@npm:^14.1.0, @vueuse/core@npm:^14.2.1":
+"@vueuse/core@npm:^14.1.0, @vueuse/core@npm:~14.2.1":
   version: 14.2.1
   resolution: "@vueuse/core@npm:14.2.1"
   dependencies:
@@ -2081,14 +2119,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bootstrap-vue-next@npm:0.45.9":
-  version: 0.45.9
-  resolution: "bootstrap-vue-next@npm:0.45.9"
+"bootstrap-vue-next@npm:1.2.1":
+  version: 1.2.1
+  resolution: "bootstrap-vue-next@npm:1.2.1"
   dependencies:
-    "@floating-ui/core": "npm:^1.7.5"
-    "@floating-ui/vue": "npm:^1.1.11"
-    "@vueuse/core": "npm:^14.2.1"
-    reka-ui: "npm:^2.9.2"
+    "@floating-ui/core": "npm:^1.8.0"
+    "@floating-ui/vue": "npm:^2.0.1"
+    "@vueuse/core": "npm:~14.2.1"
+    reka-ui: "npm:^2.10.3"
   peerDependencies:
     "@floating-ui/vue": "*"
     "@internationalized/date": "*"
@@ -2114,7 +2152,7 @@ __metadata:
       optional: true
     vue-router:
       optional: true
-  checksum: 10c0/9f0093781cec831d8eb3e0b225189111dd4a2a876a260a5361586ee2d1a8e4d14ae1bd9f7236917ec65a48e71bc53d14cf0add683a0b46885e8d69e5c793bb38
+  checksum: 10c0/96eb6aa5a07efa183a4ac7ccd5b6da952316f9f3f4568a3dbcee17109f1b1912d4da9b84f21986d7e4912bec059e1b30a0a3a5c1ffd65d3395c4a85009eb8c81
   languageName: node
   linkType: hard
 
@@ -3787,7 +3825,7 @@ __metadata:
     axios: "npm:1.20.0"
     bootstrap: "npm:^5.3.8"
     bootstrap-icons: "npm:^1.13.1"
-    bootstrap-vue-next: "npm:0.45.9"
+    bootstrap-vue-next: "npm:1.2.1"
     date-fns: "npm:^4.4.0"
     eslint: "npm:10.11.0"
     eslint-plugin-vue: "npm:10.11.0"
@@ -4587,9 +4625,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"reka-ui@npm:^2.9.2":
-  version: 2.9.6
-  resolution: "reka-ui@npm:2.9.6"
+"reka-ui@npm:^2.10.3":
+  version: 2.10.4
+  resolution: "reka-ui@npm:2.10.4"
   dependencies:
     "@floating-ui/dom": "npm:^1.6.13"
     "@floating-ui/vue": "npm:^1.1.6"
@@ -4603,7 +4641,7 @@ __metadata:
     ohash: "npm:^2.0.11"
   peerDependencies:
     vue: ">= 3.4.0"
-  checksum: 10c0/ae1d34d09f43cfd98ef08085f81ba334bd5fa8df3c4145e51aeb4cbd8d35fd3a4f320502654621085719753984b11c81ced1e780665979ef3b0bf0ec6a229049
+  checksum: 10c0/1eae010402b6f1c7d6953ac4e784c4892f54e795963137f50eb030fc97481a7eab153988ca52e6d43a05a143492f1eec03530419fb61d7c6decddc0818ee64f5
   languageName: node
   linkType: hard
 
