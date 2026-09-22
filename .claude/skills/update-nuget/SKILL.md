@@ -2,14 +2,16 @@
 name: update-nuget
 description: >-
     Updates NuGet package references across the music4dance.net .NET solution
-    (music4dance.sln) and the dotnet-ef local tool. Use when the user asks to
-    update, bump, or upgrade NuGet packages or .NET dependencies.
+    (music4dance.sln) and the dotnet-ef local tool, verifies the build and the
+    full server test suite still pass, then branches, commits, and opens a PR.
+    Use when the user asks to update, bump, or upgrade NuGet packages or .NET
+    dependencies.
 ---
 
 # update-nuget
 
-Updates NuGet packages across all projects in `music4dance.sln`, then verifies
-the build and test suite still pass.
+Updates NuGet packages across all projects in `music4dance.sln`, verifies the
+build and test suite still pass, then lands the change on a branch as a PR.
 
 ## Scope argument
 
@@ -35,9 +37,13 @@ argument, since they represent a major framework-version upgrade (e.g.
 `SelfCrawler/SelfCrawler.csproj`, and the `*.Tests.csproj` projects
 (`DanceTests`, `m4dModels.Tests`, `m4d.Tests`). All target `net10.0`.
 
+There are also `m4dModels.Sandbox` and `m4d.Sandbox` in the solution, which
+carry a few package references of their own — `--outdated` lists them, so
+don't skip them just because they're absent from the list above.
+
 There is also a local tool manifest at `m4d/.config/dotnet-tools.json`
 (`dotnet-ef`) — check it for updates separately, it isn't covered by
-`dotnet list package`.
+`dotnet list package`. Keep it on the same version as the EF Core packages.
 
 ## Procedure
 
@@ -111,8 +117,94 @@ There is also a local tool manifest at `m4d/.config/dotnet-tools.json`
    dotnet test m4d.Tests/m4d.Tests.csproj
    ```
 
-8. **Report**: list what was updated, what was flagged/skipped (framework-tied
-   or major-version packages), and confirm build/test status.
+   Run all three projects, not a subset: a package bump can break code
+   nowhere near the package you touched. All tests must pass before you
+   commit. If any fail, bisect to the offending bump and either revert it or
+   confirm the fix with the user — **do not open a PR on a red suite.**
+
+   If a dev server (`dotnet watch` / IIS Express) holds `bin/*.dll`, use the
+   VS Code tasks `Server: Build (Unlocked)` / `Server: Test (Unlocked)`
+   instead, which redirect output to `local/build-out`.
+
+8. **Check what actually changed** before committing:
+
+   ```sh
+   git status --short
+   ```
+
+   This solution uses **Central Package Management**, so versions live in
+   `Directory.Packages.props` at the repo root, not in the individual
+   `.csproj` files — `dotnet add package` edits that file. Expect **only**
+   `Directory.Packages.props` and, if the tool was bumped,
+   `m4d/.config/dotnet-tools.json`. Anything else (a `.csproj`, a
+   `packages.lock.json`, a source file) should be reviewed on its own merits
+   and mentioned in the PR body rather than riding along unexplained.
+
+   `dotnet add package` **strips the trailing newline** from
+   `Directory.Packages.props`, which shows up as `\ No newline at end of file`
+   in the diff. Restore it before committing:
+
+   ```sh
+   printf '\n' >> Directory.Packages.props
+   ```
+
+9. **Create a branch** — never commit dependency bumps straight to `main`:
+
+   ```sh
+   git checkout -b nuget-updates-<YYYY-MM-DD>
+   ```
+
+   Use the `major`/`minor` scope in the name when the run was scoped (e.g.
+   `nuget-majors-2026-09-21`), so concurrent passes don't collide.
+
+10. **Commit.** Every commit in this repo needs **both** the DCO sign-off and
+    the Claude co-author trailer (see the repo `CLAUDE.md` — a missing
+    sign-off fails the DCO check):
+
+    Use repeated `-m` flags rather than a heredoc — the closing delimiter of
+    an indented heredoc silently breaks:
+
+    ```sh
+    git commit \
+      -m "Update NuGet packages" \
+      -m "<one line per notable bump, plus anything deferred>" \
+      -m "Signed-off-by: David W. Gray <dwgray67@hotmail.com>
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+    ```
+
+    Both trailers must share the final `-m` so git parses them as trailers;
+    the `Co-Authored-By` line sits at column 0 on purpose, since it's inside
+    a quoted string and any leading whitespace would land in the message and
+    break trailer parsing. Verify with `git log -1 --format='%(trailers)'`.
+
+11. **Push and open the PR:**
+
+    ```sh
+    git push -u origin <branch>
+    gh pr create --base main --title "<title>" --body "<body>"
+    ```
+
+    PRs here are squash-merged, so **the PR title becomes the commit
+    subject** — write it as a sentence-case description of the change
+    (`Update NuGet packages`, `Bump EF Core tooling to current`), not as a
+    bare branch name. The body should cover:
+
+    - what was bumped, grouped minor/patch vs. major, and which projects;
+    - majors or framework-tied bumps **deferred** and the concrete reason
+      (an `11.x` release that doesn't match `net10.0`, a breaking API
+      change) — this is the most useful part of the PR for the reviewer;
+    - the `dotnet-ef` tool version, if it moved;
+    - build and test status, stating that all three test projects passed and
+      that SelfCrawler was intentionally excluded.
+
+    End the body with:
+
+    ```txt
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    ```
+
+12. **Report**: the PR URL, what was updated, what was flagged/skipped
+    (framework-tied or major-version packages), and build/test status.
 
 ## Notes
 
@@ -120,3 +212,16 @@ There is also a local tool manifest at `m4d/.config/dotnet-tools.json`
   unless the user asks for prerelease packages.
 - EF Core package bumps that touch `m4dModels` warrant a quick check that no
   new migration is required as a side effect of the version bump itself.
+- **`Microsoft.Build.*` and `Microsoft.NET.Test.Sdk` (the `18.x` line) are
+  tied to the SDK, not to the package's own semver.** A release can be built
+  against `net11.0` and warn `doesn't support net10.0 ... consider upgrading
+  your TargetFramework`, dragging `Microsoft.NET.StringTools` with it. Grep
+  the build output for `doesn't support net10.0` after bumping these and
+  step back to the last version that builds clean — as of 2026-09,
+  `Microsoft.Build.Tasks.Core` / `Microsoft.Build.Utilities.Core` 18.10.1
+  warn and 18.8.2 doesn't, while `Microsoft.NET.Test.Sdk` 18.10.1 is fine.
+- `dotnet add package --no-restore` makes a large batch of bumps much faster;
+  follow the batch with one `dotnet restore music4dance.sln`.
+- The build emits three pre-existing `EF1001` internal-API warnings in
+  `m4dModels/DanceMusicContext.cs`. They are baseline noise, not something a
+  bump introduced.
