@@ -68,15 +68,39 @@ $mixedLineEndingsFound = 0
 
 Write-Host "Scanning for files..." -ForegroundColor Cyan
 
-# Get all text files from repository root
-$allFiles = @(Get-ChildItem -Path $repoRoot -Recurse -File -ErrorAction SilentlyContinue)
-Write-Host "Found $($allFiles.Count) total files" -ForegroundColor Gray
+# Enumerate the files git actually tracks. A filesystem walk would also rewrite
+# gitignored build output, restored vendor assets and scratch files under local/,
+# churning files git does not store. This must stay in step with
+# verify-line-endings.ps1, which checks the same set.
+Push-Location $repoRoot
+try {
+    $trackedPaths = @(& git ls-files --cached)
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "git ls-files failed - this script must be run inside a git working tree"
+        exit 1
+    }
+}
+finally {
+    Pop-Location
+}
+
+$allFiles = @($trackedPaths | Where-Object { $_ } | ForEach-Object {
+    Join-Path $repoRoot ($_ -replace '/', '\')
+} | Where-Object {
+    # A tracked path can be absent from the working tree (e.g. a sparse checkout).
+    Test-Path -LiteralPath $_ -PathType Leaf
+} | Get-Item)
+Write-Host "Found $($allFiles.Count) tracked files" -ForegroundColor Gray
 
 $files = $allFiles | Where-Object {
-    # Skip directories
+    # Skip directories - matching whole path segments, not substrings, so that files
+    # merely *named* like a skip word (DanceObject.cs, ObjectHelpers.ts,
+    # DanceBuilder.cs) are not silently exempted. Must match verify-line-endings.ps1.
+    $relative = $_.FullName.Substring($repoRoot.Length + 1).Replace('\', '/')
+    $directorySegments = '/' + [System.IO.Path]::GetDirectoryName($relative).Replace('\', '/') + '/'
     $skip = $false
     foreach ($dir in $skipDirectories) {
-        if ($_.FullName -match [regex]::Escape($dir)) {
+        if ($directorySegments -like ('*/' + $dir.Replace('\', '/') + '/*')) {
             $skip = $true
             break
         }
