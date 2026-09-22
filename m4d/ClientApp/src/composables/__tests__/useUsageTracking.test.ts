@@ -87,14 +87,14 @@ describe("useUsageTracking", () => {
     });
 
     it("skips tracking for headless browsers", () => {
-      (window as any).__nightmare = true;
+      (window as Window & { __nightmare?: boolean }).__nightmare = true;
 
       const tracker = useUsageTracking();
       tracker.trackPageView("/test");
 
       expect(tracker.getVisitCount()).toBe(0);
 
-      delete (window as any).__nightmare;
+      delete (window as Window & { __nightmare?: boolean }).__nightmare;
     });
 
     it("skips tracking for webdriver", () => {
@@ -140,7 +140,7 @@ describe("useUsageTracking", () => {
       expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(1);
 
       // Verify the URL and FormData
-      const callArgs = (global.navigator.sendBeacon as any).mock.calls[0];
+      const callArgs = vi.mocked(global.navigator.sendBeacon).mock.calls[0];
       expect(callArgs[0]).toBe("/api/usagelog/batch");
 
       // Verify payload is FormData with token and events
@@ -171,7 +171,7 @@ describe("useUsageTracking", () => {
       expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(1);
 
       // Verify XSRF token in FormData
-      const callArgs = (global.navigator.sendBeacon as any).mock.calls[0];
+      const callArgs = vi.mocked(global.navigator.sendBeacon).mock.calls[0];
       const formData = callArgs[1] as FormData;
       expect(formData.get("__RequestVerificationToken")).toBe("test-token");
     });
@@ -239,7 +239,7 @@ describe("useUsageTracking", () => {
 
       // Verify sendBeacon was called with correct token in FormData
       expect(global.navigator.sendBeacon).toHaveBeenCalled();
-      const formData = (global.navigator.sendBeacon as any).mock.calls[0][1] as FormData;
+      const formData = vi.mocked(global.navigator.sendBeacon).mock.calls[0][1] as FormData;
       expect(formData.get("__RequestVerificationToken")).toBe("my-xsrf-token");
     });
   });
@@ -380,7 +380,7 @@ describe("useUsageTracking", () => {
       expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(1);
 
       // Get the FormData that was sent
-      const formData = (global.navigator.sendBeacon as any).mock.calls[0][1] as FormData;
+      const formData = vi.mocked(global.navigator.sendBeacon).mock.calls[0][1] as FormData;
       const eventsJson = formData.get("events") as string;
       const sentEvents = JSON.parse(eventsJson);
 
@@ -419,7 +419,7 @@ describe("useUsageTracking", () => {
       expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(2);
 
       // Check second batch
-      const secondFormData = (global.navigator.sendBeacon as any).mock.calls[1][1] as FormData;
+      const secondFormData = vi.mocked(global.navigator.sendBeacon).mock.calls[1][1] as FormData;
       const secondEventsJson = secondFormData.get("events") as string;
       const secondSentEvents = JSON.parse(secondEventsJson);
 

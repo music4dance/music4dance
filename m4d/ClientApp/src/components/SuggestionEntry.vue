@@ -40,7 +40,7 @@ const props = withDefaults(
   },
 );
 
-const model = defineModel<string>();
+const model = defineModel<string>({ default: "" });
 
 const emit = defineEmits<{
   search: [value?: string];

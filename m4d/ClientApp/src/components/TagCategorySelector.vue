@@ -4,7 +4,7 @@ import { Tag, TagContext } from "@/models/Tag";
 import type { ColorVariant } from "bootstrap-vue-next";
 import { computed } from "vue";
 
-const model = defineModel<string[]>();
+const model = defineModel<string[]>({ default: () => [] });
 const props = defineProps<{
   tagList: Tag[];
   searchLabel: string;

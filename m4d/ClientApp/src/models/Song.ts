@@ -473,6 +473,7 @@ export class Song extends TaggableObject {
               this.tempoInferredFromDance = false;
               const wasUser = this.userModifiedProperties.has(baseName);
               if (!(wasUser && pseudo)) {
+                /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                 (this as any)[pascalToCamel(baseName)] = value;
                 if (!pseudo) {
                   this.userModifiedProperties.add(baseName);

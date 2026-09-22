@@ -5,7 +5,7 @@ import type { EngagementConfig } from "@/models/EngagementConfig";
 import type { EngagementLevel } from "@/composables/useEngagementOffcanvas";
 
 describe("EngagementOffcanvas.vue", () => {
-  let wrapper: VueWrapper<any>;
+  let wrapper: VueWrapper;
 
   const testConfig: EngagementConfig = {
     enabled: true,
@@ -87,9 +87,9 @@ describe("EngagementOffcanvas.vue", () => {
     it("should display all 6 benefit items with links", () => {
       const benefits = wrapper.findAll(".free-account-benefits li");
       expect(benefits.length).toBe(6);
-      if (benefits[0]) expect(benefits[0].text()).toContain("Vote on dances");
-      if (benefits[1]) expect(benefits[1].text()).toContain("Tag songs");
-      if (benefits[5]) expect(benefits[5].text()).toContain("Purchase a premium subscription");
+      expect(benefits[0].text()).toContain("Vote on dances");
+      expect(benefits[1].text()).toContain("Tag songs");
+      expect(benefits[5].text()).toContain("Purchase a premium subscription");
     });
 
     it("should render 3 CTAs for anonymous users", () => {

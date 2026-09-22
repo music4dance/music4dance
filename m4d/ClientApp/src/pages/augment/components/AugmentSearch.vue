@@ -9,7 +9,7 @@ import { ref, watch } from "vue";
 
 const context = getMenuContext();
 
-const props = defineProps<{ dance?: string }>();
+defineProps<{ dance?: string }>();
 
 const title = ref("");
 const artist = ref("");

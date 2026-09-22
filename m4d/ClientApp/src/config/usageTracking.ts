@@ -19,7 +19,7 @@ export interface UsageTrackingServerConfig {
 }
 
 // Get MenuContext from window (set by Razor Page)
-const menuContext = (window as any).menuContext as MenuContextInterface | undefined;
+const menuContext: MenuContextInterface | undefined = window.menuContext;
 
 export const usageTrackingConfig = {
   enabled: menuContext?.usageTracking?.enabled ?? true,

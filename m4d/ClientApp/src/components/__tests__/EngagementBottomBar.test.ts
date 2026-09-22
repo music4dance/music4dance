@@ -3,7 +3,7 @@ import { mount, VueWrapper } from "@vue/test-utils";
 import EngagementBottomBar from "@/components/EngagementBottomBar.vue";
 
 describe("EngagementBottomBar.vue", () => {
-  let wrapper: VueWrapper<any>;
+  let wrapper: VueWrapper;
 
   beforeEach(() => {
     wrapper = mount(EngagementBottomBar);
@@ -21,7 +21,6 @@ describe("EngagementBottomBar.vue", () => {
 
     it("should have fixed positioning styles", () => {
       const bar = wrapper.find(".engagement-bottom-bar");
-      const style = bar.attributes("style");
       // Check that fixed positioning CSS is applied (in component's <style> block)
       expect(bar.classes()).toContain("engagement-bottom-bar");
     });

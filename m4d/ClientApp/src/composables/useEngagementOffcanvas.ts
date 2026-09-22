@@ -175,8 +175,8 @@ export function useEngagementOffcanvas(options: UseEngagementOffcanvasOptions) {
       isExpanded.value = true;
 
       // Pause Google Ads when expanded
-      if (typeof window !== "undefined" && (window as any).adsbygoogle) {
-        (window as any).adsbygoogle.pauseAdRequests = 1;
+      if (typeof window !== "undefined" && window.adsbygoogle) {
+        window.adsbygoogle.pauseAdRequests = 1;
       }
     }
   }
@@ -190,10 +190,10 @@ export function useEngagementOffcanvas(options: UseEngagementOffcanvasOptions) {
     // Resume Google Ads when collapsed
     if (
       typeof window !== "undefined" &&
-      (window as any).adsbygoogle &&
-      (window as any).adsbygoogle.pauseAdRequests !== undefined
+      window.adsbygoogle &&
+      window.adsbygoogle.pauseAdRequests !== undefined
     ) {
-      (window as any).adsbygoogle.pauseAdRequests = 0;
+      window.adsbygoogle.pauseAdRequests = 0;
     }
 
     // Note: We don't store dismissal - bottom bar stays visible

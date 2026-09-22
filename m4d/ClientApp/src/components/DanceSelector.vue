@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { NamedObject } from "@/models/DanceDatabase/NamedObject";
 
-const model = defineModel<string[]>();
+const model = defineModel<string[]>({ default: () => [] });
 const props = defineProps<{
   danceList: NamedObject[];
 }>();
