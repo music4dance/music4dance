@@ -35,9 +35,9 @@ exports[`admin-users page > renders the admin users page 1`] = `
         <div class="col-md-2">
           <p class="mb-1"><strong>Filter by role:</strong></p>
           <div id="roles-filter" role="group" class="bv-no-focus-ring" tabindex="-1">
-            <div class="form-check"><input id="BootstrapVueNext__ID__v-2__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-1__checkbox___" true-value="dbAdmin" false-value="false" text="dbAdmin" value="dbAdmin"><label for="BootstrapVueNext__ID__v-2__form-check___" class="form-check-label">dbAdmin</label></div>
-            <div class="form-check"><input id="BootstrapVueNext__ID__v-3__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-1__checkbox___" true-value="premium" false-value="false" text="premium" value="premium"><label for="BootstrapVueNext__ID__v-3__form-check___" class="form-check-label">premium</label></div>
-            <div class="form-check"><input id="BootstrapVueNext__ID__v-4__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-1__checkbox___" true-value="trial" false-value="false" text="trial" value="trial"><label for="BootstrapVueNext__ID__v-4__form-check___" class="form-check-label">trial</label></div>
+            <div class="form-check"><input id="BootstrapVueNext__ID__v-2__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-1__checkbox___" true-value="dbAdmin" text="dbAdmin" value="dbAdmin"><label for="BootstrapVueNext__ID__v-2__form-check___" class="form-check-label">dbAdmin</label></div>
+            <div class="form-check"><input id="BootstrapVueNext__ID__v-3__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-1__checkbox___" true-value="premium" text="premium" value="premium"><label for="BootstrapVueNext__ID__v-3__form-check___" class="form-check-label">premium</label></div>
+            <div class="form-check"><input id="BootstrapVueNext__ID__v-4__form-check___" class="form-check-input" type="checkbox" name="BootstrapVueNext__ID__v-1__checkbox___" true-value="trial" text="trial" value="trial"><label for="BootstrapVueNext__ID__v-4__form-check___" class="form-check-label">trial</label></div>
           </div>
         </div>
         <div class="col-md-2">

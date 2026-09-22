@@ -441,6 +441,7 @@ const resultsLink = computed(
               <BFormCheckbox
                 id="show-dance-details"
                 v-model="showDanceDetails"
+                :unchecked-value="false"
                 :disabled="!dances.length || hasDanceDetails"
                 switch
               >
@@ -533,6 +534,7 @@ const resultsLink = computed(
                 <BFormCheckbox
                   id="exclude-dance-tags"
                   v-model="excludeDanceTags"
+                  :unchecked-value="false"
                   :disabled="hasStyleTags"
                   switch
                 >
