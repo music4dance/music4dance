@@ -2,14 +2,16 @@
 name: update-nuget
 description: >-
     Updates NuGet package references across the music4dance.net .NET solution
-    (music4dance.sln) and the dotnet-ef local tool. Use when the user asks to
-    update, bump, or upgrade NuGet packages or .NET dependencies.
+    (music4dance.sln) and the dotnet-ef local tool, verifies the build and the
+    full server test suite still pass, then branches, commits, and opens a PR.
+    Use when the user asks to update, bump, or upgrade NuGet packages or .NET
+    dependencies.
 ---
 
 # update-nuget
 
-Updates NuGet packages across all projects in `music4dance.sln`, then verifies
-the build and test suite still pass.
+Updates NuGet packages across all projects in `music4dance.sln`, verifies the
+build and test suite still pass, then lands the change on a branch as a PR.
 
 ## Scope argument
 
@@ -111,8 +113,83 @@ There is also a local tool manifest at `m4d/.config/dotnet-tools.json`
    dotnet test m4d.Tests/m4d.Tests.csproj
    ```
 
-8. **Report**: list what was updated, what was flagged/skipped (framework-tied
-   or major-version packages), and confirm build/test status.
+   Run all three projects, not a subset: a package bump can break code
+   nowhere near the package you touched. All tests must pass before you
+   commit. If any fail, bisect to the offending bump and either revert it or
+   confirm the fix with the user — **do not open a PR on a red suite.**
+
+   If a dev server (`dotnet watch` / IIS Express) holds `bin/*.dll`, use the
+   VS Code tasks `Server: Build (Unlocked)` / `Server: Test (Unlocked)`
+   instead, which redirect output to `local/build-out`.
+
+8. **Check what actually changed** before committing:
+
+   ```sh
+   git status --short
+   ```
+
+   Expect **only** `*.csproj` files and, if the tool was bumped,
+   `m4d/.config/dotnet-tools.json`. Anything else (a `packages.lock.json`, a
+   source file) should be reviewed on its own merits and mentioned in the PR
+   body rather than riding along unexplained.
+
+9. **Create a branch** — never commit dependency bumps straight to `main`:
+
+   ```sh
+   git checkout -b nuget-updates-<YYYY-MM-DD>
+   ```
+
+   Use the `major`/`minor` scope in the name when the run was scoped (e.g.
+   `nuget-majors-2026-09-21`), so concurrent passes don't collide.
+
+10. **Commit.** Every commit in this repo needs **both** the DCO sign-off and
+    the Claude co-author trailer (see the repo `CLAUDE.md` — a missing
+    sign-off fails the DCO check):
+
+    Use repeated `-m` flags rather than a heredoc — the closing delimiter of
+    an indented heredoc silently breaks:
+
+    ```sh
+    git commit \
+      -m "Update NuGet packages" \
+      -m "<one line per notable bump, plus anything deferred>" \
+      -m "Signed-off-by: David W. Gray <dwgray67@hotmail.com>
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+    ```
+
+    Both trailers must share the final `-m` so git parses them as trailers;
+    the `Co-Authored-By` line sits at column 0 on purpose, since it's inside
+    a quoted string and any leading whitespace would land in the message and
+    break trailer parsing. Verify with `git log -1 --format='%(trailers)'`.
+
+11. **Push and open the PR:**
+
+    ```sh
+    git push -u origin <branch>
+    gh pr create --base main --title "<title>" --body "<body>"
+    ```
+
+    PRs here are squash-merged, so **the PR title becomes the commit
+    subject** — write it as a sentence-case description of the change
+    (`Update NuGet packages`, `Bump EF Core tooling to current`), not as a
+    bare branch name. The body should cover:
+
+    - what was bumped, grouped minor/patch vs. major, and which projects;
+    - majors or framework-tied bumps **deferred** and the concrete reason
+      (an `11.x` release that doesn't match `net10.0`, a breaking API
+      change) — this is the most useful part of the PR for the reviewer;
+    - the `dotnet-ef` tool version, if it moved;
+    - build and test status, stating that all three test projects passed and
+      that SelfCrawler was intentionally excluded.
+
+    End the body with:
+
+    ```txt
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    ```
+
+12. **Report**: the PR URL, what was updated, what was flagged/skipped
+    (framework-tied or major-version packages), and build/test status.
 
 ## Notes
 
