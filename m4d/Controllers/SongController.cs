@@ -911,7 +911,7 @@ public class SongController : ContentController
 
             return Vue3(
                 $"Artist: {name}", $"Songs for dancing by {name}", "artist",
-                model, danceEnvironment: true);
+                model, danceEnvironment: true, helpPage: "artists");
         }
 
         return ReturnError(HttpStatusCode.NotFound, @"Empty artist name not valid.");
@@ -951,7 +951,9 @@ public class SongController : ContentController
             return Redirect($"/song/artist?name={Uri.EscapeDataString(sole)}");
         }
 
-        return Vue3("Artists", "Browse the artists behind songs for dancing", "artist-index", model);
+        return Vue3(
+            "Artists", "Browse the artists behind songs for dancing", "artist-index",
+            model, helpPage: "artists");
     }
 
     //
