@@ -6,7 +6,6 @@ import { Song } from "@/models/Song";
 import { SongChange } from "@/models/SongChange";
 import { SongEditor } from "@/models/SongEditor";
 import { SongFilter } from "@/models/SongFilter";
-import { PropertyType } from "@/models/SongProperty";
 import { SongHistory } from "@/models/SongHistory";
 import { SongSort, SortOrder } from "@/models/SongSort";
 import { Tag, TagContext } from "@/models/Tag";
@@ -271,12 +270,6 @@ const songRef = (song: Song): string => {
 
 const artistRef = (song: Song): string => {
   return artistPageUrl(song.artist);
-};
-
-const tempoRef = (song: Song): string | undefined => {
-  return song.tempo && !song.isUserModified(PropertyType.tempoField)
-    ? "https://music4dance.blog/music4dance-help/song-list/#tempo-note"
-    : undefined;
 };
 
 const tempoValue = (song: Song): string => {

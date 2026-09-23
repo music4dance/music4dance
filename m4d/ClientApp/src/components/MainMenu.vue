@@ -45,7 +45,7 @@ const engagement =
 // Control Google Ads based on engagement system (if ads are loaded)
 // Note: Each page load creates a new component instance, so this runs once per page
 if (engagement && props.context.googleAdsActive) {
-  const adsbygoogle = (window as any).adsbygoogle;
+  const adsbygoogle = window.adsbygoogle;
   if (adsbygoogle) {
     // Check cookie consent first - respect user's choice
     const hasCookieConsent = document.cookie.indexOf("cookieconsent_status=dismiss") !== -1;

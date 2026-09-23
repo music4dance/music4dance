@@ -10,7 +10,9 @@ export default [
   },
   {
     name: "app/files-to-ignore",
-    ignores: ["**/dist/**", "**/dist-ssr/**", "**/coverage/**"],
+    // __snapshots__ holds vitest-generated files - their formatting is vitest's
+    // to decide, not prettier's.
+    ignores: ["**/dist/**", "**/dist-ssr/**", "**/coverage/**", "**/__snapshots__/**"],
   },
   ...pluginVue.configs["flat/recommended"],
   ...vueTsEslintConfig(),
@@ -40,6 +42,16 @@ export default [
         },
       ],
       "vitest/expect-expect": "off",
+    },
+  },
+  {
+    // Test files declare throwaway stub components inline, which is the point of
+    // a stub - the single-file-component authoring rules don't apply to them.
+    name: "app/test-stub-components",
+    files: ["src/**/*.spec.*", "src/**/*.test.*"],
+    rules: {
+      "vue/one-component-per-file": "off",
+      "vue/require-prop-types": "off",
     },
   },
 ];

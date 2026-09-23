@@ -58,12 +58,48 @@ Write-Host "Verifying line endings and checking for marker bytes..." -Foreground
 Write-Host "Repository root: $repoRoot" -ForegroundColor Gray
 Write-Host ""
 
-# Get all text files from repository root
-$files = Get-ChildItem -Path $repoRoot -Recurse -File -ErrorAction SilentlyContinue | Where-Object {
-    # Skip directories
+# Enumerate the files git actually tracks, rather than walking the filesystem.
+# A filesystem walk also picks up gitignored build output (m4d/wwwroot/vclient,
+# e2e/test-results), restored vendor assets and scratch files under local/ - none of
+# which git stores or normalizes. That made the check fail locally on files it has no
+# business policing, while still passing in CI only because a fresh clone doesn't have
+# them. Checking the tracked set makes local and CI runs agree.
+Push-Location $repoRoot
+try {
+    $trackedPaths = @(& git ls-files --cached)
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "git ls-files failed - this script must be run inside a git working tree"
+        exit 1
+    }
+}
+finally {
+    Pop-Location
+}
+
+$files = $trackedPaths | Where-Object { $_ } | ForEach-Object {
+    # git ls-files always reports forward slashes, and Windows accepts them too, so
+    # leave the separators alone. Rewriting them to backslashes builds paths that do
+    # not exist on Linux, where CI runs - Test-Path then drops every nested file and
+    # the check silently inspects almost nothing.
+    Join-Path $repoRoot $_
+} | Where-Object {
+    # A tracked path can be absent from the working tree (e.g. a sparse checkout).
+    Test-Path -LiteralPath $_ -PathType Leaf
+} | ForEach-Object {
+    # -Force so that dotfiles are not skipped as hidden: .editorconfig and
+    # .gitattributes are tracked, and are hidden on Linux though not on Windows.
+    Get-Item -LiteralPath $_ -Force
+} | Where-Object {
+    # Skip directories - matching whole path segments, not substrings. A substring
+    # match against the full path quietly exempted every file whose *name* merely
+    # contained a skip word: DanceObject.cs, ObjectHelpers.ts, DanceBuilder.cs and
+    # distributed-attack-mitigation.md all contain "obj"/"build"/"dist", so they were
+    # never checked at all.
+    $relative = $_.FullName.Substring($repoRoot.Length + 1).Replace('\', '/')
+    $directorySegments = '/' + [System.IO.Path]::GetDirectoryName($relative).Replace('\', '/') + '/'
     $skip = $false
     foreach ($dir in $skipDirectories) {
-        if ($_.FullName -match [regex]::Escape($dir)) {
+        if ($directorySegments -like ('*/' + $dir.Replace('\', '/') + '/*')) {
             $skip = $true
             break
         }

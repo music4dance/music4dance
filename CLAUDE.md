@@ -82,7 +82,8 @@ Format changes only need updating in one place; manual construction breaks silen
 ```txt
 dotnet build                  # server (fails if dev server holds bin/obj locks — use `Server: Build (Unlocked)` task instead)
 yarn install && yarn build    # client (includes type checking)
-yarn lint                     # ESLint with auto-fix
+yarn lint                     # ESLint with auto-fix (local use)
+yarn lint:ci                  # ESLint, no auto-fix, fails on any error OR warning (CI gate)
 yarn type-check               # Vue TSC
 ```
 

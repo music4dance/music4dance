@@ -8,7 +8,7 @@ const dropdown = ref<HTMLElement | null>(null);
 const searchInput = ref<HTMLElement | null>(null);
 const { activate, deactivate } = useFocusTrap(dropdown, { initialFocus: setInputFocus });
 
-const model = defineModel<string[]>();
+const model = defineModel<string[]>({ default: () => [] });
 const tagChars = /[^\p{L}\d()'&/ ]/gmu;
 const props = defineProps<{
   options: ListOption[];

@@ -395,9 +395,9 @@ export function useUsageTracking(config: Partial<UsageTrackerConfig> = {}) {
     let isInternalNavigation = false;
 
     // Try to use Navigation API (modern browsers)
-    if ("navigation" in window && (window as any).navigation) {
+    if ("navigation" in window && window.navigation) {
       try {
-        (window as any).navigation.addEventListener("navigate", (event: any) => {
+        window.navigation.addEventListener("navigate", (event) => {
           // Check if destination is same-origin
           const destinationUrl = event.destination?.url;
           if (destinationUrl) {
