@@ -85,11 +85,19 @@ finally {
 }
 
 $allFiles = @($trackedPaths | Where-Object { $_ } | ForEach-Object {
-    Join-Path $repoRoot ($_ -replace '/', '\')
+    # git ls-files always reports forward slashes, and Windows accepts them too, so
+    # leave the separators alone. Rewriting them to backslashes builds paths that do
+    # not exist on Linux, where CI runs - Test-Path then drops every nested file and
+    # the check silently inspects almost nothing.
+    Join-Path $repoRoot $_
 } | Where-Object {
     # A tracked path can be absent from the working tree (e.g. a sparse checkout).
     Test-Path -LiteralPath $_ -PathType Leaf
-} | Get-Item)
+} | ForEach-Object {
+    # -Force so that dotfiles are not skipped as hidden: .editorconfig and
+    # .gitattributes are tracked, and are hidden on Linux though not on Windows.
+    Get-Item -LiteralPath $_ -Force
+})
 Write-Host "Found $($allFiles.Count) tracked files" -ForegroundColor Gray
 
 $files = $allFiles | Where-Object {
@@ -144,12 +152,20 @@ foreach ($file in $files) {
     
     try {
         # Determine target line ending based on file type and location
-        $isClientApp = $file.FullName -match [regex]::Escape('m4d\ClientApp')
+        # Match on a separator-normalized relative path, anchored, exactly as
+        # verify-line-endings.ps1 does. Matching 'm4d\ClientApp' against the full path
+        # never matched on Linux or macOS, where the separator is '/', so every ClientApp
+        # file was treated as CRLF and rewritten - the opposite of what .gitattributes
+        # requires, across 430 files.
+        $relativeForMatch = $relativePath.Replace('\', '/')
+        $isClientApp = $relativeForMatch -match '^m4d/ClientApp/'
         $isYaml = $file.Extension -eq '.yml' -or $file.Extension -eq '.yaml'
+        $isShellScript = $file.Extension -eq '.sh'
         
-        # ClientApp files and YAML files use LF, everything else uses CRLF
-        $targetLineEnding = if ($isClientApp -or $isYaml) { "`n" } else { "`r`n" }
-        $targetName = if ($isClientApp -or $isYaml) { "LF" } else { "CRLF" }
+        # ClientApp, YAML and shell files use LF, everything else uses CRLF
+        $useLF = $isClientApp -or $isYaml -or $isShellScript
+        $targetLineEnding = if ($useLF) { "`n" } else { "`r`n" }
+        $targetName = if ($useLF) { "LF" } else { "CRLF" }
         
         # Read file as bytes to detect marker byte
         $bytes = [System.IO.File]::ReadAllBytes($file.FullName)
@@ -174,10 +190,10 @@ foreach ($file in $files) {
             $mixedLineEndingsFound++
             $needsChange = $true
             $changes += "mixed line endings"
-        } elseif (($isClientApp -or $isYaml) -and $hasCRLF) {
+        } elseif ($useLF -and $hasCRLF) {
             $needsChange = $true
             $changes += "CRLF → LF"
-        } elseif (-not ($isClientApp -or $isYaml) -and -not $hasCRLF -and $hasLF) {
+        } elseif (-not $useLF -and -not $hasCRLF -and $hasLF) {
             $needsChange = $true
             $changes += "LF → CRLF"
         }

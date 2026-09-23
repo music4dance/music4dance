@@ -77,11 +77,19 @@ finally {
 }
 
 $files = $trackedPaths | Where-Object { $_ } | ForEach-Object {
-    Join-Path $repoRoot ($_ -replace '/', '\')
+    # git ls-files always reports forward slashes, and Windows accepts them too, so
+    # leave the separators alone. Rewriting them to backslashes builds paths that do
+    # not exist on Linux, where CI runs - Test-Path then drops every nested file and
+    # the check silently inspects almost nothing.
+    Join-Path $repoRoot $_
 } | Where-Object {
     # A tracked path can be absent from the working tree (e.g. a sparse checkout).
     Test-Path -LiteralPath $_ -PathType Leaf
-} | Get-Item | Where-Object {
+} | ForEach-Object {
+    # -Force so that dotfiles are not skipped as hidden: .editorconfig and
+    # .gitattributes are tracked, and are hidden on Linux though not on Windows.
+    Get-Item -LiteralPath $_ -Force
+} | Where-Object {
     # Skip directories - matching whole path segments, not substrings. A substring
     # match against the full path quietly exempted every file whose *name* merely
     # contained a skip word: DanceObject.cs, ObjectHelpers.ts, DanceBuilder.cs and
