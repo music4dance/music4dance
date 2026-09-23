@@ -86,6 +86,16 @@ yarn lint                     # ESLint with auto-fix
 yarn type-check               # Vue TSC
 ```
 
+**The server build must stay warning clean.** CI-SERVER builds with `-warnaserror`, so any new
+compiler or analyzer warning fails the PR. Fix the warning rather than raising `NoWarn` at the
+project level; when a warning is genuinely unavoidable (e.g. EF1001 for an internal EF API with no
+public equivalent), scope a `#pragma warning disable` to the single line and say why in a comment.
+
+Note that `dotnet build --no-incremental` maps to MSBuild's `Rebuild` target, and `m4d`'s
+`clean-client` target deletes `wwwroot` after items have already been evaluated — so Rebuild fails
+with a spurious "No file exists for the asset at ... `wwwroot/ads.txt`". Use separate `dotnet clean`
+and `dotnet build` invocations when you need a from-scratch build.
+
 ## Testing
 
 ### Run Targets

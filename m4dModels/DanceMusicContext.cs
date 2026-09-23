@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 using System.Diagnostics;
 
@@ -15,14 +15,23 @@ public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : Id
         set => ChangeTracker.AutoDetectChangesEnabled = value;
     }
 
-    private string ConnectionString { get; } = options.FindExtension<SqlServerOptionsExtension>()?.ConnectionString;
+    // RelationalOptionsExtension is the public base of every relational provider's options
+    // extension, so this reads the configured connection string without touching the
+    // provider-specific internal types that FindExtension<SqlServerOptionsExtension> needs.
+    // Extensions is keyed by concrete type, hence OfType rather than FindExtension.
+    private string ConnectionString { get; } =
+        options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault()?.ConnectionString;
 
     // Lets the no-external-service sandbox host (m4d.Sandbox, see
     // architecture/contributor-test-environments.md) share an in-memory database across
     // transient contexts the same way the real app shares a SQL Server connection string -
     // without this, playlist creation (PlayListController.Update) silently breaks under
     // UseInMemoryDatabase.
+    // EF Core exposes no public API for reading back an in-memory store name, so this is the
+    // one place we accept the internal options extension (EF1001).
+#pragma warning disable EF1001
     private string InMemoryStoreName { get; } = options.FindExtension<InMemoryOptionsExtension>()?.StoreName;
+#pragma warning restore EF1001
 
     public DanceMusicContext CreateTransientContext()
     {
