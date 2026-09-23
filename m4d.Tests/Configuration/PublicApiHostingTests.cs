@@ -8,9 +8,9 @@ using m4dModels;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -150,35 +150,6 @@ public class PublicApiHostingTests
     }
 
     [TestMethod]
-    public async Task Authorization_ValidRequest_DoesNotIssueACodeBeforePr2()
-    {
-        await using var app = await StartApplication(enabled: true);
-        using var client = CreateClient(app);
-        using var parameters = new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            ["client_id"] = PublicApiDefaults.Clients.DanzQ,
-            ["redirect_uri"] = PublicApiDefaults.Clients.DanzQRedirectUri,
-            ["response_type"] = "code",
-            ["scope"] = "account:read songs:read offline_access",
-            ["code_challenge"] = new('a', 43),
-            ["code_challenge_method"] = "S256",
-            ["state"] = "test-state"
-        });
-        var uri = "/connect/authorize?" + await parameters.ReadAsStringAsync();
-
-        using var response = await client.GetAsync(uri);
-
-        Assert.AreEqual(HttpStatusCode.Redirect, response.StatusCode);
-        Assert.IsNotNull(response.Headers.Location);
-        var callback = response.Headers.Location;
-        Assert.AreEqual(PublicApiDefaults.Clients.DanzQRedirectUri, callback.GetLeftPart(UriPartial.Path));
-        var query = QueryHelpers.ParseQuery(callback.Query);
-        Assert.AreEqual(Errors.TemporarilyUnavailable, query["error"].ToString());
-        Assert.AreEqual("test-state", query["state"].ToString());
-        Assert.IsFalse(query.ContainsKey("code"));
-    }
-
-    [TestMethod]
     public async Task Enabled_RejectsInsecureHttp()
     {
         await using var app = await StartApplication(enabled: true);
@@ -202,6 +173,7 @@ public class PublicApiHostingTests
         builder.WebHost.UseTestServer();
         builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
         builder.Services.AddAuthorization();
+        builder.Services.AddDataProtection().UseEphemeralDataProtectionProvider();
         var databaseName = $"public-api-http-{Guid.NewGuid()}";
         builder.Services.AddDbContext<DanceMusicContext>(options =>
             options.UseInMemoryDatabase(databaseName));

@@ -8,6 +8,7 @@ using m4dModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,7 @@ using Moq;
 using OpenIddict.Abstractions;
 using OpenIddict.EntityFrameworkCore.Models;
 using OpenIddict.Server;
+using OpenIddict.Validation;
 using OpenIddict.Validation.AspNetCore;
 
 using static OpenIddict.Abstractions.OpenIddictConstants;
@@ -126,6 +128,10 @@ public class PublicApiFoundationTests
         Assert.IsTrue(options.UseReferenceAccessTokens);
         Assert.AreEqual(TimeSpan.FromMinutes(1), options.AuthorizationCodeLifetime);
         Assert.AreEqual(TimeSpan.FromHours(1), options.AccessTokenLifetime);
+        Assert.AreEqual(TimeSpan.FromDays(30), options.RefreshTokenLifetime);
+        Assert.IsFalse(options.DisableRollingRefreshTokens);
+        Assert.IsFalse(options.DisableSlidingRefreshTokenExpiration);
+        Assert.IsNull(options.RefreshTokenReuseLeeway);
         CollectionAssert.AreEquivalent(
             new[] { CodeChallengeMethods.Sha256 },
             options.CodeChallengeMethods.ToArray());
@@ -145,6 +151,10 @@ public class PublicApiFoundationTests
         Assert.IsFalse(aspNetCore.DisableAccessTokenExtractionFromAuthorizationHeader);
         Assert.IsTrue(aspNetCore.DisableAccessTokenExtractionFromBodyForm);
         Assert.IsTrue(aspNetCore.DisableAccessTokenExtractionFromQueryString);
+
+        var validation = provider.GetRequiredService<IOptions<OpenIddictValidationOptions>>().Value;
+        Assert.IsTrue(validation.EnableAuthorizationEntryValidation);
+        Assert.IsTrue(validation.EnableTokenEntryValidation);
     }
 
     [TestMethod]
@@ -261,6 +271,10 @@ public class PublicApiFoundationTests
             .AddCookie(ExistingScheme);
         services.AddDbContext<DanceMusicContext>(options =>
             options.UseInMemoryDatabase(databaseName));
+        services.AddIdentityCore<ApplicationUser>()
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<DanceMusicContext>()
+            .AddSignInManager();
         services.AddPublicApiFoundation(
             CreateConfiguration(enabled: true),
             CreateEnvironment(environmentName ?? Environments.Development));

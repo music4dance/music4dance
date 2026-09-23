@@ -1,0 +1,37 @@
+@page
+@model ConnectedAppsModel
+@{
+    ViewData["Title"] = "Connected Apps";
+    ViewData["ActivePage"] = "ConnectedApps";
+    ViewData["UserName"] = Model.UserName;
+    ViewData["NoWarnings"] = true;
+}
+
+<h3>Connected Apps</h3>
+<partial name="_StatusMessage" for="StatusMessage" />
+<p>These apps have your permission to access music4dance. Disconnecting an app stops its access without changing your subscription.</p>
+@if (Model.Connections.Count == 0)
+{
+    <p>You have no connected apps.</p>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var connection in Model.Connections)
+        {
+            <li class="list-group-item d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div>
+                    <strong>@connection.ApplicationName</strong>
+                    @if (connection.CreatedAt.HasValue)
+                    {
+                        <div class="text-muted">Connected @connection.CreatedAt.Value.ToString("d")</div>
+                    }
+                </div>
+                <form method="post">
+                    <input type="hidden" name="authorizationId" value="@connection.Id" />
+                    <button type="submit" class="btn btn-outline-danger" aria-label="Disconnect @connection.ApplicationName">Disconnect</button>
+                </form>
+            </li>
+        }
+    </ul>
+}
