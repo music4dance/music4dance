@@ -717,6 +717,7 @@ public class PlayListController(
     }
 
     // GET: Restore
+    [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> Restore(string id)
     {
         if (!AdminMonitor.StartTask("RestorePlayList"))
@@ -759,6 +760,7 @@ public class PlayListController(
     }
 
     // GET: RestoreAll
+    [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> RestoreAll()
     {
         if (!AdminMonitor.StartTask("RestoreAllPlayLists"))
