@@ -23,8 +23,12 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
+      # -warnaserror keeps the server build warning clean: any new compiler or analyzer
+      # warning fails CI rather than accumulating silently. Restore runs as its own step
+      # above, so NuGet audit advisories (NU1901-NU1904) that appear when a new CVE is
+      # published against an unchanged dependency can't break an unrelated PR here.
+      - name: Build (warnings are errors)
+        run: dotnet build --configuration Release --no-restore -warnaserror
 
       - name: Test
         run: |
