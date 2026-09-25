@@ -191,3 +191,5 @@ rows before deleting the merged-away user.
 ---
 
 ## Known Gaps / Planned Improvements
+
+See [spotify-playlist-automation.md](spotify-playlist-automation.md) for what runs automatically (Logic App → `UpdateBatch`) and what still needs an admin Spotify login in the browser, plus the plan to automate the latter.
