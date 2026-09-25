@@ -6,9 +6,16 @@
 	],
 	"settings": {
 		"workbench.colorCustomizations": {
+			"window.activeBorder": "#5c2d91",
+			"window.inactiveBorder": "#5c2d9199",
+			"titleBar.activeBackground": "#3d2357",
+			"titleBar.activeForeground": "#f4eefe",
+			"statusBar.background": "#3d2357",
+			"statusBar.foreground": "#f4eefe",
 			"terminal.background": "#2b1a3d",
 			"terminal.foreground": "#e6d9f2",
 			"terminal.border": "#5c2d91"
-		}
+		},
+		"peacock.color": "#3d2357"
 	}
 }
