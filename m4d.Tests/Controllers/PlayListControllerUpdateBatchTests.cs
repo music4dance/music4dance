@@ -24,7 +24,8 @@ namespace m4d.Tests.Controllers;
 /// <summary>
 /// UpdateBatch is called by the UpdatePlaylists Logic App. It used to hold the request for the whole
 /// import, so the Logic App timed out and its retry got a 200 "already running" false success.
-/// It now returns 202 as soon as the work is started and real status codes otherwise.
+/// It now returns 200 as soon as the work is started (the Logic App uses a polling trigger, which
+/// skips the run on a 202) and real error codes otherwise.
 /// </summary>
 [TestClass]
 [DoNotParallelize] // Tests share the process-wide AdminMonitor slot
@@ -83,13 +84,13 @@ public class PlayListControllerUpdateBatchTests
     }
 
     [TestMethod]
-    public async Task UpdateBatch_Authorized_Returns202AndReleasesTheSlotWhenDone()
+    public async Task UpdateBatch_Authorized_Returns200AndReleasesTheSlotWhenDone()
     {
         var controller = await CreateController("Accepted");
 
         var result = await controller.UpdateBatch();
 
-        Assert.IsInstanceOfType<AcceptedResult>(result);
+        Assert.IsInstanceOfType<OkObjectResult>(result);
 
         // No playlists in the test database, so the background work finishes almost immediately
         var stopwatch = Stopwatch.StartNew();

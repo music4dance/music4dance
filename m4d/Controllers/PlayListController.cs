@@ -332,10 +332,11 @@ public class PlayListController(
         return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
     }
 
-    // Called by the UpdatePlaylists Logic App. Returns as soon as the work is started (202) so
-    // the call can't outlast the Logic App's synchronous timeout; poll UpdateBatchStatus for the
-    // outcome. 409 (not retried by the Logic App's default policy) means another admin task holds
-    // the AdminMonitor slot.
+    // Called by the UpdatePlaylists Logic App, whose HTTP *polling trigger* fires a run only on a
+    // 200 - a 202 means "no new data" and the run is skipped - so success must stay 200 even though
+    // the work is only started here. Returning as soon as the work is started keeps the call inside
+    // the Logic App's timeout; poll UpdateBatchStatus for the outcome. Any 4xx (e.g. 409 when
+    // another admin task holds the AdminMonitor slot) shows as a failed trigger.
     [AllowAnonymous]
     public async Task<IActionResult> UpdateBatch(
         PlayListType type = PlayListType.SongsFromSpotify)
@@ -369,7 +370,7 @@ public class PlayListController(
             throw;
         }
 
-        return Accepted(new { success = true, reason = "Kicked off Update Batch" });
+        return Ok(new { success = true, reason = "Kicked off Update Batch" });
     }
 
     [AllowAnonymous]
