@@ -132,6 +132,8 @@ public class RateLimitingTrackerTests
         var testIp = $"10.26.{Random.Shared.Next(100, 255)}.{Random.Shared.Next(1, 255)}";
 
         tracker.RecordEvent(testIp, "/Identity/Account/Login", wasLimited: false, requestCount: 1, isGlobal: false);
+        // Put the event inside the reporting window, not on its exclusive upper boundary.
+        tracker.GetEventsForIp(testIp).Single().Timestamp = DateTime.UtcNow.AddMinutes(-1);
 
         // Act
         var stats = tracker.GetStats();

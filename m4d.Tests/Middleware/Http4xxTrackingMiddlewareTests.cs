@@ -56,6 +56,25 @@ public class Http4xxTrackingMiddlewareTests
     }
 
     [TestMethod]
+    [DataRow("/connect/authorize", "?client_id=danzq-ios&state=private-state&request_uri=private-request")]
+    [DataRow("/connect/token", "?code=private-code")]
+    [DataRow("/connect/revocation", "?token=private-token")]
+    [DataRow("/Identity/Account/Manage/ConnectedApps", "?authorizationId=private-grant")]
+    [DataRow("/Identity/Account/Login", "?returnUrl=%2Fconnect%2Fauthorize%3Frequest_uri%3Dprivate-request")]
+    [DataRow("/Identity/Account/LoginWith2fa", "?ReturnUrl=%2Fconnect%2Fauthorize%3Frequest_uri%3Dprivate-request")]
+    public async Task InvokeAsync_AuthorizationFlow_DoesNotTrackQuery(string path, string query)
+    {
+        var tracker = new Http4xxTracker();
+        var context = new DefaultHttpContext();
+        context.Request.Path = path;
+        context.Request.QueryString = new QueryString(query);
+
+        await CreateMiddleware(tracker, 400).InvokeAsync(context);
+
+        Assert.AreEqual(path, tracker.GetStats().TopUrls[0].Url);
+    }
+
+    [TestMethod]
     public async Task InvokeAsync_200Response_DoesNotRecord()
     {
         // Arrange

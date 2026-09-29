@@ -41,7 +41,7 @@ public class Http4xxTrackingMiddleware(RequestDelegate next, Http4xxTracker trac
     {
         var url = context.Request.Path.Value ?? "/";
         var query = context.Request.QueryString.Value;
-        if (!string.IsNullOrEmpty(query))
+        if (!string.IsNullOrEmpty(query) && !m4d.PublicApi.PublicApiProtection.IsSensitiveRequest(context.Request))
         {
             url += query;
         }
