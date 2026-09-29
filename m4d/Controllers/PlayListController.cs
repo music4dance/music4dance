@@ -262,14 +262,9 @@ public class PlayListController(
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> Update(string id)
     {
-        if (!AdminMonitor.StartTask("UpdatePlayList"))
-        {
-            throw new AdminTaskException(
-                "UpdatePlaylist failed to start because there is already an admin task running");
-        }
-
         var principal = User;
 
+        // Validate before taking the AdminMonitor slot so a bad or deleted id doesn't leak it
         var playlist = SafeLoadPlaylist(id, Database);
         if (playlist.Deleted)
         {
@@ -281,13 +276,17 @@ public class PlayListController(
 
         await SpotifyAuthorization();
 
-        var dms = new DanceMusicCoreService(
-            Database.Context.CreateTransientContext(),
-            SearchService, DanceStatsManager);
+        if (!AdminMonitor.StartTask("UpdatePlayList"))
+        {
+            throw new AdminTaskException(
+                "UpdatePlaylist failed to start because there is already an admin task running");
+        }
+
+        var dms = Database.GetTransientService();
 
         // Match songs & update
-        await Task.Run(
-            async () =>
+        _ = Task.Run(
+            async () => // Intentionally not awaited; progress is reported through AdminMonitor
             {
                 try
                 {
@@ -319,30 +318,71 @@ public class PlayListController(
                 "UpdateAllPlayLists failed to start because there is already an admin task running");
         }
 
-        await SpotifyAuthorization();
-
-        await UpdateAllBase(type, User);
+        try
+        {
+            await SpotifyAuthorization();
+            await UpdateAllBase(type, User);
+        }
+        catch (Exception e)
+        {
+            AdminMonitor.CompleteTask(false, $"UpdateAll Playlists failed to start: {e.Message}", e);
+            throw;
+        }
 
         return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
     }
 
+    // Called by the UpdatePlaylists Logic App, whose HTTP *polling trigger* fires a run only on a
+    // 200 - a 202 means "no new data" and the run is skipped - so success must stay 200 even though
+    // the work is only started here. Returning as soon as the work is started keeps the call inside
+    // the Logic App's timeout; poll UpdateBatchStatus for the outcome. Any 4xx (e.g. 409 when
+    // another admin task holds the AdminMonitor slot) shows as a failed trigger.
     [AllowAnonymous]
-    public async Task<ContentResult> UpdateBatch(
+    public async Task<IActionResult> UpdateBatch(
         PlayListType type = PlayListType.SongsFromSpotify)
     {
         if (!TokenRequirement.Authorize(Request, Configuration))
         {
-            throw new Exception("Unauthorized access.");
+            return Unauthorized(new { success = false, reason = "Unauthorized access" });
+        }
+
+        // Writing to Spotify (SpotifyFromSearch) needs a user token, which a Logic App call
+        // doesn't have - see architecture/spotify-playlist-automation.md
+        if (type != PlayListType.SongsFromSpotify)
+        {
+            return BadRequest(
+                new { success = false, reason = $"UpdateBatch doesn't support playlist type {type}" });
         }
 
         if (!AdminMonitor.StartTask("UpdateAllPlayLists"))
         {
-            return Content("{success:false, reason='Another Admin Task is already running'}");
+            return Conflict(
+                new { success = false, reason = "Another Admin Task is already running" });
         }
 
-        await UpdateAllBase(type);
+        try
+        {
+            await UpdateAllBase(type);
+        }
+        catch (Exception e)
+        {
+            AdminMonitor.CompleteTask(false, $"UpdateBatch failed to start: {e.Message}", e);
+            throw;
+        }
 
-        return Content("{success:true, reason='Kicked off Update Batch'}");
+        return Ok(new { success = true, reason = "Kicked off Update Batch" });
+    }
+
+    [AllowAnonymous]
+    public IActionResult UpdateBatchStatus()
+    {
+        if (!TokenRequirement.Authorize(Request, Configuration))
+        {
+            return Unauthorized(new { success = false, reason = "Unauthorized access" });
+        }
+
+        var status = AdminMonitor.Status;
+        return Ok(new { status.IsRunning, status.Succeeded, status.Status });
     }
 
     // GET: BulkCreate
@@ -381,8 +421,8 @@ public class PlayListController(
         var emailMap = await UserEmail(playlists);
 
         var dms = Database.GetTransientService();
-        await Task.Run(
-            async () =>
+        _ = Task.Run(
+            async () => // Intentionally not awaited; progress is reported through AdminMonitor
             {
                 try
                 {
@@ -616,7 +656,7 @@ public class PlayListController(
 
             var (danceTags, songTags) = GetTags(playlist);
             var newSongs = await dms.SongIndex.SongsFromTracks(
-                await Database.FindUser(playlist.User), tracks, danceTags, songTags, playlist.Id);
+                await dms.FindUser(playlist.User), tracks, danceTags, songTags, playlist.Id);
 
             AdminMonitor.UpdateTask("Starting Merge");
             var results = await dms.SongIndex.MatchSongs(
@@ -624,7 +664,7 @@ public class PlayListController(
             var succeeded = await CommitCatalog(
                 dms,
                 new Review { PlayList = playlist.Id, Merge = results },
-                await Database.FindUser(playlist.User));
+                await dms.FindUser(playlist.User));
             return $"UpdateSongsFromSpotify {playlist.Id}: Succeeded with {succeeded} songs.";
         }
         catch (Exception e)
@@ -646,7 +686,7 @@ public class PlayListController(
         try
         {
             var spotify = MusicService.GetService(ServiceType.Spotify);
-            var filter = Database.SearchService.GetSongFilter(playlist.Search);
+            var filter = dms.SearchService.GetSongFilter(playlist.Search);
 
             // Override sort order to fix incorrect sort orders
             if (filter.IsRaw)
@@ -720,12 +760,7 @@ public class PlayListController(
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> Restore(string id)
     {
-        if (!AdminMonitor.StartTask("RestorePlayList"))
-        {
-            throw new AdminTaskException(
-                "RestorePlaylist failed to start because there is already an admin task running");
-        }
-
+        // Validate before taking the AdminMonitor slot so a bad or deleted id doesn't leak it
         var playlist = SafeLoadPlaylist(id, Database);
         if (playlist.Deleted)
         {
@@ -735,10 +770,16 @@ public class PlayListController(
         var user = await Database.FindUser(playlist.User);
         var email = user.Email;
 
+        if (!AdminMonitor.StartTask("RestorePlayList"))
+        {
+            throw new AdminTaskException(
+                "RestorePlaylist failed to start because there is already an admin task running");
+        }
+
         // Match songs & update
         var dms = Database.GetTransientService();
-        await Task.Run(
-            async () =>
+        _ = Task.Run(
+            async () => // Intentionally not awaited; progress is reported through AdminMonitor
             {
                 try
                 {
@@ -770,13 +811,23 @@ public class PlayListController(
         }
 
         // TODO:  This code is identical to the code in updateallbase except for the actual DoUpdate/DoRestore call, should be able to do better..
-        var playlists = Database.PlayLists
-            .Where(p => string.IsNullOrEmpty(p.Data2) && p.Updated != null && !p.Deleted).ToList();
-        var emailMap = await UserEmail(playlists);
+        List<PlayList> playlists;
+        Dictionary<string, string> emailMap;
+        try
+        {
+            playlists = [.. Database.PlayLists
+                .Where(p => string.IsNullOrEmpty(p.Data2) && p.Updated != null && !p.Deleted)];
+            emailMap = await UserEmail(playlists);
+        }
+        catch (Exception e)
+        {
+            AdminMonitor.CompleteTask(false, $"RestoreAll Playlists failed to start: {e.Message}", e);
+            throw;
+        }
 
         var dms = Database.GetTransientService();
-        await Task.Run(
-            async () =>
+        _ = Task.Run(
+            async () => // Intentionally not awaited; progress is reported through AdminMonitor
             {
                 try
                 {
@@ -817,7 +868,7 @@ public class PlayListController(
                     AdminMonitor.CompleteTask(
                         false, $"RestoreAll Playlists failed: {e.Message}");
                 }
-
+                finally
                 {
                     dms.Dispose();
                 }
