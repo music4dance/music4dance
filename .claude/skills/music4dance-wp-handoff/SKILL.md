@@ -96,8 +96,11 @@ If a piece needs one of these, say so in notes.md under "Needs manual formatting
 - Link music4dance features to the live site (`https://www.music4dance.net/...`) and related help
   pages to `https://music4dance.blog/music4dance-help/<page>/`.
 - Feedback link: `https://music4dance.blog/feedback/`.
-- Write in David's voice: first person, conversational, candid about limitations, and incremental
-  in framing ("this is the incremental version").
+- Write in David's voice: conversational, candid about limitations, and incremental in framing
+  ("this is the incremental version").
+- Person depends on the type of piece. Blog posts use first person singular ("I added…", "in my
+  last post…"). Help pages use first person plural ("we", "our catalog"), matching the existing help
+  pages.
 
 ## notes.md: required sections
 
