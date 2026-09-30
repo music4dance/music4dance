@@ -121,15 +121,19 @@ Owns the tap-tempo state machine and the manual-entry widgets. All state is pass
 2. **Tempo ranking** — `DanceDatabase.filterTempo(dances, beatsPerMinute, epsilonPercent)`
    (`DanceDatabase.ts:131-136`) maps every remaining dance to a `DanceOrder` (via
    `TempoRange.calculateDelta`/`calculateDeltaPercent`), drops any whose
-   `deltaPercentAbsolute >= epsilonPercent`, and sorts ascending by `deltaPercentAbsolute` — so the
+   `deltaPercentAbsolute > epsilonPercent`, and sorts ascending by `deltaPercentAbsolute` — so the
    closest tempo match is always first, and the strictness slider is a live inclusion threshold,
-   not just a display cutoff.
+   not just a display cutoff. The comparison is inclusive so that the slider's left end (`0`)
+   means "only dances whose range contains the tempo"; with a strict `<` it emptied the list.
 
 `TempoDeltaInfo.vue` renders each `DanceOrder` as a `BListGroupItem`:
 
 - Variant is `"primary"` when `abs(deltaMpm) < 1.0` (close enough that no direction is worth
   flagging), else `"warning"` (dance's tempo is slower than tapped — negative delta) or `"success"`
   (dance is faster).
+- `DanceName` is rendered with `show-meter`, so each range carries its meter (`48-52 MPM (2/4)`).
+  The duple pre-filter mixes 2/4 and 4/4 dances, and each range is in the dance's _own_ measures,
+  so without the meter a 2/4 dance reads as twice the tempo of the counter's 4/4 MPM.
 - A `BBadge` (same variant) shows e.g. `"2.3 BPM fast"`/`"1.1 MPM slow"` — units follow
   `tempoType` (Beats vs. Measures), matching whichever mode `countMethod` is currently in.
 - Clicking a row emits `choose-dance(danceId, ctrlKey)`; `App.vue`'s `chooseDance(danceId)` handler

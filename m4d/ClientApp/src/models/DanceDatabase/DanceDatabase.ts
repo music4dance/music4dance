@@ -128,10 +128,12 @@ export class DanceDatabase {
     return DanceDatabase.filterTempo(filter.filter(this.dances), tempo, epsilon);
   }
 
+  // The epsilon test is inclusive, so an epsilon of 0 keeps the dances whose range contains the
+  // tempo (the Tempo Counter's strictness slider at its left end) rather than dropping every dance.
   public static filterTempo(dances: DanceType[], tempo: number, epsilon: number): DanceOrder[] {
     return dances
       .map((dance) => DanceOrder.create(dance, tempo))
-      .filter((order) => order.deltaPercentAbsolute < epsilon)
+      .filter((order) => order.deltaPercentAbsolute <= epsilon)
       .sort((a, b) => a.deltaPercentAbsolute - b.deltaPercentAbsolute);
   }
 

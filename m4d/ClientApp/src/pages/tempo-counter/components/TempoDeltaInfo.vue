@@ -37,6 +37,7 @@ const deltaMessage = computed(() => {
       :dance="dance.dance"
       :show-tempo="tempoType"
       :show-synonyms="true"
+      :show-meter="true"
       :hide-link="hideLink"
     />
     <BBadge v-show="showDelta" :variant="variant">{{ deltaMessage }}</BBadge>
