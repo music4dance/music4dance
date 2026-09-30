@@ -72,6 +72,18 @@ describe("DanceName.vue", () => {
     expect(wrapper.vm.tempoText).toBe("100-110 BPM/25-27.5 MPM");
   });
 
+  test("appends the meter to tempoText when showMeter is set", () => {
+    const wrapper = mount(DanceName, {
+      props: {
+        dance: dance,
+        showTempo: TempoType.Measures,
+        showMeter: true,
+      },
+    });
+
+    expect(wrapper.vm.tempoText).toBe("25-27.5 MPM (4/4)");
+  });
+
   test("renders a dance name correctly without tempo", () => {
     const wrapper = mount(DanceName, {
       props: {

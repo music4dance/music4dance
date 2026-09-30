@@ -5,6 +5,9 @@ import { loadDatabase } from "@/helpers/TestDatabase";
 import { loadDancesFromString } from "@/helpers/DanceLoader";
 import { loadTestDances } from "@/helpers/LoadTestDances";
 import { DanceFilter } from "../DanceFilter";
+import { DanceType } from "../DanceType";
+import { TempoRange } from "../TempoRange";
+import { Meter } from "../Meter";
 
 describe("DanceDatabase.ts", () => {
   test("Loads a simple DanceDatabase", () => {
@@ -81,5 +84,31 @@ describe("DanceDatabase.ts", () => {
     const db = loadDatabase();
     const unknown = db.getStyleFamilies("XXX");
     expect(unknown).toEqual([]);
+  });
+
+  describe("filterTempo", () => {
+    const dance = new DanceType({
+      name: "test-dance",
+      tempoRange: new TempoRange(100, 120),
+      meter: new Meter(4, 4),
+    });
+
+    test("an epsilon of 0 keeps a dance whose range contains the tempo", () => {
+      expect(DanceDatabase.filterTempo([dance], 100, 0)).toHaveLength(1);
+      expect(DanceDatabase.filterTempo([dance], 110, 0)).toHaveLength(1);
+      expect(DanceDatabase.filterTempo([dance], 120, 0)).toHaveLength(1);
+    });
+
+    test("an epsilon of 0 drops a dance whose range doesn't contain the tempo", () => {
+      expect(DanceDatabase.filterTempo([dance], 99, 0)).toHaveLength(0);
+      expect(DanceDatabase.filterTempo([dance], 121, 0)).toHaveLength(0);
+    });
+
+    test("keeps a dance exactly epsilon percent outside its range", () => {
+      // 95 is 5% below 100; 126 is 5% above 120.
+      expect(DanceDatabase.filterTempo([dance], 95, 5)).toHaveLength(1);
+      expect(DanceDatabase.filterTempo([dance], 126, 5)).toHaveLength(1);
+      expect(DanceDatabase.filterTempo([dance], 94, 5)).toHaveLength(0);
+    });
   });
 });

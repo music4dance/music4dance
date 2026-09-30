@@ -13,6 +13,7 @@ const props = withDefaults(
     multiLine?: boolean;
     hideLink?: boolean;
     showBlogLink?: boolean;
+    showMeter?: boolean;
   }>(),
   {
     showTempo: TempoType.None,
@@ -20,6 +21,7 @@ const props = withDefaults(
     multiLine: false,
     hideLink: false,
     showBlogLink: false,
+    showMeter: false,
   },
 );
 
@@ -48,7 +50,11 @@ const tempoText = computed(() => {
   const mpm =
     showTempo & TempoType.Measures ? `${dance.tempoRange.mpm(dance.meter.numerator)} MPM` : "";
 
-  return `${bpm}${mpm && bpm ? "/" : ""}${mpm}`;
+  // A range in measures per minute only means something alongside its meter - a list that mixes
+  // 2/4 and 4/4 dances (the Tempo Counter's) otherwise shows a 2/4 dance at twice the numbers.
+  const meter = props.showMeter ? ` (${dance.meter.toString()})` : "";
+
+  return `${bpm}${mpm && bpm ? "/" : ""}${mpm}${meter}`;
 });
 
 const synonymText = computed(() => {
