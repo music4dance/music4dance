@@ -24,8 +24,8 @@ Music4Dance implements a hybrid usage tracking system that captures page view an
 
 **Related Documents:**
 
-- [Azure Front Door Implementation](../infrastructure/front-door-implementation.md) - CDN caching architecture
-- [Identity Endpoint Protection](../security/identity-endpoint-protection.md) - Rate limiting & random delays
+- [Azure Front Door caching plan](../plans/front-door-caching.md) - CDN caching (not deployed)
+- [Bot and Abuse Defense](../security/bot-and-abuse-defense.md) - Rate limiting, random delays, crawler handling
 - [Testing Patterns](../dev-testing/testing-patterns.md) - Test infrastructure and patterns
 
 ---
@@ -437,7 +437,7 @@ Instead of caching, use three-layer defense:
 2. **Rate Limiting (20 req/min)** - Hard cap on requests
 3. **CAPTCHA (existing)** - Human verification on failures
 
-**See:** `architecture/security/identity-endpoint-protection.md`
+**See:** `architecture/security/bot-and-abuse-defense.md`
 
 ---
 
@@ -603,7 +603,7 @@ customEvents
 
 **Why not the attribute** (changed 2026-09-03): this endpoint saw a recurring, unexplained 400
 rate in `/Admin/Diagnostics`'s "HTTP 4xx Errors" table (see
-`architecture/security/distributed-attack-mitigation.md`) with no corresponding entry in this controller's
+`architecture/runbooks/triage-4xx.md`) with no corresponding entry in this controller's
 own `LogWarning` calls — even in a server-log window that bracketed the exact failure timestamp.
 That ruled out the endpoint's own explicit `BadRequest` paths (empty body / bad JSON / batch too
 large), pointing at a silent antiforgery-validation failure: ASP.NET Core's built-in
@@ -652,7 +652,7 @@ cookie/token-mismatch variant). That rules out a per-request encoding/parsing bu
 structural cookie-lifetime problem, and also rules out the CDN-cache-replay theory floated
 earlier: **Azure Front Door was never actually deployed** (`az resource list` against the
 subscription turns up no `Microsoft.Cdn`/`Microsoft.Cdn/profiles` resource at all — see
-[front-door-implementation](../infrastructure/front-door-implementation.md), where Phase 2 "Front Door Deployment" is still marked ⏸️ BLOCKED;
+[plans/front-door-caching](../plans/front-door-caching.md), where Phase 2 "Front Door Deployment" has not started;
 only Phase 1, the origin's own `Cache-Control` middleware, ever shipped). So there's no shared CDN
 cache serving one visitor's token/cookie pair to another.
 
@@ -693,7 +693,7 @@ useful signal regardless.
 
 ### 10.2 Rate Limiting
 
-**See:** `architecture/security/identity-endpoint-protection.md`
+**See:** `architecture/security/bot-and-abuse-defense.md`
 
 **API Rate Limiting:** (Future enhancement)
 

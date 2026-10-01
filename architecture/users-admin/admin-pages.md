@@ -95,7 +95,7 @@ reachable search index to find the user's song contributions. This must be the o
 `IsServiceHealthy` (defaults to healthy for a service with no recorded status), not the pessimistic
 `IsServiceAvailable` (defaults to unavailable for `Unknown` too) — `MarkHealthy("SearchService")` is
 only called when `SongIndex.DoSearch` completes a live search successfully (see
-[Phase 8 Completion Report](../infrastructure/service-resilience-phase8-completion-report.md)), so a service that
+[service-resilience § Recovery](../infrastructure/service-resilience.md#recovery)), so a service that
 hasn't had cause to be queried yet still reads as available under `IsServiceHealthy` but not under
 `IsServiceAvailable`, which would block every delete unconditionally in that case. Every other
 search-health check in the codebase already uses `IsServiceHealthy`.
