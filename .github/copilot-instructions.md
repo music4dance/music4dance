@@ -27,7 +27,7 @@ The directory itself is tracked (via `local/.gitkeep`) but its contents are giti
 - **Prefer updating existing documents** over creating new ones when the content is related
 - When a plan ships, fold it into the reference doc and delete the plan; don't keep completion reports
 - Update the README index in the same PR as any doc add/move/delete
-- Use clear, descriptive names that cover the full scope (e.g., `identity-endpoint-protection.md` not `rate-limiting.md`)
+- Use clear, descriptive names that cover the full scope (e.g., `bot-and-abuse-defense.md` not `rate-limiting.md`)
 
 **Temporary Working Documents:**
 

@@ -76,9 +76,7 @@ procedural, to become a runbook.
 
 | Doc | Kind | What it covers |
 | --- | --- | --- |
-| [distributed-attack-mitigation](security/distributed-attack-mitigation.md) | Ref + Plan | Rate limiting, CAPTCHA escalation, bot short-circuit, 4xx tracking; **4xx triage log** (used by the `analyze-4xx` skill); Phase 2 plan |
-| [identity-endpoint-protection](security/identity-endpoint-protection.md) | Ref | Random delays + rate limiting + CAPTCHA on `/identity/*`, diagnostics dashboard |
-| [meta-crawler-mitigation](security/meta-crawler-mitigation.md) | Ref | Meta/Facebook crawler redirect-loop handling |
+| [bot-and-abuse-defense](security/bot-and-abuse-defense.md) | Ref | Catalog bot short-circuit (`SpiderManager`), identity rate limits + CAPTCHA escalation + lockout, crawler short-circuit on login pages, 4xx-by-URL tracking, `/Admin/Diagnostics` |
 
 ## Infrastructure and deployment
 
@@ -116,7 +114,8 @@ into `runbooks/` as its area is consolidated.
 | Roll out a breaking search-index schema change | [search-index-versioning § Production Migration Runbook](search/search-index-versioning.md#production-migration-runbook) |
 | Maintain SpotifyFromSearch playlists manually | [spotify-playlist-automation § Runbook](music-services/spotify-playlist-automation.md#runbook-manual-spotifyfromsearch-maintenance) |
 | Backfill / rebuild the artist index | [individual-artists § 11 Operations](songs/individual-artists.md#11-operations) |
-| Triage the production 4xx export | `analyze-4xx` skill + [distributed-attack-mitigation](security/distributed-attack-mitigation.md) triage log |
+| Triage the production 4xx export | [runbooks/triage-4xx](runbooks/triage-4xx.md) (automated by the `analyze-4xx` skill) |
+| Respond to an attack or traffic spike on login/register | [runbooks/respond-to-attack](runbooks/respond-to-attack.md) |
 | Provision a new App Service instance | [runbooks/provision-app-service](runbooks/provision-app-service.md) |
 | Deploy to test or production | [runbooks/deploy](runbooks/deploy.md) |
 | Configure service-failure email alerts | [runbooks/configure-failure-email](runbooks/configure-failure-email.md) |
@@ -134,7 +133,7 @@ into `runbooks/` as its area is consolidated.
 | Public API & third-party authorization (DanzQ) | Foundation (PR 1) merged behind a disabled flag; PR 2 on hold after Apple denied the business plan, alternatives being explored | [plans/public-api-authorization](plans/public-api-authorization.md) |
 | Azure Front Door caching | Not started; app-side prep shipped | [plans/front-door-caching](plans/front-door-caching.md) |
 | Key Vault RBAC migration | Not started (vault `music4dance` still uses access policies, verified 2026-10-01) | [plans/key-vault-rbac-migration](plans/key-vault-rbac-migration.md) |
-| Distributed attack mitigation Phase 2 | Planning | [distributed-attack-mitigation](security/distributed-attack-mitigation.md) |
+| Attack mitigation Phase 2+ (telemetry, alerts, WAF, honeypots) | Proposed | [plans/attack-mitigation-phase2](plans/attack-mitigation-phase2.md) |
 | Contributor environments beyond the sandbox (test deploys, diagnostics, samplified data, own Azure) | Proposed | [plans/contributor-environments-next](plans/contributor-environments-next.md) |
 | Automate browser-driven Spotify playlist jobs | Proposed | [spotify-playlist-automation § Plan](music-services/spotify-playlist-automation.md#plan-automating-category-2) |
 | Application log persistence options 2–4 | Proposed | [application-log-persistence-plan](observability/application-log-persistence-plan.md) |

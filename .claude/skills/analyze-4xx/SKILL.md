@@ -28,7 +28,7 @@ every pass is the same three outputs:
 | Filter tests | `m4d.Tests/Security/Http4xxTrackerTests.cs` |
 | Recording middleware | `m4d/Middleware/Http4xxTrackingMiddleware.cs` |
 | CSV export action | `AdminController.Http4xxExportCsv` |
-| **Triage log (read this first)** | `architecture/security/distributed-attack-mitigation.md` → "Known 404/4xx Sources (Triage Log)" |
+| **Triage log (read this first)** | `architecture/runbooks/triage-4xx.md` → "Triage log" |
 
 ## Step 1 — Get the CSV
 
@@ -202,7 +202,7 @@ rows and events the change suppresses.
 
 ## Step 6 — Update the triage log
 
-Append a row to the table in `architecture/security/distributed-attack-mitigation.md` for
+Append a row to the table in `architecture/runbooks/triage-4xx.md` for
 **every** pattern triaged this pass, including the ones deliberately left
 unfiltered — recording the decision is the point. Columns:
 `URL / Pattern | Category | Explanation | Status`.
