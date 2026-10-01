@@ -1,6 +1,9 @@
 # Playwright End-to-End Testing
 
-**Status:** ✅ Implemented — 8 spec files, 17 tests
+**Type:** Reference
+**Status:** Current. Implemented; `e2e/tests/` has 9 spec files as of 2026-10-01 (8 when first written).
+**Last verified:** 2026-10-01 (file references checked)
+**Code:** `e2e/`, `.github/workflows/e2e.yaml`
 
 **Context:** [contributor-test-environments.md](contributor-test-environments.md) built
 `m4d.Sandbox` — a second ASP.NET Core host that boots the real controllers/views/middleware

@@ -107,10 +107,9 @@ procedural, to become a runbook.
 | Doc | Kind | What it covers |
 | --- | --- | --- |
 | [contributor-setup](dev-testing/contributor-setup.md) | Guide | Getting a running server: `m4d.Sandbox` or the real app on an empty DB |
-| [contributor-test-environments](dev-testing/contributor-test-environments.md) | Ref + Plan | Options for running without production access; L0–L1 shipped, L2+ proposed |
+| [contributor-test-environments](dev-testing/contributor-test-environments.md) | Ref | Design of the no-production-access environments: L0 (empty DB) and L1 `m4d.Sandbox` (stubs, seeded users, `SongIndexLocal`) |
 | [testing-patterns](dev-testing/testing-patterns.md) | Ref | Server and client test patterns, infrastructure, pitfalls |
 | [playwright-e2e-testing](dev-testing/playwright-e2e-testing.md) | Ref | Playwright e2e suite against `m4d.Sandbox` |
-| [adding-a-new-dance](dev-testing/adding-a-new-dance.md) | Guide | Every step to add a new dance type |
 
 ## Runbooks
 
@@ -128,7 +127,7 @@ consolidated.
 | Configure service-failure email alerts | [email-notification-setup](infrastructure/email-notification-setup.md) |
 | Set up GTM / GA4 engagement tracking | [gtm-tracking-guide](pages/gtm-tracking-guide.md) |
 | Link new blog posts / help articles | [blog-help-sitemap](pages/blog-help-sitemap.md) (+ `scripts/add-new-blog-posts.mjs`) |
-| Add a new dance type | [adding-a-new-dance](dev-testing/adding-a-new-dance.md) |
+| Add a new dance type | [runbooks/add-a-dance](runbooks/add-a-dance.md) |
 | Run tempo validation over the existing catalog | [tempo-validation-rules § Running Against the Existing Catalog](songs/tempo-validation-rules.md#running-against-the-existing-catalog) |
 | Set up a local contributor environment | [contributor-setup](dev-testing/contributor-setup.md) |
 
@@ -140,7 +139,7 @@ consolidated.
 | Azure Front Door caching (Phase 2) | Not implemented | [front-door-implementation § 5](infrastructure/front-door-implementation.md#5-rollout-plan) |
 | Key Vault RBAC migration | Not started (vault `music4dance` still uses access policies, verified 2026-10-01) | [managed-identity-self-contained-plan § Key Vault RBAC](infrastructure/managed-identity-self-contained-plan.md#key-vault-rbac-migration-plan) |
 | Distributed attack mitigation Phase 2 | Planning | [distributed-attack-mitigation](security/distributed-attack-mitigation.md) |
-| Contributor environments L2+ | Proposed | [contributor-test-environments](dev-testing/contributor-test-environments.md) |
+| Contributor environments beyond the sandbox (test deploys, diagnostics, samplified data, own Azure) | Proposed | [plans/contributor-environments-next](plans/contributor-environments-next.md) |
 | Automate browser-driven Spotify playlist jobs | Proposed | [spotify-playlist-automation § Plan](music-services/spotify-playlist-automation.md#plan-automating-category-2) |
 | Application log persistence options 2–4 | Proposed | [application-log-persistence-plan](observability/application-log-persistence-plan.md) |
 | Memory diagnostics Phases 2–4 | Proposed | [memory-diagnostics-plan](observability/memory-diagnostics-plan.md) |

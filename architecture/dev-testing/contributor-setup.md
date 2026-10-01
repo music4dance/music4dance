@@ -1,5 +1,10 @@
 # Contributor Setup
 
+**Type:** Runbook (kept beside its design doc because CONTRIBUTING.md and the code link here)
+**Status:** Current
+**Last verified:** 2026-10-01 (file references checked)
+**Code:** `m4d.Sandbox/`, `m4d/Properties/launchSettings.json`
+
 Two ways to get a running server, from least to most setup:
 
 | Path | Setup needed | What works |

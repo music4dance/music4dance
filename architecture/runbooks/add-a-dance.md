@@ -1,4 +1,8 @@
-# Adding a New Dance Type
+# Add a New Dance Type
+
+**Type:** Runbook
+**Status:** Current
+**Last verified:** 2026-10-01 (file paths checked; steps not re-run)
 
 ## Overview
 
@@ -227,8 +231,8 @@ Three pairs of test data files mirror the production `dances.json` and `dancegro
 
 - `DanceTests/TestData/test-dances.json`
 - `DanceTests/TestData/test-groups.json`
-- `m4dModels.Tests/TestData/test-dances.json`
-- `m4dModels.Tests/TestData/test-groups.json`
+- `m4dModels.Sandbox/TestData/test-dances.json`
+- `m4dModels.Sandbox/TestData/test-groups.json`
 
 Add the new dance entry to these files with the same structure as the production files, but you
 may use a simplified `tempoRange` unless the test specifically exercises tempo logic.
@@ -272,7 +276,7 @@ JSON cache are both cleared on startup.
 
 This is a separate, source-controlled snapshot of `DanceStatsInstance` (same JSON shape as the
 runtime cache) used when the app starts with **no** runtime cache and **no** database — see
-[service-resilience-plan.md](../infrastructure/service-resilience-plan.md). It is not regenerated automatically,
+[service-resilience](../infrastructure/service-resilience.md#degraded-behavior). It is not regenerated automatically,
 so a new dance is missing from it until someone exports a fresh snapshot. Left stale, the new
 dance won't appear in this cold-start scenario, and `stats.FromName(dance)` in
 `DanceController.Index()` will 404 on its detail page — even though the runtime cache is fine.
