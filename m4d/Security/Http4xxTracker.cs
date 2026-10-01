@@ -36,7 +36,7 @@ public class Http4xxTracker
     // Deliberately *not* here: short generic segments a future feature could plausibly use
     // (/login, /dashboard, /account, /mcp, /sse, /manifest.json), and benign platform probes
     // (/sitemap.xml, /.well-known/*, /apple-touch-icon*.png) that are worth keeping visible.
-    // See architecture/security/distributed-attack-mitigation.md's triage log.
+    // See the triage log in architecture/runbooks/triage-4xx.md.
     private static readonly string[] KnownAttackPathSubstrings =
     [
         // Language/runtime fingerprinting
