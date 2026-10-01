@@ -272,7 +272,7 @@ JSON cache are both cleared on startup.
 
 This is a separate, source-controlled snapshot of `DanceStatsInstance` (same JSON shape as the
 runtime cache) used when the app starts with **no** runtime cache and **no** database — see
-[service-resilience-plan.md](../infrastructure/service-resilience-plan.md). It is not regenerated automatically,
+[service-resilience](../infrastructure/service-resilience.md#degraded-behavior). It is not regenerated automatically,
 so a new dance is missing from it until someone exports a fresh snapshot. Left stale, the new
 dance won't appear in this cold-start scenario, and `stats.FromName(dance)` in
 `DanceController.Index()` will 404 on its detail page — even though the runtime cache is fine.

@@ -24,7 +24,7 @@ Music4Dance implements a hybrid usage tracking system that captures page view an
 
 **Related Documents:**
 
-- [Azure Front Door Implementation](../infrastructure/front-door-implementation.md) - CDN caching architecture
+- [Azure Front Door caching plan](../plans/front-door-caching.md) - CDN caching (not deployed)
 - [Bot and Abuse Defense](../security/bot-and-abuse-defense.md) - Rate limiting, random delays, crawler handling
 - [Testing Patterns](../dev-testing/testing-patterns.md) - Test infrastructure and patterns
 
@@ -652,7 +652,7 @@ cookie/token-mismatch variant). That rules out a per-request encoding/parsing bu
 structural cookie-lifetime problem, and also rules out the CDN-cache-replay theory floated
 earlier: **Azure Front Door was never actually deployed** (`az resource list` against the
 subscription turns up no `Microsoft.Cdn`/`Microsoft.Cdn/profiles` resource at all — see
-[front-door-implementation](../infrastructure/front-door-implementation.md), where Phase 2 "Front Door Deployment" is still marked ⏸️ BLOCKED;
+[plans/front-door-caching](../plans/front-door-caching.md), where Phase 2 "Front Door Deployment" has not started;
 only Phase 1, the origin's own `Cache-Control` middleware, ever shipped). So there's no shared CDN
 cache serving one visitor's token/cookie pair to another.
 
