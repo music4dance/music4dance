@@ -1,8 +1,26 @@
-# Email Notification Configuration Guide
+# Configure Service-Failure Email Alerts
+
+**Type:** Runbook
+**Status:** Current
+**Last verified:** 2026-10-01
+
+## When to use
+
+Turning on, or checking, the admin emails that `ServiceHealthNotifier` sends when a dependency
+is unavailable. For how the notifications behave (one email per incident, none on recovery), see
+[service-resilience § Admin notifications](../infrastructure/service-resilience.md#admin-notifications).
+
+> **Known gap:** today the notifier is attached only when startup itself reports a failure. After
+> a clean startup, a later outage sends **no** email. See
+> [service-resilience § Known issues](../infrastructure/service-resilience.md#known-issues).
+> Until that's fixed, these settings effectively give you "startup failure" alerts.
 
 ## What You Need to Configure
 
-To receive email notifications when services fail, you need to configure the Azure Communication Services connection string in your configuration.
+Two things: the Azure Communication Services connection string (the same one used for account
+email), and the `ServiceHealth:AdminNotifications` settings. The settings are `Enabled`,
+`Recipients`, `IncludeStackTrace` and `SenderAddress` (default `donotreply@music4dance.net`).
+`Enabled` defaults to `false`.
 
 ## Option 1: Local Testing with User Secrets (Recommended for Development)
 
@@ -55,7 +73,8 @@ endpoint=https://your-resource-name.communication.azure.com/;accesskey=abcd1234.
 
 ## Configuration Structure
 
-The appsettings.json already has placeholder configuration:
+`appsettings.json` does **not** include an `AdminNotifications` section, so notifications are off
+unless one of the sources above sets them. The full shape is:
 
 ```json
 {
@@ -74,15 +93,18 @@ The appsettings.json already has placeholder configuration:
 }
 ```
 
-Replace `YOUR_ACCESS_KEY_HERE` with your actual connection string, or use one of the secure methods above.
+Never put a real access key in `appsettings.json`. Use one of the methods above.
 
 ## Testing Email Notifications
 
-1. Configure the connection string using one of the methods above
-2. Update the recipient email address to your email
-3. Start the application
-4. Break a service (like you did with the database)
-5. Check your email inbox (and spam folder) for the notification
+1. Configure the connection string and settings using user secrets (Option 1), with your own
+   address as the recipient.
+2. Break a dependency **before** starting, so startup reports a failure. For example, point
+   `ConnectionStrings:DanceMusicContextConnection` at a server that doesn't exist. The migration
+   fails and `Database` is marked unavailable.
+3. Start the application. The console should show the startup report with a `✗` line.
+4. Check your inbox (and spam folder) for the "Startup Failures" email.
+5. Restore the setting.
 
 The email will include:
 
@@ -100,18 +122,12 @@ Check the console output for:
 
 - `Service health email notifications enabled for 1 recipients` (means config loaded correctly)
 - `Service failure notification sent to [email] for [ServiceName]` (means email was sent)
-- `WARNING: Service health notifications enabled but no email connection string configured` (means connection string missing)
+- `✗ EmailService: Unavailable` in the startup report, and `Email service is unavailable - message to ... was not sent` warnings (means the connection string is missing, so the no-op `NullEmailSender` is in use)
 - `Failed to send service failure notification` (means email sending failed - check connection string)
 
-**Want to test without breaking services?**
-
-You can temporarily modify `ServiceHealthManager.cs` to mark a service as unavailable:
-
-```csharp
-serviceHealth.MarkUnavailable("TestService", "This is a test failure");
-```
-
-Then restart the application.
+**Want to test without breaking a real dependency?** Temporarily add
+`serviceHealth.MarkUnavailable("TestService", "This is a test failure");` right after the
+`ServiceHealthManager` is created in `M4dApplicationExtensions`, run once, then revert it.
 
 ## Security Note
 
