@@ -15,7 +15,7 @@ Related: [artist-pages.md](artist-pages.md),
 [song-internal-format.md](song-internal-format.md),
 [search-index-versioning.md](../search/search-index-versioning.md),
 [playwright-e2e-testing.md](../dev-testing/playwright-e2e-testing.md),
-[meta-crawler-mitigation.md](../security/meta-crawler-mitigation.md).
+[bot-and-abuse-defense.md](../security/bot-and-abuse-defense.md).
 
 ---
 
@@ -678,6 +678,6 @@ it on someone else's next run.
   server-side import paths (`Song.CreateFromTrack` for playlist/bulk import doesn't record service
   artist lists — the save hook still covers title `feat.` for those).
 - **Crawler rules have not been reviewed** against the new URL fan-out
-  ([meta-crawler-mitigation.md](../security/meta-crawler-mitigation.md)).
+  ([bot-and-abuse-defense.md](../security/bot-and-abuse-defense.md)).
 - **A real artist entity** — ids, bios, images, MusicBrainz/Spotify links — remains possible: the
   `Artists` strings become the join key, and `ArtistKey` the lookup.
