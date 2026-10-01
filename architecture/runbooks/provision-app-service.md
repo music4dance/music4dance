@@ -1,7 +1,13 @@
-# Azure App Service Setup with Managed Identity Authentication
+# Provision a New App Service Instance
 
-**Last Updated**: January 2, 2026
-**Applies to**: music4dance.net ASP.NET Core application on Azure Linux App Service
+**Type:** Runbook
+**Status:** Current
+**Last verified:** 2026-10-01 (structure and links; the portal steps were last walked end to end in January 2026)
+**Applies to:** music4dance.net on Azure Linux App Service, with managed identity for every Azure service
+
+For *why* things are set up this way (environments, identity model, startup sequence, health
+checks), see [hosting-and-identity](../infrastructure/hosting-and-identity.md). This runbook is
+the *how*.
 
 ## Overview
 
@@ -196,39 +202,12 @@ Repeat for **each role** on **each Search service** (typically 2 services × 2 r
 
 **Verify**: After creation, you should see the app name in the Access policies list with "Get, List" permissions for Secrets.
 
-#### Future Migration to RBAC (Recommended)
+#### Future Migration to RBAC
 
-**Why RBAC is Better**:
-
-- Unified permission model across all Azure resources
-- Better audit trail via Activity Log
-- Supports Azure AD groups (easier bulk management)
-- Granular permissions (RBAC has more roles)
-- Integrates with Azure Policy for governance
-
-**Migration Steps** (when ready):
-
-1. **Enable RBAC on Key Vault** (requires Owner permission):
-
-   ```bash
-   az keyvault update --name music4dance --enable-rbac-authorization true
-   ```
-
-2. **Grant RBAC roles to all managed identities**:
-
-   ```bash
-   # For each app service (m4d-test, msc4dnc, etc.)
-   az role assignment create \
-     --assignee <managed-identity-principal-id> \
-     --role "Key Vault Secrets User" \
-     --scope "/subscriptions/35a37095-adba-4229-a691-e55bf38ecf36/resourceGroups/m4d-Web/providers/Microsoft.KeyVault/vaults/music4dance"
-   ```
-
-3. **Test each app** to ensure Key Vault access still works
-
-4. **Clean up old Access Policies** (Settings → Access policies → Delete all)
-
-**Note**: Once RBAC is enabled, all existing Access Policies are ignored. Plan the migration carefully to avoid downtime.
+Not started (verified 2026-10-01). See
+[plans/key-vault-rbac-migration](../plans/key-vault-rbac-migration.md). Until that migration
+happens, grant access with the access policy above. RBAC role assignments on this vault have no
+effect.
 
 ### 2.4 Azure SQL Server - Verify Azure AD Admin (One-time)
 
@@ -785,7 +764,7 @@ If your application has a service health endpoint (e.g., `/admin/health` or inte
 
 **Checks**:
 
-1. ✅ SQL user created with correct Object ID? → [Step 2.6](#26-azure-sql-database---create-sql-user-for-managed-identity)
+1. ✅ SQL user created with correct Object ID? → [Step 2.6](#26-azure-sql-database---configure-service-connector-recommended)
    - Run verification query:
      ```sql
      SELECT name, CAST(sid AS uniqueidentifier) AS ObjectId
@@ -793,7 +772,7 @@ If your application has a service health endpoint (e.g., `/admin/health` or inte
      WHERE name = 'm4d-<environment>' AND type_desc = 'EXTERNAL_USER';
      ```
    - ObjectId must match the Object ID from step 1.2
-2. ✅ Connection string format correct? → [Step 3.1](#31-add-sql-connection-string-managed-identity)
+2. ✅ Connection string format correct? → [Step 3.1](#31-verify-sql-connection-string)
    - Must include `Authentication=ActiveDirectoryManagedIdentity`
    - Must NOT include `User ID` or `Password`
 3. ✅ Firewall allows Azure services? → [Step 2.5](#25-azure-sql-server---verify-networking)
@@ -1005,7 +984,18 @@ When troubleshooting or comparing environments, verify:
 6. ✅ No API keys or connection strings for App Config/Search in settings
 7. ✅ Application Insights connected and logging
 
-## Performance Optimization for Startup
+## Startup Performance and Health Check
+
+How startup works (the trimmed credential chain, deferred App Configuration connect,
+synchronous migrations, and `/health/startup` vs `/health/ready`) is described in
+[hosting-and-identity § Startup sequence](../infrastructure/hosting-and-identity.md#startup-sequence)
+and [§ Health checks](../infrastructure/hosting-and-identity.md#health-checks). Two operational
+points for a new instance:
+
+- **Health check path:** the deploy pipeline sets it to `/health/ready` on every run. If you
+  created the instance outside the pipeline, or that step failed, set it by hand: Portal → App
+  Service → Health check → Path `/health/ready`. Changing the path restarts the app. Never use
+  `/health/startup`.
 
 ### Certificate Update Timeout
 
@@ -1018,67 +1008,6 @@ Azure App Service on Linux automatically updates certificates on startup when `W
 3. Save and restart
 
 **When to disable**: If the application doesn't use client certificates for authentication or doesn't connect to services requiring custom CA certificates.
-
-### Optimized Credential Chain
-
-The application uses an optimized `DefaultAzureCredential` chain that excludes slower credential types:
-
-- ❌ Visual Studio Credential
-- ❌ VS Code Credential
-- ❌ Azure CLI Credential
-- ❌ Azure PowerShell Credential
-- ❌ Interactive Browser Credential
-- ✅ Managed Identity Credential (fast, used in Azure)
-- ✅ Environment Credential (fallback)
-
-This reduces credential acquisition time from ~17s to ~2-3s.
-
-### Health Check Endpoints
-
-The application exposes two health endpoints, and they serve different purposes:
-
-- **`/health/startup`** - responds `200 healthy` immediately once the process is listening, regardless of whether the database or other services have finished initializing. Useful for confirming the container itself booted, but do **not** point Azure's Health check at this - it will report healthy even while the database is mid-migration or unavailable, which lets real traffic reach the app before it can actually serve requests (this caused a production incident: unhandled exceptions from early requests hitting a not-ready database, compounded by a separate .NET issue where formatting those exceptions for the console logger throws a second exception - see the Change Log entry below).
-- **`/health/ready`** - reflects live Database health via `ServiceHealthManager`. Returns `503` while the database is unavailable (startup migration in progress, or a later outage) and `200 ready` otherwise.
-
-**Azure health probe configuration**:
-
-- Set health check path to `/health/ready`
-- **Automatically configured by the pipeline** - the `Configure health check path` step in `azure-pipelines.yml` sets this on every deploy. No manual configuration needed.
-- To set manually (e.g., for a new instance created outside the pipeline, or if the pipeline step fails): Portal → App Service → Health check → Path: `/health/ready`
-- **Changing the Health check path restarts the app.** The pipeline step re-applies the same path on every deploy, but deploys already restart the app anyway, so this shouldn't add a visible extra restart in practice.
-
-#### What Happens When the Health Check Fails
-
-Azure pings the Health check path every 1 minute. After `WEBSITE_HEALTHCHECK_MAXPINGFAILURES` consecutive failures (app setting, allowed range 2-10, **default 10** - i.e. ~10 minutes of continuous failure by default), the instance is marked unhealthy.
-
-- **Multi-instance plan**: the unhealthy instance is pulled out of load-balancer rotation (stops receiving traffic) and continues to be pinged; it's added back automatically once it responds healthy again.
-- **Single-instance plan - which is what `m4d-test` and `msc4dnc` currently run (cost-driven; see below)**: Azure does **not** pull the instance from rotation, since that would take the entire site down - it keeps serving traffic while unhealthy. The only automatic recovery is a forced worker replacement after **one continuous hour** of failed pings.
-
-**Why single instance**: no SLA is currently offered and the paid subscriber base is small, so the cost of a second instance for load-balanced health-check protection isn't justified yet. The 1-hour auto-replace is still a meaningful improvement over the pre-`/health/ready` state, which had no automatic recovery at all and required a manual restart (see Change Log). Revisit if the paid subscriber base or SLA commitments grow enough to justify scaling out.
-
-### Deferred Service Initialization
-
-The application uses a "fast startup" mode to minimize time to first health check response:
-
-**Deferred Services**:
-
-- **App Configuration**: Registered but connection deferred - uses local appsettings.json until middleware loads remote config on first request
-- **Search clients**: Registered but connections are lazy-loaded only when first accessed
-- **Database migrations**: Run synchronously in `Program.cs` before `app.Run()` is called - Kestrel does not start accepting connections until the migration attempt completes (or fails gracefully and marks `Database` unavailable via `ServiceHealthManager`). This is intentionally blocking so the DB schema exists before any hosted service runs (see comment at the migration call site). It is **not** deferred to a background service - `StartupInitializationService` only handles App Configuration refresh, not migrations.
-- **OAuth providers**: Credentials validated at startup, but authentication handlers lazy-load on first use
-
-**Fast Startup Flow**:
-
-1. Create optimized `DefaultAzureCredential` (excludes slow credential types)
-2. Register services without synchronous network connections
-3. Call `builder.Build()` (typically < 5 seconds)
-4. Map `/health/startup` endpoint immediately
-5. Start accepting requests (Azure health probe passes)
-6. Background services initialize Azure connections asynchronously
-
-This allows Azure health probes to pass quickly (typically < 10 seconds) instead of waiting for all Azure service connections to complete (60+ seconds). The application is designed to accept requests even if some services are unavailable (resilience pattern).
-
-**Background Initialization**: `StartupInitializationService` hosted service performs any post-startup validation tasks asynchronously without blocking the request pipeline.
 
 ## Local Development: Access Production Database via Azure AD
 
@@ -1162,14 +1091,16 @@ Simply use any other launch profile (e.g., `m4d-vite`, `m4d-build`). The product
 
 ## Related Documentation
 
-- [Managed Identity Self-Contained Plan](managed-identity-self-contained-plan.md) - Overall migration strategy and troubleshooting log
-- [Self-Contained Deployment Guide](deployment.md) - General deployment documentation
-- [GitHub Copilot Instructions](../../.github/copilot-instructions.md) - Project-specific development guidelines
+- [hosting-and-identity](../infrastructure/hosting-and-identity.md): environments, identity model, startup, health checks
+- [deploy](deploy.md): running the deployment pipeline
+- [service-resilience](../infrastructure/service-resilience.md): what the app does when a service in this guide is misconfigured
+- [plans/key-vault-rbac-migration](../plans/key-vault-rbac-migration.md)
 
 ## Change Log
 
 | Date       | Change                                                 | Author                                               |
 | ---------- | ------------------------------------------------------ | ---------------------------------------------------- |
+| 2026-10-01 | Moved to `runbooks/`; architecture sections replaced by links to `hosting-and-identity`; RBAC steps moved to a plan | Docs reorganization |
 | 2026-08-11 | Added `/health/ready`; corrected health check + migration-timing guidance | Fixed incident where `/health/startup` let traffic reach an unready DB; documented single-instance failure behavior and fixed stale "migrations run in background" claim |
 | 2026-04-08 | Local dev prod DB: user secrets + auto migration guard | PROD_DB flag, no connection string in source control |
 | 2026-01-06 | Added performance optimization section                 | Startup timeout troubleshooting                      |

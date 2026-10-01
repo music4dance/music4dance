@@ -1099,7 +1099,7 @@ specific demands them.
 - [user-name-visibility.md](../users-admin/user-name-visibility.md) — pseudo/batch user semantics
 - [unconfirmed-dance-votes.md](../songs/unconfirmed-dance-votes.md) — `dgsnure`, the ±1 cap
 - [search-index-versioning.md](../search/search-index-versioning.md) — index naming and versioning
-- [SELF_CONTAINED_DEPLOYMENT.md](../infrastructure/deployment.md) — deployment modes
+- [hosting-and-identity](../infrastructure/hosting-and-identity.md) — deployment modes
 - [admin-pages.md](../users-admin/admin-pages.md) — admin surface and role gating
 - [playwright-e2e-testing.md](playwright-e2e-testing.md) — browser-driven e2e against
   `m4d.Sandbox`, unlocked by L1/L1f above
