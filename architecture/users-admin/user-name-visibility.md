@@ -1,5 +1,10 @@
 # User Name Visibility
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4d/Controllers/UsersController.cs`, `m4d/Utilities/UserMapper.cs`
+
 ## Overview
 
 The site shows user attribution in two places: the **profile page**
@@ -198,7 +203,7 @@ target's own privacy setting is moot. (Whether a logged-in visitor should
 be able to see a private _other_ user's song lists, given that the search
 backend is necessarily called with their real username via
 `Deanonymize`, is a question this document doesn't resolve — see
-[Open questions](#open-questions).)
+[Open questions](#open-questions--resolved).)
 
 ### Performance side-effect
 

@@ -286,7 +286,7 @@ Tempo=160.0
 
 The `|P` suffix is what distinguishes algorithmic edits from human ones. Edits re-attributed from
 a personal account to a bot identity via `AdminModifyBySearch` use `"replace": "batch|P"` in the
-`SongModifier` JSON (see [admin-search-bulk-modify.md](../users-admin/admin-search-bulk-modify.md)).
+`SongModifier` JSON (see [bulk-operations.md](../users-admin/bulk-operations.md#admin-search-and-modify-by-search)).
 
 ### Client — `ModifiedRecord.isPseudo`
 
