@@ -34,7 +34,7 @@ is handled by the `music4dance-wp-handoff` skill.
    (title and `Reference`; there's no description or date). `blog/...` references are rewritten to
    `https://music4dance.blog/...` at render time.
 4. **Ship it.** Either:
-   - **Normal path:** commit and deploy (see the deploy runbook, `runbooks/deploy.md`). The build copies
+   - **Normal path:** commit and deploy (see [deploy](deploy.md)). The build copies
      `ClientApp/src/assets/content/*` into `wwwroot/content/`.
    - **Fast path (no deploy):** upload the edited `blogmap.txt` / `helpmap.txt` over the live
      copies in the deployed site's `wwwroot/content/` folder. Confirm the exact path in Kudu before
