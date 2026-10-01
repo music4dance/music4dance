@@ -1,5 +1,10 @@
 # SongSearch: Search Orchestration Service
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4d/Services/SongSearch.cs`
+
 ## Overview
 
 `SongSearch` (`m4d/Services/SongSearch.cs`) is the layer between `SongController` and `SongIndex`

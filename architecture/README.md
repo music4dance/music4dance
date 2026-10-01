@@ -38,8 +38,8 @@ procedural, to become a runbook.
 | [song-search-service](search/song-search-service.md) | Ref | `SongSearch`: premium gating, user queries, vote/edited-by post-filters, logging |
 | [song-search-results](search/song-search-results.md) | Ref | `SongController` list-returning actions and the results pipeline |
 | [saved-searches](search/saved-searches.md) | Ref | Search logging, "My Searches", anonymize/merge |
-| [search-index-versioning](search/search-index-versioning.md) | Ref + Guide | Index schema versions; contains the **production migration runbook** |
-| [index-backup-streaming](search/index-backup-streaming.md) | Done plan | Streaming index backup with key-set pagination |
+| [search-index-versioning](search/search-index-versioning.md) | Ref | Index schema versions (`CodeVersion` / `ConfigVersion`, `SongIndexNext`), current index state, launch profiles, known cleanup debt |
+| [index-backup-streaming](search/index-backup-streaming.md) | Ref | Unlimited full-index streaming (composite key-set pagination) for backups, clones, migrations and reloads |
 
 ## Music services and playlists
 
@@ -119,7 +119,7 @@ consolidated.
 
 | Task | Where it is today |
 | --- | --- |
-| Roll out a breaking search-index schema change | [search-index-versioning § Production Migration Runbook](search/search-index-versioning.md#production-migration-runbook) |
+| Roll out a breaking search-index schema change | [runbooks/search-index-breaking-migration](runbooks/search-index-breaking-migration.md) |
 | Maintain SpotifyFromSearch playlists manually | [spotify-playlist-automation § Runbook](music-services/spotify-playlist-automation.md#runbook-manual-spotifyfromsearch-maintenance) |
 | Backfill / rebuild the artist index | [individual-artists § 11 Operations](songs/individual-artists.md#11-operations) |
 | Triage the production 4xx export | `analyze-4xx` skill + [distributed-attack-mitigation](security/distributed-attack-mitigation.md) triage log |
