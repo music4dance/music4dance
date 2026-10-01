@@ -96,11 +96,8 @@ procedural, to become a runbook.
 
 | Doc | Kind | What it covers |
 | --- | --- | --- |
-| [client-side-usage-logging](observability/client-side-usage-logging.md) | Ref | Client-side page-view tracking, feature flags, cache-control interplay |
-| [usage-log-analysis-plan](observability/usage-log-analysis-plan.md) | Done plan | UsageLog analysis pages, bot detection, indexes |
-| [application-log-persistence-plan](observability/application-log-persistence-plan.md) | Ref + Plan | Filesystem log persistence (done); heavier options (proposed) |
-| [memory-diagnostics-plan](observability/memory-diagnostics-plan.md) | Ref + Plan | GC diagnostics (Phase 1 done); snapshots/advanced tooling (proposed) |
-| [server-side-testing-analysis](observability/server-side-testing-analysis.md) | Done plan | Integration tests for `UsageLogApiController` |
+| [usage-tracking](observability/usage-tracking.md) | Ref | Page-view `UsageLog`: server vs client-side recording, batch endpoint, admin analysis pages, the antiforgery 400 root cause |
+| [logging-and-diagnostics](observability/logging-and-diagnostics.md) | Ref | Where app logs go (filesystem Warning+), orphaned App Insights, GC snapshots, forced GC, memory dumps |
 
 ## Development and testing
 
@@ -126,6 +123,9 @@ consolidated.
 | Provision a new App Service instance | [azure-app-service-setup-managed-identity](infrastructure/azure-app-service-setup-managed-identity.md) |
 | Deploy (framework-dependent / self-contained) | [deployment](infrastructure/deployment.md) |
 | Configure service-failure email alerts | [email-notification-setup](infrastructure/email-notification-setup.md) |
+| Read production logs | [runbooks/read-production-logs](runbooks/read-production-logs.md) |
+| Capture memory diagnostics / dumps | [runbooks/capture-memory-diagnostics](runbooks/capture-memory-diagnostics.md) |
+| Analyze usage logs | [runbooks/analyze-usage-logs](runbooks/analyze-usage-logs.md) |
 | Set up GTM / GA4 engagement tracking | [gtm-tracking-guide](pages/gtm-tracking-guide.md) |
 | Link new blog posts / help articles | [blog-help-sitemap](pages/blog-help-sitemap.md) (+ `scripts/add-new-blog-posts.mjs`) |
 | Add a new dance type | [adding-a-new-dance](dev-testing/adding-a-new-dance.md) |
@@ -142,8 +142,8 @@ consolidated.
 | Distributed attack mitigation Phase 2 | Planning | [distributed-attack-mitigation](security/distributed-attack-mitigation.md) |
 | Contributor environments L2+ | Proposed | [contributor-test-environments](dev-testing/contributor-test-environments.md) |
 | Automate browser-driven Spotify playlist jobs | Proposed | [spotify-playlist-automation § Plan](music-services/spotify-playlist-automation.md#plan-automating-category-2) |
-| Application log persistence options 2–4 | Proposed | [application-log-persistence-plan](observability/application-log-persistence-plan.md) |
-| Memory diagnostics Phases 2–4 | Proposed | [memory-diagnostics-plan](observability/memory-diagnostics-plan.md) |
+| Durable log storage (Blob / Log Analytics / tuned App Insights) | Proposed | [plans/log-persistence-options](plans/log-persistence-options.md) |
+| Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
 | Dance family voting next steps | Proposed | [dance-family-voting § Next Steps](songs/dance-family-voting.md#next-steps) |
 
 ## Coverage gaps

@@ -402,7 +402,7 @@ public static class M4dApplicationExtensions
         // and can be replayed from the browser's own disk cache after the session cookie is
         // gone (browser restart, etc.), producing a token with no matching cookie. That's the
         // dominant failure mode behind the recurring, previously-silent 400s tracked in
-        // architecture/observability/client-side-usage-logging.md §10.1 and
+        // architecture/observability/usage-tracking.md (History) and
         // architecture/security/distributed-attack-mitigation.md's 4xx triage log - confirmed from
         // production logs: 20 of 24 sampled antiforgery failures were
         // "required antiforgery cookie ... is not present" with the request token present.
