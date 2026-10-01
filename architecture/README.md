@@ -68,9 +68,8 @@ procedural, to become a runbook.
 | --- | --- | --- |
 | [tempo-list-page](pages/tempo-list-page.md) | Ref | Dance Tempi page: client-side filtering, shareable URLs |
 | [tempo-counter-page](pages/tempo-counter-page.md) | Ref | Tempo Counter page: tap tempo, matching, shareable URLs |
-| [blog-help-sitemap](pages/blog-help-sitemap.md) | Ref + Guide | `blogmap.txt` and help links; how new posts get linked |
+| [blog-help-sitemap](pages/blog-help-sitemap.md) | Ref | `blogmap.txt` / `helpmap.txt` format, parsing (`SiteMapInfo`), where it's consumed, data history |
 | [visitor-engagement-monetization](pages/visitor-engagement-monetization.md) | Ref | Progressive engagement prompts for anonymous visitors and subscribers |
-| [gtm-tracking-guide](pages/gtm-tracking-guide.md) | Guide | Google Tag Manager / GA4 triggers for the engagement system |
 
 ## Security
 
@@ -126,8 +125,8 @@ consolidated.
 | Provision a new App Service instance | [azure-app-service-setup-managed-identity](infrastructure/azure-app-service-setup-managed-identity.md) |
 | Deploy (framework-dependent / self-contained) | [deployment](infrastructure/deployment.md) |
 | Configure service-failure email alerts | [email-notification-setup](infrastructure/email-notification-setup.md) |
-| Set up GTM / GA4 engagement tracking | [gtm-tracking-guide](pages/gtm-tracking-guide.md) |
-| Link new blog posts / help articles | [blog-help-sitemap](pages/blog-help-sitemap.md) (+ `scripts/add-new-blog-posts.mjs`) |
+| Set up GTM / GA4 engagement tracking | [runbooks/gtm-ga4-setup](runbooks/gtm-ga4-setup.md) |
+| Link new blog posts / help articles | [runbooks/link-new-blog-posts](runbooks/link-new-blog-posts.md) |
 | Add a new dance type | [adding-a-new-dance](dev-testing/adding-a-new-dance.md) |
 | Run tempo validation over the existing catalog | [tempo-validation-rules § Running Against the Existing Catalog](songs/tempo-validation-rules.md#running-against-the-existing-catalog) |
 | Set up a local contributor environment | [contributor-setup](dev-testing/contributor-setup.md) |
@@ -144,6 +143,7 @@ consolidated.
 | Automate browser-driven Spotify playlist jobs | Proposed | [spotify-playlist-automation § Plan](music-services/spotify-playlist-automation.md#plan-automating-category-2) |
 | Application log persistence options 2–4 | Proposed | [application-log-persistence-plan](observability/application-log-persistence-plan.md) |
 | Memory diagnostics Phases 2–4 | Proposed | [memory-diagnostics-plan](observability/memory-diagnostics-plan.md) |
+| Visitor engagement next steps (post-launch priorities, enhancements) | Proposed | [plans/visitor-engagement-next](plans/visitor-engagement-next.md) |
 | Dance family voting next steps | Proposed | [dance-family-voting § Next Steps](songs/dance-family-voting.md#next-steps) |
 
 ## Coverage gaps

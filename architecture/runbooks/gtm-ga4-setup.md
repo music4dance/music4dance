@@ -1,4 +1,12 @@
-# Google Tag Manager Tracking Guide - Engagement System
+# Set Up GTM / GA4 Tracking for the Engagement System
+
+**Type:** Runbook
+**Status:** Current
+**Last verified:** 2026-10-01 (moved; selectors not re-checked against the components)
+
+How to configure Google Tag Manager triggers and GA4 events using the `data-*` attributes that
+the engagement components emit. The system itself is described in
+[visitor-engagement-monetization](../pages/visitor-engagement-monetization.md).
 
 ## Overview
 
@@ -824,9 +832,3 @@ Once you have 1-2 weeks of solid data:
 [data-engagement-action="dismiss-click"]
 [data-engagement-action="collapse-click"]
 ```
-
----
-
-**Document Version:** 1.0
-**Last Updated:** March 11, 2026
-**Related:** `architecture/pages/visitor-engagement-monetization.md`

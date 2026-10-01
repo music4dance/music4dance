@@ -1,5 +1,11 @@
 # Blog / Help / Site Map linking
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4d/ViewModels/SiteMapInfo.cs`, `m4d/ClientApp/src/models/SiteMapInfo.ts`,
+`m4d/ClientApp/src/assets/content/blogmap.txt`, `helpmap.txt`, `scripts/add-new-blog-posts.mjs`
+
 Current-state reference for how blog posts (hosted on the separate WordPress site
 `music4dance.blog`) and help articles get linked into `www.music4dance.net`. This is a manual,
 hand-edited process today — this doc exists to make that process legible before any automation
@@ -62,42 +68,10 @@ changed.
 
 ## How a new post/article actually gets linked in today
 
-1. Write and publish the post on WordPress (`music4dance.blog`) or the article under
-   `music4dance.blog/music4dance-help/`.
-2. Manually add a new tab-indented row to `blogmap.txt` (or `helpmap.txt`), by hand, under the
-   right category/section:
-   - Copy the post title.
-   - Copy the post's URL slug into the `Reference` column (`blog/<slug>/` — the loader rewrites
-     `blog/...` to `https://music4dance.blog/...` at render time, see `MakeFullPath` in both
-     [`SiteMapInfo.cs`](../../m4d/ViewModels/SiteMapInfo.cs) (server) and
-     [`SiteMapInfo.ts`](../../m4d/ClientApp/src/models/SiteMapInfo.ts) (client) — these two are
-     independent, hand-kept-in-sync implementations of the same rewrite rule).
-   - Copy/write an excerpt into `Description` (blog rows only).
-   - Copy the post's publish date (from WordPress, or from the
-     [WordPress.com REST API](https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/posts/))
-     into `Date` as `YYYY-MM-DD` (blog rows only) — see
-     [Migrating `Order` to `Date`](#migrating-order-to-date-2026-07-21) for a script that automates
-     this by slug lookup instead of doing it by hand.
-   - Leave `OneTime` blank, or put any text in it, to suppress the post from the home page
-     rotation.
-3. Get the edited file onto the server, via either path:
-   - **Normal path**: commit the change, build/deploy as usual — the `assets` MSBuild target
-     copies `ClientApp/src/assets/content/*` into `wwwroot/content/` as part of the build.
-   - **Fast path (skip the full build/deploy)**: FTP/FTPS the edited `blogmap.txt` and/or
-     `helpmap.txt` directly to the App Service, overwriting the file(s) at
-     `/site/wwwroot/m4d/wwwroot/content/` (using the site's FTPS deployment credentials — see
-     [`SELF_CONTAINED_DEPLOYMENT.md`](../infrastructure/deployment.md) for the app's layout on the App
-     Service; the startup command runs `/home/site/wwwroot/m4d`, and `wwwroot/content/` sits
-     alongside it). This bypasses source control entirely, so **remember to also commit the same
-     change to `ClientApp/src/assets/content/` in the repo** — otherwise the next normal deploy
-     silently overwrites the live file with the stale, un-updated one from source.
-4. In production, the parsed tree is cached in a static field (`SiteMapInfo.Categories`, see
-   `SiteMapInfo.cs`) after first load, so either path above requires forcing a reload: an admin
-   hits **Admin ▸ Initialization Tasks ▸ "Update Sitemap"**
-   (`AdminController.UpdateSitemap`, calls `SiteMapInfo.ReloadCategories`) to force a re-read of the
-   file from disk without restarting the app. This is what makes the FTP fast path useful — a typo
-   fix or new post can go live without a full build/deploy cycle, at the cost of the repo/server
-   drift risk noted above.
+This is a manual, file-edit workflow, partly automated for blog posts by
+[`scripts/add-new-blog-posts.mjs`](../../scripts/add-new-blog-posts.mjs). The step-by-step procedure,
+including the deploy-free fast path and the required **Update Sitemap** reload, is
+[runbooks/link-new-blog-posts](../runbooks/link-new-blog-posts.md).
 
 ## Where the parsed data is consumed
 
@@ -240,7 +214,7 @@ not the full entry, and stays as-is.
 [`scripts/add-new-blog-posts.mjs`](../../scripts/add-new-blog-posts.mjs) is a step toward closing the
 gap between "I published a post on WordPress" and "it shows up in `blogmap.txt`". It does not fully
 automate the workflow in
-[How a new post/article actually gets linked in today](#how-a-new-postarticle-actually-gets-linked-in-today)
+[runbooks/link-new-blog-posts](../runbooks/link-new-blog-posts.md)
 — it still leaves the `Description` as a rough, unedited draft for hand-tweaking before it's
 really "live" in spirit — but it removes the copy/paste/lookup steps.
 
