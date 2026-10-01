@@ -1,5 +1,5 @@
 {
-  "description": "Shared replay cases for the Artists song property. Run by m4dModels.Tests/ArtistsPropertyTests.cs and src/models/__tests__/SongArtists.test.ts so the C# and TypeScript replays can't drift. Each 'log' entry is one property; header lines ('.Create=', 'User=...', 'Time=...') start blocks. See architecture/artist-index-plan.md section 4.",
+  "description": "Shared replay cases for the Artists song property. Run by m4dModels.Tests/ArtistsPropertyTests.cs and src/models/__tests__/SongArtists.test.ts so the C# and TypeScript replays can't drift. Each 'log' entry is one property; header lines ('.Create=', 'User=...', 'Time=...') start blocks. See architecture/songs/individual-artists.md section 2.",
   "cases": [
     {
       "name": "absent property falls back to the credit",

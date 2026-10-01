@@ -5,8 +5,8 @@ import { credentialsFor, login, type SandboxTier } from "../fixtures/auth";
 // MainMenu.vue renders `{{ context.userName }}` when MenuContext.userName is set (and a
 // "Login" nav item otherwise), and gates a whole "Admin" nav dropdown (#admin-menu) on
 // `context.isAdmin`. Both come from the server-provided MenuContext, so this is a real check
-// that the seeded accounts' roles (architecture/contributor-test-environments.md, L1d) actually
-// gate the UI, not just that the accounts exist.
+// that the seeded accounts' roles (architecture/dev-testing/contributor-test-environments.md, L1d)
+// actually gate the UI, not just that the accounts exist.
 const tiers: SandboxTier[] = ["admin", "editor", "tester"];
 
 test.describe("auth", () => {

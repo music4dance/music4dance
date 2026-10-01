@@ -40,7 +40,7 @@ public class SuggestionController(
     /// <summary>
     /// Type-ahead for the artist index search box at /song/artists. Answers from the in-memory
     /// <see cref="ArtistIndex"/> snapshot rather than an Azure suggester, so suggestions are exactly
-    /// the entries that page can show - see architecture/individual-artists.md §9.4.
+    /// the entries that page can show - see architecture/songs/individual-artists.md §9.4.
     /// </summary>
     /// <remarks>
     /// The query is a query-string parameter, not a path segment as on <see cref="Get"/>: artist
@@ -88,9 +88,9 @@ public class SuggestionController(
     // logged with enough detail to diagnose it - these endpoints fire on every keystroke in
     // SuggestionEntry.vue and ArtistSuggest.vue, and are the single largest contributor to the
     // recurring, unexplained 400s tracked by Http4xxTracker (the built-in attribute fails
-    // silently, no log at any level). See architecture/client-side-usage-logging.md §10.1 and
-    // architecture/distributed-attack-mitigation.md's triage log. Returns null when the request
-    // is good, the rejection to return otherwise.
+    // silently, no log at any level). See architecture/observability/client-side-usage-logging.md
+    // §10.1 and architecture/security/distributed-attack-mitigation.md's triage log. Returns null
+    // when the request is good, the rejection to return otherwise.
     private async Task<IActionResult> ValidateAntiforgery(string lookup)
     {
         try

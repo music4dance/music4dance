@@ -12,7 +12,8 @@ namespace SelfCrawler;
 
 /// <summary>
 /// Manual/live tests for the Spotify refresh-token expiration recovery path
-/// (see architecture/music-service-api-calls.md § Spotify Refresh-Token Expiration Handling).
+/// (see architecture/music-services/music-service-api-calls.md § Spotify Refresh-Token
+/// Expiration Handling).
 ///
 /// These hit the real Spotify token endpoint (https://accounts.spotify.com/api/token) with
 /// deliberately invalid credentials/refresh tokens. Spotify rejects the request the same way

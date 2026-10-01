@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test";
 
-// The three seeded privilege tiers from architecture/contributor-test-environments.md (L1d):
-// admin (canTag, canEdit, showDiagnostics, dbAdmin), editor (canEdit only), and tester (no
+// The three seeded privilege tiers from architecture/dev-testing/contributor-test-environments.md
+// (L1d): admin (canTag, canEdit, showDiagnostics, dbAdmin), editor (canEdit only), and tester (no
 // roles at all - an ordinary authenticated user).
 export type SandboxTier = "admin" | "editor" | "tester";
 

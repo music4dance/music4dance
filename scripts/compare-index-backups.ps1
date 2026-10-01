@@ -10,7 +10,7 @@
     A difference is classified as "expected" when the OLD line's properties are exactly the NEW
     line's properties with a stray "SongId=<guid><TAB>" glued onto the front -- the legacy
     AdminEdit(string, ...) bug that SongPropertyCompression.Decompress strips on read (see
-    architecture/song-internal-format.md S11.1). Anything else is reported as unexplained.
+    architecture/songs/song-internal-format.md S11.1). Anything else is reported as unexplained.
 
 .PARAMETER OldPath
     Path to the earlier backup file.

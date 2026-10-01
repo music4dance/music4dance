@@ -12,10 +12,10 @@ namespace m4d.Services.ServiceHealth;
 /// Register, and PaymentController all constructor-inject this interface unconditionally, so
 /// without a fallback registration here, every environment without reCAPTCHA keys - not just
 /// the m4d.Sandbox host, but the plain "run with nothing configured" L0 path too (see
-/// architecture/contributor-setup.md) - gets a DI activation failure (HTTP 500) on those pages
-/// instead of the captcha step simply being skipped. Fails open (Success = true): captcha is a
-/// bot-defense measure, not a security gate, and FeatureManagement:Captcha already controls
-/// whether verification is attempted in the first place.
+/// architecture/dev-testing/contributor-setup.md) - gets a DI activation failure (HTTP 500) on
+/// those pages instead of the captcha step simply being skipped. Fails open (Success = true):
+/// captcha is a bot-defense measure, not a security gate, and FeatureManagement:Captcha already
+/// controls whether verification is attempted in the first place.
 /// </summary>
 public class NullReCaptchaSiteVerify : IreCAPTCHASiteVerifyV2
 {

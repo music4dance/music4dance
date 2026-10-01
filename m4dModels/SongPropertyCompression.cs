@@ -10,8 +10,8 @@ namespace m4dModels;
 // stored fields across documents, which exploits cross-record redundancy (shared field names,
 // shared tag vocab, the common batch-import literals) far better than per-record compression can,
 // so compressing every record was a net storage *regression* — see
-// architecture/song-internal-format.md §11 for the measured numbers that motivated gating this on
-// record size instead.
+// architecture/songs/song-internal-format.md §11 for the measured numbers that motivated gating
+// this on record size instead.
 //
 // Values that were left as plain text (either because compression is disabled, or because they're
 // under the size threshold) start with .Create=/.Edit=/.Merge= (the property log's action markers)

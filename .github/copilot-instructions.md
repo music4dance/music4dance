@@ -20,16 +20,18 @@ The directory itself is tracked (via `local/.gitkeep`) but its contents are giti
 
 **Architecture Documents:**
 
-- **ALWAYS place architecture documents in the `architecture/` directory**
+- **ALWAYS place architecture documents in `architecture/`**, in the matching area folder;
+  runbooks go in `architecture/runbooks/`, unimplemented proposals in `architecture/plans/`
+- **Start from `architecture/README.md`** (the index) and follow `architecture/CONVENTIONS.md`
+  (doc types, header block, plan lifecycle, naming and links)
 - **Prefer updating existing documents** over creating new ones when the content is related
-- Keep the number of architecture documents minimal and well-organized
-- Consolidate related information (e.g., rate limiting + random delays = identity endpoint protection)
+- When a plan ships, fold it into the reference doc and delete the plan; don't keep completion reports
+- Update the README index in the same PR as any doc add/move/delete
 - Use clear, descriptive names that cover the full scope (e.g., `identity-endpoint-protection.md` not `rate-limiting.md`)
 
 **Temporary Working Documents:**
 
-- Can be placed in root for active development/PR work
-- Should be moved to `architecture/` or deleted after completion
+- Place them in `local/` (gitignored), not in the project root or `architecture/`
 - Examples: implementation guides, PR summaries, task lists
 
 ## Architecture
@@ -154,7 +156,7 @@ The directory itself is tracked (via `local/.gitkeep`) but its contents are giti
 
 ### Comprehensive Testing Documentation
 
-**Primary Reference:** See `architecture/testing-patterns.md` for complete testing guide including:
+**Primary Reference:** See `architecture/dev-testing/testing-patterns.md` for complete testing guide including:
 
 - Server-side integration testing patterns (DanceMusicTester)
 - Client-side testing patterns (Vitest/Vue)
@@ -297,7 +299,7 @@ const tagPart = parts[1]?.split(":"); // ❌ Don't do this
 
 ### Integration Testing Best Practices
 
-**Primary Documentation:** `architecture/testing-patterns.md`
+**Primary Documentation:** `architecture/dev-testing/testing-patterns.md`
 
 **Creating Songs for Tests**:
 
@@ -699,7 +701,7 @@ afterEach(() => {
 - [ ] Error handling
 - [ ] Cleanup/unmount
 
-**Full testing guide:** `architecture/testing-patterns.md`
+**Full testing guide:** `architecture/dev-testing/testing-patterns.md`
 
 ---
 

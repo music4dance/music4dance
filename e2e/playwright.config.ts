@@ -1,8 +1,9 @@
 import { defineConfig } from "@playwright/test";
 
 // Playwright drives m4d.Sandbox - the no-external-service local server described in
-// architecture/contributor-test-environments.md (L1) - not production or the shared m4d-test
-// deploy. See architecture/playwright-e2e-testing.md for the full environment write-up.
+// architecture/dev-testing/contributor-test-environments.md (L1) - not production or the shared
+// m4d-test deploy. See architecture/dev-testing/playwright-e2e-testing.md for the full
+// environment write-up.
 //
 // Before running: `cd ../m4d/ClientApp && yarn build` at least once, so wwwroot/vclient has
 // real bundles (m4d.Sandbox creates the directory on startup either way, but an empty one means

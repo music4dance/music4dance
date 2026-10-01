@@ -5,7 +5,7 @@ just a lightweight sign-off requirement described below, plus a working build.
 
 ## Getting your environment running
 
-See [architecture/contributor-setup.md](architecture/contributor-setup.md) for how to build,
+See [architecture/dev-testing/contributor-setup.md](architecture/dev-testing/contributor-setup.md) for how to build,
 configure, and run the app with **no production access, no third-party API keys, and no
 shared secrets** — either against your own empty local database, or against the fully
 self-contained `m4d.Sandbox` project that needs nothing installed at all.
@@ -76,7 +76,7 @@ Fork the repo and open a PR against `main`. There's no CI deploy step for forked
 run build + test only, so nothing you push touches production data, secrets, or infrastructure.
 For end-to-end validation against a real deployed instance, ask in the PR and it can be deployed
 to the test site on request — see
-[contributor-test-environments.md](architecture/contributor-test-environments.md) for the full
+[contributor-test-environments.md](architecture/dev-testing/contributor-test-environments.md) for the full
 menu of options and why fork-based PRs were chosen as the default.
 
 ## Code standards

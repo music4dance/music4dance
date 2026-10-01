@@ -1,9 +1,10 @@
 namespace m4dModels.Tests;
 
 // Exercises SongIndexLocal.Search(SongFilter, ...) - the Option A structured-query evaluation
-// added for the sandbox's song-list/browse UI (architecture/contributor-test-environments.md,
-// L1f). Calls the override directly rather than going through SongSearch, since SongSearch
-// needs a working ISearchServiceManager that DanceMusicTester.CreateService doesn't wire up.
+// added for the sandbox's song-list/browse UI
+// (architecture/dev-testing/contributor-test-environments.md, L1f). Calls the override directly
+// rather than going through SongSearch, since SongSearch needs a working ISearchServiceManager that
+// DanceMusicTester.CreateService doesn't wire up.
 [TestClass]
 public class SongIndexLocalSearchTests
 {

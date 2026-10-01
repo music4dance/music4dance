@@ -17,7 +17,7 @@ namespace m4dModels;
 /// Optional extensibility point for an ISearchServiceManager that wants SongIndex.Create to
 /// hand back a specific pre-built SongIndex instance instead of constructing a real Azure-bound
 /// one. Used by m4dModels.Sandbox's LocalSearchServiceManager - see
-/// architecture/contributor-test-environments.md.
+/// architecture/dev-testing/contributor-test-environments.md.
 /// </summary>
 public interface ISongIndexFactory
 {
@@ -63,9 +63,10 @@ public class SongIndex
     public static SongIndex Create(DanceMusicCoreService dms, string id = null, bool isNext = false)
     {
         // Opt-in escape hatch for hosts (e.g. the no-external-service m4d.Sandbox host, see
-        // architecture/contributor-test-environments.md) whose ISearchServiceManager wants to
-        // hand back a pre-built SongIndex instead of a real Azure-bound one. SearchServiceManager
-        // doesn't implement this, so production construction below is unchanged.
+        // architecture/dev-testing/contributor-test-environments.md) whose ISearchServiceManager
+        // wants to hand back a pre-built SongIndex instead of a real Azure-bound one.
+        // SearchServiceManager doesn't implement this, so production construction below is
+        // unchanged.
         if (dms.SearchService is ISongIndexFactory factory)
         {
             return factory.CreateSongIndex(dms, id, isNext);
@@ -1659,10 +1660,10 @@ public class SongIndex
 
     /// <summary>
     /// How many documents actually carry an Artists value, against the whole index. This is the
-    /// rollout's verification step (architecture/individual-artists.md §6.3): after a backfill every
-    /// song with a credit should have one, and a shortfall means documents were uploaded by an
-    /// instance whose schema cache still said the field was absent (the §7.4 trap). Returns nulls
-    /// when the field isn't there yet.
+    /// rollout's verification step (architecture/songs/individual-artists.md §6.3): after a
+    /// backfill every song with a credit should have one, and a shortfall means documents were
+    /// uploaded by an instance whose schema cache still said the field was absent (the §7.4 trap).
+    /// Returns nulls when the field isn't there yet.
     /// </summary>
     public virtual async Task<(long Total, long? WithArtists)> ArtistsCoverageAsync()
     {
@@ -1680,8 +1681,8 @@ public class SongIndex
     /// <summary>
     /// What this instance believes about the Artists field, and when it will look at the live
     /// schema again. For the admin display only: the rollout adds the field to the index and then
-    /// waits for every instance to notice (architecture/individual-artists.md §5.3), and this makes
-    /// that wait visible.
+    /// waits for every instance to notice (architecture/songs/individual-artists.md §5.3), and
+    /// this makes that wait visible.
     /// </summary>
     public virtual async Task<(bool Present, DateTime? RefreshesAt)> ArtistsFieldStatusAsync() =>
         (await HasArtistsFieldAsync(), Info.SchemaCacheExpiry(IsNext));
@@ -1939,7 +1940,8 @@ public class SongIndex
                     IsFacetable = false
                 },
                 // Added in place to existing indexes (AddMissingIndexFields) - code must tolerate
-                // its absence; see HasArtistsFieldAsync and architecture/individual-artists.md §5
+                // its absence; see HasArtistsFieldAsync and
+                // architecture/songs/individual-artists.md §5
                 new(
                     Song.ArtistsField, SearchFieldDataType.Collection(SearchFieldDataType.String))
                 {

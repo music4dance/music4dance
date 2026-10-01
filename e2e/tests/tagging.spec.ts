@@ -6,9 +6,9 @@ import { findSeededSong } from "../fixtures/songs";
 // Adds a tag on a seeded song via TagListEditor.vue, verifying it round-trips through the
 // song's tag list. Uses a fabricated tag name (via TagCategorySelector's add-a-new-tag
 // affordance) rather than an existing tags.json entry, so the test can't collide with a tag the
-// seeded song already carries - see architecture/playwright-e2e-testing.md's Tier 1 table. Per
-// CLAUDE.md, this indirectly guards that tag strings stay built via Tag.fromParts rather than
-// hand-constructed, since a manual-construction regression would show up here as a tag that
+// seeded song already carries - see architecture/dev-testing/playwright-e2e-testing.md's Tier 1
+// table. Per CLAUDE.md, this indirectly guards that tag strings stay built via Tag.fromParts rather
+// than hand-constructed, since a manual-construction regression would show up here as a tag that
 // silently fails to apply.
 //
 // Removal is a separate test below, deliberately - see its comment for why.

@@ -23,7 +23,7 @@ public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : Id
         options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault()?.ConnectionString;
 
     // Lets the no-external-service sandbox host (m4d.Sandbox, see
-    // architecture/contributor-test-environments.md) share an in-memory database across
+    // architecture/dev-testing/contributor-test-environments.md) share an in-memory database across
     // transient contexts the same way the real app shares a SQL Server connection string -
     // without this, playlist creation (PlayListController.Update) silently breaks under
     // UseInMemoryDatabase.

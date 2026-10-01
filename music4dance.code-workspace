@@ -164,7 +164,7 @@
         "type": "shell",
         "command": "dotnet",
         "args": ["run", "--project", "m4d.Sandbox"],
-        "detail": "The no-external-service local server - nothing to install beyond the .NET SDK. See architecture/contributor-setup.md.",
+        "detail": "The no-external-service local server - nothing to install beyond the .NET SDK. See architecture/dev-testing/contributor-setup.md.",
         "isBackground": true,
         "group": "none",
         "presentation": {

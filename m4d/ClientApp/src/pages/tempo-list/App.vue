@@ -177,13 +177,13 @@ const organizationCounts = computed(() =>
   ),
 );
 
-// Keeps the address bar (and therefore CopyLinkButton's default target) live as a shareable link
-// to the current filter/column selection - see architecture/bookmarkable-tool-links-plan.md. Each
-// filter's default is "every option selected" - since a selection is always a duplicate-free
-// subset of its options, matching the option count means it must be all of them - so that case
-// omits the param entirely rather than spelling out every option, keeping the common case's URL
-// short. Columns' default is a specific subset (Range hidden), so that one needs a real
-// set-equality check instead of a count comparison.
+// Keeps the address bar (and therefore CopyLinkButton's default target) live as a shareable link to
+// the current filter/column selection - see "Shareable URLs" in
+// architecture/pages/tempo-list-page.md. Each filter's default is "every option selected" - since a
+// selection is always a duplicate-free subset of its options, matching the option count means it
+// must be all of them - so that case omits the param entirely rather than spelling out every
+// option, keeping the common case's URL short. Columns' default is a specific subset (Range
+// hidden), so that one needs a real set-equality check instead of a count comparison.
 useUrlQuerySync(() => ({
   styles: styles.value.length === styleOptions.value.length ? undefined : styles.value,
   types: types.value.length === typeOptions.value.length ? undefined : types.value,

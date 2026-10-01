@@ -112,12 +112,12 @@ public class AdminController(
     //
     // GET: /Admin/ExpireMySpotifyConnection
     // Test hook for the Spotify refresh-token expiration recovery path (see
-    // architecture/music-service-api-calls.md § Spotify Refresh-Token Expiration Handling).
-    // Corrupts the current signed-in user's Spotify tokens - both the cached AdmAuthentication
-    // instance and the tokens stored in the auth cookie - so the very next real Spotify call
-    // (e.g. opening "Add to Playlist", or /song/createspotify) fails against the real Spotify
-    // token endpoint exactly the way it will once a genuine refresh token expires, letting you
-    // manually verify the reconnect UI without waiting 6 months for a real token to expire.
+    // architecture/music-services/music-service-api-calls.md § Spotify Refresh-Token Expiration
+    // Handling). Corrupts the current signed-in user's Spotify tokens - both the cached
+    // AdmAuthentication instance and the tokens stored in the auth cookie - so the very next real
+    // Spotify call (e.g. opening "Add to Playlist", or /song/createspotify) fails against the real
+    // Spotify token endpoint exactly the way it will once a genuine refresh token expires, letting
+    // you manually verify the reconnect UI without waiting 6 months for a real token to expire.
     // Reconnecting Spotify afterward (the normal "Reconnect Spotify Account" link) issues a
     // fresh cookie and clears the corruption.
     // Blocked only in true Production - allowed in Development and Staging (the "m4d-test"
@@ -463,8 +463,8 @@ public class AdminController(
     //
     // POST: /Admin/BatchArtists
     // Runs ArtistSplitter over every song in the named index (see
-    // architecture/individual-artists.md §6). Every mode first creates the artist-bot pseudo user,
-    // which also switches on the artist splitter in the song save hook. Modes:
+    // architecture/songs/individual-artists.md §6). Every mode first creates the artist-bot pseudo
+    // user, which also switches on the artist splitter in the song save hook. Modes:
     //   Report     - no song writes; logs what would change
     //   Apply      - appends artist-bot edits where the individual artists change and re-saves
     //                every song, populating the Artists index field everywhere

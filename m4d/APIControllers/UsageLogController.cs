@@ -30,8 +30,8 @@ public class UsageLogController(
         // be logged with enough detail to diagnose it - this endpoint is the only one hit via
         // navigator.sendBeacon on page unload, which gives the client no way to surface or
         // retry a failure, and the framework's own antiforgery filter fails silently (no log
-        // at any level). See architecture/client-side-usage-logging.md and the investigation
-        // of the recurring 400s on this route in local/4xx-errors.txt.
+        // at any level). See architecture/observability/client-side-usage-logging.md and the
+        // investigation of the recurring 400s on this route in local/4xx-errors.txt.
         try
         {
             await _antiforgery.ValidateRequestAsync(HttpContext);

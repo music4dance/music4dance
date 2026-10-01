@@ -14,7 +14,7 @@ public interface IArtistIndexFileManager
 /// instance can answer the first visitor from the last good snapshot instead of making them wait
 /// for a fresh streaming pass - and can keep answering when the search service is unreachable.
 /// Mirrors <see cref="DanceStatsFileManager"/>: a runtime cache under AppData, falling back to a
-/// snapshot in source control under content. See architecture/individual-artists.md §9.6.
+/// snapshot in source control under content. See architecture/songs/individual-artists.md §9.6.
 /// </summary>
 public class ArtistIndexFileManager(string appRoot, string fileName = "artist-index")
     : IArtistIndexFileManager

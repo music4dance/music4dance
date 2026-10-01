@@ -54,7 +54,8 @@ internal class RoleLogger : ILogger<RoleManager<IdentityRole>>
 /// Assembles the full in-memory DanceMusicService object graph (EF context, Identity
 /// UserManager/RoleManager, DanceStatsManager, SongIndexLocal) shared by the existing test
 /// suite and the no-external-service m4d.Sandbox host. Promoted out of m4dModels.Tests so a
-/// running web server can use it too - see architecture/contributor-test-environments.md.
+/// running web server can use it too - see
+/// architecture/dev-testing/contributor-test-environments.md.
 /// </summary>
 public static class SandboxServiceFactory
 {
