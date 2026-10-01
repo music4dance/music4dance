@@ -233,7 +233,7 @@ function amazonDomain(): string {
 
 The server can infer the user's country from their IP address and either return a country-specific Amazon URL in the API response, or set a cookie/header consumed by the frontend.
 
-- Azure Front Door (already in use per `architecture/infrastructure/front-door-implementation.md`) provides the `X-Azure-ClientIp` header and [geolocation headers](https://docs.microsoft.com/azure/frontdoor/front-door-http-headers-protocol) including `X-FD-ClientCountry` (populated by the WAF/Front Door)
+- Azure Front Door (planned but not deployed; see `architecture/plans/front-door-caching.md`) would provide the `X-Azure-ClientIp` header and [geolocation headers](https://docs.microsoft.com/azure/frontdoor/front-door-http-headers-protocol) including `X-FD-ClientCountry` (populated by the WAF/Front Door)
 - Country code could be stored in a JS global set during page render (e.g., in the page model) and consumed by `AmazonPurchaseInfo`
 
 **Verdict:** Most accurate, but adds complexity. Only worth pursuing if OneLink proves insufficient or if we need to display country-specific data beyond just the Amazon domain.

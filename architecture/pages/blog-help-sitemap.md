@@ -86,7 +86,7 @@ changed.
    - **Fast path (skip the full build/deploy)**: FTP/FTPS the edited `blogmap.txt` and/or
      `helpmap.txt` directly to the App Service, overwriting the file(s) at
      `/site/wwwroot/m4d/wwwroot/content/` (using the site's FTPS deployment credentials — see
-     [`SELF_CONTAINED_DEPLOYMENT.md`](../infrastructure/deployment.md) for the app's layout on the App
+     [hosting-and-identity](../infrastructure/hosting-and-identity.md#deployment) for the app's layout on the App
      Service; the startup command runs `/home/site/wwwroot/m4d`, and `wwwroot/content/` sits
      alongside it). This bypasses source control entirely, so **remember to also commit the same
      change to `ClientApp/src/assets/content/` in the repo** — otherwise the next normal deploy
