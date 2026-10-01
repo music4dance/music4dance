@@ -38,8 +38,8 @@ namespace m4d.Configuration;
 /// <summary>
 /// Controls which parts of the shared composition root a host configures itself vs. leaves for
 /// the caller to replace. The no-external-service m4d.Sandbox host (see
-/// architecture/contributor-test-environments.md) is the only caller that sets these to false -
-/// it registers its own in-memory DanceMusicContext and LocalSearchServiceManager/
+/// architecture/dev-testing/contributor-test-environments.md) is the only caller that sets these to
+/// false - it registers its own in-memory DanceMusicContext and LocalSearchServiceManager/
 /// LocalDanceStatsFileManager afterward instead.
 /// </summary>
 public record M4dApplicationOptions
@@ -60,8 +60,8 @@ public record M4dApplicationOptions
 
 /// <summary>
 /// The shared m4d composition root, factored out of Program.cs so both the real app and the
-/// no-external-service m4d.Sandbox host (architecture/contributor-test-environments.md, L1b)
-/// can build on the same DI wiring and middleware pipeline instead of maintaining two copies.
+/// no-external-service m4d.Sandbox host (architecture/dev-testing/contributor-test-environments.md,
+/// L1b) can build on the same DI wiring and middleware pipeline instead of maintaining two copies.
 /// Ported mechanically from the original single-file Program.cs - preserve behavior over
 /// restructuring when editing this file, since it's the production startup path.
 /// </summary>
@@ -402,8 +402,8 @@ public static class M4dApplicationExtensions
         // and can be replayed from the browser's own disk cache after the session cookie is
         // gone (browser restart, etc.), producing a token with no matching cookie. That's the
         // dominant failure mode behind the recurring, previously-silent 400s tracked in
-        // architecture/client-side-usage-logging.md §10.1 and
-        // architecture/distributed-attack-mitigation.md's 4xx triage log - confirmed from
+        // architecture/observability/client-side-usage-logging.md §10.1 and
+        // architecture/security/distributed-attack-mitigation.md's 4xx triage log - confirmed from
         // production logs: 20 of 24 sampled antiforgery failures were
         // "required antiforgery cookie ... is not present" with the request token present.
         // Giving the cookie a lifetime matching the identity cookie removes that particular

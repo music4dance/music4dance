@@ -10,7 +10,7 @@ public record ArtistIndexBucket(string Bucket, int Artists);
 /// Snapshot of every individual artist in the catalog with a song count, grouped by
 /// <see cref="ArtistSplitter.ArtistKey"/> (so case and diacritic variants merge, displayed with the
 /// most common spelling) and bucketed A-Z for browsing. Built from one streaming pass over the
-/// index and cached - see architecture/individual-artists.md §9.
+/// index and cached - see architecture/songs/individual-artists.md §9.
 /// </summary>
 public class ArtistIndex
 {
@@ -48,7 +48,8 @@ public class ArtistIndex
     /// <summary>
     /// Groups as the stream arrives rather than draining it into a list first. The catalog is
     /// ~104K songs and the site runs on a small instance: buffering the whole stream cost about
-    /// twice the memory of the snapshot it was building. See architecture/individual-artists.md §9.5.
+    /// twice the memory of the snapshot it was building. See
+    /// architecture/songs/individual-artists.md §9.5.
     /// </summary>
     public static async Task<ArtistIndex> BuildAsync(IAsyncEnumerable<IReadOnlyList<string>> songArtists,
         CancellationToken cancellationToken = default)

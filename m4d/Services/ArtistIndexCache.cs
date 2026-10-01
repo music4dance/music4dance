@@ -5,7 +5,7 @@ namespace m4d.Services;
 /// one streaming pass over the search index, which is too slow to do inside a request, so builds
 /// always run in the background and callers are served whatever snapshot exists meanwhile: the
 /// one in memory, or failing that the last one written to disk. See
-/// architecture/individual-artists.md §9.2 and §9.6.
+/// architecture/songs/individual-artists.md §9.2 and §9.6.
 /// </summary>
 public class ArtistIndexCache(ILogger<ArtistIndexCache> logger, IArtistIndexFileManager files)
 {

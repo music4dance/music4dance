@@ -4,7 +4,7 @@ using Azure.Search.Documents.Models;
 namespace m4dModels.Tests;
 
 /// <summary>
-/// Tests for the "unconfirmed dance votes" feature (architecture/unconfirmed-dance-votes.md):
+/// Tests for the "unconfirmed dance votes" feature (architecture/songs/unconfirmed-dance-votes.md):
 /// a dance whose current weight traces back entirely to an unconfirmed vote source (currently
 /// just "dgsnure", the Spotify-playlist auto-import account) is flagged via
 /// DanceRating.IsUnconfirmedOnly, encoded in the index with a -1 Votes sentinel, and filtered

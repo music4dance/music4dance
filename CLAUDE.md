@@ -18,7 +18,12 @@ Web app matching music to competitive/social ballroom dance styles based on mete
 
 `local/` at the project root is gitignored (except `local/.gitkeep`). Place all temporary files, scratch notes, PR drafts, and customer-supplied imports here — not in the project root or `architecture/`.
 
-Architecture documents go in `architecture/`. Prefer updating existing docs over creating new ones.
+Architecture documents go in `architecture/`, organized by area folder with runbooks in
+`architecture/runbooks/` and unimplemented proposals in `architecture/plans/`. Start from
+`architecture/README.md` (the index) and follow `architecture/CONVENTIONS.md`: prefer updating an
+existing doc over creating a new one, give every doc the header block, fold a plan into its
+reference doc and delete it once it ships, and update the README index in the same PR as any
+add/move/delete.
 
 ## Git Commit Conventions
 
@@ -120,7 +125,7 @@ and `dotnet build` invocations when you need a from-scratch build.
 var song = await Song.Create(".Create=\tUser=dwgray\tTitle=My Song\tTempo=180.0\tDanceRating=SLS+1", dms);
 ```
 
-See `architecture/testing-patterns.md` for full format reference.
+See `architecture/dev-testing/testing-patterns.md` for full format reference.
 
 **Moq vs TestSongIndex**:
 

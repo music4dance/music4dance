@@ -2,8 +2,8 @@ import { expect, test } from "@playwright/test";
 
 // Cheapest possible regression guard for "the app boots and serves the real client build" -
 // exactly the class of bug the wwwroot/vclient 500 and the missing Vite:Server config were
-// (see architecture/contributor-test-environments.md, L1b). A blank or missing client build
-// would still return 200 here but render no PageFrame chrome at all.
+// (see architecture/dev-testing/contributor-test-environments.md, L1b). A blank or missing client
+// build would still return 200 here but render no PageFrame chrome at all.
 test.describe("smoke", () => {
   test("home page renders the real chrome", async ({ page }) => {
     const response = await page.goto("/");

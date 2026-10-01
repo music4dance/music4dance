@@ -4,8 +4,8 @@ using Azure.Search.Documents.Models;
 namespace m4dModels.Tests;
 
 /// <summary>
-/// Index-side behavior for individual artists (architecture/individual-artists.md §5-§7), exercised
-/// through the in-memory SongIndexLocal.
+/// Index-side behavior for individual artists (architecture/songs/individual-artists.md §5-§7),
+/// exercised through the in-memory SongIndexLocal.
 /// </summary>
 [TestClass]
 public class SongIndexArtistsTests

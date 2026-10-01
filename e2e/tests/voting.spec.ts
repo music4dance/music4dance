@@ -6,7 +6,8 @@ import { findSeededSong } from "../fixtures/songs";
 // As the plain "tester" account, cast a dance-rating vote on a seeded song, verify the
 // displayed total changes, then use the existing "Undo My Changes" button
 // (m4d/ClientApp/src/pages/song/components/SongCore.vue) to leave the shared sandbox instance
-// clean for later tests/runs - see architecture/playwright-e2e-testing.md, "Concurrency".
+// clean for later tests/runs - see architecture/dev-testing/playwright-e2e-testing.md,
+// "Concurrency".
 const danceName = "Argentine Tango";
 
 test("casts and undoes a dance-rating vote as the plain tester account", async ({ page }) => {

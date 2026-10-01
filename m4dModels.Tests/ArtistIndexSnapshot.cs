@@ -9,7 +9,7 @@ namespace m4dModels.Tests;
 /// artist pages work on the first request after a deploy and keep working if the search service
 /// is unreachable. Skipped unless M4D_ARTIST_ANALYSIS_INDEX points at an index backup.
 /// Worth re-running after a backfill that materially changes the artist list.
-/// See architecture/individual-artists.md §9.6.
+/// See architecture/songs/individual-artists.md §9.6.
 /// </summary>
 [TestClass]
 public class ArtistIndexSnapshot

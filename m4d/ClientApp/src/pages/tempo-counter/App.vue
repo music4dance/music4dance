@@ -48,7 +48,8 @@ function chooseDance(danceId: string): void {
 }
 
 // Keeps the address bar (and therefore CopyLinkButton's default target) live as a shareable link
-// to the counter's current configuration - see architecture/bookmarkable-tool-links-plan.md.
+// to the counter's current configuration - see "Shareable URLs" in
+// architecture/pages/tempo-counter-page.md.
 useUrlQuerySync(() => ({
   numerator: beatsPerMeasure.value.toString(),
   tempo: beatsPerMinute.value.toFixed(1),

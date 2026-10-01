@@ -53,7 +53,7 @@ public static class UserManagerHelpers
     /// A deliberately low-privilege account (no roles at all) for testing the ordinary
     /// voting/tagging path a real user hits - [Authorize]-only actions like
     /// SongController.UndoUserChanges, not the canEdit-gated bulk-edit surface. See
-    /// architecture/contributor-test-environments.md, L1d.
+    /// architecture/dev-testing/contributor-test-environments.md, L1d.
     /// </summary>
     private static async Task SeedTestUser(UserManager<ApplicationUser> userManager, IConfiguration configuration)
     {
@@ -82,7 +82,7 @@ public static class UserManagerHelpers
 
     /// <summary>
     /// Covers the canEdit-gated tag-removal/full-edit surface without handing out dbAdmin or
-    /// showDiagnostics. See architecture/contributor-test-environments.md, L1d.
+    /// showDiagnostics. See architecture/dev-testing/contributor-test-environments.md, L1d.
     /// </summary>
     private static async Task SeedEditorUser(UserManager<ApplicationUser> userManager, IConfiguration configuration)
     {

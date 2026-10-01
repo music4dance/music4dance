@@ -6,10 +6,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace m4d.Tests.Services;
 
 // Exercises the cooldown added to ServiceHealthManager.IsServiceHealthy: nothing in production
-// ever calls MarkHealthy for most services (e.g. SearchService - see architecture/admin-pages.md),
-// so without a cooldown a single transient failure (a brief Azure Search throttling spike, say)
-// would wedge the whole app in degraded mode until the process restarts, long after the
-// underlying service recovered on its own.
+// ever calls MarkHealthy for most services (e.g. SearchService - see
+// architecture/users-admin/admin-pages.md), so without a cooldown a single transient failure (a
+// brief Azure Search throttling spike, say) would wedge the whole app in degraded mode until the
+// process restarts, long after the underlying service recovered on its own.
 [TestClass]
 public class ServiceHealthManagerTests
 {

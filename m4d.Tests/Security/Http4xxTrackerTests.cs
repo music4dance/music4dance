@@ -197,7 +197,8 @@ public class Http4xxTrackerTests
     [DataRow("/fling.php?p=", true)]
     [DataRow("/this_is_a_new_hello_world.PHP", true)]
     [DataRow("/uploads/exploit.php/payload.jpg", true)]
-    // Added from the 2026-09-19 4xx triage pass - see architecture/distributed-attack-mitigation.md
+    // Added from the 2026-09-19 4xx triage pass - see
+    // architecture/security/distributed-attack-mitigation.md
     [DataRow("/secrets.env", true)]
     [DataRow("/config/env/aws_credentials.env", true)]
     [DataRow("/.ssh/id_rsa", true)]

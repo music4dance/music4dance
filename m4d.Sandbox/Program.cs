@@ -12,7 +12,7 @@ using Microsoft.Extensions.FileProviders;
 // The no-external-service local server: builds on the real m4d controllers/views/middleware
 // (via the ProjectReference to m4d.csproj) but replaces the SQL Server database and Azure
 // Search with in-memory stand-ins from m4dModels.Sandbox, so it needs nothing installed. See
-// architecture/contributor-test-environments.md, L1b.
+// architecture/dev-testing/contributor-test-environments.md, L1b.
 
 const string SandboxDbName = "m4d-sandbox";
 const string DefaultLocalDbConnectionString =

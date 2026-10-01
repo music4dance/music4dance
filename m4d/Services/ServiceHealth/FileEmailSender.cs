@@ -8,7 +8,8 @@ namespace m4d.Services.ServiceHealth;
 /// IEmailSender for the no-external-service m4d.Sandbox host - writes each message to a .eml
 /// file under local/mail/ instead of sending it, so self-registration and password-reset flows
 /// are testable for accounts a contributor creates beyond the seeded ones. See
-/// architecture/contributor-test-environments.md, L1e. local/ is gitignored per CLAUDE.md.
+/// architecture/dev-testing/contributor-test-environments.md, L1e. local/ is gitignored
+/// per CLAUDE.md.
 /// </summary>
 public class FileEmailSender(string outputDirectory) : IEmailSender
 {

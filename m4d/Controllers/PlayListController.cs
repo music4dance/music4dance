@@ -347,7 +347,7 @@ public class PlayListController(
         }
 
         // Writing to Spotify (SpotifyFromSearch) needs a user token, which a Logic App call
-        // doesn't have - see architecture/spotify-playlist-automation.md
+        // doesn't have - see architecture/music-services/spotify-playlist-automation.md
         if (type != PlayListType.SongsFromSpotify)
         {
             return BadRequest(

@@ -21,7 +21,7 @@
       more than we are paying for - and the site has been sitting at 80-90% of the plan.
 
       Workstation GC collects more often and gives memory back sooner. Measured on the artist
-      index build (architecture/individual-artists.md section 9.5), the same 226 MB of allocation
+      index build (architecture/songs/individual-artists.md section 9.5), the same 226 MB of allocation
       cost 27.6 MB of working set under server GC and 4.6 MB under workstation - 3 gen0
       collections against 36. That was a many-core dev box, where server GC allocates more heaps
       than a 1-core B1 would, so treat the ratio as directional; the direction is not in doubt.

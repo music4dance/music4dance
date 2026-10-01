@@ -9,7 +9,7 @@ namespace m4dModels.Tests;
 /// index backup (/Admin/IndexBackup -> local/index-YYYY-MM-DD.txt). Skipped unless
 /// M4D_ARTIST_ANALYSIS_INDEX points at a backup file. The site runs on a small App Service
 /// instance, so the numbers that matter are the snapshot it retains, the peak while building it,
-/// and total allocation (GC pressure). See architecture/individual-artists.md §9.5.
+/// and total allocation (GC pressure). See architecture/songs/individual-artists.md §9.5.
 /// </summary>
 [TestClass]
 public class ArtistIndexMemory

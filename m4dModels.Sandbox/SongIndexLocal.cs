@@ -224,8 +224,8 @@ public class SongIndexLocal : SongIndex
     /// Evaluates a SongFilter's already-parsed sub-query objects (DanceQuery, TagQuery,
     /// UserQuery, KeywordQuery, SongSort) directly against the in-memory song store, instead of
     /// generating and re-parsing an OData filter string against a real Azure index - see
-    /// architecture/contributor-test-environments.md L1f, option A. Covers the common cases
-    /// (dance selection/threshold, tags, tempo/length range, keyword substring match, sort,
+    /// architecture/dev-testing/contributor-test-environments.md L1f, option A. Covers the common
+    /// cases (dance selection/threshold, tags, tempo/length range, keyword substring match, sort,
     /// paging, cruft). Known gaps, left for a later pass since a partially-correct filter
     /// already beats today's always-empty result: raw/customsearch filters (SongFilter.IsRaw -
     /// falls back to keyword+sort+paging only, no filtering), per-dance-scoped tag queries

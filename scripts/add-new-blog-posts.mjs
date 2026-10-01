@@ -8,7 +8,7 @@
 // blogmap.txt's `blog/category/<slug>` rows. A post whose category doesn't match any of those is
 // reported and skipped rather than guessed at.
 //
-// See architecture/blog-help-sitemap.md for the full picture of how blogmap.txt is used.
+// See architecture/pages/blog-help-sitemap.md for the full picture of how blogmap.txt is used.
 //
 // Usage:
 //   node scripts/add-new-blog-posts.mjs                  # check the 3 newest posts, write blogmap.txt

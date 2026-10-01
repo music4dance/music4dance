@@ -5,7 +5,7 @@ import { artistLinks, contentHeading, findSplitSong } from "../fixtures/artists"
 
 // Individual artists on the song-details page: the credit renders verbatim with each derived
 // artist linked inside it (ArtistCredit.vue), and privileged users can correct the derived list
-// (ArtistsEditor.vue). See architecture/individual-artists.md §8.
+// (ArtistsEditor.vue). See architecture/songs/individual-artists.md §8.
 test("links each individual artist inside the credit", async ({ page }) => {
   const song = await findSplitSong(page);
   await page.goto(song);
