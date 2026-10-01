@@ -45,12 +45,11 @@ procedural, to become a runbook.
 
 | Doc | Kind | What it covers |
 | --- | --- | --- |
-| [music-service-integration](music-services/music-service-integration.md) | Ref | Overview: service registry, per-service behavior, purchase IDs/filtering, client rendering |
+| [music-service-integration](music-services/music-service-integration.md) | Ref | Overview: service registry, per-service behavior (incl. Amazon search links + OneLink), purchase IDs/filtering, client rendering |
 | [music-service-model](music-services/music-service-model.md) | Ref | `MusicService` class hierarchy, `ServiceTrack`, `AlbumDetails`, property encoding |
 | [music-service-api-calls](music-services/music-service-api-calls.md) | Ref | `MusicServiceManager` HTTP flows, Spotify OAuth tokens, enrichment, playlists |
-| [amazon-music-renewal](music-services/amazon-music-renewal.md) | Done plan | Amazon options survey and the implemented search-link approach |
 | [playlist-management](music-services/playlist-management.md) | Ref | `PlayList` model, admin UI, SongsFromSpotify / SpotifyFromSearch |
-| [spotify-playlist-automation](music-services/spotify-playlist-automation.md) | Ref + Guide + Plan | What runs when and as whom; **SpotifyFromSearch maintenance runbook**; automation plan |
+| [spotify-playlist-automation](music-services/spotify-playlist-automation.md) | Ref | What runs when and as whom (app token vs user token), Logic App jobs, `UpdateBatch`, known issues |
 
 ## Users and admin
 
@@ -120,7 +119,7 @@ consolidated.
 | Task | Where it is today |
 | --- | --- |
 | Roll out a breaking search-index schema change | [search-index-versioning § Production Migration Runbook](search/search-index-versioning.md#production-migration-runbook) |
-| Maintain SpotifyFromSearch playlists manually | [spotify-playlist-automation § Runbook](music-services/spotify-playlist-automation.md#runbook-manual-spotifyfromsearch-maintenance) |
+| Maintain SpotifyFromSearch playlists (new dances, seasons, refresh) | [runbooks/spotify-from-search-maintenance](runbooks/spotify-from-search-maintenance.md) |
 | Backfill / rebuild the artist index | [individual-artists § 11 Operations](songs/individual-artists.md#11-operations) |
 | Triage the production 4xx export | `analyze-4xx` skill + [distributed-attack-mitigation](security/distributed-attack-mitigation.md) triage log |
 | Provision a new App Service instance | [azure-app-service-setup-managed-identity](infrastructure/azure-app-service-setup-managed-identity.md) |
@@ -141,7 +140,7 @@ consolidated.
 | Key Vault RBAC migration | Not started (vault `music4dance` still uses access policies, verified 2026-10-01) | [managed-identity-self-contained-plan § Key Vault RBAC](infrastructure/managed-identity-self-contained-plan.md#key-vault-rbac-migration-plan) |
 | Distributed attack mitigation Phase 2 | Planning | [distributed-attack-mitigation](security/distributed-attack-mitigation.md) |
 | Contributor environments L2+ | Proposed | [contributor-test-environments](dev-testing/contributor-test-environments.md) |
-| Automate browser-driven Spotify playlist jobs | Proposed | [spotify-playlist-automation § Plan](music-services/spotify-playlist-automation.md#plan-automating-category-2) |
+| Spotify service-account automation (write playlists without a browser session) | Proposed; `UpdateBatch` step shipped (#299) | [plans/spotify-service-account-automation](plans/spotify-service-account-automation.md) |
 | Application log persistence options 2–4 | Proposed | [application-log-persistence-plan](observability/application-log-persistence-plan.md) |
 | Memory diagnostics Phases 2–4 | Proposed | [memory-diagnostics-plan](observability/memory-diagnostics-plan.md) |
 | Dance family voting next steps | Proposed | [dance-family-voting § Next Steps](songs/dance-family-voting.md#next-steps) |
