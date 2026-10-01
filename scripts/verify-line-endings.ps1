@@ -92,8 +92,8 @@ $files = $trackedPaths | Where-Object { $_ } | ForEach-Object {
 } | Where-Object {
     # Skip directories - matching whole path segments, not substrings. A substring
     # match against the full path quietly exempted every file whose *name* merely
-    # contained a skip word: DanceObject.cs, ObjectHelpers.ts, DanceBuilder.cs and
-    # distributed-attack-mitigation.md all contain "obj"/"build"/"dist", so they were
+    # contained a skip word: DanceObject.cs, ObjectHelpers.ts, DanceBuilder.cs and a
+    # distributed-*.md doc all contain "obj"/"build"/"dist", so they were
     # never checked at all.
     $relative = $_.FullName.Substring($repoRoot.Length + 1).Replace('\', '/')
     $directorySegments = '/' + [System.IO.Path]::GetDirectoryName($relative).Replace('\', '/') + '/'
