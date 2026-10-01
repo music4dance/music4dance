@@ -403,7 +403,7 @@ public static class M4dApplicationExtensions
         // gone (browser restart, etc.), producing a token with no matching cookie. That's the
         // dominant failure mode behind the recurring, previously-silent 400s tracked in
         // architecture/observability/client-side-usage-logging.md §10.1 and
-        // architecture/security/distributed-attack-mitigation.md's 4xx triage log - confirmed from
+        // the 4xx triage log in architecture/runbooks/triage-4xx.md - confirmed from
         // production logs: 20 of 24 sampled antiforgery failures were
         // "required antiforgery cookie ... is not present" with the request token present.
         // Giving the cookie a lifetime matching the identity cookie removes that particular
