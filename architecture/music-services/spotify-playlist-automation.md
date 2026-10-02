@@ -183,3 +183,4 @@ automation problem.
 - [plans/spotify-service-account-automation](../plans/spotify-service-account-automation.md)
 - [playlist-management](playlist-management.md)
 - [music-service-api-calls](music-service-api-calls.md)
+- [background-work-and-startup](../infrastructure/background-work-and-startup.md): `RecomputeController`, the shared token, and `AdminMonitor`
