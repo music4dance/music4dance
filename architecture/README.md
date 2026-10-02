@@ -160,13 +160,7 @@ into `runbooks/` as its area is consolidated.
 
 ## Coverage gaps
 
-Areas with real code but no architecture doc yet, in the order they're planned to be written:
-
-1. **System overview**: projects, request flow, data stores, external services.
-1. **Frontend architecture**: one Vite entry per page, `PageFrame`, `menuContext` / `window.*Json`
-   handoff, the `Vue3()` helper, shared models and composables.
-1. **CI/CD and release**: `azure-pipelines.yml`, GitHub workflows, environments.
-1. **Background work and startup**: `BackgroundTaskQueue`, `StartupInitializationService`,
-   `DatabaseRecoveryService`, recompute jobs.
+Areas with real code but no architecture doc yet. None are known right now: every area
+previously listed here has a reference doc in the index above.
 
 When you notice another gap, add it here.
