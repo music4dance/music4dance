@@ -100,6 +100,7 @@ procedural, to become a runbook.
 | [background-work-and-startup](infrastructure/background-work-and-startup.md) | Ref | Hosted services and their start order, `BackgroundTaskQueue`, `DatabaseRecoveryService` hook, `/api/recompute` jobs and their Logic App callers, fire-and-forget admin jobs and `AdminMonitor` |
 | [ci-cd-and-release](infrastructure/ci-cd-and-release.md) | Ref | GitHub workflows (CI-SERVER `-warnaserror`, CI-CLIENT lint/type-check/tests, DCO, nightly E2E), `main` ruleset, Dependabot, the Azure DevOps deploy pipeline, PR-to-production flow |
 | [configuration-and-feature-flags](infrastructure/configuration-and-feature-flags.md) | Ref | Every configuration key and feature flag: where it's read, its source (appsettings, App Configuration / Key Vault, env vars, user secrets) and default |
+| [data-layer](infrastructure/data-layer.md) | Ref | SQL vs search index, `DanceMusicContext` and Identity, the `DanceMusicService` façade, EF migrations (tooling, startup apply), admin backup/restore |
 
 ## Observability
 
@@ -167,6 +168,5 @@ Areas with real code but no architecture doc yet, in the order they're planned t
 1. **CI/CD and release**: `azure-pipelines.yml`, GitHub workflows, environments.
 1. **Background work and startup**: `BackgroundTaskQueue`, `StartupInitializationService`,
    `DatabaseRecoveryService`, recompute jobs.
-1. **Data layer**: `DanceMusicContext`, EF migrations workflow, backup/restore.
 
 When you notice another gap, add it here.

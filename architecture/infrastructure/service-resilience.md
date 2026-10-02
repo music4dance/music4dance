@@ -220,6 +220,7 @@ There are no recovery emails. Configuration and testing steps are in
 - [hosting-and-identity](hosting-and-identity.md): App Service, health check probe, startup sequence
 - [background-work-and-startup](background-work-and-startup.md): hosted services, start order and failure behavior, `DatabaseRecoveryService` in context
 - [configuration-and-feature-flags](configuration-and-feature-flags.md): the keys whose absence marks a service unavailable
+- [data-layer](data-layer.md): `DanceMusicContext` registration and startup migrations
 - [runbooks/configure-failure-email](../runbooks/configure-failure-email.md)
 - [runbooks/refresh-dance-fallback-snapshot](../runbooks/refresh-dance-fallback-snapshot.md)
 - [dance-domain-model](../dances/dance-domain-model.md): `DanceStats` build, file cache and startup load

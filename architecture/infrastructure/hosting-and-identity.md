@@ -200,6 +200,7 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
 - [service-resilience](service-resilience.md): degradation, recovery and health endpoints
 - [background-work-and-startup](background-work-and-startup.md): hosted services, their start order, the work queue and recompute jobs
 - [configuration-and-feature-flags](configuration-and-feature-flags.md): every configuration key and feature flag, its source and default
+- [data-layer](data-layer.md): what's in SQL vs the search index, EF migrations applied at startup
 - [plans/key-vault-rbac-migration](../plans/key-vault-rbac-migration.md)
 - [plans/front-door-caching](../plans/front-door-caching.md)
 - [search-index-versioning](../search/search-index-versioning.md)
