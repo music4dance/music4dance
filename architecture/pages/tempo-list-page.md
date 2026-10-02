@@ -16,6 +16,9 @@ the filter client-side against `DanceFilter`.
 
 ## Server-Side Wiring
 
+This is the standard `Vue3()` page wiring described in
+[frontend-architecture](frontend-architecture.md); the page-specific parts are:
+
 - `HomeController.Tempi(styles, types, organizations, meters, columns)`
   (`m4d/Controllers/HomeController.cs:111-127`) reads five `List<string>` query-string parameters
   and renders the generic Vue3 host view (`m4d/Views/Shared/Vue3.cshtml`) with:

@@ -221,3 +221,4 @@ There are no recovery emails. Configuration and testing steps are in
 - [runbooks/refresh-dance-fallback-snapshot](../runbooks/refresh-dance-fallback-snapshot.md)
 - [user-name-visibility](../users-admin/user-name-visibility.md): `UNAVAILABLE` rendering when user data can't be loaded
 - [admin-pages](../users-admin/admin-pages.md): admin diagnostics surfaces
+- [frontend-architecture](../pages/frontend-architecture.md): `menuContext`, `PageFrame` and the header app that host the banner

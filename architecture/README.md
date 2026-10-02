@@ -64,6 +64,7 @@ procedural, to become a runbook.
 
 | Doc | Kind | What it covers |
 | --- | --- | --- |
+| [frontend-architecture](pages/frontend-architecture.md) | Ref | One Vite entry per page, the `Vue3()` helper and `Vue3.cshtml`, `menuContext` / `model_` / dance and tag database globals, `PageFrame`, shared models and composables, adding a page |
 | [tempo-list-page](pages/tempo-list-page.md) | Ref | Dance Tempi page: client-side filtering, shareable URLs |
 | [tempo-counter-page](pages/tempo-counter-page.md) | Ref | Tempo Counter page: tap tempo, matching, shareable URLs |
 | [blog-help-sitemap](pages/blog-help-sitemap.md) | Ref | `blogmap.txt` / `helpmap.txt` format, parsing (`SiteMapInfo`), where it's consumed, data history |
@@ -143,8 +144,6 @@ into `runbooks/` as its area is consolidated.
 Areas with real code but no architecture doc yet, in the order they're planned to be written:
 
 1. **System overview**: projects, request flow, data stores, external services.
-2. **Frontend architecture**: one Vite entry per page, `PageFrame`, `menuContext` / `window.*Json`
-   handoff, the `Vue3()` helper, shared models and composables.
 3. **Dance domain model**: DanceLib, `dances.json` / dance groups, tempo ranges, organizations,
    `DanceStats` and its hosted service.
 4. **Tag system**: tag categories and groups, `TagController`, the tag index.
