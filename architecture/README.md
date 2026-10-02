@@ -12,6 +12,12 @@ Kind: **Ref** = current-state reference · **Plan** = proposal, not (fully) impl
 **Done plan** = completed plan or report, to be folded into a reference doc · **Guide** =
 procedural, to become a runbook.
 
+## Start here
+
+| Doc | Kind | What it covers |
+| --- | --- | --- |
+| [overview](overview.md) | Ref | System map: projects, composition root, request flow (MVC + Vue pages, API), data stores, external services |
+
 ## Songs: data model, editing, voting
 
 | Doc | Kind | What it covers |
@@ -143,7 +149,6 @@ into `runbooks/` as its area is consolidated.
 
 Areas with real code but no architecture doc yet, in the order they're planned to be written:
 
-1. **System overview**: projects, request flow, data stores, external services.
 2. **Frontend architecture**: one Vite entry per page, `PageFrame`, `menuContext` / `window.*Json`
    handoff, the `Vue3()` helper, shared models and composables.
 3. **Dance domain model**: DanceLib, `dances.json` / dance groups, tempo ranges, organizations,
