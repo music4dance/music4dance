@@ -325,4 +325,5 @@ Procedures that use this page: [runbooks/respond-to-attack](../runbooks/respond-
 - [plans/attack-mitigation-phase2](../plans/attack-mitigation-phase2.md)
 - [hosting-and-identity](../infrastructure/hosting-and-identity.md): pipeline order, cache headers, forwarded headers
 - [account-management](../users-admin/account-management.md): Identity, lockout, user policies
+- [payments-and-premium](../users-admin/payments-and-premium.md): CAPTCHA on anonymous donations
 - [usage-tracking](../observability/usage-tracking.md): usage logging and the antiforgery `400` investigation
