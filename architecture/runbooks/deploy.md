@@ -7,7 +7,8 @@
 ## When to use
 
 Shipping a build to `m4d-test` or `msc4dnc`. For how deployment modes, identity and health
-checks work, see [hosting-and-identity](../infrastructure/hosting-and-identity.md).
+checks work, see [hosting-and-identity](../infrastructure/hosting-and-identity.md); for where
+deploys fit after PR checks and merge, see [ci-cd-and-release](../infrastructure/ci-cd-and-release.md).
 
 ## Prerequisites / access
 

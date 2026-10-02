@@ -12,6 +12,12 @@ Kind: **Ref** = current-state reference · **Plan** = proposal, not (fully) impl
 **Done plan** = completed plan or report, to be folded into a reference doc · **Guide** =
 procedural, to become a runbook.
 
+## Start here
+
+| Doc | Kind | What it covers |
+| --- | --- | --- |
+| [overview](overview.md) | Ref | System map: projects, composition root, request flow (MVC + Vue pages, API), data stores, external services |
+
 ## Songs: data model, editing, voting
 
 | Doc | Kind | What it covers |
@@ -29,6 +35,7 @@ procedural, to become a runbook.
 | [waltz-correction-controls](songs/waltz-correction-controls.md) | Ref | `WaltzCorrectionCard`: fixing Waltz + `4/4` meter conflicts |
 | [individual-artists](songs/individual-artists.md) | Ref | `Artists` property, the credit splitter, artist index, backfill and operations |
 | [artist-pages](songs/artist-pages.md) | Ref | `/song/artist` page: server wiring, rendering, link generation |
+| [tag-system](songs/tag-system.md) | Ref | Tag categories, primary/alias tag rings (`TagGroup`), the `TagManager` cache, index fields, `TagController`, client `Tag`/`TagList`/`TagQuery`, tag editing UI |
 
 ## Search
 
@@ -65,8 +72,10 @@ procedural, to become a runbook.
 
 | Doc | Kind | What it covers |
 | --- | --- | --- |
+| [frontend-architecture](pages/frontend-architecture.md) | Ref | One Vite entry per page, the `Vue3()` helper and `Vue3.cshtml`, `menuContext` / `model_` / dance and tag database globals, `PageFrame`, shared models and composables, adding a page |
 | [tempo-list-page](pages/tempo-list-page.md) | Ref | Dance Tempi page: client-side filtering, shareable URLs |
 | [tempo-counter-page](pages/tempo-counter-page.md) | Ref | Tempo Counter page: tap tempo, matching, shareable URLs |
+| [content-pages](pages/content-pages.md) | Ref | `/dances/...` dispatcher (style index, dance details, competition categories, wedding), custom searches, New Music, Spotify Explorer |
 | [blog-help-sitemap](pages/blog-help-sitemap.md) | Ref | `blogmap.txt` / `helpmap.txt` format, parsing (`SiteMapInfo`), where it's consumed, data history |
 | [visitor-engagement-monetization](pages/visitor-engagement-monetization.md) | Ref | Progressive engagement prompts for anonymous visitors and subscribers |
 
@@ -82,6 +91,9 @@ procedural, to become a runbook.
 | --- | --- | --- |
 | [hosting-and-identity](infrastructure/hosting-and-identity.md) | Ref | Environments, deployment pipeline and modes, managed identity per service, App Configuration, startup sequence, health checks, cache-control headers |
 | [service-resilience](infrastructure/service-resilience.md) | Ref | Graceful degradation and recovery when SQL, Search, App Configuration, OAuth, email or reCAPTCHA fail; health endpoints; status banner; admin failure emails; known issues |
+| [background-work-and-startup](infrastructure/background-work-and-startup.md) | Ref | Hosted services and their start order, `BackgroundTaskQueue`, `DatabaseRecoveryService` hook, `/api/recompute` jobs and their Logic App callers, fire-and-forget admin jobs and `AdminMonitor` |
+| [ci-cd-and-release](infrastructure/ci-cd-and-release.md) | Ref | GitHub workflows (CI-SERVER `-warnaserror`, CI-CLIENT lint/type-check/tests, DCO, nightly E2E), `main` ruleset, Dependabot, the Azure DevOps deploy pipeline, PR-to-production flow |
+| [configuration-and-feature-flags](infrastructure/configuration-and-feature-flags.md) | Ref | Every configuration key and feature flag: where it's read, its source (appsettings, App Configuration / Key Vault, env vars, user secrets) and default |
 
 ## Observability
 
@@ -144,17 +156,13 @@ into `runbooks/` as its area is consolidated.
 Areas with real code but no architecture doc yet, in the order they're planned to be written:
 
 1. **System overview**: projects, request flow, data stores, external services.
-2. **Frontend architecture**: one Vite entry per page, `PageFrame`, `menuContext` / `window.*Json`
+1. **Frontend architecture**: one Vite entry per page, `PageFrame`, `menuContext` / `window.*Json`
    handoff, the `Vue3()` helper, shared models and composables.
-3. **Dance domain model**: DanceLib, `dances.json` / dance groups, tempo ranges, organizations,
+1. **Dance domain model**: DanceLib, `dances.json` / dance groups, tempo ranges, organizations,
    `DanceStats` and its hosted service.
-4. **Tag system**: tag categories and groups, `TagController`, the tag index.
-6. **Configuration and feature flags reference**: every key and flag, with its source and default.
-7. **CI/CD and release**: `azure-pipelines.yml`, GitHub workflows, environments.
-8. **Background work and startup**: `BackgroundTaskQueue`, `StartupInitializationService`,
+1. **CI/CD and release**: `azure-pipelines.yml`, GitHub workflows, environments.
+1. **Background work and startup**: `BackgroundTaskQueue`, `StartupInitializationService`,
    `DatabaseRecoveryService`, recompute jobs.
-9. **Data layer**: `DanceMusicContext`, EF migrations workflow, backup/restore.
-10. **Content pages**: dance details, competition categories, style indexes, wedding, new music,
-    Spotify explorer, custom searches.
+1. **Data layer**: `DanceMusicContext`, EF migrations workflow, backup/restore.
 
 When you notice another gap, add it here.
