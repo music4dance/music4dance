@@ -1,5 +1,10 @@
 # Tempo List Page (`tempo-list/App.vue`)
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4d/ClientApp/src/pages/tempo-list/`, `m4d/Controllers/HomeController.cs` (`Tempi`), `m4d/ClientApp/src/models/DanceDatabase/`
+
 ## Overview
 
 The Tempo List page (`m4d/ClientApp/src/pages/tempo-list/App.vue`) is a reference page at
@@ -445,68 +450,24 @@ that doesn't route reads back through a second, independently-scheduled write wa
 
 - `App.vue:11` has a standing `TODO` to clean up the `CheckboxOptions` structures generally
   (unrelated to filtering behavior — the "disable checkboxes with no results" half of that TODO is
-  resolved, see "Checkbox cross-filtering" above and "Fixed (2026-07-15)" below).
+  resolved; see "Checkbox cross-filtering" above and History below).
 
-## Added (2026-07-15 follow-up 2)
+## History
 
-Surfaced three pieces of `dances.json` data this page wasn't showing yet:
-
-1. A hidden-by-default **Range** column, backed by the new `DanceValidation` model and
-   `DanceInstance`/`DanceType.validationRange` getters — see "Range column / `DanceValidation`"
-   above. Currently only populated for Salsa.
-2. A `?columns=` query-string parameter (`HomeController.Tempi`, `TempoListModel.Columns`,
-   `App.vue`'s `model.columns` → `TempoList`'s `initial-columns` prop) so a custom column set can be
-   linked to directly — see "Column chooser" above. `CheckboxTypes.ts`'s `filterValid` was promoted
-   from an `App.vue`-local function to a shared export to back this.
-3. A "Blog Posts" icon link (`DanceName.vue`'s new `showBlogLink` prop) next to each dance's name,
-   linking to that dance's `blogTag` on `https://music4dance.blog` — see "Blog link" above.
-
-## Fixed (2026-07-15)
-
-1. The Meter dropdown now reads `model.meters` on load, via `filterValidMeters()`
-   (`App.vue`) — see the "Filter state" section above. Previously `meters` was always initialized
-   to all three hard-coded options regardless of the `?meters=` query-string parameter, even though
-   the server-side `TempoListModel.Meters` was populated and available on `model_`.
-2. `CheckedList.test.ts`'s interaction test (`"handle checking a single item"`) is un-skipped.
-   Two independent bugs in the test, not `CheckedList.vue`, were masking it:
-   - `trigger("click")` doesn't reliably flip a `BFormCheckboxGroup` checkbox in jsdom;
-     `setValue(true)` does (same fix already used by `App.test.ts`'s real-interaction tests).
-   - The test's mock update handler was keyed `"onUpdate:model-value"` (hyphenated), which never
-     matches Vue's emitted `update:modelValue` event — the model prop was never actually being
-     written back, independent of the click/jsdom issue.
-   - Separately, `.attributes("checked")` never reflects a checkbox's true state in Vue 3: Vue
-     patches `checked` on an `<input>` as a DOM *property* (`element.checked`), not an HTML
-     attribute, so an assertion against the attribute is always falsy regardless of actual state.
-     The two `toMatchSnapshot` tests in the same file had a stale snapshot (unrelated to the above —
-     just a `bootstrap-vue-next` markup drift since the snapshot was last recorded) and one of the
-     same `.attributes("checked")` assertions; both are fixed and re-enabled alongside the
-     interaction test.
-3. Added the per-option result counts / cross-filtering feature — see "Result counts /
-   cross-filtering" above. Resolves the `App.vue` TODO's "consider disabling checkboxes that can't
-   produce any results" in favor of the more common faceted-search pattern (count + gray-out,
-   still checkable) rather than actually disabling options.
-
-## Fixed (2026-07-14)
-
-Three bugs found while first documenting this page (see git history for this file/commit) were
-fixed together, since the first two were both in `DanceFilter`/`DanceDatabase`, shared with other
-callers:
-
-1. Dances with no real tempo (Performance dances, and Pattern) are now excluded by
-   `tempoRange.isInfinite` rather than by "Performance" group membership — see the data-flow
-   section above.
-2. `DanceDatabase.filter()`'s `.groups` getter now derives from the dances it just filtered,
-   not the pre-filter list, so a filtered-out group (like "Performance," before fix #1 subsumed
-   it) no longer lingers as a dead dropdown option.
-3. `App.vue`'s `dances` computed normalizes "every organization checkbox checked" to
-   `organizations: undefined` before building its `DanceFilter`, so the default view no longer
-   silently hides every organization-less "Social" dance. `DanceFilter.matchOrganizations` itself
-   was deliberately left unchanged (a narrow, specific organization selection should still exclude
-   unaffiliated dances).
-
-A fourth bug, found separately afterward: `DanceFilter.reduce()`'s `.groups` narrowing (see
-"TempoList.vue" above) — the Type column didn't shrink to the selected group(s) the way
-BPM/MPM/Styles already shrank to the selected style(s).
+- **2026-07-14:** First documented. Fixed at the same time:
+  - tempo-less dances (Performance, Pattern) are excluded by `tempoRange.isInfinite`, not by
+    group membership
+  - `DanceDatabase.filter().groups` derives from the filtered dances
+  - "all organizations checked" normalizes to `organizations: undefined`, so organization-less
+    Social dances show by default
+  - later: `DanceFilter.reduce()` narrows the Type column to the selected groups
+- **2026-07-15:** The Meter dropdown honors `?meters=` (`filterValidMeters()`). Per-option result
+  counts and cross-filtering added (count and gray-out, still checkable). `CheckedList.test.ts`
+  re-enabled after fixing the test itself: `setValue` instead of `trigger("click")` in jsdom, the
+  `update:modelValue` handler key, and asserting `element.checked` rather than the attribute.
+- **2026-07-15 (follow-up):** Hidden-by-default **Range** column (`DanceValidation`), the
+  `?columns=` parameter (with `filterValid` shared from `CheckboxTypes.ts`), and the per-dance
+  "Blog Posts" link (`DanceName.vue` `showBlogLink`).
 
 ## Related Code
 

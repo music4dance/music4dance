@@ -1,5 +1,10 @@
 # Tempo Counter Page (`tempo-counter/App.vue`)
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4d/ClientApp/src/pages/tempo-counter/`, `m4d/Controllers/HomeController.cs` (`Counter`)
+
 ## Overview
 
 The Tempo Counter page (`m4d/ClientApp/src/pages/tempo-counter/App.vue`) is a reference tool at

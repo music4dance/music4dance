@@ -66,9 +66,8 @@ procedural, to become a runbook.
 | --- | --- | --- |
 | [tempo-list-page](pages/tempo-list-page.md) | Ref | Dance Tempi page: client-side filtering, shareable URLs |
 | [tempo-counter-page](pages/tempo-counter-page.md) | Ref | Tempo Counter page: tap tempo, matching, shareable URLs |
-| [blog-help-sitemap](pages/blog-help-sitemap.md) | Ref + Guide | `blogmap.txt` and help links; how new posts get linked |
+| [blog-help-sitemap](pages/blog-help-sitemap.md) | Ref | `blogmap.txt` / `helpmap.txt` format, parsing (`SiteMapInfo`), where it's consumed, data history |
 | [visitor-engagement-monetization](pages/visitor-engagement-monetization.md) | Ref | Progressive engagement prompts for anonymous visitors and subscribers |
-| [gtm-tracking-guide](pages/gtm-tracking-guide.md) | Guide | Google Tag Manager / GA4 triggers for the engagement system |
 
 ## Security
 
@@ -112,12 +111,12 @@ into `runbooks/` as its area is consolidated.
 | Roll out / re-run / roll back the artist index | [runbooks/artist-index-operations](runbooks/artist-index-operations.md) |
 | Triage the production 4xx export | [runbooks/triage-4xx](runbooks/triage-4xx.md) (automated by the `analyze-4xx` skill) |
 | Respond to an attack or traffic spike on login/register | [runbooks/respond-to-attack](runbooks/respond-to-attack.md) |
+| Set up GTM / GA4 engagement tracking | [runbooks/gtm-ga4-setup](runbooks/gtm-ga4-setup.md) |
+| Link new blog posts / help articles | [runbooks/link-new-blog-posts](runbooks/link-new-blog-posts.md) |
 | Provision a new App Service instance | [runbooks/provision-app-service](runbooks/provision-app-service.md) |
 | Deploy to test or production | [runbooks/deploy](runbooks/deploy.md) |
 | Configure service-failure email alerts | [runbooks/configure-failure-email](runbooks/configure-failure-email.md) |
 | Refresh the cold-start dance fallback snapshot | [runbooks/refresh-dance-fallback-snapshot](runbooks/refresh-dance-fallback-snapshot.md) |
-| Set up GTM / GA4 engagement tracking | [gtm-tracking-guide](pages/gtm-tracking-guide.md) |
-| Link new blog posts / help articles | [blog-help-sitemap](pages/blog-help-sitemap.md) (+ `scripts/add-new-blog-posts.mjs`) |
 | Add a new dance type | [adding-a-new-dance](dev-testing/adding-a-new-dance.md) |
 | Run tempo validation over the existing catalog | [runbooks/validate-catalog-tempo](runbooks/validate-catalog-tempo.md) |
 | Set up a local contributor environment | [contributor-setup](dev-testing/contributor-setup.md) |
@@ -134,6 +133,7 @@ into `runbooks/` as its area is consolidated.
 | Spotify service-account automation (write playlists without a browser session) | Proposed; `UpdateBatch` step shipped (#299) | [plans/spotify-service-account-automation](plans/spotify-service-account-automation.md) |
 | Durable log storage (Blob / Log Analytics / tuned App Insights) | Proposed | [plans/log-persistence-options](plans/log-persistence-options.md) |
 | Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
+| Visitor engagement next steps (post-launch priorities, enhancements) | Proposed | [plans/visitor-engagement-next](plans/visitor-engagement-next.md) |
 | Dance family voting next steps | Proposed | [plans/dance-family-voting-next](plans/dance-family-voting-next.md) |
 
 ## Coverage gaps
