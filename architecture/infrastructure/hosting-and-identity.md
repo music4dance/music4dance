@@ -116,10 +116,12 @@ The app is built to pass a liveness probe in seconds, even while dependencies ar
 4. Register the remaining services, each wrapped for resilience.
 5. Run `builder.Build()`.
 6. Map `/health/startup` and `/health/ready`.
-7. **Run database migrations synchronously** before `app.Run()`, so the schema exists before
+7. Print the startup health report, and send one failure email if anything is unavailable.
+   This happens before migrations, so a migration failure isn't in the report.
+8. **Run database migrations synchronously** before `app.Run()`, so the schema exists before
    any hosted service runs. A failure marks `Database` unavailable instead of crashing.
-8. Print the startup health report, and send one failure email if anything is unavailable.
-9. Start accepting requests.
+9. Run the hosted services' `StartAsync`, including the dance-stats load, then start accepting
+   requests (see [background-work-and-startup](background-work-and-startup.md#startup-order)).
 10. `StartupInitializationService` waits 2s, then performs the first App Configuration refresh
     in the background.
 
@@ -191,9 +193,12 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
 
 ## Related
 
+- [overview](../overview.md): system map (projects, request flow, data stores, external services)
 - [runbooks/deploy](../runbooks/deploy.md): running a deployment
+- [ci-cd-and-release](ci-cd-and-release.md): GitHub checks, branch rules, and how a change reaches production
 - [runbooks/provision-app-service](../runbooks/provision-app-service.md): creating a new instance end to end
 - [service-resilience](service-resilience.md): degradation, recovery and health endpoints
+- [background-work-and-startup](background-work-and-startup.md): hosted services, their start order, the work queue and recompute jobs
 - [configuration-and-feature-flags](configuration-and-feature-flags.md): every configuration key and feature flag, its source and default
 - [plans/key-vault-rbac-migration](../plans/key-vault-rbac-migration.md)
 - [plans/front-door-caching](../plans/front-door-caching.md)

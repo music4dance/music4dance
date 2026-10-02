@@ -12,7 +12,7 @@ Follow-ons to the engagement system described in
 
 **1. Configure Google Tag Manager Tracking (Week 1)**
 
-✅ Code is instrumented - Follow [gtm-tracking-guide.md](../runbooks/gtm-ga4-setup.md) to configure GTM:
+Done: the code is instrumented. Follow [runbooks/gtm-ga4-setup](../runbooks/gtm-ga4-setup.md) to configure GTM:
 
 - Set up impression tracking for all 4 message types
 - Configure CTA click tracking

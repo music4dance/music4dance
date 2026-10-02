@@ -28,6 +28,7 @@ Related documents:
 - **[SongUploadFormat.md](song-upload-format.md)** — bulk CSV/TSV upload field mapping
 - **[song-merge-algorithm.md](song-merge-algorithm.md)** — how duplicate songs are consolidated
 - **[VOTING_WITH_DANCE_FAMILIES.md](dance-family-voting.md)** — style-family tag voting
+- **[tag-system.md](tag-system.md)** — tag categories, primary/alias tag rings, the tag cache and tag UI
 - **[contributor-test-environments.md](../dev-testing/contributor-test-environments.md)** — the sandbox host that
   seeds its database from §12.1
 
