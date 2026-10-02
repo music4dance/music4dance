@@ -1,5 +1,10 @@
 # MusicService Class Model and Data Encoding
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4dModels/MusicService.cs`, `m4dModels/ServiceTrack.cs`, `m4dModels/AlbumDetails.cs`
+
 > For the higher-level integration overview (registered services, HTTP infrastructure, purchase filtering) see [music-service-integration.md](music-service-integration.md).
 
 ## Class Hierarchy
