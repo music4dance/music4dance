@@ -16,7 +16,7 @@ checks work, see [hosting-and-identity](../infrastructure/hosting-and-identity.m
   the target app, so it can set app settings and the health check path. See
   [provision-app-service § 4.3](provision-app-service.md#43-grant-pipeline-service-principal-permissions-required-for-automated-configuration).
 - If the release changes the search index schema, follow
-  [search-index-versioning § Production Migration Runbook](../search/search-index-versioning.md#production-migration-runbook)
+  [search-index-breaking-migration](search-index-breaking-migration.md)
   **first**. `SEARCHINDEXVERSION` is fixed in the pipeline variables.
 
 ## Steps

@@ -1169,9 +1169,9 @@ Not necessary - components are small and render conditionally (v-if). Premium us
 
 ### Related Documents
 
-- **[Client-Side Usage Logging](../observability/client-side-usage-logging.md)** - Usage tracking infrastructure
+- **[Usage Tracking](../observability/usage-tracking.md)** - Usage tracking infrastructure
 - **[Testing Patterns](../dev-testing/testing-patterns.md)** - Test infrastructure and patterns
-- **[Identity Endpoint Protection](../security/identity-endpoint-protection.md)** - Rate limiting on auth pages
+- **[Bot and Abuse Defense](../security/bot-and-abuse-defense.md)** - Rate limiting on auth pages
 
 ### File Locations
 

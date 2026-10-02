@@ -38,8 +38,8 @@ procedural, to become a runbook.
 | [song-search-service](search/song-search-service.md) | Ref | `SongSearch`: premium gating, user queries, vote/edited-by post-filters, logging |
 | [song-search-results](search/song-search-results.md) | Ref | `SongController` list-returning actions and the results pipeline |
 | [saved-searches](search/saved-searches.md) | Ref | Search logging, "My Searches", anonymize/merge |
-| [search-index-versioning](search/search-index-versioning.md) | Ref + Guide | Index schema versions; contains the **production migration runbook** |
-| [index-backup-streaming](search/index-backup-streaming.md) | Done plan | Streaming index backup with key-set pagination |
+| [search-index-versioning](search/search-index-versioning.md) | Ref | Index schema versions (`CodeVersion` / `ConfigVersion`, `SongIndexNext`), current index state, launch profiles, known cleanup debt |
+| [index-backup-streaming](search/index-backup-streaming.md) | Ref | Unlimited full-index streaming (composite key-set pagination) for backups, clones, migrations and reloads |
 
 ## Music services and playlists
 
@@ -75,9 +75,7 @@ procedural, to become a runbook.
 
 | Doc | Kind | What it covers |
 | --- | --- | --- |
-| [distributed-attack-mitigation](security/distributed-attack-mitigation.md) | Ref + Plan | Rate limiting, CAPTCHA escalation, bot short-circuit, 4xx tracking; **4xx triage log** (used by the `analyze-4xx` skill); Phase 2 plan |
-| [identity-endpoint-protection](security/identity-endpoint-protection.md) | Ref | Random delays + rate limiting + CAPTCHA on `/identity/*`, diagnostics dashboard |
-| [meta-crawler-mitigation](security/meta-crawler-mitigation.md) | Ref | Meta/Facebook crawler redirect-loop handling |
+| [bot-and-abuse-defense](security/bot-and-abuse-defense.md) | Ref | Catalog bot short-circuit (`SpiderManager`), identity rate limits + CAPTCHA escalation + lockout, crawler short-circuit on login pages, 4xx-by-URL tracking, `/Admin/Diagnostics` |
 
 ## Infrastructure and deployment
 
@@ -90,11 +88,8 @@ procedural, to become a runbook.
 
 | Doc | Kind | What it covers |
 | --- | --- | --- |
-| [client-side-usage-logging](observability/client-side-usage-logging.md) | Ref | Client-side page-view tracking, feature flags, cache-control interplay |
-| [usage-log-analysis-plan](observability/usage-log-analysis-plan.md) | Done plan | UsageLog analysis pages, bot detection, indexes |
-| [application-log-persistence-plan](observability/application-log-persistence-plan.md) | Ref + Plan | Filesystem log persistence (done); heavier options (proposed) |
-| [memory-diagnostics-plan](observability/memory-diagnostics-plan.md) | Ref + Plan | GC diagnostics (Phase 1 done); snapshots/advanced tooling (proposed) |
-| [server-side-testing-analysis](observability/server-side-testing-analysis.md) | Done plan | Integration tests for `UsageLogApiController` |
+| [usage-tracking](observability/usage-tracking.md) | Ref | Page-view `UsageLog`: server vs client-side recording, batch endpoint, admin analysis pages, the antiforgery 400 root cause |
+| [logging-and-diagnostics](observability/logging-and-diagnostics.md) | Ref | Where app logs go (filesystem Warning+), orphaned App Insights, GC snapshots, forced GC, memory dumps |
 
 ## Development and testing
 
@@ -113,10 +108,11 @@ into `runbooks/` as its area is consolidated.
 
 | Task | Where it is today |
 | --- | --- |
-| Roll out a breaking search-index schema change | [search-index-versioning § Production Migration Runbook](search/search-index-versioning.md#production-migration-runbook) |
+| Roll out a breaking search-index schema change | [runbooks/search-index-breaking-migration](runbooks/search-index-breaking-migration.md) |
 | Maintain SpotifyFromSearch playlists (new dances, seasons, refresh) | [runbooks/spotify-from-search-maintenance](runbooks/spotify-from-search-maintenance.md) |
 | Backfill / rebuild the artist index | [individual-artists § 11 Operations](songs/individual-artists.md#11-operations) |
-| Triage the production 4xx export | `analyze-4xx` skill + [distributed-attack-mitigation](security/distributed-attack-mitigation.md) triage log |
+| Triage the production 4xx export | [runbooks/triage-4xx](runbooks/triage-4xx.md) (automated by the `analyze-4xx` skill) |
+| Respond to an attack or traffic spike on login/register | [runbooks/respond-to-attack](runbooks/respond-to-attack.md) |
 | Provision a new App Service instance | [runbooks/provision-app-service](runbooks/provision-app-service.md) |
 | Deploy to test or production | [runbooks/deploy](runbooks/deploy.md) |
 | Configure service-failure email alerts | [runbooks/configure-failure-email](runbooks/configure-failure-email.md) |
@@ -134,11 +130,11 @@ into `runbooks/` as its area is consolidated.
 | Public API & third-party authorization (DanzQ) | Foundation (PR 1) merged behind a disabled flag; PR 2 on hold after Apple denied the business plan, alternatives being explored | [plans/public-api-authorization](plans/public-api-authorization.md) |
 | Azure Front Door caching | Not started; app-side prep shipped | [plans/front-door-caching](plans/front-door-caching.md) |
 | Key Vault RBAC migration | Not started (vault `music4dance` still uses access policies, verified 2026-10-01) | [plans/key-vault-rbac-migration](plans/key-vault-rbac-migration.md) |
-| Distributed attack mitigation Phase 2 | Planning | [distributed-attack-mitigation](security/distributed-attack-mitigation.md) |
+| Attack mitigation Phase 2+ (telemetry, alerts, WAF, honeypots) | Proposed | [plans/attack-mitigation-phase2](plans/attack-mitigation-phase2.md) |
 | Contributor environments L2+ | Proposed | [contributor-test-environments](dev-testing/contributor-test-environments.md) |
 | Spotify service-account automation (write playlists without a browser session) | Proposed; `UpdateBatch` step shipped (#299) | [plans/spotify-service-account-automation](plans/spotify-service-account-automation.md) |
-| Application log persistence options 2–4 | Proposed | [application-log-persistence-plan](observability/application-log-persistence-plan.md) |
-| Memory diagnostics Phases 2–4 | Proposed | [memory-diagnostics-plan](observability/memory-diagnostics-plan.md) |
+| Durable log storage (Blob / Log Analytics / tuned App Insights) | Proposed | [plans/log-persistence-options](plans/log-persistence-options.md) |
+| Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
 | Dance family voting next steps | Proposed | [dance-family-voting § Next Steps](songs/dance-family-voting.md#next-steps) |
 
 ## Coverage gaps
