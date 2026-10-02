@@ -1050,7 +1050,7 @@ Post-launch priorities, medium- and long-term enhancements, and research questio
 
 ### Related Documents
 
-- **[Client-Side Usage Logging](../observability/client-side-usage-logging.md)** - Usage tracking infrastructure
+- **[Usage Tracking](../observability/usage-tracking.md)** - Usage tracking infrastructure
 - **[Testing Patterns](../dev-testing/testing-patterns.md)** - Test infrastructure and patterns
 - **[Bot and Abuse Defense](../security/bot-and-abuse-defense.md)** - Rate limiting on auth pages
 

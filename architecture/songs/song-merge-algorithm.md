@@ -1,5 +1,10 @@
 # Song Merge Algorithm
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4dModels/MergeManager.cs`, `m4d/Controllers/SongController.cs` (merge actions)
+
 ## Overview
 
 The music4dance merge system identifies and consolidates duplicate songs in the catalog. Since songs come from multiple sources (user imports, music services like Spotify/iTunes, web scraping), duplicates are inevitable. The merge algorithm uses a multi-level matching strategy combined with conflict resolution to create a single, comprehensive song record.

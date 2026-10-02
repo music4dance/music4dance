@@ -11,7 +11,7 @@ defenses.
 
 Before starting, re-check two dependencies:
 - **Application Insights is not enabled** today. The cheaper log-persistence options are compared
-  in [application-log-persistence-plan](../observability/application-log-persistence-plan.md).
+  in [log-persistence-options](../plans/log-persistence-options.md).
 - **Azure Front Door is not deployed.** The edge/WAF items overlap the Front Door caching plan
   (`plans/front-door-caching.md`).
 

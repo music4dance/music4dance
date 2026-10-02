@@ -1,5 +1,10 @@
 # Song Upload File Format for UploadCatalog
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4dModels/Song.cs` (`BuildHeaderMap`), `m4d/Controllers/AdminController.cs` (`UploadCatalog`)
+
 This document describes the full set of options and fields supported by the song upload file for the `UploadCatalog` feature. The information is derived from the implementation of `Song.BuildHeaderMap` and `Song.CreateFromRow` in the music4dance codebase.
 
 ---

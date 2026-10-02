@@ -1,5 +1,10 @@
 # Admin Pages
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4d/Controllers/ApplicationUsersController.cs`, `m4d/Controllers/PlayListController.cs`, `m4d/Controllers/SearchesController.cs`, `m4d/Controllers/ActivityLogController.cs`
+
 Current-state reference for the `dbAdmin`-only admin index pages. All of these were originally
 server-rendered Razor tables that became unresponsive in Chromium once the row count grew large
 (the cost is DOM node count, not data volume). Each was converted to a pattern where the

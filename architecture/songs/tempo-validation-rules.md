@@ -1,12 +1,19 @@
 # Tempo and Meter Validation Rules for Imported Songs
 
+**Type:** Reference
+**Status:** Current. Implemented and unit/integration tested for Salsa, Quickstep and 10 more
+dances; not yet exercised on real Spotify imports, or run across the existing catalog.
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4d/Utilities/MusicServiceManager.cs` (`ValidateAndCorrectTempo`), `m4d/Controllers/SongController.cs` (`BatchValidateTempo`),
+`m4d/ClientApp/src/components/AdminFooter.vue`
+
 ## Summary
 
 Spotify/EchoNest tempo detection sometimes reports half-time or double-time errors (e.g., Salsa detected at 80 BPM instead of 160 BPM). When a song's tempo is populated from Spotify, each of the song's dances is checked independently against its own dance-specific thresholds and auto-corrected if it looks like a detection error. A dance's "effective tempo" is its own per-dance override if it has one, otherwise the song-level tempo. Corrections are applied as per-dance overrides, one dance at a time — a multi-dance song where only one dance's tempo looks wrong gets only that dance corrected. If every dance ends up agreeing on the same effective tempo afterward and that differs from the song-level tempo, the song-level tempo is promoted to match. Suspicious meters are flagged with a tag for manual review rather than auto-corrected.
 
 Corrections are committed as a second edit under the `tempo-bot` pseudo-user, so the audit trail shows the algorithmic Spotify import separately from the bot's correction.
 
-**Status**: Implemented and covered by unit/integration tests, scoped to Salsa, Quickstep, and 10 additional dances (see "Current Scope" below). Not yet exercised against real Spotify imports or run retroactively against the existing catalog for any of them (see "Running Against the Existing Catalog" below).
+
 
 ## Data Model
 
@@ -125,13 +132,15 @@ Salsa and Quickstep's thresholds happen to match each other numerically, but tha
 
 ## Running Against the Existing Catalog
 
-`ValidateAndCorrectTempo` only requires `song.Tempo.HasValue` — it doesn't care whether that tempo came from a fresh Spotify import or has been sitting on the song for years. That makes it usable directly against already-populated catalog songs, independent of the `UpdateAudioData`/`GetEchoData` Spotify-refresh path described above.
-
-`SongController.BatchValidateTempo` (`m4d/Controllers/SongController.cs`) exposes this via the same `BatchProcess` pattern as `BatchEchoNest`/`BatchISRC`: it streams every song matching the current admin song-list filter and calls `ValidateAndCorrectTempo` on each. It's wired into the song list's **Update** dropdown menu (`m4d/ClientApp/src/components/AdminFooter.vue`) as "Validate Tempo", alongside iTunes/EchoNest/ISRC/Samples. To roll out a newly-added dance's validation rules, filter the song list down to that dance (e.g. `dance:Quickstep`) before running it — since validation now runs per dance rather than gating on a single-dance song, filtering is purely about scoping *which songs get processed* (and keeping the batch small), not a correctness requirement.
+`ValidateAndCorrectTempo` only needs `song.Tempo.HasValue`, so it also works on songs already in
+the catalog through `SongController.BatchValidateTempo` (**Update → Validate Tempo** on the admin
+song list). The procedure is [runbooks/validate-catalog-tempo](../runbooks/validate-catalog-tempo.md).
 
 ## Manual Review Workflow
 
-Songs with a suspicious meter are tagged `check-accuracy:Tempo` and otherwise left alone (no auto meter-correction exists). There is no admin UI for reviewing the tag itself yet — review means searching for `check-accuracy:Tempo` directly.
+Songs with a suspicious meter are tagged `check-accuracy:Tempo` and otherwise left alone; nothing
+auto-corrects meter. There's no admin UI for reviewing the tag yet; review means searching for
+`check-accuracy:Tempo` directly.
 
 ## Test Coverage
 

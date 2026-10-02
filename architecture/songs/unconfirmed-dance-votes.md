@@ -1,5 +1,10 @@
 # Unconfirmed Dance Votes
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4dModels/DanceRating.cs`, `m4dModels/CruftFilter.cs`, `m4dModels/SongFilter.cs`
+
 ## Overview
 
 A dance rating whose current weight traces back entirely to an **unconfirmed vote source** — a

@@ -1,5 +1,10 @@
 # MusicServiceManager API Call Flows
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4d/Utilities/MusicServiceManager.cs`, `m4d/Utilities/AdmAuthentication.cs`
+
 `m4d/Utilities/MusicServiceManager.cs` is the single class responsible for all external music-service HTTP calls. It is injected as a scoped service (takes `IConfiguration` in its constructor).
 
 > For registered services, the purchase-ID storage format, and client-side rendering see [music-service-integration.md](music-service-integration.md). For the class hierarchy and data encoding see [music-service-model.md](music-service-model.md).
