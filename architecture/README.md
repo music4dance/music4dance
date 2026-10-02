@@ -12,6 +12,12 @@ Kind: **Ref** = current-state reference · **Plan** = proposal, not (fully) impl
 **Done plan** = completed plan or report, to be folded into a reference doc · **Guide** =
 procedural, to become a runbook.
 
+## Dances
+
+| Doc | Kind | What it covers |
+| --- | --- | --- |
+| [dance-domain-model](dances/dance-domain-model.md) | Ref | `DanceLib` types, `dances.json` / `dancegroups.json`, styles, organizations and tempo exceptions, `DanceStats` build/cache/startup, client `DanceDatabase` loading |
+
 ## Songs: data model, editing, voting
 
 | Doc | Kind | What it covers |
@@ -145,8 +151,6 @@ Areas with real code but no architecture doc yet, in the order they're planned t
 1. **System overview**: projects, request flow, data stores, external services.
 2. **Frontend architecture**: one Vite entry per page, `PageFrame`, `menuContext` / `window.*Json`
    handoff, the `Vue3()` helper, shared models and composables.
-3. **Dance domain model**: DanceLib, `dances.json` / dance groups, tempo ranges, organizations,
-   `DanceStats` and its hosted service.
 4. **Tag system**: tag categories and groups, `TagController`, the tag index.
 5. **Payments and premium**: `CommerceController`, `PaymentController`, subscription roles, gating.
 6. **Configuration and feature flags reference**: every key and flag, with its source and default.

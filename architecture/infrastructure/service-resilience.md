@@ -219,5 +219,6 @@ There are no recovery emails. Configuration and testing steps are in
 - [hosting-and-identity](hosting-and-identity.md): App Service, health check probe, startup sequence
 - [runbooks/configure-failure-email](../runbooks/configure-failure-email.md)
 - [runbooks/refresh-dance-fallback-snapshot](../runbooks/refresh-dance-fallback-snapshot.md)
+- [dance-domain-model](../dances/dance-domain-model.md): `DanceStats` build, file cache and startup load
 - [user-name-visibility](../users-admin/user-name-visibility.md): `UNAVAILABLE` rendering when user data can't be loaded
 - [admin-pages](../users-admin/admin-pages.md): admin diagnostics surfaces

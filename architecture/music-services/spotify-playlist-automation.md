@@ -183,3 +183,4 @@ automation problem.
 - [plans/spotify-service-account-automation](../plans/spotify-service-account-automation.md)
 - [playlist-management](playlist-management.md)
 - [music-service-api-calls](music-service-api-calls.md)
+- [dance-domain-model](../dances/dance-domain-model.md): what the `songstats` recompute rebuilds
