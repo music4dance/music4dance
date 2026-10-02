@@ -1,5 +1,10 @@
 # Testing Patterns for music4dance.net
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (file references checked)
+**Code:** `m4d.Tests/`, `m4dModels.Tests/`, `m4dModels.Sandbox/`, `m4d/ClientApp/src/**/__tests__/`
+
 ## Overview
 
 This document describes the testing patterns and best practices established for the music4dance.net codebase, including both client-side (TypeScript/Vue) and server-side (C#/.NET) testing approaches.
@@ -714,9 +719,9 @@ See: `m4d/ClientApp/src/composables/__tests__/useUsageTracking.test.ts`
 - `architecture/observability/usage-tracking.md` - usage-log endpoint and its integration tests
 
 ### Test Infrastructure
-- `m4dModels.Tests/DanceMusicTester.cs` - Test service creation
+- `m4dModels.Sandbox/SandboxServiceFactory.cs` (aliased as `DanceMusicTester` in the test projects) - Test service creation
 - `m4d.Tests/TestHelpers/TestBackgroundTaskQueue.cs` - Background task spy
-- `m4dModels.Tests/TestSongIndex.cs` - Song index spy for integration tests
+- `m4dModels.Sandbox/SongIndexLocal.cs` (aliased as `TestSongIndex`) - Song index spy for integration tests
 
 ---
 

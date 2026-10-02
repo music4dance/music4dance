@@ -14,7 +14,7 @@ unreachable. See [service-resilience § Degraded behavior](../infrastructure/ser
 
 Refresh it:
 - periodically (roughly quarterly), so cold-start pages don't show stale counts
-- after adding or renaming dances (see [adding-a-new-dance](../dev-testing/adding-a-new-dance.md))
+- after adding or renaming dances (see [add-a-dance](add-a-dance.md))
 - after a large catalog change
 
 ## Prerequisites / access

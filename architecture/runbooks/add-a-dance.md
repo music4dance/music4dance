@@ -1,4 +1,8 @@
-# Adding a New Dance Type
+# Add a New Dance Type
+
+**Type:** Runbook
+**Status:** Current
+**Last verified:** 2026-10-01 (file paths checked; steps not re-run)
 
 ## Overview
 
@@ -227,8 +231,8 @@ Three pairs of test data files mirror the production `dances.json` and `dancegro
 
 - `DanceTests/TestData/test-dances.json`
 - `DanceTests/TestData/test-groups.json`
-- `m4dModels.Tests/TestData/test-dances.json`
-- `m4dModels.Tests/TestData/test-groups.json`
+- `m4dModels.Sandbox/TestData/test-dances.json`
+- `m4dModels.Sandbox/TestData/test-groups.json`
 
 Add the new dance entry to these files with the same structure as the production files, but you
 may use a simplified `tempoRange` unless the test specifically exercises tempo logic.
