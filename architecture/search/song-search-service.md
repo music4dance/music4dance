@@ -69,7 +69,7 @@ In order:
 
 `EditedBySearch` is a second strategy with the same `PostSearch` shape as `VoteSearch`, but it is
 **not** wired into `Search()`'s dispatch — it's called directly from admin code that already knows
-it wants edited-by-user semantics. See [admin-search-bulk-modify](../users-admin/admin-search-bulk-modify.md).
+it wants edited-by-user semantics. See [bulk-operations](../users-admin/bulk-operations.md#admin-search-and-modify-by-search).
 
 ---
 
@@ -115,7 +115,7 @@ public async Task<SearchResults> EditedBySearch(SearchOptions options, string ed
 Returns songs where at least one edit block is attributed to `editorUser` with a timestamp in
 `[from, to]`. Same underlying mechanism as `VoteSearch` — edit attribution isn't an indexed/filterable
 field, so it's checked in memory via `Song.WasEditedBy`. Used by the admin bulk-edit-by-user flow;
-see [admin-search-bulk-modify](../users-admin/admin-search-bulk-modify.md) for the controller-level usage.
+see [bulk-operations](../users-admin/bulk-operations.md#admin-search-and-modify-by-search) for the controller-level usage.
 
 ## `PostSearch` — Shared In-Memory Post-Filter Helper
 

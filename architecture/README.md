@@ -58,8 +58,7 @@ procedural, to become a runbook.
 | [account-management](users-admin/account-management.md) | Ref | Identity, username/password policy, privacy, deletion, user merge |
 | [user-name-visibility](users-admin/user-name-visibility.md) | Ref | Who sees real names vs pseudonyms vs `UNAVAILABLE` |
 | [admin-pages](users-admin/admin-pages.md) | Ref | Vue-rendered admin index pages and their paging strategies |
-| [bulk-admin-modify](users-admin/bulk-admin-modify.md) | Ref | `BatchAdminEdit` / `BatchAdminModify`, `SongModifier` |
-| [admin-search-bulk-modify](users-admin/admin-search-bulk-modify.md) | Ref | Admin Search by editor/date range and bulk modify of edit blocks |
+| [bulk-operations](users-admin/bulk-operations.md) | Ref | Bulk song changes: filter-driven `BatchAdminEdit` / `BatchAdminModify` + `SongModifier`, and Admin Search modify/refresh by editor and date range |
 
 ## Pages and engagement
 
