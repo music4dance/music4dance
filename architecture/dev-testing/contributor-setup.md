@@ -308,8 +308,11 @@ things carry over from `m4d.Sandbox`, not the real-app path:
 
 ## Related documents
 
+- [overview](../overview.md) — system map: projects, request flow, data stores, external services
 - [contributor-test-environments.md](contributor-test-environments.md) — the options analysis
   this setup is drawn from, including the cloud-deploy path for end-to-end iOS validation
 - [testing-patterns.md](testing-patterns.md) — the serialized song format used to construct
   test songs inline, for writing new tests against either path above
+- [frontend-architecture.md](../pages/frontend-architecture.md) — how a Vue page is wired from
+  controller to Vite bundle, and how to add one
 - [CLAUDE.md](../../CLAUDE.md) — stack conventions and coding standards
