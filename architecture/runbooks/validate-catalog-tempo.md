@@ -42,4 +42,4 @@ design.
 
 Each correction is a separate `tempo-bot` edit block, so undo bad ones by removing those edit
 blocks. For a whole run, use the admin bulk tools to target `tempo-bot` edits in the date range
-(see [admin-search-bulk-modify](../users-admin/admin-search-bulk-modify.md)).
+(see [bulk-operations](../users-admin/bulk-operations.md#filter-driven-bulk-operations)).
