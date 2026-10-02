@@ -81,6 +81,7 @@ procedural, to become a runbook.
 | --- | --- | --- |
 | [hosting-and-identity](infrastructure/hosting-and-identity.md) | Ref | Environments, deployment pipeline and modes, managed identity per service, App Configuration, startup sequence, health checks, cache-control headers |
 | [service-resilience](infrastructure/service-resilience.md) | Ref | Graceful degradation and recovery when SQL, Search, App Configuration, OAuth, email or reCAPTCHA fail; health endpoints; status banner; admin failure emails; known issues |
+| [ci-cd-and-release](infrastructure/ci-cd-and-release.md) | Ref | GitHub workflows (CI-SERVER `-warnaserror`, CI-CLIENT lint/type-check/tests, DCO, nightly E2E), `main` ruleset, Dependabot, the Azure DevOps deploy pipeline, PR-to-production flow |
 
 ## Observability
 
@@ -150,7 +151,6 @@ Areas with real code but no architecture doc yet, in the order they're planned t
 4. **Tag system**: tag categories and groups, `TagController`, the tag index.
 5. **Payments and premium**: `CommerceController`, `PaymentController`, subscription roles, gating.
 6. **Configuration and feature flags reference**: every key and flag, with its source and default.
-7. **CI/CD and release**: `azure-pipelines.yml`, GitHub workflows, environments.
 8. **Background work and startup**: `BackgroundTaskQueue`, `StartupInitializationService`,
    `DatabaseRecoveryService`, recompute jobs.
 9. **Data layer**: `DanceMusicContext`, EF migrations workflow, backup/restore.
