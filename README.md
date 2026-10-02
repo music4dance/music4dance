@@ -30,7 +30,11 @@ SDK.
 
 ## Deployment
 
-For information on deploying this application to Azure Linux Web Apps (including self-contained deployment for .NET 10), see [SELF_CONTAINED_DEPLOYMENT.md](SELF_CONTAINED_DEPLOYMENT.md).
+To deploy to the Azure Linux Web Apps (framework-dependent or self-contained), follow
+[architecture/runbooks/deploy.md](architecture/runbooks/deploy.md). For how hosting works, see
+[architecture/infrastructure/hosting-and-identity.md](architecture/infrastructure/hosting-and-identity.md).
+All architecture docs, runbooks and open plans are indexed in
+[architecture/README.md](architecture/README.md).
 
 ## Blogs
 
