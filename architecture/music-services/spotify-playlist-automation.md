@@ -184,3 +184,4 @@ automation problem.
 - [playlist-management](playlist-management.md)
 - [content-pages](../pages/content-pages.md): where `SpotifyFromSearch` playlists are embedded (dance details, custom searches)
 - [music-service-api-calls](music-service-api-calls.md)
+- [background-work-and-startup](../infrastructure/background-work-and-startup.md): `RecomputeController`, the shared token, and `AdminMonitor`

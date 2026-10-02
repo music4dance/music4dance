@@ -89,6 +89,7 @@ procedural, to become a runbook.
 | --- | --- | --- |
 | [hosting-and-identity](infrastructure/hosting-and-identity.md) | Ref | Environments, deployment pipeline and modes, managed identity per service, App Configuration, startup sequence, health checks, cache-control headers |
 | [service-resilience](infrastructure/service-resilience.md) | Ref | Graceful degradation and recovery when SQL, Search, App Configuration, OAuth, email or reCAPTCHA fail; health endpoints; status banner; admin failure emails; known issues |
+| [background-work-and-startup](infrastructure/background-work-and-startup.md) | Ref | Hosted services and their start order, `BackgroundTaskQueue`, `DatabaseRecoveryService` hook, `/api/recompute` jobs and their Logic App callers, fire-and-forget admin jobs and `AdminMonitor` |
 | [ci-cd-and-release](infrastructure/ci-cd-and-release.md) | Ref | GitHub workflows (CI-SERVER `-warnaserror`, CI-CLIENT lint/type-check/tests, DCO, nightly E2E), `main` ruleset, Dependabot, the Azure DevOps deploy pipeline, PR-to-production flow |
 
 ## Observability
@@ -151,14 +152,15 @@ into `runbooks/` as its area is consolidated.
 
 Areas with real code but no architecture doc yet, in the order they're planned to be written:
 
-2. **Frontend architecture**: one Vite entry per page, `PageFrame`, `menuContext` / `window.*Json`
+1. **Frontend architecture**: one Vite entry per page, `PageFrame`, `menuContext` / `window.*Json`
    handoff, the `Vue3()` helper, shared models and composables.
-3. **Dance domain model**: DanceLib, `dances.json` / dance groups, tempo ranges, organizations,
+1. **Dance domain model**: DanceLib, `dances.json` / dance groups, tempo ranges, organizations,
    `DanceStats` and its hosted service.
-5. **Payments and premium**: `CommerceController`, `PaymentController`, subscription roles, gating.
-6. **Configuration and feature flags reference**: every key and flag, with its source and default.
-8. **Background work and startup**: `BackgroundTaskQueue`, `StartupInitializationService`,
+1. **Payments and premium**: `CommerceController`, `PaymentController`, subscription roles, gating.
+1. **Configuration and feature flags reference**: every key and flag, with its source and default.
+1. **CI/CD and release**: `azure-pipelines.yml`, GitHub workflows, environments.
+1. **Background work and startup**: `BackgroundTaskQueue`, `StartupInitializationService`,
    `DatabaseRecoveryService`, recompute jobs.
-9. **Data layer**: `DanceMusicContext`, EF migrations workflow, backup/restore.
+1. **Data layer**: `DanceMusicContext`, EF migrations workflow, backup/restore.
 
 When you notice another gap, add it here.
