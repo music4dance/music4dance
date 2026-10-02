@@ -1,5 +1,10 @@
 # SongFilter: Query Model, Wire Format, and the Advanced Search Pipeline
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4dModels/SongFilter.cs`, `m4dModels/SongFilterNext.cs`, `m4d/ClientApp/src/models/SongFilter.ts`, `m4d/Controllers/CustomSearchController.cs`
+
 ## Overview
 
 `SongFilter` is the compact, serializable query state that drives every song search on the
@@ -104,7 +109,7 @@ Three behaviors read from a single dance's fields instead of the song's own over
 whenever exactly one non-group dance is selected — `SongFilter.SingleDanceId` (server) /
 `SongFilter.scopeDanceName`-and-friends (client) is the shared chokepoint all three consult. The
 "overall" values are not derived from the dances currently selected in the query — `dance_ALL/Votes`
-is the sum of the song's vote weight across **every** dance it's rated for (`SongIndex.CreateSongDoc`),
+is the sum of the song's vote weight across **every** dance it's rated for (`SongIndex.DocumentFromSong`),
 and the tempo default is simply `Song.Tempo`, the song's own tempo attribute:
 
 | Behavior             | 1 dance selected   | 2+ dances, no scope marker                | 2+ dances, one marked `*` |

@@ -1,18 +1,27 @@
-# Search Index Versioning and Breaking-Change Migration
+# Search Index Versioning
 
-## Overview
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01
+**Code:** `m4dModels/SearchServiceInfo.cs` (`SearchServiceManager`), `m4dModels/SongIndex.cs`,
+`m4dModels/SongIndexNext.cs`, `m4dModels/SongFilter.cs`, `m4dModels/SongFilterNext.cs`,
+`m4d/Controllers/AdminController.cs` (`UpdateSearchIdx`, `SetSearchIdx`, `CloneIdx`), `m4d/appsettings.json`
 
-The search index versioning system allows breaking changes to the Azure AI Search schema to be tested
-in isolation and then rolled out to production with near-zero downtime. It was introduced in
-[PR #27](https://github.com/music4dance/music4dance/pull/27).
+How music4dance makes breaking changes to the Azure AI Search schema. A new schema is tested in
+isolation, then production is cut over to a freshly built index with near-zero downtime. The
+mechanism was introduced in [PR #27](https://github.com/music4dance/music4dance/pull/27). The
+step-by-step procedure is
+[runbooks/search-index-breaking-migration](../runbooks/search-index-breaking-migration.md).
 
-## Current Rollout Status (Per-Dance Tempo)
+## Current state (2026-10-01)
 
-- The v3 schema is now the current schema in code (`CodeVersion = 3`).
-- Deployments should set `SEARCHINDEXVERSION=3` for current behavior.
-- `SEARCHINDEXVERSION` values lower than `CodeVersion` are ignored at runtime (clamped to `CodeVersion`).
-
----
+- **`CodeVersion = 3`.** Production and test run the v3 schema (`songs-prod-3`, `songs-test-3`).
+  Deployments set `SEARCHINDEXVERSION=3`. Values below `CodeVersion` are clamped up.
+- **`-4` entries exist** in `appsettings.json` for both environments, so `HasNextVersion` is true and
+  `/Admin` offers the "Update → songs-*-4" link. No v4 schema has been defined in
+  `SongIndexNext` yet.
+- **The v2 → v3 cleanup is incomplete.** The `-2` entries are still in `appsettings.json`, and two
+  `// TODOIDX:` shims remain (see [Known issues](#known-issues)).
 
 ## Concepts
 
@@ -31,10 +40,8 @@ Azure AI Search index names are stored in `appsettings.json` using sections whos
 _environment_ and the _version_:
 
 ```
-SongIndexProd-2   →  songs-prod-2    (production, version 2)
-SongIndexProd-3   →  songs-prod-3    (production, version 3 — next)
-SongIndexTest-2   →  songs-test-2    (test/staging, version 2)
-SongIndexTest-3   →  songs-test-3    (test/staging, version 3 — next)
+SongIndexProd-N   →  songs-prod-N    (production, version N)
+SongIndexTest-N   →  songs-test-N    (test/staging, version N)
 SongIndexExperimental → songs-experimental  (freeform; auto-treated as next version)
 ```
 
@@ -58,8 +65,8 @@ Similarly, `SongIndex.Create()` returns a `SongIndexNext` for experimental/next-
 
 **`SongIndexNext` must override `IsNext => true`.** Every index operation (`ResetIndex`,
 `BuildIndex`, `GetSearchClient`, `GetVersionedName`) routes to the correct versioned index name via
-`IsNext`. Without this override, all operations silently target the old index (`songs-prod-2`
-instead of `songs-prod-3`).
+`IsNext`. Without this override, all operations silently target the old index (`songs-prod-N`
+instead of `songs-prod-N+1`).
 
 ```csharp
 public override bool IsNext => true;
@@ -70,193 +77,37 @@ data used for sort-by-popularity. There is no need for a `Tempo` sub-field there
 non-single-dance queries (including the "all dances" case) fall back to the top-level song `Tempo`
 field. Populating `dance_ALL/Tempo` would just duplicate `song.Tempo` with no consumer.
 
-### `// TODOIDX:` Markers
+### `// TODOIDX:` markers
 
-Code that must be **removed** once the migration to the next index version is complete is tagged with
-`// TODOIDX:` comments. These exist so that compatibility shims are easy to find and clean up after
-cutting over production.
+Code that must be **removed** once a migration completes is tagged `// TODOIDX:`, so the
+compatibility shims are easy to find and delete after cutover.
 
-Current `TODOIDX` items (as of version 2 → 3 migration):
+## Local development profiles
 
-| File           | Symbol                    | Action                                            |
-| -------------- | ------------------------- | ------------------------------------------------- |
-| `SongIndex.cs` | `DanceTagsInferred` field | Remove field from index schema and all references |
-| `Song.cs`      | `TitleHashField`          | Remove field from index schema and all references |
-| `Song.cs`      | `FailedLookup` clean-up   | See inline comment                                |
+Launch profiles in `m4d/Properties/launchSettings.json`:
 
----
+| Profile | `SEARCHINDEX` | `SEARCHINDEXVERSION` | When to use |
+| --- | --- | --- | --- |
+| `m4d-vite` (and `m4d-build`, `m4d-vite-no-compression`, `m4d-spotify`) | `SongIndexTest` | unset, so `CodeVersion` | Normal development against the current test index |
+| `m4d-experimental` | `SongIndexExperimental` | auto +1 | Freeform experiments; no migration needed |
+| `m4d-next` | `SongIndexTest` | `3` | Meant to be `CodeVersion + 1`. **Stale:** must be bumped to the next version before it selects the next schema |
+| `m4d-prod-db` | `SongIndexProd` | unset | Reproduce a production bug against the production index |
+| `m4d-test-db` | `SongIndexTest` | unset | Integration testing against the test index |
 
-## Local Development Profiles
+## Testing breaking changes
 
-Launch profiles in `m4d/Properties/launchSettings.json` cover the most common combinations:
-
-| Profile            | `SEARCHINDEX`           | `SEARCHINDEXVERSION`    | When to use                                                                             |
-| ------------------ | ----------------------- | ----------------------- | --------------------------------------------------------------------------------------- |
-| `m4d-vite`         | `SongIndexTest`         | _(unset → CodeVersion)_ | Normal development against the current test index                                       |
-| `m4d-experimental` | `SongIndexExperimental` | _(auto +1)_             | Quick freeform experiments — no migration needed                                        |
-| `m4d-next`         | `SongIndexTest`         | `4` (CodeVersion+1)     | Test a _specific_ next-version schema against the test index before going to production |
-| `m4d-prod-db`      | `SongIndexProd`         | _(unset)_               | Reproduce a production bug against the production index                                 |
-| `m4d-test-db`      | `SongIndexTest`         | _(unset)_               | Integration testing against the test index                                              |
-
----
-
-## Implementing a Breaking Change
-
-### Step 1 — Define the new schema in `SongIndexNext`
-
-Override `IsNext`, `BuildIndex()`, and any other methods in `SongIndexNext.cs`. **`IsNext => true`
-is mandatory** — it controls which versioned index name is used by every operation in the base
-class. Without it, `ResetIndex`, `UploadIndex`, and the search client all silently target the old
-index.
-
-```csharp
-public override bool IsNext => true;
-```
-
-Override `BuildIndex()` to emit the new Azure AI Search index schema. The base
-`SongIndex.BuildIndex()` continues to emit the old schema for backwards compatibility until the
-migration is complete.
-
-### Step 2 — Add any filter logic in `SongFilterNext`
-
-If the new schema requires different OData filter expressions, override the relevant methods/
-properties in `SongFilterNext.cs`. Keep `SongFilter` generating the old expressions so the old
-index continues to work.
-
-### Step 3 — Add compatibility shims with `TODOIDX` markers
-
-If the running code needs to support _both_ schemas simultaneously (e.g., reading a field that
-exists only in the old schema), add a guard and tag it:
-
-```csharp
-// TODOIDX: Remove DanceTagsInferred once index is updated to version 3
-if (!SongIndex.IsNext)
-{
-    // ... old behaviour
-}
-```
-
-### Step 4 — Bump `CodeVersion`
-
-In `SearchServiceManager`, increment `CodeVersion` from `N` to `N+1`.
-
-Add the new index name entries to `appsettings.json`:
-
-```json
-"SongIndexProd-3": { "endpoint": "...", "indexname": "songs-prod-3" },
-"SongIndexTest-3": { "endpoint": "...", "indexname": "songs-test-3" }
-```
-
-(The old `-2` entries remain until the migration is complete and the old index is deleted.)
-
-### Step 5 — Test with `m4d-next` profile
-
-Run the application with the `m4d-next` launch profile. This points at `SongIndexTest` but with
-`SEARCHINDEXVERSION` set to the new version, so `NextVersion = true` and the app uses
-`SongIndexNext` + `SongFilterNext`.
-
-The `songs-test-3` Azure index must exist; create and populate it by running
-`Admin → UpdateSearchIdx` (or `CloneIdx` followed by `SetSearchIdx`).
-
-### Step 6 — Validate and prepare production migration
-
-Once you are satisfied with the behaviour on the test index:
-
-1. Confirm `songs-prod-3` is provisioned in Azure AI Search (it can be empty at this point).
-2. Merge the feature branch to `main` and deploy to the staging / production App Service with
-   `SEARCHINDEXVERSION` still _unset_ (so the current schema remains live).
-3. Verify the deployment is healthy on the current schema.
-
----
-
-## Production Migration Runbook
-
-> **Prerequisites**: The new `songs-prod-N+1` index name has been provisioned in Azure AI Search
-> and added to `appsettings.json`. The code for the new schema is deployed to production with
-> `SEARCHINDEXVERSION` still unset.
->
-> **Per-dance tempo cutover note**: keep `CodeVersion = 2` during this runbook. The live switch
-> to next-version behavior is performed by `UpdateSearchIdx` via `RedirectToUpdate()` (sets
-> `ConfigVersion = CodeVersion + 1`).
-
-### Step 1 — Navigate to the Admin Diagnostics page
-
-`/Admin/Diagnostics` — confirm the current index and version are as expected for pre-cutover
-state (current index active, next-version index configured but not yet live).
-
-### Step 2 — Run `UpdateSearchIdx`
-
-`GET /Admin/UpdateSearchIdx` (requires `showDiagnostics` role).
-
-What happens internally (`DanceMusicCoreService.UpdateIndex`):
-
-1. Posts a site-wide banner: _"We are upgrading infrastructure …"_
-2. Creates/resets `songs-prod-N+1` via `SongIndexNext.ResetIndex()`.
-3. Streams all songs from the current index using `BackupIndexStreamingAsync()` (no 100 K limit).
-4. Uploads the backup to the new index via `UploadIndex()`.
-5. Calls `SearchService.RedirectToUpdate()`, setting `ConfigVersion = CodeVersion + 1` → `NextVersion = true`.
-6. Returns to Admin controller, which reloads dance stats from Azure.
-7. Clears the banner message.
-
-### Step 3 — Verify
-
-Browse the site. Spot-check song search, dance pages, and tag filters. Check `/Admin/Diagnostics`
-to confirm the active index is now `songs-prod-N+1`.
-
-For per-dance tempo specifically, verify at least one single-dance tempo filter/sort query emits
-`dance_{id}/Tempo` in diagnostics.
-
-### Step 4 — Clean up `TODOIDX` items
-
-Remove all `// TODOIDX:` compatibility shims from the codebase. Run all tests.
-
-For per-dance tempo migration, do this in a follow-up PR after cutover is stable.
-
-### Step 5 — Remove the old index section from `appsettings.json`
-
-Delete the `SongIndexProd-N` entry (e.g. `SongIndexProd-2`) from `appsettings.json` and from
-Azure AI Search. Keep the `N+1` entry as the new current version.
-
-### Step 6 — Bump `CodeVersion` (if not already done)
-
-If `CodeVersion` was bumped in Step 4 of _Implementing a Breaking Change_, this is already done.
-Re-deploy so the constant matches the live index.
-
-For the current per-dance rollout path, this is an explicit post-cutover step.
-
----
-
-## Rollback
-
-If the migration fails or the new index behaves incorrectly:
-
-1. Call `Admin/SetSearchIdx?id=SongIndexProd` (or the specific old-version id) to switch back to
-   the previous index immediately — no redeploy required.
-2. Dance stats will reload automatically.
-3. Investigate the issue, fix, and re-run `UpdateSearchIdx` when ready.
-
----
-
-## Testing Breaking Changes
-
-Use `DanceMusicTester` in the server-side test suite. The `SearchServiceManager` used in tests is
-created via `Mock<ISearchServiceManager>` and wired to return `SongFilter.Create(nextVersion, ...)`.
-To test next-version behaviour, pass `nextVersion: true`:
+Use `DanceMusicTester` in the server tests. The `ISearchServiceManager` there is a mock; make it
+return `SongFilter.Create(nextVersion: true, …)` and `NextVersion = true` to exercise next-version
+behavior:
 
 ```csharp
 mockSearchService
     .Setup(m => m.GetSongFilter(It.IsAny<string>()))
     .Returns<string>(s => SongFilter.Create(/* nextVersion */ true, s));
-
-mockSearchService
-    .Setup(m => m.NextVersion)
-    .Returns(true);
+mockSearchService.Setup(m => m.NextVersion).Returns(true);
 ```
 
-Integration tests that require the actual Azure index should use the `m4d-next` launch profile
-and the test index. Unit tests should use mocks.
-
----
+Integration tests that need a real Azure index use the `m4d-next` profile and the test index.
 
 ## Architecture Diagram
 
@@ -274,19 +125,46 @@ and the test index. Unit tests should use mocks.
               │                                 │
     ┌─────────▼──────────┐          ┌───────────▼──────────┐
     │   SongIndex         │          │   SongIndexNext       │
-    │  BuildIndex() v2    │          │  BuildIndex() v3      │
+    │  BuildIndex() vN    │          │  BuildIndex() vN+1      │
     │  IsNext = false     │          │  IsNext = true        │
     └─────────┬──────────┘          └───────────┬──────────┘
               │                                 │
     ┌─────────▼──────────┐          ┌───────────▼──────────┐
     │   SongFilter        │          │   SongFilterNext      │
-    │  (OData filters v2) │          │  (OData filters v3)   │
+    │  (OData filters vN) │          │  (OData filters vN+1)   │
     └────────────────────┘          └──────────────────────┘
 
-Azure AI Search indices:
-  songs-prod-2   ← current production (old schema)
-  songs-prod-3   ← next production    (new schema, populated during UpdateSearchIdx)
-  songs-test-2   ← current test
-  songs-test-3   ← next test
-  songs-experimental ← freeform (always IsNext = true)
+Azure AI Search indices (appsettings.json, as of 2026-10-01):
+  songs-prod-3, songs-test-3   ← current (CodeVersion 3)
+  songs-prod-4, songs-test-4   ← next-version slots, configured
+  songs-prod-2, songs-test-2   ← v2 leftovers; cleanup step not yet done
+  songs-experimental           ← freeform (always IsNext = true)
 ```
+
+## Known issues
+
+- **Leftover `TODOIDX` shims** from the v2 → v3 migration:
+  - `Song.TitleHashField` (`Song.cs`)
+  - `SongIndex.DanceTagsInferred` (`SongIndex.cs`)
+
+  Remove them from the schema and every reference.
+- **`SongIndexProd-2` / `SongIndexTest-2` are still configured**, and the old indexes may still
+  exist in Azure AI Search.
+- **The `m4d-next` profile's `SEARCHINDEXVERSION` is stale** (`3`, which equals `CodeVersion`).
+
+## History
+
+- PR #27: Versioning mechanism introduced.
+- 2026: v2 → v3 migration (per-dance tempo: `dance_{id}/Tempo` fields), cut over with
+  `UpdateSearchIdx`. During that cutover `CodeVersion` stayed at 2 and was bumped afterwards; the
+  runbook now reflects that order.
+- 2026-08: `-4` index entries added to `appsettings.json`.
+- 2026-10-01: The production migration steps moved to a runbook. The old step order, which bumped
+  `CodeVersion` *before* cutover, was corrected.
+
+## Related
+
+- [runbooks/search-index-breaking-migration](../runbooks/search-index-breaking-migration.md)
+- [index-backup-streaming](index-backup-streaming.md): how `UpdateSearchIdx` copies every song
+- [song-filter](song-filter.md): `SongFilter` / `SongFilterNext` and OData generation
+- [song-internal-format](../songs/song-internal-format.md): index storage compression
