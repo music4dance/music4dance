@@ -66,6 +66,7 @@ procedural, to become a runbook.
 | --- | --- | --- |
 | [tempo-list-page](pages/tempo-list-page.md) | Ref | Dance Tempi page: client-side filtering, shareable URLs |
 | [tempo-counter-page](pages/tempo-counter-page.md) | Ref | Tempo Counter page: tap tempo, matching, shareable URLs |
+| [content-pages](pages/content-pages.md) | Ref | `/dances/...` dispatcher (style index, dance details, competition categories, wedding), custom searches, New Music, Spotify Explorer |
 | [blog-help-sitemap](pages/blog-help-sitemap.md) | Ref | `blogmap.txt` / `helpmap.txt` format, parsing (`SiteMapInfo`), where it's consumed, data history |
 | [visitor-engagement-monetization](pages/visitor-engagement-monetization.md) | Ref | Progressive engagement prompts for anonymous visitors and subscribers |
 
@@ -154,7 +155,5 @@ Areas with real code but no architecture doc yet, in the order they're planned t
 8. **Background work and startup**: `BackgroundTaskQueue`, `StartupInitializationService`,
    `DatabaseRecoveryService`, recompute jobs.
 9. **Data layer**: `DanceMusicContext`, EF migrations workflow, backup/restore.
-10. **Content pages**: dance details, competition categories, style indexes, wedding, new music,
-    Spotify explorer, custom searches.
 
 When you notice another gap, add it here.
