@@ -35,6 +35,7 @@ procedural, to become a runbook.
 | [waltz-correction-controls](songs/waltz-correction-controls.md) | Ref | `WaltzCorrectionCard`: fixing Waltz + `4/4` meter conflicts |
 | [individual-artists](songs/individual-artists.md) | Ref | `Artists` property, the credit splitter, artist index, backfill and operations |
 | [artist-pages](songs/artist-pages.md) | Ref | `/song/artist` page: server wiring, rendering, link generation |
+| [tag-system](songs/tag-system.md) | Ref | Tag categories, primary/alias tag rings (`TagGroup`), the `TagManager` cache, index fields, `TagController`, client `Tag`/`TagList`/`TagQuery`, tag editing UI |
 
 ## Search
 
@@ -154,7 +155,6 @@ Areas with real code but no architecture doc yet, in the order they're planned t
    handoff, the `Vue3()` helper, shared models and composables.
 3. **Dance domain model**: DanceLib, `dances.json` / dance groups, tempo ranges, organizations,
    `DanceStats` and its hosted service.
-4. **Tag system**: tag categories and groups, `TagController`, the tag index.
 5. **Payments and premium**: `CommerceController`, `PaymentController`, subscription roles, gating.
 6. **Configuration and feature flags reference**: every key and flag, with its source and default.
 8. **Background work and startup**: `BackgroundTaskQueue`, `StartupInitializationService`,

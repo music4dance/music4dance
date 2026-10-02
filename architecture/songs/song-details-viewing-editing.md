@@ -431,4 +431,5 @@ song tempo whenever any dance overrides it, giving a single-field proxy for
 | `m4dModels/SongFilterNext.cs`                     | Per-dance tempo sort/filter (`dance_{id}/Tempo`)                                             |
 | `architecture/songs/song-upload-format.md`                | Property serialization format reference                                                      |
 | `architecture/songs/dance-family-voting.md`      | Dance family voting details                                                                  |
+| [tag-system](tag-system.md)                       | Tag vocabulary, tag rings, tag cache, client tag models and components                       |
 | `architecture/search/search-index-versioning.md`         | Index schema versioning mechanism used for the v3 cutover                                    |
