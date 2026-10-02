@@ -263,6 +263,7 @@ skipped with a message rather than placed automatically — categorization stays
 
 ## Related
 
+- [content-pages](content-pages.md): the dance, competition, wedding and custom-search pages the site map links to
 - [`SiteMapInfo.cs`](../../m4d/ViewModels/SiteMapInfo.cs) — server-side parser/tree + static cache
 - [`SiteMapInfo.ts`](../../m4d/ClientApp/src/models/SiteMapInfo.ts) — client-side DTO mirror
 - [`BlogFeatureLink.vue`](../../m4d/ClientApp/src/components/BlogFeatureLink.vue) — recursive blog-tree renderer used on the home page

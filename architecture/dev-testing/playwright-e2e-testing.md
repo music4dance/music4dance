@@ -396,6 +396,7 @@ add them opportunistically when someone is already touching that area, not as a 
 
 ## Related Documents
 
+- [ci-cd-and-release](../infrastructure/ci-cd-and-release.md) � where the E2E workflow sits among the other GitHub checks
 - [contributor-test-environments.md](contributor-test-environments.md) — `m4d.Sandbox`, seeded
   users, and `SongIndexLocal` search/filter/sort (L1f), all treated as prerequisites here
 - [testing-patterns.md](testing-patterns.md) — serialized song format used by the sandbox's own
