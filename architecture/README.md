@@ -38,19 +38,18 @@ procedural, to become a runbook.
 | [song-search-service](search/song-search-service.md) | Ref | `SongSearch`: premium gating, user queries, vote/edited-by post-filters, logging |
 | [song-search-results](search/song-search-results.md) | Ref | `SongController` list-returning actions and the results pipeline |
 | [saved-searches](search/saved-searches.md) | Ref | Search logging, "My Searches", anonymize/merge |
-| [search-index-versioning](search/search-index-versioning.md) | Ref + Guide | Index schema versions; contains the **production migration runbook** |
-| [index-backup-streaming](search/index-backup-streaming.md) | Done plan | Streaming index backup with key-set pagination |
+| [search-index-versioning](search/search-index-versioning.md) | Ref | Index schema versions (`CodeVersion` / `ConfigVersion`, `SongIndexNext`), current index state, launch profiles, known cleanup debt |
+| [index-backup-streaming](search/index-backup-streaming.md) | Ref | Unlimited full-index streaming (composite key-set pagination) for backups, clones, migrations and reloads |
 
 ## Music services and playlists
 
 | Doc | Kind | What it covers |
 | --- | --- | --- |
-| [music-service-integration](music-services/music-service-integration.md) | Ref | Overview: service registry, per-service behavior, purchase IDs/filtering, client rendering |
+| [music-service-integration](music-services/music-service-integration.md) | Ref | Overview: service registry, per-service behavior (incl. Amazon search links + OneLink), purchase IDs/filtering, client rendering |
 | [music-service-model](music-services/music-service-model.md) | Ref | `MusicService` class hierarchy, `ServiceTrack`, `AlbumDetails`, property encoding |
 | [music-service-api-calls](music-services/music-service-api-calls.md) | Ref | `MusicServiceManager` HTTP flows, Spotify OAuth tokens, enrichment, playlists |
-| [amazon-music-renewal](music-services/amazon-music-renewal.md) | Done plan | Amazon options survey and the implemented search-link approach |
 | [playlist-management](music-services/playlist-management.md) | Ref | `PlayList` model, admin UI, SongsFromSpotify / SpotifyFromSearch |
-| [spotify-playlist-automation](music-services/spotify-playlist-automation.md) | Ref + Guide + Plan | What runs when and as whom; **SpotifyFromSearch maintenance runbook**; automation plan |
+| [spotify-playlist-automation](music-services/spotify-playlist-automation.md) | Ref | What runs when and as whom (app token vs user token), Logic App jobs, `UpdateBatch`, known issues |
 
 ## Users and admin
 
@@ -89,11 +88,8 @@ procedural, to become a runbook.
 
 | Doc | Kind | What it covers |
 | --- | --- | --- |
-| [client-side-usage-logging](observability/client-side-usage-logging.md) | Ref | Client-side page-view tracking, feature flags, cache-control interplay |
-| [usage-log-analysis-plan](observability/usage-log-analysis-plan.md) | Done plan | UsageLog analysis pages, bot detection, indexes |
-| [application-log-persistence-plan](observability/application-log-persistence-plan.md) | Ref + Plan | Filesystem log persistence (done); heavier options (proposed) |
-| [memory-diagnostics-plan](observability/memory-diagnostics-plan.md) | Ref + Plan | GC diagnostics (Phase 1 done); snapshots/advanced tooling (proposed) |
-| [server-side-testing-analysis](observability/server-side-testing-analysis.md) | Done plan | Integration tests for `UsageLogApiController` |
+| [usage-tracking](observability/usage-tracking.md) | Ref | Page-view `UsageLog`: server vs client-side recording, batch endpoint, admin analysis pages, the antiforgery 400 root cause |
+| [logging-and-diagnostics](observability/logging-and-diagnostics.md) | Ref | Where app logs go (filesystem Warning+), orphaned App Insights, GC snapshots, forced GC, memory dumps |
 
 ## Development and testing
 
@@ -112,8 +108,8 @@ into `runbooks/` as its area is consolidated.
 
 | Task | Where it is today |
 | --- | --- |
-| Roll out a breaking search-index schema change | [search-index-versioning § Production Migration Runbook](search/search-index-versioning.md#production-migration-runbook) |
-| Maintain SpotifyFromSearch playlists manually | [spotify-playlist-automation § Runbook](music-services/spotify-playlist-automation.md#runbook-manual-spotifyfromsearch-maintenance) |
+| Roll out a breaking search-index schema change | [runbooks/search-index-breaking-migration](runbooks/search-index-breaking-migration.md) |
+| Maintain SpotifyFromSearch playlists (new dances, seasons, refresh) | [runbooks/spotify-from-search-maintenance](runbooks/spotify-from-search-maintenance.md) |
 | Roll out / re-run / roll back the artist index | [runbooks/artist-index-operations](runbooks/artist-index-operations.md) |
 | Triage the production 4xx export | [runbooks/triage-4xx](runbooks/triage-4xx.md) (automated by the `analyze-4xx` skill) |
 | Respond to an attack or traffic spike on login/register | [runbooks/respond-to-attack](runbooks/respond-to-attack.md) |
@@ -136,9 +132,9 @@ into `runbooks/` as its area is consolidated.
 | Key Vault RBAC migration | Not started (vault `music4dance` still uses access policies, verified 2026-10-01) | [plans/key-vault-rbac-migration](plans/key-vault-rbac-migration.md) |
 | Attack mitigation Phase 2+ (telemetry, alerts, WAF, honeypots) | Proposed | [plans/attack-mitigation-phase2](plans/attack-mitigation-phase2.md) |
 | Contributor environments L2+ | Proposed | [contributor-test-environments](dev-testing/contributor-test-environments.md) |
-| Automate browser-driven Spotify playlist jobs | Proposed | [spotify-playlist-automation § Plan](music-services/spotify-playlist-automation.md#plan-automating-category-2) |
-| Application log persistence options 2–4 | Proposed | [application-log-persistence-plan](observability/application-log-persistence-plan.md) |
-| Memory diagnostics Phases 2–4 | Proposed | [memory-diagnostics-plan](observability/memory-diagnostics-plan.md) |
+| Spotify service-account automation (write playlists without a browser session) | Proposed; `UpdateBatch` step shipped (#299) | [plans/spotify-service-account-automation](plans/spotify-service-account-automation.md) |
+| Durable log storage (Blob / Log Analytics / tuned App Insights) | Proposed | [plans/log-persistence-options](plans/log-persistence-options.md) |
+| Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
 | Dance family voting next steps | Proposed | [plans/dance-family-voting-next](plans/dance-family-voting-next.md) |
 
 ## Coverage gaps

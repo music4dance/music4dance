@@ -160,7 +160,7 @@ The only automatic remedy is a forced worker replacement after an hour of contin
 
 App Service filesystem application logging captures Warning and above. The console output,
 including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
-[application-log-persistence-plan](../observability/application-log-persistence-plan.md).
+[logging-and-diagnostics](../observability/logging-and-diagnostics.md).
 
 ## Future improvements
 

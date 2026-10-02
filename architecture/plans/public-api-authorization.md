@@ -619,7 +619,7 @@ public class ApiDeviceAllowance                 // lifetime trial tracking
 Per project convention: no nullable reference type annotations — check null explicitly.
 
 Extend `UsageLog` with a nullable `ClientId` so API traffic is separable from site traffic in
-the existing analytics ([usage-log-analysis-plan.md](../observability/usage-log-analysis-plan.md)).
+the existing analytics ([usage-tracking.md](../observability/usage-tracking.md)).
 
 ---
 

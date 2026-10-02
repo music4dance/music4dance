@@ -1,5 +1,10 @@
 # Playlist Management
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4dModels/PlayList.cs`, `m4d/Controllers/PlayListController.cs`, `m4d/ClientApp/src/pages/playlist/`
+
 ## Overview
 
 music4dance supports two types of playlists that bridge the internal song catalog with Spotify:

@@ -73,7 +73,7 @@ All three consult `SpiderManager`, but check different lists and produce differe
    detail pages normally; only known-abusive scrapers are turned away.
 
 3. **Usage-log suppression** — the legacy server-side tracking path in
-   `DanceMusicController.OnActionExecutionAsync` (see [client-side-usage-logging](../observability/client-side-usage-logging.md) §4.2) calls
+   `DanceMusicController.OnActionExecutionAsync` (see [usage-tracking](../observability/usage-tracking.md#two-recording-paths)) calls
    `CheckAnySpiders` to skip writing a `UsageLog` row for bot traffic, independent of whether the
    request is otherwise short-circuited.
 
@@ -278,7 +278,7 @@ Procedures that use this page: [runbooks/respond-to-attack](../runbooks/respond-
   cross-instance aggregation.
 - **No automated alerting.** Someone has to look at `/Admin/Diagnostics`. Application Insights is
   not currently enabled; see
-  [application-log-persistence-plan](../observability/application-log-persistence-plan.md).
+  [log-persistence-options](../plans/log-persistence-options.md).
 - **The global limit can catch real users** during an attack. They get a friendly `429` and,
   after it clears, a CAPTCHA.
 - **Fixed windows.** The rate-limit window is 1 minute, the CAPTCHA lasts 5 minutes, and history
@@ -325,4 +325,4 @@ Procedures that use this page: [runbooks/respond-to-attack](../runbooks/respond-
 - [plans/attack-mitigation-phase2](../plans/attack-mitigation-phase2.md)
 - [hosting-and-identity](../infrastructure/hosting-and-identity.md): pipeline order, cache headers, forwarded headers
 - [account-management](../users-admin/account-management.md): Identity, lockout, user policies
-- [client-side-usage-logging](../observability/client-side-usage-logging.md): usage logging and the antiforgery `400` investigation
+- [usage-tracking](../observability/usage-tracking.md): usage logging and the antiforgery `400` investigation
