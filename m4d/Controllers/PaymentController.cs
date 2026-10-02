@@ -120,6 +120,8 @@ public class PaymentController : CommerceController
 
         var options = new SessionCreateOptions
         {
+            // Records who started the checkout; Success only credits this account.
+            ClientReferenceId = user?.Id,
             CustomerEmail = user?.Email,
             Metadata = new Dictionary<string, string>
             {
@@ -145,6 +147,36 @@ public class PaymentController : CommerceController
             .Replace("%7B", "{").Replace("%7D", "}");
     }
 
+    internal enum SessionAccess
+    {
+        Allowed,
+        SignInRequired,
+        Denied
+    }
+
+    /// <summary>
+    /// Decides whether the current visitor may complete a checkout session. A session started by a
+    /// signed-in user (ClientReferenceId set) may only be completed by that user, so a sign-in is
+    /// required if nobody is signed in. A session started anonymously (an anonymous donation) may
+    /// only be completed anonymously, since it never credits an account.
+    /// </summary>
+    internal static SessionAccess CheckSessionAccess(string clientReferenceId, string userId)
+    {
+        if (string.IsNullOrEmpty(clientReferenceId))
+        {
+            return userId == null ? SessionAccess.Allowed : SessionAccess.Denied;
+        }
+
+        if (userId == null)
+        {
+            return SessionAccess.SignInRequired;
+        }
+
+        return string.Equals(clientReferenceId, userId, StringComparison.Ordinal)
+            ? SessionAccess.Allowed
+            : SessionAccess.Denied;
+    }
+
     private static readonly HashSet<string> _completedSessions = [];
 
     public async Task<IActionResult> Success([FromServices] SignInManager<ApplicationUser> signInManager, string session_id)
@@ -165,6 +197,17 @@ public class PaymentController : CommerceController
         var session = sessionService.Get(session_id);
 
         var user = await UserManager.GetUserAsync(User);
+        switch (CheckSessionAccess(session.ClientReferenceId, user?.Id))
+        {
+            case SessionAccess.SignInRequired:
+                return Challenge();
+            case SessionAccess.Denied:
+                Logger.LogWarning(
+                    "Checkout session {SessionId} opened by user {UserId}, but it belongs to {Owner}",
+                    session_id, user?.Id, session.ClientReferenceId ?? "an anonymous checkout");
+                return Forbid();
+        }
+
         if (session.PaymentStatus == "paid")
         {
             Logger.LogInformation(session.ToJson());

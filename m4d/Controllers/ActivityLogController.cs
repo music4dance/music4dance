@@ -2,6 +2,7 @@
 using m4d.Services.ServiceHealth;
 using m4d.ViewModels;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using Microsoft.FeatureManagement;
 
 namespace m4d.Controllers;
 
+[Authorize(Roles = "showDiagnostics")]
 public class ActivityLogController : DanceMusicController
 {
     public ActivityLogController(
