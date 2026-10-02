@@ -11,7 +11,7 @@ How documents in `architecture/` are organized, so anything can be found from
 | **Runbook**   | Step-by-step operational procedure: something a person runs, in order.       | `runbooks/`                                                 |
 | **Plan**      | A proposal or design for work that is **not yet implemented** (or only partly). | `plans/`                                                    |
 
-Area folders: `songs/`, `search/`, `music-services/`, `users-admin/`, `pages/`, `security/`,
+Area folders: `dances/`, `songs/`, `search/`, `music-services/`, `users-admin/`, `pages/`, `security/`,
 `infrastructure/`, `observability/`, `dev-testing/`. Add a new folder only when a new area
 doesn't fit any of these, and add it to the README.
 

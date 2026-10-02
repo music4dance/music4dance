@@ -186,3 +186,4 @@ automation problem.
 - [music-service-api-calls](music-service-api-calls.md)
 - [background-work-and-startup](../infrastructure/background-work-and-startup.md): `RecomputeController`, the shared token, and `AdminMonitor`
 - [payments-and-premium](../users-admin/payments-and-premium.md): what `/api/recompute/subscription` does
+- [dance-domain-model](../dances/dance-domain-model.md): what the `songstats` recompute rebuilds

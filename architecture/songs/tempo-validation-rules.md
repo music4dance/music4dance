@@ -157,3 +157,7 @@ auto-corrects meter. There's no admin UI for reviewing the tag yet; review means
 3. Periodically search for `check-accuracy:Tempo` and review flagged songs.
 4. Monitor false positive/negative rate on the 10 newly added dances. Waltz and Cha Cha remain plausible next candidates for extension based on the same half/double-time failure mode.
 5. On songs where a real user already set the song-level tempo (or a given dance's own override), the corresponding correction/promotion step is a guaranteed no-op (see "Per-Dance Tempo Edits" above). That's likely fine for most catalog songs, but hasn't been evaluated against how much of the catalog's tempo data traces back to real users versus service imports; worth checking before relying on the correction/promotion behavior at scale.
+
+## Related
+
+- [dance-domain-model](../dances/dance-domain-model.md): where `validation` lives in `dances.json` and the `DanceType` model

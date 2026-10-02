@@ -18,6 +18,12 @@ procedural, to become a runbook.
 | --- | --- | --- |
 | [overview](overview.md) | Ref | System map: projects, composition root, request flow (MVC + Vue pages, API), data stores, external services |
 
+## Dances
+
+| Doc | Kind | What it covers |
+| --- | --- | --- |
+| [dance-domain-model](dances/dance-domain-model.md) | Ref | `DanceLib` types, `dances.json` / `dancegroups.json`, styles, organizations and tempo exceptions, `DanceStats` build/cache/startup, client `DanceDatabase` loading |
+
 ## Songs: data model, editing, voting
 
 | Doc | Kind | What it covers |
@@ -158,8 +164,6 @@ Areas with real code but no architecture doc yet, in the order they're planned t
 1. **System overview**: projects, request flow, data stores, external services.
 1. **Frontend architecture**: one Vite entry per page, `PageFrame`, `menuContext` / `window.*Json`
    handoff, the `Vue3()` helper, shared models and composables.
-1. **Dance domain model**: DanceLib, `dances.json` / dance groups, tempo ranges, organizations,
-   `DanceStats` and its hosted service.
 1. **CI/CD and release**: `azure-pipelines.yml`, GitHub workflows, environments.
 1. **Background work and startup**: `BackgroundTaskQueue`, `StartupInitializationService`,
    `DatabaseRecoveryService`, recompute jobs.
