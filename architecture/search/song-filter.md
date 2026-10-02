@@ -443,7 +443,8 @@ Halloween, and Broadway "seasonal music" pages (`/customsearch?name=holiday|hall
 optionally `&dance={danceName}&page={n}`) — canned SEO landing pages, not user-driven search. It's
 a second, independent producer of `SongFilter` and a second, independent consumer of `SongSearch`,
 parallel to (but not routed through) the Advanced Search / `SongController` pipeline documented
-above.
+above. For the page itself (model, dance chooser, embedded playlist), see
+[content-pages](../pages/content-pages.md#custom-searches-custom-search).
 
 ### Building the filter
 
