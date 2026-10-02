@@ -861,6 +861,7 @@ public class AdminController(
     }
 
     [HttpGet]
+    [Authorize(Roles = "dbAdmin")]
     public ActionResult ToggleTestKeys()
     {
         GlobalState.UseTestKeys = !GlobalState.UseTestKeys;
@@ -904,8 +905,7 @@ public class AdminController(
 
     //
     // Get: //Reseed
-    //[Authorize(Roles = "dbAdmin")]
-    [AllowAnonymous]
+    [Authorize(Roles = "dbAdmin")]
     public async Task<IActionResult> Reseed([FromServices] UserManager<ApplicationUser> userManager,
         [FromServices] RoleManager<IdentityRole> roleManager)
     {
@@ -992,7 +992,7 @@ public class AdminController(
 
     //
     // Get: //ThrowException
-    [AllowAnonymous]
+    [Authorize(Roles = "showDiagnostics")]
     public ActionResult ThrowException()
     {
         throw new Exception("This is an intentional exception");
@@ -1000,7 +1000,7 @@ public class AdminController(
 
     //
     // GET: /Admin/SetLogLevel
-    [AllowAnonymous]
+    [Authorize(Roles = "showDiagnostics")]
     public ActionResult SetLogLevel(LogLevel level)
     {
         ViewBag.Name = "Set Log Level";
@@ -1013,7 +1013,7 @@ public class AdminController(
 
     //
     // Get: //TestLog
-    [AllowAnonymous]
+    [Authorize(Roles = "showDiagnostics")]
     public ActionResult TestLog(string message, LogLevel level)
     {
         ViewBag.Name = "Test Log";
@@ -1032,6 +1032,7 @@ public class AdminController(
 
     //
     // Get: //SetSearchIdx
+    [Authorize(Roles = "dbAdmin")]
     public ActionResult SetSearchIdx(string id)
     {
         Logger.LogInformation($"Set Search Index: '{id}'");
@@ -2166,8 +2167,7 @@ public class AdminController(
 
     //
     // Get: //RestoreDatabase
-    //[Authorize(Roles = "dbAdmin")]
-    [AllowAnonymous]
+    [Authorize(Roles = "dbAdmin")]
     public async Task<IActionResult> RestoreDatabase([FromServices] UserManager<ApplicationUser> userManager,
         [FromServices] RoleManager<IdentityRole> roleManager)
     {
@@ -2176,24 +2176,6 @@ public class AdminController(
         ViewBag.Name = "Restore Database";
         ViewBag.Success = true;
         ViewBag.Message = "Database was successfully restored.";
-
-        return View("Results");
-    }
-
-    //
-    // Get: //UpdateDatabase
-    [AllowAnonymous]
-    public ActionResult UpdateDatabase(string state = null)
-    {
-        // CORETODO: Do we need this?
-        Logger.LogInformation("Updating Database");
-        //var configuration = new Configuration();
-        //var migrator = new DbMigrator(configuration);
-        //migrator.Update(state);
-
-        //ViewBag.Name = "Update Database";
-        //ViewBag.Success = true;
-        //ViewBag.Message = "Database was successfully updated.";
 
         return View("Results");
     }
