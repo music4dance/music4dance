@@ -1,5 +1,10 @@
 # Artist Pages (`artist/App.vue`)
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4d/Controllers/SongController.cs` (`Artist`), `m4d/ClientApp/src/pages/artist/`
+
 ## Overview
 
 The Artist page shows every song by a given artist, along with a per-dance breakdown of how many of

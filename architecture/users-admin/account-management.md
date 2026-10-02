@@ -1,5 +1,10 @@
 # Account Management
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4d/Areas/Identity/`, `m4dModels/ApplicationUser.cs`, `m4d/Controllers/ApplicationUsersController.cs`, `m4dModels/DanceMusicService.cs` (`MergeUsers`)
+
 ## Overview
 
 music4dance.net uses ASP.NET Core Identity for authentication and user management.

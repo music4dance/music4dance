@@ -17,7 +17,7 @@ load, and add WAF and bot rules, while never caching authenticated or Identity r
   With no CDN in front, it currently only affects browser caching.
 - **Shipped:** the original blocker, client-side usage logging. It's behind the
   `ClientSideUsageLogging` feature flag; see
-  [client-side-usage-logging](../observability/client-side-usage-logging.md). Edge-cached pages
+  [usage-tracking](../observability/usage-tracking.md). Edge-cached pages
   skip `DMController.OnActionExecutionAsync`, so that flag **must be on** before caching is
   enabled, or page-view analytics silently drop.
 - **Not started:** the Front Door profile, routing and caching rules, WAF, and cutover. These are

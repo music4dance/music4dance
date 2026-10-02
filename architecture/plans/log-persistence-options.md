@@ -1,52 +1,22 @@
-# Application Log Persistence — Options Plan
+# Durable Application Log Storage
 
-## Overview
+**Type:** Plan
+**Status:** Proposed. Filesystem logging (the old "Option 1") shipped 2026-09-04; everything here
+is optional next steps.
+**Last verified:** 2026-10-01
 
-Investigated 2026-09-04: production "warning" logs appeared to be missing. Root cause turned out to be that **nothing persisted application logs anywhere at the time** — `az webapp log tail` / Azure Portal "Log stream" is a live, unbuffered tap on container stdout. If no one is actively connected at the moment a log line is written, it's gone. This affected both `msc4dnc` (production) and `m4d-test` equally; there was never a prod/test config difference.
+Today production Warning+ logs live only in App Service's rolling filesystem window (see
+[logging-and-diagnostics](../observability/logging-and-diagnostics.md)). The options below go from
+lightest and cheapest to heaviest, so that any further step is a deliberate choice, and so the
+uncapped-billing surprise from the last Application Insights setup isn't repeated.
 
-**Status: Option 1 is implemented** (both apps now persist Warning+ logs to the instance filesystem — see below). This document still lays out Options 2–4, ordered lightest/cheapest first, for if/when the rolling filesystem window stops being enough — so any further step is a deliberate choice instead of re-enabling the thing that caused a billing surprise last time.
+Goals:
+1. Warning+ (ideally Information+) logs survive, and can be reviewed tomorrow, not only live.
+2. Cost stays near zero or is hard-capped.
+3. Reuse or clean up the orphaned `m4d-staging` App Insights and Log Analytics resources instead
+   of provisioning a third logging resource.
 
-## Current State (verified via `az` CLI, 2026-09-04)
-
-- **App Service logging** (`az webapp log show`): `applicationLogs.fileSystem.level` and `azureBlobStorage.level` are both `Off` on **both** `msc4dnc` and `m4d-test`. No persistence configured anywhere.
-- **Diagnostic settings** on either App Service resource: none (`az monitor diagnostic-settings list` returns `[]`). Nothing is routed to Log Analytics.
-- **Application Insights**: an orphaned component named `m4d-staging` still exists (`Microsoft.Insights/components`, kind `web`), but lives in the auto-created `DefaultResourceGroup-WUS` resource group, not `m4d-Web`. It's workspace-based, backed by `DefaultWorkspace-<subscription>-WUS`, a `PerGB2018` (pay-as-you-go) Log Analytics workspace with **30-day retention and no daily cap (`dailyQuotaGb: -1`, unlimited)**. Neither app currently has an `APPLICATIONINSIGHTS_CONNECTION_STRING` app setting, so this component isn't receiving data right now — but the missing daily cap is almost certainly why cost scaled directly with traffic when it *was* wired in. That's the mistake to not repeat.
-- The app already calls `logging.AddAzureWebAppDiagnostics()` in [M4dApplicationExtensions.cs:85](../../m4d/Configuration/M4dApplicationExtensions.cs#L85) — Options 1 and 2 below need **zero code changes**, only Azure resource configuration, because that provider already reads the Filesystem/Blob toggle at runtime.
-- Production is a single instance, cost-driven, no SLA — favor options that don't add ongoing per-instance or scale-out complexity.
-
-## Goals
-
-1. Warning+ (ideally Information+) logs survive past the moment they're written — reviewable tomorrow, not just live.
-2. Cost stays near-zero or is hard-capped — no repeat of the App Insights surprise.
-3. Prefer reusing/cleaning up the orphaned `m4d-staging` resources over leaving them stranded or provisioning a third logging resource.
-
----
-
-## Option 1 — App Service "Application Logging (Filesystem)" (Free) — [IMPLEMENTED 2026-09-04]
-
-Toggle on in Portal (App Service → App Service logs) or via CLI, level `Warning`, for `msc4dnc` (and `m4d-test` if desired):
-
-```
-az webapp log config --name msc4dnc --resource-group m4d-Web \
-  --application-logging filesystem --level warning
-```
-
-Logs land in `/home/LogFiles/Application/*.txt` on the instance, viewable via Kudu (`https://msc4dnc.scm.azurewebsites.net/api/vfs/LogFiles/Application/`) or `az webapp log download`.
-
-- **Cost**: $0 — uses local disk already included with the App Service Plan.
-- **Effort**: one toggle, no code change, no new resource.
-- **Pros**: immediate, zero risk of surprise billing, works today.
-- **Cons**: rolling/quota-bound (old entries get overwritten, no long-term retention), not queryable or alertable, must download/grep manually, lives on the instance disk (fine here since production is single-instance, but wouldn't survive a host move/redeploy that wipes the filesystem).
-
-**Implemented 2026-09-04** on both `msc4dnc` and `m4d-test` via:
-
-```
-az webapp log config --name <app> --resource-group m4d-Web \
-  --application-logging filesystem --level warning \
-  --docker-container-logging filesystem
-```
-
-Note: on this Linux/container app, the Portal's "Application Logging" toggle only exposes an on/off "Gather STDOUT and STDERR output from the container" control with no Level dropdown (`--docker-container-logging`, filesystem/off — separate from the classic `--application-logging`/`--level` pair Windows apps expose). Set both flags together; `applicationLogs.fileSystem.level` came back `Warning` on verification for both apps. Side effect observed: this CLI command does a full overwrite of the site's logs config rather than a partial patch, so the unrelated Web server (HTTP) logging retention also changed on both apps (`retentionInDays: 30→3`, `retentionInMb: 35→100` on prod; similar on test) — left as-is, user confirmed it's fine.
+`logging.AddAzureWebAppDiagnostics()` is already wired in, so Option 2 needs no code change.
 
 ## Option 2 — App Service "Application Logging (Blob Storage)" (Pennies/month)
 
@@ -124,7 +94,6 @@ The `m4d-staging` Application Insights component and its `DefaultWorkspace-...-W
 
 ## Open decisions
 
-- [x] Which option(s) to implement, and for which app(s) — Option 1, both `msc4dnc` and `m4d-test`, implemented 2026-09-04
 - [ ] Retention/quota values for the chosen option — currently Azure's default filesystem quota for Application Logging; revisit if it fills up faster than expected
 - [ ] Whether Option 2 (Blob) is still wanted for longer-than-rolling-window retention
 - [ ] Fate of the orphaned `m4d-staging` App Insights + Log Analytics workspace

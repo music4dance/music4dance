@@ -1,5 +1,10 @@
 # Waltz 4/4 Correction Controls
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4d/ClientApp/src/pages/song/components/WaltzCorrectionCard.vue`, `m4d/ClientApp/src/pages/song/components/SongCore.vue`
+
 ## Problem
 
 A significant number of songs are tagged as both a Waltz dance style (SWZ, CSW, VWZ, TGV) and the meter tag `4/4:Tempo`. Waltzes are by definition 3/4, so this combination is almost always a data error introduced by the automated tempo algorithm. This feature gives `canEdit` users a one-click-then-save flow to correct these songs directly from the song details page.
@@ -149,7 +154,7 @@ for (const dr of waltzRatings) {
 
 ---
 
-## New Component — `WaltzCorrectionCard.vue`
+## `WaltzCorrectionCard.vue`
 
 **Location:** `src/pages/song/components/WaltzCorrectionCard.vue`
 
@@ -300,7 +305,7 @@ const applyTempoCorrection = (opt: { correctedTempo: number }) => {
 
 ---
 
-## Changes to `SongCore.vue`
+## Integration in `SongCore.vue`
 
 Add a new `<BRow>` after the existing dances + stats row, containing a single `<BCol>` that renders `<WaltzCorrectionCard>`:
 
@@ -322,20 +327,15 @@ The `v-if="editor && context.canEdit"` guard keeps the row out of the DOM entire
 
 ---
 
-## Files Affected
-
-| File                                                | Change                                                 |
-| --------------------------------------------------- | ------------------------------------------------------ |
-| `src/pages/song/components/WaltzCorrectionCard.vue` | **New** — the correction card component                |
-| `src/pages/song/components/SongCore.vue`            | Add `<WaltzCorrectionCard>` row after dances+stats row |
-
-No model changes are required. All mutations use existing `SongEditor` public API (`addProperty`, `modifyProperty`) and existing `Song` public API (`hasMeterTag`, `danceRatings`).
-
----
-
-## Open Questions / Future Work
+## Future improvements
 
 - **Per-waltz granularity:** If a song has multiple waltz ratings (e.g., both SWZ and VWZ), Case 1 applies `Fake:Tempo` to all of them. If individual waltz tagging is needed later, the card could be expanded to show one row per waltz.
 - **Undo:** All changes go through `SongEditor` and are reversible via "Cancel" before saving, or via "Undo My Changes" after saving.
 - **Plausible-range filtering:** `TEMPO_CORRECTION_CASES` currently shows all six ratios unconditionally, even when a candidate's `correctedTempo` falls well outside any real waltz range. A future enhancement could dim or hide implausible rows using the WLZ dances' tempo ranges as a sanity check — purely a display filter, since the user's manual count is the real source of truth.
 - **New failure modes:** If another miscount pattern turns up (e.g. a compound-meter mistake), add it to `TEMPO_CORRECTION_CASES` — no other code changes needed.
+
+## History
+
+- 2026: Shipped. Added `src/pages/song/components/WaltzCorrectionCard.vue` and a `SongCore.vue`
+  row, guarded by `editor && context.canEdit`. Originally written as an implementation plan;
+  retitled as a current-state reference on 2026-10-01.
