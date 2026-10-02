@@ -66,6 +66,7 @@ procedural, to become a runbook.
 | [user-name-visibility](users-admin/user-name-visibility.md) | Ref | Who sees real names vs pseudonyms vs `UNAVAILABLE` |
 | [admin-pages](users-admin/admin-pages.md) | Ref | Vue-rendered admin index pages and their paging strategies |
 | [bulk-operations](users-admin/bulk-operations.md) | Ref | Bulk song changes: filter-driven `BatchAdminEdit` / `BatchAdminModify` + `SongModifier`, and Admin Search modify/refresh by editor and date range |
+| [payments-and-premium](users-admin/payments-and-premium.md) | Ref | Stripe Checkout purchases and donations, subscription tiers, the `premium`/`trial` roles, expiry, and where premium is gated on server and client |
 
 ## Pages and engagement
 
@@ -159,7 +160,6 @@ Areas with real code but no architecture doc yet, in the order they're planned t
    handoff, the `Vue3()` helper, shared models and composables.
 1. **Dance domain model**: DanceLib, `dances.json` / dance groups, tempo ranges, organizations,
    `DanceStats` and its hosted service.
-1. **Payments and premium**: `CommerceController`, `PaymentController`, subscription roles, gating.
 1. **CI/CD and release**: `azure-pipelines.yml`, GitHub workflows, environments.
 1. **Background work and startup**: `BackgroundTaskQueue`, `StartupInitializationService`,
    `DatabaseRecoveryService`, recompute jobs.
