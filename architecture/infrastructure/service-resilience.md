@@ -217,6 +217,7 @@ There are no recovery emails. Configuration and testing steps are in
 ## Related
 
 - [hosting-and-identity](hosting-and-identity.md): App Service, health check probe, startup sequence
+- [configuration-and-feature-flags](configuration-and-feature-flags.md): the keys whose absence marks a service unavailable
 - [runbooks/configure-failure-email](../runbooks/configure-failure-email.md)
 - [runbooks/refresh-dance-fallback-snapshot](../runbooks/refresh-dance-fallback-snapshot.md)
 - [user-name-visibility](../users-admin/user-name-visibility.md): `UNAVAILABLE` rendering when user data can't be loaded

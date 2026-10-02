@@ -194,6 +194,7 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
 - [runbooks/deploy](../runbooks/deploy.md): running a deployment
 - [runbooks/provision-app-service](../runbooks/provision-app-service.md): creating a new instance end to end
 - [service-resilience](service-resilience.md): degradation, recovery and health endpoints
+- [configuration-and-feature-flags](configuration-and-feature-flags.md): every configuration key and feature flag, its source and default
 - [plans/key-vault-rbac-migration](../plans/key-vault-rbac-migration.md)
 - [plans/front-door-caching](../plans/front-door-caching.md)
 - [search-index-versioning](../search/search-index-versioning.md)
