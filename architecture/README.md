@@ -23,7 +23,7 @@ procedural, to become a runbook.
 | [add-augment-song](songs/add-augment-song.md) | Ref | `/song/augment`: locating a track, server-side lookup/dedup, saving user edits |
 | [service-track-lookup](songs/service-track-lookup.md) | Ref | Backend resolution of a Spotify/Apple track ID to a catalog song |
 | [drop-target-lookup](songs/drop-target-lookup.md) | Ref | `useDropTarget`: pasted service IDs/URLs in ordinary search boxes |
-| [dance-family-voting](songs/dance-family-voting.md) | Ref + Plan | Voting with style families (International, American, …); large "Next Steps" section |
+| [dance-family-voting](songs/dance-family-voting.md) | Ref | Voting with style families (International, American, …): auto-selection, family choice modal, vote/tag encoding |
 | [unconfirmed-dance-votes](songs/unconfirmed-dance-votes.md) | Ref | Excluding bulk-imported, unconfirmed dance ratings from default search |
 | [tempo-validation-rules](songs/tempo-validation-rules.md) | Ref | Half/double-time correction of imported Spotify tempos (`tempo-bot`) |
 | [waltz-correction-controls](songs/waltz-correction-controls.md) | Ref | `WaltzCorrectionCard`: fixing Waltz + `4/4` meter conflicts |
@@ -38,19 +38,18 @@ procedural, to become a runbook.
 | [song-search-service](search/song-search-service.md) | Ref | `SongSearch`: premium gating, user queries, vote/edited-by post-filters, logging |
 | [song-search-results](search/song-search-results.md) | Ref | `SongController` list-returning actions and the results pipeline |
 | [saved-searches](search/saved-searches.md) | Ref | Search logging, "My Searches", anonymize/merge |
-| [search-index-versioning](search/search-index-versioning.md) | Ref + Guide | Index schema versions; contains the **production migration runbook** |
-| [index-backup-streaming](search/index-backup-streaming.md) | Done plan | Streaming index backup with key-set pagination |
+| [search-index-versioning](search/search-index-versioning.md) | Ref | Index schema versions (`CodeVersion` / `ConfigVersion`, `SongIndexNext`), current index state, launch profiles, known cleanup debt |
+| [index-backup-streaming](search/index-backup-streaming.md) | Ref | Unlimited full-index streaming (composite key-set pagination) for backups, clones, migrations and reloads |
 
 ## Music services and playlists
 
 | Doc | Kind | What it covers |
 | --- | --- | --- |
-| [music-service-integration](music-services/music-service-integration.md) | Ref | Overview: service registry, per-service behavior, purchase IDs/filtering, client rendering |
+| [music-service-integration](music-services/music-service-integration.md) | Ref | Overview: service registry, per-service behavior (incl. Amazon search links + OneLink), purchase IDs/filtering, client rendering |
 | [music-service-model](music-services/music-service-model.md) | Ref | `MusicService` class hierarchy, `ServiceTrack`, `AlbumDetails`, property encoding |
 | [music-service-api-calls](music-services/music-service-api-calls.md) | Ref | `MusicServiceManager` HTTP flows, Spotify OAuth tokens, enrichment, playlists |
-| [amazon-music-renewal](music-services/amazon-music-renewal.md) | Done plan | Amazon options survey and the implemented search-link approach |
 | [playlist-management](music-services/playlist-management.md) | Ref | `PlayList` model, admin UI, SongsFromSpotify / SpotifyFromSearch |
-| [spotify-playlist-automation](music-services/spotify-playlist-automation.md) | Ref + Guide + Plan | What runs when and as whom; **SpotifyFromSearch maintenance runbook**; automation plan |
+| [spotify-playlist-automation](music-services/spotify-playlist-automation.md) | Ref | What runs when and as whom (app token vs user token), Logic App jobs, `UpdateBatch`, known issues |
 
 ## Users and admin
 
@@ -75,31 +74,21 @@ procedural, to become a runbook.
 
 | Doc | Kind | What it covers |
 | --- | --- | --- |
-| [distributed-attack-mitigation](security/distributed-attack-mitigation.md) | Ref + Plan | Rate limiting, CAPTCHA escalation, bot short-circuit, 4xx tracking; **4xx triage log** (used by the `analyze-4xx` skill); Phase 2 plan |
-| [identity-endpoint-protection](security/identity-endpoint-protection.md) | Ref | Random delays + rate limiting + CAPTCHA on `/identity/*`, diagnostics dashboard |
-| [meta-crawler-mitigation](security/meta-crawler-mitigation.md) | Ref | Meta/Facebook crawler redirect-loop handling |
+| [bot-and-abuse-defense](security/bot-and-abuse-defense.md) | Ref | Catalog bot short-circuit (`SpiderManager`), identity rate limits + CAPTCHA escalation + lockout, crawler short-circuit on login pages, 4xx-by-URL tracking, `/Admin/Diagnostics` |
 
 ## Infrastructure and deployment
 
 | Doc | Kind | What it covers |
 | --- | --- | --- |
-| [service-resilience-plan](infrastructure/service-resilience-plan.md) | Done plan | Graceful degradation when external services fail (overall design) |
-| service-resilience-phase[1](infrastructure/service-resilience-phase1-completion-report.md)–[2](infrastructure/service-resilience-phase2-completion-report.md)–[3](infrastructure/service-resilience-phase3-completion-report.md)–[4](infrastructure/service-resilience-phase4-completion-report.md)–[5](infrastructure/service-resilience-phase5-completion-report.md)–[6](infrastructure/service-resilience-phase6-completion-report.md)–[7](infrastructure/service-resilience-phase7-completion-report.md)–[8](infrastructure/service-resilience-phase8-completion-report.md)-completion-report | Done plan | Per-phase reports: health manager, backend degradation, frontend status, email alerts, static fallback cache, search credentials, DB reconnection, search throttling |
-| [deployment](infrastructure/deployment.md) | Guide | Azure Linux Web App deployment, framework-dependent vs self-contained |
-| [azure-app-service-setup-managed-identity](infrastructure/azure-app-service-setup-managed-identity.md) | Guide | Provisioning a new App Service with managed identity, end to end |
-| [managed-identity-self-contained-plan](infrastructure/managed-identity-self-contained-plan.md) | Done plan + Plan | Managed identity migration (done); Key Vault RBAC migration (not started) |
-| [email-notification-setup](infrastructure/email-notification-setup.md) | Guide | Configuring service-failure email via Azure Communication Services |
-| [front-door-implementation](infrastructure/front-door-implementation.md) | Ref + Plan | Cache-control middleware (shipped); Azure Front Door Phase 2 (not implemented) |
+| [hosting-and-identity](infrastructure/hosting-and-identity.md) | Ref | Environments, deployment pipeline and modes, managed identity per service, App Configuration, startup sequence, health checks, cache-control headers |
+| [service-resilience](infrastructure/service-resilience.md) | Ref | Graceful degradation and recovery when SQL, Search, App Configuration, OAuth, email or reCAPTCHA fail; health endpoints; status banner; admin failure emails; known issues |
 
 ## Observability
 
 | Doc | Kind | What it covers |
 | --- | --- | --- |
-| [client-side-usage-logging](observability/client-side-usage-logging.md) | Ref | Client-side page-view tracking, feature flags, cache-control interplay |
-| [usage-log-analysis-plan](observability/usage-log-analysis-plan.md) | Done plan | UsageLog analysis pages, bot detection, indexes |
-| [application-log-persistence-plan](observability/application-log-persistence-plan.md) | Ref + Plan | Filesystem log persistence (done); heavier options (proposed) |
-| [memory-diagnostics-plan](observability/memory-diagnostics-plan.md) | Ref + Plan | GC diagnostics (Phase 1 done); snapshots/advanced tooling (proposed) |
-| [server-side-testing-analysis](observability/server-side-testing-analysis.md) | Done plan | Integration tests for `UsageLogApiController` |
+| [usage-tracking](observability/usage-tracking.md) | Ref | Page-view `UsageLog`: server vs client-side recording, batch endpoint, admin analysis pages, the antiforgery 400 root cause |
+| [logging-and-diagnostics](observability/logging-and-diagnostics.md) | Ref | Where app logs go (filesystem Warning+), orphaned App Insights, GC snapshots, forced GC, memory dumps |
 
 ## Development and testing
 
@@ -113,22 +102,24 @@ procedural, to become a runbook.
 
 ## Runbooks
 
-These are still embedded in the docs above. Each will move into `runbooks/` as its area is
-consolidated.
+Rows that point outside `runbooks/` are procedures still embedded in other docs. Each will move
+into `runbooks/` as its area is consolidated.
 
 | Task | Where it is today |
 | --- | --- |
-| Roll out a breaking search-index schema change | [search-index-versioning § Production Migration Runbook](search/search-index-versioning.md#production-migration-runbook) |
-| Maintain SpotifyFromSearch playlists manually | [spotify-playlist-automation § Runbook](music-services/spotify-playlist-automation.md#runbook-manual-spotifyfromsearch-maintenance) |
-| Backfill / rebuild the artist index | [individual-artists § 11 Operations](songs/individual-artists.md#11-operations) |
-| Triage the production 4xx export | `analyze-4xx` skill + [distributed-attack-mitigation](security/distributed-attack-mitigation.md) triage log |
-| Provision a new App Service instance | [azure-app-service-setup-managed-identity](infrastructure/azure-app-service-setup-managed-identity.md) |
-| Deploy (framework-dependent / self-contained) | [deployment](infrastructure/deployment.md) |
-| Configure service-failure email alerts | [email-notification-setup](infrastructure/email-notification-setup.md) |
+| Roll out a breaking search-index schema change | [runbooks/search-index-breaking-migration](runbooks/search-index-breaking-migration.md) |
+| Maintain SpotifyFromSearch playlists (new dances, seasons, refresh) | [runbooks/spotify-from-search-maintenance](runbooks/spotify-from-search-maintenance.md) |
+| Roll out / re-run / roll back the artist index | [runbooks/artist-index-operations](runbooks/artist-index-operations.md) |
+| Triage the production 4xx export | [runbooks/triage-4xx](runbooks/triage-4xx.md) (automated by the `analyze-4xx` skill) |
+| Respond to an attack or traffic spike on login/register | [runbooks/respond-to-attack](runbooks/respond-to-attack.md) |
+| Provision a new App Service instance | [runbooks/provision-app-service](runbooks/provision-app-service.md) |
+| Deploy to test or production | [runbooks/deploy](runbooks/deploy.md) |
+| Configure service-failure email alerts | [runbooks/configure-failure-email](runbooks/configure-failure-email.md) |
+| Refresh the cold-start dance fallback snapshot | [runbooks/refresh-dance-fallback-snapshot](runbooks/refresh-dance-fallback-snapshot.md) |
 | Set up GTM / GA4 engagement tracking | [gtm-tracking-guide](pages/gtm-tracking-guide.md) |
 | Link new blog posts / help articles | [blog-help-sitemap](pages/blog-help-sitemap.md) (+ `scripts/add-new-blog-posts.mjs`) |
 | Add a new dance type | [adding-a-new-dance](dev-testing/adding-a-new-dance.md) |
-| Run tempo validation over the existing catalog | [tempo-validation-rules § Running Against the Existing Catalog](songs/tempo-validation-rules.md#running-against-the-existing-catalog) |
+| Run tempo validation over the existing catalog | [runbooks/validate-catalog-tempo](runbooks/validate-catalog-tempo.md) |
 | Set up a local contributor environment | [contributor-setup](dev-testing/contributor-setup.md) |
 
 ## Open plans
@@ -136,14 +127,14 @@ consolidated.
 | Plan | Status | Where |
 | --- | --- | --- |
 | Public API & third-party authorization (DanzQ) | Foundation (PR 1) merged behind a disabled flag; PR 2 on hold after Apple denied the business plan, alternatives being explored | [plans/public-api-authorization](plans/public-api-authorization.md) |
-| Azure Front Door caching (Phase 2) | Not implemented | [front-door-implementation § 5](infrastructure/front-door-implementation.md#5-rollout-plan) |
-| Key Vault RBAC migration | Not started (vault `music4dance` still uses access policies, verified 2026-10-01) | [managed-identity-self-contained-plan § Key Vault RBAC](infrastructure/managed-identity-self-contained-plan.md#key-vault-rbac-migration-plan) |
-| Distributed attack mitigation Phase 2 | Planning | [distributed-attack-mitigation](security/distributed-attack-mitigation.md) |
+| Azure Front Door caching | Not started; app-side prep shipped | [plans/front-door-caching](plans/front-door-caching.md) |
+| Key Vault RBAC migration | Not started (vault `music4dance` still uses access policies, verified 2026-10-01) | [plans/key-vault-rbac-migration](plans/key-vault-rbac-migration.md) |
+| Attack mitigation Phase 2+ (telemetry, alerts, WAF, honeypots) | Proposed | [plans/attack-mitigation-phase2](plans/attack-mitigation-phase2.md) |
 | Contributor environments L2+ | Proposed | [contributor-test-environments](dev-testing/contributor-test-environments.md) |
-| Automate browser-driven Spotify playlist jobs | Proposed | [spotify-playlist-automation § Plan](music-services/spotify-playlist-automation.md#plan-automating-category-2) |
-| Application log persistence options 2–4 | Proposed | [application-log-persistence-plan](observability/application-log-persistence-plan.md) |
-| Memory diagnostics Phases 2–4 | Proposed | [memory-diagnostics-plan](observability/memory-diagnostics-plan.md) |
-| Dance family voting next steps | Proposed | [dance-family-voting § Next Steps](songs/dance-family-voting.md#next-steps) |
+| Spotify service-account automation (write playlists without a browser session) | Proposed; `UpdateBatch` step shipped (#299) | [plans/spotify-service-account-automation](plans/spotify-service-account-automation.md) |
+| Durable log storage (Blob / Log Analytics / tuned App Insights) | Proposed | [plans/log-persistence-options](plans/log-persistence-options.md) |
+| Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
+| Dance family voting next steps | Proposed | [plans/dance-family-voting-next](plans/dance-family-voting-next.md) |
 
 ## Coverage gaps
 

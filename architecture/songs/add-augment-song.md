@@ -1,5 +1,11 @@
 # Add / Augment Song
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (purchase-ID persistence re-checked against `AlbumDetails.PurchaseDiff`; other code references checked)
+**Code:** `m4d/Controllers/SongController.cs` (`Augment`), `m4d/APIControllers/ServiceTrackController.cs`,
+`m4d/Utilities/MusicServiceManager.cs`, `m4dModels/AlbumDetails.cs`, `m4d/ClientApp/src/pages/augment/`
+
 ## Overview
 
 "Augment" is the user-facing flow for adding a song to the music4dance catalog, or attaching a
@@ -209,11 +215,16 @@ and every per-album field (`Album`, `Track`, `Publisher` — currently small, bu
 expected to grow this set, e.g. label, on-album title, release date) gets duplicated right along
 with it.
 
-**Shipped fix**: keep one `AlbumDetails` entry per real album, and let a single `Purchase`
-dictionary *value* hold more than one ID for the same service+type, comma-separated (service IDs
-themselves — Spotify/iTunes/Amazon — are alphanumeric and never contain a comma, so this is a safe
-in-band separator; SongProperty values otherwise only reserve `\t`, `\r\n`, and `=`, see
-`SongProperty.ToString`/`SongProperty(string,string)`). `AlbumDetails`
+**Shipped fix**: keep one `AlbumDetails` entry per real album, and let a slot hold more than one
+ID for the same service and type.
+
+- **In memory:** `AlbumDetails.Purchase[key]` holds the IDs comma-separated. Service IDs
+  (Spotify, iTunes, Amazon, ISRC) are alphanumeric and never contain a comma.
+- **In the property log:** each ID is its **own** `Purchase:NN:XY=id` property, and they
+  accumulate. Removing a single ID writes `Purchase-:NN:XY=id`. Replay rebuilds the joined
+  in-memory value. See [song-internal-format § 3.6](song-internal-format.md#36-album-fields).
+
+`AlbumDetails`
 ([AlbumDetails.cs](../../m4dModels/AlbumDetails.cs)) gained:
 
 | Member | Role |
@@ -252,43 +263,21 @@ strings (`ss`, `sa`, `is`, `ia`, `as`, `aa`). `PurchaseEncoded.cleanId` was upda
 at the first comma (in addition to its existing `[`-truncation for legacy annotations) before
 building a Spotify/iTunes/Amazon link — same "primary ID only" rule as the server.
 
-### Bug: accumulated IDs were not written to `SongProperties` (now fixed)
+### Persisting accumulated IDs: `PurchaseDiff`
 
-The `AddPurchaseId` / comma-separated-value design worked at the in-memory level but had a
-silent gap in the diff path that persists edits to the property log. `AlbumDetails.PurchaseDiff`
-(called by `ModifyInfo` → `EditCore` → `Song.Edit`) contains a "Change" branch that fires when
-a slot's value has mutated:
+`AlbumDetails.PurchaseDiff` (called by `ModifyInfo` → `EditCore` → `Song.Edit`) splits the old and
+new slot values into ID sets. It emits a `Purchase-` property for each ID that disappeared and a
+`Purchase` property for each ID that's new. Extending `"oldId"` to `"oldId,newId"` therefore
+writes exactly one new `Purchase:NN:SS=newId` property, and the new ID reaches the Azure
+`ServiceIds` field.
 
-```csharp
-// Before fix — the condition was always false:
-else if (!string.Equals(value, value))   // comparing the variable to itself!
-{
-    ChangeProperty(song, Index, Song.PurchaseField, key,
-        value, value);                    // and both old/new were the same
-}
-```
+History: an earlier version persisted the *combined* comma-joined value as a single property,
+and an early bug compared the old value with itself, so the change was never emitted at all. The
+per-ID diff replaced both, along with the `Purchase-` removal property.
 
-Because `!string.Equals(value, value)` is always `false`, the "Change" branch never fired. When
-`UpdateMusicServicePurchase` called `AddPurchaseId` to extend `"oldId"` to `"oldId,newId"` on
-the in-memory `edit` clone, the subsequent `EditSong` diff saw the change in the
-`Purchase` dictionary but never emitted a `SongProperty` for it. The property log (and therefore
-the Azure `ServiceIds` field) stayed at `"oldId"`, so the new ID was not searchable.
-
-**Fix** ([AlbumDetails.cs](../../m4dModels/AlbumDetails.cs), `PurchaseDiff`): compare `value`
-(the old slot value from `TryGetValue`) against `Purchase[key]` (the new slot value):
-
-```csharp
-else if (!string.Equals(value, Purchase[key]))
-{
-    ChangeProperty(song, Index, Song.PurchaseField, key,
-        value, Purchase[key]);
-}
-```
-
-Covered by `AlbumDetailsTests.PurchaseDiff_AccumulatedIdOnExistingSlot_EmitsChangeAndReturnsTrue`
-(unit test for `PurchaseDiff` directly) and
-`SongTests.Edit_AccumulatedTrackIdOnExistingAlbum_WritesCombinedIdToSongProperties`
-(integration test through `Song.Edit` → `EditCore` → `ModifyInfo` → `PurchaseDiff`).
+Covered by the `AlbumDetailsTests.PurchaseDiff_*` tests (slot unchanged, ID added, ID removed,
+slot removed) and by `SongTests.Edit_AccumulatedTrackIdOnExistingAlbum_WritesNewIdAsSeparateSongProperty`,
+an integration test through `Song.Edit`.
 
 ### Residual gaps from this approach
 

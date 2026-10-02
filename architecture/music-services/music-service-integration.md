@@ -1,5 +1,11 @@
 # Music Service Integration Architecture
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; the Amazon section was updated from the renewal plan)
+**Code:** `m4dModels/MusicService.cs` (and the per-service subclasses), `m4d/Utilities/MusicServiceManager.cs`,
+`m4d/ClientApp/src/models/Purchase.ts`, `m4d/ClientApp/src/helpers/ServiceMatcher.ts`
+
 music4dance integrates with three external music services (Spotify, iTunes/Apple Music, Amazon Music) to link songs to streaming/purchase options, auto-populate metadata when songs are added, and support playlist management.
 
 > This is the feature-level overview: registered services, purchase filtering, and client-side rendering. For the step-by-step HTTP call sequences see [music-service-api-calls.md](music-service-api-calls.md). For the class hierarchy and on-disk data encoding see [music-service-model.md](music-service-model.md).
@@ -109,6 +115,8 @@ Existing Amazon IDs remain stored in the database using a namespaced prefix:
 
 **Current state:** Search-link-only. No automated lookup or enrichment. Existing ASINs are retained in the database but not used in link generation. The "Available on Amazon" filter has been removed from the search UI (see Purchase Filtering below).
 
+**International storefronts (OneLink):** Every link points at `amazon.com` with the `msc4dnc-20` tag. Amazon Associates **OneLink** is enrolled for US, CA, FR, DE, IT, NL, PL, ES, SE and GB, and Amazon routes international visitors to their local storefront **server-side**, so no JS snippet is needed. To check that routing is active, click a link through a UK VPN exit and confirm it lands on amazon.co.uk. Commissions accrue per marketplace, so UK and CA registrations matter most for this audience. OneLink settings live in Associates Central (Tools → OneLink, and `/p/stores/globalStore`). Amazon's help pages require a login and their URLs change, so navigate there rather than bookmarking.
+
 ---
 
 ## HTTP Infrastructure
@@ -181,3 +189,28 @@ Spotify OAuth is configured in `m4d/Configuration/AuthenticationBuilderExtension
 For how the user's OAuth/refresh token is stored, resolved per-request, and renewed — including the user-facing playlist creation (`SongController.CreateSpotify`) and playlist track-add (`SpotifyPlaylistController`) entry points, and the known gap around Spotify's refresh-token expiration — see [music-service-api-calls.md § User OAuth Token Lifecycle](music-service-api-calls.md#user-oauth-token-lifecycle-spotify) and [§ Playlist Write Entry Points](music-service-api-calls.md#playlist-write-entry-points-user-facing).
 
 Batch/service-account operations use pseudo-users named `batch-s` (Spotify) and `batch-i` (iTunes) for audit trails in `EditSong` calls.
+
+## Future improvements
+
+- **Amazon Product Advertising API (PA-API 5):** real search, availability and ASIN refresh, for
+  accurate links and better affiliate conversion. `IsSearchable`, `ParseSearchResults` and
+  `ParseTrackResults` are the extension points, and the Spotify and iTunes credential and
+  rate-limit patterns are the template.
+- **Hybrid Amazon links:** use the direct `/dp/{ASIN}` link when an ASIN is stored, and fall back
+  to search otherwise. This is a getter change in `AmazonPurchaseInfo.link`, with no migration.
+- **Amazon ID entry in `ServiceMatcher`:** an `amazon.com/dp/{ASIN}` pattern, if manual entry is
+  ever wanted.
+- **More OneLink marketplaces** (AU, JP) if those audiences grow. Storefront choice by browser
+  locale, IP geolocation, or a profile setting was considered and isn't needed while OneLink
+  routing works.
+
+## History
+
+- 2026: **Amazon renewal.** Stale ASIN product links were replaced with affiliate *search*
+  links for every song. The "Available on Amazon" filter was removed. ASINs were kept in the
+  database unused. OneLink was enrolled for 10 marketplaces. Options considered: search links,
+  PA-API 5, embed/streaming links, and a hybrid with ASINs; geographic routing via single
+  storefront, OneLink, browser locale, IP geolocation, or user preference. The default `Purchase/any()` published
+  filter is unaffected, because retained ASINs still populate the `Purchase` collection.
+  Consolidated here from `amazon-music-renewal.md` on 2026-10-01.
+

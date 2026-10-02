@@ -619,7 +619,7 @@ public class ApiDeviceAllowance                 // lifetime trial tracking
 Per project convention: no nullable reference type annotations — check null explicitly.
 
 Extend `UsageLog` with a nullable `ClientId` so API traffic is separable from site traffic in
-the existing analytics ([usage-log-analysis-plan.md](../observability/usage-log-analysis-plan.md)).
+the existing analytics ([usage-tracking.md](../observability/usage-tracking.md)).
 
 ---
 
@@ -760,8 +760,7 @@ given this touches authentication:
 
 - [unconfirmed-dance-votes.md](../songs/unconfirmed-dance-votes.md) — vote trust model and the ±1 cap
 - [account-management.md](../users-admin/account-management.md) — where "Connected Apps" belongs
-- [identity-endpoint-protection.md](../security/identity-endpoint-protection.md) — existing identity hardening
-- [distributed-attack-mitigation.md](../security/distributed-attack-mitigation.md) — rate-limiting architecture
+- [bot-and-abuse-defense.md](../security/bot-and-abuse-defense.md) — existing identity hardening and rate-limiting architecture
 - [visitor-engagement-monetization.md](../pages/visitor-engagement-monetization.md) — subscription funnel
 - [music-service-model.md](../music-services/music-service-model.md) — service IDs, prefixes, `ServiceIds` field
 - [song-search-service.md](../search/song-search-service.md) — the search layer the API sits on

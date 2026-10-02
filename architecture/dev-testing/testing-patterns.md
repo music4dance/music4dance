@@ -711,7 +711,7 @@ See: `m4d/ClientApp/src/composables/__tests__/useUsageTracking.test.ts`
 ### Internal Documentation
 - `SERVER-TESTING-FINAL-SUCCESS.md` - Server-side testing implementation details
 - `SENDBEACON-REFACTORING-SUCCESS.md` - Client-side testing improvements
-- `architecture/observability/server-side-testing-analysis.md` - DI analysis and recommendations
+- `architecture/observability/usage-tracking.md` - usage-log endpoint and its integration tests
 
 ### Test Infrastructure
 - `m4dModels.Tests/DanceMusicTester.cs` - Test service creation

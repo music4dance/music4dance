@@ -1,5 +1,10 @@
 # Saved Searches Architecture
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4dModels/Search.cs`, `m4d/Controllers/SearchesController.cs`
+
 ## Overview
 
 Saved searches allow authenticated (and optionally anonymous) users to have their song search queries automatically saved, tracked for how often they are revisited, and displayed in a "My Searches" page. The feature lets dancers quickly return to searches they perform frequently.

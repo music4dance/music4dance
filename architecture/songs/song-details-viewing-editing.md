@@ -1,5 +1,10 @@
 # Song Details: Viewing and Editing
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4d/Controllers/SongController.cs` (`Details`), `m4d/ClientApp/src/pages/song/`, `m4d/ClientApp/src/pages/song/components/SongCore.vue`
+
 ## Overview
 
 The song details page (`/song/details?id=<guid>`) renders a fully interactive song card where anonymous visitors can view song data and authenticated users can vote on dances, edit metadata, and add tags. Admins gain additional controls over the raw history and can undo individual users' edits.
@@ -266,7 +271,7 @@ Role checks are resolved via `MenuContext` (injected from server into the page's
 
 ---
 
-## Pseudo-User Suffix (`|P`) {#pseudo-user-suffix-p}
+## Pseudo-User Suffix (`|P`)
 
 A `User` property value may carry the `|P` suffix to indicate that the edit block was produced
 by an automated process (a bot or algorithm) rather than a human. The suffix is stored verbatim
@@ -338,7 +343,7 @@ imports and excluded from the default (`userChanges`) view. They appear only whe
 
 ---
 
-## Per-Dance Tempo {#per-dance-tempo}
+## Per-Dance Tempo
 
 Songs can store an optional tempo override per dance (`DanceRating.tempo`) alongside the
 song-level tempo, for songs that genuinely play at different tempos for different dances (the

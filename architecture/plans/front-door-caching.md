@@ -1,179 +1,33 @@
-# Azure Front Door Implementation Plan
+# Azure Front Door Caching
 
-## 1. Overview
+**Type:** Plan
+**Status:** Not started (owner confirmed 2026-10-01). Phase 1 (application prep) shipped; Front Door
+itself has never been deployed.
+**Last verified:** 2026-10-01
 
-This document outlines the implementation of Azure Front Door with intelligent caching to reduce origin server load while maintaining security for authenticated users.
+Put Azure Front Door in front of the App Service to cache anonymous HTML at the edge, cut origin
+load, and add WAF and bot rules, while never caching authenticated or Identity responses.
 
-**Related Documents:**
+## 1. Where things stand
 
-- [Client-Side Usage Logging Architecture](../observability/client-side-usage-logging.md) - Required dependency for accurate analytics with caching
+- **Shipped:** the cache-control middleware that marks anonymous `GET 200` HTML as
+  `public, max-age=300` and authenticated HTML as `no-store`, with exclusions for `/identity/*`,
+  `/api/*`, `/song/rawsearchform` and cookie-setting responses. It's described in
+  [hosting-and-identity § Request pipeline notes](../infrastructure/hosting-and-identity.md#request-pipeline-notes).
+  With no CDN in front, it currently only affects browser caching.
+- **Shipped:** the original blocker, client-side usage logging. It's behind the
+  `ClientSideUsageLogging` feature flag; see
+  [usage-tracking](../observability/usage-tracking.md). Edge-cached pages
+  skip `DMController.OnActionExecutionAsync`, so that flag **must be on** before caching is
+  enabled, or page-view analytics silently drop.
+- **Not started:** the Front Door profile, routing and caching rules, WAF, and cutover. These are
+  sections 3–5 below.
 
-**Critical Dependency:** The client-side usage logging system (see related document above) **must be implemented before** enabling Front Door caching. Server-side usage logging in `DMController.OnActionExecutionAsync` will not function for cached responses.
-
-## 2. Cache Control Middleware Implementation
-
-### 2.1 The Problem
-
-ASP.NET Core (specifically Identity/Razor Pages) was setting `Cache-Control: no-cache` headers globally for all responses, preventing Azure Front Door from caching any content - even for anonymous users. This resulted in poor performance and unnecessary origin server load.
-
-### 2.2 The Solution
-
-Middleware that:
-
-1. **Removes** default no-cache headers for anonymous users
-2. **Adds** cache-friendly headers for anonymous users (allowing Azure Front Door to cache)
-3. **Enforces** strict no-cache headers for authenticated users (preventing personalized content from being cached)
-
-**Key Technical Detail**: Uses `Response.OnStarting()` callback to modify headers at the perfect moment - after the pipeline completes (so authentication and status codes are available) but before headers are sent to the client (avoiding "headers are read-only" errors).
-
-### 2.3 Implementation Details
-
-#### Location
-
-The middleware was added in `m4d/Program.cs` after `UseRouting()` and before `UseAuthorization()`.
-
-#### Middleware Code
-
-```csharp
-app.Use(async (context, next) =>
-{
-    // Register callback to modify headers just before they're sent (after pipeline completes)
-    context.Response.OnStarting(() =>
-    {
-        // Only modify cache headers on successful responses (200-299)
-        if (context.Response.StatusCode >= 200 && context.Response.StatusCode < 300)
-        {
-            if (context.User.Identity?.IsAuthenticated == true)
-            {
-                // Authenticated users: Prevent all caching
-                context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
-                context.Response.Headers["Pragma"] = "no-cache";
-            }
-            else
-            {
-                // Anonymous users: Remove no-cache headers and allow caching by Azure Front Door
-                context.Response.Headers.Remove("Cache-Control");
-                context.Response.Headers.Remove("Pragma");
-
-                // Set cache-friendly headers for Azure Front Door
-                // Cache for 5 minutes, allow both client and proxy (CDN) caching
-                context.Response.Headers["Cache-Control"] = "public, max-age=300";
-            }
-        }
-        return Task.CompletedTask;
-    });
-
-    await next();
-});
-```
-
-#### Key Features
-
-1. **Uses OnStarting Callback**: The middleware registers a callback with `Response.OnStarting()` that executes **after the pipeline completes but before headers are sent**. This prevents the "headers are read-only" error that occurs when trying to modify headers after the response has started streaming.
-
-2. **Authenticated Users - Strict No-Cache**:
-   - `Cache-Control: no-store, no-cache, must-revalidate` - Prevents all caching
-   - `Pragma: no-cache` - Legacy HTTP/1.0 compatibility
-   - Ensures user-specific content is never cached
-
-3. **Anonymous Users - Cache-Friendly**:
-   - Removes any existing no-cache headers set by ASP.NET Core
-   - Sets `Cache-Control: public, max-age=300`
-   - Allows Azure Front Door to cache pages for 5 minutes
-   - Reduces origin server load significantly
-
-4. **Successful Responses Only**: Headers are only modified for successful responses (HTTP status codes 200-299), avoiding modification of error responses or redirects.
-
-5. **Correct Pipeline Position**: Placed after `UseRouting()` (so routing happens first) and before `UseAuthorization()` (ensuring authentication is available but authorization hasn't redirected yet).
-
-### 2.4 Behavior
-
-#### For Authenticated Users
-
-- All successful responses (200-299) will include:
-  ```text
-  Cache-Control: no-store, no-cache, must-revalidate
-  Pragma: no-cache
-  ```
-- Applies to HTML pages, API responses, and all other content types
-- Browser and CDN will not cache any user-specific content
-- Ensures privacy and security of personalized data
-
-#### For Anonymous Users
-
-- Default no-cache headers are **removed**
-- Cache-friendly headers are added:
-  ```
-  Cache-Control: public, max-age=300
-  ```
-- Azure Front Door can cache pages for 5 minutes
-- Reduces origin server load
-- Improves performance for public-facing content
-
-#### For Static Assets
-
-- Static files (CSS, JS, images) are handled by `UseStaticFiles()` / `MapStaticAssets()` earlier in the pipeline
-- This middleware doesn't affect static assets
-- Static assets maintain their own cache headers
-
-### 2.5 Why This Approach?
-
-1. **CDN Efficiency**: Allows Azure Front Door to cache public pages, reducing origin server load by 90%+ for anonymous traffic
-2. **Security**: Prevents browsers and CDNs from caching personalized content that could be exposed to other users
-3. **User Privacy**: Ensures user-specific data (playlists, ratings, preferences) isn't persisted in caches
-4. **Performance**: Anonymous users benefit from CDN caching, authenticated users get fresh data
-5. **Minimal Impact**: Surgical approach that only modifies what's necessary
-6. **Simple Implementation**: Inline middleware is easy to understand and maintain
-
-### 2.6 Cache Duration Considerations
-
-The current implementation uses `max-age=300` (5 minutes) for anonymous pages. This can be adjusted based on your needs:
-
-- **More aggressive caching** (e.g., `max-age=3600` = 1 hour): Better CDN hit ratio, but changes take longer to propagate
-- **Less caching** (e.g., `max-age=60` = 1 minute): Changes propagate faster, but more origin requests
-- **No caching** (remove the middleware): Every request hits origin server (not recommended for production)
-
-Consider making this configurable via `appsettings.json`:
-
-```json
-{
-  "CacheControl": {
-    "AnonymousMaxAge": 300
-  }
-}
-```
-
-### 2.7 Testing the Middleware
-
-1. **Verify Anonymous User Headers**:
-   - Browse as anonymous user
-   - Use browser DevTools (Network tab)
-   - Check response headers for any HTML page
-   - Confirm `Cache-Control: public, max-age=300` is present
-   - Confirm `Pragma` header is NOT present
-
-2. **Verify Authenticated User Headers**:
-   - Log in to the application
-   - Check response headers for any page/API call
-   - Confirm `Cache-Control: no-store, no-cache, must-revalidate` is present
-   - Confirm `Pragma: no-cache` is present
-
-3. **Verify Status Code Filtering**:
-   - Trigger a 404 or 500 error (both anonymous and authenticated)
-   - Confirm cache headers are NOT modified for error responses
-
-4. **Test Cache Busting on Login/Logout**:
-   - Browse as anonymous (should get cached response)
-   - Log in (should get fresh, no-cache response)
-   - Log out (should return to cacheable responses)
-
-### 2.8 Build Status
-
-✅ Middleware implemented and tested successfully
-
-This middleware must be deployed **before** enabling Front Door caching.
-
----
+Before starting, re-check two things:
+- The forwarded-header handling (`KnownProxies` / `KnownNetworks` aren't restricted today), so
+  that the client IP used by rate limiting comes from Front Door's `X-Forwarded-For` / `X-Azure-ClientIp`.
+- The antiforgery-token interaction with cached anonymous pages, which is the reason the
+  antiforgery cookie lasts a day.
 
 ## 3. Azure Front Door Configuration Strategy
 
@@ -303,17 +157,17 @@ Monitor these metrics to verify caching is working:
 
 ## 5. Rollout Plan
 
-### Phase 1 — Application Prep (✅ COMPLETED)
+### Phase 1 — Application Prep (done)
 
-- ✅ Deploy cache control middleware for authenticated users (Section 2)
-- ✅ Verify headers in browser dev tools (Section 2.7)
-- ✅ Test authenticated vs. anonymous behavior
-- ✅ Deploy to production App Service
-- ⚠️ **BLOCKING:** Implement client-side usage logging (see [Client-Side Usage Logging Architecture](../observability/client-side-usage-logging.md))
+- Deploy cache control middleware (see [hosting-and-identity](../infrastructure/hosting-and-identity.md#request-pipeline-notes))
+- Verify headers in browser dev tools
+- Test authenticated vs. anonymous behavior
+- Deploy to production App Service
+- Implement client-side usage logging (shipped behind `ClientSideUsageLogging`; turn the flag on before Phase 2)
 
 **Note:** Phase 2 cannot proceed until client-side usage logging is fully implemented and tested. Server-side usage logging will not capture analytics for cached pages.
 
-### Phase 2 — Front Door Deployment (⏸️ BLOCKED - Waiting for Usage Logging)
+### Phase 2 — Front Door Deployment (not started)
 
 - Create Front Door Standard profile
 - Add origin pointing to App Service

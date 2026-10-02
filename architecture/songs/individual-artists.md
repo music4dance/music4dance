@@ -1,7 +1,11 @@
 # Individual Artists and the Artist Index
 
-**Status:** fully deployed to production (confirmed 2026-10-01). See
-[§11 Operations](#11-operations) for backfill and rebuild procedures.
+**Type:** Reference
+**Status:** Current. Fully deployed to production (confirmed 2026-10-01); operations are in
+[runbooks/artist-index-operations](../runbooks/artist-index-operations.md).
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4dModels/ArtistSplitter.cs`, `m4dModels/ArtistIndex.cs`, `m4dModels/ArtistIndexFileManager.cs`,
+`m4d/Services/ArtistIndexCache.cs`, `m4d/ClientApp/src/models/ArtistNames.ts`, `m4d/ClientApp/src/pages/artist-index/`
 
 A song's `Artist` field is a credit string exactly as some music service wrote it: `Pitbull feat.
 Ne-Yo`, `Duke Ellington and His Orchestra`, `Dolly Parton & Kenny Rogers`. That string is fine to
@@ -15,7 +19,7 @@ Related: [artist-pages.md](artist-pages.md),
 [song-internal-format.md](song-internal-format.md),
 [search-index-versioning.md](../search/search-index-versioning.md),
 [playwright-e2e-testing.md](../dev-testing/playwright-e2e-testing.md),
-[meta-crawler-mitigation.md](../security/meta-crawler-mitigation.md).
+[bot-and-abuse-defense.md](../security/bot-and-abuse-defense.md).
 
 ---
 
@@ -593,34 +597,9 @@ individual artists through the same `ArtistCredit` component.
 
 ## 11. Operations
 
-### 11.1 First rollout, per environment
-
-Do the test index first. All steps are on **Admin → Initialization Tasks** unless noted.
-
-1. Deploy with `ArtistIndex` **off**. Nothing changes: the field isn't in the live index, and the
-   save hook is dormant until `artist-bot` exists.
-2. **Take an index backup** (`/Admin/IndexBackup`) — the rollback artifact.
-3. **Add Missing Fields.** Read what it reports: it adds *every* missing field, not just `Artists`.
-4. **Wait 10 minutes** (the schema cache) or restart, so every instance includes the field in
-   uploads. The page shows the field state and when this instance last looked — but only for the
-   instance serving the page.
-5. **BatchArtists → Report.** Creates `artist-bot`, which also wakes the save hook. Sanity-check
-   `Changed` against the offline analysis.
-6. **BatchArtists → Apply.**
-7. **Verify coverage** on the same page: populated should equal total minus the credit-less songs.
-8. Turn `ArtistIndex` **on**. In production that is an Azure App Configuration flag and propagates
-   within 5 minutes without a restart, per instance.
-
-### 11.2 After a heuristic change
-
-Bump `ArtistSplitter.Version`, re-run the analysis harness and diff the reports, then **Report** and
-**ApplyChanged**. `Apply` is only needed to repair coverage — `ApplyChanged` skips songs whose log
-doesn't change, which is exactly the set with a missing index value.
-
-### 11.3 Rollback
-
-Turn the flag off; artist pages revert to credit matching. Bad bot edits are corrected by re-running
-with a fixed splitter — human and service lists are never touched. The unused field is harmless.
+Production and test are both fully rolled out (2026-10-01). The procedures for a new index or
+environment, re-runs after a heuristic change, and rollback are in
+[runbooks/artist-index-operations](../runbooks/artist-index-operations.md).
 
 ---
 
@@ -678,6 +657,6 @@ it on someone else's next run.
   server-side import paths (`Song.CreateFromTrack` for playlist/bulk import doesn't record service
   artist lists — the save hook still covers title `feat.` for those).
 - **Crawler rules have not been reviewed** against the new URL fan-out
-  ([meta-crawler-mitigation.md](../security/meta-crawler-mitigation.md)).
+  ([bot-and-abuse-defense.md](../security/bot-and-abuse-defense.md)).
 - **A real artist entity** — ids, bios, images, MusicBrainz/Spotify links — remains possible: the
   `Artists` strings become the join key, and `ArtistKey` the lookup.
