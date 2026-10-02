@@ -173,45 +173,14 @@ The 8th field (`MostRecentPage`) was added when that column was introduced. `Dan
 
 ## Databases
 
-| Environment    | Server                            | Database           |
-| -------------- | --------------------------------- | ------------------ |
-| Local dev      | `(localdb)\mssqllocaldb`          | `m4d`              |
-| Staging / Test | `n8a541qjnq.database.windows.net` | `music4dance_test` |
-| Production     | `n8a541qjnq.database.windows.net` | `music4dance`      |
+Which database each environment uses, and how its connection string is resolved, is in
+[data-layer](../infrastructure/data-layer.md#registration-and-lifetime).
 
-Connection strings are managed via:
-
-- Local: `appsettings.json` → `ConnectionStrings:DanceMusicContextConnection`
-- Azure: Service Connector → `AZURE_SQL_CONNECTIONSTRING` environment variable (takes precedence)
-
-**Migrations run automatically at startup** via a background `Task.Run` in `Program.cs` (after a 2-second delay). This applies to all environments — local dev, staging, and production. No manual SQL scripts or `dotnet ef database update` steps are needed on deploy.
-
-### Migration History
-
-| Migration                             | Date       | Change                        |
-| ------------------------------------- | ---------- | ----------------------------- |
-| `20191123233600_CreateSchema`         | 2019-11-23 | Created `Searches` table      |
-| `20211128222327_ActivityLog`          | 2021-11-28 | Unrelated                     |
-| `20211223033025_CardTracking`         | 2021-12-23 | Unrelated                     |
-| `20240224015103_UsageLog`             | 2024-02-24 | Unrelated                     |
-| `20240311190320_UsageLogReferral`     | 2024-03-11 | Unrelated                     |
-| `20260326002120_SearchMostRecentPage` | 2026-03-26 | Added `MostRecentPage` column |
-
-### Generating a new migration
-
-```bash
-dotnet ef migrations add <MigrationName> --project m4dModels --startup-project m4d
-```
-
-### Rollback
-
-If a migration must be reversed after deployment:
-
-```bash
-dotnet ef database update <PreviousMigrationName> --project m4dModels --startup-project m4d
-```
-
-Then remove the migration file and redeploy.
+Schema changes to `Searches` (such as `MostRecentPage`, migration
+`20260326002120_SearchMostRecentPage`) go through the normal EF migrations workflow: the app
+applies pending migrations synchronously at startup. See
+[data-layer § Migrations](../infrastructure/data-layer.md#migrations) for the commands, the full
+migration list and rollback.
 
 ---
 

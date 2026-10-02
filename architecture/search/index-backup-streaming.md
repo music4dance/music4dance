@@ -78,3 +78,4 @@ It's also used by the admin upload of a backup file.
 - [search-index-versioning](search-index-versioning.md)
 - [runbooks/search-index-breaking-migration](../runbooks/search-index-breaking-migration.md)
 - [song-internal-format](../songs/song-internal-format.md): the backup line format and `Properties` compression
+- [data-layer](../infrastructure/data-layer.md): the SQL side of admin backup and restore
