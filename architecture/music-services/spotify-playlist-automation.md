@@ -182,4 +182,8 @@ automation problem.
 - [runbooks/spotify-from-search-maintenance](../runbooks/spotify-from-search-maintenance.md)
 - [plans/spotify-service-account-automation](../plans/spotify-service-account-automation.md)
 - [playlist-management](playlist-management.md)
+- [content-pages](../pages/content-pages.md): where `SpotifyFromSearch` playlists are embedded (dance details, custom searches)
 - [music-service-api-calls](music-service-api-calls.md)
+- [background-work-and-startup](../infrastructure/background-work-and-startup.md): `RecomputeController`, the shared token, and `AdminMonitor`
+- [payments-and-premium](../users-admin/payments-and-premium.md): what `/api/recompute/subscription` does
+- [dance-domain-model](../dances/dance-domain-model.md): what the `songstats` recompute rebuilds

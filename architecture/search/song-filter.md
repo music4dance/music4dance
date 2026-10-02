@@ -443,7 +443,8 @@ Halloween, and Broadway "seasonal music" pages (`/customsearch?name=holiday|hall
 optionally `&dance={danceName}&page={n}`) — canned SEO landing pages, not user-driven search. It's
 a second, independent producer of `SongFilter` and a second, independent consumer of `SongSearch`,
 parallel to (but not routed through) the Advanced Search / `SongController` pipeline documented
-above.
+above. For the page itself (model, dance chooser, embedded playlist), see
+[content-pages](../pages/content-pages.md#custom-searches-custom-search).
 
 ### Building the filter
 
@@ -555,7 +556,7 @@ And Vocal' or 'Musical' or 'Show Tunes'"`), `Dance`, and `PlayListId`.
 | `m4d/ClientApp/src/models/SongFilter.ts`                           | Client mirror: parse/serialize, `description`, `url`, `isSimple`/`isDefault`                                                                              |
 | `m4dModels/DanceQuery.cs`, `DanceQueryItem.cs` / `.ts` equivalents | Dance selection sub-query and OData generation                                                                                                            |
 | `m4dModels/RawDanceQuery.cs` / `RawDanceQuery.ts`                  | Best-effort dance view over a raw OData filter                                                                                                            |
-| `m4dModels/TagQuery.cs` / `TagQuery.ts`                            | Tag include/exclude sub-query, OData per tag class                                                                                                        |
+| `m4dModels/TagQuery.cs` / `TagQuery.ts`                            | Tag include/exclude sub-query, OData per tag class (tag vocabulary and rings: [tag-system](../songs/tag-system.md))                                                                                                        |
 | `m4dModels/UserQuery.cs` / `UserQuery.ts`                          | User/vote scoping sub-query                                                                                                                               |
 | `m4dModels/KeywordQuery.cs` / `KeywordQuery.ts`                    | Free-text/Lucene search sub-query                                                                                                                         |
 | `m4dModels/SongSort.cs` / `SongSort.ts`                            | Sort field + direction sub-query                                                                                                                          |
