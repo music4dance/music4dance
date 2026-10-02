@@ -216,6 +216,7 @@ There are no recovery emails. Configuration and testing steps are in
 
 ## Related
 
+- [overview](../overview.md): system map, including every external dependency
 - [hosting-and-identity](hosting-and-identity.md): App Service, health check probe, startup sequence
 - [runbooks/configure-failure-email](../runbooks/configure-failure-email.md)
 - [runbooks/refresh-dance-fallback-snapshot](../runbooks/refresh-dance-fallback-snapshot.md)

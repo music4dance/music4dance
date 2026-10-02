@@ -7,7 +7,7 @@ How documents in `architecture/` are organized, so anything can be found from
 
 | Type          | Purpose                                                                       | Lives in                                                    |
 | ------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| **Reference** | How the system works **today**. The default type.                             | An area folder (`songs/`, `search/`, `infrastructure/`, …) |
+| **Reference** | How the system works **today**. The default type.                             | An area folder (`songs/`, `search/`, `infrastructure/`, …); the system map is `overview.md` at the top level |
 | **Runbook**   | Step-by-step operational procedure: something a person runs, in order.       | `runbooks/`                                                 |
 | **Plan**      | A proposal or design for work that is **not yet implemented** (or only partly). | `plans/`                                                    |
 
