@@ -1,5 +1,10 @@
 # Song Internal Format
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4dModels/Song.cs`, `m4dModels/SongProperty.cs`, `m4dModels/SongPropertyCompression.cs`
+
 ## Overview
 
 Every song in music4dance is persisted as an **append-only log of `SongProperty` records**. The

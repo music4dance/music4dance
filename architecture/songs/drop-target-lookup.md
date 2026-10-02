@@ -1,5 +1,10 @@
 # Inline Service-ID Lookup (`useDropTarget.ts`)
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4d/ClientApp/src/composables/useDropTarget.ts`, `m4d/ClientApp/src/helpers/ServiceMatcher.ts`
+
 ## Overview
 
 `useDropTarget` (`m4d/ClientApp/src/composables/useDropTarget.ts`) lets a user paste a Spotify

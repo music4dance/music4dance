@@ -1,5 +1,10 @@
 # Song Lookup by External Track ID
 
+**Type:** Reference
+**Status:** Current
+**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Code:** `m4d/APIControllers/ServiceTrackController.cs`
+
 ## Overview
 
 Several unrelated parts of the UI need to answer the same question — "does the catalog already

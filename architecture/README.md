@@ -23,7 +23,7 @@ procedural, to become a runbook.
 | [add-augment-song](songs/add-augment-song.md) | Ref | `/song/augment`: locating a track, server-side lookup/dedup, saving user edits |
 | [service-track-lookup](songs/service-track-lookup.md) | Ref | Backend resolution of a Spotify/Apple track ID to a catalog song |
 | [drop-target-lookup](songs/drop-target-lookup.md) | Ref | `useDropTarget`: pasted service IDs/URLs in ordinary search boxes |
-| [dance-family-voting](songs/dance-family-voting.md) | Ref + Plan | Voting with style families (International, American, …); large "Next Steps" section |
+| [dance-family-voting](songs/dance-family-voting.md) | Ref | Voting with style families (International, American, …): auto-selection, family choice modal, vote/tag encoding |
 | [unconfirmed-dance-votes](songs/unconfirmed-dance-votes.md) | Ref | Excluding bulk-imported, unconfirmed dance ratings from default search |
 | [tempo-validation-rules](songs/tempo-validation-rules.md) | Ref | Half/double-time correction of imported Spotify tempos (`tempo-bot`) |
 | [waltz-correction-controls](songs/waltz-correction-controls.md) | Ref | `WaltzCorrectionCard`: fixing Waltz + `4/4` meter conflicts |
@@ -110,7 +110,7 @@ into `runbooks/` as its area is consolidated.
 | --- | --- |
 | Roll out a breaking search-index schema change | [runbooks/search-index-breaking-migration](runbooks/search-index-breaking-migration.md) |
 | Maintain SpotifyFromSearch playlists (new dances, seasons, refresh) | [runbooks/spotify-from-search-maintenance](runbooks/spotify-from-search-maintenance.md) |
-| Backfill / rebuild the artist index | [individual-artists § 11 Operations](songs/individual-artists.md#11-operations) |
+| Roll out / re-run / roll back the artist index | [runbooks/artist-index-operations](runbooks/artist-index-operations.md) |
 | Triage the production 4xx export | [runbooks/triage-4xx](runbooks/triage-4xx.md) (automated by the `analyze-4xx` skill) |
 | Respond to an attack or traffic spike on login/register | [runbooks/respond-to-attack](runbooks/respond-to-attack.md) |
 | Provision a new App Service instance | [runbooks/provision-app-service](runbooks/provision-app-service.md) |
@@ -120,7 +120,7 @@ into `runbooks/` as its area is consolidated.
 | Set up GTM / GA4 engagement tracking | [gtm-tracking-guide](pages/gtm-tracking-guide.md) |
 | Link new blog posts / help articles | [blog-help-sitemap](pages/blog-help-sitemap.md) (+ `scripts/add-new-blog-posts.mjs`) |
 | Add a new dance type | [adding-a-new-dance](dev-testing/adding-a-new-dance.md) |
-| Run tempo validation over the existing catalog | [tempo-validation-rules § Running Against the Existing Catalog](songs/tempo-validation-rules.md#running-against-the-existing-catalog) |
+| Run tempo validation over the existing catalog | [runbooks/validate-catalog-tempo](runbooks/validate-catalog-tempo.md) |
 | Set up a local contributor environment | [contributor-setup](dev-testing/contributor-setup.md) |
 
 ## Open plans
@@ -135,7 +135,7 @@ into `runbooks/` as its area is consolidated.
 | Spotify service-account automation (write playlists without a browser session) | Proposed; `UpdateBatch` step shipped (#299) | [plans/spotify-service-account-automation](plans/spotify-service-account-automation.md) |
 | Durable log storage (Blob / Log Analytics / tuned App Insights) | Proposed | [plans/log-persistence-options](plans/log-persistence-options.md) |
 | Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
-| Dance family voting next steps | Proposed | [dance-family-voting § Next Steps](songs/dance-family-voting.md#next-steps) |
+| Dance family voting next steps | Proposed | [plans/dance-family-voting-next](plans/dance-family-voting-next.md) |
 
 ## Coverage gaps
 
