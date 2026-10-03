@@ -2,7 +2,7 @@
 
 **Type:** Runbook
 **Status:** Current
-**Last verified:** 2026-10-01
+**Last verified:** 2026-10-02
 
 ## When to use
 
@@ -14,8 +14,8 @@ this. The concepts (`CodeVersion` / `ConfigVersion`, `SongIndexNext`, naming) ar
 
 ## Prerequisites / access
 
-- `showDiagnostics` (to run `UpdateSearchIdx` / `SetSearchIdx`) and Azure AI Search access (to
-  provision and delete indexes).
+- `showDiagnostics` (to run `UpdateSearchIdx`), `dbAdmin` (to run `CloneIdx` and `SetSearchIdx`,
+  including the rollback below), and Azure AI Search access (to provision and delete indexes).
 - Enough Search capacity for two full indexes at once.
 
 ## Steps: developing the change
