@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01
+**Last verified:** 2026-10-02
 **Code:** `m4d/Controllers/PaymentController.cs`, `m4d/Controllers/CommerceController.cs`,
 `m4d/Controllers/HomeController.cs` (`Contribute`), `m4dModels/SubscriptionLevelDescription.cs`,
 `m4dModels/ApplicationUser.cs` (`SubscriptionLevel`), `m4d/APIControllers/RecomputeController.cs`
@@ -95,16 +95,29 @@ hidden) renders `Views/Home/Contribute.cshtml` from a `ContributeModel` (`Commer
    `AnnualSubscription`, the matching tier becomes a "`<Level>` Subscription" line item and its
    price is subtracted. Whatever is left becomes a "Donation" line item. So a signed-in $60
    donation is a Silver subscription plus a $10 donation.
-4. Creates a `SessionCreateOptions` with `Mode = "payment"`, currency `usd`, `CustomerEmail` set
-   to the user's email, metadata `kind`, and success/cancel URLs built by `CreateStripeUrl` to
+4. Creates a `SessionCreateOptions` with `Mode = "payment"`, currency `usd`, `ClientReferenceId`
+   set to the user's id (null for an anonymous donation), `CustomerEmail` set to the user's
+   email, metadata `kind`, and success/cancel URLs built by `CreateStripeUrl` to
    `/payment/success` and `/payment/cancel` with `session_id={CHECKOUT_SESSION_ID}` (the braces are
    un-escaped so Stripe can substitute them).
 5. Responds `303` with `Location` set to the session URL.
 
 ### 3. `Success`
 
-`PaymentController.Success(session_id)` retrieves the session with `SessionService.Get` and, if
-`PaymentStatus == "paid"`:
+`PaymentController.Success(session_id)` retrieves the session with `SessionService.Get`.
+
+It first checks that the visitor may complete it, with `CheckSessionAccess(ClientReferenceId,
+user id)`. A session only ever credits the account that started it:
+
+| Session started by | Visitor | Result |
+| --- | --- | --- |
+| A signed-in user | That user | Continues below. |
+| A signed-in user | Signed out | `Challenge()`: sign in, then return to the success URL. |
+| A signed-in user | A different user | `Forbid()` (403), with a warning logged. |
+| Anonymous (a donation) | Signed out | Continues below. |
+| Anonymous (a donation) | Any signed-in user | `Forbid()` (403), with a warning logged. |
+
+Then, if `PaymentStatus == "paid"`:
 
 - **Classifies** the payment by amount, not metadata: `kind` is `Purchase` when
   `AmountTotal / 100 >= AnnualSubscription` and the user is signed in, otherwise `Donation`.
@@ -150,7 +163,8 @@ configuration and secrets come from.
 | Feature flag `CustomerReminder` | "please contribute" banner for signed-in non-premium users | off |
 
 `GlobalState.UseTestKeys` is set to `isDevelopment` at startup
-(`M4dApplicationExtensions`) and can be flipped at runtime by `AdminController.ToggleTestKeys`.
+(`M4dApplicationExtensions`) and can be flipped at runtime by `AdminController.ToggleTestKeys`
+(`dbAdmin`).
 Because the API key is a process-wide static assigned in the controller's constructor, the toggle
 takes effect on the next payment request.
 
@@ -229,7 +243,11 @@ Admin-only views of this data: the admin users table shows `LifetimePurchased`,
   keep working after `premium` is removed. The "is premium" checks also disagree (`_head.cshtml`
   ignores `trial`; `ContentController` adds `showDiagnostics`).
 - `GlobalState.GetMarketing` hard-codes a 2024-11-30 cutoff.
-- No tests cover `PaymentController` or the tier math, though `m4d.Tests` references `Stripe.net`.
+- Tests cover only the session-access rule (`PaymentControllerSessionAccessTests`), not the
+  Stripe flow or the tier math.
+- A checkout started before the purchaser check shipped has no `ClientReferenceId`, so a
+  signed-in user finishing one gets a 403 and has to be credited by hand. Stripe sessions expire
+  within 24 hours, so this only mattered around the 2026-10-02 deploy.
 
 ## History
 
@@ -245,6 +263,8 @@ Admin-only views of this data: the admin users table shows `LifetimePurchased`,
 - 2025-09-20, #47 (`c78fc6ad`): Contribute page update.
 - 2026-07-01, #204 (`749dd0db`): Spotify playlist viewer with tiered match limits.
 - 2026-10-01: this doc created.
+- 2026-10-02, #326 (`af5513b8`): checkout sessions record the purchaser (`ClientReferenceId`) and
+  `Success` credits only that user (`CheckSessionAccess`); `ToggleTestKeys` requires `dbAdmin`.
 
 ## Related
 
