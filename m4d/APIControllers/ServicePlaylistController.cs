@@ -31,7 +31,9 @@ public class ServicePlaylistController(
         }
     }
 
-    [Authorize]
+    // Adding a playlist creates a pseudo-user and a PlayList row; the explorer only offers it to
+    // admins, so enforce that here too.
+    [Authorize(Roles = "dbAdmin")]
     [HttpPost]
     public async Task<IActionResult> Post(string id, string tags)
     {
