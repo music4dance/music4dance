@@ -1,4 +1,4 @@
-@using System.Globalization
+﻿@using System.Globalization
 @using Microsoft.FeatureManagement
 @using m4d.Utilities
 @using m4d.ViewModels
@@ -296,7 +296,11 @@ else
     @foreach (var lvl in Enum.GetValues(typeof(Microsoft.Extensions.Logging.LogLevel)))
     {
         <li>
-            <a href="@Url.Action("SetLogLevel", "Admin", new { level = lvl })">Set to @lvl</a>
+            @using (Html.BeginForm("SetLogLevel", "Admin", new { level = lvl }, FormMethod.Post, true, new { @class = "d-inline" }))
+            {
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-link p-0 align-baseline">Set to @lvl</button>
+            }
             |
             <a href="@Url.Action("TestLog", "Admin", new { message = $"Test log for {lvl}", level = lvl })">Emit @lvl log</a>
         </li>
@@ -391,10 +395,11 @@ else
             continue;
         }
         <li>
-                @Html.ActionLink(id, "SetSearchIdx", "Admin", new
+            @using (Html.BeginForm("SetSearchIdx", "Admin", new { id }, FormMethod.Post, true, new { @class = "d-inline" }))
             {
-                id
-            }, null)
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-link p-0 align-baseline">@id</button>
+            }
         </li>
     }
 </ul>

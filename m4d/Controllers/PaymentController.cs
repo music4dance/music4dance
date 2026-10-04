@@ -5,6 +5,7 @@ using m4d.ViewModels;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.FeatureManagement;
 
@@ -142,9 +143,36 @@ public class PaymentController : CommerceController
 
     private string CreateStripeUrl(string action)
     {
-        // TODO: Whitelist host
-        return Url.ActionLink(action, "payment", new { session_id = "{CHECKOUT_SESSION_ID}" }, "https", Request.Host.ToString())
+        var host = StripeReturnHost(Request.Host, Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME"));
+        return Url.ActionLink(action, "payment", new { session_id = "{CHECKOUT_SESSION_ID}" }, "https", host)
             .Replace("%7B", "{").Replace("%7D", "}");
+    }
+
+    internal const string DefaultReturnHost = "www.music4dance.net";
+
+    /// <summary>
+    /// The host Stripe sends the buyer back to. The request's Host header is only trusted when it's
+    /// one of ours (music4dance.net or a subdomain, this App Service's own *.azurewebsites.net name
+    /// from WEBSITE_HOSTNAME, or localhost); anything else gets the production host, so a forged
+    /// Host header can't send someone to another site after they pay.
+    /// </summary>
+    internal static string StripeReturnHost(HostString requestHost, string appServiceHost)
+    {
+        var name = requestHost.Host;
+        if (string.IsNullOrEmpty(name))
+        {
+            return DefaultReturnHost;
+        }
+
+        var allowed =
+            name.Equals("music4dance.net", StringComparison.OrdinalIgnoreCase) ||
+            name.EndsWith(".music4dance.net", StringComparison.OrdinalIgnoreCase) ||
+            name.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+            name.Equals("127.0.0.1", StringComparison.Ordinal) ||
+            (!string.IsNullOrEmpty(appServiceHost) &&
+                name.Equals(appServiceHost, StringComparison.OrdinalIgnoreCase));
+
+        return allowed ? requestHost.ToString() : DefaultReturnHost;
     }
 
     internal enum SessionAccess
@@ -177,21 +205,52 @@ public class PaymentController : CommerceController
             : SessionAccess.Denied;
     }
 
-    private static readonly HashSet<string> _completedSessions = [];
+    /// <summary>
+    /// Records that a checkout session has been credited. Returns null if it was already recorded
+    /// (a reload, a second tab or a replayed success URL), including when a concurrent request
+    /// recorded it first: the session id is the table's primary key, so the database decides.
+    /// </summary>
+    internal static async Task<CheckoutSession> TryClaimSession(
+        DanceMusicContext context, string sessionId, string userId)
+    {
+        if (await context.CheckoutSessions.AnyAsync(c => c.SessionId == sessionId))
+        {
+            return null;
+        }
+
+        var claim = new CheckoutSession
+        {
+            SessionId = sessionId,
+            ApplicationUserId = userId,
+            Processed = DateTimeOffset.Now
+        };
+        var entry = context.CheckoutSessions.Add(claim);
+        try
+        {
+            _ = await context.SaveChangesAsync();
+            return claim;
+        }
+        catch (DbUpdateException)
+        {
+            entry.State = EntityState.Detached;
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Forgets a claimed session after crediting it failed, so a reload can retry.
+    /// </summary>
+    internal static async Task ReleaseSession(DanceMusicContext context, CheckoutSession claim)
+    {
+        _ = context.CheckoutSessions.Remove(claim);
+        _ = await context.SaveChangesAsync();
+    }
 
     public async Task<IActionResult> Success([FromServices] SignInManager<ApplicationUser> signInManager, string session_id)
     {
         HelpPage = "subscriptions";
         ViewBag.HideAds = true;
         ViewBag.NoWarnings = true;
-
-        // This is likely due to a reload/back button - just re-show the success page
-        //  without doing anything else
-        var duplicate = _completedSessions.Contains(session_id);
-        if (duplicate)
-        {
-            Logger.LogInformation($"Duplicate session_id: {session_id}");
-        }
 
         var sessionService = new SessionService();
         var session = sessionService.Get(session_id);
@@ -212,6 +271,15 @@ public class PaymentController : CommerceController
         {
             Logger.LogInformation(session.ToJson());
 
+            // A session that's already recorded is likely a reload or the back button - just
+            //  re-show the success page without crediting anything again
+            var claim = await TryClaimSession(Database.Context, session.Id, user?.Id);
+            var duplicate = claim == null;
+            if (duplicate)
+            {
+                Logger.LogInformation("Duplicate session_id: {SessionId}", session.Id);
+            }
+
             var amount = ((decimal)(session.AmountTotal ?? 0)) / 100;
 
             // TODO: Not sure why LineItems don't come through
@@ -230,26 +298,36 @@ public class PaymentController : CommerceController
             {
                 if (!duplicate)
                 {
-                    if (kind == PurchaseKind.Purchase)
+                    try
                     {
-                        DateTime? start = DateTime.Now;
-                        if (user.SubscriptionEnd != null && user.SubscriptionEnd > start)
+                        if (kind == PurchaseKind.Purchase)
                         {
-                            start = user.SubscriptionEnd;
+                            DateTime? start = DateTime.Now;
+                            if (user.SubscriptionEnd != null && user.SubscriptionEnd > start)
+                            {
+                                start = user.SubscriptionEnd;
+                            }
+
+                            user.SubscriptionStart ??= start;
+                            user.SubscriptionEnd = start.Value.AddYears(1);
+                            user.SubscriptionLevel = SubscriptionLevelDescription.FindSubscriptionLevel(amount).Level;
+                            user.LifetimePurchased += amount;
+
+                            _ = await UserManager.AddToRoleAsync(user, DanceMusicCoreService.PremiumRole);
+
+                            await signInManager.RefreshSignInAsync(user);
                         }
-
-                        user.SubscriptionStart ??= start;
-                        user.SubscriptionEnd = start.Value.AddYears(1);
-                        user.SubscriptionLevel = SubscriptionLevelDescription.FindSubscriptionLevel(amount).Level;
-                        user.LifetimePurchased += amount;
-
-                        _ = await UserManager.AddToRoleAsync(user, DanceMusicCoreService.PremiumRole);
-
-                        await signInManager.RefreshSignInAsync(user);
+                        else
+                        {
+                            user.LifetimePurchased += amount;
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        user.LifetimePurchased += amount;
+                        Logger.LogError(e, "Crediting checkout session {SessionId} to user {UserId} failed",
+                            session.Id, user.Id);
+                        await ReleaseSession(Database.Context, claim);
+                        throw;
                     }
                 }
             }
@@ -273,7 +351,6 @@ public class PaymentController : CommerceController
                 _ = await Database.SaveChanges();
             }
 
-            _ = _completedSessions.Add(session_id);
             return View(purchase);
         }
 

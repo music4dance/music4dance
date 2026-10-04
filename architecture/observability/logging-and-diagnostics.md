@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-02
+**Last verified:** 2026-10-03
 **Code:** `m4d/Configuration/M4dApplicationExtensions.cs` (logging setup),
 `m4d/Services/Diagnostics/` (`GcDiagnostics`, `GcSnapshot`, `DumpResult`),
 `m4d/Controllers/AdminController.cs`, `m4d/Views/Admin/Diagnostics.cshtml`
@@ -19,10 +19,10 @@ covered in [service-resilience](../infrastructure/service-resilience.md).
 (`appsettings*.json` / App Configuration). Startup also writes progress lines with
 `Console.WriteLine`, including the service-health startup report.
 
-**Runtime log level.** The "Set to …" and "Emit … log" links on `/Admin/Diagnostics` call
-`AdminController.SetLogLevel`, which changes the minimum level in memory until the next restart,
-and `TestLog`, which writes one message at a chosen level. Both, and `ThrowException`, require
-`showDiagnostics`.
+**Runtime log level.** The "Set to …" buttons and "Emit … log" links on `/Admin/Diagnostics` call
+`AdminController.SetLogLevel` (POST with antiforgery), which changes the minimum level in memory
+until the next restart, and `TestLog`, which writes one message at a chosen level. Both, and
+`ThrowException`, require `showDiagnostics`.
 
 **Persistence (both `msc4dnc` and `m4d-test`, since 2026-09-04).** App Service logging is set to
 **Filesystem, level Warning**, with container stdout/stderr also captured:
@@ -88,6 +88,7 @@ recent dumps. Heap and full dumps are large; delete them after downloading. The 
   `memory-diagnostics-plan.md`. The unimplemented options and phases moved to `plans/`.
 - 2026-10-02, #326 (`af5513b8`): `SetLogLevel`, `TestLog` and `ThrowException` require
   `showDiagnostics`; they had been `[AllowAnonymous]`.
+- 2026-10-03: `SetLogLevel` is POST-only with antiforgery, so another site can't trigger it.
 
 ## Related
 

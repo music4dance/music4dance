@@ -1,4 +1,4 @@
-using m4d.Controllers;
+﻿using m4d.Controllers;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +41,24 @@ public class AdminControllerAuthorizationTests
             .ToList();
 
         Assert.AreEqual(0, unroled.Count, $"Admin actions without a role: {string.Join(", ", unroled)}");
+    }
+
+    /// <summary>
+    /// Actions that flip site-wide state must not be reachable by a GET, or a link or image on
+    /// another site could trigger them in a signed-in admin's browser.
+    /// </summary>
+    [TestMethod]
+    [DataRow(nameof(AdminController.ToggleTestKeys))]
+    [DataRow(nameof(AdminController.SetLogLevel))]
+    [DataRow(nameof(AdminController.SetSearchIdx))]
+    public void GlobalStateActionsArePostWithAntiforgery(string name)
+    {
+        var action = Actions.Single(m => m.Name == name);
+
+        Assert.IsNotNull(action.GetCustomAttribute<HttpPostAttribute>(), $"{name} must be [HttpPost]");
+        Assert.IsNull(action.GetCustomAttribute<HttpGetAttribute>(), $"{name} must not accept GET");
+        Assert.IsNotNull(action.GetCustomAttribute<ValidateAntiForgeryTokenAttribute>(),
+            $"{name} must validate the antiforgery token");
     }
 
     [TestMethod]

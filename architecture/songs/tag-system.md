@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01
+**Last verified:** 2026-10-03
 **Code:** `m4dModels/TagGroup.cs`, `m4dModels/TagManager.cs`, `m4dModels/TaggableObject.cs`,
 `m4dModels/TagList.cs`, `m4dModels/TagSummary.cs`, `m4dModels/TagQuery.cs`,
 `m4dModels/DanceMusicCoreService.cs` (Tags region), `m4d/Controllers/TagController.cs`,
@@ -132,7 +132,7 @@ matches song tags only (see [song-filter](../search/song-filter.md)).
 | --- | --- | --- |
 | `Index` | anonymous | Tag Cloud page: `Vue3("tag-index", danceEnvironment, tagEnvironment)` |
 | `List` | `dbAdmin` | Razor table of `Database.OrderedTagGroups` (all groups in the cache), with Edit / Details / Delete links and a link to `/song/tags` |
-| `Details` | (no attribute) | Razor view of one `TagGroup` |
+| `Details` | `dbAdmin` | Razor view of one `TagGroup` |
 | `Edit` (GET/POST) | `dbAdmin` | Rename a tag (`newKey`) **or** change its `PrimaryId`, not both at once |
 | `Delete` (GET/POST) | `dbAdmin` | Delete a group. Only allowed for aliases (`PrimaryId` set); otherwise returns 406 |
 | `CleanupTags` | `dbAdmin` | Removes SQL `TagGroups` rows that aren't in the cache or have no ring links (`IsConected`) |
@@ -250,6 +250,8 @@ format (from `AdminController.ReloadDatabase` and the sandbox's embedded `test-t
   dance-scoped options); #48 follow-up fixes.
 - #150 (2026-04): automated tags removed from song history; "Remove System Tags" added.
 - This doc was created on 2026-10-01 (architecture coverage gap #4).
+- 2026-10-03: `Details` requires `dbAdmin` (it had no attribute); `TagControllerAuthorizationTests`
+  checks every action but `Index`.
 
 ## Related
 

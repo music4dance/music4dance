@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01
+**Last verified:** 2026-10-03
 **Code:** `m4d/ClientApp/vite.config.ts`, `m4d/ClientApp/src/pages/`, `m4d/Controllers/DMController.cs` (`Vue3()`),
 `m4d/Views/Shared/Vue3.cshtml`, `m4d/Views/Shared/_vue-Layout.cshtml`, `m4d/Views/Shared/_head.cshtml`,
 `m4d/ClientApp/src/components/PageFrame.vue`, `m4d/ClientApp/src/helpers/GetMenuContext.ts`
@@ -77,7 +77,8 @@ A controller doesn't have to name the page with a literal. Song search results u
 - computes `entry = "/src/pages/{Name}/main.ts"`;
 - emits `<link rel="stylesheet" vite-href="@entry">` in the `Styles` section and
   `<script type="module" vite-src="@entry">` in the `Scripts` section;
-- renders the model through the `_jsonCamelCase` partial as `var model_ = ...;`;
+- renders the model through the `_jsonCamelCase` partial as `var model_ = ...;` (a string model
+  becomes a JSON string literal);
 - if the action put `ViewData["SearchRequestDiagnostics"]` (song search, diagnostics role only),
   renders it the same way as `var searchRequestDiagnostics_ = ...;`;
 - renders the empty `<div id="app"></div>` that Vue mounts into.
@@ -146,6 +147,14 @@ Both strings are cached in static fields on `DanceMusicController`, but only whe
 was available (so a degraded start retries on the next request). `AdminController.ClearSongCache`
 calls `DanceMusicController.ClearJsonCache()` to drop them. `_environmentWriter.cshtml` emits
 whichever is present as `var danceDatabaseJson = ...` and `var tagDatabaseJson = ...`.
+
+**Escaping.** Everything written into these inline `<script>` blocks goes through
+`m4d/Utilities/ScriptJson.cs`: `ScriptJson.Serialize` (used by `_jsonCamelCase` and the string
+and array fields of `menuContext`) serializes with `StringEscapeHandling.EscapeHtml`, and
+`ScriptJson.Escape` rewrites `<`, `>`, `&` and U+2028/U+2029 as `\uXXXX` in JSON that was
+serialized elsewhere (the dance and tag databases). A catalog string containing `</script>` can't
+close the block, and the JavaScript values are unchanged. Use one of the two for any new
+`Html.Raw` inside a script block.
 
 ## Client side
 
@@ -292,6 +301,8 @@ also fills `window.danceDatabaseJson` and `window.tagDatabaseJson` from the chec
 - #184 (2026-06): `searchRequestDiagnostics_` global for song search diagnostics.
 - #260 (2026-09): `wwwroot/vclient` created at startup so a checkout without a client build doesn't 500.
 - 2026-10-01: this doc created.
+- 2026-10-03: script-block JSON escaped through `ScriptJson`; `Vue3()` string models are JSON
+  string literals instead of hand-quoted `'...'`.
 
 ## Related
 

@@ -1,27 +1,10 @@
-﻿@using Newtonsoft.Json
-@using Newtonsoft.Json.Serialization
+﻿@using m4d.Utilities
 @model m4d.ViewModels.ObjectConverterModel
 
 @{
-    string json = null;
-if (Model.Model is string)
-{
-    json = Model.Model as string;
-}
-else
-{
-    var jsonSerializerSettings = Model.PreserveCase
-    ? new JsonSerializerSettings
-        {
-            NullValueHandling = NullValueHandling.Ignore
-        }
-    : new JsonSerializerSettings
-        {
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            NullValueHandling = NullValueHandling.Ignore
-        };
-    json = JsonConvert.SerializeObject(Model.Model, Formatting.Indented, jsonSerializerSettings);
-}
+    // ScriptJson escapes <, > and & so a value containing "</script>" can't close this block.
+    // A string model is emitted as a JavaScript string literal.
+    var json = ScriptJson.Serialize(Model.Model, camelCase: !Model.PreserveCase, indented: true);
 }
 
 <script>var @Model.Name = @Html.Raw(json);</script>

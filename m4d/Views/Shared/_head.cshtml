@@ -3,7 +3,6 @@
 @using m4dModels
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.FeatureManagement
-@using Newtonsoft.Json
 @using m4d.Services.ServiceHealth
 
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery _xsrf
@@ -132,7 +131,7 @@
         helpLink: '@help',
         userName: '@userName',
         userId: '@userId',
-        roles: @Html.Raw(JsonConvert.SerializeObject(userMetadata.Roles)),
+        roles: @Html.Raw(ScriptJson.Serialize(userMetadata.Roles)),
         indexId: '@searchIndex',
         isTestDb: @(isTestDb.ToString().ToLower()),
         isProdDb: @(isProdDb.ToString().ToLower()),
@@ -140,7 +139,7 @@
         started: @Html.Raw(string.IsNullOrWhiteSpace(started) ? "undefined" : $"new Date('{started}')"),
         hitCount: @userMetadata.HitCount,
         level: '@userMetadata.Level',
-        marketingMessage: "@Html.Raw(@marketingMessage)",
+        marketingMessage: @Html.Raw(ScriptJson.Serialize(marketingMessage ?? "")),
         customerReminder: @(customerReminder && !hideAds ? "true" : "false"),
         xsrfToken: '@GetAntiXsrfRequestToken()',
         searchHealthy: @(_serviceHealth.IsServiceHealthy("SearchService").ToString().ToLower()),
@@ -165,21 +164,21 @@
             repeatInterval: @(_configuration.GetValue<int>("EngagementOffcanvas:RepeatInterval", 5)),
             sessionDismissalTimeout: @(_configuration.GetValue<int>("EngagementOffcanvas:SessionDismissalTimeout", 60)),
             messages: {
-                level1: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:Messages:Level1", ""))),
-                level2: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:Messages:Level2", ""))),
-                level3: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:Messages:Level3", ""))),
-                loggedInUpgrade: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:Messages:LoggedInUpgrade", "")))
+                level1: @Html.Raw(ScriptJson.Serialize(_configuration.GetValue<string>("EngagementOffcanvas:Messages:Level1", ""))),
+                level2: @Html.Raw(ScriptJson.Serialize(_configuration.GetValue<string>("EngagementOffcanvas:Messages:Level2", ""))),
+                level3: @Html.Raw(ScriptJson.Serialize(_configuration.GetValue<string>("EngagementOffcanvas:Messages:Level3", ""))),
+                loggedInUpgrade: @Html.Raw(ScriptJson.Serialize(_configuration.GetValue<string>("EngagementOffcanvas:Messages:LoggedInUpgrade", "")))
             },
             premiumBenefits: {
-                items: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetSection("EngagementOffcanvas:PremiumBenefits:Items").Get<string[]>() ?? Array.Empty<string>())),
-                moreText: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:PremiumBenefits:MoreText", "..and more!"))),
-                completeListUrl: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:PremiumBenefits:CompleteListUrl", "https://music4dance.blog/music4dance-help/subscriptions/")))
+                items: @Html.Raw(ScriptJson.Serialize(_configuration.GetSection("EngagementOffcanvas:PremiumBenefits:Items").Get<string[]>() ?? Array.Empty<string>())),
+                moreText: @Html.Raw(ScriptJson.Serialize(_configuration.GetValue<string>("EngagementOffcanvas:PremiumBenefits:MoreText", "..and more!"))),
+                completeListUrl: @Html.Raw(ScriptJson.Serialize(_configuration.GetValue<string>("EngagementOffcanvas:PremiumBenefits:CompleteListUrl", "https://music4dance.blog/music4dance-help/subscriptions/")))
             },
             ctaUrls: {
-                register: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:CtaUrls:Register", "/identity/account/register"))),
-                login: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:CtaUrls:Login", "/identity/account/login"))),
-                subscribe: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:CtaUrls:Subscribe", "/home/contribute"))),
-                features: @Html.Raw(JsonConvert.SerializeObject(_configuration.GetValue<string>("EngagementOffcanvas:CtaUrls:Features", "https://music4dance.blog/music4dance-help/subscriptions/")))
+                register: @Html.Raw(ScriptJson.Serialize(_configuration.GetValue<string>("EngagementOffcanvas:CtaUrls:Register", "/identity/account/register"))),
+                login: @Html.Raw(ScriptJson.Serialize(_configuration.GetValue<string>("EngagementOffcanvas:CtaUrls:Login", "/identity/account/login"))),
+                subscribe: @Html.Raw(ScriptJson.Serialize(_configuration.GetValue<string>("EngagementOffcanvas:CtaUrls:Subscribe", "/home/contribute"))),
+                features: @Html.Raw(ScriptJson.Serialize(_configuration.GetValue<string>("EngagementOffcanvas:CtaUrls:Features", "https://music4dance.blog/music4dance-help/subscriptions/")))
             }
         }</text>}
     };

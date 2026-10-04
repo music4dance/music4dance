@@ -50,6 +50,7 @@ and others. See [account-management](../users-admin/account-management.md).
 | `PlayLists` | `PlayLists` | See [playlist-management](../music-services/playlist-management.md) |
 | `ActivityLog` | `ActivityLog` | FK to `ApplicationUser` |
 | `UsageLog` | `UsageLog` | Length limits on `UsageId`, `Page`, `Query`, `Filter`, `Referrer`, `UserAgent`; indexes on `UserName` and `UsageId`. See [usage-tracking](../observability/usage-tracking.md) |
+| `CheckoutSessions` | `CheckoutSessions` | Key is the Stripe `SessionId` (max 255); `ApplicationUserId` has no FK. Stops a checkout being credited twice. See [payments-and-premium](../users-admin/payments-and-premium.md#3-success) |
 
 `OnModelCreating` also calls `UseOpenIddict()`, which maps the four `OpenIddict*` tables used by
 the public API foundation ([plans/public-api-authorization](../plans/public-api-authorization.md)).
@@ -131,6 +132,7 @@ factory exists; `m4d` is the startup project.
 | `20240311190320_UsageLogReferral` | `Referrer` on `UsageLog` |
 | `20260326002120_SearchMostRecentPage` | `MostRecentPage` on `Searches` |
 | `20260831134022_DanzQApiFoundation` | The four `OpenIddict*` tables |
+| `20261004051118_CheckoutSessions` | `CheckoutSessions` table |
 
 **Tooling.** `dotnet-ef` is a local tool pinned in `m4d/.config/dotnet-tools.json`. There's no
 manifest at the repo root, so run it from `m4d/`:
@@ -183,8 +185,10 @@ backups; the retention settings aren't recorded here.
 ### Admin backup files
 
 `/Admin/UploadBackup` (`dbAdmin`) is the admin page for these tools. Backups are tab-delimited
-text, written to `wwwroot/AppData/` (`EnsureAppData`) and returned as a download. Sections start
-with marker lines (`+++++DANCES+++++`, `+++++TAGSS+++++`, `+++++PLAYLISTS+++++`,
+text, written to `wwwroot/AppData/` (`EnsureAppData`) and returned as a download through the
+controller. `BlockAppDataMiddleware` answers 404 for any `/AppData` URL ahead of the static-file
+middleware, so the files (the user section includes password hashes) are never served directly.
+Sections start with marker lines (`+++++DANCES+++++`, `+++++TAGSS+++++`, `+++++PLAYLISTS+++++`,
 `+++++SEARCHES+++++`, `+++++SONGS+++++`), and the user section starts with its column header
 (`UserId\tUserName\tRoles\t…`).
 
@@ -260,6 +264,7 @@ loading is covered in [usage-tracking](../observability/usage-tracking.md).
 - 2026-10-04: `ReloadDatabase` / `LoadIdx` multipart limit raised; `reload-local-data` skill added.
 - 2026-10-02, #326 (`af5513b8`): `RestoreDatabase` and `Reseed` require `dbAdmin` again (they had
   been `[AllowAnonymous]`); the no-op `UpdateDatabase` action removed.
+- 2026-10-04: `CheckoutSessions` table; `/AppData` blocked from static-file serving.
 
 ## Related
 

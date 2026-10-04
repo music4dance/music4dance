@@ -1,14 +1,15 @@
-﻿@{
+﻿@using m4d.Utilities
+@{
 ViewData.TryGetValue("DanceDatabase", out var danceDatabase);
 ViewData.TryGetValue("TagDatabase", out var tagDatabase);
 }
 
 @if (danceDatabase != null)
 {
-    <script>var danceDatabaseJson = @Html.Raw(danceDatabase)</script>
+    <script>var danceDatabaseJson = @Html.Raw(ScriptJson.Escape(danceDatabase as string))</script>
 }
 
 @if (tagDatabase != null)
 {
-    <script>var tagDatabaseJson = @Html.Raw(tagDatabase)</script>
+    <script>var tagDatabaseJson = @Html.Raw(ScriptJson.Escape(tagDatabase as string))</script>
 }

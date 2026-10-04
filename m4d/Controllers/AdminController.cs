@@ -860,7 +860,10 @@ public class AdminController(
         return View("InitializationTasks");
     }
 
-    [HttpGet]
+    //
+    // POST: /Admin/ToggleTestKeys
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     [Authorize(Roles = "dbAdmin")]
     public ActionResult ToggleTestKeys()
     {
@@ -999,7 +1002,9 @@ public class AdminController(
     }
 
     //
-    // GET: /Admin/SetLogLevel
+    // POST: /Admin/SetLogLevel
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     [Authorize(Roles = "showDiagnostics")]
     public ActionResult SetLogLevel(LogLevel level)
     {
@@ -1031,7 +1036,9 @@ public class AdminController(
     }
 
     //
-    // Get: //SetSearchIdx
+    // POST: /Admin/SetSearchIdx
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     [Authorize(Roles = "dbAdmin")]
     public ActionResult SetSearchIdx(string id)
     {

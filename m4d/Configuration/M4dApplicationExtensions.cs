@@ -735,6 +735,10 @@ public static class M4dApplicationExtensions
             app.Logger.LogWarning("HTTPS redirection is DISABLED for Spotify OAuth testing. Do not use in production!");
         }
 
+        // wwwroot/AppData holds admin backups (with password hashes) and runtime caches; never
+        // serve it as static content.
+        app.UseMiddleware<m4d.Middleware.BlockAppDataMiddleware>();
+
         // MapStaticAssets() requires a manifest file that doesn't get properly included
         // in single-file (PublishSingleFile=true) self-contained deployments.
         // Use UseStaticFiles() instead for self-contained mode.

@@ -576,11 +576,6 @@ public class DanceMusicController(
             BuildEnvironment3(FileProvider, danceEnvironment, tagEnvironment);
         }
 
-        if (model is string s)
-        {
-            model = s.Replace(@"'", @"\'");
-        }
-
         return View(
             "Vue3", new VueModel
             {
