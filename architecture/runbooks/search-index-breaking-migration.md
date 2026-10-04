@@ -1,4 +1,4 @@
-# Search Index Breaking Migration
+﻿# Search Index Breaking Migration
 
 **Type:** Runbook
 **Status:** Current
@@ -64,6 +64,6 @@ keeps it, with no `NextVersion` toggle needed.
 
 ## Rollback
 
-Before step 4, `GET /Admin/SetSearchIdx?id=SongIndexProd` switches straight back to the previous
-index with no redeploy, and dance stats reload automatically. A restart does the same. Fix the
-problem, then run `UpdateSearchIdx` again.
+Before step 4, clicking `SongIndexProd` under **Search Index** on `/Admin/Diagnostics` (a POST to
+`SetSearchIdx`) switches straight back to the previous index with no redeploy, and dance stats
+reload automatically. A restart does the same. Fix the problem, then run `UpdateSearchIdx` again.

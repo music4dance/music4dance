@@ -167,7 +167,12 @@ else
 <h3>Test Keys</h3>
 <ul>
     <li>
-        Using Test Keys = @GlobalState.UseTestKeys;  <a href="/admin/toggletestkeys">Toggle</a>
+        Using Test Keys = @GlobalState.UseTestKeys;
+        @using (Html.BeginForm("ToggleTestKeys", "Admin", FormMethod.Post, new { @class = "d-inline" }))
+        {
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-link p-0 align-baseline">Toggle</button>
+        }
     </li>
 </ul>
 
