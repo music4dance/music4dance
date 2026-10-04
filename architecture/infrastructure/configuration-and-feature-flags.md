@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01
+**Last verified:** 2026-10-03
 **Code:** `m4d/Configuration/M4dApplicationExtensions.cs`, `m4d/Program.cs`,
 `m4d/Utilities/FeatureFlags.cs`, `m4d/appsettings.json`, `m4d/appsettings.Development.json`,
 `m4d.Sandbox/appsettings.json`, `m4d/Properties/launchSettings.json`
@@ -120,7 +120,7 @@ rather than failing startup; see [service-resilience](service-resilience.md).
 | `Authentication:Spotify:ClientId` / `ClientSecret` | `AddSpotifyWithResilience`; also `CoreAuthentication` (via `SpotAuthentication`, client name `spotify`) for app tokens | Spotify login unavailable; app-token calls fail |
 | `Authentication:AzureCommunicationServices:ConnectionString` | `ServiceCollectionExtensions.AddEmailSenderWithResilience` | `EmailService` unavailable; `NullEmailSender` |
 | `Authentication:reCAPTCHA:SiteKey` / `SecretKey` | `AddReCaptchaWithResilience` | `ReCaptcha` unavailable; `NullReCaptchaSiteVerify` |
-| `Authentication:Stripe:SecretKey`, `Authentication:StripeTest:SecretKey` | `PaymentController` constructor (sets `StripeConfiguration.ApiKey`) | Checkout fails. The `Test` key is used when `GlobalState.UseTestKeys` is true: on in Development, toggled at `/admin/toggletestkeys`. |
+| `Authentication:Stripe:SecretKey`, `Authentication:StripeTest:SecretKey` | `PaymentController` constructor (sets `StripeConfiguration.ApiKey`) | Checkout fails. The `Test` key is used when `GlobalState.UseTestKeys` is true: on in Development, toggled by the Test Keys button on `/Admin/InitializationTasks` (a POST to `ToggleTestKeys`). |
 | `Authentication:RecomputeJob:Key` | `TokenRequirement` (cached in a static on first use) | Token-authenticated recompute/automation endpoints reject every call. See [spotify-playlist-automation](../music-services/spotify-playlist-automation.md). |
 | `Authentication:AutoMapper:Key` | `AddM4dApplication` (`AddAutoMapper` license key) | AutoMapper runs unlicensed |
 

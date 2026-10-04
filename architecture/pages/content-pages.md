@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01
+**Last verified:** 2026-10-03
 **Code:** `m4d/Controllers/DanceController.cs`, `m4d/Controllers/CustomSearchController.cs`, `m4d/Controllers/SongController.cs` (`NewMusic`), `m4d/Controllers/HomeController.cs` (`SpotifyExplorer`), `m4d/ClientApp/src/pages/{dance-index,dance-details,ballroom-index,competition-category,country,wedding-dance-music,custom-search,new-music,spotify-explorer}/`
 
 ## Overview
@@ -169,8 +169,8 @@ The page has no server model. Everything happens on the client:
   (`[Authorize]`; `ServicePlaylistController` looks it up with
   `MusicServiceManager.LookupPlaylistWithAudioData` and keeps it in a static in-memory cache).
   `PlaylistViewer` shows the tracks. For admins it also shows a form that `POST`s
-  `/api/serviceplaylist?id=s{id}&tags=...` to register the playlist as a `SongsFromSpotify`
-  playlist. This creates a pseudo-user for the owner if needed (see
+  `/api/serviceplaylist?id=s{id}&tags=...` (`dbAdmin`, enforced on the server too) to register the
+  playlist as a `SongsFromSpotify` playlist. This creates a pseudo-user for the owner if needed (see
   [playlist-management](../music-services/playlist-management.md)).
 - **User**: `findSpotifyUser` calls `GET /api/serviceuser/s{id}` (`ServiceUserController`, also
   statically cached). `ServiceUserViewer` lists the user's playlists and can build a tab-separated
@@ -207,6 +207,7 @@ The page has no server model. Everything happens on the client:
 - 2025-12-26, #95: degraded-mode handling for the dance and custom-search pages (dance stats `Map` check, empty results when search is unavailable).
 - 2026-01-14, #99: `CustomSearchController` started catching search-service `InvalidOperationException`s and rendering an empty list.
 - 2026-10-01: this doc was created.
+- 2026-10-03: `POST /api/serviceplaylist` requires `dbAdmin` on the server, not just in the client.
 
 ## Related
 
