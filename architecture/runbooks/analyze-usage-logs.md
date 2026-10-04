@@ -17,6 +17,63 @@ crawler patterns. How the data is recorded, and what the pages show, is in
   the whole `UsageLog` table, so run them against LocalDB, with the extra indexes below added
   locally only. In production, those indexes would slow every insert.
 
+## Saving and loading usage data
+
+Usage analysis is normally run locally against a copy of the production `UsageLog` table. The
+round trip is: export the table from production to a TSV file, then load that file into the local
+database through the admin page.
+
+### Saving (export from production)
+
+There is no export endpoint in the app; the export is done directly against the production
+database.
+
+> **TODO:** document the export procedure (tool, query and output settings).
+
+Whatever tool is used, the output must match the file format below.
+
+### File format
+
+- Tab-separated, UTF-8, one row per `UsageLog` record
+- First row is a header whose column names match the `UsageLog` properties
+  ([UsageLog.cs](../../m4dModels/UsageLog.cs)): `Id`, `UsageId`, `UserName`, `Date`, `Page`,
+  `Query`, `Filter`, `Referrer`, `UserAgent`
+- `Id` values in the file are ignored — the loader resets each to 0 so the local table assigns
+  fresh identity values
+- Read by CsvHelper with `Delimiter = "	"` and `CsvMode.NoEscape` — fields are **not** quoted or
+  escaped, so a tab or newline inside a value will break the row
+
+### Loading (import into a local database)
+
+Both loaders live on the admin **Upload Backup** page
+([UploadBackup.cshtml](../../m4d/Views/Admin/UploadBackup.cshtml), "Load Usage Data" section),
+require the `dbAdmin` role, and are hidden when the environment is Production. Both insert in
+batches (default 5,000, allowed range 100–50,000), clearing the EF change tracker between batches
+to keep memory flat. Progress shows in the admin task monitor.
+
+| Option                 | Action                                  | Use when                                       | Existing rows        |
+| ---------------------- | --------------------------------------- | ---------------------------------------------- | -------------------- |
+| **Load (Incremental)** | `Admin/LoadUsage` (browser file upload) | Small files, appending a newer slice           | Kept (appended)      |
+| **Load from AppData**  | `Admin/LoadUsageFromAppData`            | Full reloads; files too large to upload (>2GB) | Truncated by default |
+
+**Load from AppData steps:**
+
+1. Copy the TSV into `m4d/wwwroot/AppData/` (created on demand by `EnsureAppData`). The default
+   file name is `usage.tsv`; any plain file name in that folder is accepted.
+2. On the Upload Backup page, set the file name and batch size, and leave **Truncate table first**
+   checked for a full reload (it runs `TRUNCATE TABLE UsageLog`).
+3. Submit and watch the task monitor for the final record count.
+4. Clear the usage report cache (`UsageLog/ClearCache`) so the Index view picks up the new data.
+
+**Caveats:**
+
+- `dotnet clean` runs `m4d`'s `clean-client` target, which deletes all of `wwwroot` — including
+  `wwwroot/AppData`. Re-copy the file after a clean.
+- The incremental loader does not de-duplicate. Loading a file that overlaps existing rows
+  produces duplicates; use a full truncate-and-load instead when in doubt.
+- For a large local table, add the [local performance indexes](#local-performance-indexes) after
+  loading, not before — inserts are much faster without them.
+
 ## Steps
 
 1. Open **`/UsageLog/Pages`** and pick a filter combination from the table under "Key insights"

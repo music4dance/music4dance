@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Last verified:** 2026-10-02 (code references checked; behavior not re-traced)
 **Code:** `m4d/Controllers/ApplicationUsersController.cs`, `m4d/Controllers/PlayListController.cs`, `m4d/Controllers/SearchesController.cs`, `m4d/Controllers/ActivityLogController.cs`
 
 Current-state reference for the `dbAdmin`-only admin index pages. All of these were originally
@@ -175,7 +175,9 @@ and returns `Vue3("My Searches", "Search history", "searches", model)`.
 
 **Controller**: `ActivityLogController.Index(int page = 1)` — same DB-level paging pattern as
 Searches, builds `ActivityLogPageModel` (`m4d/ViewModels/ActivityLogPageModel.cs`), returns
-`Vue3("Activity Log", "Admin: Activity log", "activity-log", model)`.
+`Vue3("Activity Log", "Admin: Activity log", "activity-log", model)`. The controller requires
+`showDiagnostics` (class-level `[Authorize]`, since #326; before that the page had no
+authorization).
 
 **Vue page**: `m4d/ClientApp/src/pages/activity-log/App.vue`, model in `ActivityLogPageModel.ts`.
 Same `BPagination` + page-jump pattern as Searches; no client-side filtering.

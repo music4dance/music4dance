@@ -202,6 +202,7 @@ with marker lines (`+++++DANCES+++++`, `+++++TAGSS+++++`, `+++++PLAYLISTS+++++`,
 The [reload-local-data](../../.claude/skills/reload-local-data/SKILL.md) skill drives both
 actions to refresh a local database and `SongIndexTest` from production backups.
 | `CloneIdx` | `dbAdmin` | Streams the default index into another one (`CloneIndex`). |
+| `RestoreDatabase` / `Reseed` | `dbAdmin` | Migrate to the latest schema and run `SeedData` / run `SeedData` only. Linked from `/Admin/InitializationTasks`. |
 
 `ReloadDatabase` has three modes, picked by the submit button:
 
@@ -231,6 +232,8 @@ loading is covered in [usage-tracking](../observability/usage-tracking.md).
   field count without reporting it.
 - **Dead code:** `UpdateDatabase` is a no-op with a `CORETODO`, and
   `BackupDatabase`'s `songs` and `useLookupHistory` parameters only affect the file name.
+- **Unused parameters:** `BackupDatabase`'s `songs` and `useLookupHistory` parameters only
+  affect the file name.
 - **Connection-string precedence is computed twice**, in `Program.cs` and in the `AddDbContext`
   lambda, and only `Program.cs` limits `PROD_DB` / `TEST_DB` to Development.
 - **Document SQL backup retention** (point-in-time restore window, long-term retention) for the
@@ -255,6 +258,8 @@ loading is covered in [usage-tracking](../observability/usage-tracking.md).
 - 2026-10-01: This doc created. The stale "migrations run in a background `Task.Run`" note and
   the migration commands moved here from [saved-searches](../search/saved-searches.md).
 - 2026-10-04: `ReloadDatabase` / `LoadIdx` multipart limit raised; `reload-local-data` skill added.
+- 2026-10-02, #326 (`af5513b8`): `RestoreDatabase` and `Reseed` require `dbAdmin` again (they had
+  been `[AllowAnonymous]`); the no-op `UpdateDatabase` action removed.
 
 ## Related
 
