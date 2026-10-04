@@ -67,6 +67,7 @@ public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : Id
         _ = builder.Entity<TagGroup>().ToTable("TagGroups");
         _ = builder.Entity<ActivityLog>().ToTable("ActivityLog");
         _ = builder.Entity<UsageLog>().ToTable("UsageLog");
+        _ = builder.Entity<CheckoutSession>().ToTable("CheckoutSessions");
 
         _ = builder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
         _ = builder.Entity<Dance>().Ignore(dance => dance.Info);
@@ -99,6 +100,10 @@ public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : Id
 
         _ = builder.Entity<UsageLog>().HasIndex(u => u.UserName);
         _ = builder.Entity<UsageLog>().HasIndex(u => u.UsageId);
+
+        _ = builder.Entity<CheckoutSession>().HasKey(c => c.SessionId);
+        _ = builder.Entity<CheckoutSession>().Property(c => c.SessionId).HasMaxLength(255);
+        _ = builder.Entity<CheckoutSession>().Property(c => c.ApplicationUserId).HasMaxLength(450);
 
         // Customize the ASP.NET Identity model and override the defaults if needed.
         // For example, you can rename the ASP.NET Identity table names and more.
@@ -150,5 +155,7 @@ public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : Id
     public DbSet<ActivityLog> ActivityLog { get; set; }
 
     public DbSet<UsageLog> UsageLog { get; set; }
+
+    public DbSet<CheckoutSession> CheckoutSessions { get; set; }
     #endregion
 }
