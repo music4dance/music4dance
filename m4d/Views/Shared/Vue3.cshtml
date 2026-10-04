@@ -7,17 +7,11 @@
 ViewData["Title"] = Model.Title;
 ViewData["Description"] = Model.Description;
 var entry = $"/src/pages/{Model.Name}/main.ts";
-var vueModel = Model.Model;
-if (vueModel is string)
-{
-    vueModel = $"'{vueModel}'";
-}
-
 var converterModel = Model.Model != null
     ? new ObjectConverterModel
             {
                 Name = "model_",
-                Model = vueModel,
+                Model = Model.Model,
                 PreserveCase = Model.PreserveCase,
             }
     : null;
