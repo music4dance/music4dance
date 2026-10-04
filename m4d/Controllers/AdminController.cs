@@ -1077,6 +1077,7 @@ public class AdminController(
     [HttpPost]
     [ValidateAntiForgeryToken]
     [DisableRequestSizeLimit]
+    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue)]
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> LoadIdx(IFormFile fileUpload, string idxName = "default",
         bool reset = true)
@@ -1140,6 +1141,8 @@ public class AdminController(
     // Get: //ReloadDatabase
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [DisableRequestSizeLimit]
+    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue)]
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> ReloadDatabase(
         [FromServices] UserManager<ApplicationUser> userManager,

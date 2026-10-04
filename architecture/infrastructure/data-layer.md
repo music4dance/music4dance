@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-02
+**Last verified:** 2026-10-04
 **Code:** `m4dModels/DanceMusicContext.cs`, `m4dModels/DanceMusicCoreService.cs`,
 `m4dModels/DanceMusicService.cs`, `m4dModels/Migrations/`, `m4d/.config/dotnet-tools.json`,
 `m4d/Configuration/M4dApplicationExtensions.cs`, `m4d/Controllers/AdminController.cs`
@@ -196,6 +196,11 @@ with marker lines (`+++++DANCES+++++`, `+++++TAGSS+++++`, `+++++PLAYLISTS+++++`,
 | `ExportCsv` | `showDiagnostics` | A CSV of songs that have samples and dance tags, through `PlaylistExport`. |
 | `ReloadDatabase` (POST) | `dbAdmin` | Uploads a backup file and loads whichever sections it finds (below). |
 | `LoadIdx` (POST) | `dbAdmin` | Uploads an index backup into a chosen index: reset and reload, or (`reset=false`) update in place. Reloads stats if it targeted the default index. |
+
+`ReloadDatabase` and `LoadIdx` lift both the Kestrel body cap (`[DisableRequestSizeLimit]`) and the
+128 MB multipart form limit (`[RequestFormLimits]`); the index backup outgrew the latter in 2026-09.
+The [reload-local-data](../../.claude/skills/reload-local-data/SKILL.md) skill drives both
+actions to refresh a local database and `SongIndexTest` from production backups.
 | `CloneIdx` | `dbAdmin` | Streams the default index into another one (`CloneIndex`). |
 | `RestoreDatabase` / `Reseed` | `dbAdmin` | Migrate to the latest schema and run `SeedData` / run `SeedData` only. Linked from `/Admin/InitializationTasks`. |
 
@@ -222,6 +227,11 @@ loading is covered in [usage-tracking](../observability/usage-tracking.md).
   `IndexBackup` doesn't accept, so they produce full backups.
 - **"Reload" mode doesn't load songs.** `LoadSongs` builds `Song` objects but never saves them
   to the index. Songs are restored with `LoadIdx` instead.
+- **Searches with tabs or newlines in their text are dropped on restore** ([#329](https://github.com/music4dance/music4dance/issues/329)):
+  `SerializeSearches` doesn't escape fields, and `ParseSearchEntry` skips lines with the wrong
+  field count without reporting it.
+- **Dead code:** `UpdateDatabase` is a no-op with a `CORETODO`, and
+  `BackupDatabase`'s `songs` and `useLookupHistory` parameters only affect the file name.
 - **Unused parameters:** `BackupDatabase`'s `songs` and `useLookupHistory` parameters only
   affect the file name.
 - **Connection-string precedence is computed twice**, in `Program.cs` and in the `AddDbContext`
@@ -247,6 +257,7 @@ loading is covered in [usage-tracking](../observability/usage-tracking.md).
 - 2026-09: OpenIddict tables and schema tests (#254); EF1001 suppression scoped to one line (#295).
 - 2026-10-01: This doc created. The stale "migrations run in a background `Task.Run`" note and
   the migration commands moved here from [saved-searches](../search/saved-searches.md).
+- 2026-10-04: `ReloadDatabase` / `LoadIdx` multipart limit raised; `reload-local-data` skill added.
 - 2026-10-02, #326 (`af5513b8`): `RestoreDatabase` and `Reseed` require `dbAdmin` again (they had
   been `[AllowAnonymous]`); the no-op `UpdateDatabase` action removed.
 
