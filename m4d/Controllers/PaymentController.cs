@@ -143,9 +143,36 @@ public class PaymentController : CommerceController
 
     private string CreateStripeUrl(string action)
     {
-        // TODO: Whitelist host
-        return Url.ActionLink(action, "payment", new { session_id = "{CHECKOUT_SESSION_ID}" }, "https", Request.Host.ToString())
+        var host = StripeReturnHost(Request.Host, Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME"));
+        return Url.ActionLink(action, "payment", new { session_id = "{CHECKOUT_SESSION_ID}" }, "https", host)
             .Replace("%7B", "{").Replace("%7D", "}");
+    }
+
+    internal const string DefaultReturnHost = "www.music4dance.net";
+
+    /// <summary>
+    /// The host Stripe sends the buyer back to. The request's Host header is only trusted when it's
+    /// one of ours (music4dance.net or a subdomain, this App Service's own *.azurewebsites.net name
+    /// from WEBSITE_HOSTNAME, or localhost); anything else gets the production host, so a forged
+    /// Host header can't send someone to another site after they pay.
+    /// </summary>
+    internal static string StripeReturnHost(HostString requestHost, string appServiceHost)
+    {
+        var name = requestHost.Host;
+        if (string.IsNullOrEmpty(name))
+        {
+            return DefaultReturnHost;
+        }
+
+        var allowed =
+            name.Equals("music4dance.net", StringComparison.OrdinalIgnoreCase) ||
+            name.EndsWith(".music4dance.net", StringComparison.OrdinalIgnoreCase) ||
+            name.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+            name.Equals("127.0.0.1", StringComparison.Ordinal) ||
+            (!string.IsNullOrEmpty(appServiceHost) &&
+                name.Equals(appServiceHost, StringComparison.OrdinalIgnoreCase));
+
+        return allowed ? requestHost.ToString() : DefaultReturnHost;
     }
 
     internal enum SessionAccess
