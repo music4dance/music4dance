@@ -47,6 +47,7 @@ public class TagController : DanceMusicController
     }
 
     // GET: Tag/Details/5
+    [Authorize(Roles = "dbAdmin")]
     public IActionResult Details(string id)
     {
         var code = GetTag(id, out var tagGroup);
