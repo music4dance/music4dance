@@ -1211,9 +1211,10 @@ public class AdminController(
                     await Database.LoadPlaylists(playlists);
                 }
 
+                var skippedSearches = 0;
                 if (searches != null)
                 {
-                    await Database.LoadSearches(searches, reload);
+                    skippedSearches = await Database.LoadSearches(searches, reload);
                 }
 
                 if (songs != null)
@@ -1234,7 +1235,11 @@ public class AdminController(
                     await DanceStatsManager.ClearCache(Database, true);
                 }
 
-                return CompleteAdminTask(true, "Database restored");
+                return CompleteAdminTask(
+                    true,
+                    skippedSearches > 0
+                        ? $"Database restored ({skippedSearches} malformed search line(s) skipped)"
+                        : "Database restored");
             }
 
             return CompleteAdminTask(false, "Empty File or Bad File Format");

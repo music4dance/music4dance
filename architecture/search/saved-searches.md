@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Last verified:** 2026-10-05 (import/export section re-traced; rest code references only)
 **Code:** `m4dModels/Search.cs`, `m4d/Controllers/SearchesController.cs`
 
 ## Overview
@@ -168,6 +168,15 @@ userName\tname\tquery\tfavorite\tcount\tcreated\tmodified\tMostRecentPage
 ```
 
 The 8th field (`MostRecentPage`) was added when that column was introduced. `DanceMusicService.LoadSearches()` reads this field if present, leaving `MostRecentPage = null` when loading older 7-field backup data. Both bulk and incremental import modes are supported. This is used by the admin backup/restore workflow and the index backup streaming feature.
+
+`name` and `query` are free text (people paste `Title<TAB>Artist` into the search box), so
+`EscapeSearchField` escapes them on write: backslash becomes `\\`, tab `\t`, newline `\n` and
+carriage return `\r`. `UnescapeSearchField` reverses that on load and leaves any other backslash
+alone, so backups written before escaping was added still load. Lines whose field count doesn't
+match the first line's are skipped. `LoadSearches` returns how many it skipped, and
+`ReloadDatabase` adds that count to its "Database restored" message so the loss isn't silent.
+Backups written before escaping was added still lose any search that contained a raw tab or newline
+([#329](https://github.com/music4dance/music4dance/issues/329)).
 
 ---
 
