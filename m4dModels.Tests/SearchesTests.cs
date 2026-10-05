@@ -170,4 +170,95 @@ public class SearchesTests
         var restored = service.Context.Searches.First();
         Assert.AreEqual(3, restored.MostRecentPage, "MostRecentPage should survive a serialize/reload round-trip");
     }
+
+    [TestMethod]
+    [DataRow("")]
+    [DataRow("plain text")]
+    [DataRow("Blueberry Hill\tFats Domino")]
+    [DataRow("line one\nline two\r\nline three")]
+    [DataRow(@"C:\music\tango")]
+    [DataRow("trailing backslash\\")]
+    [DataRow("\\t literal backslash-t and a real\ttab")]
+    public void EscapeSearchField_RoundTrips(string value)
+    {
+        var escaped = DanceMusicService.EscapeSearchField(value);
+
+        Assert.IsFalse(escaped.Contains('\t'), "Escaped value must not contain a tab");
+        Assert.IsFalse(escaped.Contains('\n'), "Escaped value must not contain a newline");
+        Assert.IsFalse(escaped.Contains('\r'), "Escaped value must not contain a carriage return");
+        Assert.AreEqual(value, DanceMusicService.UnescapeSearchField(escaped));
+    }
+
+    [TestMethod]
+    public void EscapeSearchField_Null_ReturnsNull()
+    {
+        Assert.IsNull(DanceMusicService.EscapeSearchField(null));
+        Assert.IsNull(DanceMusicService.UnescapeSearchField(null));
+    }
+
+    [TestMethod]
+    public void UnescapeSearchField_UnrecognizedEscape_KeepsBackslash()
+    {
+        // Older backups were written without escaping, so a stray backslash must survive
+        Assert.AreEqual(@"AC\DC", DanceMusicService.UnescapeSearchField(@"AC\DC"));
+        Assert.AreEqual(@"end\", DanceMusicService.UnescapeSearchField(@"end\"));
+    }
+
+    [TestMethod]
+    public async Task SerializeSearches_TabsAndNewlinesInNameAndQuery_RoundTrip()
+    {
+        using var service = await DanceMusicTester.CreateServiceWithUsers("SearchesTests_Escaping");
+
+        const string name = "Pasted\tName";
+        const string query = "v2-Advanced--.-Blueberry Hill\tFats Domino\r\nsecond line";
+        var now = DateTime.Now;
+        service.Context.Searches.Add(new Search
+        {
+            Name = name,
+            Query = query,
+            Favorite = false,
+            Count = 1,
+            Created = now,
+            Modified = now
+        });
+        _ = await service.Context.SaveChangesAsync();
+
+        var serialized = service.SerializeSearches(withHeader: false);
+        Assert.AreEqual(1, serialized.Count);
+        Assert.AreEqual(8, serialized[0].Split('\t').Length, "Serialized line must keep its field count");
+        Assert.IsFalse(serialized[0].Contains('\n'), "Serialized line must not contain a newline");
+
+        service.Context.Searches.RemoveRange(service.Context.Searches);
+        _ = await service.Context.SaveChangesAsync();
+
+        var skipped = await service.LoadSearches(new List<string>(serialized), reload: true);
+
+        Assert.AreEqual(0, skipped);
+        var restored = service.Context.Searches.Single();
+        Assert.AreEqual(name, restored.Name);
+        Assert.AreEqual(query, restored.Query);
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public async Task LoadSearches_MalformedLines_ReturnsSkippedCount(bool reload)
+    {
+        using var service = await DanceMusicTester.CreateServiceWithUsers(
+            $"SearchesTests_Skipped_{reload}");
+
+        // Lines from a pre-escaping backup where a query contained a raw tab or newline
+        var lines = new List<string>
+        {
+            "dwgray\tMy CHA Search\t.-CHA-.-.-.-.-120.0-124.0\tFalse\t3\t1/1/2024 12:00 PM\t1/1/2024 12:00 PM\t",
+            "\t\tv2-Advanced--.-Blueberry Hill\tFats Domino\tFalse\t1\t11/5/2022 5:38 PM\t11/5/2022 5:38 PM\t",
+            "\t\tv2-Advanced--.-first half",
+            "second half\tFalse\t1\t11/5/2022 5:38 PM\t11/5/2022 5:38 PM\t",
+            "batch\tMy FXT Search\t.-FXT-.-.-.-.\tFalse\t5\t1/1/2024 12:00 PM\t1/1/2024 12:00 PM\t"
+        };
+        var skipped = await service.LoadSearches(lines, reload);
+
+        Assert.AreEqual(3, skipped, "Each malformed line should be counted");
+        Assert.AreEqual(2, service.Context.Searches.Count(), "Well-formed lines should still load");
+    }
 }

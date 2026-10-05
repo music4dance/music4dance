@@ -71,10 +71,12 @@ Expected differences (as of the 2026-09-30 backup):
 
 - **users**: DB = backup lines + the seeded local accounts (admin, tester, editor if configured).
 - **playlists**: the section ends with one blank line, which isn't a row.
-- **searches**: about 1,000 short. Those are anonymous searches whose query text contains literal
-  tabs (`Blueberry Hill<TAB>Fats Domino`). `SerializeSearches` doesn't escape tabs ([#329](https://github.com/music4dance/music4dance/issues/329)), and
-  `ParseSearchEntry` drops lines with the wrong field count. This is known and accepted. Flag it
-  only if the gap grows sharply.
+- **searches**: backups written before the fix for [#329](https://github.com/music4dance/music4dance/issues/329)
+  come up about 1,000 short (the 2026-09-30 backup is one). Those are anonymous searches whose query
+  text contains literal tabs or newlines (`Blueberry Hill<TAB>Fats Domino`), which
+  `ParseSearchEntry` can't split. The restore message reports the count as `Database restored (N
+  malformed search line(s) skipped)`. `SerializeSearches` now escapes those characters, so a backup
+  taken after the fix should have no skipped lines. If one does, that's a bug to chase.
 
 After `load-index`, the result message is `Index SongIndexTest loaded with N songs`. N should
 roughly match the number of song lines in the index file. A big shortfall is a bug to chase.

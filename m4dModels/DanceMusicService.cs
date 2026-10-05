@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 
 using System.Diagnostics;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace m4dModels;
@@ -272,7 +273,8 @@ public class DanceMusicService(DanceMusicContext context,
         Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadUsers");
     }
 
-    public async Task LoadSearches(IList<string> lines, bool reload = false)
+    // Returns the number of lines that were skipped because they couldn't be parsed
+    public async Task<int> LoadSearches(IList<string> lines, bool reload = false)
     {
         Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Entering LoadSearches");
 
@@ -286,25 +288,30 @@ public class DanceMusicService(DanceMusicContext context,
             lines.RemoveAt(0);
         }
 
+        var skipped = 0;
         if (lines.Count > 0)
         {
-            if (reload)
-            {
-                await LoadSearchesBulk(lines);
-            }
-            else
-            {
-                await LoadSearchesIncremental(lines);
-            }
+            skipped = reload
+                ? await LoadSearchesBulk(lines)
+                : await LoadSearchesIncremental(lines);
+        }
+
+        if (skipped > 0)
+        {
+            Trace.WriteLineIf(
+                TraceLevels.General.TraceWarning,
+                $"LoadSearches skipped {skipped} malformed line(s)");
         }
 
         Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Saving Changes");
         _ = await SaveChanges();
         Trace.WriteLineIf(TraceLevels.General.TraceInfo, "Exiting LoadSearches");
+        return skipped;
     }
 
-    private async Task LoadSearchesIncremental(IList<string> lines)
+    private async Task<int> LoadSearchesIncremental(IList<string> lines)
     {
+        var skipped = 0;
         var fieldCount = lines[0].Split('\t').Length;
         for (var i = 0; i < lines.Count; i++)
         {
@@ -319,6 +326,7 @@ public class DanceMusicService(DanceMusicContext context,
             var newSearch = await ParseSearchEntry(s, fieldCount);
             if (newSearch == null)
             {
+                skipped++;
                 continue;
             }
 
@@ -343,10 +351,13 @@ public class DanceMusicService(DanceMusicContext context,
                     newSearch.MostRecentPage);
             }
         }
+
+        return skipped;
     }
 
-    private async Task LoadSearchesBulk(IList<string> lines)
+    private async Task<int> LoadSearchesBulk(IList<string> lines)
     {
+        var skipped = 0;
         try
         {
             Context.AutoDetectChangesEnabled = false;
@@ -365,6 +376,7 @@ public class DanceMusicService(DanceMusicContext context,
                 var search = await ParseSearchEntry(s, fieldCount);
                 if (search == null)
                 {
+                    skipped++;
                     continue;
                 }
 
@@ -375,6 +387,8 @@ public class DanceMusicService(DanceMusicContext context,
         {
             Context.AutoDetectChangesEnabled = true;
         }
+
+        return skipped;
     }
 
 
@@ -388,8 +402,8 @@ public class DanceMusicService(DanceMusicContext context,
         }
 
         var userName = cells[0];
-        search.Name = cells[1];
-        search.Query = cells[2];
+        search.Name = UnescapeSearchField(cells[1]);
+        search.Query = UnescapeSearchField(cells[2]);
         search.Favorite = string.Equals(cells[3], "true", StringComparison.OrdinalIgnoreCase);
         if (int.TryParse(cells[4], out var count))
         {
@@ -930,7 +944,7 @@ public class DanceMusicService(DanceMusicContext context,
                 ? search.ApplicationUser.UserName
                 : string.Empty;
             searches.Add(
-                $"{userName}\t{search.Name}\t{search.Query}\t{search.Favorite}\t{search.Count}\t{search.Created:g}\t{search.Modified:g}\t{search.MostRecentPage?.ToString() ?? ""}");
+                $"{userName}\t{EscapeSearchField(search.Name)}\t{EscapeSearchField(search.Query)}\t{search.Favorite}\t{search.Count}\t{search.Created:g}\t{search.Modified:g}\t{search.MostRecentPage?.ToString() ?? ""}");
         }
 
         if (withHeader && searches.Count > 0)
@@ -939,6 +953,68 @@ public class DanceMusicService(DanceMusicContext context,
         }
 
         return searches;
+    }
+
+    // Name and Query are free text and may contain tabs or newlines, which would break the
+    // tab-delimited, line-per-record backup format, so escape them (and the escape character)
+    public static string EscapeSearchField(string value)
+    {
+        if (string.IsNullOrEmpty(value) || value.IndexOfAny(['\\', '\t', '\n', '\r']) < 0)
+        {
+            return value;
+        }
+
+        var sb = new StringBuilder(value.Length + 8);
+        foreach (var c in value)
+        {
+            _ = c switch
+            {
+                '\\' => sb.Append(@"\\"),
+                '\t' => sb.Append(@"\t"),
+                '\n' => sb.Append(@"\n"),
+                '\r' => sb.Append(@"\r"),
+                _ => sb.Append(c)
+            };
+        }
+
+        return sb.ToString();
+    }
+
+    // Inverse of EscapeSearchField; a backslash that isn't part of a recognized escape
+    // sequence is kept as-is so that older, unescaped backups still load
+    public static string UnescapeSearchField(string value)
+    {
+        if (string.IsNullOrEmpty(value) || !value.Contains('\\'))
+        {
+            return value;
+        }
+
+        var sb = new StringBuilder(value.Length);
+        for (var i = 0; i < value.Length; i++)
+        {
+            var c = value[i];
+            if (c == '\\' && i + 1 < value.Length)
+            {
+                char? decoded = value[i + 1] switch
+                {
+                    '\\' => '\\',
+                    't' => '\t',
+                    'n' => '\n',
+                    'r' => '\r',
+                    _ => null
+                };
+                if (decoded.HasValue)
+                {
+                    _ = sb.Append(decoded.Value);
+                    i++;
+                    continue;
+                }
+            }
+
+            _ = sb.Append(c);
+        }
+
+        return sb.ToString();
     }
 
     public async Task<IList<string>> SerializeSongs(bool withHeader = true,
