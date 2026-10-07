@@ -122,10 +122,6 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
         {
             using var webResponse = await HttpClientHelper.Client.SendAsync(webRequest);
             var result = await webResponse.Content.ReadAsStringAsync();
-
-            // TODO: Get rid of this once the Spotify bug is squashed
-            Logger.LogInformation($"Created Token: {result}");
-
             var token = JsonConvert.DeserializeObject<AccessToken>(result);
             if (string.IsNullOrWhiteSpace(token?.access_token))
             {
@@ -144,8 +140,7 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
             var refreshToken = token?.refresh_token;
             if (!string.IsNullOrEmpty(refreshToken) && RefreshToken != refreshToken)
             {
-                // TODO: Remove once we've gotten spotify auth refresh working again
-                Logger.LogInformation($"Replacing refreshToken {RefreshToken} with {refreshToken}");
+                Logger.LogInformation("Replacing refresh token");
                 RefreshToken = refreshToken;
             }
 
@@ -329,10 +324,6 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
                 access_token = accessToken,
                 expires_in = (int)expiresIn.TotalSeconds
             };
-
-            // TODO: Get rid of this once the Spotify bug is squashed
-            var json = JsonConvert.SerializeObject(auth.Token, Formatting.Indented);
-            Logger.LogInformation($"Created Token: {json}");
 
             Logger.LogInformation($"Creating TokenRenewer (2): {expiresIn}");
             auth.AccessTokenRenewer =
