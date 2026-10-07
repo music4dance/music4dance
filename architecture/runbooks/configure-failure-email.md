@@ -2,18 +2,15 @@
 
 **Type:** Runbook
 **Status:** Current
-**Last verified:** 2026-10-01
+**Last verified:** 2026-10-07
 
 ## When to use
 
-Turning on, or checking, the admin emails that `ServiceHealthNotifier` sends when a dependency
-is unavailable. For how the notifications behave (one email per incident, none on recovery), see
+Turning on, or checking, the admin emails that `ServiceHealthNotifier` sends: a status report
+each time an instance starts in Azure, and failure and recovery emails when a dependency goes
+down or comes back. For how they behave (one failure email per incident, a 30-minute cooldown per
+service, recovery emails), see
 [service-resilience § Admin notifications](../infrastructure/service-resilience.md#admin-notifications).
-
-> **Known gap:** today the notifier is attached only when startup itself reports a failure. After
-> a clean startup, a later outage sends **no** email. See
-> [service-resilience § Known issues](../infrastructure/service-resilience.md#known-issues).
-> Until that's fixed, these settings effectively give you "startup failure" alerts.
 
 ## What You Need to Configure
 
@@ -99,12 +96,13 @@ Never put a real access key in `appsettings.json`. Use one of the methods above.
 
 1. Configure the connection string and settings using user secrets (Option 1), with your own
    address as the recipient.
-2. Break a dependency **before** starting, so startup reports a failure. For example, point
+2. Break a dependency **before** starting. For example, point
    `ConnectionStrings:DanceMusicContextConnection` at a server that doesn't exist. The migration
    fails and `Database` is marked unavailable.
-3. Start the application. The console should show the startup report with a `✗` line.
-4. Check your inbox (and spam folder) for the "Startup Failures" email.
-5. Restore the setting.
+3. Start the application. The console should show the migration failure.
+4. Check your inbox (and spam folder) for the "Service Failure: Database" email.
+5. Restore the setting. The status email on startup is sent only in Azure; to see it locally,
+   temporarily set `WEBSITE_SITE_NAME` (for example in the launch profile).
 
 The email will include:
 
@@ -120,10 +118,11 @@ The email will include:
 
 Check the console output for:
 
-- `Service health email notifications enabled for 1 recipients` (means config loaded correctly)
-- `Service failure notification sent to [email] for [ServiceName]` (means email was sent)
+- `Service health ... email not sent (...): notifications are disabled or have no recipients` (means the `ServiceHealth:AdminNotifications` settings didn't load)
+- `Service health ... email sent to [email]: [subject]` (means email was sent)
+- `Failure email for '[ServiceName]' suppressed` (a failure email for that service went out in the last 30 minutes)
 - `✗ EmailService: Unavailable` in the startup report, and `Email service is unavailable - message to ... was not sent` warnings (means the connection string is missing, so the no-op `NullEmailSender` is in use)
-- `Failed to send service failure notification` (means email sending failed - check connection string)
+- `Failed to send service health ... email` (means email sending failed - check connection string)
 
 **Want to test without breaking a real dependency?** Temporarily add
 `serviceHealth.MarkUnavailable("TestService", "This is a test failure");` right after the

@@ -2,9 +2,10 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01
+**Last verified:** 2026-10-06
 **Code:** `m4d/Services/BackgroundTaskQueue.cs`, `m4d/Services/BackgroundQueueHostedService.cs`,
 `m4d/Services/DanceStatsHostedService.cs`, `m4d/Services/StartupInitializationService.cs`,
+`m4d/Services/AppConfigurationRecoveryService.cs`,
 `m4d/Services/DatabaseRecoveryService.cs`, `m4d/PublicApi/DanzQClientInitializer.cs`,
 `m4d/APIControllers/RecomputeController.cs`, `m4d/Utilities/TokenRequirement.cs`,
 `m4dModels/AdminMonitor.cs`, `m4d/Configuration/M4dApplicationExtensions.cs`
@@ -40,10 +41,12 @@ outside, by a Logic App calling an HTTP endpoint.
    a try/catch with a fallback (see [service-resilience § Startup](service-resilience.md#startup)).
    Hosted services are registered in this order: `DanzQClientInitializer` (if enabled),
    `BackgroundQueueHostedService`, `DanceStatsHostedService`, `StartupInitializationService`.
+   `AppConfigurationRecoveryService` is registered earlier, during the App Configuration load,
+   whenever an App Configuration provider was added.
 2. **Pipeline setup** (`UseM4dPipeline`):
    1. Map `/health/startup` and `/health/ready`.
-   2. Print `GenerateStartupReport()` and, if anything is already unavailable or degraded, attach
-      the `ServiceHealthNotifier` and send one startup-failure email in a `Task.Run`.
+   2. Print `GenerateStartupReport()`, attach the `ServiceHealthNotifier`, and in Azure register
+      the startup status email on `ApplicationStarted`.
    3. Build the middleware pipeline, including the `DatabaseRecoveryService` hook.
    4. **Run EF migrations synchronously** (`MigrateAsync` on a context without retry-on-failure), when
       `ConfigureDatabase` is set and neither `PROD_DB` nor `TEST_DB` is. Success marks `Database`
@@ -59,9 +62,10 @@ outside, by a Logic App calling an HTTP endpoint.
 4. Kestrel starts listening.
 5. About 2 seconds later, `StartupInitializationService` does the first App Configuration refresh.
 
-Because the startup report (step 2.2) is printed before migrations (step 2.4), a migration
-failure doesn't appear in that report and doesn't trigger the startup-failure email. It is logged
-to the console, and `/health/ready` returns `503` until the database recovers.
+Because the console startup report (step 2.2) is printed before migrations (step 2.4), a
+migration failure doesn't appear in it. It is logged to the console, `/health/ready` returns
+`503` until the database recovers, and the status email, sent once the app has started, does
+include it.
 
 `m4d.Sandbox/Program.cs` follows the same sequence but calls `app.StartAsync()` instead of
 `app.Run()`, so it can seed songs after `DanceStatsHostedService` has initialized the stats (see
@@ -92,6 +96,16 @@ available, calls `RefreshAsync` and logs the remote `Configuration:Sentinel` val
 marks `AppConfiguration` unavailable and the app keeps running on local configuration. It does
 nothing else; the "background migrations" mentioned in an older comment in `UseM4dPipeline` now
 run synchronously (step 2.4 above).
+
+### `AppConfigurationRecoveryService`
+
+Registered whenever an App Configuration provider is in the configuration chain. If the startup
+load succeeded it exits at once. Otherwise it calls the provider's refresher every minute until
+data arrives, logging every 10 minutes while it waits; the provider itself throttles the real
+load attempts (see
+[service-resilience § App Configuration recovery](service-resilience.md#app-configuration-recovery)).
+On success it marks `AppConfiguration` and the configured secret-backed services healthy, logs
+how long recovery took, and emails the admins. It never restarts the app.
 
 ### `DanzQClientInitializer`
 
@@ -256,6 +270,8 @@ and `ArtistIndexCache` loads and rebuilds the artist snapshot in the background
   share it.
 - 2026-09 (#254): `DanzQClientInitializer` added behind the `PublicApi` flag.
 - 2026-10-01: This document created.
+- 2026-10-06: `AppConfigurationRecoveryService` added after a production App Configuration
+  startup timeout left the app degraded until a manual restart; it completes the load in place.
 
 ## Related
 

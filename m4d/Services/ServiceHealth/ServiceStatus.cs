@@ -72,4 +72,9 @@ public class ServiceHealthStatus
     /// Whether an admin notification has been sent for the current failure
     /// </summary>
     public bool NotificationSent { get; set; }
+
+    /// <summary>
+    /// When the last failure email for this service was sent (drives the notification cooldown)
+    /// </summary>
+    public DateTime? LastFailureNotification { get; set; }
 }

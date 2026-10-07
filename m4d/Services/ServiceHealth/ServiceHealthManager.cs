@@ -23,6 +23,10 @@ public class ServiceHealthManager
     // Internal setter so tests can use a short cooldown instead of sleeping for real.
     internal TimeSpan UnavailableCooldown { get; set; } = DefaultUnavailableCooldown;
 
+    // Minimum time between failure emails for the same service, so a service that keeps
+    // failing and recovering doesn't flood the admins. Internal setter for tests.
+    internal TimeSpan NotificationCooldown { get; set; } = TimeSpan.FromMinutes(30);
+
     public ServiceHealthManager(ILogger<ServiceHealthManager> logger)
     {
         _logger = logger;
@@ -37,29 +41,35 @@ public class ServiceHealthManager
     }
 
     /// <summary>
-    /// Send consolidated startup failure notification if any services are unhealthy
+    /// Send a status email listing every service. Sent once each time an instance starts in
+    /// Azure, after migrations and the hosted services have run, so it reflects the real state.
     /// </summary>
-    public async Task SendStartupFailureNotificationAsync()
+    public async Task SendStartupStatusNotificationAsync()
     {
         if (_notifier == null)
         {
             return;
         }
 
-        var failedServices = GetAllStatuses()
+        var problems = GetAllStatuses()
             .Where(s => s.Status == ServiceStatus.Unavailable || s.Status == ServiceStatus.Degraded)
+            .OrderBy(s => s.ServiceName)
             .ToList();
 
-        if (failedServices.Any())
-        {
-            var errorSummary = string.Join("; ", failedServices.Select(s => $"{s.ServiceName}: {s.ErrorMessage}"));
-            await _notifier.SendFailureNotificationAsync(
-                $"Startup Failures ({failedServices.Count} services)",
-                errorSummary,
-                this);
+        var (subject, message) = problems.Any()
+            ? ($"Started degraded ({problems.Count} service(s) unavailable or degraded)",
+                string.Join(Environment.NewLine, problems.Select(s => $"{s.ServiceName}: {s.ErrorMessage}")))
+            : ("Started healthy", "All services started successfully.");
 
-            _logger.LogInformation("Startup failure notification sent for {Count} service(s)", failedServices.Count);
-        }
+        _ = await _notifier.SendAsync(HealthNotificationKind.Status, subject, message, this);
+    }
+
+    /// <summary>
+    /// Send an admin notification, if a notifier is attached. Returns whether it was sent.
+    /// </summary>
+    public async Task<bool> SendNotificationAsync(HealthNotificationKind kind, string subject, string message)
+    {
+        return _notifier != null && await _notifier.SendAsync(kind, subject, message, this);
     }
 
     /// <summary>
@@ -70,6 +80,7 @@ public class ServiceHealthManager
         var status = _serviceStatuses.GetOrAdd(serviceName, _ => new ServiceHealthStatus { ServiceName = serviceName });
 
         var wasUnhealthy = status.Status != ServiceStatus.Healthy;
+        var lastHealthy = status.LastHealthy;
 
         status.Status = ServiceStatus.Healthy;
         status.LastChecked = DateTime.UtcNow;
@@ -82,6 +93,27 @@ public class ServiceHealthManager
         {
             _logger.LogInformation("Service '{ServiceName}' has recovered", serviceName);
             status.NotificationSent = false; // Reset for next failure
+
+            // Close the incident the failure email opened. Only sent when a failure email was,
+            // so suppressed or unconfigured failures don't produce a lone "recovered" email.
+            var notifier = _notifier;
+            if (notifier != null)
+            {
+                var message = lastHealthy.HasValue
+                    ? $"{serviceName} is healthy again. Last healthy before the failure: {lastHealthy:yyyy-MM-dd HH:mm:ss} UTC."
+                    : $"{serviceName} is healthy again.";
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        _ = await notifier.SendAsync(HealthNotificationKind.Recovery, serviceName, message, this);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to send recovery notification for {ServiceName}", serviceName);
+                    }
+                });
+            }
         }
     }
 
@@ -105,18 +137,39 @@ public class ServiceHealthManager
             _logger.LogError("Service '{ServiceName}' is now unavailable: {ErrorMessage}",
                 serviceName, errorMessage);
 
-            // Send notification on first failure only
-            if (isFirstFailure && _notifier != null)
+            var notifier = _notifier;
+            if (isFirstFailure && notifier != null)
             {
+                var now = DateTime.UtcNow;
+                if (status.LastFailureNotification.HasValue &&
+                    now - status.LastFailureNotification.Value < NotificationCooldown)
+                {
+                    // A flapping service (search throttling, say) would otherwise send a
+                    // failure/recovery pair on every flap
+                    _logger.LogWarning(
+                        "Failure email for '{ServiceName}' suppressed: one was sent at {LastSent:HH:mm:ss} UTC",
+                        serviceName, status.LastFailureNotification.Value);
+                    return;
+                }
+
+                // Claimed before sending so a recovery that lands while the email is in flight
+                // still sends its recovery email; released if nothing was actually sent
+                status.NotificationSent = true;
+                status.LastFailureNotification = now;
                 _ = Task.Run(async () =>
                 {
                     try
                     {
-                        await _notifier.SendFailureNotificationAsync(serviceName, errorMessage, this);
-                        status.NotificationSent = true;
+                        if (!await notifier.SendFailureNotificationAsync(serviceName, errorMessage, this))
+                        {
+                            status.NotificationSent = false;
+                            status.LastFailureNotification = null;
+                        }
                     }
                     catch (Exception ex)
                     {
+                        status.NotificationSent = false;
+                        status.LastFailureNotification = null;
                         _logger.LogError(ex, "Failed to send failure notification for {ServiceName}", serviceName);
                     }
                 });
