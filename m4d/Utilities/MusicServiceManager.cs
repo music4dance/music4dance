@@ -646,7 +646,7 @@ public class MusicServiceManager(IConfiguration configuration)
         }
 
         var results = await GetMusicServiceResults(
-            "https://api.spotify.com/v1/playlists", service,
+            "https://api.spotify.com/v1/me/playlists?limit=50", service,
             principal);
 
         if (results == null)
