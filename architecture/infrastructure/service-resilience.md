@@ -189,7 +189,7 @@ after App Configuration recovers. Subjects end with the App Service site name
 
 | Email | When |
 | --- | --- |
-| **Status** (`Started healthy` / `Started degraded (...)`) | Once per instance start, in Azure only (`WEBSITE_SITE_NAME` set), on `ApplicationStarted`: after migrations and the hosted services' startup, so it shows the real database state |
+| **Status** (`Started healthy` / `Started degraded (...)`) | Once per start, when `ServiceHealth:AdminNotifications:StartupStatus` is `true` (set it per environment), on `ApplicationStarted`: after migrations and the hosted services' startup, so it shows the real database state. At that point a `[Notifications] Enabled=..., Recipients=..., StartupStatus=..., EmailService=...` line is printed to the console whether or not the email is on. |
 | **Service Failure** | A service goes from healthy (or unknown) to unavailable. `NotificationSent` suppresses repeats until it's healthy again. |
 | **Service Recovered** | A service whose failure was emailed is marked healthy again |
 | **Service Recovered: AppConfiguration** | `AppConfigurationRecoveryService` completes a failed startup load. This doubles as the startup report for that case, since the status email couldn't be sent. |
@@ -207,11 +207,6 @@ notified, so no lone "recovered" email follows. Configuration and testing steps 
   string and the `ServiceHealth:AdminNotifications` settings live in App Configuration, so the
   startup status email can't go out in exactly this case. The first email is the AppConfiguration
   recovery email. If App Configuration never recovers, no email is sent; check the log stream.
-- **Every Azure app sends the startup status email,** staging and the on-demand test instance
-  included. That's intentional for now: the test instance isn't recycled often, and its "Started
-  healthy" email is part of manual testing after a deploy. If restarts there become frequent,
-  add a setting (for example `ServiceHealth:AdminNotifications:StartupStatus`, set per
-  environment label) to turn the status email off without disabling failure emails.
 - **The cooldown can report the database ready while it's still down.** `IsServiceHealthy`
   reports any `Unavailable` service as healthy one minute after its last failure. A failed
   `DatabaseRecoveryService` probe doesn't re-mark the database, so between probes `/health/ready`,
@@ -273,6 +268,9 @@ notified, so no lone "recovered" email follows. Configuration and testing steps 
 - 2026-10-07: Notifier attached on every startup (runtime failure emails no longer need a
   degraded start). Added recovery emails, a 30-minute per-service failure-email cooldown, and a
   status email on each instance start in Azure, which replaces the startup-failure email.
+- 2026-10-07: The status email is opted into with `ServiceHealth:AdminNotifications:StartupStatus`
+  instead of running only in Azure, so it can be tested locally and turned off per environment.
+  A `[Notifications]` console line on startup shows the settings the notifier sees.
 - 2026-10-01: The plan and the eight phase reports were consolidated into this document. The
   originals are in git history under `architecture/infrastructure/service-resilience-*.md`.
 

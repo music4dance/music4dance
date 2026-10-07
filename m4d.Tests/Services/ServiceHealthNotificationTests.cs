@@ -39,12 +39,14 @@ public class ServiceHealthNotificationTests
         }
     }
 
-    private static (ServiceHealthManager health, RecordingEmailSender sender) Create(bool enabled = true)
+    private static (ServiceHealthManager health, RecordingEmailSender sender) Create(
+        bool enabled = true, bool startupStatus = true)
     {
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ServiceHealth:AdminNotifications:Enabled"] = enabled ? "true" : "false",
+                ["ServiceHealth:AdminNotifications:StartupStatus"] = startupStatus ? "true" : "false",
                 ["ServiceHealth:AdminNotifications:Recipients:0"] = "admin@example.com",
                 ["WEBSITE_SITE_NAME"] = "m4d-test"
             })
@@ -158,5 +160,16 @@ public class ServiceHealthNotificationTests
         var subjects = await WaitForEmails(sender, 3);
         StringAssert.StartsWith(subjects[0], "[music4dance.net] Status: Started healthy");
         StringAssert.StartsWith(subjects[2], "[music4dance.net] Status: Started degraded (1 service(s)");
+    }
+
+    [TestMethod]
+    public async Task StartupStatus_NotSentUnlessConfigured()
+    {
+        var (health, sender) = Create(startupStatus: false);
+        health.MarkHealthy("Database");
+
+        await health.SendStartupStatusNotificationAsync();
+
+        Assert.IsEmpty(await WaitForEmails(sender, 1));
     }
 }

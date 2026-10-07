@@ -16,8 +16,14 @@ service, recovery emails), see
 
 Two things: the Azure Communication Services connection string (the same one used for account
 email), and the `ServiceHealth:AdminNotifications` settings. The settings are `Enabled`,
-`Recipients`, `IncludeStackTrace` and `SenderAddress` (default `donotreply@music4dance.net`).
-`Enabled` defaults to `false`.
+`Recipients`, `IncludeStackTrace`, `SenderAddress` (default `donotreply@music4dance.net`) and
+`StartupStatus`. `Enabled` and `StartupStatus` default to `false`. `StartupStatus` turns on the
+status email sent each time the app starts; set it per environment.
+
+The settings are read each time an email is sent. In Azure, though, the running app only reloads
+App Configuration when `Configuration:Sentinel` changes, so after adding or changing these keys,
+bump the sentinel or restart the app. The startup status email is sent only at startup, so test
+it with a restart.
 
 ## Option 1: Local Testing with User Secrets (Recommended for Development)
 
@@ -26,6 +32,7 @@ email), and the `ServiceHealth:AdminNotifications` settings. The settings are `E
 dotnet user-secrets set "Authentication:AzureCommunicationServices:ConnectionString" "endpoint=https://your-resource.communication.azure.com/;accesskey=YOUR_KEY"
 dotnet user-secrets set "ServiceHealth:AdminNotifications:Enabled" "true"
 dotnet user-secrets set "ServiceHealth:AdminNotifications:Recipients:0" "your-email@example.com"
+dotnet user-secrets set "ServiceHealth:AdminNotifications:StartupStatus" "true"
 ```
 
 ## Option 2: Azure App Configuration (Production)
@@ -42,6 +49,12 @@ Add these keys to your Azure App Configuration:
 
 - Key: `ServiceHealth:AdminNotifications:Recipients:0`
   - Value: `admin@music4dance.net`
+
+- Key: `ServiceHealth:AdminNotifications:StartupStatus`
+  - Value: `true`
+
+Leave the label empty to apply a key to every environment, or label it with the environment name
+(`Production`, `Staging`) to apply it to one.
 
 ## Option 3: Environment Variables (Azure Web App)
 
@@ -101,8 +114,8 @@ Never put a real access key in `appsettings.json`. Use one of the methods above.
    fails and `Database` is marked unavailable.
 3. Start the application. The console should show the migration failure.
 4. Check your inbox (and spam folder) for the "Service Failure: Database" email.
-5. Restore the setting. The status email on startup is sent only in Azure; to see it locally,
-   temporarily set `WEBSITE_SITE_NAME` (for example in the launch profile).
+5. Restore the setting. With `StartupStatus` set, every start also sends a "Status: Started
+   healthy" (or "Started degraded") email, which is the quickest end-to-end check.
 
 The email will include:
 
@@ -118,6 +131,10 @@ The email will include:
 
 Check the console output for:
 
+- `[Notifications] Enabled=..., Recipients=..., StartupStatus=..., EmailService=...`, printed
+  once the app has started. It shows the settings as the notifier sees them: `Enabled=False` or
+  an empty `Recipients` means the settings didn't load, and `EmailService=missing` means the
+  connection string didn't.
 - `Service health ... email not sent (...): notifications are disabled or have no recipients` (means the `ServiceHealth:AdminNotifications` settings didn't load)
 - `Service health ... email sent to [email]: [subject]` (means email was sent)
 - `Failure email for '[ServiceName]' suppressed` (a failure email for that service went out in the last 30 minutes)

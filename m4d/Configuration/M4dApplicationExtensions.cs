@@ -641,25 +641,22 @@ public static class M4dApplicationExtensions
             app.Services.GetRequiredService<ILogger<ServiceHealthNotifier>>());
         serviceHealth.SetNotifier(notifier);
 
-        // In Azure (App Service sets WEBSITE_SITE_NAME), email a status report once the instance
-        // is serving: after migrations and the hosted services' StartAsync, so it shows the real
-        // state of the database and dance stats. If App Configuration didn't load, the email
-        // settings are missing and nothing goes out; AppConfigurationRecoveryService reports the
-        // startup instead when it recovers.
-        if (!string.IsNullOrEmpty(configuration["WEBSITE_SITE_NAME"]))
+        // Once the instance is serving (after migrations and the hosted services' StartAsync, so
+        // it shows the real state of the database and dance stats), log the notification
+        // settings and, when ServiceHealth:AdminNotifications:StartupStatus is set, email a status
+        // report. If App Configuration didn't load, the email settings are missing and nothing
+        // goes out; AppConfigurationRecoveryService reports the startup instead when it recovers.
+        _ = app.Lifetime.ApplicationStarted.Register(() => _ = Task.Run(async () =>
         {
-            _ = app.Lifetime.ApplicationStarted.Register(() => _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await serviceHealth.SendStartupStatusNotificationAsync();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Failed to send startup status notification: {ex.Message}");
-                }
-            }));
-        }
+                await serviceHealth.SendStartupStatusNotificationAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send startup status notification: {ex.Message}");
+            }
+        }));
 
         // Configure the HTTP request pipeline.
         app.Logger.LogInformation(@"Configuring request pipeline");
