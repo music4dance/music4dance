@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-03
+**Last verified:** 2026-10-06
 **Code:** `m4d/Configuration/M4dApplicationExtensions.cs`, `m4d/Program.cs`,
 `m4d/Utilities/FeatureFlags.cs`, `m4d/appsettings.json`, `m4d/appsettings.Development.json`,
 `m4d.Sandbox/appsettings.json`, `m4d/Properties/launchSettings.json`
@@ -108,14 +108,17 @@ What the ids and versions mean is in [search-index-versioning](../search/search-
 
 ## Secrets and third-party credentials
 
-All of these are read once at startup or construction. In Azure they come from App Configuration /
-Key Vault (see [hosting-and-identity](hosting-and-identity.md#identity-and-secrets)); locally from
-user secrets. A missing value marks the matching service unavailable and registers a fallback
+In Azure these come from App Configuration / Key Vault (see
+[hosting-and-identity](hosting-and-identity.md#identity-and-secrets)); locally from user secrets.
+The OAuth, email and reCAPTCHA credentials are read when used, so they take effect without a
+restart when they arrive late (App Configuration recovering after a failed startup load); the
+keys and their health checks are listed in `SecretBackedServices`. The rest are read once at
+startup or construction. A missing value marks the matching service unavailable and falls back
 rather than failing startup; see [service-resilience](service-resilience.md).
 
 | Key | Read by | When missing |
 | --- | --- | --- |
-| `Authentication:Google:ClientId` / `ClientSecret` | `AuthenticationBuilderExtensions.AddGoogleWithResilience` | `GoogleOAuth` unavailable, no Google login |
+| `Authentication:Google:ClientId` / `ClientSecret` | `AuthenticationBuilderExtensions.AddGoogleWithResilience` (options rebuilt on reload) | `GoogleOAuth` unavailable; provider hidden from the login pages |
 | `Authentication:Facebook:ClientId` / `ClientSecret` | `AddFacebookWithResilience` | `FacebookOAuth` unavailable |
 | `Authentication:Spotify:ClientId` / `ClientSecret` | `AddSpotifyWithResilience`; also `CoreAuthentication` (via `SpotAuthentication`, client name `spotify`) for app tokens | Spotify login unavailable; app-token calls fail |
 | `Authentication:AzureCommunicationServices:ConnectionString` | `ServiceCollectionExtensions.AddEmailSenderWithResilience` | `EmailService` unavailable; `NullEmailSender` |
@@ -146,7 +149,7 @@ go in user secrets.
 | `Configuration:BotFilter:ExcludeTokens` / `ExcludeFragments` / `BadFragments` (`;`-separated) | `SpiderManager` (`BotFilterInfo`) | Every check | Empty: no user agent is treated as a bot except an empty one | (unset; App Configuration) |
 | `Configuration:Commerce:Enabled` | `CommerceController.IsCommerceEnabled` | Per request | `true` | (unset; sandbox `false`) |
 | `Configuration:Commerce:FailLimit` | `CommerceController.GetCardFailLimit` | Per request | `5` | (unset) |
-| `Configuration:Marketing` (`Enabled`, `Banner`, `Notice`, `Start`, `End`, `Product:Name`/`Link`/`Password`) | `GlobalState.SetMarketing` → `MarketingInfo` | **Once**, at registration | Missing: no marketing banner/notice | (unset) |
+| `Configuration:Marketing` (`Enabled`, `Banner`, `Notice`, `Start`, `End`, `Product:Name`/`Link`/`Password`) | `GlobalState.SetMarketing` → `MarketingInfo` | At registration and on every configuration reload | Missing: no marketing banner/notice | (unset) |
 | `ServiceHealth:AdminNotifications` (`Enabled`, `Recipients`, `IncludeStackTrace`, `SenderAddress`) | `ServiceHealthNotifier` | When the notifier is built | `Enabled=false`, sender `donotreply@music4dance.net` | (unset) |
 | `UsageTracking:Enabled` / `AnonymousThreshold` / `AnonymousBatchSize` / `AuthenticatedBatchSize` / `MaxQueueSize` | `_head.cshtml` → client `menuContext` | Per page | `true` / `3` / `5` / `1` / `100` | same values |
 | `EngagementOffcanvas:Enabled` | `_head.cshtml` | Per page | `false` | `true` |
@@ -184,9 +187,9 @@ splitter analyses. These only affect opt-in analysis tests.
 - **`PROD_DB` / `TEST_DB` are honored inconsistently.** `Program.cs` ignores them outside
   Development, but the `DbContext` factory, `_head.cshtml`, `AdminController.RestoreDb` and
   `AddPublicApiFoundation` read them in any environment.
-- **Read-once settings don't follow the sentinel refresh.** `Configuration:Marketing`,
-  `RateLimiting`, `ServiceHealth:DatabaseRetryInterval`, `Authentication:RecomputeJob:Key` and
-  the registration-time secrets need a restart; binding them with `IOptionsMonitor` would let an
+- **Read-once settings don't follow the sentinel refresh.** `RateLimiting`,
+  `ServiceHealth:DatabaseRetryInterval`, `Authentication:RecomputeJob:Key` and the
+  AutoMapper key need a restart; binding them with `IOptionsMonitor` would let an
   App Configuration change apply live.
 - **Defaults disagree between code and appsettings** for `EngagementOffcanvas:Enabled` (`false`
   vs `true`), `SessionDismissalTimeout` (`60` vs `15`) and `PremiumBenefits:MoreText`

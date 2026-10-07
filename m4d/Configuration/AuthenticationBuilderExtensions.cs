@@ -1,49 +1,40 @@
-using m4d.Services.ServiceHealth;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.Extensions.Options;
 
 namespace m4d.Configuration;
 
 /// <summary>
-/// Extension methods for configuring authentication providers with resilience
-/// Validates credentials before registering authentication handlers to prevent
-/// runtime exceptions when middleware initializes
+/// Extension methods for configuring authentication providers with resilience.
+///
+/// Every provider is always registered, and its client id and secret are read from configuration
+/// when its options are built, not captured at registration. A ConfigurationChangeTokenSource
+/// rebuilds the options whenever configuration reloads, so credentials that arrive late (App
+/// Configuration recovering after a failed startup load) take effect without a restart.
+///
+/// While credentials are missing the options get placeholder values: the authentication
+/// middleware initializes every remote handler on every request and OAuthOptions.Validate throws
+/// on an empty client id, which would fail the whole site. An unconfigured provider is hidden by
+/// M4dSignInManager and refuses to redirect to the provider (see GuardUnconfigured).
 /// </summary>
 public static class AuthenticationBuilderExtensions
 {
+    private const string Unconfigured = "unconfigured";
+
     /// <summary>
     /// Configure Google OAuth authentication with resilience
     /// </summary>
     public static AuthenticationBuilder AddGoogleWithResilience(
         this AuthenticationBuilder authBuilder,
-        IConfiguration configuration,
-        ServiceHealthManager serviceHealth)
+        IConfiguration configuration)
     {
-        try
+        var provider = Provider("GoogleOAuth");
+        authBuilder.AddGoogle(options =>
         {
-            var googleAuthNSection = configuration.GetSection("Authentication:Google");
-            var googleClientId = googleAuthNSection["ClientId"];
-            var googleClientSecret = googleAuthNSection["ClientSecret"];
-
-            if (string.IsNullOrEmpty(googleClientId) || string.IsNullOrEmpty(googleClientSecret))
-            {
-                throw new InvalidOperationException("Google ClientId or ClientSecret not configured");
-            }
-
-            authBuilder.AddGoogle(options =>
-            {
-                options.ClientId = googleClientId;
-                options.ClientSecret = googleClientSecret;
-            });
-
-            serviceHealth.MarkHealthy("GoogleOAuth");
-        }
-        catch (Exception ex)
-        {
-            serviceHealth.MarkUnavailable("GoogleOAuth", $"{ex.GetType().Name}: {ex.Message}");
-            Console.WriteLine($"WARNING: Google OAuth not configured: {ex.Message}");
-        }
-
-        return authBuilder;
+            ApplyCredentials(options, configuration, provider);
+        });
+        return TrackConfigurationChanges<Microsoft.AspNetCore.Authentication.Google.GoogleOptions>(
+            authBuilder, configuration, provider);
     }
 
     /// <summary>
@@ -51,37 +42,18 @@ public static class AuthenticationBuilderExtensions
     /// </summary>
     public static AuthenticationBuilder AddFacebookWithResilience(
         this AuthenticationBuilder authBuilder,
-        IConfiguration configuration,
-        ServiceHealthManager serviceHealth)
+        IConfiguration configuration)
     {
-        try
+        var provider = Provider("FacebookOAuth");
+        authBuilder.AddFacebook(options =>
         {
-            var facebookAppId = configuration["Authentication:Facebook:ClientId"];
-            var facebookAppSecret = configuration["Authentication:Facebook:ClientSecret"];
-
-            if (string.IsNullOrEmpty(facebookAppId) || string.IsNullOrEmpty(facebookAppSecret))
-            {
-                throw new InvalidOperationException("Facebook AppId or AppSecret not configured");
-            }
-
-            authBuilder.AddFacebook(options =>
-            {
-                options.AppId = facebookAppId;
-                options.AppSecret = facebookAppSecret;
-                options.Scope.Add("email");
-                options.Fields.Add("name");
-                options.Fields.Add("email");
-            });
-
-            serviceHealth.MarkHealthy("FacebookOAuth");
-        }
-        catch (Exception ex)
-        {
-            serviceHealth.MarkUnavailable("FacebookOAuth", $"{ex.GetType().Name}: {ex.Message}");
-            Console.WriteLine($"WARNING: Facebook OAuth not configured: {ex.Message}");
-        }
-
-        return authBuilder;
+            ApplyCredentials(options, configuration, provider);
+            options.Scope.Add("email");
+            options.Fields.Add("name");
+            options.Fields.Add("email");
+        });
+        return TrackConfigurationChanges<Microsoft.AspNetCore.Authentication.Facebook.FacebookOptions>(
+            authBuilder, configuration, provider);
     }
 
     /// <summary>
@@ -89,52 +61,72 @@ public static class AuthenticationBuilderExtensions
     /// </summary>
     public static AuthenticationBuilder AddSpotifyWithResilience(
         this AuthenticationBuilder authBuilder,
-        IConfiguration configuration,
-        ServiceHealthManager serviceHealth)
+        IConfiguration configuration)
     {
-        try
+        var provider = Provider("SpotifyOAuth");
+        authBuilder.AddSpotify(options =>
         {
-            var spotifyClientId = configuration["Authentication:Spotify:ClientId"];
-            var spotifyClientSecret = configuration["Authentication:Spotify:ClientSecret"];
+            ApplyCredentials(options, configuration, provider);
 
-            if (string.IsNullOrEmpty(spotifyClientId) || string.IsNullOrEmpty(spotifyClientSecret))
+            options.Scope.Add("user-read-email");
+            options.Scope.Add("playlist-modify-public");
+            options.Scope.Add("ugc-image-upload");
+            //options.Scope.Add("user-read-playback-state");
+            //options.Scope.Add("user-read-playback-position");
+
+            //options.ClaimActions.MapJsonKey("urn:spotify:url", "uri", "url");
+            //options.ClaimActions.MapJsonKey("urn:spotify:id", "id", "id");
+
+            options.SaveTokens = true;
+
+            options.Events.OnCreatingTicket = cxt =>
             {
-                throw new InvalidOperationException("Spotify ClientId or ClientSecret not configured");
-            }
+                var tokens = cxt.Properties.GetTokens().ToList();
+                cxt.Properties.StoreTokens(tokens);
 
-            authBuilder.AddSpotify(options =>
-            {
-                options.ClientId = spotifyClientId;
-                options.ClientSecret = spotifyClientSecret;
+                return Task.CompletedTask;
+            };
+        });
+        return TrackConfigurationChanges<AspNet.Security.OAuth.Spotify.SpotifyAuthenticationOptions>(
+            authBuilder, configuration, provider);
+    }
 
-                options.Scope.Add("user-read-email");
-                options.Scope.Add("playlist-modify-public");
-                options.Scope.Add("ugc-image-upload");
-                //options.Scope.Add("user-read-playback-state");
-                //options.Scope.Add("user-read-playback-position");
+    private static SecretBackedServices.ExternalLoginProvider Provider(string serviceName) =>
+        SecretBackedServices.ExternalLoginProviders.Single(p => p.ServiceName == serviceName);
 
-                //options.ClaimActions.MapJsonKey("urn:spotify:url", "uri", "url");
-                //options.ClaimActions.MapJsonKey("urn:spotify:id", "id", "id");
+    private static void ApplyCredentials(
+        OAuthOptions options, IConfiguration configuration,
+        SecretBackedServices.ExternalLoginProvider provider)
+    {
+        var clientId = configuration[provider.ClientIdKey];
+        var clientSecret = configuration[provider.ClientSecretKey];
+        var configured = !string.IsNullOrEmpty(clientId) && !string.IsNullOrEmpty(clientSecret);
 
-                options.SaveTokens = true;
+        options.ClientId = configured ? clientId : Unconfigured;
+        options.ClientSecret = configured ? clientSecret : Unconfigured;
+        GuardUnconfigured(options.Events, configured);
+    }
 
-                options.Events.OnCreatingTicket = cxt =>
-                {
-                    var tokens = cxt.Properties.GetTokens().ToList();
-                    cxt.Properties.StoreTokens(tokens);
-
-                    return Task.CompletedTask;
-                };
-            });
-
-            serviceHealth.MarkHealthy("SpotifyOAuth");
-        }
-        catch (Exception ex)
+    /// <summary>
+    /// Backstop for a crafted request to an unconfigured provider (the login pages don't list
+    /// it): send the user back to the login page instead of to the provider with a placeholder
+    /// client id. Otherwise this is the default OAuthEvents behavior.
+    /// </summary>
+    private static void GuardUnconfigured(OAuthEvents events, bool configured)
+    {
+        events.OnRedirectToAuthorizationEndpoint = context =>
         {
-            serviceHealth.MarkUnavailable("SpotifyOAuth", $"{ex.GetType().Name}: {ex.Message}");
-            Console.WriteLine($"WARNING: Spotify OAuth not configured: {ex.Message}");
-        }
+            context.Response.Redirect(configured ? context.RedirectUri : "/Identity/Account/Login");
+            return Task.CompletedTask;
+        };
+    }
 
+    private static AuthenticationBuilder TrackConfigurationChanges<TOptions>(
+        AuthenticationBuilder authBuilder, IConfiguration configuration,
+        SecretBackedServices.ExternalLoginProvider provider)
+    {
+        authBuilder.Services.AddSingleton<IOptionsChangeTokenSource<TOptions>>(
+            new ConfigurationChangeTokenSource<TOptions>(provider.Scheme, configuration));
         return authBuilder;
     }
 }

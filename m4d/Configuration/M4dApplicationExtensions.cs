@@ -155,65 +155,14 @@ public static class M4dApplicationExtensions
 
             var appConfigEndpoint = configuration["AppConfig:Endpoint"];
 
-            // Register App Configuration service WITHOUT connecting synchronously (for fast startup)
-            // Connection will be triggered by StartupInitializationService in background after app starts
+            // See AppConfigurationStartup: the load blocks startup for at most 30s, and a failed
+            // load recovers in place in the background.
             if (!string.IsNullOrEmpty(appConfigEndpoint))
             {
                 Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] [AppConfig] Endpoint configured: {appConfigEndpoint}");
-                Console.WriteLine("[AppConfig] Registering service (connection deferred to background)");
-
-                try
-                {
-                    _ = configuration.AddAzureAppConfiguration(options =>
-                    {
-                        _ = options.Connect(
-                            new Uri(appConfigEndpoint),
-                            azureCredential!)
-                        .ConfigureKeyVault(
-                            kv => { _ = kv.SetCredential(azureCredential!); })
-                        .UseFeatureFlags(featureFlagOptions =>
-                        {
-                            // Both arguments matter. FeatureFlagOptions.Select takes the flag NAME
-                            // filter first and the label second - it is not the single-argument
-                            // label overload it looks like, and there is no such overload. Passing a
-                            // label alone asks for a flag literally named "Staging", matches nothing,
-                            // and fails silently: flags simply fall back to appsettings.json, which
-                            // looks exactly like a flag that is switched off. Mirror the key-value
-                            // Select calls below, which had it right.
-                            _ = featureFlagOptions.Select(KeyFilter.Any, LabelFilter.Null);
-                            _ = featureFlagOptions.Select(KeyFilter.Any, environment.EnvironmentName);
-                            _ = featureFlagOptions.SetRefreshInterval(TimeSpan.FromMinutes(5));
-                        })
-                        .Select(KeyFilter.Any, LabelFilter.Null)
-                        .Select(KeyFilter.Any, environment.EnvironmentName)
-                        .ConfigureRefresh(refresh =>
-                        {
-                            _ = refresh.Register("Configuration:Sentinel", environment.EnvironmentName, refreshAll: true)
-                                .SetRefreshInterval(TimeSpan.FromMinutes(5));
-                        })
-                        .ConfigureClientOptions(clientOptions =>
-                        {
-                            // Reasonable timeouts for production use
-                            // Total max time: 30s (NetworkTimeout) × 2 retries = 60 seconds max
-                            clientOptions.Retry.NetworkTimeout = TimeSpan.FromSeconds(30);
-                            clientOptions.Retry.MaxRetries = 1; // Initial + 1 retry = 2 total attempts
-                            clientOptions.Retry.Delay = TimeSpan.FromSeconds(2);
-                            clientOptions.Retry.MaxDelay = TimeSpan.FromSeconds(5);
-                            clientOptions.Retry.Mode = Azure.Core.RetryMode.Exponential;
-                            Console.WriteLine("[AppConfig] Timeout: 30s per attempt, 2 attempts max (60s total)");
-                        });
-                    });
-
-                    _ = services.AddAzureAppConfiguration();
-                    serviceHealth.MarkHealthy("AppConfiguration");
-                    Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] [AppConfig] ✓ Service registered (will connect in background)");
-                }
-                catch (Exception ex)
-                {
-                    serviceHealth.MarkUnavailable("AppConfiguration", $"{ex.GetType().Name}: {ex.Message}");
-                    Console.WriteLine($"WARNING: App Configuration registration failed: {ex.Message}");
-                    Console.WriteLine("Continuing with local configuration only");
-                }
+                _ = configuration.AddM4dAppConfiguration(
+                    services, new Uri(appConfigEndpoint), azureCredential!,
+                    environment.EnvironmentName, serviceHealth);
             }
             else
             {
@@ -390,7 +339,8 @@ public static class M4dApplicationExtensions
                 })
             .AddUserValidator<UsernameValidator<ApplicationUser>>()
             .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<DanceMusicContext>();
+            .AddEntityFrameworkStores<DanceMusicContext>()
+            .AddSignInManager<m4d.Areas.Identity.M4dSignInManager>();
 
         // Add services to the container.
         services.AddControllersWithViews();
@@ -472,6 +422,11 @@ public static class M4dApplicationExtensions
         services.AddResponseCaching();
 
         GlobalState.SetMarketing(configuration.GetSection("Configuration:Marketing"));
+        // Re-read on every reload, so marketing settings that arrive late (App Configuration
+        // recovering after a failed startup load) or change at runtime take effect.
+        _ = Microsoft.Extensions.Primitives.ChangeToken.OnChange(
+            ((IConfiguration)configuration).GetReloadToken,
+            () => GlobalState.SetMarketing(configuration.GetSection("Configuration:Marketing")));
 
         var physicalProvider = environment.ContentRootFileProvider;
         var embeddedProvider = new EmbeddedFileProvider(Assembly.GetEntryAssembly());
@@ -479,7 +434,7 @@ public static class M4dApplicationExtensions
         services.AddSingleton<IFileProvider>(compositeProvider);
 
         // Email Service
-        services.AddEmailSenderWithResilience(configuration, serviceHealth);
+        services.AddEmailSenderWithResilience(configuration);
 
         services.Configure<AuthorizationOptions>(
             options =>
@@ -492,18 +447,21 @@ public static class M4dApplicationExtensions
         var authBuilder = services.AddAuthentication();
 
         // Google OAuth
-        authBuilder.AddGoogleWithResilience(configuration, serviceHealth);
+        authBuilder.AddGoogleWithResilience(configuration);
 
         // Facebook OAuth
-        authBuilder.AddFacebookWithResilience(configuration, serviceHealth);
+        authBuilder.AddFacebookWithResilience(configuration);
 
         // Spotify OAuth
-        authBuilder.AddSpotifyWithResilience(configuration, serviceHealth);
+        authBuilder.AddSpotifyWithResilience(configuration);
 
         services.AddPublicApiFoundation(configuration, environment);
 
         // reCAPTCHA
-        services.AddReCaptchaWithResilience(configuration, serviceHealth);
+        services.AddReCaptchaWithResilience(configuration);
+
+        // Startup health for the services above, which all read their credentials at use time
+        _ = SecretBackedServices.UpdateHealth(configuration, serviceHealth, markMissing: true);
 
         if (appOptions.ConfigureSearch)
         {
@@ -642,15 +600,16 @@ public static class M4dApplicationExtensions
                 }
             });
 
-            // Only use Azure App Configuration middleware if the service is available
-            if (serviceHealth.IsServiceAvailable("AppConfiguration"))
+            // Enabled whenever a provider is in the chain, even one whose startup load failed:
+            // its per-request refresh also retries that failed load
+            if (AppConfigurationStartup.HasProvider(configuration))
             {
                 _ = app.UseAzureAppConfiguration();
                 Console.WriteLine("Azure App Configuration middleware enabled");
             }
             else
             {
-                Console.WriteLine("Azure App Configuration middleware disabled - service unavailable");
+                Console.WriteLine("Azure App Configuration middleware disabled - no provider");
             }
         }
 
@@ -667,39 +626,39 @@ public static class M4dApplicationExtensions
         Console.WriteLine(serviceHealth.GenerateStartupReport());
         Console.WriteLine();
 
-        // Initialize email notifier and check for startup failures
         var summary = serviceHealth.GetHealthSummary();
         if (summary.UnavailableCount > 0 || summary.DegradedCount > 0)
         {
             Console.WriteLine($"WARNING: {summary.UnavailableCount} service(s) unavailable, {summary.DegradedCount} degraded");
+        }
 
-            // Initialize email notifier now (only if failures detected) to send one consolidated email
-            try
+        // Attach the admin email notifier on every startup, so a failure at runtime is reported
+        // even after a clean start. It resolves its settings and the email sender at send time,
+        // so it works once App Configuration recovers from a failed startup load.
+        var notifier = new ServiceHealthNotifier(
+            configuration,
+            () => app.Services.GetService<IEmailSender>(),
+            app.Services.GetRequiredService<ILogger<ServiceHealthNotifier>>());
+        serviceHealth.SetNotifier(notifier);
+
+        // In Azure (App Service sets WEBSITE_SITE_NAME), email a status report once the instance
+        // is serving: after migrations and the hosted services' StartAsync, so it shows the real
+        // state of the database and dance stats. If App Configuration didn't load, the email
+        // settings are missing and nothing goes out; AppConfigurationRecoveryService reports the
+        // startup instead when it recovers.
+        if (!string.IsNullOrEmpty(configuration["WEBSITE_SITE_NAME"]))
+        {
+            _ = app.Lifetime.ApplicationStarted.Register(() => _ = Task.Run(async () =>
             {
-                var emailSender = app.Services.GetService<IEmailSender>();
-                // Create a simple console logger for startup notifications (ApplicationLogging.LoggerFactory isn't set yet)
-                using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-                var notifierLogger = loggerFactory.CreateLogger<ServiceHealthNotifier>();
-                var notifier = new ServiceHealthNotifier(configuration, emailSender, notifierLogger);
-                serviceHealth.SetNotifier(notifier);
-
-                // Send consolidated startup failure notification (async, don't block startup)
-                _ = Task.Run(async () =>
+                try
                 {
-                    try
-                    {
-                        await serviceHealth.SendStartupFailureNotificationAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Failed to send startup failure notification: {ex.Message}");
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"WARNING: Failed to configure email notifications for startup failures: {ex.Message}");
-            }
+                    await serviceHealth.SendStartupStatusNotificationAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to send startup status notification: {ex.Message}");
+                }
+            }));
         }
 
         // Configure the HTTP request pipeline.

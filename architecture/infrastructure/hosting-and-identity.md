@@ -104,26 +104,37 @@ The `PROD_DB` / `TEST_DB` switches are for local development against the shared 
 - **Refresh:** a change to `Configuration:Sentinel` triggers a full refresh. Both the sentinel
   and the feature flags are checked every 5 minutes, through `UseAzureAppConfiguration()`.
 - **Fallback:** if App Configuration is unreachable, the app keeps running on `appsettings.json`
-  (see [service-resilience](service-resilience.md)).
+  (see [service-resilience](service-resilience.md)). Every secret comes from App Configuration
+  and its Key Vault references, so this is a degraded mode: no OAuth logins, email or reCAPTCHA.
+  It recovers in place once App Configuration loads (see
+  [service-resilience § App Configuration recovery](service-resilience.md#app-configuration-recovery)).
 
 ## Startup sequence
 
 The app is built to pass a liveness probe in seconds, even while dependencies are slow:
 
 1. Create the shared credential.
-2. Register App Configuration without connecting.
+2. Load App Configuration (and its Key Vault references) **synchronously**
+   (`AppConfigurationStartup`). Adding the provider to `builder.Configuration` loads it on the
+   spot, and startup waits until the load succeeds or the 30s startup timeout expires. The
+   per-request client retry options don't cap that total. The provider is optional, so a
+   failure leaves it in place, empty, and `AppConfigurationRecoveryService` completes the load
+   in the background (see [background-work-and-startup](background-work-and-startup.md#appconfigurationrecoveryservice)).
+   Don't lengthen this wait: App Service kills a container that doesn't answer its startup
+   probe in time.
 3. Register search clients lazily, never connecting at startup.
 4. Register the remaining services, each wrapped for resilience.
 5. Run `builder.Build()`.
 6. Map `/health/startup` and `/health/ready`.
-7. Print the startup health report, and send one failure email if anything is unavailable.
-   This happens before migrations, so a migration failure isn't in the report.
+7. Print the startup health report and attach the admin email notifier. This happens before
+   migrations, so a migration failure isn't in the console report. In Azure, a status email is
+   sent once the app has started (after step 9), and that does include it.
 8. **Run database migrations synchronously** before `app.Run()`, so the schema exists before
    any hosted service runs. A failure marks `Database` unavailable instead of crashing.
 9. Run the hosted services' `StartAsync`, including the dance-stats load, then start accepting
    requests (see [background-work-and-startup](background-work-and-startup.md#startup-order)).
 10. `StartupInitializationService` waits 2s, then performs the first App Configuration refresh
-    in the background.
+    in the background (a refresh check, not the initial load, which step 2 already did).
 
 ## Health checks
 
@@ -186,6 +197,10 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
   trimmed credential chain, deferred App Configuration connect.
 - 2026: `/health/ready` added and wired into the pipeline after an incident caused by
   `/health/startup`.
+- 2026-10-06: A production restart after a segfault hit a 100s App Configuration startup timeout
+  and stayed degraded (no secrets) until a manual restart. The "deferred connect" above turned
+  out to be a synchronous load. The load is now optional with a 30s timeout and recovers in
+  place, and a failure prints the Azure SDK events from the load.
 - 2026-10-01: Consolidated from `SELF_CONTAINED_DEPLOYMENT.md`, `managed-identity-self-contained-plan.md`
   and the architecture sections of `azure-app-service-setup-managed-identity.md`. Stale details
   dropped: legacy pipeline files, `appsettings.SelfContained.json`, and in-app Kestrel port and

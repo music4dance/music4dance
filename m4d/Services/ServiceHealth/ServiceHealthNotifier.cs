@@ -1,5 +1,8 @@
 #nullable enable
 
+using System.Net;
+using System.Text;
+
 using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace m4d.Services.ServiceHealth;
@@ -30,88 +33,192 @@ public class ServiceHealthNotificationOptions
     public string SenderAddress { get; set; } = "donotreply@music4dance.net";
 }
 
+public enum HealthNotificationKind
+{
+    Failure,
+    Recovery,
+    Status
+}
+
 /// <summary>
-/// Service for sending email notifications when services fail
+/// Sends the admin service-health emails: a failure, a recovery, or a status report (sent when
+/// an instance starts in Azure).
 /// </summary>
 public class ServiceHealthNotifier
 {
-    private readonly ServiceHealthNotificationOptions _options;
-    private readonly IEmailSender? _emailSender;
+    private readonly IConfiguration _configuration;
+    private readonly Func<IEmailSender?> _emailSenderFactory;
     private readonly ILogger<ServiceHealthNotifier> _logger;
 
+    /// <summary>
+    /// The options and the email sender are resolved at send time, not here: when App
+    /// Configuration fails to load at startup both are missing, and they appear once it recovers
+    /// in place (see AppConfigurationRecoveryService).
+    /// </summary>
     public ServiceHealthNotifier(
         IConfiguration configuration,
-        IEmailSender? emailSender,
+        Func<IEmailSender?> emailSenderFactory,
         ILogger<ServiceHealthNotifier> logger)
     {
+        _configuration = configuration;
+        _emailSenderFactory = emailSenderFactory;
         _logger = logger;
-        _emailSender = emailSender;
-        _options = configuration.GetSection("ServiceHealth:AdminNotifications")
-            .Get<ServiceHealthNotificationOptions>() ?? new ServiceHealthNotificationOptions();
-
-        if (_options.Enabled)
-        {
-            if (_emailSender != null)
-            {
-                _logger.LogInformation("Service health email notifications enabled for {Count} recipients",
-                    _options.Recipients.Count);
-            }
-            else
-            {
-                _logger.LogWarning("Service health notifications enabled but email service is not available");
-            }
-        }
     }
+
+    private ServiceHealthNotificationOptions GetOptions() =>
+        _configuration.GetSection("ServiceHealth:AdminNotifications")
+            .Get<ServiceHealthNotificationOptions>() ?? new ServiceHealthNotificationOptions();
 
     /// <summary>
     /// Send notification email about service failure
     /// </summary>
-    public async Task SendFailureNotificationAsync(
+    public Task<bool> SendFailureNotificationAsync(
         string serviceName,
         string errorMessage,
+        ServiceHealthManager serviceHealth) =>
+        SendAsync(HealthNotificationKind.Failure, serviceName, errorMessage, serviceHealth);
+
+    /// <summary>
+    /// Send one email of the given kind to every recipient. Returns whether it was sent: false
+    /// when notifications are disabled or unconfigured (as they are while App Configuration is
+    /// unavailable), so callers only treat an incident as notified when someone was told.
+    /// </summary>
+    public async Task<bool> SendAsync(
+        HealthNotificationKind kind,
+        string subject,
+        string message,
         ServiceHealthManager serviceHealth)
     {
-        if (!_options.Enabled || _emailSender == null || !_options.Recipients.Any())
+        var options = GetOptions();
+        if (!options.Enabled || !options.Recipients.Any())
         {
-            return;
+            _logger.LogInformation(
+                "Service health {Kind} email not sent ({Subject}): notifications are disabled or have no recipients",
+                kind, subject);
+            return false;
+        }
+
+        var emailSender = _emailSenderFactory();
+        if (emailSender == null || emailSender is NullEmailSender)
+        {
+            _logger.LogWarning(
+                "Service health {Kind} email not sent ({Subject}): email service is not available",
+                kind, subject);
+            return false;
         }
 
         try
         {
-            var subject = $"[music4dance.net] Service Failure: {serviceName}";
-            var body = BuildFailureEmailBody(serviceName, errorMessage, serviceHealth);
+            var fullSubject = $"[music4dance.net] {SubjectPrefix(kind)}: {subject}{HostSuffix()}";
+            var body = BuildEmailBody(kind, subject, message, serviceHealth);
 
-            foreach (var recipient in _options.Recipients)
+            foreach (var recipient in options.Recipients)
             {
-                await _emailSender.SendEmailAsync(recipient, subject, body);
+                await emailSender.SendEmailAsync(recipient, fullSubject, body);
                 _logger.LogInformation(
-                    "Service failure notification sent to {Recipient} for {ServiceName}",
-                    recipient, serviceName);
+                    "Service health {Kind} email sent to {Recipient}: {Subject}", kind, recipient, subject);
             }
+            return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send service failure notification for {ServiceName}", serviceName);
+            _logger.LogError(ex, "Failed to send service health {Kind} email: {Subject}", kind, subject);
+            return false;
         }
     }
 
-    private string BuildFailureEmailBody(
-        string serviceName,
-        string errorMessage,
+    private static string SubjectPrefix(HealthNotificationKind kind) => kind switch
+    {
+        HealthNotificationKind.Failure => "Service Failure",
+        HealthNotificationKind.Recovery => "Service Recovered",
+        _ => "Status"
+    };
+
+    // App Service sets WEBSITE_SITE_NAME / WEBSITE_INSTANCE_ID, which tell production, staging
+    // and test apart, and one instance from the next across restarts
+    private string HostSuffix()
+    {
+        var site = _configuration["WEBSITE_SITE_NAME"];
+        return string.IsNullOrEmpty(site) ? "" : $" ({site})";
+    }
+
+    private string HostDescription()
+    {
+        var site = _configuration["WEBSITE_SITE_NAME"];
+        var instance = _configuration["WEBSITE_INSTANCE_ID"];
+        var environment = _configuration["ASPNETCORE_ENVIRONMENT"];
+        var parts = new[]
+        {
+            string.IsNullOrEmpty(site) ? Environment.MachineName : site,
+            string.IsNullOrEmpty(instance) ? null : $"instance {instance[..Math.Min(8, instance.Length)]}",
+            string.IsNullOrEmpty(environment) ? null : environment
+        };
+        return string.Join(", ", parts.Where(p => p != null));
+    }
+
+    private string BuildEmailBody(
+        HealthNotificationKind kind,
+        string subject,
+        string message,
         ServiceHealthManager serviceHealth)
     {
         var summary = serviceHealth.GetHealthSummary();
         var timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss UTC");
+        var allHealthy = summary.UnavailableCount == 0 && summary.DegradedCount == 0;
 
-        var html = $@"
+        var (headerColor, title, intro, subjectLabel) = kind switch
+        {
+            HealthNotificationKind.Failure => ("#dc3545", "🚨 Service Failure Alert",
+                "A service has become unavailable on music4dance.net", "Failed Service"),
+            HealthNotificationKind.Recovery => ("#28a745", "✅ Service Recovered",
+                "A service that was reported unavailable has recovered", "Recovered Service"),
+            _ => (allHealthy ? "#28a745" : "#fd7e14", allHealthy ? "✅ Started: Healthy" : "⚠ Started: Degraded",
+                "A music4dance.net server instance has started", "Event")
+        };
+
+        var footer = kind switch
+        {
+            HealthNotificationKind.Failure =>
+                "You will receive this notification once per failure incident. A recovery email follows when the service recovers.",
+            HealthNotificationKind.Recovery =>
+                "This closes the failure incident reported earlier for this service.",
+            _ => "Sent each time a server instance starts in Azure."
+        };
+
+        var rows = new StringBuilder();
+        foreach (var status in serviceHealth.GetAllStatuses().OrderBy(s => s.ServiceName))
+        {
+            var statusClass = status.Status.ToString().ToLowerInvariant();
+            var statusIcon = status.Status switch
+            {
+                ServiceStatus.Healthy => "✓",
+                ServiceStatus.Degraded => "⚠",
+                ServiceStatus.Unavailable => "✗",
+                _ => "?"
+            };
+            var error = string.IsNullOrEmpty(status.ErrorMessage)
+                ? ""
+                : WebUtility.HtmlEncode(status.ErrorMessage);
+
+            rows.AppendLine($@"
+            <tr>
+                <td>{status.ServiceName}</td>
+                <td class='{statusClass}'>{statusIcon} {status.Status}</td>
+                <td>{status.LastChecked:yyyy-MM-dd HH:mm:ss}</td>
+                <td>{status.ConsecutiveFailures}</td>
+                <td>{error}</td>
+            </tr>");
+        }
+
+        return $@"
 <!DOCTYPE html>
 <html>
 <head>
     <style>
         body {{ font-family: 'Segoe UI', Arial, sans-serif; margin: 20px; }}
-        .header {{ background: #dc3545; color: white; padding: 15px; border-radius: 4px; }}
+        .header {{ background: {headerColor}; color: white; padding: 15px; border-radius: 4px; }}
         .content {{ margin: 20px 0; }}
-        .error-box {{ background: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; border-radius: 4px; margin: 10px 0; }}
+        .message-box {{ background: #f8f9fa; border: 1px solid #ddd; padding: 10px; border-radius: 4px; margin: 10px 0; }}
         .status-table {{ border-collapse: collapse; width: 100%; margin: 20px 0; }}
         .status-table th, .status-table td {{ padding: 8px; text-align: left; border: 1px solid #ddd; }}
         .status-table th {{ background: #f8f9fa; }}
@@ -122,17 +229,17 @@ public class ServiceHealthNotifier
 </head>
 <body>
     <div class='header'>
-        <h2>🚨 Service Failure Alert</h2>
-        <p>A critical service has become unavailable on music4dance.net</p>
+        <h2>{title}</h2>
+        <p>{intro}</p>
     </div>
 
     <div class='content'>
-        <p><strong>Failed Service:</strong> {serviceName}</p>
+        <p><strong>{subjectLabel}:</strong> {WebUtility.HtmlEncode(subject)}</p>
+        <p><strong>Host:</strong> {WebUtility.HtmlEncode(HostDescription())}</p>
         <p><strong>Timestamp:</strong> {timestamp}</p>
 
-        <div class='error-box'>
-            <p><strong>Error Message:</strong></p>
-            <pre>{System.Net.WebUtility.HtmlEncode(errorMessage)}</pre>
+        <div class='message-box'>
+            <pre>{WebUtility.HtmlEncode(message)}</pre>
         </div>
 
         <h3>Current Service Status Summary</h3>
@@ -149,48 +256,18 @@ public class ServiceHealthNotifier
                 <th>Status</th>
                 <th>Last Checked</th>
                 <th>Failures</th>
-            </tr>";
-
-        var tableRows = new System.Text.StringBuilder();
-        foreach (var status in serviceHealth.GetAllStatuses().OrderBy(s => s.ServiceName))
-        {
-            var statusClass = status.Status.ToString().ToLowerInvariant();
-            var statusIcon = status.Status switch
-            {
-                ServiceStatus.Healthy => "✓",
-                ServiceStatus.Degraded => "⚠",
-                ServiceStatus.Unavailable => "✗",
-                _ => "?"
-            };
-
-            tableRows.AppendLine($@"
-            <tr>
-                <td>{status.ServiceName}</td>
-                <td class='{statusClass}'>{statusIcon} {status.Status}</td>
-                <td>{status.LastChecked:yyyy-MM-dd HH:mm:ss}</td>
-                <td>{status.ConsecutiveFailures}</td>
-            </tr>");
-        }
-
-        html += tableRows.ToString();
-        html += @"
+                <th>Error</th>
+            </tr>
+{rows}
         </table>
-
-        <h3>Impact Assessment</h3>
-        <p>Users may experience degraded functionality. The application will serve cached content where possible and continue operating with reduced features.</p>
-
-        <p><strong>Action Required:</strong> Please investigate the cause of the failure. The system will attempt automatic recovery, but manual intervention may be required.</p>
 
         <hr>
         <p style='color: #666; font-size: 0.9em;'>
             This is an automated notification from music4dance.net service health monitoring.<br>
-            You will receive this notification only once per service failure incident.<br>
-            No additional notifications will be sent until the service recovers and fails again.
+            {footer}
         </p>
     </div>
 </body>
 </html>";
-
-        return html;
     }
 }

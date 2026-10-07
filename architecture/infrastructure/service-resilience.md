@@ -2,8 +2,10 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01
+**Last verified:** 2026-10-06
 **Code:** `m4d/Services/ServiceHealth/`, `m4d/Services/DatabaseRecoveryService.cs`,
+`m4d/Services/AppConfigurationRecoveryService.cs`, `m4d/Configuration/AppConfigurationStartup.cs`,
+`m4d/Configuration/SecretBackedServices.cs`,
 `m4d/Controllers/HealthController.cs`, `m4d/Configuration/M4dApplicationExtensions.cs`,
 `m4d/ClientApp/src/composables/useServiceHealth.ts`, `m4d/ClientApp/src/components/ServiceStatusBanner.vue`
 
@@ -23,13 +25,16 @@ dependency down, and it recovers without a restart once the dependency comes bac
 | --- | --- | --- | --- |
 | `Database` | Startup migration succeeds; `DatabaseRecoveryService` probe succeeds; `DanceStatsInstance` reads succeed | No connection string; migration fails; `SqlException` in `DMController.OnActionExecutionAsync`; `DanceStatsHostedService` / `DanceStatsInstance` failures | Identity pages blocked; user treated as anonymous; dance data served from file cache |
 | `SearchService` | Every successful live query (`SongIndex.DoSearch` → `ISearchServiceManager.ReportSearchSuccess`) | Client registration fails; any search entry point catching an "Azure Search service is unavailable" error (credential failure, `503`/`429` throttling) | Song lists/details return empty results or an error view; banner shown |
-| `AppConfiguration` | Registration succeeds | Endpoint missing; registration or background connect (`StartupInitializationService`) fails | Falls back to local `appsettings.json` and feature-flag defaults |
-| `GoogleOAuth`, `FacebookOAuth`, `SpotifyOAuth` | Credentials present at startup | Credentials missing at startup | Provider isn't registered, so it never appears on the login page |
-| `EmailService` | ACS connection string present | Missing → `NullEmailSender` registered | Confirmation/reset email not sent |
-| `ReCaptcha` | Keys present | Missing → `NullReCaptchaSiteVerify` (fails open) | No captcha challenge |
+| `AppConfiguration` | Startup load succeeds; `AppConfigurationRecoveryService` completes a failed load | Endpoint missing; the startup load fails or times out (30s); the first background refresh (`StartupInitializationService`) fails | Falls back to local `appsettings.json` and feature-flag defaults until the load completes, which means no secrets, so OAuth, email and reCAPTCHA are unavailable too |
+| `GoogleOAuth`, `FacebookOAuth`, `SpotifyOAuth` | Credentials present at startup, or when App Configuration recovers | Credentials missing at startup | Provider registered with placeholder options and hidden by `M4dSignInManager` |
+| `EmailService` | ACS connection string present (startup or recovery) | Missing at startup | `NullEmailSender` resolved until the string appears; confirmation/reset email not sent |
+| `ReCaptcha` | Keys present (startup or recovery) | Missing at startup | `NullReCaptchaSiteVerify` resolved (fails open) until the keys appear; no captcha challenge |
 
-The OAuth, email and reCAPTCHA entries are **configuration checks at startup only**. Nothing
-probes those services live.
+The OAuth, email and reCAPTCHA entries are **configuration checks**, made at startup and again
+when App Configuration recovers (`SecretBackedServices.UpdateHealth`). Nothing probes those
+services live. All three read their credentials from `IConfiguration` when used, not at
+registration, so credentials that arrive late take effect without a restart (see
+[Recovery](#recovery)).
 
 ### Healthy vs available
 
@@ -49,8 +54,11 @@ logs it, and registers a fallback so DI resolution still works:
 
 - **Search:** `NullSearchClientFactory` / `NullSearchIndexClientFactory`.
 - **Database:** a placeholder `DbContext`.
-- **Email:** `NullEmailSender`.
-- **reCAPTCHA:** `NullReCaptchaSiteVerify`.
+- **Email:** `NullEmailSender`, chosen per resolution while the connection string is missing.
+- **reCAPTCHA:** `NullReCaptchaSiteVerify`, chosen per resolution while the keys are missing.
+- **OAuth:** the provider is still registered, with placeholder client id and secret, because the
+  authentication middleware validates every remote handler's options on every request and an
+  empty client id would fail the whole site. Its redirect to the provider is refused.
 
 Search is deliberately *not* marked healthy at registration. The Azure SDK connects lazily, so
 the first real query decides.
@@ -61,9 +69,9 @@ That way a connection string changed mid-run is picked up without a restart. Mig
 synchronously before `app.Run()`, and `Database` is marked healthy or unavailable based on the
 result.
 
-After startup the app prints a `GenerateStartupReport()` summary to the console. If anything is
-unavailable or degraded, it attaches a `ServiceHealthNotifier` and sends one consolidated
-startup-failure email (see [Admin notifications](#admin-notifications)).
+After startup the app prints a `GenerateStartupReport()` summary to the console and attaches the
+`ServiceHealthNotifier`. In Azure it also emails a status report once the instance is serving
+(see [Admin notifications](#admin-notifications)).
 
 ## Degraded behavior
 
@@ -100,8 +108,9 @@ goes stale between refreshes; see
 [individual-artists](../songs/individual-artists.md)).
 
 **Login.** The external-login buttons come from
-`SignInManager.GetExternalAuthenticationSchemesAsync()`. A provider whose credentials were
-missing at startup was never registered, so it simply doesn't appear. (`Login.cshtml.cs` also sets
+`SignInManager.GetExternalAuthenticationSchemesAsync()`, which `M4dSignInManager` overrides to
+drop providers whose credentials aren't in configuration right now. The same filter covers the
+register and manage-logins pages. (`Login.cshtml.cs` also sets
 `GoogleAvailable` / `FacebookAvailable` / `SpotifyAvailable` from `IsServiceHealthy`, but no view
 reads them.)
 
@@ -117,7 +126,35 @@ reads them.)
   one runs at a time. On success it marks the database healthy and re-runs the deferred
   `FixupStats` initialization. This covers the on-demand Azure SQL cold start, where the app
   wakes 20–45 seconds before the database.
+- **App Configuration and the secret-backed services:** see below.
 - **Everything else:** recovers only through the cooldown, or on restart.
+
+### App Configuration recovery
+
+Every secret comes from App Configuration and its Key Vault references, so a failed startup load
+used to leave OAuth, email and reCAPTCHA down until someone restarted the app. It now recovers in
+place:
+
+1. `AppConfigurationStartup` adds the provider as **optional** with a 30s startup timeout. A
+   failed load leaves the provider in the configuration chain with no data, instead of throwing.
+   Failures the provider doesn't treat as optional (a credential error, say) do throw; then a
+   second provider is added whose first load is held back by a gated credential, so there's
+   still one in the chain to complete later.
+2. On failure, the Azure SDK events from the load window (identity, App Configuration, Key Vault)
+   are printed to the console, so the log shows which call failed.
+3. `AppConfigurationRecoveryService` calls the refresher every minute. The provider turns a
+   refresh of a store that never loaded into a full load. It throttles those attempts itself:
+   once per refresh interval (5 minutes), and after failures it backs the endpoint off for 30s,
+   doubling to 10 minutes. The `UseAzureAppConfiguration()` middleware also triggers refreshes
+   on requests.
+4. When data arrives, `IConfiguration` reloads. Email, reCAPTCHA and the OAuth options read it
+   on next use (the OAuth options are rebuilt through a `ConfigurationChangeTokenSource`), and
+   marketing settings are re-read on the reload token. The service marks `AppConfiguration` and
+   each configured secret-backed service healthy, logs it, and emails the admins. That is the
+   first notice they get, since the startup failure email had no email settings to send with.
+
+The app is never restarted, so an intermittently slow App Configuration costs a delay, not a
+recycle.
 
 ## Health endpoints
 
@@ -145,25 +182,43 @@ kept in memory in `GlobalState.UpdateMessage`, and lost on restart.
 ## Admin notifications
 
 `ServiceHealthNotifier` emails the recipients in `ServiceHealth:AdminNotifications` through the
-same Azure Communication Services sender used for account email. It sends one email per failure
-incident: `NotificationSent` suppresses repeats until the service is marked healthy again.
-There are no recovery emails. Configuration and testing steps are in
+same Azure Communication Services sender used for account email. It's attached on every startup
+and reads its settings and the email sender at send time, so it works after a clean start and
+after App Configuration recovers. Subjects end with the App Service site name
+(`WEBSITE_SITE_NAME`), and the body names the instance and lists every service's status.
+
+| Email | When |
+| --- | --- |
+| **Status** (`Started healthy` / `Started degraded (...)`) | Once per instance start, in Azure only (`WEBSITE_SITE_NAME` set), on `ApplicationStarted`: after migrations and the hosted services' startup, so it shows the real database state |
+| **Service Failure** | A service goes from healthy (or unknown) to unavailable. `NotificationSent` suppresses repeats until it's healthy again. |
+| **Service Recovered** | A service whose failure was emailed is marked healthy again |
+| **Service Recovered: AppConfiguration** | `AppConfigurationRecoveryService` completes a failed startup load. This doubles as the startup report for that case, since the status email couldn't be sent. |
+
+A service's failure email is skipped if one went out for it in the last 30 minutes
+(`NotificationCooldown`), so a flapping service (search throttling, say) sends one
+failure/recovery pair per half hour, not one per flap. A skipped failure gets no recovery email.
+Likewise, when notifications are disabled or email isn't configured, nothing is marked as
+notified, so no lone "recovered" email follows. Configuration and testing steps are in
 [runbooks/configure-failure-email](../runbooks/configure-failure-email.md).
 
 ## Known issues
 
-- **Runtime failure emails only work after a degraded startup.** The notifier is created and
-  attached (`SetNotifier`) only inside the "startup had failures" branch of
-  `M4dApplicationExtensions`. After a clean startup, `_notifier` stays null, so a later outage
-  sends no email. The console logger factory created for that notifier is also disposed as soon
-  as startup ends.
+- **No email while App Configuration is down.** The Azure Communication Services connection
+  string and the `ServiceHealth:AdminNotifications` settings live in App Configuration, so the
+  startup status email can't go out in exactly this case. The first email is the AppConfiguration
+  recovery email. If App Configuration never recovers, no email is sent; check the log stream.
+- **Every Azure app sends the startup status email,** staging and the on-demand test instance
+  included. That's intentional for now: the test instance isn't recycled often, and its "Started
+  healthy" email is part of manual testing after a deploy. If restarts there become frequent,
+  add a setting (for example `ServiceHealth:AdminNotifications:StartupStatus`, set per
+  environment label) to turn the status email off without disabling failure emails.
 - **The cooldown can report the database ready while it's still down.** `IsServiceHealthy`
   reports any `Unavailable` service as healthy one minute after its last failure. A failed
   `DatabaseRecoveryService` probe doesn't re-mark the database, so between probes `/health/ready`,
   `menuContext.databaseHealthy` and the Identity-area guard can treat it as available. Request-path
-  `SqlException`s do re-mark it under real traffic. Startup-only entries (OAuth, email,
-  reCAPTCHA) also flip back to "healthy" in `/api/health/status`, but that's cosmetic: their
-  fallbacks were fixed at registration.
+  `SqlException`s do re-mark it under real traffic. Configuration-check entries (OAuth, email,
+  reCAPTCHA) also flip back to "healthy" in `/api/health/status`, but that's cosmetic: those
+  services check their credentials themselves on each use.
 - **The song list has no "search unavailable" message.** `song-index/App.vue` has no `v-else`
   for `searchAvailable`, so while search is down the page renders only the chrome.
 - **Unused code.** The partial views `Views/Shared/ServiceStatus/_SearchUnavailable`,
@@ -176,15 +231,15 @@ There are no recovery emails. Configuration and testing steps are in
 
 ## Future improvements
 
-- **Fix the known issues above.** Attach the notifier unconditionally. Re-mark the
-  database on failed recovery probes, or exempt it from the cooldown. Add the song-list unavailable
+- **Fix the known issues above.** Re-mark the database on failed recovery probes, or exempt it from the cooldown. Add the song-list unavailable
   message. Delete the unused partials and flags.
 - **Make the cooldown configurable** (`ServiceHealth:UnavailableCooldown`).
 - **Automate the fallback snapshot refresh**, for example with a scheduled job that exports and
   opens a PR, or an export step in the deploy pipeline.
 - **Live health probes** for the OAuth, email and reCAPTCHA providers, possibly informed by
   vendor status pages.
-- **Optional recovery emails, and throttling** for notification storms.
+- **Make the notification cooldown configurable**, and consider a digest instead of per-service
+  emails if storms across several services become a problem.
 - **Persist the update message**, so it survives restarts and could be scheduled.
 - **Admin dashboard** with health history, response times and uptime, and export to Azure
   Monitor.
@@ -211,6 +266,13 @@ There are no recovery emails. Configuration and testing steps are in
   `UserMetadata.Anonymous` fallback.
 - 2026-09-03: Phase 8. Search `503`/`429` classification, `UnavailableCooldown`, and
   `ReportSearchSuccess` recovery.
+- 2026-10-06: App Configuration recovers in place after a failed startup load
+  (`AppConfigurationStartup`, `AppConfigurationRecoveryService`). Email, reCAPTCHA, OAuth,
+  marketing settings and admin notifications read their configuration at use time. Startup
+  timeout cut from 100s (the provider default) to 30s.
+- 2026-10-07: Notifier attached on every startup (runtime failure emails no longer need a
+  degraded start). Added recovery emails, a 30-minute per-service failure-email cooldown, and a
+  status email on each instance start in Azure, which replaces the startup-failure email.
 - 2026-10-01: The plan and the eight phase reports were consolidated into this document. The
   originals are in git history under `architecture/infrastructure/service-resilience-*.md`.
 
