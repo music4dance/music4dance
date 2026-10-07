@@ -1349,6 +1349,13 @@ public class MusicServiceManager(IConfiguration configuration)
 
                 if (responseString == null)
                 {
+                    // The reason phrase alone ("Not Found") doesn't say which call failed or why;
+                    // the service's error body usually does.
+                    var body = await response.Content.ReadAsStringAsync();
+                    Logger.LogWarning(
+                        "{Service} request {Uri} failed with {StatusCode}: {Body}",
+                        service?.Id, requestUri, (int)response.StatusCode,
+                        body.Length > 1000 ? body[..1000] : body);
                     throw new WebException(response.ReasonPhrase);
                 }
             }
