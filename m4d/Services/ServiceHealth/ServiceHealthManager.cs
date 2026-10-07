@@ -41,12 +41,19 @@ public class ServiceHealthManager
     }
 
     /// <summary>
-    /// Send a status email listing every service. Sent once each time an instance starts in
-    /// Azure, after migrations and the hosted services have run, so it reflects the real state.
+    /// Send a status email listing every service, when ServiceHealth:AdminNotifications:
+    /// StartupStatus is set. Called once the app has started, after migrations and the hosted
+    /// services have run, so it reflects the real state.
     /// </summary>
     public async Task SendStartupStatusNotificationAsync()
     {
         if (_notifier == null)
+        {
+            return;
+        }
+
+        Console.WriteLine($"[Notifications] {_notifier.DescribeConfiguration()}");
+        if (!_notifier.GetOptions().StartupStatus)
         {
             return;
         }

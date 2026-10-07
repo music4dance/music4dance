@@ -31,6 +31,12 @@ public class ServiceHealthNotificationOptions
     /// Email sender address (from field)
     /// </summary>
     public string SenderAddress { get; set; } = "donotreply@music4dance.net";
+
+    /// <summary>
+    /// Whether to send a status email each time the app starts. Set it per environment (an App
+    /// Configuration label in Azure, user secrets locally) to choose which instances report in.
+    /// </summary>
+    public bool StartupStatus { get; set; } = false;
 }
 
 public enum HealthNotificationKind
@@ -65,9 +71,22 @@ public class ServiceHealthNotifier
         _logger = logger;
     }
 
-    private ServiceHealthNotificationOptions GetOptions() =>
+    public ServiceHealthNotificationOptions GetOptions() =>
         _configuration.GetSection("ServiceHealth:AdminNotifications")
             .Get<ServiceHealthNotificationOptions>() ?? new ServiceHealthNotificationOptions();
+
+    /// <summary>
+    /// One line describing the notification settings as the notifier sees them right now, for
+    /// the console log: when an email doesn't arrive, this says which setting is missing.
+    /// </summary>
+    public string DescribeConfiguration()
+    {
+        var options = GetOptions();
+        var emailSender = _emailSenderFactory();
+        var email = emailSender == null || emailSender is NullEmailSender ? "missing" : "configured";
+        return $"Enabled={options.Enabled}, Recipients={string.Join(";", options.Recipients)}, " +
+            $"StartupStatus={options.StartupStatus}, EmailService={email}";
+    }
 
     /// <summary>
     /// Send notification email about service failure

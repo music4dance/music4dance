@@ -150,7 +150,7 @@ go in user secrets.
 | `Configuration:Commerce:Enabled` | `CommerceController.IsCommerceEnabled` | Per request | `true` | (unset; sandbox `false`) |
 | `Configuration:Commerce:FailLimit` | `CommerceController.GetCardFailLimit` | Per request | `5` | (unset) |
 | `Configuration:Marketing` (`Enabled`, `Banner`, `Notice`, `Start`, `End`, `Product:Name`/`Link`/`Password`) | `GlobalState.SetMarketing` → `MarketingInfo` | At registration and on every configuration reload | Missing: no marketing banner/notice | (unset) |
-| `ServiceHealth:AdminNotifications` (`Enabled`, `Recipients`, `IncludeStackTrace`, `SenderAddress`) | `ServiceHealthNotifier` | When the notifier is built | `Enabled=false`, sender `donotreply@music4dance.net` | (unset) |
+| `ServiceHealth:AdminNotifications` (`Enabled`, `Recipients`, `IncludeStackTrace`, `SenderAddress`, `StartupStatus`) | `ServiceHealthNotifier` | Each send | `Enabled=false`, `StartupStatus=false`, sender `donotreply@music4dance.net` | (unset) |
 | `UsageTracking:Enabled` / `AnonymousThreshold` / `AnonymousBatchSize` / `AuthenticatedBatchSize` / `MaxQueueSize` | `_head.cshtml` → client `menuContext` | Per page | `true` / `3` / `5` / `1` / `100` | same values |
 | `EngagementOffcanvas:Enabled` | `_head.cshtml` | Per page | `false` | `true` |
 | `EngagementOffcanvas:ShowForAnonymous` / `ShowForLoggedIn` | same | Per page | `true` / `true` | `true` / `true` |
