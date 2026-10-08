@@ -47,6 +47,10 @@ than leaving it as-is.
 - Prefer records for immutable data; use `readonly` fields
 - Entity Framework code-first; use `JsonConstructor` for serialization
 - Core domain objects (`Tempo`, `TempoRange`, etc.) are immutable classes
+- **EF mapping goes in `DanceMusicContext.OnModelCreating`** (fluent API), not on the entity
+  class: table names, keys, `HasMaxLength`, precision, defaults, indexes, and `.Ignore()` for
+  computed properties (not `[NotMapped]`). Use data annotations on an entity only when they also
+  drive validation (e.g. `[StringLength(..., ErrorMessage = ...)]` on a field bound to a form).
 
 ## TypeScript / Vue Standards
 
