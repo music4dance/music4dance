@@ -279,6 +279,9 @@ function search(s?: string): void {
             <BDropdownItem href="/song/rawsearchform">Raw Search</BDropdownItem>
             <BDropdownItem href="/admin/adminsearch">Admin Search</BDropdownItem>
             <BDropdownItem href="/admin/uploadbackup">Uploads and Backups</BDropdownItem>
+            <BDropdownItem href="/admin/spotifyserviceaccount"
+              >Spotify Service Account</BDropdownItem
+            >
           </BNavItemDropdown>
         </BNavbarNav>
 
