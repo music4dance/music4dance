@@ -1,4 +1,6 @@
-﻿using System.Security.Claims;
+﻿using m4d.Services;
+
+using System.Security.Claims;
 using System.Security.Principal;
 using System.Web;
 
@@ -31,4 +33,13 @@ public class SpotUserAuthentication(IConfiguration configuration) : SpotAuthenti
         : $"&refresh_token={HttpUtility.UrlEncode(RefreshToken)}";
 
     protected override string RequestBody => "grant_type=refresh_token";
+}
+
+// The music4dance Spotify account, connected through /Admin/SpotifyServiceAccount. Spotify may
+// return a new refresh token on refresh, so that's written back to the store.
+public class SpotServiceAccountAuthentication(IConfiguration configuration, IServiceAccountTokenStore store)
+    : SpotUserAuthentication(configuration)
+{
+    protected override Task OnRefreshTokenRotated(string refreshToken) =>
+        store.UpdateRefreshToken(ServiceType.Spotify, refreshToken);
 }

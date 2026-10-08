@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Last verified:** 2026-10-08 (service-account branch added; the rest checked 2026-10-01)
 **Code:** `m4d/Utilities/MusicServiceManager.cs`, `m4d/Utilities/AdmAuthentication.cs`
 
 `m4d/Utilities/MusicServiceManager.cs` is the single class responsible for all external music-service HTTP calls. It is injected as a scoped service (takes `IConfiguration` in its constructor).
@@ -72,12 +72,18 @@ Key: `"{CID}:{trackId}"` (e.g., `"S:3X2p7fCVH4g5ITBGH8pEtZ"`). Cleared when coun
 
 ```
 SetupService(configuration, serviceType, principal, authResult)
+    └─ if principal is a ServiceAccountPrincipal → SetupServiceAccount: the cached s_serviceAccounts
+           entry, else a SpotServiceAccountAuthentication built from the stored refresh token
+           (throws SpotifyAuthExpiredException if not connected; never falls back to s_spotify)
     └─ if principal is authenticated:
            if s_users[userName] exists → return it immediately (no re-validation)
            else if authResult.Properties present → TryCreate(...)
                  if TryCreate succeeds → cache in s_users[userName], return it
     └─ else (or if TryCreate returned null) → fall back to the app-level client-credentials auth (s_spotify)
 ```
+
+The service-account branch is how scheduled jobs write to the music4dance Spotify account's
+playlists; see [spotify-playlist-automation § The service account](spotify-playlist-automation.md#the-service-account).
 
 `s_users` is a `static Dictionary<string, AdmAuthentication>` — process-lifetime, per-username, **never expires and is never re-validated once populated**. The only way to clear it is `AdmAuthentication.Clear()`, called from the admin-only `ApplicationUsersController.ClearCache()` action, or an app restart.
 
@@ -376,6 +382,12 @@ Historically, Spotify user refresh tokens did not expire on their own (only expl
   - `GetServiceAuthorization` (used by the actual API calls in `MusicServiceManager`) rethrows after evicting, since neither `GetMusicServiceResults` nor `MusicServiceAction` wrap that call in a try/catch — the exception propagates naturally out of `CreatePlaylist`/`SetPlaylistTracks`/`AddTrackToPlaylist`/`GetUserPlaylists` to the controllers.
 - `SongController.CreateSpotify` (POST) catches `SpotifyAuthExpiredException` ahead of the generic `catch (Exception)` and shows the `Info` view with a "reconnect your Spotify account" message/link (`_spotifyAuthService.GetSpotifyOAuthRedirectUrl`) instead of the generic "please report the issue" error.
 - `SpotifyPlaylistController` (`GetUserPlaylists`, `AddTrackToPlaylist`) catches the same exception and returns 403 with `{ message, connectUrl, reauthRequired: true }` — a plain anonymous object, not the `AddToPlaylistResult` model, since this controller's non-success responses bypass the app's `JsonCamelCase()` helper and the default Newtonsoft contract resolver configured in `Program.cs` is PascalCase, not camelCase. (`AddToPlaylistResult.CreateFailure(...)` returned bare via `StatusCode`/`NotFound`/`BadRequest` elsewhere in `AddTrackToPlaylist` has this same PascalCase-vs-camelCase mismatch pre-existing — the client silently falls back to its default toast text for those paths. Out of scope for this fix, but worth knowing if `message` ever appears to be ignored client-side.)
+
+For the service account (`SpotServiceAccountAuthentication`, a `SpotUserAuthentication`), the
+same catch in `GetServiceAuthorization`/`CheckAccess` drops the cached `s_serviceAccounts` entry
+and marks the stored token invalid instead of evicting a user, and `ServiceAccountMonitor`
+emails the admins. A refresh that returns a new `refresh_token` is written back to the store
+through `OnRefreshTokenRotated`.
 
 Note this only covers the *user-token* refresh path (`SpotUserAuthentication`). Preflight checks (`CanSpotify`/`CheckSpotifyAccess`/`ValidateSpotifyAccess`) only actually attempt a refresh — and so can only actually detect a rejection — when the cookie's `expires_at` is already in the past (`TryCreate`'s immediate-refresh branch); if the cached access token still looks unexpired, the check is cache/cookie-only and a rejection is only discovered at the next real API call. The fix is otherwise reactive: whichever call first hits a dead refresh token discovers it, evicts the cache, and reports "please reconnect" — rather than the previous behavior of a permanently poisoned per-user cache entry surfaced only as a generic error.
 

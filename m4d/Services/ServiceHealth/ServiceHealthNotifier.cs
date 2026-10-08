@@ -43,7 +43,9 @@ public enum HealthNotificationKind
 {
     Failure,
     Recovery,
-    Status
+    Status,
+    // Something an admin has to do, such as reconnecting the Spotify service account
+    ActionNeeded
 }
 
 /// <summary>
@@ -150,6 +152,7 @@ public class ServiceHealthNotifier
     {
         HealthNotificationKind.Failure => "Service Failure",
         HealthNotificationKind.Recovery => "Service Recovered",
+        HealthNotificationKind.ActionNeeded => "Action Needed",
         _ => "Status"
     };
 
@@ -191,6 +194,8 @@ public class ServiceHealthNotifier
                 "A service has become unavailable on music4dance.net", "Failed Service"),
             HealthNotificationKind.Recovery => ("#28a745", "✅ Service Recovered",
                 "A service that was reported unavailable has recovered", "Recovered Service"),
+            HealthNotificationKind.ActionNeeded => ("#fd7e14", "⚠ Action Needed",
+                "music4dance.net needs an admin to do something", "Action"),
             _ => (allHealthy ? "#28a745" : "#fd7e14", allHealthy ? "✅ Started: Healthy" : "⚠ Started: Degraded",
                 "A music4dance.net server instance has started", "Event")
         };
@@ -201,6 +206,8 @@ public class ServiceHealthNotifier
                 "You will receive this notification once per failure incident. A recovery email follows when the service recovers.",
             HealthNotificationKind.Recovery =>
                 "This closes the failure incident reported earlier for this service.",
+            HealthNotificationKind.ActionNeeded =>
+                "Sent at most once a day until the action is taken.",
             _ => "Sent each time a server instance starts in Azure."
         };
 

@@ -1143,17 +1143,46 @@ public class MusicServiceManager(IConfiguration configuration)
         return Convert.ToBase64String(m.ToArray());
     }
 
+    internal const int MaxTracksPerCall = 100;
+
+    // Replaces the playlist's tracks (PUT) by default, or appends them (POST). Spotify takes
+    // at most 100 tracks per call, so a replace sends the first 100 with the PUT and appends the
+    // rest.
     public async Task<bool> SetPlaylistTracks(MusicService service, IPrincipal principal, string id,
         IEnumerable<string> tracks, HttpMethod method = null)
     {
-        var tracklist = string.Join(
-            ",",
-            tracks.Where(t => t != null).Select(t => $"\"spotify:track:{t}\""));
-        var response = await MusicServiceAction(
-            $"https://api.spotify.com/v1/playlists/{id}/tracks",
-            $"{{\"uris\":[{tracklist}]}}", method ?? HttpMethod.Put, service, principal);
+        foreach (var (body, chunkMethod) in BuildPlaylistTrackCalls(tracks, method ?? HttpMethod.Put))
+        {
+            var response = await MusicServiceAction(
+                $"https://api.spotify.com/v1/playlists/{id}/tracks",
+                body, chunkMethod, service, principal);
 
-        return response != null && response.snapshot_id != null;
+            if (response == null || response.snapshot_id == null)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    internal static IEnumerable<(string Body, HttpMethod Method)> BuildPlaylistTrackCalls(
+        IEnumerable<string> tracks, HttpMethod method)
+    {
+        var chunks = tracks.Where(t => t != null)
+            .Select(t => $"spotify:track:{t}")
+            .Chunk(MaxTracksPerCall)
+            .ToList();
+
+        // An empty replace still has to be sent, to clear the playlist
+        if (chunks.Count == 0 && method == HttpMethod.Put)
+        {
+            chunks.Add([]);
+        }
+
+        return chunks.Select((uris, i) => (
+            JsonConvert.SerializeObject(new { uris }),
+            i == 0 ? method : HttpMethod.Post));
     }
 
     /// <summary>

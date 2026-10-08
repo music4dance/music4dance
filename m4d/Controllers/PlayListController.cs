@@ -332,26 +332,55 @@ public class PlayListController(
         return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
     }
 
-    // Called by the UpdatePlaylists Logic App, whose HTTP *polling trigger* fires a run only on a
+    // Called by the playlist Logic Apps, whose HTTP *polling trigger* fires a run only on a
     // 200 - a 202 means "no new data" and the run is skipped - so success must stay 200 even though
     // the work is only started here. Returning as soon as the work is started keeps the call inside
     // the Logic App's timeout; poll UpdateBatchStatus for the outcome. Any 4xx (e.g. 409 when
     // another admin task holds the AdminMonitor slot) shows as a failed trigger.
+    //
+    // SpotifyFromSearch writes to the music4dance Spotify account's playlists as the stored
+    // service account (see architecture/music-services/spotify-playlist-automation.md), and
+    // returns 424 when that isn't connected. seasonal=false limits it to the playlists that
+    // aren't seasonal (the per-dance top-N lists), seasonal=true to the Holiday/Halloween ones.
     [AllowAnonymous]
     public async Task<IActionResult> UpdateBatch(
-        PlayListType type = PlayListType.SongsFromSpotify)
+        PlayListType type = PlayListType.SongsFromSpotify, bool? seasonal = null,
+        [FromServices] ServiceAccountMonitor serviceAccountMonitor = null)
     {
         if (!TokenRequirement.Authorize(Request, Configuration))
         {
             return Unauthorized(new { success = false, reason = "Unauthorized access" });
         }
 
-        // Writing to Spotify (SpotifyFromSearch) needs a user token, which a Logic App call
-        // doesn't have - see architecture/music-services/spotify-playlist-automation.md
-        if (type != PlayListType.SongsFromSpotify)
+        if (type != PlayListType.SongsFromSpotify && type != PlayListType.SpotifyFromSearch)
         {
             return BadRequest(
                 new { success = false, reason = $"UpdateBatch doesn't support playlist type {type}" });
+        }
+
+        if (seasonal != null && type != PlayListType.SpotifyFromSearch)
+        {
+            return BadRequest(
+                new { success = false, reason = "seasonal only applies to SpotifyFromSearch" });
+        }
+
+        ServiceAccountPrincipal principal = null;
+        if (type == PlayListType.SpotifyFromSearch)
+        {
+            principal = serviceAccountMonitor?.SpotifyPrincipal;
+            var connection = principal == null ? null : await principal.Store.Get(ServiceType.Spotify);
+            if (connection?.IsValid != true)
+            {
+                return StatusCode(
+                    StatusCodes.Status424FailedDependency,
+                    new
+                    {
+                        success = false,
+                        reason = connection == null
+                            ? "The Spotify service account isn't connected"
+                            : "The Spotify service account needs to be reconnected"
+                    });
+            }
         }
 
         if (!AdminMonitor.StartTask("UpdateAllPlayLists"))
@@ -362,7 +391,10 @@ public class PlayListController(
 
         try
         {
-            await UpdateAllBase(type);
+            await UpdateAllBase(
+                type, principal,
+                seasonal == null ? null : p => p.IsSeasonal == seasonal,
+                serviceAccountMonitor);
         }
         catch (Exception e)
         {
@@ -415,9 +447,11 @@ public class PlayListController(
         return RedirectToAction("Index", new { type = PlayListType.SpotifyFromSearch });
     }
 
-    private async Task UpdateAllBase(PlayListType type, IPrincipal user = null)
+    private async Task UpdateAllBase(PlayListType type, IPrincipal user = null,
+        Func<PlayList, bool> filter = null, ServiceAccountMonitor serviceAccountMonitor = null)
     {
-        var playlists = Database.PlayLists.Where(p => p.Type == type && !p.Deleted).ToList();
+        var playlists = Database.PlayLists.Where(p => p.Type == type && !p.Deleted).ToList()
+            .Where(p => filter == null || filter(p)).ToList();
         var emailMap = await UserEmail(playlists);
 
         var dms = Database.GetTransientService();
@@ -455,12 +489,31 @@ public class PlayListController(
                 {
                     AdminMonitor.CompleteTask(
                         false, $"UpdateAll Playlists failed: {e.Message}");
+
+                    // The service account's token was rejected (and marked invalid): alert now
+                    // rather than at the next songstats run
+                    if (e is SpotifyAuthExpiredException && serviceAccountMonitor != null)
+                    {
+                        await CheckServiceAccount(serviceAccountMonitor);
+                    }
                 }
                 finally
                 {
                     dms.Dispose();
                 }
             });
+    }
+
+    private async Task CheckServiceAccount(ServiceAccountMonitor serviceAccountMonitor)
+    {
+        try
+        {
+            _ = await serviceAccountMonitor.CheckSpotify();
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e, "Spotify service account check failed");
+        }
     }
 
     private async Task BulkCreateTopN(IReadOnlyDictionary<string, PlaylistMetadata> oldS,
@@ -750,8 +803,10 @@ public class PlayListController(
 
             return $"UpdateSpotifyFromSearch {playlist.Id}: Failed to set playlist";
         }
-        catch (Exception e)
+        catch (Exception e) when (e is not SpotifyAuthExpiredException)
         {
+            // A rejected refresh token fails every playlist the same way, so that one propagates
+            // and ends the batch
             return $"UpdateSpotifyFromSearch ({playlist.Id}: Failed={e.Message}";
         }
     }

@@ -193,6 +193,7 @@ after App Configuration recovers. Subjects end with the App Service site name
 | **Service Failure** | A service goes from healthy (or unknown) to unavailable. `NotificationSent` suppresses repeats until it's healthy again. |
 | **Service Recovered** | A service whose failure was emailed is marked healthy again |
 | **Service Recovered: AppConfiguration** | `AppConfigurationRecoveryService` completes a failed startup load. This doubles as the startup report for that case, since the status email couldn't be sent. |
+| **Action Needed: Reconnect the Spotify service account** | `ServiceAccountMonitor` finds the Spotify service account within 14 days of expiry, expired, or rejected by Spotify. At most once a day, plus once at a new rejection. See [spotify-playlist-automation](../music-services/spotify-playlist-automation.md#the-service-account). |
 
 A service's failure email is skipped if one went out for it in the last 30 minutes
 (`NotificationCooldown`), so a flapping service (search throttling, say) sends one

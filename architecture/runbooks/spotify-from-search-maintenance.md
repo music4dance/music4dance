@@ -2,16 +2,58 @@
 
 **Type:** Runbook
 **Status:** Current
-**Last verified:** 2026-10-01 (against `PlayListController` after #299)
+**Last verified:** 2026-10-08 (service account and scheduled refreshes added)
 
 ## When to use
 
-You've added dances, a season is coming up, or the per-dance "Top 100" Spotify playlists need
-refreshing. These are the **Bulk Create**, **Statistics** and **Update All** links on
-`/PlayList/Index?type=3`. They write to Spotify as the music4dance Spotify account, so they can't
-run from a Logic App yet. See [spotify-playlist-automation](../music-services/spotify-playlist-automation.md)
-for why, and [plans/spotify-service-account-automation](../plans/spotify-service-account-automation.md)
-for the fix.
+- The **Action Needed: Reconnect the Spotify service account** email arrived, or you're setting
+  up the scheduled refreshes for the first time: see
+  [Steps: connect the service account](#steps-connect-or-reconnect-the-service-account) and
+  [Steps: set up the scheduled refreshes](#steps-set-up-the-scheduled-refreshes).
+- You've added dances or a season is coming up: the **Bulk Create**, **Statistics** and
+  **Update All** links on `/PlayList/Index?type=3`. These write to Spotify as whichever Spotify
+  account your site login is connected to, so sign in to the site through the music4dance
+  Spotify account.
+
+Routine refreshes run on their own: weekly for the per-dance "Top 100" playlists and monthly for
+the Holiday/Halloween ones, as the stored service account. See
+[spotify-playlist-automation](../music-services/spotify-playlist-automation.md) for how.
+
+## Steps: connect or reconnect the service account
+
+Spotify ends the connection six months after it's made. From 14 days before then, the admins
+get a daily **Action Needed** email; they also get one at once if Spotify rejects the token.
+
+1. In a browser, sign in to **Spotify** (open.spotify.com) as the music4dance account, or be
+   ready to switch to it. Spotify's dialog in step 3 offers "Not you?" either way.
+2. Sign in to the **site** as a dbAdmin (any login) and open `/Admin/SpotifyServiceAccount`
+   (Administration → Spotify Service Account).
+3. Choose **Connect** (or **Reconnect**). In Spotify's dialog, make sure it names the
+   music4dance account, then **Agree**.
+4. You land back on the page with "Connected the Spotify account ...". Check that the account
+   is music4dance, the scopes include `playlist-modify-public`, and **Expires** is six months
+   out.
+5. Optional: refresh one playlist now with the Logic App's **Run trigger**, or
+   `GET /PlayList/UpdateBatch?type=SpotifyFromSearch&seasonal=true` with the token header, then
+   check `/Admin/AdminStatus`.
+
+Your own site login doesn't change. Connecting the wrong account is harmless: its writes fail
+with `Failed to set playlist` (Spotify checks ownership); reconnect with the right one.
+
+## Steps: set up the scheduled refreshes
+
+One-time Azure setup, after the first connect. Copy the existing **UpdatePlaylists** Logic App
+twice (same HTTP polling trigger, `Authorization: Token ...` header and key), and change each
+copy's URL and recurrence:
+
+| Logic App | URL | Recurrence |
+| --- | --- | --- |
+| RefreshTopNPlaylists | `https://www.music4dance.net/playlist/updatebatch?type=SpotifyFromSearch&seasonal=false` | Weekly. Pick a day and hour that miss the daily UpdatePlaylists run and the 6-hourly UpdateSongStats run by an hour or more. |
+| RefreshSeasonalPlaylists | `https://www.music4dance.net/playlist/updatebatch?type=SpotifyFromSearch&seasonal=true` | Monthly, at an hour that doesn't collide with the others (including the weekly run). |
+
+All four jobs share the single `AdminMonitor` slot. A run that collides gets `409` and shows as a
+failed run; the next scheduled run tries again. A `424` means the service account needs
+connecting. Poll `GET /playlist/updatebatchstatus` (same header) for a run's outcome.
 
 
 ## How the pieces fit together
@@ -62,6 +104,9 @@ token comes from your cookie. Both need to be the music4dance Spotify account.
 
 ## Update All / Update
 
+These are the manual equivalents of the scheduled refreshes, and run as your Spotify login, not
+the service account.
+
 `UpdateAll?type=3` refreshes **every** active SpotifyFromSearch row: TopN, Holiday and
 Halloween. Per-row `Update` (the link in the table) does just one. For each playlist it runs the
 row's search, sorted by dance votes, restricted to songs with a Spotify id, and capped at
@@ -97,7 +142,8 @@ The answer to "Create first, then Update All?" is yes, with a cache refresh on e
 5. **Create TopN** (`BulkCreate?flavor=TopN`). You land back on the index. The new rows have
    today's Created date and are empty on Spotify.
 6. **Fill them.** Either click **Update** on just the new rows (fast), or run **Update All**
-   (refreshes everything, which is worth doing if it's been a while).
+   (refreshes everything, which is worth doing if it's been a while). Otherwise they stay empty
+   until the next scheduled refresh: up to a week for TopN, a month for seasonal.
 7. **Link them from the dance pages**: `/Admin/ClearSongCache` again. `FixupStats` runs as part
    of the stats rebuild and copies each matching row's id into `DanceStats.SpotifyPlaylist` by
    **exact dance name**. Until then, the new dance pages show no Spotify playlist. (The

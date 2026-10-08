@@ -142,6 +142,7 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
             {
                 Logger.LogInformation("Replacing refresh token");
                 RefreshToken = refreshToken;
+                await PersistRotatedRefreshToken(refreshToken);
             }
 
             return token;
@@ -150,6 +151,24 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
         {
             Logger.LogError(e, "Failed to create Token");
             throw;
+        }
+    }
+
+    // Overridden by auth whose refresh token is stored outside the auth cookie (the service
+    // account), so a rotated token isn't lost on the next restart
+    protected virtual Task OnRefreshTokenRotated(string refreshToken) => Task.CompletedTask;
+
+    private async Task PersistRotatedRefreshToken(string refreshToken)
+    {
+        try
+        {
+            await OnRefreshTokenRotated(refreshToken);
+        }
+        catch (Exception e)
+        {
+            // The new token is already in use in memory; failing to store it only matters if
+            // Spotify has also retired the old one, which shows up as a rejected refresh later
+            Logger.LogError(e, "Failed to persist a rotated refresh token");
         }
     }
 
@@ -188,9 +207,9 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
             var service = await SetupService(configuration, serviceType, principal, authResult);
             return (service is SpotUserAuthentication, false);
         }
-        catch (SpotifyAuthExpiredException)
+        catch (SpotifyAuthExpiredException e)
         {
-            EvictUser(principal);
+            await OnRejected(principal, e);
             return (false, true);
         }
     }
@@ -204,11 +223,11 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
             var service = await SetupService(configuration, serviceType, principal, authResult);
             return service == null ? null : await service.GetAccessString();
         }
-        catch (SpotifyAuthExpiredException)
+        catch (SpotifyAuthExpiredException e)
         {
             // Evict so a subsequent reconnect (fresh tokens in the auth cookie) isn't
             // masked by the now-permanently-broken cached instance.
-            EvictUser(principal);
+            await OnRejected(principal, e);
             throw;
         }
     }
@@ -225,6 +244,18 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
         service?.InvalidateToken();
     }
 
+    private static async Task OnRejected(IPrincipal principal, SpotifyAuthExpiredException e)
+    {
+        if (principal is ServiceAccountPrincipal serviceAccount)
+        {
+            ClearServiceAccount(serviceAccount.Service);
+            await serviceAccount.Store.MarkInvalid(serviceAccount.Service, e.Message);
+            return;
+        }
+
+        EvictUser(principal);
+    }
+
     private static void EvictUser(IPrincipal principal)
     {
         var userName = principal?.Identity?.Name;
@@ -239,6 +270,11 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
         AuthenticateResult authResult = null)
     {
         AdmAuthentication auth = null;
+
+        if (principal is ServiceAccountPrincipal serviceAccount)
+        {
+            return await SetupServiceAccount(configuration, serviceAccount);
+        }
 
         if (principal != null && principal.Identity.IsAuthenticated &&
             !string.IsNullOrWhiteSpace(principal.Identity.Name))
@@ -268,6 +304,41 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
         }
 
         return auth;
+    }
+
+    // The service account never falls back to the app token: a write made with the app token
+    // fails, so a missing or invalid connection is reported the same way as a rejected refresh
+    private static async Task<AdmAuthentication> SetupServiceAccount(IConfiguration configuration,
+        ServiceAccountPrincipal principal)
+    {
+        if (s_serviceAccounts.TryGetValue(principal.Service, out var auth))
+        {
+            return auth;
+        }
+
+        if (principal.Service != ServiceType.Spotify)
+        {
+            throw new NotImplementedException(
+                $"Haven't implemented a service account for {principal.Service}");
+        }
+
+        var refreshToken = await principal.Store.GetRefreshToken(principal.Service)
+            ?? throw new SpotifyAuthExpiredException(
+                "The Spotify service account isn't connected; connect it from /Admin/SpotifyServiceAccount");
+
+        auth = new SpotServiceAccountAuthentication(configuration, principal.Store)
+        {
+            RefreshToken = refreshToken
+        };
+        return s_serviceAccounts.GetOrAdd(principal.Service, auth);
+    }
+
+    public static void ClearServiceAccount(ServiceType serviceType)
+    {
+        if (s_serviceAccounts.TryRemove(serviceType, out var auth))
+        {
+            auth.Dispose();
+        }
     }
 
     public static async Task<AdmAuthentication> TryCreate(IConfiguration configuration,
@@ -337,6 +408,7 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
     {
         s_spotify = null;
         s_users.Clear();
+        s_serviceAccounts.Clear();
     }
 
     protected string RefreshToken;
@@ -346,4 +418,6 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
     // ConcurrentDictionary: SetupService/EvictUser/Clear are all hit concurrently by different
     // requests, and a plain Dictionary isn't safe for concurrent read/write.
     private static readonly ConcurrentDictionary<string, AdmAuthentication> s_users = new();
+
+    private static readonly ConcurrentDictionary<ServiceType, AdmAuthentication> s_serviceAccounts = new();
 }

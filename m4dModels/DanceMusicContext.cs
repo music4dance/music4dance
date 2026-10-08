@@ -68,6 +68,7 @@ public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : Id
         _ = builder.Entity<ActivityLog>().ToTable("ActivityLog");
         _ = builder.Entity<UsageLog>().ToTable("UsageLog");
         _ = builder.Entity<CheckoutSession>().ToTable("CheckoutSessions");
+        _ = builder.Entity<ServiceAccountToken>().ToTable("ServiceAccountTokens");
 
         _ = builder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
         _ = builder.Entity<Dance>().Ignore(dance => dance.Info);
@@ -104,6 +105,16 @@ public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : Id
         _ = builder.Entity<CheckoutSession>().HasKey(c => c.SessionId);
         _ = builder.Entity<CheckoutSession>().Property(c => c.SessionId).HasMaxLength(255);
         _ = builder.Entity<CheckoutSession>().Property(c => c.ApplicationUserId).HasMaxLength(450);
+
+        _ = builder.Entity<ServiceAccountToken>().HasKey(t => t.Service);
+        _ = builder.Entity<ServiceAccountToken>().Property(t => t.Service).HasMaxLength(32);
+        _ = builder.Entity<ServiceAccountToken>().Property(t => t.AccountId).HasMaxLength(255);
+        _ = builder.Entity<ServiceAccountToken>().Property(t => t.AccountName).HasMaxLength(255);
+        _ = builder.Entity<ServiceAccountToken>().Property(t => t.Scopes).HasMaxLength(1024);
+        _ = builder.Entity<ServiceAccountToken>().Property(t => t.AuthorizedBy).HasMaxLength(256);
+        _ = builder.Entity<ServiceAccountToken>().Property(t => t.InvalidReason).HasMaxLength(1024);
+        _ = builder.Entity<ServiceAccountToken>().Ignore(t => t.ExpiresAt);
+        _ = builder.Entity<ServiceAccountToken>().Ignore(t => t.IsValid);
 
         // Customize the ASP.NET Identity model and override the defaults if needed.
         // For example, you can rename the ASP.NET Identity table names and more.
@@ -157,5 +168,7 @@ public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : Id
     public DbSet<UsageLog> UsageLog { get; set; }
 
     public DbSet<CheckoutSession> CheckoutSessions { get; set; }
+
+    public DbSet<ServiceAccountToken> ServiceAccountTokens { get; set; }
     #endregion
 }

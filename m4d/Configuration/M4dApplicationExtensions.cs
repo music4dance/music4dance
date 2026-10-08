@@ -480,6 +480,8 @@ public static class M4dApplicationExtensions
         }
 
         services.AddScoped<m4d.Services.SpotifyAuthService>();
+        services.AddSingleton<m4d.Services.IServiceAccountTokenStore, m4d.Services.ServiceAccountTokenStore>();
+        services.AddSingleton<m4d.Services.ServiceAccountMonitor>();
 
         // Security trackers for Phase 1 - singletons for in-memory tracking
         services.AddSingleton<m4d.Security.AuthenticationTracker>();
