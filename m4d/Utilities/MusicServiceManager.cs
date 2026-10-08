@@ -4,8 +4,6 @@ using Microsoft.Extensions.FileProviders;
 
 using Newtonsoft.Json;
 
-using SixLabors.ImageSharp;
-
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
@@ -1106,10 +1104,19 @@ public class MusicServiceManager(IConfiguration configuration)
             return null;
         }
 
-        await MusicServiceAction(
-            $"https://api.spotify.com/v1/playlists/{response.id}/images",
-            GetEncodedImage(fileProvider, "/wwwroot/images/icons/color-logo.jpg"),
-            HttpMethod.Put, service, principal, "image/jpeg");
+        var image = GetEncodedImage(fileProvider, "/wwwroot/images/icons/color-logo.jpg");
+        if (image.Length > MaxSpotifyImageLength)
+        {
+            Logger.LogWarning(
+                "Skipping playlist cover upload: encoded image is {Length} bytes, Spotify's limit is {Max}",
+                image.Length, MaxSpotifyImageLength);
+        }
+        else
+        {
+            await MusicServiceAction(
+                $"https://api.spotify.com/v1/playlists/{response.id}/images",
+                image, HttpMethod.Put, service, principal, "image/jpeg");
+        }
 
         return new PlaylistMetadata
         {
@@ -1118,15 +1125,22 @@ public class MusicServiceManager(IConfiguration configuration)
         };
     }
 
-    private string GetEncodedImage(IFileProvider fileProvider, string path)
+    // Spotify caps playlist cover uploads at 256 KB of base64-encoded JPEG
+    private const int MaxSpotifyImageLength = 256 * 1024;
+
+    // The image is uploaded as-is, so it must already be a JPEG that fits Spotify's limit
+    private static string GetEncodedImage(IFileProvider fileProvider, string path)
     {
-        var fullPath = fileProvider.GetFileInfo(path).PhysicalPath ?? throw new ArgumentException($"Invalid path name: {path}", nameof(path));
-        using var image = Image.Load(fullPath);
+        var fileInfo = fileProvider.GetFileInfo(path);
+        if (!fileInfo.Exists)
+        {
+            throw new ArgumentException($"Invalid path name: {path}", nameof(path));
+        }
+
+        using var stream = fileInfo.CreateReadStream();
         using var m = new MemoryStream();
-        image.Save(m, image.Metadata.DecodedImageFormat);
-        var imageBytes = m.ToArray();
-        var base64String = Convert.ToBase64String(imageBytes);
-        return base64String;
+        stream.CopyTo(m);
+        return Convert.ToBase64String(m.ToArray());
     }
 
     public async Task<bool> SetPlaylistTracks(MusicService service, IPrincipal principal, string id,
