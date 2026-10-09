@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-06
+**Last verified:** 2026-10-09
 **Code:** `m4d/Services/ServiceHealth/`, `m4d/Services/DatabaseRecoveryService.cs`,
 `m4d/Services/AppConfigurationRecoveryService.cs`, `m4d/Configuration/AppConfigurationStartup.cs`,
 `m4d/Configuration/SecretBackedServices.cs`,
@@ -25,7 +25,7 @@ dependency down, and it recovers without a restart once the dependency comes bac
 | --- | --- | --- | --- |
 | `Database` | Startup migration succeeds; `DatabaseRecoveryService` probe succeeds; `DanceStatsInstance` reads succeed | No connection string; migration fails; `SqlException` in `DMController.OnActionExecutionAsync`; `DanceStatsHostedService` / `DanceStatsInstance` failures | Identity pages blocked; user treated as anonymous; dance data served from file cache |
 | `SearchService` | Every successful live query (`SongIndex.DoSearch` → `ISearchServiceManager.ReportSearchSuccess`) | Client registration fails; any search entry point catching an "Azure Search service is unavailable" error (credential failure, `503`/`429` throttling) | Song lists/details return empty results or an error view; banner shown |
-| `AppConfiguration` | Startup load succeeds; `AppConfigurationRecoveryService` completes a failed load | Endpoint missing; the startup load fails or times out (30s); the first background refresh (`StartupInitializationService`) fails | Falls back to local `appsettings.json` and feature-flag defaults until the load completes, which means no secrets, so OAuth, email and reCAPTCHA are unavailable too |
+| `AppConfiguration` | Startup load succeeds; `AppConfigurationRecoveryService` completes a failed load | Endpoint missing; the startup load fails or times out (100s); the first background refresh (`StartupInitializationService`) fails | Falls back to local `appsettings.json` and feature-flag defaults until the load completes, which means no secrets, so OAuth, email and reCAPTCHA are unavailable too |
 | `GoogleOAuth`, `FacebookOAuth`, `SpotifyOAuth` | Credentials present at startup, or when App Configuration recovers | Credentials missing at startup | Provider registered with placeholder options and hidden by `M4dSignInManager` |
 | `EmailService` | ACS connection string present (startup or recovery) | Missing at startup | `NullEmailSender` resolved until the string appears; confirmation/reset email not sent |
 | `ReCaptcha` | Keys present (startup or recovery) | Missing at startup | `NullReCaptchaSiteVerify` resolved (fails open) until the keys appear; no captcha challenge |
@@ -135,7 +135,7 @@ Every secret comes from App Configuration and its Key Vault references, so a fai
 used to leave OAuth, email and reCAPTCHA down until someone restarted the app. It now recovers in
 place:
 
-1. `AppConfigurationStartup` adds the provider as **optional** with a 30s startup timeout. A
+1. `AppConfigurationStartup` adds the provider as **optional** with a 100s startup timeout. A
    failed load leaves the provider in the configuration chain with no data, instead of throwing.
    Failures the provider doesn't treat as optional (a credential error, say) do throw; then a
    second provider is added whose first load is held back by a gated credential, so there's
@@ -146,7 +146,10 @@ place:
    refresh of a store that never loaded into a full load. It throttles those attempts itself:
    once per refresh interval (5 minutes), and after failures it backs the endpoint off for 30s,
    doubling to 10 minutes. The `UseAzureAppConfiguration()` middleware also triggers refreshes
-   on requests.
+   on requests. Each full load is a single attempt (no startup retry loop), so App Configuration
+   requests get a 2-minute network timeout once startup is over, against 30s during the startup
+   load: refreshes run in the background, and a store that is slow rather than down should
+   succeed on the first try instead of failing every one and backing off.
 4. When data arrives, `IConfiguration` reloads. Email, reCAPTCHA and the OAuth options read it
    on next use (the OAuth options are rebuilt through a `ConfigurationChangeTokenSource`), and
    marketing settings are re-read on the reload token. The service marks `AppConfiguration` and
@@ -242,6 +245,17 @@ notified, so no lone "recovered" email follows. Configuration and testing steps 
 - **Circuit breakers** per service (closed / open / half-open), if the cooldown proves too
   coarse.
 - **Cache common anonymous search results**, to serve during search outages.
+- **Faster App Configuration recovery**, if a slow store keeps making recovery take tens of
+  minutes even with the 2-minute timeout after startup:
+  - *Check the startup log first.* A failed load prints the Azure SDK events from the load
+    window. Requests timing out mean a slow store, which longer timeouts address. Requests
+    failing outright (managed identity or Key Vault errors) won't be helped by any timeout.
+  - *Retry the load more often.* The provider retries a never-loaded store at most once per
+    `MinRefreshInterval`, the smallest of the sentinel and feature-flag refresh intervals (both
+    5 minutes), so the 1-minute recovery loop mostly does nothing. Lowering both to 1 minute
+    retries recovery five times as often, but it also multiplies routine polling about fivefold.
+    That's fine on the Standard tier, but it would break the Free tier's 1,000 requests a day.
+    The provider's failure backoff (30s doubling to 10 minutes) isn't configurable.
 
 ## History
 
@@ -266,6 +280,9 @@ notified, so no lone "recovered" email follows. Configuration and testing steps 
   (`AppConfigurationStartup`, `AppConfigurationRecoveryService`). Email, reCAPTCHA, OAuth,
   marketing settings and admin notifications read their configuration at use time. Startup
   timeout cut from 100s (the provider default) to 30s.
+- 2026-10-09: The first production recovery took 26 minutes, apparently from a slow store. The
+  startup timeout is back to 100s, and the per-request network timeout is 2 minutes after
+  startup (30s during the startup load).
 - 2026-10-07: Notifier attached on every startup (runtime failure emails no longer need a
   degraded start). Added recovery emails, a 30-minute per-service failure-email cooldown, and a
   status email on each instance start in Azure, which replaces the startup-failure email.

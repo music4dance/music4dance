@@ -155,7 +155,7 @@ public static class M4dApplicationExtensions
 
             var appConfigEndpoint = configuration["AppConfig:Endpoint"];
 
-            // See AppConfigurationStartup: the load blocks startup for at most 30s, and a failed
+            // See AppConfigurationStartup: the load blocks startup for at most 100s, and a failed
             // load recovers in place in the background.
             if (!string.IsNullOrEmpty(appConfigEndpoint))
             {

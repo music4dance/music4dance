@@ -116,8 +116,9 @@ The app is built to pass a liveness probe in seconds, even while dependencies ar
 1. Create the shared credential.
 2. Load App Configuration (and its Key Vault references) **synchronously**
    (`AppConfigurationStartup`). Adding the provider to `builder.Configuration` loads it on the
-   spot, and startup waits until the load succeeds or the 30s startup timeout expires. The
-   per-request client retry options don't cap that total. The provider is optional, so a
+   spot, and startup waits until the load succeeds or the 100s startup timeout expires. The
+   per-request client retry options don't cap that total: each request gets 30s during the
+   startup load and 2 minutes afterwards. The provider is optional, so a
    failure leaves it in place, empty, and `AppConfigurationRecoveryService` completes the load
    in the background (see [background-work-and-startup](background-work-and-startup.md#appconfigurationrecoveryservice)).
    Don't lengthen this wait: App Service kills a container that doesn't answer its startup
@@ -201,6 +202,9 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
   and stayed degraded (no secrets) until a manual restart. The "deferred connect" above turned
   out to be a synchronous load. The load is now optional with a 30s timeout and recovers in
   place, and a failure prints the Azure SDK events from the load.
+- 2026-10-09: The first in-place recovery in production took 26 minutes, apparently from a slow
+  (not down) store. The startup timeout went back to 100s, and requests after startup get a
+  2-minute network timeout instead of 30s.
 - 2026-10-01: Consolidated from `SELF_CONTAINED_DEPLOYMENT.md`, `managed-identity-self-contained-plan.md`
   and the architecture sections of `azure-app-service-setup-managed-identity.md`. Stale details
   dropped: legacy pipeline files, `appsettings.SelfContained.json`, and in-app Kestrel port and
