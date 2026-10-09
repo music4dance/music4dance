@@ -4,6 +4,7 @@ using System.Diagnostics.Tracing;
 
 using Azure.Core;
 using Azure.Core.Diagnostics;
+using Azure.Core.Pipeline;
 
 using m4d.Services;
 using m4d.Services.ServiceHealth;
@@ -31,7 +32,21 @@ public static class AppConfigurationStartup
     /// How long startup waits for the first load. A failure is recovered in the background, so
     /// keep this well inside App Service's container start limit rather than waiting it out.
     /// </summary>
-    public static readonly TimeSpan StartupTimeout = TimeSpan.FromSeconds(30);
+    public static readonly TimeSpan StartupTimeout = TimeSpan.FromSeconds(100);
+
+    /// <summary>
+    /// Per-request network timeout during the startup load: short enough that a stuck request
+    /// gets retried inside <see cref="StartupTimeout"/>.
+    /// </summary>
+    public static readonly TimeSpan StartupNetworkTimeout = TimeSpan.FromSeconds(30);
+
+    /// <summary>
+    /// Per-request network timeout once startup is over. Refreshes run in the background (the
+    /// recovery service and the refresh middleware don't block requests), so waiting out a slow
+    /// store costs nothing, while timing out means another 5+ minutes before the provider tries
+    /// again.
+    /// </summary>
+    public static readonly TimeSpan RefreshNetworkTimeout = TimeSpan.FromMinutes(2);
 
     // Azure SDK events from the startup load are buffered and printed only when it fails, so a
     // timeout says which call (managed identity, App Configuration or Key Vault) was failing.
@@ -51,6 +66,7 @@ public static class AppConfigurationStartup
         TimeSpan? startupTimeout = null)
     {
         var timeout = startupTimeout ?? StartupTimeout;
+        var networkTimeout = new PhaseNetworkTimeoutPolicy();
 
         void Configure(AzureAppConfigurationOptions options) => ConfigureWith(options, credential);
 
@@ -80,10 +96,12 @@ public static class AppConfigurationStartup
                 })
                 .ConfigureClientOptions(clientOptions =>
                 {
-                    // Per HTTP request: 30s network timeout, initial try + 1 retry. The provider
-                    // retries failed loads on its own until StartupOptions.Timeout, so these
-                    // don't cap how long startup waits.
-                    clientOptions.Retry.NetworkTimeout = TimeSpan.FromSeconds(30);
+                    // Per HTTP request: initial try + 1 retry. The network timeout is
+                    // StartupNetworkTimeout during the startup load (the provider retries failed
+                    // loads on its own until StartupOptions.Timeout, so it doesn't cap how long
+                    // startup waits) and RefreshNetworkTimeout afterwards.
+                    clientOptions.Retry.NetworkTimeout = StartupNetworkTimeout;
+                    clientOptions.AddPolicy(networkTimeout, HttpPipelinePosition.PerCall);
                     clientOptions.Retry.MaxRetries = 1;
                     clientOptions.Retry.Delay = TimeSpan.FromSeconds(2);
                     clientOptions.Retry.MaxDelay = TimeSpan.FromSeconds(5);
@@ -125,6 +143,8 @@ public static class AppConfigurationStartup
                 gate.Open();
             }
         }
+
+        networkTimeout.StartupComplete = true;
 
         if (HasLoaded(configuration))
         {
@@ -195,6 +215,23 @@ public static class AppConfigurationStartup
         {
             Console.WriteLine($"WARNING: App Configuration load threw after {timer.Elapsed.TotalSeconds:F1}s: {ex}");
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Switches App Configuration requests from <see cref="StartupNetworkTimeout"/> (the client
+    /// options' value) to <see cref="RefreshNetworkTimeout"/> once the startup load is over.
+    /// </summary>
+    private sealed class PhaseNetworkTimeoutPolicy : HttpPipelineSynchronousPolicy
+    {
+        public volatile bool StartupComplete;
+
+        public override void OnSendingRequest(HttpMessage message)
+        {
+            if (StartupComplete)
+            {
+                message.NetworkTimeout = RefreshNetworkTimeout;
+            }
         }
     }
 
