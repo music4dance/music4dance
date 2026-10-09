@@ -1,6 +1,7 @@
 ﻿using CsvHelper;
 
 using m4d.Areas.Identity;
+using m4d.Configuration;
 using m4d.Security;
 using m4d.Services;
 using m4d.Services.Diagnostics;
@@ -26,6 +27,7 @@ using Microsoft.FeatureManagement;
 
 using System.Globalization;
 using System.Net.Mime;
+using System.Security.Claims;
 using System.Text;
 
 namespace m4d.Controllers;
@@ -163,6 +165,66 @@ public class AdminController(
             "action (Add to Playlist, Create Spotify Playlist, etc.) should now fail and " +
             "show the reconnect flow.";
         return View("Info");
+    }
+
+    //
+    // GET: /Admin/SpotifyServiceAccount
+    // The connection that lets the scheduled UpdateBatch?type=SpotifyFromSearch runs write to the
+    // music4dance Spotify account's playlists - see
+    // architecture/music-services/spotify-playlist-automation.md
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> SpotifyServiceAccount(
+        [FromServices] IServiceAccountTokenStore store, string message = null)
+    {
+        ViewBag.Message = message;
+        return View(await store.Get(ServiceType.Spotify));
+    }
+
+    //
+    // GET: /Admin/ConnectSpotifyServiceAccount
+    // Runs the normal Spotify OAuth handshake, but returns to SpotifyServiceAccountCallback
+    // instead of signing in, so the admin's own site login doesn't change. Spotify shows its
+    // account dialog so the admin can sign in to Spotify as the music4dance account.
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult ConnectSpotifyServiceAccount()
+    {
+        var properties = new AuthenticationProperties
+        {
+            RedirectUri = Url.Action(nameof(SpotifyServiceAccountCallback))
+        };
+        properties.Items[AuthenticationBuilderExtensions.ServiceAccountItem] = "true";
+        return Challenge(properties, AspNet.Security.OAuth.Spotify.SpotifyAuthenticationDefaults.AuthenticationScheme);
+    }
+
+    //
+    // GET: /Admin/SpotifyServiceAccountCallback
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> SpotifyServiceAccountCallback(
+        [FromServices] IServiceAccountTokenStore store)
+    {
+        // The Spotify handler signs the result in to the external cookie; take it and clear it
+        var result = await HttpContext.AuthenticateAsync(IdentityConstants.ExternalScheme);
+        await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+        var refreshToken = result.Properties?.GetTokenValue("refresh_token");
+        if (!result.Succeeded ||
+            result.Properties?.Items.ContainsKey(AuthenticationBuilderExtensions.ServiceAccountItem) != true ||
+            string.IsNullOrEmpty(refreshToken))
+        {
+            Logger.LogWarning("Spotify service account connection failed: {Failure}", result.Failure?.Message);
+            return RedirectToAction(nameof(SpotifyServiceAccount),
+                new { message = "Spotify didn't return a usable connection; nothing was changed." });
+        }
+
+        var accountId = result.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        var accountName = result.Principal.FindFirstValue(ClaimTypes.Name);
+        _ = result.Properties.Items.TryGetValue(
+            AuthenticationBuilderExtensions.GrantedScopesItem, out var scopes);
+
+        await store.Connect(ServiceType.Spotify, refreshToken, accountId, accountName, scopes, UserName);
+
+        return RedirectToAction(nameof(SpotifyServiceAccount),
+            new { message = $"Connected the Spotify account {accountName} ({accountId})." });
     }
 
     //

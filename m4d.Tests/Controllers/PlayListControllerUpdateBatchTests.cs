@@ -60,14 +60,15 @@ public class PlayListControllerUpdateBatchTests
         Assert.IsFalse(AdminMonitor.IsRunning);
     }
 
+    // The service-account cases are in ServiceAccountTests
     [TestMethod]
-    public async Task UpdateBatch_SpotifyFromSearch_Returns400WithoutTakingTheSlot()
+    public async Task UpdateBatch_SpotifyFromSearch_NoServiceAccount_Returns424WithoutTakingTheSlot()
     {
         var controller = await CreateController("FromSearch");
 
         var result = await controller.UpdateBatch(PlayListType.SpotifyFromSearch);
 
-        Assert.IsInstanceOfType<BadRequestObjectResult>(result);
+        Assert.AreEqual(StatusCodes.Status424FailedDependency, ((ObjectResult)result).StatusCode);
         Assert.IsFalse(AdminMonitor.IsRunning);
     }
 

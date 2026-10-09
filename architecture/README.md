@@ -62,7 +62,7 @@ procedural, to become a runbook.
 | [music-service-model](music-services/music-service-model.md) | Ref | `MusicService` class hierarchy, `ServiceTrack`, `AlbumDetails`, property encoding |
 | [music-service-api-calls](music-services/music-service-api-calls.md) | Ref | `MusicServiceManager` HTTP flows, Spotify OAuth tokens, enrichment, playlists |
 | [playlist-management](music-services/playlist-management.md) | Ref | `PlayList` model, admin UI, SongsFromSpotify / SpotifyFromSearch |
-| [spotify-playlist-automation](music-services/spotify-playlist-automation.md) | Ref | What runs when and as whom (app token vs user token), Logic App jobs, `UpdateBatch`, known issues |
+| [spotify-playlist-automation](music-services/spotify-playlist-automation.md) | Ref | What runs when and as whom (app, user and service-account tokens), Logic App jobs, `UpdateBatch`, expiry alerts, known issues |
 
 ## Users and admin
 
@@ -126,7 +126,7 @@ into `runbooks/` as its area is consolidated.
 | Task | Where it is today |
 | --- | --- |
 | Roll out a breaking search-index schema change | [runbooks/search-index-breaking-migration](runbooks/search-index-breaking-migration.md) |
-| Maintain SpotifyFromSearch playlists (new dances, seasons, refresh) | [runbooks/spotify-from-search-maintenance](runbooks/spotify-from-search-maintenance.md) |
+| Maintain SpotifyFromSearch playlists (connect the service account, scheduled refreshes, new dances, seasons) | [runbooks/spotify-from-search-maintenance](runbooks/spotify-from-search-maintenance.md) |
 | Roll out / re-run / roll back the artist index | [runbooks/artist-index-operations](runbooks/artist-index-operations.md) |
 | Triage the production 4xx export | [runbooks/triage-4xx](runbooks/triage-4xx.md) (automated by the `analyze-4xx` skill) |
 | Respond to an attack or traffic spike on login/register | [runbooks/respond-to-attack](runbooks/respond-to-attack.md) |
@@ -152,7 +152,6 @@ into `runbooks/` as its area is consolidated.
 | Key Vault RBAC migration | Not started (vault `music4dance` still uses access policies, verified 2026-10-01) | [plans/key-vault-rbac-migration](plans/key-vault-rbac-migration.md) |
 | Attack mitigation Phase 2+ (telemetry, alerts, WAF, honeypots) | Proposed | [plans/attack-mitigation-phase2](plans/attack-mitigation-phase2.md) |
 | Contributor environments beyond the sandbox (test deploys, diagnostics, samplified data, own Azure) | Proposed | [plans/contributor-environments-next](plans/contributor-environments-next.md) |
-| Spotify service-account automation (write playlists without a browser session) | Proposed; `UpdateBatch` step shipped (#299) | [plans/spotify-service-account-automation](plans/spotify-service-account-automation.md) |
 | Durable log storage (Blob / Log Analytics / tuned App Insights) | Proposed | [plans/log-persistence-options](plans/log-persistence-options.md) |
 | Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
 | Visitor engagement next steps (post-launch priorities, enhancements) | Proposed | [plans/visitor-engagement-next](plans/visitor-engagement-next.md) |

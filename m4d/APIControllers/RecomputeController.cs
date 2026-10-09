@@ -1,4 +1,5 @@
-﻿using m4d.Utilities;
+﻿using m4d.Services;
+using m4d.Utilities;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +22,8 @@ public class RecomputeController(
 
     // id should be the type to update - currently songstats, propertycleanup
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get([FromServices] IServiceScopeFactory serviceScopeFactory, string id)
+    public async Task<IActionResult> Get([FromServices] IServiceScopeFactory serviceScopeFactory, string id,
+        [FromServices] ServiceAccountMonitor serviceAccountMonitor = null)
     {
         if (!TokenRequirement.Authorize(Request, Configuration))
         {
@@ -41,6 +43,7 @@ public class RecomputeController(
         {
             case "songstats":
                 message = await DoHandleSongStats(serviceScopeFactory, Database.GetTransientService());
+                await CheckServiceAccounts(serviceAccountMonitor);
                 break;
             case "subscription":
                 message = await DoHandleSubscriptions(serviceScopeFactory);
@@ -72,6 +75,25 @@ public class RecomputeController(
         }
 
         return message;
+    }
+
+    // songstats runs every few hours, so it doubles as the Spotify service account's expiry
+    // check; the monitor limits its emails to one a day
+    private async Task CheckServiceAccounts(ServiceAccountMonitor serviceAccountMonitor)
+    {
+        if (serviceAccountMonitor == null)
+        {
+            return;
+        }
+
+        try
+        {
+            _ = await serviceAccountMonitor.CheckSpotify();
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e, "Spotify service account check failed");
+        }
     }
 
     private async Task<string> DoHandleSubscriptions(IServiceScopeFactory serviceScopeFactory)

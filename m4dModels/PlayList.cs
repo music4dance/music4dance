@@ -110,6 +110,14 @@ public class PlayList
         get => int.TryParse(Data2, out var c) ? c : -1;
         set => Data2 = value.ToString();
     }
+
+    // BulkCreate names seasonal playlists "{Flavor} {Dance}" (e.g. "Holiday Salsa"); the top-N
+    // playlists are named for the dance alone
+    [NotMapped]
+    public bool IsSeasonal => Type == PlayListType.SpotifyFromSearch && Name != null &&
+        Enum.GetValues<BulkCreateFlavor>()
+            .Where(f => f != BulkCreateFlavor.TopN)
+            .Any(f => Name.StartsWith($"{f} ", StringComparison.OrdinalIgnoreCase));
 }
 
 
