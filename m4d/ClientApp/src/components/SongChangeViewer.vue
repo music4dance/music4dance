@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import type { DanceHandler } from "@/models/DanceHandler";
 import type { TagHandler } from "@/models/TagHandler";
 import { computed } from "vue";
+import { getMenuContext } from "@/helpers/GetMenuContext";
 
 const props = defineProps<{
   change: SongChange;
@@ -16,6 +17,9 @@ const emit = defineEmits<{
   "dance-clicked": [handler: DanceHandler];
   "tag-clicked": [handler: TagHandler];
 }>();
+
+// The source Spotify playlist is a perk for signed-in users (marketing, not privacy)
+const showPlaylist = getMenuContext().isAuthenticated;
 
 const isAlgorithmic = computed(() => props.change.isAlgorithmic);
 const action = computed(() =>
@@ -29,7 +33,8 @@ const viewableProperties = computed(() =>
       t.baseName.startsWith("Tag") ||
       t.baseName.startsWith("Comment") ||
       t.baseName === PropertyType.tempoField ||
-      t.baseName === PropertyType.artistsField,
+      t.baseName === PropertyType.artistsField ||
+      (showPlaylist && t.baseName === PropertyType.playlistField),
   ),
 );
 </script>

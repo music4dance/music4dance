@@ -119,6 +119,20 @@ describe("SongHistory", () => {
       expect(h.userChanges[0]?.user).toBe("EthanH|P");
     });
 
+    it("keeps the Spotify Playlist property on a pseudo-user change", () => {
+      const h = makeHistory([
+        { name: ".Create", value: "" },
+        { name: "User", value: "Stacey Ellen Aldrich|P" },
+        { name: "Time", value: "09/30/2026 09:07:46" },
+        { name: "Tag+", value: "West Coast Swing:Dance" },
+        { name: "DanceRating", value: "WCS+1" },
+        { name: "Playlist", value: "5VFqC4ndQhwkAprzCtAgdJ" },
+      ]);
+      expect(h.userChanges).toHaveLength(1);
+      const playlist = h.userChanges[0]?.properties.find((p) => p.baseName === "Playlist");
+      expect(playlist?.value).toBe("5VFqC4ndQhwkAprzCtAgdJ");
+    });
+
     it("excludes Catalog (batch|P) which has only a non-tracked property", () => {
       const h = makeHistory([
         { name: ".Create", value: "" },

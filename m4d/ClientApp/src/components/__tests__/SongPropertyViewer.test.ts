@@ -43,6 +43,18 @@ describe("SongPropertyViewer.vue", () => {
       expect(wrapper.text()).toContain("artists = (automatic)");
     });
 
+    it("renders a Spotify link for a Playlist property", () => {
+      const wrapper = mountViewer(
+        new SongProperty({ name: "Playlist", value: "3jnrjpdzix3HWx3VG1w8GL" }),
+      );
+      const link = wrapper.find("a");
+      expect(link.attributes("href")).toBe(
+        "https://open.spotify.com/playlist/3jnrjpdzix3HWx3VG1w8GL",
+      );
+      expect(link.find("img").attributes("src")).toBe("/images/icons/spotify-logo.png");
+      expect(wrapper.text()).toContain("Spotify playlist");
+    });
+
     it("renders dance viewer stub for a Tag+ dance property", () => {
       const wrapper = mountViewer(new SongProperty({ name: "Tag+", value: "Jive:Dance" }));
       expect(wrapper.find("dance-viewer-stub").exists()).toBe(true);

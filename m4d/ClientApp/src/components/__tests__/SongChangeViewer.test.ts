@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import { SongChange } from "@/models/SongChange";
 import { SongProperty } from "@/models/SongProperty";
@@ -6,6 +6,15 @@ import { setupTestEnvironment } from "@/helpers/TestHelpers";
 import SongChangeViewer from "../SongChangeViewer.vue";
 
 setupTestEnvironment();
+
+const mockGetMenuContext = vi.fn();
+vi.mock("@/helpers/GetMenuContext", () => ({
+  getMenuContext: () => mockGetMenuContext(),
+}));
+
+beforeEach(() => {
+  mockGetMenuContext.mockReturnValue({ isAuthenticated: true });
+});
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -161,6 +170,23 @@ describe("SongChangeViewer.vue", () => {
       });
       const wrapper = mountViewer(change);
       expect(wrapper.findAll("song-property-viewer-stub")).toHaveLength(1);
+    });
+
+    it("renders Playlist property as SongPropertyViewer", () => {
+      const change = makeChange({
+        properties: [{ name: "Playlist", value: "3jnrjpdzix3HWx3VG1w8GL" }],
+      });
+      const wrapper = mountViewer(change);
+      expect(wrapper.findAll("song-property-viewer-stub")).toHaveLength(1);
+    });
+
+    it("does NOT render Playlist property for anonymous users", () => {
+      mockGetMenuContext.mockReturnValue({ isAuthenticated: false });
+      const change = makeChange({
+        properties: [{ name: "Playlist", value: "3jnrjpdzix3HWx3VG1w8GL" }],
+      });
+      const wrapper = mountViewer(change);
+      expect(wrapper.findAll("song-property-viewer-stub")).toHaveLength(0);
     });
 
     it("does NOT render Album property (not viewable)", () => {

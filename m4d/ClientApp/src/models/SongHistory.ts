@@ -170,6 +170,7 @@ export class SongHistory {
       PropertyType.addCommentField,
       PropertyType.removeCommentField,
       PropertyType.tempoField,
+      PropertyType.playlistField,
     ];
     return this.getChanges(track);
   }
