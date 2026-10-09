@@ -35,6 +35,11 @@ const isDanceTempo = computed(
 );
 const isArtists = computed(() => props.property.baseName === PropertyType.artistsField);
 const artists = computed(() => deserializeArtists(props.property.value));
+// Playlist holds the Spotify playlist id the song was imported from
+const isPlaylist = computed(() => props.property.baseName === PropertyType.playlistField);
+const playlistUrl = computed(
+  () => `https://open.spotify.com/playlist/${encodeURIComponent(props.property.value)}`,
+);
 const viewer = (tag: Tag) => (isDance(tag) ? DanceViewer : TagViewer);
 const isDance = (tag: Tag) => tag.category === TagCategory.Dance;
 </script>
@@ -52,6 +57,18 @@ const isDance = (tag: Tag) => tag.category === TagCategory.Dance;
         >
       </template>
       <template v-else>(automatic)</template>
+    </span>
+    <span v-else-if="isPlaylist">
+      from
+      <a :href="playlistUrl" target="_blank" rel="noopener noreferrer" title="Open in Spotify"
+        ><img
+          :src="'/images/icons/spotify-logo.png'"
+          alt="Spotify"
+          width="16"
+          height="16"
+          style="vertical-align: text-bottom"
+        /><span class="ps-1">Spotify playlist</span></a
+      >
     </span>
     <span v-else-if="isDanceTempo">
       {{ danceId }} tempo = {{ property.value || "(cleared)" }} BPM</span

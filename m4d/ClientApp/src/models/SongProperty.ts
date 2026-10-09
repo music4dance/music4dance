@@ -46,6 +46,7 @@ export enum PropertyType {
   danceabilityField = "Danceability",
   energyField = "Energy",
   valenceFiled = "Valence",
+  playlistField = "Playlist",
 
   // Album Fields
   albumField = "Album",

@@ -163,6 +163,14 @@ describe("SongChangeViewer.vue", () => {
       expect(wrapper.findAll("song-property-viewer-stub")).toHaveLength(1);
     });
 
+    it("renders Playlist property as SongPropertyViewer", () => {
+      const change = makeChange({
+        properties: [{ name: "Playlist", value: "3jnrjpdzix3HWx3VG1w8GL" }],
+      });
+      const wrapper = mountViewer(change);
+      expect(wrapper.findAll("song-property-viewer-stub")).toHaveLength(1);
+    });
+
     it("does NOT render Album property (not viewable)", () => {
       const change = makeChange({
         properties: [{ name: "Album:0", value: "Back To Basics" }],
