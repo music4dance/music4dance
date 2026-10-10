@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01
+**Last verified:** 2026-10-10
 **Code:** `azure-pipelines.yml`, `m4d/Program.cs`, `m4d/Configuration/M4dApplicationExtensions.cs`,
 `m4d/Services/StartupInitializationService.cs`, `m4d/m4d.csproj`
 
@@ -24,7 +24,8 @@ subscriber base is small. It matters for health checks (below) and means the in-
 (trackers, `GlobalState.UpdateMessage`, caches) is never shared across instances.
 
 Shared Azure resources:
-- App Configuration: `https://music4dance.azconfig.io`
+- App Configuration: `https://music4dance.azconfig.io`, on the **Developer** tier (6,000
+  requests an hour; see [App Configuration](#identity-and-secrets) below)
 - Key Vault: `music4dance`
 - Azure AI Search, two services:
   - `music4dance` (`https://music4dance.search.windows.net`) holds the song indexes, one per
@@ -103,6 +104,17 @@ The `PROD_DB` / `TEST_DB` switches are for local development against the shared 
   the environment name (`Production` / `Staging`).
 - **Refresh:** a change to `Configuration:Sentinel` triggers a full refresh. Both the sentinel
   and the feature flags are checked every 5 minutes, through `UseAzureAppConfiguration()`.
+  That's about 3 requests per instance per cycle (the sentinel, plus one list request for each
+  of the two feature-flag selectors), and a startup or full refresh adds a load of every
+  selector.
+- **Tier and quota:** the store is on the Developer tier: 6,000 requests an hour, with requests
+  over the quota getting `429` until the end of the hour. It costs a $0.12 daily charge that
+  covers 3,000 requests a day, which prod and test stay under. It was on the Free tier until
+  2026-10-10, whose 1,000 requests a day (counting every poll) ran out most days, so a
+  restart that day started degraded. Standard was ruled out on cost. Neither Free nor
+  Developer has an SLA or guaranteed throughput. An Azure Monitor alert on the store's
+  `Request Quota Usage` metric (above 80%) emails the admins before throttling starts; see
+  [service-resilience § App Configuration quota](service-resilience.md#app-configuration-quota).
 - **Fallback:** if App Configuration is unreachable, the app keeps running on `appsettings.json`
   (see [service-resilience](service-resilience.md)). Every secret comes from App Configuration
   and its Key Vault references, so this is a degraded mode: no OAuth logins, email or reCAPTCHA.
@@ -205,6 +217,10 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
 - 2026-10-09: The first in-place recovery in production took 26 minutes, apparently from a slow
   (not down) store. The startup timeout went back to 100s, and requests after startup get a
   2-minute network timeout instead of 30s.
+- 2026-10-10: A test restart hit `429`s ("Resource utilization has surpassed the assigned quota")
+  for 40 minutes before recovering in place. `Request Quota Usage` showed the Free tier's daily
+  quota running out most days, which may also explain the 10-06 and 10-09 slow loads. The store
+  moved to the Developer tier, and a quota alert was added.
 - 2026-10-01: Consolidated from `SELF_CONTAINED_DEPLOYMENT.md`, `managed-identity-self-contained-plan.md`
   and the architecture sections of `azure-app-service-setup-managed-identity.md`. Stale details
   dropped: legacy pipeline files, `appsettings.SelfContained.json`, and in-app Kestrel port and
