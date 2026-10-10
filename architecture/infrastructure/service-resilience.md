@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-09
+**Last verified:** 2026-10-10
 **Code:** `m4d/Services/ServiceHealth/`, `m4d/Services/DatabaseRecoveryService.cs`,
 `m4d/Services/AppConfigurationRecoveryService.cs`, `m4d/Configuration/AppConfigurationStartup.cs`,
 `m4d/Configuration/SecretBackedServices.cs`,
@@ -159,6 +159,24 @@ place:
 The app is never restarted, so an intermittently slow App Configuration costs a delay, not a
 recycle.
 
+### App Configuration quota
+
+A store that is over its request quota answers every request with `429` and a body like
+`{"title":"Resource utilization has surpassed the assigned quota","policy":"Read Requests"}`.
+The startup load retries those requests until it times out, so the log shows a 100s failed load
+with `429`s in the Azure SDK events, then `429`s about every 5 minutes from the recovery path.
+Both the failed request and its one client retry count against the quota.
+
+The store is on the Developer tier (6,000 requests an hour, reset at the end of the hour; see
+[hosting-and-identity § Identity and secrets](hosting-and-identity.md#identity-and-secrets)).
+An Azure Monitor metric alert, **App Configuration request quota above 80%**, watches
+`Request Quota Usage` (Maximum, over 1 hour, checked every 15 minutes) and emails the admins
+through an action group. To check usage by hand, open the store's **Monitoring → Metrics** and
+chart `Request Quota Usage` (Max) at a 1-hour grain. The portal's Overview request-count chart
+doesn't match it, so don't use that. To see who is calling, add a diagnostic setting that sends
+the **HTTP Requests** log category to Log Analytics and query `AACHttpRequest`, summing
+`HitCount` by `ClientIPAddress` and `UserAgent`.
+
 ## Health endpoints
 
 | Endpoint | Purpose | Returns |
@@ -254,7 +272,8 @@ notified, so no lone "recovered" email follows. Configuration and testing steps 
     `MinRefreshInterval`, the smallest of the sentinel and feature-flag refresh intervals (both
     5 minutes), so the 1-minute recovery loop mostly does nothing. Lowering both to 1 minute
     retries recovery five times as often, but it also multiplies routine polling about fivefold.
-    That's fine on the Standard tier, but it would break the Free tier's 1,000 requests a day.
+    Check the result against the Developer tier's 6,000 requests an hour and the 3,000 a day
+    covered by its daily charge (see [App Configuration quota](#app-configuration-quota)).
     The provider's failure backoff (30s doubling to 10 minutes) isn't configurable.
 
 ## History
@@ -283,6 +302,9 @@ notified, so no lone "recovered" email follows. Configuration and testing steps 
 - 2026-10-09: The first production recovery took 26 minutes, apparently from a slow store. The
   startup timeout is back to 100s, and the per-request network timeout is 2 minutes after
   startup (30s during the startup load).
+- 2026-10-10: A test restart was throttled (`429`, request quota exceeded) for 40 minutes, then
+  recovered in place. The Free tier's 1,000 requests a day ran out most days. The store moved to
+  the Developer tier, and a `Request Quota Usage` alert was added.
 - 2026-10-07: Notifier attached on every startup (runtime failure emails no longer need a
   degraded start). Added recovery emails, a 30-minute per-service failure-email cooldown, and a
   status email on each instance start in Azure, which replaces the startup-failure email.
