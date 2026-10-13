@@ -75,23 +75,25 @@ public static class UserMapper
         return filter;
     }
 
+    // currentUser is the signed-in viewer, whose own entries are never anonymized: the client
+    // matches history users against its own user name to find "your" tags and votes, so
+    // anonymizing a private (Privacy == 0) viewer's own entries made them look like someone
+    // else's - the user could re-add a tag they already had, and couldn't remove it.
     public static async Task<SongHistory> AnonymizeHistory(
         SongHistory history, UserManager<ApplicationUser> userManager, ServiceHealthManager serviceHealth = null,
-        bool isAuthenticated = true)
+        bool isAuthenticated = true, string currentUser = null)
     {
         var cache = await GetUserNameDictionary(userManager, serviceHealth);
 
-        return isAuthenticated
-            ? ModifyHistory(history, p => Anonymize(p, cache))
-            : ModifyHistory(history, p => AnonymizeAll(p, cache));
+        return AnonymizeHistory(history, cache, isAuthenticated, currentUser);
     }
 
     public static SongHistory AnonymizeHistory(
         SongHistory history, IReadOnlyDictionary<string, UserInfo> dictionary,
-        bool isAuthenticated = true)
+        bool isAuthenticated = true, string currentUser = null)
     {
         return isAuthenticated
-            ? ModifyHistory(history, p => Anonymize(p, dictionary))
+            ? ModifyHistory(history, p => Anonymize(p, dictionary, currentUser))
             : ModifyHistory(history, p => AnonymizeAll(p, dictionary));
     }
 
@@ -168,8 +170,13 @@ public static class UserMapper
     }
 
     private static string Anonymize(string userName,
-        IReadOnlyDictionary<string, UserInfo> dictionary)
+        IReadOnlyDictionary<string, UserInfo> dictionary, string currentUser = null)
     {
+        if (currentUser != null && string.Equals(userName, currentUser, StringComparison.OrdinalIgnoreCase))
+        {
+            return userName;
+        }
+
         if (dictionary.TryGetValue(userName, out var user))
         {
             // Privacy == 0 means maximum privacy requested (anonymize to user ID)

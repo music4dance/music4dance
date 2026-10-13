@@ -156,4 +156,32 @@ public class UserMapperTests
 
         Assert.AreEqual(userId, result.Properties[0].Value);
     }
+
+    [TestMethod]
+    public void AnonymizeHistory_Authenticated_PrivateUserAnonymizedForOthers()
+    {
+        var userId = Guid.NewGuid().ToString();
+        var user = new ApplicationUser("dave", pseudo: false) { Id = userId, Privacy = 0 };
+        var dict = BuildDictionary(user);
+        var history = BuildHistory("dave");
+
+        var result = UserMapper.AnonymizeHistory(history, dict, currentUser: "erin");
+
+        Assert.AreEqual(userId, result.Properties[0].Value);
+    }
+
+    [TestMethod]
+    public void AnonymizeHistory_Authenticated_PrivateUserSeesOwnName()
+    {
+        // The client matches history users against its own user name to find the viewer's own
+        // tags and votes - anonymizing those made a private user's own tags look like others'.
+        var userId = Guid.NewGuid().ToString();
+        var user = new ApplicationUser("dave", pseudo: false) { Id = userId, Privacy = 0 };
+        var dict = BuildDictionary(user);
+        var history = BuildHistory("dave");
+
+        var result = UserMapper.AnonymizeHistory(history, dict, currentUser: "Dave");
+
+        Assert.AreEqual("dave", result.Properties[0].Value);
+    }
 }
