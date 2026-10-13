@@ -137,6 +137,7 @@ into `runbooks/` as its area is consolidated.
 | Configure service-failure email alerts | [runbooks/configure-failure-email](runbooks/configure-failure-email.md) |
 | Refresh the cold-start dance fallback snapshot | [runbooks/refresh-dance-fallback-snapshot](runbooks/refresh-dance-fallback-snapshot.md) |
 | Read production logs | [runbooks/read-production-logs](runbooks/read-production-logs.md) |
+| Upload / download files on the App Service (Kudu; FTP is off) | [runbooks/transfer-files-to-app-service](runbooks/transfer-files-to-app-service.md) |
 | Capture memory diagnostics / dumps | [runbooks/capture-memory-diagnostics](runbooks/capture-memory-diagnostics.md) |
 | Analyze usage logs | [runbooks/analyze-usage-logs](runbooks/analyze-usage-logs.md) |
 | Add a new dance type | [runbooks/add-a-dance](runbooks/add-a-dance.md) |
