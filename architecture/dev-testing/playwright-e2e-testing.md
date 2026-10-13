@@ -1,7 +1,7 @@
 # Playwright End-to-End Testing
 
 **Type:** Reference
-**Status:** Current. Implemented; `e2e/tests/` has 9 spec files as of 2026-10-01 (8 when first written).
+**Status:** Current. Implemented; `e2e/tests/` has 10 spec files as of 2026-10-12 (8 when first written).
 **Last verified:** 2026-10-01 (file references checked)
 **Code:** `e2e/`, `.github/workflows/e2e.yaml`
 
@@ -87,7 +87,8 @@ e2e/
     smoke.spec.ts       # home, chrome, dance index/details render
     auth.spec.ts        # login as each seeded tier, role-gated UI visibility
     search-and-browse.spec.ts   # dance/tag filter, sort, paging via the real UI
-    voting.spec.ts      # vote a dance rating, verify total, undo
+    voting.spec.ts      # vote a dance rating, verify total and own-vote state after reload, undo
+    likes.spec.ts       # like then block a song, verify own-like state after each reload, undo
     tagging.spec.ts     # add/remove a tag, verify TagListEditor state
     playlist.spec.ts    # create a playlist from search results
     custom-search.spec.ts      # build a filter via UI, assert the URL round-trips
@@ -297,8 +298,9 @@ much cheaper to write and run) continue to carry the depth.
 | `smoke.spec.ts`               | Home page loads; `PageFrame` chrome (nav, footer) present; dance index lists dances; a dance-details page renders           | Cheapest possible regression guard for "the app boots and serves real HTML/JS" — exactly the class of bug the `wwwroot/vclient` 500 and the missing `Vite:Server` config were    |
 | `auth.spec.ts`                | Login as each of the three seeded tiers (admin/editor/tester); role-gated UI is visible/absent correctly (e.g., `dbAdmin`-only buttons in `SongCore.vue`) | Proves the seeded-user story (L1d) actually gates the UI the way the design intends, not just that the accounts exist                                                          |
 | `search-and-browse.spec.ts`   | Filter the song list by dance + tempo range, sort by title, page through results                                            | Directly regression-tests L1f (`SongIndexLocal.Search`) through its real caller (`SongSearch.Search()`), the one path this whole environment previously couldn't exercise at all |
-| `voting.spec.ts`              | As the plain tester, cast a dance-rating vote on a song; verify the displayed total changes; undo via "Undo My Changes"     | Core site purpose — matching music to dances is driven by these votes; also the plain-tier account's reason for existing (L1d)                                                 |
-| `tagging.spec.ts`             | Add and remove a tag on a song via `TagListEditor`; verify it round-trips through `Tag.fromParts`-style tag strings          | Second core write path; per CLAUDE.md, this also indirectly checks tag-string handling stays class-library-driven rather than manually parsed                                  |
+| `voting.spec.ts`              | As the plain tester, cast a dance-rating vote on a song; verify the displayed total changes, and that after a reload the vote still reads as tester's own; undo via "Undo My Changes" | Core site purpose — matching music to dances is driven by these votes; also the plain-tier account's reason for existing (L1d)                                                 |
+| `likes.spec.ts`               | As the plain tester, like a song then move it to the blocked list, reloading after each save to check the like still reads as tester's own; undo via "Undo My Changes" | Favorites/blocked lists are the core engaged-user feature; the reloads guard the private-account own-history case (see [user-name-visibility](../users-admin/user-name-visibility.md)) |
+| `tagging.spec.ts`             | Add and remove a tag on a song via `TagListEditor`, removing after a reload; verify it round-trips through `Tag.fromParts`-style tag strings          | Second core write path; per CLAUDE.md, this also indirectly checks tag-string handling stays class-library-driven rather than manually parsed                                  |
 | `custom-search.spec.ts`       | Build a dance+tag filter through the advanced/custom search UI; assert the resulting URL/query uses the expected filter shape | Guards the CLAUDE.md "always use the class library to build/parse filter strings" rule from the UI side — a manual-construction regression would show up here as a broken query, not just a passing unit test |
 
 Each of these should be **one or two tests per file**, not a matrix — e.g. `auth.spec.ts` is
