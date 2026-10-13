@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Last verified:** 2026-10-12 (own-entries exception in `Anonymize` traced end to end)
 **Code:** `m4d/Controllers/UsersController.cs`, `m4d/Utilities/UserMapper.cs`
 
 ## Overview
@@ -107,9 +107,15 @@ Both take a real username and a `UserInfo` dictionary and decide what to
 hand to the client. They differ only in whether they honor the user's own
 privacy setting:
 
-- **`Anonymize(userName, dictionary)`** — used when the viewer is
+- **`Anonymize(userName, dictionary, currentUser)`** — used when the viewer is
   authenticated. Honors `Privacy`: returns the GUID if `Privacy == 0`,
-  otherwise the real username.
+  otherwise the real username — except that the viewer's own entries
+  (`userName` equal to `currentUser`, case-insensitive) always pass through
+  as the real username. The client finds "your" tags and votes by comparing
+  history users against `model.userName` (`Song.loadProperties`), so
+  anonymizing a private viewer's own entries made their own tags show up
+  under "Others' Tags": not removable, and offered to add again (a second
+  `Tag+` that one `Tag-` couldn't cancel).
 - **`AnonymizeAll(userName, dictionary)`** — used when the viewer is
   **not** authenticated. Ignores `Privacy` entirely and returns the GUID
   for every real user — public or private. Pseudo/batch users (detected via
@@ -118,8 +124,10 @@ privacy setting:
 
 `AnonymizeHistory` (both the cached-dictionary overload and the
 `UserManager`-based async overload) takes an `isAuthenticated` flag and
-dispatches to one or the other. Every caller that touches song edit history
-must pass the real `User.Identity.IsAuthenticated` value:
+dispatches to one or the other, plus an optional `currentUser` (the signed-in
+viewer's name) for that own-entries exception. Every caller that touches song
+edit history must pass the real `User.Identity.IsAuthenticated` value, and
+the viewer's name wherever the client edits as that user (all but `DownloadJson`):
 
 - `APIControllers/SongController.cs` — batch song GET, single-song GET
 - `Controllers/SongController.cs` — `AnonymizeSongs()` (used by song list

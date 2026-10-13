@@ -363,7 +363,7 @@ public class SongController : ContentController
         var isAuthenticated = Identity.IsAuthenticated;
         return songs.Select(
             s =>
-                UserMapper.AnonymizeHistory(s.GetHistory(Mapper), dictionary, isAuthenticated)).ToList();
+                UserMapper.AnonymizeHistory(s.GetHistory(Mapper), dictionary, isAuthenticated, UserName)).ToList();
     }
 
     private async Task<ActionResult> FormatSongList(IReadOnlyCollection<Song> songs,
@@ -848,7 +848,7 @@ public class SongController : ContentController
         {
             Title = song.Title,
             SongHistory = await UserMapper.AnonymizeHistory(
-                song.GetHistory(Mapper), UserManager, ServiceHealth, Identity.IsAuthenticated),
+                song.GetHistory(Mapper), UserManager, ServiceHealth, Identity.IsAuthenticated, UserName),
             Filter = Mapper.Map<SongFilterSparse>(Filter),
             UserName = UserName,
         };

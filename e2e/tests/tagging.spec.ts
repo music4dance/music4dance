@@ -1,18 +1,20 @@
-import { expect, type Locator, test } from "@playwright/test";
+import { expect, type Locator, type Page, test } from "@playwright/test";
 
 import { login } from "../fixtures/auth";
 import { findSeededSong } from "../fixtures/songs";
 
-// Adds a tag on a seeded song via TagListEditor.vue, verifying it round-trips through the
-// song's tag list. Uses a fabricated tag name (via TagCategorySelector's add-a-new-tag
-// affordance) rather than an existing tags.json entry, so the test can't collide with a tag the
+// Adds and removes tags on a seeded song via TagListEditor.vue, verifying they round-trip through
+// the song's tag list. Uses fabricated tag names (via TagCategorySelector's add-a-new-tag
+// affordance) rather than existing tags.json entries, so the tests can't collide with a tag the
 // seeded song already carries - see architecture/dev-testing/playwright-e2e-testing.md's Tier 1
 // table. Per CLAUDE.md, this indirectly guards that tag strings stay built via Tag.fromParts rather
 // than hand-constructed, since a manual-construction regression would show up here as a tag that
 // silently fails to apply.
 //
-// Removal is a separate test below, deliberately - see its comment for why.
-const tagName = "E2ETaggingTest";
+// Each test uses its own unique tag name: m4d.Sandbox is one shared in-memory process (and is
+// reused across local runs), so a fixed name would already be one of tester's own tags on the
+// next test or run - TagCategorySelector then (correctly) stops offering it to add.
+const uniqueTagName = () => `E2ETag${Date.now()}`;
 
 // saveChanges() is an async AJAX round-trip before `edit` flips back to false and the pencil
 // icon reappears - the Save Changes click has occasionally not registered as a real click (the
@@ -25,76 +27,66 @@ async function saveAndWaitForViewMode(saveChanges: Locator, editTags: Locator) {
   }).toPass({ timeout: 20_000 });
 }
 
+async function openSongDetails(page: Page, songId: string) {
+  await page.goto(`/song/details/${songId}`);
+  // The fixed-position cookie-consent banner can overlap controls further down this long page
+  // and silently swallow clicks. It only shows until dismissed, so it may be gone on a reload.
+  const dismiss = page.getByRole("button", { name: "dismiss cookie message" });
+  if (await dismiss.isVisible()) {
+    await dismiss.click();
+  }
+
+  const songTags = page.locator('[data-edit-target="song-tags"]');
+  return {
+    songTags,
+    editTags: songTags.getByRole("button", { name: "Edit tags" }),
+    saveChanges: page.getByRole("button", { name: "Save Changes" }),
+    // Scoped to the song-tags block - a newly-added tag also shows up as a "button" in the
+    // change-history log further down the page, which would otherwise make this ambiguous.
+    tagButton: (tagName: string) => songTags.getByRole("button", { name: tagName, exact: true }),
+  };
+}
+
+async function addTag(page: Page, songId: string, tagName: string) {
+  const { songTags, editTags, saveChanges, tagButton } = await openSongDetails(page, songId);
+
+  await editTags.click();
+  await songTags.getByRole("button", { name: "Add Tags" }).click();
+  await songTags.locator('input[type="search"]').fill(tagName);
+  await songTags.getByText(`${tagName} (other)`, { exact: true }).click();
+  await saveAndWaitForViewMode(saveChanges, editTags);
+
+  await expect(tagButton(tagName)).toBeVisible();
+}
+
 test("adds a tag on a seeded song", async ({ page }) => {
   await login(page, "tester");
 
   const songId = await findSeededSong(page, "ATN");
-  await page.goto(`/song/details/${songId}`);
-  // The fixed-position cookie-consent banner can overlap controls further down this long page
-  // and silently swallow clicks.
-  await page.getByRole("button", { name: "dismiss cookie message" }).click();
-
-  const songTags = page.locator('[data-edit-target="song-tags"]');
-  // Scoped to the song-tags block - a newly-added tag also shows up as a "button" in the
-  // change-history log further down the page, which would otherwise make this ambiguous.
-  const tagButton = songTags.getByRole("button", { name: tagName, exact: true });
-  const editTags = songTags.getByRole("button", { name: "Edit tags" });
-  const saveChanges = page.getByRole("button", { name: "Save Changes" });
-
-  await editTags.click();
-  await songTags.getByRole("button", { name: "Add Tags" }).click();
-  await songTags.locator('input[type="search"]').fill(tagName);
-  await songTags.getByText(`${tagName} (other)`, { exact: true }).click();
-  await saveAndWaitForViewMode(saveChanges, editTags);
-
-  await expect(tagButton).toBeVisible();
+  await addTag(page, songId, uniqueTagName());
 });
 
-// KNOWN BUG, not test flakiness: removing a song-level tag doesn't persist. Confirmed by
-// capturing network traffic - clicking "Remove tag" then Save Changes sends a real
-// PATCH /api/song/{id} with {"name":"Tag-","value":"<tag>"} and gets back 200, but the tag is
-// still present after a full page reload, so the server accepts the removal and then loses it.
-//
-// Traced the path (SongController.Patch -> SongIndex/Song.AppendHistory -> Song.Load ->
-// LoadProperties -> Song.RemoveObjectTags -> TaggableObject.RemoveTags(string,
-// DanceStatsInstance) -> ConvertToRing -> TagSummary.ChangeTags, in m4dModels/Song.cs and
-// TaggableObject.cs) a good distance without finding a conclusive root cause by reading alone -
-// ClearValues/TagSummary.Clean() rules out simple double-counting across requests, and
-// TagManager's TagMap looks like a stable shared instance so a mismatched canonical key between
-// add and remove looks unlikely too, but wasn't verified either way. Pinning this down further
-// needs runtime tracing (temporary server-side logging + rerunning against this same repro), not
-// more static reading.
-//
-// test.fail(): this test asserts the CORRECT behavior (tag actually gone) and is expected to
-// fail today - if someone fixes the underlying bug, this test starts unexpectedly passing, which
-// Playwright reports as a failure, flagging that this annotation (and comment) should come out.
+// Removes the tag after a full page reload, which is the path that used to break: tester is a
+// private (Privacy == 0) account, and the server anonymized the viewer's own history entries to
+// their user id, so after a reload their own tag showed up under "Others' Tags" - not removable,
+// and offered to add again (a second Tag+ that one Tag- then couldn't cancel out).
 test("removes a previously-added tag from a seeded song", async ({ page }) => {
-  test.fail();
-
   await login(page, "tester");
 
   const songId = await findSeededSong(page, "ATN");
-  await page.goto(`/song/details/${songId}`);
-  await page.getByRole("button", { name: "dismiss cookie message" }).click();
+  const tagName = uniqueTagName();
+  await addTag(page, songId, tagName);
 
-  const songTags = page.locator('[data-edit-target="song-tags"]');
-  const tagButton = songTags.getByRole("button", { name: tagName, exact: true });
-  const editTags = songTags.getByRole("button", { name: "Edit tags" });
-  const saveChanges = page.getByRole("button", { name: "Save Changes" });
-
-  await editTags.click();
-  await songTags.getByRole("button", { name: "Add Tags" }).click();
-  await songTags.locator('input[type="search"]').fill(tagName);
-  await songTags.getByText(`${tagName} (other)`, { exact: true }).click();
-  await saveAndWaitForViewMode(saveChanges, editTags);
-  await expect(tagButton).toBeVisible();
-
+  const { songTags, editTags, saveChanges, tagButton } = await openSongDetails(page, songId);
   await editTags.click();
   await songTags
     .locator(".list-inline-item", { hasText: tagName })
     .getByRole("button", { name: "Remove tag" })
     .click();
   await saveAndWaitForViewMode(saveChanges, editTags);
+  await expect(tagButton(tagName)).toHaveCount(0);
 
-  await expect(tagButton).toHaveCount(0);
+  await page.reload();
+  await expect(songTags.getByRole("button", { name: "Edit tags" })).toBeVisible();
+  await expect(tagButton(tagName)).toHaveCount(0);
 });
