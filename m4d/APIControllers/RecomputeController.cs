@@ -23,7 +23,7 @@ public class RecomputeController(
     // id should be the type to update - currently songstats, propertycleanup
     [HttpGet("{id}")]
     public async Task<IActionResult> Get([FromServices] IServiceScopeFactory serviceScopeFactory, string id,
-        [FromServices] ServiceAccountMonitor serviceAccountMonitor = null)
+        [FromServices] CredentialExpiryMonitor credentialExpiryMonitor = null)
     {
         if (!TokenRequirement.Authorize(Request, Configuration))
         {
@@ -43,7 +43,7 @@ public class RecomputeController(
         {
             case "songstats":
                 message = await DoHandleSongStats(serviceScopeFactory, Database.GetTransientService());
-                await CheckServiceAccounts(serviceAccountMonitor);
+                await CheckCredentials(credentialExpiryMonitor);
                 break;
             case "subscription":
                 message = await DoHandleSubscriptions(serviceScopeFactory);
@@ -77,23 +77,16 @@ public class RecomputeController(
         return message;
     }
 
-    // songstats runs every few hours, so it doubles as the Spotify service account's expiry
-    // check; the monitor limits its emails to one a day
-    private async Task CheckServiceAccounts(ServiceAccountMonitor serviceAccountMonitor)
+    // songstats runs every few hours, so it doubles as the expiry check for the Spotify service
+    // account and the license keys; each credential limits its emails to one a day
+    private static async Task CheckCredentials(CredentialExpiryMonitor credentialExpiryMonitor)
     {
-        if (serviceAccountMonitor == null)
+        if (credentialExpiryMonitor == null)
         {
             return;
         }
 
-        try
-        {
-            _ = await serviceAccountMonitor.CheckSpotify();
-        }
-        catch (Exception e)
-        {
-            Logger.LogError(e, "Spotify service account check failed");
-        }
+        _ = await credentialExpiryMonitor.CheckAll();
     }
 
     private async Task<string> DoHandleSubscriptions(IServiceScopeFactory serviceScopeFactory)

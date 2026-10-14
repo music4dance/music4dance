@@ -135,6 +135,7 @@ into `runbooks/` as its area is consolidated.
 | Provision a new App Service instance | [runbooks/provision-app-service](runbooks/provision-app-service.md) |
 | Deploy to test or production | [runbooks/deploy](runbooks/deploy.md) |
 | Configure service-failure email alerts | [runbooks/configure-failure-email](runbooks/configure-failure-email.md) |
+| Renew the AutoMapper license key (yearly; emailed 30 days ahead) | [runbooks/renew-automapper-license](runbooks/renew-automapper-license.md) |
 | Refresh the cold-start dance fallback snapshot | [runbooks/refresh-dance-fallback-snapshot](runbooks/refresh-dance-fallback-snapshot.md) |
 | Read production logs | [runbooks/read-production-logs](runbooks/read-production-logs.md) |
 | Upload / download files on the App Service (Kudu; FTP is off) | [runbooks/transfer-files-to-app-service](runbooks/transfer-files-to-app-service.md) |

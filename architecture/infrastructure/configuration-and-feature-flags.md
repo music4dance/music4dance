@@ -125,7 +125,7 @@ rather than failing startup; see [service-resilience](service-resilience.md).
 | `Authentication:reCAPTCHA:SiteKey` / `SecretKey` | `AddReCaptchaWithResilience` | `ReCaptcha` unavailable; `NullReCaptchaSiteVerify` |
 | `Authentication:Stripe:SecretKey`, `Authentication:StripeTest:SecretKey` | `PaymentController` constructor (sets `StripeConfiguration.ApiKey`) | Checkout fails. The `Test` key is used when `GlobalState.UseTestKeys` is true: on in Development, toggled by the Test Keys button on `/Admin/InitializationTasks` (a POST to `ToggleTestKeys`). |
 | `Authentication:RecomputeJob:Key` | `TokenRequirement` (cached in a static on first use) | Token-authenticated recompute/automation endpoints reject every call. See [spotify-playlist-automation](../music-services/spotify-playlist-automation.md). |
-| `Authentication:AutoMapper:Key` | `AddM4dApplication` (`AddAutoMapper` license key) | AutoMapper runs unlicensed |
+| `Authentication:AutoMapper:Key` | `AddM4dApplication` (`AddAutoMapper` license key, at startup); `LicenseKeyCredential` reads its `exp` claim on each songstats recompute and emails the admins from 30 days before it expires. A one-year key; see [runbooks/renew-automapper-license](../runbooks/renew-automapper-license.md) | AutoMapper runs unlicensed and logs an error at startup; no expiry email |
 
 ## Seed users (Development and sandbox)
 
@@ -217,6 +217,7 @@ splitter analyses. These only affect opt-in analysis tests.
 - 2026-09 (#254): `PublicApi` flag. (#278): `ArtistIndex` flag. (#280): feature flags selected by
   label (`LabelFilter.Null` + environment), fixing flags silently falling back to appsettings.
 - 2026-10-01: This reference created.
+- 2026-10-14: AutoMapper license key expiry emailed from 30 days ahead (`LicenseKeyCredential`).
 
 ## Related
 

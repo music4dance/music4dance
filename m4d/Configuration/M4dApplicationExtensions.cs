@@ -483,6 +483,19 @@ public static class M4dApplicationExtensions
         services.AddSingleton<m4d.Services.IServiceAccountTokenStore, m4d.Services.ServiceAccountTokenStore>();
         services.AddSingleton<m4d.Services.ServiceAccountMonitor>();
 
+        // Credentials that have to be renewed by hand; CredentialExpiryMonitor emails the admins
+        // as each one nears expiry
+        services.AddSingleton<m4d.Services.IExpiringCredential>(
+            sp => sp.GetRequiredService<m4d.Services.ServiceAccountMonitor>());
+        services.AddSingleton<m4d.Services.IExpiringCredential>(sp => new m4d.Services.LicenseKeyCredential(
+            "AutoMapper license key", "Authentication:AutoMapper:Key",
+            "Buy a renewal from Lucky Penny Software (luckypennysoftware.com), put the new key in " +
+            "the Key Vault secret that App Configuration's Authentication:AutoMapper:Key references, " +
+            "and restart the App Service: AutoMapper reads the key only at startup.",
+            configuration, sp.GetRequiredService<ServiceHealthManager>(),
+            sp.GetRequiredService<ILoggerFactory>().CreateLogger<m4d.Services.LicenseKeyCredential>()));
+        services.AddSingleton<m4d.Services.CredentialExpiryMonitor>();
+
         // Security trackers for Phase 1 - singletons for in-memory tracking
         services.AddSingleton<m4d.Security.AuthenticationTracker>();
         services.AddSingleton<m4d.Security.RateLimitingTracker>();

@@ -8,16 +8,29 @@ namespace m4d.Services;
 /// after the account is connected, so starting <see cref="WarningWindow"/> before that, and as soon
 /// as Spotify rejects a refresh, this logs a warning (for Application Insights) and emails the
 /// admins at most once a day. Runs from the songstats recompute and after each service-account
-/// playlist batch.
+/// playlist batch. Registered as an <see cref="IExpiringCredential"/>, so
+/// <see cref="CredentialExpiryMonitor"/> checks it along with the license keys.
 /// </summary>
 public class ServiceAccountMonitor(
     IConfiguration configuration, IServiceAccountTokenStore store,
-    ServiceHealthManager serviceHealth, ILogger<ServiceAccountMonitor> logger)
+    ServiceHealthManager serviceHealth, ILogger<ServiceAccountMonitor> logger) : IExpiringCredential
 {
     public static readonly TimeSpan WarningWindow = TimeSpan.FromDays(14);
     private static readonly TimeSpan AlertInterval = TimeSpan.FromDays(1);
 
     public ServiceAccountPrincipal SpotifyPrincipal => new(ServiceType.Spotify, store);
+
+    public string Name => "Spotify service account";
+
+    public async Task<DateTimeOffset?> GetExpiry()
+    {
+        return (await store.Get(ServiceType.Spotify))?.ExpiresAt;
+    }
+
+    public Task<string> Check(DateTimeOffset? now = null)
+    {
+        return CheckSpotify(now);
+    }
 
     /// <summary>
     /// Check the Spotify connection, alerting if it needs attention. Returns the problem, or null

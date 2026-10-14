@@ -2,6 +2,7 @@
 @using Microsoft.FeatureManagement
 @using m4d.Utilities
 @using m4d.ViewModels
+@using m4d.Services
 @using m4d.Services.Diagnostics
 @using m4dModels
 @using System
@@ -10,6 +11,7 @@
 @inject IWebHostEnvironment HostEnvironment
 @inject IConfiguration Configuration
 @inject IFeatureManagerSnapshot FeatureManager
+@inject CredentialExpiryMonitor CredentialExpiry
 
 @{
     ViewBag.Title = "Admin Diagnostics";
@@ -72,6 +74,20 @@
     <li>
         CaptcahEnabled: @Configuration["Configuration:Registration:CaptchaEnabled"]
     </li>
+</ul>
+
+<hr />
+<h3>Expiring Credentials</h3>
+<p><small>Checked on each songstats recompute; the admins are emailed as each one nears expiry.</small></p>
+<ul>
+    @foreach (var credential in CredentialExpiry.Credentials)
+    {
+        var expires = await credential.GetExpiry();
+        <li>
+            <b>@credential.Name:</b>
+            @(expires == null ? "not configured" : $"expires {expires:yyyy-MM-dd}")
+        </li>
+    }
 </ul>
 
 <hr />
