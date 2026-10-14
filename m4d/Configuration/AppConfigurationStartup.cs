@@ -91,7 +91,11 @@ public static class AppConfigurationStartup
                 .Select(KeyFilter.Any, environmentName)
                 .ConfigureRefresh(refresh =>
                 {
-                    _ = refresh.Register("Configuration:Sentinel", environmentName, refreshAll: true)
+                    // Watch the unlabeled sentinel, so one bump refreshes every environment.
+                    // Unlike the Select calls above, a registration watches one exact key and
+                    // label with no fallback: registering the environment label polls a key
+                    // that 404s every interval unless that environment has its own sentinel.
+                    _ = refresh.Register("Configuration:Sentinel", refreshAll: true)
                         .SetRefreshInterval(TimeSpan.FromMinutes(5));
                 })
                 .ConfigureClientOptions(clientOptions =>

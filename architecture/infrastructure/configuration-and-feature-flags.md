@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-06
+**Last verified:** 2026-10-14
 **Code:** `m4d/Configuration/M4dApplicationExtensions.cs`, `m4d/Program.cs`,
 `m4d/Utilities/FeatureFlags.cs`, `m4d/appsettings.json`, `m4d/appsettings.Development.json`,
 `m4d.Sandbox/appsettings.json`, `m4d/Properties/launchSettings.json`
@@ -81,7 +81,7 @@ configuration. Setup is in
 | `DISABLE_HTTPS_REDIRECT` | `UseM4dPipeline` | Startup | `m4d-spotify` launch profile; sandbox appsettings | `false`. `true` skips HTTPS and `www` redirects (Spotify rejects `https://localhost`). |
 | `ASPNETCORE_VITE` | `ConfigurationExtensions.UseVite` (`M4DHostEnvironmentExtension.cs`) | Startup | `*-vite` launch profiles | Not `"true"`: serve the built client from `wwwroot/vclient` instead of the Vite dev server |
 | `AppConfig:Endpoint` | `AddM4dApplication` | Startup | `appsettings.json` (`https://music4dance.azconfig.io`); sandbox sets it empty | Empty: `AppConfiguration` marked unavailable, local config only. Ignored in Development. |
-| `Configuration:Sentinel` | App Configuration refresh registration; logged by `UseM4dPipeline` and `StartupInitializationService`; shown on `/Admin/Diagnostics` | Refresh trigger | App Configuration (environment label) | No value: no refresh-all is ever triggered |
+| `Configuration:Sentinel` | App Configuration refresh registration; logged by `UseM4dPipeline` and `StartupInitializationService`; shown on `/Admin/Diagnostics` | Refresh trigger | App Configuration (unlabeled; a labeled copy is not watched) | No value: no refresh-all is ever triggered |
 | `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET` | `AddM4dApplication` (Development credential selection) | Startup | User secrets or env vars | Any missing: full `DefaultAzureCredential` chain |
 | `AZURE_SQL_CONNECTIONSTRING` | `Program.cs`, `DbContext` factory, `DatabaseRecoveryService` | Startup and every `DbContext` resolution | Service Connector (App Service) | Falls through to the keys below |
 | `PROD_DB` + `ProdConnectionString` | `Program.cs` (Development only), `DbContext` factory, `AdminController.RestoreDb`, `_head.cshtml` (`isProdDb` banner), `AddPublicApiFoundation` | Startup / per resolution / per request | `m4d-prod-db` launch profile + user secrets | `false` |
