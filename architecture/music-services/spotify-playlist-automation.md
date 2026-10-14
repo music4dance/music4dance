@@ -69,7 +69,8 @@ database.
   instead of failing every playlist one by one, and then runs the monitor check, which emails
   right away.
 - **Expiry monitoring.** `ServiceAccountMonitor.CheckSpotify` runs after every `songstats`
-  recompute (every 6 hours) and after a batch that hit a rejected token. It confirms Spotify still
+  recompute (every 6 hours; `ServiceAccountMonitor` is one of the `IExpiringCredential`s that
+  `CredentialExpiryMonitor` checks) and after a batch that hit a rejected token. It confirms Spotify still
   accepts the refresh token (only a real network call when no access token is cached), then,
   from 14 days before `ExpiresAt`, after it, or once the token is invalid, logs a warning and
   sends an **Action Needed** admin email through `ServiceHealthNotifier` (the
