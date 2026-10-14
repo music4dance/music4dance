@@ -320,6 +320,13 @@ public class SongController : ContentController
     // TODO: Consider abstracting this (and maybe format) out into a builder/computer
     private async Task<ActionResult> DoAzureSearch()
     {
+        // Crawlers send filters naming dances that don't exist (e.g. "4387", "DanceTags");
+        // parsing those throws deep in the search or the BotFilter view, turning into a 500.
+        if (!Filter.DanceQuery.IsValid)
+        {
+            return BadRequest("Unknown dance in filter");
+        }
+
         HelpPage = Filter.IsSimple ? "song-list" : "advanced-search";
 
         // Check if search service is available

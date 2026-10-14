@@ -47,6 +47,29 @@ public class DanceQueryItemTest
     }
 
     [TestMethod]
+    public void IsValidValue_KnownDance_True()
+    {
+        Assert.IsTrue(DanceQueryItem.IsValidValue("BOL+2|Fast:Tempo"));
+        Assert.IsTrue(DanceQueryItem.IsValidValue("LTN*CHA-1"));
+    }
+
+    [TestMethod]
+    public void IsValidValue_UnknownDanceOrBadFormat_False()
+    {
+        Assert.IsFalse(DanceQueryItem.IsValidValue("4387"));
+        Assert.IsFalse(DanceQueryItem.IsValidValue("DanceTags"));
+        Assert.IsFalse(DanceQueryItem.IsValidValue("!invalid"));
+    }
+
+    [TestMethod]
+    public void DanceQuery_IsValid_FalseWhenAnyItemUnknown()
+    {
+        Assert.IsTrue(new DanceQuery("AND,WLZ,CHA").IsValid);
+        Assert.IsTrue(new DanceQuery().IsValid);
+        Assert.IsFalse(new DanceQuery("WLZ,8204").IsValid);
+    }
+
+    [TestMethod]
     public void ToString_OutputsCorrectFormat()
     {
         var item = DanceQueryItem.FromValue("BOL+2|Fast:Tempo|Smooth:Style");

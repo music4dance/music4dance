@@ -50,6 +50,14 @@ public partial class DanceQueryItem
         };
     }
 
+    // True when FromValue would succeed - lets callers reject a URL-supplied filter that
+    // names an unknown dance up front rather than having FromValue throw mid-render.
+    public static bool IsValidValue(string value)
+    {
+        var match = ThresholdWithTagsRegex().Match(value);
+        return match.Success && Dances.Instance.DanceFromId(match.Groups[1].Value) != null;
+    }
+
     public DanceObject Dance => Dances.Instance.DanceFromId(Id);
 
     public override string ToString()

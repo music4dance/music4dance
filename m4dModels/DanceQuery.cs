@@ -44,7 +44,12 @@ public class DanceQuery
         }
     }
 
-    public IEnumerable<DanceQueryItem> Items
+    public IEnumerable<DanceQueryItem> Items => ItemValues.Select(DanceQueryItem.FromValue);
+
+    // False when any item is malformed or names an unknown dance (Items would throw).
+    public bool IsValid => ItemValues.All(DanceQueryItem.IsValidValue);
+
+    private List<string> ItemValues
     {
         get
         {
@@ -59,7 +64,7 @@ public class DanceQuery
                 items.RemoveAt(0);
             }
 
-            return items.Select(DanceQueryItem.FromValue);
+            return items;
         }
     }
 
