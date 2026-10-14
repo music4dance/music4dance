@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-10
+**Last verified:** 2026-10-14
 **Code:** `azure-pipelines.yml`, `m4d/Program.cs`, `m4d/Configuration/M4dApplicationExtensions.cs`,
 `m4d/Services/StartupInitializationService.cs`, `m4d/m4d.csproj`
 
@@ -102,8 +102,10 @@ The `PROD_DB` / `TEST_DB` switches are for local development against the shared 
 **App Configuration.**
 - **Labels:** the app loads keys and feature flags with no label, overlaid by keys labeled with
   the environment name (`Production` / `Staging`).
-- **Refresh:** a change to `Configuration:Sentinel` triggers a full refresh. Both the sentinel
-  and the feature flags are checked every 5 minutes, through `UseAzureAppConfiguration()`.
+- **Refresh:** a change to the unlabeled `Configuration:Sentinel` triggers a full refresh in
+  every environment. The refresh watch has no label fallback (it polls one exact key and label),
+  so it watches the unlabeled key rather than the environment's; an environment-labeled sentinel
+  is ignored. Both the sentinel and the feature flags are checked every 5 minutes, through `UseAzureAppConfiguration()`.
   That's about 3 requests per instance per cycle (the sentinel, plus one list request for each
   of the two feature-flag selectors), and a startup or full refresh adds a load of every
   selector.
