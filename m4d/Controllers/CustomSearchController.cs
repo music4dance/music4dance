@@ -35,6 +35,11 @@ public class CustomSearchController : ContentController
     public async Task<ActionResult> Index(string name, string dance = null, int page = 1)
     {
         Filter = Database.SearchService.GetSongFilter().CreateCustomSearchFilter(name, dance, page);
+        if (!Filter.DanceQuery.IsValid)
+        {
+            return BadRequest("Unknown dance in filter");
+        }
+
         HelpPage = Filter.IsSimple ? "song-list" : "advanced-search";
 
         // Check if search service is available
