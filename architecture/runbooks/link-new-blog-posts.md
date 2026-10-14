@@ -16,7 +16,8 @@ is handled by the `music4dance-wp-handoff` skill.
 
 - A repo checkout with Node 22 (for the script).
 - An admin account, to reload the site map.
-- For the fast path only: the App Service's FTPS deployment credentials, or Kudu.
+- For the fast path only: Kudu access (FTP is off; see
+  [transfer-files-to-app-service](transfer-files-to-app-service.md)).
 
 ## Steps
 
@@ -37,7 +38,8 @@ is handled by the `music4dance-wp-handoff` skill.
    - **Normal path:** commit and deploy (see [deploy](deploy.md)). The build copies
      `ClientApp/src/assets/content/*` into `wwwroot/content/`.
    - **Fast path (no deploy):** upload the edited `blogmap.txt` / `helpmap.txt` over the live
-     copies in the deployed site's `wwwroot/content/` folder. Confirm the exact path in Kudu before
+     copies in the deployed site's `wwwroot/content/` folder (see
+     [transfer-files-to-app-service](transfer-files-to-app-service.md)). Confirm the exact path in Kudu before
      overwriting, because it differs between deployment modes. **Also commit the same change**,
      or the next deploy silently reverts it.
 5. **Reload the site map:** **Admin → Initialization Tasks → Update Sitemap**
