@@ -169,13 +169,18 @@ There is also a local tool manifest at `m4d/.config/dotnet-tools.json`
       -m "Update NuGet packages" \
       -m "<one line per notable bump, plus anything deferred>" \
       -m "Signed-off-by: David W. Gray <dwgray67@hotmail.com>
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+<attribution trailers from the session, verbatim>"
     ```
 
-    Both trailers must share the final `-m` so git parses them as trailers;
-    the `Co-Authored-By` line sits at column 0 on purpose, since it's inside
-    a quoted string and any leading whitespace would land in the message and
-    break trailer parsing. Verify with `git log -1 --format='%(trailers)'`.
+    Copy the attribution trailers (`Co-Authored-By`, plus any others such as
+    `Claude-Session`) word for word from the session's own attribution
+    instructions. Don't hardcode a model name here; it goes stale whenever
+    the model changes.
+
+    All trailers must share the final `-m` so git parses them as trailers;
+    the lines after `Signed-off-by` sit at column 0 on purpose, since they're
+    inside a quoted string and any leading whitespace would land in the
+    message and break trailer parsing. Verify with `git log -1 --format='%(trailers)'`.
 
 11. **Push and open the PR:**
 
@@ -220,6 +225,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
   step back to the last version that builds clean — as of 2026-09,
   `Microsoft.Build.Tasks.Core` / `Microsoft.Build.Utilities.Core` 18.10.1
   warn and 18.8.2 doesn't, while `Microsoft.NET.Test.Sdk` 18.10.1 is fine.
+  As of 2026-10, 18.11.0 still warns, so those two stay on 18.8.2.
 - `dotnet add package --no-restore` makes a large batch of bumps much faster;
   follow the batch with one `dotnet restore music4dance.sln`.
 - The build emits three pre-existing `EF1001` internal-API warnings in

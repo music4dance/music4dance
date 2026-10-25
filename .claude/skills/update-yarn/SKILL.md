@@ -185,13 +185,18 @@ always require explicit confirmation regardless of argument.
       -m "Update client dependencies" \
       -m "<one line per notable bump, plus anything deferred>" \
       -m "Signed-off-by: David W. Gray <dwgray67@hotmail.com>
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+<attribution trailers from the session, verbatim>"
     ```
 
-    Both trailers must share the final `-m` so git parses them as trailers;
-    the `Co-Authored-By` line sits at column 0 on purpose, since it's inside
-    a quoted string and any leading whitespace would land in the message and
-    break trailer parsing. Verify with `git log -1 --format='%(trailers)'`.
+    Copy the attribution trailers (`Co-Authored-By`, plus any others such as
+    `Claude-Session`) word for word from the session's own attribution
+    instructions. Don't hardcode a model name here; it goes stale whenever
+    the model changes.
+
+    All trailers must share the final `-m` so git parses them as trailers;
+    the lines after `Signed-off-by` sit at column 0 on purpose, since they're
+    inside a quoted string and any leading whitespace would land in the
+    message and break trailer parsing. Verify with `git log -1 --format='%(trailers)'`.
 
     `git commit -s` will generate the sign-off from your git identity if
     you'd rather not type it, but the co-author line still has to be added

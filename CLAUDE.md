@@ -35,10 +35,10 @@ Signed-off-by: David W. Gray <dwgray67@hotmail.com>
 
 This repo's history (and its DCO check) requires it on every commit — a commit missing it will
 fail that check. This is a separate trailer from, and doesn't replace, the
-`Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>` line from the session's own attribution
-instructions; a commit made from this account should carry both. If you notice a pushed commit is
-missing the sign-off, amend it (and force-push if already pushed, since history changes) rather
-than leaving it as-is.
+`Co-Authored-By` line (and any other attribution trailer) that the session's own attribution
+instructions specify, copied verbatim rather than with a hardcoded model name; a commit made from
+this account should carry both. If you notice a pushed commit is missing the sign-off, amend it
+(and force-push if already pushed, since history changes) rather than leaving it as-is.
 
 ## C# Standards
 
