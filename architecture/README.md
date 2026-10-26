@@ -96,7 +96,7 @@ procedural, to become a runbook.
 | Doc | Kind | What it covers |
 | --- | --- | --- |
 | [hosting-and-identity](infrastructure/hosting-and-identity.md) | Ref | Environments, deployment pipeline and modes, managed identity per service, App Configuration, startup sequence, health checks, cache-control headers |
-| [service-resilience](infrastructure/service-resilience.md) | Ref | Graceful degradation and recovery when SQL, Search, App Configuration, OAuth, email or reCAPTCHA fail; health endpoints; status banner; admin failure emails; known issues |
+| [service-resilience](infrastructure/service-resilience.md) | Ref | Graceful degradation and recovery when SQL, Search, App Configuration, OAuth, email or reCAPTCHA fail; health endpoints; status banner and the persisted admin update message; admin failure emails; known issues |
 | [background-work-and-startup](infrastructure/background-work-and-startup.md) | Ref | Hosted services and their start order, `BackgroundTaskQueue`, `DatabaseRecoveryService` hook, `/api/recompute` jobs and their Logic App callers, fire-and-forget admin jobs and `AdminMonitor` |
 | [ci-cd-and-release](infrastructure/ci-cd-and-release.md) | Ref | GitHub workflows (CI-SERVER `-warnaserror`, CI-CLIENT lint/type-check/tests, DCO, nightly E2E), `main` ruleset, Dependabot, the Azure DevOps deploy pipeline, PR-to-production flow |
 | [configuration-and-feature-flags](infrastructure/configuration-and-feature-flags.md) | Ref | Every configuration key and feature flag: where it's read, its source (appsettings, App Configuration / Key Vault, env vars, user secrets) and default |

@@ -22,7 +22,9 @@ linked under [Related](#related).
 
 Both apps run as a **single instance**. That's a cost decision: no SLA is offered and the paid
 subscriber base is small. It matters for health checks (below) and means the in-memory state
-(trackers, `GlobalState.UpdateMessage`, caches) is never shared across instances.
+(trackers, caches) is never shared across instances. The admin update message is the exception:
+it's kept in a file on the shared `/home` volume (see
+[service-resilience § Update message](service-resilience.md#update-message)).
 
 Shared Azure resources:
 - App Configuration: `https://music4dance.azconfig.io`, on the **Developer** tier (6,000
