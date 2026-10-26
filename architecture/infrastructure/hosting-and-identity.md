@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-14
+**Last verified:** 2026-10-25
 **Code:** `azure-pipelines.yml`, `m4d/Program.cs`, `m4d/Configuration/M4dApplicationExtensions.cs`,
 `m4d/Services/StartupInitializationService.cs`, `m4d/m4d.csproj`
 
@@ -15,6 +15,7 @@ linked under [Related](#related).
 | | Production | Test |
 | --- | --- | --- |
 | App Service (Linux) | `msc4dnc` | `m4d-test` |
+| App Service plan | `m4dweb-linux`, **B2** (2 cores, 3.5 GB) | `m4d-test`, F1 |
 | `ASPNETCORE_ENVIRONMENT` | `Production` | `Staging` |
 | `SEARCHINDEX` / `SEARCHINDEXVERSION` | `SongIndexProd` / `3` | `SongIndexTest` / `3` |
 | Instances | 1 | 1 |
@@ -223,6 +224,15 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
   for 40 minutes before recovering in place. `Request Quota Usage` showed the Free tier's daily
   quota running out most days, which may also explain the 10-06 and 10-09 slow loads. The store
   moved to the Developer tier, and a quota alert was added.
+- 2026-10-25: Production ran out of memory and restarted several times a day from 2026-10-22,
+  with up to about 15 minutes down per restart and one 6-hour outage. The peak working set was
+  pinned at about 1.25 GB, the ceiling for the container on B1; it was 700 MB–1 GB before. There
+  was no deploy, and traffic was lower; the platform had just moved to base image
+  `dotnetcore:10.0_20261022.3`. The plan went from B1 to B2, and `DOTNET_GCConserveMemory=5` was
+  set on `msc4dnc`. To scale back down, run
+  `az appservice plan update -g m4d-Web -n m4dweb-linux --sku B1`, but only if peak memory on B2
+  stays well under about 1.2 GB. The signatures are in
+  [runbooks/read-production-logs](../runbooks/read-production-logs.md).
 - 2026-10-01: Consolidated from `SELF_CONTAINED_DEPLOYMENT.md`, `managed-identity-self-contained-plan.md`
   and the architecture sections of `azure-app-service-setup-managed-identity.md`. Stale details
   dropped: legacy pipeline files, `appsettings.SelfContained.json`, and in-app Kestrel port and
