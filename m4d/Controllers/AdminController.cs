@@ -915,10 +915,14 @@ public class AdminController(
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "dbAdmin")]
-    public ActionResult UpdateWarning(string message = null)
+    public ActionResult UpdateWarning(
+        [FromServices] UpdateMessageService updateMessage, string message = null, bool persist = false)
     {
-        Logger.LogInformation($"Changed UpdateWarning to: {message}");
-        GlobalState.UpdateMessage = message?.CleanWhitespace();
+        if (!updateMessage.Set(message?.CleanWhitespace(), persist, User.Identity?.Name))
+        {
+            ViewBag.UpdateWarningError =
+                "Couldn't save the update message, so it shows on this instance only and won't survive a restart. See the log for details.";
+        }
         return View("InitializationTasks");
     }
 
@@ -2288,7 +2292,7 @@ public class AdminController(
     //
     // Get: UpdateSearchIdx
     [Authorize(Roles = "showDiagnostics")]
-    public async Task<ActionResult> UpdateSearchIdx()
+    public async Task<ActionResult> UpdateSearchIdx([FromServices] UpdateMessageService updateMessage)
     {
         try
         {
@@ -2317,7 +2321,8 @@ public class AdminController(
                 hold off doing any editing or registering an account until this banner disappears
                 (reload the page to check status). Thanks!";
 
-            GlobalState.UpdateMessage = message?.CleanWhitespace();
+            // Not persisted: nothing would clear it if the rebuild died with the process
+            _ = updateMessage.Set(message.CleanWhitespace(), persist: false, "UpdateSearchIdx");
 
             await Database.UpdateIndex();
 
@@ -2329,7 +2334,7 @@ public class AdminController(
             ViewBag.Success = true;
             ViewBag.Message = @"Index Updated";
 
-            GlobalState.UpdateMessage = null;
+            _ = updateMessage.Clear("UpdateSearchIdx");
 
             return CompleteAdminTask(true, @"UpdateSearchIdx");
         }

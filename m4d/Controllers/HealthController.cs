@@ -1,6 +1,7 @@
 #nullable enable
 
 using Microsoft.AspNetCore.Mvc;
+using m4d.Services;
 using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 using System.Text;
@@ -15,11 +16,15 @@ namespace m4d.Controllers;
 public class HealthController : ControllerBase
 {
     private readonly ServiceHealthManager _serviceHealth;
+    private readonly UpdateMessageService _updateMessage;
     private readonly ILogger<HealthController> _logger;
 
-    public HealthController(ServiceHealthManager serviceHealth, ILogger<HealthController> logger)
+    public HealthController(
+        ServiceHealthManager serviceHealth, UpdateMessageService updateMessage,
+        ILogger<HealthController> logger)
     {
         _serviceHealth = serviceHealth;
+        _updateMessage = updateMessage;
         _logger = logger;
     }
 
@@ -39,7 +44,7 @@ public class HealthController : ControllerBase
         {
             timestamp = DateTime.UtcNow,
             overallStatus = summary.IsFullyHealthy ? "healthy" : summary.HasCriticalFailures ? "unavailable" : "degraded",
-            updateMessage = GlobalState.UpdateMessage, // Include manual update warning
+            updateMessage = _updateMessage.Message, // Include manual update warning
             summary = new
             {
                 healthy = summary.HealthyCount,

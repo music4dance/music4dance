@@ -4,6 +4,7 @@
 @using Microsoft.EntityFrameworkCore.Infrastructure.Internal
 
 @inject ISearchServiceManager SearchService
+@inject m4d.Services.UpdateMessageService UpdateMessage
 
 @{
     ViewBag.Title = "InitializationTasks";
@@ -146,21 +147,36 @@ enctype = "multipart/form-data"
 }))
 {
     @Html.AntiForgeryToken()
-    @if (string.IsNullOrWhiteSpace(GlobalState.UpdateMessage))
+    @if (ViewBag.UpdateWarningError != null)
+    {
+        <div class="alert alert-warning">@ViewBag.UpdateWarningError</div>
+    }
+    var update = UpdateMessage.Current;
+    if (update == null)
 {
-    <textarea name="message" id="mesage" rows="4" cols="100">
+    <textarea name="message" id="message" rows="4" cols="100">
             We are in the process of upgrading the music4dance.net infrastructure.
             You should still be able to use the site to browse and search but please
             hold off doing any editing or registering an account until this banner disappears.
             Thanks!
         </textarea>
+    <div>
+        <label>
+            <input type="checkbox" name="persist" id="persist" value="true"/>
+            Persist across restarts
+        </label>
+    </div>
     <input type="submit" name="submit" id="Update" value="Update"/>
 }
 else
 {
-    <p>Current Update: @GlobalState.UpdateMessage</p>
+    <p>Current Update: @update.Message</p>
+    <p>
+        Set by @(update.SetBy ?? "unknown") at @update.SetAt.ToString("u");
+        @(update.Persist ? "persists across restarts" : "cleared by the next restart")
+    </p>
     <input type="hidden" name="message" id="message" value=""/>
-    <input type="submit" name="clear" id="cear" value="Clear" />
+    <input type="submit" name="clear" id="clear" value="Clear" />
 }
 }
 

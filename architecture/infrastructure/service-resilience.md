@@ -2,11 +2,12 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-10
+**Last verified:** 2026-10-25
 **Code:** `m4d/Services/ServiceHealth/`, `m4d/Services/DatabaseRecoveryService.cs`,
 `m4d/Services/AppConfigurationRecoveryService.cs`, `m4d/Configuration/AppConfigurationStartup.cs`,
 `m4d/Configuration/SecretBackedServices.cs`,
-`m4d/Controllers/HealthController.cs`, `m4d/Configuration/M4dApplicationExtensions.cs`,
+`m4d/Controllers/HealthController.cs`, `m4d/Services/UpdateMessageService.cs`,
+`m4d/Configuration/M4dApplicationExtensions.cs`,
 `m4d/ClientApp/src/composables/useServiceHealth.ts`, `m4d/ClientApp/src/components/ServiceStatusBanner.vue`
 
 How music4dance keeps serving pages when an external dependency (SQL, Azure AI Search, App
@@ -197,8 +198,38 @@ does with it on a single-instance plan.
 so the first render already knows the state. `useServiceHealth()` (used by `PageFrame.vue` and
 the header app) then polls `/api/health/status`: every 30 seconds while anything is unhealthy or
 an update message is showing, and hourly otherwise. `ServiceStatusBanner.vue` shows service
-warnings plus the admin update message. The update message is set with `Admin/UpdateWarning`,
-kept in memory in `GlobalState.UpdateMessage`, and lost on restart.
+warnings plus the admin update message.
+
+### Update message
+
+The admin update message is owned by the singleton `UpdateMessageService`, and
+`/api/health/status` returns it as `updateMessage`. It's set from
+`/Admin/InitializationTasks` (`Admin/UpdateWarning`). `UpdateSearchIdx` also sets it for the
+length of a rebuild, and doesn't persist it, because nothing would clear it if the rebuild died
+with the process.
+
+- **Storage.** Each change writes `wwwroot/AppData/update-message.json` (`UpdateMessageFileManager`,
+  next to `dance-environment.json`), and Clear deletes it. The file holds the message, a
+  `Persist` flag, who set it, and when (UTC). It's written aside and moved into place, so a reader
+  never sees half a file. `BlockAppDataMiddleware` keeps it off the web.
+- **Persist across restarts.** This is a checkbox on the admin form. On startup, the service
+  loads the file, keeps a persisted message, and deletes a non-persisted one that was set before
+  this process started. On a single instance, that means a restart clears a non-persisted message,
+  as before.
+- **Multi-instance.** Reads re-load the file once `RefreshInterval` (30 seconds, the banner's
+  fast poll) has passed. App Service shares `/home` across the instances of a plan, so a change
+  made on one instance reaches the rest within about one poll. Under scale-out, "a restart clears
+  it" becomes "the next instance to start clears it". Slots and other plans don't share `/home`;
+  see [plans/persistent-update-message](../plans/persistent-update-message.md) for options that
+  reach those too.
+- **Failures.** If the file can't be read, the last good message stays, and the warning is logged
+  once until the file is readable again. If a change can't be written, it takes effect on this
+  instance only, the admin page says so, and re-reads pause, so they don't undo it, until the next
+  successful change.
+- **Sandbox and dev.** The service gets no file manager when `ConfigureSearch` is off (the
+  sandbox shares `m4d/wwwroot` with the dev app), so there the message is in memory only. On the
+  dev app it uses the local file. A client rebuild's `clean-client` wipes `wwwroot`, and the file
+  with it.
 
 ## Admin notifications
 
@@ -258,7 +289,8 @@ notified, so no lone "recovered" email follows. Configuration and testing steps 
   vendor status pages.
 - **Make the notification cooldown configurable**, and consider a digest instead of per-service
   emails if storms across several services become a problem.
-- **Persist the update message**, so it survives restarts and could be scheduled. See
+- **Schedule or expire the update message** (an `ExpiresAt`, or a start time), now that it's
+  persisted. Store options beyond one App Service plan are in
   [plans/persistent-update-message](../plans/persistent-update-message.md).
 - **Admin dashboard** with health history, response times and uptime, and export to Azure
   Monitor.
@@ -317,6 +349,9 @@ notified, so no lone "recovered" email follows. Configuration and testing steps 
   originals are in git history under `architecture/infrastructure/service-resilience-*.md`.
 - 2026-10-14: `CredentialExpiryMonitor` checks every `IExpiringCredential` on songstats; the
   AutoMapper license key (`LicenseKeyCredential`) joined the Spotify service account.
+- 2026-10-25: The update message moved from `GlobalState.UpdateMessage` to
+  `UpdateMessageService`. It can persist across restarts (a file in `wwwroot/AppData`) and is
+  shared across the instances in a plan.
 
 ## Related
 

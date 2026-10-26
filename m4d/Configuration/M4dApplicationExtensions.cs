@@ -512,6 +512,16 @@ public static class M4dApplicationExtensions
                 ? new ArtistIndexFileManager(environment.WebRootPath)
                 : null));
 
+        // Persisted beside dance-environment.json so the banner survives a restart and is shared
+        // by every instance on the /home volume. Gated on ConfigureSearch for the same reason as
+        // the artist index cache above: the sandbox shares m4d/wwwroot with the real dev app.
+        services.AddSingleton(sp => new m4d.Services.UpdateMessageService(
+            sp.GetRequiredService<ILogger<m4d.Services.UpdateMessageService>>(),
+            appOptions.ConfigureSearch && !string.IsNullOrEmpty(environment.WebRootPath)
+                ? new m4d.Services.UpdateMessageFileManager(environment.WebRootPath)
+                : null,
+            GlobalState.StartTime));
+
         services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
         services.AddHostedService<BackgroundQueueHostedService>();
 

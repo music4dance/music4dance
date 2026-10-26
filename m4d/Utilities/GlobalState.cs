@@ -41,7 +41,6 @@ public static class GlobalState
     /// </summary>
     public static TimeSpan UpTime => DateTime.UtcNow - StartTime;
 
-    public static string UpdateMessage { get; set; }
     public static bool UseTestKeys { get; set; }
     public static bool RateLimitLogging { get; set; }
 
