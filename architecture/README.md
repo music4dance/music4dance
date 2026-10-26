@@ -158,6 +158,7 @@ into `runbooks/` as its area is consolidated.
 | Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
 | Visitor engagement next steps (post-launch priorities, enhancements) | Proposed | [plans/visitor-engagement-next](plans/visitor-engagement-next.md) |
 | Dance family voting next steps | Proposed | [plans/dance-family-voting-next](plans/dance-family-voting-next.md) |
+| Persist the admin update message through restarts (file now; App Config / Blob for multi-instance) | Proposed | [plans/persistent-update-message](plans/persistent-update-message.md) |
 
 ## Coverage gaps
 

@@ -258,7 +258,8 @@ notified, so no lone "recovered" email follows. Configuration and testing steps 
   vendor status pages.
 - **Make the notification cooldown configurable**, and consider a digest instead of per-service
   emails if storms across several services become a problem.
-- **Persist the update message**, so it survives restarts and could be scheduled.
+- **Persist the update message**, so it survives restarts and could be scheduled. See
+  [plans/persistent-update-message](../plans/persistent-update-message.md).
 - **Admin dashboard** with health history, response times and uptime, and export to Azure
   Monitor.
 - **Circuit breakers** per service (closed / open / half-open), if the cooldown proves too
