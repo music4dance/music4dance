@@ -528,7 +528,7 @@ benefit.
 The GC mode matters more than anything in this code, and measuring this build is what turned it
 up. Server GC trades memory for throughput: far larger gen0 budgets, far lazier return to the OS.
 The Web SDK defaults it on, and on App Service it sizes those budgets against the host's memory
-rather than the plan's 1.75 GB. **`m4d.csproj` now sets `<ServerGarbageCollection>false</ServerGarbageCollection>`**,
+rather than the plan's (1.75 GB on B1 when this was measured; 3.5 GB on B2 since 2026-10-25). **`m4d.csproj` now sets `<ServerGarbageCollection>false</ServerGarbageCollection>`**,
 so the Workstation column is what production runs; the Server column is kept for the comparison
 that motivated it. Both were measured on a many-core dev machine, where server GC allocates more
 heaps than a 1-core B1 would, so treat the gap as directional rather than exact - the direction is

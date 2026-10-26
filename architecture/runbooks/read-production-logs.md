@@ -2,7 +2,7 @@
 
 **Type:** Runbook
 **Status:** Current
-**Last verified:** 2026-10-13
+**Last verified:** 2026-10-25
 
 ## When to use
 
@@ -16,7 +16,10 @@ is configured is described in [logging-and-diagnostics](../observability/logging
   (SCM) access to the app. The subscription is in the `music4dance` tenant: use
   `az login --tenant 77fd022e-b4cb-4681-aa1d-c4f8ec6bec90`. A bare `az login` fails with
   AADSTS50076 because both tenants on the account require MFA, and only `--tenant` prompts for
-  it.
+  it. If the Windows account picker opens empty, add `--use-device-code` (or turn off the broker
+  with `az config set core.enable_broker_on_windows=false`).
+- `az webapp log download` goes through Kudu, which shares the app's VM: while the app is out of
+  memory it returns `503` from `/dump`. Restart the app, wait for it to come back, then download.
 - The `analyze-logs` Claude Code skill (`.claude/skills/analyze-logs/`) automates steps 2 and 3:
   it downloads the logs, unzips them to `local/logs/msc4dnc-<date>/`, and groups them into
   signatures.
@@ -69,6 +72,9 @@ entries).
 | `Antiforgery validation failed for usage log batch` | 6 | Same causes, from the usage beacon | Noise unless it grows |
 | `ArtistsCoverage (SongIndexExperimental) failed`: index `songs-experimental` not found | 2 | Admin page run against an index that doesn't exist in production | Noise |
 | `HttpsRedirectionMiddleware`: `Failed to determine the https port` | 1 per start | App Service terminates TLS in front of the container | Noise |
+| `Out of memory.` then `startup.sh: … Aborted (core dumped) dotnet m4d.dll` (platform log: `exit code: 134`), preceded by Kestrel `heartbeat … thread pool starvation` and `OutOfMemoryException` in `_jsonCamelCase`, `ScriptJson.Escape`, `SongIndex.FindSong`/`DoSearch` | Several restarts a day from 2026-10-22 (10-23 to 10-25 download) | Peak working set pinned at ~1.25 GB, the most the B1 container allows; it was 700 MB–1 GB before. It began within a day of the platform moving to base image `dotnetcore:10.0_20261022.3`, with no app deploy and lower traffic. Each restart takes up to ~15 min to come back, often on a new VM | **Open**: scale up the plan, or cap the GC heap; take a memory dump near the ceiling |
+| SQL `error occurred during the login process` / `pre-login handshake` / `Timeout … obtaining a connection from the pool`; Search `Retry failed after <n> tries` | ~250 SQL, ~800 Search (10-24 to 10-25) | A symptom of the memory and thread-pool starvation above, not a dependency outage: SQL, Search and App Configuration metrics were normal at the same times | Recheck after the OOM is fixed |
+| `Suspicious returnUrl detected from <ip>` on `/identity/account/login` | 4 | Open-redirect probes from scanners | Noise |
 
 ## Verification
 
