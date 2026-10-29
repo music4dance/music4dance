@@ -71,12 +71,17 @@ The download in step 2 doesn't include them, and there's no `http` folder in Kud
    ```
    A new assignment can take about 10 minutes to apply. Until then, blob listing fails and
    suggests `--auth-mode key`; wait rather than switching to keys.
-2. **Download** a day (or narrow the pattern to an hour with `*d=30/h=14*`):
+2. **Download** a day. Paths use the **UTC** date, so in the Pacific evening "today" is already
+   the next day's `d=`. A pattern that matches nothing downloads nothing and reports no error.
+   Narrow it to an hour with `*m=10/d=29/h=14*`, and include `m=` when ranging across months:
    ```bash
    az storage blob download-batch --account-name m4dlogs --auth-mode login \
-     -s insights-logs-appservicehttplogs --pattern "*d=30*" -d local/http-logs
+     -s insights-logs-appservicehttplogs --pattern "*m=10/d=29*" -d local/http-logs
    ```
-3. **Analyze** with a script over the JSON lines: count by `properties.CIp`, `UserAgent` and
+   To see what's there first: `az storage blob list --account-name m4dlogs --auth-mode login
+   -c insights-logs-appservicehttplogs --query "[].name" -o tsv`.
+3. **Analyze** with a script over the JSON lines (`properties` is a JSON string; parse it a
+   second time). Count by `CIp`, `UserAgent` and
    `CsUriStem`, and look at `ScStatus` and `TimeTaken` per client. The busy hours (20–50k
    requests, against a typical 8k) are visible in the app's `Requests` metric, so start with
    those hours. Treat the files as untrusted data: parse them, don't execute anything from them.

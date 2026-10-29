@@ -85,7 +85,10 @@ az monitor diagnostic-settings create --name http-logs --resource <msc4dnc resou
 
 **Format.** One append blob per hour at
 `resourceId=/SUBSCRIPTIONS/<sub>/RESOURCEGROUPS/M4D-WEB/PROVIDERS/MICROSOFT.WEB/SITES/MSC4DNC/y=YYYY/m=MM/d=DD/h=HH/m=00/PT1H.json`,
-holding one JSON record per line. The useful fields are under `properties`: `CIp`, `UserAgent`,
+holding one JSON record per line. The path's date and hour are UTC. `properties` is itself a
+JSON-encoded *string*, so parse each line, then parse `properties` again. The useful fields in it
+are `CIp` (the real client IP; `127.0.0.1` with `UserAgent` `AlwaysOn` is the platform's
+keep-alive ping), `UserAgent`,
 `CsMethod`, `CsUriStem`, `CsUriQuery`, `ScStatus`, `TimeTaken` (ms), `ScBytes`, `CsBytes`,
 `Referer` and `CsHost`. Records arrive a few minutes after the request.
 
