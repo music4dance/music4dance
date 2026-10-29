@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-03
+**Last verified:** 2026-10-29
 **Code:** `m4d/Configuration/M4dApplicationExtensions.cs` (logging setup),
 `m4d/Services/Diagnostics/` (`GcDiagnostics`, `GcSnapshot`, `DumpResult`),
 `m4d/Controllers/AdminController.cs`, `m4d/Views/Admin/Diagnostics.cshtml`
@@ -44,7 +44,8 @@ az webapp log config --name <app> --resource-group m4d-Web \
 
 **Not in use:**
 - Application Insights isn't connected (there's no `APPLICATIONINSIGHTS_CONNECTION_STRING`).
-- No diagnostic settings route to Log Analytics.
+- No diagnostic settings route to Log Analytics. The only diagnostic setting sends HTTP request
+  logs to storage (next section).
 - An **orphaned** App Insights component `m4d-staging`, and its `DefaultWorkspace-…-WUS` Log
   Analytics workspace (pay-as-you-go, **no daily cap**), still exist in `DefaultResourceGroup-WUS`.
   When App Insights *was* wired in, its uncapped cost scaled with traffic and caused a billing
@@ -52,6 +53,52 @@ az webapp log config --name <app> --resource-group m4d-Web \
 
 Durable or queryable options, and what to do about those resources, are in
 [plans/log-persistence-options](../plans/log-persistence-options.md).
+
+## HTTP request logs
+
+One record per request, written by App Service's front ends, for `msc4dnc` only (since
+2026-10-29). Use them to see who is sending traffic: by client IP, user agent, URL, status and
+response time.
+
+**Why a diagnostic setting.** The App Service "web server logging" switch
+(`httpLogs.fileSystem`) only drives IIS, which writes W3C logs to `/LogFiles/http/RawLogs` on
+Windows plans. A Linux plan has no IIS: requests go from the platform front ends straight to
+Kestrel in the container. The API still accepts the switch, and `az webapp log show` reports it
+enabled, but nothing writes an `http` folder. On Linux the front-end request records are only
+available through the `AppServiceHTTPLogs` category of a diagnostic setting.
+
+**Setup:**
+
+| Piece | Value |
+| --- | --- |
+| Diagnostic setting | `http-logs` on `msc4dnc`, category `AppServiceHTTPLogs` only |
+| Storage account | `m4dlogs` in `m4d-Web`, West US (must match the app's region), Standard LRS, StorageV2, anonymous blob access off |
+| Container | `insights-logs-appservicehttplogs`, created by Azure on first write |
+| Retention | Lifecycle rule `delete-http-logs-after-30-days`: deletes append and block blobs under that container prefix 30 days after last modification. The diagnostic setting's own retention option is retired for storage |
+| Read access | `Storage Blob Data Reader` on the account, used with `--auth-mode login`. Owner alone doesn't grant blob reads that way |
+
+```bash
+az monitor diagnostic-settings create --name http-logs --resource <msc4dnc resource id> \
+  --storage-account <m4dlogs resource id> \
+  --logs '[{"category":"AppServiceHTTPLogs","enabled":true}]'
+```
+
+**Format.** One append blob per hour at
+`resourceId=/SUBSCRIPTIONS/<sub>/RESOURCEGROUPS/M4D-WEB/PROVIDERS/MICROSOFT.WEB/SITES/MSC4DNC/y=YYYY/m=MM/d=DD/h=HH/m=00/PT1H.json`,
+holding one JSON record per line. The useful fields are under `properties`: `CIp`, `UserAgent`,
+`CsMethod`, `CsUriStem`, `CsUriQuery`, `ScStatus`, `TimeTaken` (ms), `ScBytes`, `CsBytes`,
+`Referer` and `CsHost`. Records arrive a few minutes after the request.
+
+**Volume and cost.** About 250k requests a day, a few hundred MB of logs a day; storage costs
+well under $1 a month at 30 days' retention. Log Analytics was considered and rejected for cost.
+
+**Privacy.** Records hold full client IPs, query strings, referrers and a `Cookie` field. Keep
+the account private, read with Entra ID (no account keys or SAS URLs), and keep logs local under
+`local/`, which is gitignored.
+
+The legacy `httpLogs.fileSystem` switch is still on (3 days / 100 MB) but writes nothing. Turn it
+off with `az webapp log config -n msc4dnc -g m4d-Web --web-server-logging off` when convenient.
+Reading the logs is in [runbooks/read-production-logs](../runbooks/read-production-logs.md#http-request-logs).
 
 ## Memory and GC diagnostics
 
@@ -89,6 +136,9 @@ recent dumps. Heap and full dumps are large; delete them after downloading. The 
 - 2026-10-02, #326 (`af5513b8`): `SetLogLevel`, `TestLog` and `ThrowException` require
   `showDiagnostics`; they had been `[AllowAnonymous]`.
 - 2026-10-03: `SetLogLevel` is POST-only with antiforgery, so another site can't trigger it.
+- 2026-10-29: HTTP request logs added: diagnostic setting `http-logs` to storage account
+  `m4dlogs`, with 30-day retention. The filesystem HTTP-log switch, turned on during the OOM
+  investigation, turned out to do nothing on Linux.
 
 ## Related
 

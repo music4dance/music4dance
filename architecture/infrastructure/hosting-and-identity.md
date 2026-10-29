@@ -235,6 +235,14 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
   `az appservice plan update -g m4d-Web -n m4dweb-linux --sku B1`, but only if peak memory on B2
   stays well under about 1.2 GB. The signatures are in
   [runbooks/read-production-logs](../runbooks/read-production-logs.md).
+- 2026-10-29: No OOMs since the move to B2. On base image `.3`, B2 still saw peaks of 1.1–1.6 GB
+  on 10-26. After the platform moved to `dotnetcore:10.0_20261022.4` (10-27) and then
+  `10.0_20261027.8` (10-29), peaks stayed at or below about 920 MB, and the 10-29 process held
+  flat near 500 MB. That points at the `.3` image, though it's a correlation, not proof. A
+  `gcdump` at 14 hours showed about 73 MB of live managed objects and no leak (see
+  [runbooks/capture-memory-diagnostics](../runbooks/capture-memory-diagnostics.md)). HTTP
+  request logs now go to storage, so per-client traffic can be checked next time
+  ([logging-and-diagnostics § HTTP request logs](../observability/logging-and-diagnostics.md#http-request-logs)).
 - 2026-10-01: Consolidated from `SELF_CONTAINED_DEPLOYMENT.md`, `managed-identity-self-contained-plan.md`
   and the architecture sections of `azure-app-service-setup-managed-identity.md`. Stale details
   dropped: legacy pipeline files, `appsettings.SelfContained.json`, and in-app Kestrel port and

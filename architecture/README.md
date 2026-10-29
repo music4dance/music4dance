@@ -107,7 +107,7 @@ procedural, to become a runbook.
 | Doc | Kind | What it covers |
 | --- | --- | --- |
 | [usage-tracking](observability/usage-tracking.md) | Ref | Page-view `UsageLog`: server vs client-side recording, batch endpoint, admin analysis pages, the antiforgery 400 root cause |
-| [logging-and-diagnostics](observability/logging-and-diagnostics.md) | Ref | Where app logs go (filesystem Warning+), orphaned App Insights, GC snapshots, forced GC, memory dumps |
+| [logging-and-diagnostics](observability/logging-and-diagnostics.md) | Ref | Where app logs go (filesystem Warning+), HTTP request logs (storage `m4dlogs`), orphaned App Insights, GC snapshots, forced GC, memory dumps |
 
 ## Development and testing
 
@@ -137,7 +137,7 @@ into `runbooks/` as its area is consolidated.
 | Configure service-failure email alerts | [runbooks/configure-failure-email](runbooks/configure-failure-email.md) |
 | Renew the AutoMapper license key (yearly; emailed 30 days ahead) | [runbooks/renew-automapper-license](runbooks/renew-automapper-license.md) |
 | Refresh the cold-start dance fallback snapshot | [runbooks/refresh-dance-fallback-snapshot](runbooks/refresh-dance-fallback-snapshot.md) |
-| Read production logs | [runbooks/read-production-logs](runbooks/read-production-logs.md) |
+| Read production logs (app logs and HTTP request logs) | [runbooks/read-production-logs](runbooks/read-production-logs.md) |
 | Upload / download files on the App Service (Kudu; FTP is off) | [runbooks/transfer-files-to-app-service](runbooks/transfer-files-to-app-service.md) |
 | Capture memory diagnostics / dumps | [runbooks/capture-memory-diagnostics](runbooks/capture-memory-diagnostics.md) |
 | Analyze usage logs | [runbooks/analyze-usage-logs](runbooks/analyze-usage-logs.md) |

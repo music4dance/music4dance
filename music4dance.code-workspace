@@ -52,7 +52,10 @@
       "activityBarTop.inactiveForeground": "#e7e7e799",
       "commandCenter.foreground": "#e7e7e7",
       "statusBar.debuggingBackground": "#1857a4",
-      "statusBar.debuggingForeground": "#e7e7e7"
+      "statusBar.debuggingForeground": "#e7e7e7",
+      "activityBar.activeBorder": "#e7e7e7",
+      "activityBarTop.activeBorder": "#e7e7e7",
+      "statusBar.inactiveBackground": "#1857a4",
     },
     "peacock.color": "#1857a4",
     "chat.tools.terminal.autoApprove": {
@@ -125,10 +128,7 @@
         "label": "Server: Build (Unlocked)",
         "type": "shell",
         "command": "dotnet",
-        "args": [
-          "build",
-          "-p:UnlockedBuildOutput=true",
-        ],
+        "args": ["build", "-p:UnlockedBuildOutput=true"],
         "detail": "Builds to the top-level local/build-out/<project> instead of each project's own bin, for use while the dev server holds bin/*.dll locked. See Directory.Build.props for why the path redirect lives there instead of a -p:BaseOutputPath=... override on this command line, and why it must stay outside every project's own directory.",
         "group": "build",
         "presentation": {

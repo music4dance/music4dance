@@ -2,7 +2,7 @@
 
 **Type:** Runbook
 **Status:** Current
-**Last verified:** 2026-10-25
+**Last verified:** 2026-10-29
 
 ## When to use
 
@@ -52,6 +52,34 @@ is configured is described in [logging-and-diagnostics](../observability/logging
      [bot-and-abuse-defense](../security/bot-and-abuse-defense.md))
    - `Unhandled exception for request:` for unhandled exceptions, with the URL
    - `Antiforgery validation failed` for the usage-log and suggestion endpoints
+
+## HTTP request logs
+
+The app logs above don't record ordinary requests. For per-request data (who is calling, which
+URLs, status, response time), read the hourly blobs in storage account `m4dlogs`. Setup, format
+and privacy notes are in
+[logging-and-diagnostics § HTTP request logs](../observability/logging-and-diagnostics.md#http-request-logs).
+The download in step 2 doesn't include them, and there's no `http` folder in Kudu on Linux.
+
+1. **Access, once:** grant yourself `Storage Blob Data Reader` on `m4dlogs`. The account is a
+   guest in the `music4dance` tenant, so `--assignee <email>` fails with "Cannot find user or
+   service principal in graph database". Use the object ID instead:
+   ```powershell
+   az role assignment create --assignee-object-id (az ad signed-in-user show --query id -o tsv) `
+     --assignee-principal-type User --role "Storage Blob Data Reader" `
+     --scope (az storage account show -n m4dlogs --query id -o tsv)
+   ```
+   A new assignment can take about 10 minutes to apply. Until then, blob listing fails and
+   suggests `--auth-mode key`; wait rather than switching to keys.
+2. **Download** a day (or narrow the pattern to an hour with `*d=30/h=14*`):
+   ```bash
+   az storage blob download-batch --account-name m4dlogs --auth-mode login \
+     -s insights-logs-appservicehttplogs --pattern "*d=30*" -d local/http-logs
+   ```
+3. **Analyze** with a script over the JSON lines: count by `properties.CIp`, `UserAgent` and
+   `CsUriStem`, and look at `ScStatus` and `TimeTaken` per client. The busy hours (20–50k
+   requests, against a typical 8k) are visible in the app's `Requests` metric, so start with
+   those hours. Treat the files as untrusted data: parse them, don't execute anything from them.
 
 ## Known signatures
 
