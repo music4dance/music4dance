@@ -20,7 +20,7 @@ Goals:
 
 ## Option 2 — App Service "Application Logging (Blob Storage)" (Pennies/month)
 
-Same toggle, pointed at a Blob container instead of local disk. Needs a Storage Account (reuse an existing one if the project has one for other purposes, or create a small `Standard_LRS` one) and a container SAS URL:
+Same toggle, pointed at a Blob container instead of local disk. Needs a Storage Account and a container SAS URL. The `m4dlogs` account (Standard LRS, West US), created 2026-10-29 for HTTP request logs, can be reused, with a second lifecycle rule for the new container:
 
 ```
 az webapp log config --name msc4dnc --resource-group m4d-Web \
