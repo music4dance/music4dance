@@ -151,6 +151,7 @@ go in user secrets.
 | `CrawlerThrottle:MaxRequestsPerMinute` | same | Per request | `20` | `20` |
 | `CrawlerThrottle:ExemptFragments` (`;`-separated) | same | Per request | Google's crawlers, `bingbot`, `applebot`, `duckduckbot` | same list |
 | `CrawlerThrottle:PathPrefixes` (`;`-separated) | same | Per request | `/song;/customsearch;/dances` | same |
+| `CrawlerThrottle:AgentLimits` (`;`-separated `fragment` or `fragment=limit`) | same | Per request | `reflectionbot=3;barkrowler;meta-externalagent;meta-webindexer` | same |
 | `Configuration:Commerce:Enabled` | `CommerceController.IsCommerceEnabled` | Per request | `true` | (unset; sandbox `false`) |
 | `Configuration:Commerce:FailLimit` | `CommerceController.GetCardFailLimit` | Per request | `5` | (unset) |
 | `Configuration:Marketing` (`Enabled`, `Banner`, `Notice`, `Start`, `End`, `Product:Name`/`Link`/`Password`) | `GlobalState.SetMarketing` → `MarketingInfo` | At registration and on every configuration reload | Missing: no marketing banner/notice | (unset) |

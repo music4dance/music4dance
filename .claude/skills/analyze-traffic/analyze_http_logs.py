@@ -488,13 +488,16 @@ def main():
 
 
 def throttle_replay(rows, groups, args):
-    """Mirror CrawlerThrottleMiddleware: per lower-cased user agent that SpiderManager.IsSpider
-    accepts and no exempt fragment matches, a window opens on the first request and lasts one
-    minute; requests past the limit in a window get 429. Signed-in requests aren't counted."""
+    """Mirror CrawlerThrottleMiddleware and CrawlerThrottleOptions.LimitFor: per lower-cased
+    user agent that no exempt fragment matches and that either matches an AgentLimits entry
+    or SpiderManager.IsSpider accepts, a window opens on the first request and lasts one
+    minute; requests past the agent's limit in a window get 429. Signed-in requests aren't
+    counted."""
     cfg = {"Enabled": True, "MaxRequestsPerMinute": 20,
            "ExemptFragments": "googlebot;google-inspectiontool;adsbot-google;mediapartners-google;"
                               "storebot-google;bingbot;applebot;duckduckbot",
-           "PathPrefixes": "/song;/customsearch;/dances"}
+           "PathPrefixes": "/song;/customsearch;/dances",
+           "AgentLimits": "reflectionbot=3;barkrowler;meta-externalagent;meta-webindexer"}
     try:
         cfg.update(json.loads(Path(args.settings).read_text(encoding="utf-8-sig")).get("CrawlerThrottle", {}))
     except (OSError, ValueError):
@@ -507,8 +510,21 @@ def throttle_replay(rows, groups, args):
     exempt, prefixes = split(cfg["ExemptFragments"]), split(cfg["PathPrefixes"])
     fragments, tokens = split(args.bot_fragments), split(args.bot_tokens)
 
+    agent_limits = []
+    for entry in split(cfg.get("AgentLimits")):
+        frag, _, n = entry.partition("=")
+        agent_limits.append((frag.strip(), int(n) if n.strip().isdigit() else None))
+
     def is_spider(agent):
         return not agent.strip() or any(f in agent for f in fragments) or agent in tokens
+
+    def limit_for(agent):
+        if any(f in agent for f in exempt):
+            return None
+        for frag, n in agent_limits:
+            if frag in agent:
+                return n or limit
+        return limit if is_spider(agent) else None
 
     windows = {}
     counted, throttled, by_fam, by_fam_counted = 0, 0, Counter(), Counter()
@@ -518,11 +534,10 @@ def throttle_replay(rows, groups, args):
         if r[AUTH] or not any(path == p or path.startswith(p + "/") for p in prefixes):
             continue
         agent = r[UA].lower()
-        if not is_spider(agent):
-            if g not in ("human", "nojs"):
+        agent_limit = limit_for(agent)
+        if agent_limit is None:
+            if not is_spider(agent) and g not in ("human", "nojs", "headless", "search"):
                 escaped[fam] += 1
-            continue
-        if any(f in agent for f in exempt):
             continue
         counted += 1
         by_fam_counted[fam] += 1
@@ -531,11 +546,13 @@ def throttle_replay(rows, groups, args):
         if w is None or t >= w[0] + timedelta(minutes=1):
             w = windows[agent] = [t, 0]
         w[1] += 1
-        if w[1] > limit:
+        if w[1] > agent_limit:
             throttled += 1
             by_fam[fam] += 1
 
-    heading(f"CrawlerThrottle replay ({limit}/min on {', '.join(prefixes)})")
+    overrides = ", ".join(f"{f} {n or limit}" for f, n in agent_limits)
+    heading(f"CrawlerThrottle replay ({limit}/min on {', '.join(prefixes)}"
+            + (f"; per agent: {overrides}" if overrides else "") + ")")
     print(f"- Counted requests: {counted:,}; would get 429: {throttled:,} ({pct(throttled, counted).strip()})")
     print("- Real crawlers slow down after 429s, so this overstates the 429 count and "
           "understates the saving in later hours.\n")

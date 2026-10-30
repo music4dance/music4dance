@@ -82,12 +82,16 @@ everyone else, counted as people.
   with 429: DotBot 5,766, Exa 629, ElevenLabs 44. It wouldn't touch Reflectionbot, the largest
   consumer, which averages about 5 pages a minute under one user agent. Agents that `IsSpider`
   doesn't recognize, and so aren't throttled: `DmxMusic/1.0`, the headless Chrome farms,
-  Barkrowler (166) and `meta-externalagent` (38). Adding `crawler` to `BotFilter:ExcludeFragments`
-  would catch the last two, and also send them the bot stub.
-- **Not yet covered by robots.txt:** `/searches` (580 requests, 494 from SEO tools).
-- **The SQL-injection probes** (`' UNION ALL SELECT …` on `/customsearch?name=` and
-  `/song/playlist?id=`, 6 IPs) show no sign of succeeding, but each one throws a 500 instead of
-  returning a 4xx.
+  Barkrowler (166) and Meta's AI crawlers (`meta-externalagent`, `meta-webindexer`; 38).
+  **Done:** AI crawlers stay allowed but throttled. `CrawlerThrottle:AgentLimits` gives
+  Reflectionbot 3 a minute (a cap of about 4,300 pages a day, down from 7,700) and throttles
+  Barkrowler and the Meta crawlers at the default without sending them the bot stub. With it,
+  the replay sends 11,166 of 33,095 counted requests a 429, 4,659 of them to Reflectionbot.
+- **Done:** robots.txt now disallows `/searches` (580 requests, 494 from SEO tools; it needs
+  sign-in, so they only got a redirect to the login page).
+- **Done:** the SQL-injection probes (`' UNION ALL SELECT …` on `/customsearch?name=` and
+  `/song/playlist?id=`, 6 IPs) showed no sign of succeeding, but each one threw a 500. Unknown
+  custom-search names and non-base62 playlist ids now get a 404.
 
 ### 1.2 What a public page costs
 
@@ -450,7 +454,7 @@ reference doc describes its piece:
 | A3 | No antiforgery token in anonymous HTML; `GET /api/antiforgery/token` plus `AntiforgeryToken.ts`. The anonymous cache-control branch sends `no-cache`, not `public` (see below). | [frontend-architecture](../pages/frontend-architecture.md#menucontext-per-request-user-and-site-state) |
 | A4 | `robots.txt` disallows search permutations and `/api/`; `/sitemap.xml` (80 site-map pages); the `/song` bot stub is `noindex, follow`. | [bot-and-abuse-defense](../security/bot-and-abuse-defense.md), [blog-help-sitemap](../pages/blog-help-sitemap.md) |
 | A5 | `defer` on cookie consent; `display=swap` and preconnects for Google Fonts. | [frontend-architecture](../pages/frontend-architecture.md) |
-| A6 | `CrawlerThrottleMiddleware`: 20 requests/minute per crawler on catalog paths, search engines exempt, shown on `/Admin/Diagnostics`. | [bot-and-abuse-defense](../security/bot-and-abuse-defense.md) |
+| A6 | `CrawlerThrottleMiddleware`: 20 requests/minute per crawler on catalog paths, search engines exempt, shown on `/Admin/Diagnostics`. `AgentLimits` adds crawlers BotFilter misses and per-agent limits (Reflectionbot 3/minute). | [bot-and-abuse-defense](../security/bot-and-abuse-defense.md) |
 | A7 | `FindByField` capped at 1,000 results, plus an exact-match album filter. The cause was unbounded SDK paging: `÷ (Deluxe)` matched 4,259 songs. | [artist-pages](../songs/artist-pages.md) |
 
 Learned along the way, and needed before Phase 2:
@@ -535,6 +539,9 @@ Not recommended: **G** (cost, and no real-user benefit) and **H** (a rewrite).
    may send dancers its way. This is a business decision, not a technical one. In the full-day
    sample, AI crawlers took 32% of server time (Reflectionbot alone 22%), and 7 people arrived
    from search engines other than Google, none from an AI assistant.
+   **Decided 2026-10-30: allow, and throttle.** The owner sees human traffic that starts from AI
+   answers (it doesn't show up as an AI referrer, since assistants rarely send one), so AI
+   crawlers stay open; the heavy ones get a per-agent limit in `CrawlerThrottle:AgentLimits`.
 2. **Search Console data:** which URL groups fail Core Web Vitals, and on which metric? Are a
    large share of song pages "Crawled, currently not indexed"? The answer could move Phase 3
    ahead of Phase 2, or push it back.

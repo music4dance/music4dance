@@ -7,9 +7,10 @@ namespace m4d.Middleware;
 
 /// <summary>
 /// Caps how fast any one crawler user agent can request catalog pages. A crawler (as
-/// SpiderManager classifies it) that goes over CrawlerThrottle:MaxRequestsPerMinute on the
-/// configured paths gets a 429 with Retry-After until its one-minute window ends. Well-behaved
-/// crawlers slow down on a 429; others just stop costing a page render.
+/// SpiderManager classifies it, plus anything in CrawlerThrottle:AgentLimits) that goes over
+/// its limit on the configured paths gets a 429 with Retry-After until its one-minute window
+/// ends. The limit is CrawlerThrottle:MaxRequestsPerMinute unless AgentLimits gives the agent
+/// its own. Well-behaved crawlers slow down on a 429; others just stop costing a page render.
 ///
 /// The major search engines (CrawlerThrottle:ExemptFragments) and signed-in users are never
 /// throttled. Counting is per user agent, not per IP, because crawler fleets spread across
@@ -40,10 +41,10 @@ public class CrawlerThrottleMiddleware(
         if (options.Enabled && ShouldCount(context, options))
         {
             var agent = context.Request.Headers.UserAgent.ToString().ToLowerInvariant();
-            if (SpiderManager.IsSpider(agent, configuration) &&
-                !options.ExemptFragmentList.Any(agent.Contains))
+            var limit = options.LimitFor(agent, SpiderManager.IsSpider(agent, configuration));
+            if (limit != null)
             {
-                var retryAfter = Count(agent, options.MaxRequestsPerMinute);
+                var retryAfter = Count(agent, limit.Value);
                 if (retryAfter > 0)
                 {
                     tracker.RecordThrottled(agent);

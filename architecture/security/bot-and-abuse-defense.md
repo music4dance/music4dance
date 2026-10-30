@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-29
+**Last verified:** 2026-10-30
 **Code:** `m4d/Middleware/RateLimitingMiddleware.cs`, `m4d/Middleware/Http4xxTrackingMiddleware.cs`,
 `m4d/Middleware/CrawlerThrottleMiddleware.cs`,
 `m4d/Security/` (`AuthenticationTracker`, `RateLimitingTracker`, `Http4xxTracker`, `CrawlerThrottle`),
@@ -94,13 +94,20 @@ All three consult `SpiderManager`, but check different lists and produce differe
    (Google's crawlers, bingbot, applebot, duckduckbot). It counts per user agent, not per IP,
    because crawler fleets spread across addresses. A client that rotates user agents, or
    claims to be Googlebot, gets past it: this caps honest-but-greedy crawlers, it isn't a
-   defense. AI crawlers aren't treated specially; whether to throttle or block them harder is
-   an open question in [plans/bot-load-and-public-page-rendering](../plans/bot-load-and-public-page-rendering.md).
+   defense. AI crawlers are allowed (they send people to the site) but throttled like any other
+   crawler. `AgentLimits` (`fragment` or `fragment=limit`, `;`-separated) adds crawlers the
+   BotFilter lists miss, without sending them the bot stub, and gives an agent its own limit:
+   `reflectionbot=3` (it crawls a steady 5–6 pages a minute, under the default, and rendered
+   22% of server time in the 2026-10-30 full-day sample), plus `barkrowler`,
+   `meta-externalagent` and `meta-webindexer` at the default. Exempt fragments still win.
+   Link previews (`facebookexternalhit`) and user-triggered fetchers (`ChatGPT-User`,
+   `Claude-User`, `meta-externalfetcher`) aren't throttled.
    Settings are the `CrawlerThrottle` section (`Enabled`, `MaxRequestsPerMinute` = 20,
-   `ExemptFragments`, `PathPrefixes`), read per request so an App Configuration change applies
-   without a restart. `CrawlerThrottleTracker` keeps 429 counts per agent (at most 500 agents)
-   for the dashboard. In the 2026-10-29 sample, 20 a minute would have caught only DotBot,
-   which averaged about 24.
+   `ExemptFragments`, `PathPrefixes`, `AgentLimits`), read per request so an App Configuration
+   change applies without a restart. `CrawlerThrottleTracker` keeps 429 counts per agent (at
+   most 500 agents) for the dashboard. Replayed over the full day, the throttle would have
+   answered about a third of counted crawler requests with 429: mostly DotBot, Reflectionbot
+   and Exa. The `analyze-traffic` skill reruns that replay.
 
 ## Layer 2: Identity endpoint protection
 

@@ -17,15 +17,25 @@ public class CrawlerThrottleMiddlewareTests
     private const string GoogleBot = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
     private const string Browser = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130.0";
 
-    private static IConfiguration Config(int limit = 3, bool enabled = true) =>
-        new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string>
-            {
-                { "Configuration:BotFilter:ExcludeFragments", "spider;bot" },
-                { "CrawlerThrottle:Enabled", enabled.ToString() },
-                { "CrawlerThrottle:MaxRequestsPerMinute", limit.ToString() },
-            }!)
-            .Build();
+    private const string Reflectionbot =
+        "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Reflectionbot/1.0; +https://reflection.ai/bot) Chrome/151.0.0.0 Safari/537.36";
+    private const string MetaAgent =
+        "meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)";
+
+    private static IConfiguration Config(int limit = 3, bool enabled = true, string agentLimits = "")
+    {
+        var values = new Dictionary<string, string>
+        {
+            { "Configuration:BotFilter:ExcludeFragments", "spider;bot" },
+            { "CrawlerThrottle:Enabled", enabled.ToString() },
+            { "CrawlerThrottle:MaxRequestsPerMinute", limit.ToString() },
+        };
+        if (agentLimits.Length > 0)
+        {
+            values["CrawlerThrottle:AgentLimits"] = agentLimits;
+        }
+        return new ConfigurationBuilder().AddInMemoryCollection(values!).Build();
+    }
 
     private sealed class Harness
     {
@@ -161,6 +171,56 @@ public class CrawlerThrottleMiddlewareTests
         var other = await SendAsync(harness, "PetalBot");
 
         Assert.AreEqual(200, other.Response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task AgentLimit_LowersTheLimitForThatAgent()
+    {
+        var harness = new Harness(Config(limit: 20, agentLimits: "reflectionbot=2"));
+
+        await SendAsync(harness, Reflectionbot);
+        await SendAsync(harness, Reflectionbot);
+        var third = await SendAsync(harness, Reflectionbot);
+        var other = await SendAsync(harness, DotBot);
+
+        Assert.AreEqual(429, third.Response.StatusCode);
+        Assert.AreEqual(200, other.Response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task AgentLimit_ThrottlesAnAgentTheBotFilterDoesNotRecognize()
+    {
+        var harness = new Harness(Config(limit: 1, agentLimits: "meta-externalagent"));
+
+        await SendAsync(harness, MetaAgent);
+        var second = await SendAsync(harness, MetaAgent);
+
+        Assert.AreEqual(429, second.Response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task AgentLimit_WithoutANumber_UsesMaxRequestsPerMinute()
+    {
+        var harness = new Harness(Config(limit: 2, agentLimits: "meta-externalagent;reflectionbot=oops"));
+
+        await SendAsync(harness, Reflectionbot);
+        await SendAsync(harness, Reflectionbot);
+        var third = await SendAsync(harness, Reflectionbot);
+
+        Assert.AreEqual(429, third.Response.StatusCode);
+        Assert.AreEqual(2, harness.NextCalls);
+    }
+
+    [TestMethod]
+    public async Task ExemptFragment_WinsOverAgentLimit()
+    {
+        var harness = new Harness(Config(limit: 1, agentLimits: "googlebot=1"));
+
+        for (var i = 0; i < 3; i++)
+        {
+            await SendAsync(harness, GoogleBot);
+        }
+        Assert.AreEqual(3, harness.NextCalls);
     }
 
     [TestMethod]

@@ -24,8 +24,50 @@ public class CrawlerThrottleOptions
     /// <summary>';'-separated path prefixes the throttle applies to: the catalog pages.</summary>
     public string PathPrefixes { get; set; } = "/song;/customsearch;/dances";
 
+    /// <summary>
+    /// ';'-separated <c>fragment</c> or <c>fragment=limit</c> entries for crawlers that get
+    /// their own treatment. A matching user agent is throttled even when the BotFilter lists
+    /// don't count it as a crawler (so it still gets the real page, not the bot stub), at its
+    /// own per-minute limit if one is given and MaxRequestsPerMinute otherwise. Exempt
+    /// fragments still win. Reflectionbot crawls steadily at 5-6 pages a minute, under the
+    /// default limit, so it needs a lower one to be slowed at all; Barkrowler and
+    /// Meta's AI crawlers (meta-externalagent, meta-webindexer) don't say "bot" or "spider" in their
+    /// user agents. Meta's link previews (facebookexternalhit) and user-triggered fetchers
+    /// (meta-externalfetcher, ChatGPT-User, Claude-User) are left alone.
+    /// </summary>
+    public string AgentLimits { get; set; } = "reflectionbot=3;barkrowler;meta-externalagent;meta-webindexer";
+
     public IReadOnlyList<string> ExemptFragmentList => ListFromString(ExemptFragments);
     public IReadOnlyList<string> PathPrefixList => ListFromString(PathPrefixes);
+
+    public IReadOnlyList<(string Fragment, int? Limit)> AgentLimitList =>
+        [.. ListFromString(AgentLimits).Select(entry =>
+        {
+            var parts = entry.Split('=', 2, StringSplitOptions.TrimEntries);
+            return (parts[0], parts.Length == 2 && int.TryParse(parts[1], out var limit)
+                ? limit
+                : (int?)null);
+        })];
+
+    /// <summary>
+    /// The per-minute limit for a lower-cased user agent, or null when it isn't throttled.
+    /// <paramref name="isSpider"/> is SpiderManager.IsSpider for the agent.
+    /// </summary>
+    public int? LimitFor(string agent, bool isSpider)
+    {
+        if (ExemptFragmentList.Any(agent.Contains))
+        {
+            return null;
+        }
+
+        var match = AgentLimitList.FirstOrDefault(a => agent.Contains(a.Fragment));
+        if (match.Fragment != null)
+        {
+            return match.Limit ?? MaxRequestsPerMinute;
+        }
+
+        return isSpider ? MaxRequestsPerMinute : null;
+    }
 
     public static CrawlerThrottleOptions FromConfiguration(IConfiguration configuration)
     {
