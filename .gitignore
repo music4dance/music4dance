@@ -276,3 +276,6 @@ paket-files/
 
 **/.VSCodeCounter/**
 
+
+# Python bytecode (skill scripts imported by probe scripts)
+__pycache__/
