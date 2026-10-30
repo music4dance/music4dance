@@ -2,7 +2,7 @@
 
 **Type:** Plan
 **Status:** Partially implemented: Phase 1 (A1–A7) shipped 2026-10-29 on branch `bot-load-quick-wins`, not yet deployed; Phases 0, 2 and 3 not started
-**Last verified:** 2026-10-29
+**Last verified:** 2026-10-30
 **Code:** `m4d/Views/Shared/Vue3.cshtml`, `m4d/Views/Shared/_head.cshtml`, `m4d/Views/Shared/_vue-Layout.cshtml`,
 `m4d/Configuration/M4dApplicationExtensions.cs` (cache-control middleware), `m4d/Utilities/SpiderManager.cs`,
 `m4d/Controllers/SongController.cs`, `m4d/ClientApp/vite.config.ts`
@@ -55,6 +55,39 @@ indication until a full day is analyzed (Phase 0).
   Bots are most of the traffic, but this sample doesn't show them overwhelming a core. The
   October out-of-memory restarts correlated with a platform base image, not with traffic. The
   memory angle is in section 1.3.
+
+#### Full-day sample (2026-10-29/30)
+
+24 hours, 2026-10-29 21:50 to 2026-10-30 21:48 UTC, before any of Phase 1 was deployed:
+199,385 requests, 51,420 of them pages, 7.7 GB out and 54 minutes of summed server time.
+Produced by the `analyze-traffic` skill (`.claude/skills/analyze-traffic/`), which also separates
+browser user agents by behavior: clients that never ran the page's JS, clients with a headless
+pattern (ran JS but fetched no page themselves, or one page with no referrer and no cookie), and
+everyone else, counted as people.
+
+| Group | Pages | Bytes out | Server time | Biggest members |
+| --- | ---: | ---: | ---: | --- |
+| SEO tools | 28.0% | 6.0% | 3.8% | DotBot: 14,215 pages from one IP, 5,260 of them `/song/sort` |
+| Search engines | 27.7% | 26.8% | 22.8% | Applebot 5,229 pages (genuine, 3,146 Apple IPs), PetalBot 5,789, Bingbot 2,058, Googlebot 840 |
+| AI crawlers | 25.4% | 35.3% | 32.0% | Reflectionbot 7,726 pages **plus 59,724 asset requests** (it renders, from 97 ReflectionAI IPs; 22% of server time alone), Exa 3,974, ElevenLabs 746, Bytespider 231 |
+| Browser UA, never ran JS | 7.5% | 9.7% | 14.7% | Spread over 1,591 IPs; includes 551 SQL-injection probes that got a 500 |
+| Browser UA, headless pattern | 2.5% | 8.3% | 13.6% | 254 IPs in one Ace Data Centers /24 presenting as Linux Chrome 145 (42k requests), rotating Chrome 148–150 from Shanghai and Huawei Cloud ranges |
+| Scripts | 3.3% | 5.8% | 3.3% | `DmxMusic/1.0` (1,575 `/song/filtersearch` pages, from a consumer VPN) |
+| **People** | **2.4%** | **5.4%** | **8.9%** | 577 clients, 1,230 page views; 160 arrived from Google, 7 from other search engines |
+
+- **The 22-minute window was representative.** Automation is about 97% of page requests and 91%
+  of server time over the full day too.
+- **`/song/album` is 37% of server time** (p50 27 ms, p95 147 ms, max 49.9 s). A7 targets this.
+- **The A6 throttle, replayed over the day,** would have answered 6,440 of 32,804 counted requests
+  with 429: DotBot 5,766, Exa 629, ElevenLabs 44. It wouldn't touch Reflectionbot, the largest
+  consumer, which averages about 5 pages a minute under one user agent. Agents that `IsSpider`
+  doesn't recognize, and so aren't throttled: `DmxMusic/1.0`, the headless Chrome farms,
+  Barkrowler (166) and `meta-externalagent` (38). Adding `crawler` to `BotFilter:ExcludeFragments`
+  would catch the last two, and also send them the bot stub.
+- **Not yet covered by robots.txt:** `/searches` (580 requests, 494 from SEO tools).
+- **The SQL-injection probes** (`' UNION ALL SELECT …` on `/customsearch?name=` and
+  `/song/playlist?id=`, 6 IPs) show no sign of succeeding, but each one throws a 500 instead of
+  returning a 4xx.
 
 ### 1.2 What a public page costs
 
@@ -380,7 +413,8 @@ isn't ready yet.
 
 - Analyze **a full day** (ideally a weekday and a weekend day) of HTTP logs with the same
   classification as section 1.1. Record the baseline: bot share of requests, bytes and time;
-  top crawlers; top page types.
+  top crawlers; top page types. **Weekday done 2026-10-30** (section 1.1, "Full-day sample");
+  rerun with the `analyze-traffic` skill for a weekend day and after Phase 1 deploys.
 - Pull **Search Console**: the Core Web Vitals report (which URL groups fail, and on which
   metric), the Page indexing reasons, and Crawl stats (requests per day, average response size
   and time). This answers "what does Google dislike" before Phase 3 commits to a direction.
@@ -498,7 +532,9 @@ Not recommended: **G** (cost, and no real-user benefit) and **H** (a rewrite).
 
 1. **AI crawlers:** allow, throttle or block GPTBot, ClaudeBot, PerplexityBot, Exa, ElevenLabs,
    Reflection and the rest? Blocking them cuts load, but removes the site from AI answers that
-   may send dancers its way. This is a business decision, not a technical one.
+   may send dancers its way. This is a business decision, not a technical one. In the full-day
+   sample, AI crawlers took 32% of server time (Reflectionbot alone 22%), and 7 people arrived
+   from search engines other than Google, none from an AI assistant.
 2. **Search Console data:** which URL groups fail Core Web Vitals, and on which metric? Are a
    large share of song pages "Crawled, currently not indexed"? The answer could move Phase 3
    ahead of Phase 2, or push it back.
