@@ -588,6 +588,13 @@ public static class M4dApplicationExtensions
         var useVite = configuration.UseVite();
         var serviceHealth = app.Services.GetRequiredService<ServiceHealthManager>();
 
+        // Hot reload (dotnet watch, VS) loads BrowserRefreshMiddleware as a hosting startup
+        // assembly; it injects its script into HTML and can't once the body is compressed, so it
+        // logs a warning on every page. Leave compression off while it's attached.
+        var compressResponses = !(isDevelopment &&
+            (Environment.GetEnvironmentVariable("ASPNETCORE_HOSTINGSTARTUPASSEMBLIES") ?? "")
+                .Contains("BrowserRefresh", StringComparison.OrdinalIgnoreCase));
+
         // Set ApplicationLogging.LoggerFactory early so static loggers in services can initialize
         ApplicationLogging.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
 
@@ -732,7 +739,10 @@ public static class M4dApplicationExtensions
         // once forwarded headers have run) it compresses only requests that
         // AnonymousCompressionMiddleware opts in; responses that already carry Content-Encoding
         // (precompressed static assets) pass through untouched.
-        app.UseResponseCompression();
+        if (compressResponses)
+        {
+            app.UseResponseCompression();
+        }
 
         // wwwroot/AppData holds admin backups (with password hashes) and runtime caches; never
         // serve it as static content.
@@ -787,7 +797,10 @@ public static class M4dApplicationExtensions
         app.UseAuthentication();
 
         // Compress anonymous responses only; needs context.User from UseAuthentication().
-        app.UseMiddleware<m4d.Middleware.AnonymousCompressionMiddleware>();
+        if (compressResponses)
+        {
+            app.UseMiddleware<m4d.Middleware.AnonymousCompressionMiddleware>();
+        }
 
         // Rate limiting middleware: Protect Identity endpoints from bot attacks
         app.UseMiddleware<m4d.Middleware.RateLimitingMiddleware>();

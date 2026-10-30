@@ -10,12 +10,12 @@ namespace m4d.Middleware;
 ///
 /// Authenticated pages stay uncompressed because compressing a secret alongside reflected
 /// input over TLS is the BREACH attack surface. Anonymous pages are where the bandwidth goes
-/// (crawlers and first-time visitors), and the only secret they carry is the antiforgery
-/// request token, which is re-encrypted with a fresh IV on every response. See
-/// architecture/plans/bot-load-and-public-page-rendering.md (A1).
+/// (crawlers and first-time visitors), and they carry no secret: the antiforgery token is
+/// fetched separately (A3). See architecture/plans/bot-load-and-public-page-rendering.md (A1).
 ///
 /// Must run after UseAuthentication(), so context.User is populated, and inside
-/// UseResponseCompression(), so the feature is present.
+/// UseResponseCompression(), so the feature is present. Neither is registered while hot
+/// reload's BrowserRefreshMiddleware is attached in Development (see UseM4dPipeline).
 /// </summary>
 public class AnonymousCompressionMiddleware(RequestDelegate next)
 {
