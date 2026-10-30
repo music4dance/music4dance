@@ -511,6 +511,7 @@ public static class M4dApplicationExtensions
         services.AddSingleton<m4d.Security.AuthenticationTracker>();
         services.AddSingleton<m4d.Security.RateLimitingTracker>();
         services.AddSingleton<m4d.Security.Http4xxTracker>();
+        services.AddSingleton<m4d.Security.CrawlerThrottleTracker>();
 
         // The snapshot is persisted beside dance-environment.json so a restart doesn't cost the
         // first visitor a full streaming pass. Gated on ConfigureSearch, like the dance stats file
@@ -790,6 +791,10 @@ public static class M4dApplicationExtensions
 
         // Rate limiting middleware: Protect Identity endpoints from bot attacks
         app.UseMiddleware<m4d.Middleware.RateLimitingMiddleware>();
+
+        // Crawler throttle: caps each crawler user agent on catalog pages (429 + Retry-After).
+        // Search engines and signed-in users are exempt; needs context.User.
+        app.UseMiddleware<m4d.Middleware.CrawlerThrottleMiddleware>();
 
         // Cache control middleware: Allow Azure Front Door to cache anonymous pages with careful exclusions
         // This relies on context.User being populated by UseAuthentication() above

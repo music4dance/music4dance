@@ -2,9 +2,10 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01
+**Last verified:** 2026-10-29
 **Code:** `m4d/Middleware/RateLimitingMiddleware.cs`, `m4d/Middleware/Http4xxTrackingMiddleware.cs`,
-`m4d/Security/` (`AuthenticationTracker`, `RateLimitingTracker`, `Http4xxTracker`),
+`m4d/Middleware/CrawlerThrottleMiddleware.cs`,
+`m4d/Security/` (`AuthenticationTracker`, `RateLimitingTracker`, `Http4xxTracker`, `CrawlerThrottle`),
 `m4d/Utilities/SpiderManager.cs`, `m4d/Utilities/GlobalState.cs`, `m4d/Views/Admin/Diagnostics.cshtml`
 
 How music4dance handles crawlers, scrapers, credential stuffing and scanner noise. The four layers
@@ -14,7 +15,7 @@ report to **`/Admin/Diagnostics`**.
 
 | Layer | Threat | Scope | Response |
 | --- | --- | --- | --- |
-| 1. Catalog bot short-circuit | Crawler load on SQL/Search-backed catalog pages | `/song/*`, `/customsearch/*`, usage logging | Static stub, block page, or no usage row |
+| 1. Catalog bot short-circuit and throttle | Crawler load on SQL/Search-backed catalog pages | `/song/*`, `/customsearch/*`, `/dances/*`, usage logging | Static stub, block page, `429` past a per-crawler rate, or no usage row |
 | 2. Identity endpoint protection | Brute force, credential stuffing, distributed login attacks | `/identity/*` | Rate limits (429), random delay, CAPTCHA escalation, lockout |
 | 3. Crawler short-circuit on identity pages | Link-preview crawlers stuck in login-redirect loops | `GET /identity/*` | Clean `200` "login required" page |
 | 4. 4xx-by-URL tracking | Broken links, internal bugs, scanner noise | Every request | Admin table + CSV export, known-attack classification |
@@ -82,6 +83,24 @@ All three consult `SpiderManager`, but check different lists and produce differe
    `DanceMusicController.OnActionExecutionAsync` (see [usage-tracking](../observability/usage-tracking.md#two-recording-paths)) calls
    `CheckAnySpiders` to skip writing a `UsageLog` row for bot traffic, independent of whether the
    request is otherwise short-circuited.
+
+4. **Per-crawler throttle.** `CrawlerThrottleMiddleware` runs after `RateLimitingMiddleware`. A
+   crawler (classified by `SpiderManager.IsSpider`, which uses the same lists as
+   `CheckAnySpiders` but doesn't add to the bot report) gets a `429` with `Retry-After` and
+   `no-store` once its user agent passes `MaxRequestsPerMinute` in a fixed one-minute window
+   (an `IMemoryCache` entry per lower-cased user agent). It counts only on `PathPrefixes`
+   (default `/song`, `/customsearch`, `/dances`), so assets, `robots.txt` and `sitemap.xml`
+   are never throttled. It skips signed-in users and anything matching `ExemptFragments`
+   (Google's crawlers, bingbot, applebot, duckduckbot). It counts per user agent, not per IP,
+   because crawler fleets spread across addresses. A client that rotates user agents, or
+   claims to be Googlebot, gets past it: this caps honest-but-greedy crawlers, it isn't a
+   defense. AI crawlers aren't treated specially; whether to throttle or block them harder is
+   an open question in [plans/bot-load-and-public-page-rendering](../plans/bot-load-and-public-page-rendering.md).
+   Settings are the `CrawlerThrottle` section (`Enabled`, `MaxRequestsPerMinute` = 20,
+   `ExemptFragments`, `PathPrefixes`), read per request so an App Configuration change applies
+   without a restart. `CrawlerThrottleTracker` keeps 429 counts per agent (at most 500 agents)
+   for the dashboard. In the 2026-10-29 sample, 20 a minute would have caught only DotBot,
+   which averaged about 24.
 
 ## Layer 2: Identity endpoint protection
 
@@ -263,6 +282,7 @@ current scale); no automated alerting, admin must check `/Admin/Diagnostics` man
 - **Meta and crawler short-circuit counts.**
 - **HTTP 4xx errors:** the layer 4 table, with All / Known attacks / Excluding known attacks
   filters and a CSV export.
+- **Crawler throttle:** the current limit, and 429 counts per user agent.
 - **Bot stats:** the layer 1 user-agent hit counts.
 - **Rate-limit logging toggle** (`ToggleRateLimitLogging`). Turning it on logs every identity
   request's rate-limit decision at Information level. Use it during an active attack, then turn
@@ -320,6 +340,7 @@ Procedures that use this page: [runbooks/respond-to-attack](../runbooks/respond-
   `/customsearch/*` returned `500`. It was moved to `Views/Shared/`.
 - 2026-08-16 onward: The recurring 4xx triage began, and the known-attack lists grew (2026-09-14,
   2026-09-19). See [runbooks/triage-4xx](../runbooks/triage-4xx.md).
+- 2026-10-29: Per-crawler throttle on catalog pages (A6 of the same plan).
 - 2026-10-29: `robots.txt` disallows the catalog's search and sort permutations and `/api/`,
   and names the new `/sitemap.xml`. The `/song` bot stub became `noindex, follow` (A4 of
   [plans/bot-load-and-public-page-rendering](../plans/bot-load-and-public-page-rendering.md)).
