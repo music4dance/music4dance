@@ -70,4 +70,16 @@ public class SpiderManagerTests
         Assert.IsFalse(result);
     }
 
+    [TestMethod]
+    public void IsSpider_ClassifiesLikeCheckAnySpiders_WithoutRecordingAHit()
+    {
+        var agent = $"isspider-test-bot/{Guid.NewGuid()}";
+
+        Assert.IsTrue(SpiderManager.IsSpider(agent, _config));
+        Assert.IsFalse(SpiderManager.IsSpider("Mozilla/5.0 (Windows NT 10.0) Chrome/130.0", _config));
+        Assert.IsFalse(SpiderManager.CreateBotReport().Any(b => b.Agent == agent));
+
+        Assert.IsTrue(SpiderManager.CheckAnySpiders(agent, _config));
+        Assert.IsTrue(SpiderManager.CreateBotReport().Any(b => b.Agent == agent));
+    }
 }

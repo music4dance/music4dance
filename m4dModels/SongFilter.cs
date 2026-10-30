@@ -640,6 +640,15 @@ public class SongFilter
             : new SongFilter($"Index-----\\-{userName}|h");
     }
 
+    private static readonly HashSet<string> CustomSearchNames =
+        new(["halloween", "holiday", "christmas", "broadway"], StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// True for the names CreateCustomSearchFilter knows; it throws for anything else.
+    /// </summary>
+    public static bool IsCustomSearchName(string name) =>
+        name != null && CustomSearchNames.Contains(name);
+
     public virtual SongFilter CreateCustomSearchFilter(string name = "holiday", string dance = null, int page = 1)
     {
         name = string.IsNullOrWhiteSpace(name) ? "holiday" : name;

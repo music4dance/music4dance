@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
@@ -346,10 +347,9 @@ public static class M4dApplicationExtensions
         services.AddControllersWithViews();
 
         // Default antiforgery cookie has no explicit Expiration, so it's a session cookie -
-        // cleared when the browser closes. The anonymous-page HTML that embeds the matching
-        // token (menuContext.xsrfToken, _head.cshtml) is served with Cache-Control:
-        // public, max-age=300 (see M4dApplicationExtensions.cs cache-control middleware below)
-        // and can be replayed from the browser's own disk cache after the session cookie is
+        // cleared when the browser closes. Page HTML that embeds the matching token
+        // (menuContext.xsrfToken, _head.cshtml; signed-in pages only since 2026-10-29) can be
+        // replayed by the browser (session restore, back/forward) after the session cookie is
         // gone (browser restart, etc.), producing a token with no matching cookie. That's the
         // dominant failure mode behind the recurring, previously-silent 400s tracked in
         // architecture/observability/usage-tracking.md (History) and
@@ -420,6 +420,17 @@ public static class M4dApplicationExtensions
                 option.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV2);
 
         services.AddResponseCaching();
+
+        // Dynamic responses (HTML, JSON) aren't compressed by Linux App Service, and static
+        // assets already go out precompressed by MapStaticAssets. EnableForHttps stays false:
+        // AnonymousCompressionMiddleware opts anonymous requests in, so authenticated pages are
+        // never compressed (BREACH). Both providers default to CompressionLevel.Fastest.
+        services.AddResponseCompression(options =>
+        {
+            options.EnableForHttps = false;
+            options.Providers.Add<BrotliCompressionProvider>();
+            options.Providers.Add<GzipCompressionProvider>();
+        });
 
         GlobalState.SetMarketing(configuration.GetSection("Configuration:Marketing"));
         // Re-read on every reload, so marketing settings that arrive late (App Configuration
@@ -500,6 +511,7 @@ public static class M4dApplicationExtensions
         services.AddSingleton<m4d.Security.AuthenticationTracker>();
         services.AddSingleton<m4d.Security.RateLimitingTracker>();
         services.AddSingleton<m4d.Security.Http4xxTracker>();
+        services.AddSingleton<m4d.Security.CrawlerThrottleTracker>();
 
         // The snapshot is persisted beside dance-environment.json so a restart doesn't cost the
         // first visitor a full streaming pass. Gated on ConfigureSearch, like the dance stats file
@@ -575,6 +587,13 @@ public static class M4dApplicationExtensions
         var isSelfContained = configuration.GetValue<bool>("SELF_CONTAINED_DEPLOYMENT");
         var useVite = configuration.UseVite();
         var serviceHealth = app.Services.GetRequiredService<ServiceHealthManager>();
+
+        // Hot reload (dotnet watch, VS) loads BrowserRefreshMiddleware as a hosting startup
+        // assembly; it injects its script into HTML and can't once the body is compressed, so it
+        // logs a warning on every page. Leave compression off while it's attached.
+        var compressResponses = !(isDevelopment &&
+            (Environment.GetEnvironmentVariable("ASPNETCORE_HOSTINGSTARTUPASSEMBLIES") ?? "")
+                .Contains("BrowserRefresh", StringComparison.OrdinalIgnoreCase));
 
         // Set ApplicationLogging.LoggerFactory early so static loggers in services can initialize
         ApplicationLogging.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
@@ -716,6 +735,15 @@ public static class M4dApplicationExtensions
             app.Logger.LogWarning("HTTPS redirection is DISABLED for Spotify OAuth testing. Do not use in production!");
         }
 
+        // Wraps the response body so anything below can be compressed. Over HTTPS (production,
+        // once forwarded headers have run) it compresses only requests that
+        // AnonymousCompressionMiddleware opts in; responses that already carry Content-Encoding
+        // (precompressed static assets) pass through untouched.
+        if (compressResponses)
+        {
+            app.UseResponseCompression();
+        }
+
         // wwwroot/AppData holds admin backups (with password hashes) and runtime caches; never
         // serve it as static content.
         app.UseMiddleware<m4d.Middleware.BlockAppDataMiddleware>();
@@ -768,8 +796,18 @@ public static class M4dApplicationExtensions
         // call here prevents it being lost in changes to or removal of the default identity configuration
         app.UseAuthentication();
 
+        // Compress anonymous responses only; needs context.User from UseAuthentication().
+        if (compressResponses)
+        {
+            app.UseMiddleware<m4d.Middleware.AnonymousCompressionMiddleware>();
+        }
+
         // Rate limiting middleware: Protect Identity endpoints from bot attacks
         app.UseMiddleware<m4d.Middleware.RateLimitingMiddleware>();
+
+        // Crawler throttle: caps each crawler user agent on catalog pages (429 + Retry-After).
+        // Search engines and signed-in users are exempt; needs context.User.
+        app.UseMiddleware<m4d.Middleware.CrawlerThrottleMiddleware>();
 
         // Cache control middleware: Allow Azure Front Door to cache anonymous pages with careful exclusions
         // This relies on context.User being populated by UseAuthentication() above
@@ -848,14 +886,15 @@ public static class M4dApplicationExtensions
                 }
                 else
                 {
-                    // Anonymous users: Remove no-cache headers and allow caching by Azure Front Door
-                    // Remove any existing cache control headers that prevent caching
-                    context.Response.Headers.Remove("Cache-Control");
+                    // Anonymous users. Until anonymous pages stopped minting an antiforgery
+                    // token (and so a Set-Cookie) this branch never ran. It sends no-cache, not
+                    // public/max-age: UseResponseCaching below doesn't check cookies, so a public
+                    // anonymous page would be served from memory to signed-in users, and a
+                    // browser would show the signed-out page for its max-age after login. Making
+                    // anonymous HTML cacheable needs a cache that keys on sign-in state, which is
+                    // Phase 2 of architecture/plans/bot-load-and-public-page-rendering.md.
                     context.Response.Headers.Remove("Pragma");
-
-                    // Set cache-friendly headers for Azure Front Door
-                    // Cache for 5 minutes, allow both client and proxy (CDN) caching
-                    context.Response.Headers["Cache-Control"] = "public, max-age=300";
+                    context.Response.Headers["Cache-Control"] = "no-cache";
                 }
 
                 return Task.CompletedTask;

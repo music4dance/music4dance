@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-03
+**Last verified:** 2026-10-29
 **Code:** `m4d/ClientApp/vite.config.ts`, `m4d/ClientApp/src/pages/`, `m4d/Controllers/DMController.cs` (`Vue3()`),
 `m4d/Views/Shared/Vue3.cshtml`, `m4d/Views/Shared/_vue-Layout.cshtml`, `m4d/Views/Shared/_head.cshtml`,
 `m4d/ClientApp/src/components/PageFrame.vue`, `m4d/ClientApp/src/helpers/GetMenuContext.ts`
@@ -120,18 +120,39 @@ carries what every page needs and nothing page-specific:
   `level`, `hitCount`, `started`, `expiration`, `customerReminder`;
 - site: `helpLink`, `indexId` (search index abbreviation), `isTestDb`, `isProdDb`,
   `marketingMessage`, `artistIndex` (feature flag), `googleAdsActive`;
-- `xsrfToken`: the antiforgery request token, used for all client POSTs;
+- `xsrfToken`: the antiforgery request token, used for all client POSTs. Only signed-in pages
+  get one; it's empty on anonymous pages (see below);
 - service health: `searchHealthy`, `databaseHealthy`, `configurationHealthy` (see
   [service-resilience](../infrastructure/service-resilience.md#client-status-banner));
 - `useClientSideTracking` and `usageTracking` (see [usage-tracking](../observability/usage-tracking.md));
 - `engagementConfig`, emitted only when the engagement prompts aren't suppressed (see
   [visitor-engagement-monetization](visitor-engagement-monetization.md)).
 
-Because `menuContext` embeds the antiforgery token, HTML caching interacts with it: anonymous
-pages are browser-cacheable for five minutes, and a replayed page can carry a token whose cookie
-is gone. See the cache-control notes in
-[hosting-and-identity](../infrastructure/hosting-and-identity.md#request-pipeline-notes) and
-[usage-tracking](../observability/usage-tracking.md).
+**The antiforgery token is minted only for signed-in pages.** Minting a token sets the
+antiforgery cookie, and a response that sets a cookie can't be cached. So `_head.cshtml` leaves
+`xsrfToken` empty for anonymous visitors, and the client fetches a token the first time it
+needs one. `src/helpers/AntiforgeryToken.ts` does this:
+
+- `ensureAntiforgeryToken(pageToken)` returns the page's token if it has one. Otherwise it
+  fetches `GET /api/antiforgery/token` (`AntiforgeryController`), which returns
+  `{ "token": ... }` with `no-store` and sets the cookie. The fetched token is kept in
+  sessionStorage for an hour, and concurrent callers share one request.
+  `currentAntiforgeryToken(pageToken)` is the synchronous form; it returns `""` until a token
+  has been fetched. A signed-in page's own token clears any kept anonymous one.
+- `MenuContext.axiosXsrf` adds the token in a request interceptor, so every `getAxiosXsrf()`
+  caller is covered. That includes the search-suggestion GETs, which the server validates.
+- `useUsageTracking` can't wait at send time, because `navigator.sendBeacon` runs at unload.
+  So an anonymous visitor's tracker prefetches a token the page before sends start. A batch
+  that's due before the token arrives is sent once it does. An unload with no token leaves the
+  events queued for the next page.
+- Plain `<form>` posts that use `context.xsrfToken` (logout, admin footer, augment lookup,
+  undo) appear only for signed-in users.
+
+The endpoint is safe to expose. Another site can trigger the GET but can't read the response,
+and the cookie alone validates nothing. That holds only while the endpoint returns JSON (never
+script), has no CORS policy, is never cached, and does nothing else. Its doc comment lists the
+same rules. See [hosting-and-identity](../infrastructure/hosting-and-identity.md#request-pipeline-notes)
+for the cache headers, and [usage-tracking](../observability/usage-tracking.md).
 
 ### Dance and tag databases
 
@@ -303,6 +324,12 @@ also fills `window.danceDatabaseJson` and `window.tagDatabaseJson` from the chec
 - 2026-10-01: this doc created.
 - 2026-10-03: script-block JSON escaped through `ScriptJson`; `Vue3()` string models are JSON
   string literals instead of hand-quoted `'...'`.
+- 2026-10-29: anonymous pages no longer carry an antiforgery token. The client fetches one from
+  `/api/antiforgery/token` when needed (`AntiforgeryToken.ts`), so anonymous HTML sets no
+  cookie. A3 of [plans/bot-load-and-public-page-rendering](../plans/bot-load-and-public-page-rendering.md).
+- 2026-10-29: `_head.cshtml` loads the cookie-consent script with `defer` and the Google Fonts
+  stylesheet with `display=swap` plus preconnects, so neither holds up first paint (A5 of the
+  same plan).
 
 ## Related
 

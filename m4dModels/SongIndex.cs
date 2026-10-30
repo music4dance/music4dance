@@ -1271,9 +1271,31 @@ public class SongIndex
     }
 
 
+    /// <summary>
+    /// The most songs an album or artist lookup pulls from the index. Without a Size, the SDK's
+    /// GetResults() follows continuation pages until it has every match, each with its whole
+    /// property log: a bingbot request for the album "÷ (Deluxe)" ran 50 seconds on 2026-10-29.
+    /// </summary>
+    public const int MaxFieldMatches = 1000;
+
+    /// <summary>
+    /// Songs for an album page. The phrase search finds spelling and case variants of the title,
+    /// but the analyzer drops symbols and punctuation ("÷ (Deluxe)" searches for "deluxe"), so for
+    /// a generic title it matches far more songs than the album has, and only the
+    /// <see cref="MaxFieldMatches"/> most relevant come back. An exact-match filter on the title
+    /// runs alongside it, so songs carrying exactly this title are always included.
+    /// </summary>
     public async Task<IEnumerable<Song>> FindAlbum(string name, CruftFilter cruft = CruftFilter.NoCruft)
     {
-        return await FindByField(AlbumsField, name, null, cruft);
+        var exactOptions = new SearchOptions
+        {
+            Size = MaxFieldMatches,
+            Filter = $"{AlbumsField}/any(a: a eq '{name.Replace("'", "''")}')",
+        };
+        var exact = await SongsFromAzureResult(await DoSearch(null, exactOptions, cruft));
+        var phrase = await FindByField(AlbumsField, name, null, cruft);
+
+        return [.. exact.Concat(phrase).DistinctBy(s => s.SongId)];
     }
 
     /// <summary>
@@ -1319,7 +1341,9 @@ public class SongIndex
     public async Task<IEnumerable<Song>> FindByField(string field, string name,
         string sort = null, CruftFilter cruft = CruftFilter.NoCruft)
     {
-        var options = new SearchOptions();
+        // Capped: see MaxFieldMatches. The artist page sorts by votes and keeps 500, so the cap
+        // doesn't change what it shows.
+        var options = new SearchOptions { Size = MaxFieldMatches };
         options.SearchFields.Add(field);
         options.OrderBy.Add(sort);
         return await SongsFromAzureResult(await DoSearch($"\"{name}\"", options, cruft));

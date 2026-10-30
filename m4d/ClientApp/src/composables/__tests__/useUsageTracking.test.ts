@@ -1,15 +1,21 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import axios from "axios";
 import { useUsageTracking } from "../useUsageTracking";
+import { ANTIFORGERY_TOKEN_ENDPOINT } from "@/helpers/AntiforgeryToken";
 import type { MenuContextInterface } from "@/models/MenuContext";
 
 describe("useUsageTracking", () => {
   beforeEach(() => {
-    // Clear localStorage
+    // Clear localStorage (and the per-tab antiforgery token)
     localStorage.clear();
+    sessionStorage.clear();
     // Clear cookies
     document.cookie = "";
     // Mock navigator.sendBeacon (synchronous, returns boolean)
     global.navigator.sendBeacon = vi.fn(() => true);
+    // Anonymous trackers fetch an antiforgery token; no network in tests (tests that need a
+    // token override this).
+    vi.spyOn(axios, "get").mockRejectedValue(new Error("no network in tests"));
     // Mock user agent to NOT be a bot
     Object.defineProperty(navigator, "userAgent", {
       value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -197,6 +203,7 @@ describe("useUsageTracking", () => {
       const tracker = useUsageTracking({
         anonymousThreshold: 1,
         anonymousBatchSize: 2,
+        xsrfToken: "test-token",
         debug: false,
       });
 
@@ -241,6 +248,60 @@ describe("useUsageTracking", () => {
       expect(global.navigator.sendBeacon).toHaveBeenCalled();
       const formData = vi.mocked(global.navigator.sendBeacon).mock.calls[0][1] as FormData;
       expect(formData.get("__RequestVerificationToken")).toBe("my-xsrf-token");
+    });
+
+    it("fetches a token for an anonymous page before sending its batch", async () => {
+      const get = vi.spyOn(axios, "get").mockResolvedValue({ data: { token: "fetched-token" } });
+
+      const tracker = useUsageTracking({ anonymousThreshold: 1, anonymousBatchSize: 1 });
+      tracker.trackPageView("/page1");
+
+      // Nothing goes out until the token arrives.
+      expect(global.navigator.sendBeacon).not.toHaveBeenCalled();
+      await vi.waitFor(() => expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(1));
+
+      expect(get).toHaveBeenCalledWith(ANTIFORGERY_TOKEN_ENDPOINT);
+      const formData = vi.mocked(global.navigator.sendBeacon).mock.calls[0]![1] as FormData;
+      expect(formData.get("__RequestVerificationToken")).toBe("fetched-token");
+      expect(JSON.parse(localStorage.getItem("usageQueue")!).lastSentIndex).toBe(0);
+
+      // The next page in the tab reuses the fetched token synchronously.
+      tracker.trackPageView("/page2");
+      expect(global.navigator.sendBeacon).toHaveBeenCalledTimes(2);
+      expect(get).toHaveBeenCalledTimes(1);
+    });
+
+    it("prefetches a token the page before anonymous sends start", async () => {
+      const get = vi.spyOn(axios, "get").mockResolvedValue({ data: { token: "fetched-token" } });
+
+      const tracker = useUsageTracking({ anonymousThreshold: 3, anonymousBatchSize: 5 });
+      tracker.trackPageView("/page1");
+      expect(get).not.toHaveBeenCalled();
+
+      tracker.trackPageView("/page2");
+      expect(get).toHaveBeenCalledTimes(1);
+      expect(global.navigator.sendBeacon).not.toHaveBeenCalled();
+    });
+
+    it("keeps anonymous events queued on unload when no token is available", () => {
+      // Capture this tracker's own unload handler; earlier trackers' listeners are still on
+      // document and would send with their tokens.
+      const handlers: EventListener[] = [];
+      vi.spyOn(document, "addEventListener").mockImplementation((type, listener) => {
+        if (type === "visibilitychange") {
+          handlers.push(listener as EventListener);
+        }
+      });
+
+      const tracker = useUsageTracking({ anonymousThreshold: 1, anonymousBatchSize: 5 });
+      tracker.trackPageView("/page1");
+
+      Object.defineProperty(document, "visibilityState", { value: "hidden", configurable: true });
+      handlers.forEach((handler) => handler(new Event("visibilitychange")));
+      Object.defineProperty(document, "visibilityState", { value: "visible", configurable: true });
+
+      expect(global.navigator.sendBeacon).not.toHaveBeenCalled();
+      expect(JSON.parse(localStorage.getItem("usageQueue")!).lastSentIndex).toBe(-1);
     });
   });
 
@@ -319,6 +380,7 @@ describe("useUsageTracking", () => {
       const tracker = useUsageTracking({
         anonymousThreshold: 1,
         anonymousBatchSize: 1,
+        xsrfToken: "test-token",
         debug: true, // Enable debug to see console logs
       });
 

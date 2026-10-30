@@ -133,12 +133,24 @@ public class SongController : ContentController
         return await DoAzureSearch();
     }
 
+    /// <summary>
+    /// Spotify ids are base62 (22 characters today). Anything else, such as the injection
+    /// probes crawlers send on ?id=, went on to the Spotify lookup and got a 500, so reject it first.
+    /// </summary>
+    public static bool IsSpotifyId(string id) =>
+        !string.IsNullOrEmpty(id) && id.Length <= 64 && id.All(char.IsAsciiLetterOrDigit);
+
     [AllowAnonymous]
     public async Task<ActionResult> Playlist(string id, string type = "playlist")
     {
         if (string.IsNullOrWhiteSpace(id))
         {
             return ReturnError(HttpStatusCode.NotFound, "Playlist id is empty.");
+        }
+
+        if (!IsSpotifyId(id))
+        {
+            return ReturnError(HttpStatusCode.NotFound, "That isn't a Spotify playlist or album id.");
         }
 
         var isAlbum = string.Equals(type, "album", StringComparison.OrdinalIgnoreCase);
@@ -341,6 +353,9 @@ public class SongController : ContentController
             if (!Filter.IsEmptyBot &&
                 SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent], Configuration))
             {
+                // The stub for a search permutation has nothing worth indexing, but its links
+                // (back to /song) are worth following. Custom searches keep their stub indexable.
+                ViewData["Robots"] = "noindex, follow";
                 throw new RedirectException("BotFilter", Filter);
             }
 
@@ -368,9 +383,9 @@ public class SongController : ContentController
     {
         var dictionary = await UserMapper.GetUserNameDictionary(UserManager, ServiceHealth);
         var isAuthenticated = Identity.IsAuthenticated;
-        return songs.Select(
+        return ForListViewer(songs.Select(
             s =>
-                UserMapper.AnonymizeHistory(s.GetHistory(Mapper), dictionary, isAuthenticated, UserName)).ToList();
+                UserMapper.AnonymizeHistory(s.GetHistory(Mapper), dictionary, isAuthenticated, UserName)));
     }
 
     private async Task<ActionResult> FormatSongList(IReadOnlyCollection<Song> songs,
@@ -876,6 +891,7 @@ public class SongController : ContentController
             {
                 var model = await AlbumViewModel.Create(
                     title, Mapper, DefaultCruftFilter(), Database);
+                model.Histories = ForListViewer(model.Histories);
                 return Vue3(
                     $"Album: {title}", $"Songs for dancing on {title}", "album",
                     model, danceEnvironment: true);
@@ -917,6 +933,7 @@ public class SongController : ContentController
 
         var model = await ArtistViewModel.Create(
             name, Mapper, DefaultCruftFilter(), Database, artistIndex);
+        model.Histories = ForListViewer(model.Histories);
 
         // Splitting credits turns one artist page into tens of thousands, most of them a
         // single song. Those are too thin to be worth indexing, but their songs are worth

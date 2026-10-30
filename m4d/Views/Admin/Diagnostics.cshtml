@@ -10,6 +10,7 @@
 @inject ISearchServiceManager SearchService
 @inject IWebHostEnvironment HostEnvironment
 @inject IConfiguration Configuration
+@inject m4d.Security.CrawlerThrottleTracker CrawlerThrottle
 @inject IFeatureManagerSnapshot FeatureManager
 @inject CredentialExpiryMonitor CredentialExpiry
 
@@ -524,6 +525,51 @@ else
         else
         {
             <p class="text-muted mb-0">No Meta crawler requests intercepted yet.</p>
+        }
+    </div>
+</div>
+
+@{
+    var throttleOptions = m4d.Security.CrawlerThrottleOptions.FromConfiguration(Configuration);
+    var throttled = CrawlerThrottle.GetStats();
+}
+<div class="card mb-3">
+    <div class="card-header">
+        <strong>Crawler Throttle</strong>
+        <small class="text-muted ms-2">
+            (@(throttleOptions.Enabled ? $"{throttleOptions.MaxRequestsPerMinute} requests/minute per crawler on {throttleOptions.PathPrefixes}" : "disabled")@(throttleOptions.Enabled && !string.IsNullOrWhiteSpace(throttleOptions.AgentLimits) ? $"; also {throttleOptions.AgentLimits}" : ""); since server start)
+        </small>
+    </div>
+    <div class="card-body">
+        @if (throttled.Any())
+        {
+            <p>
+                <span class="fs-4 fw-bold">@throttled.Sum(t => t.ThrottledCount)</span>
+                <span class="text-muted">requests answered 429</span>
+            </p>
+            <table class="table table-sm table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>User agent</th>
+                        <th>429s</th>
+                        <th>Last</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var agent in throttled.Take(50))
+                    {
+                        <tr>
+                            <td><code>@(string.IsNullOrEmpty(agent.UserAgent) ? "(no user agent)" : agent.UserAgent)</code></td>
+                            <td>@agent.ThrottledCount</td>
+                            <td>@agent.LastThrottled.ToLocalTime().ToString("MMM dd HH:mm:ss")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="text-muted mb-0">No crawler has been throttled yet.</p>
         }
     </div>
 </div>

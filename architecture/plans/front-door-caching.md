@@ -10,11 +10,16 @@ load, and add WAF and bot rules, while never caching authenticated or Identity r
 
 ## 1. Where things stand
 
-- **Shipped:** the cache-control middleware that marks anonymous `GET 200` HTML as
-  `public, max-age=300` and authenticated HTML as `no-store`, with exclusions for `/identity/*`,
-  `/api/*`, `/song/rawsearchform` and cookie-setting responses. It's described in
-  [hosting-and-identity § Request pipeline notes](../infrastructure/hosting-and-identity.md#request-pipeline-notes).
-  With no CDN in front, it currently only affects browser caching.
+- **Shipped, then corrected (2026-10-29):** the cache-control middleware, which marks
+  authenticated HTML `no-store`, with exclusions for `/identity/*`, `/api/*`,
+  `/song/rawsearchform` and cookie-setting responses. Its anonymous branch was meant to send
+  `public, max-age=300`, but it never ran: every page minted an antiforgery token and so set a
+  cookie. Anonymous pages no longer carry a token, and the branch now sends `no-cache`,
+  because `UseResponseCaching` and browsers would otherwise hand cached anonymous pages to
+  signed-in users. Before an edge cache goes in, decide how it bypasses signed-in requests
+  (for example, a rule on the identity cookie), and only then make anonymous HTML `public`. See
+  [hosting-and-identity § Request pipeline notes](../infrastructure/hosting-and-identity.md#request-pipeline-notes)
+  and [plans/bot-load-and-public-page-rendering](bot-load-and-public-page-rendering.md).
 - **Shipped:** the original blocker, client-side usage logging. It's behind the
   `ClientSideUsageLogging` feature flag; see
   [usage-tracking](../observability/usage-tracking.md). Edge-cached pages

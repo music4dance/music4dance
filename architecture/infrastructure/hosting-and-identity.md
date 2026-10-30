@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-25
+**Last verified:** 2026-10-29
 **Code:** `azure-pipelines.yml`, `m4d/Program.cs`, `m4d/Configuration/M4dApplicationExtensions.cs`,
 `m4d/Services/StartupInitializationService.cs`, `m4d/m4d.csproj`
 
@@ -175,14 +175,33 @@ The only automatic remedy is a forced worker replacement after an hour of contin
 - **Forwarded headers:** `X-Forwarded-For` and `X-Forwarded-Proto` are honored so
   `RemoteIpAddress` and the scheme are correct behind App Service's front end. `KnownProxies` /
   `KnownNetworks` are not restricted.
+- **Response compression (anonymous only).** Linux App Service doesn't compress dynamic
+  responses, so the app does: `AddResponseCompression` (brotli, then gzip, both
+  `CompressionLevel.Fastest`) with `EnableForHttps = false`, and `UseResponseCompression()` sits
+  ahead of the static-file middleware. `AnonymousCompressionMiddleware`, after
+  `UseAuthentication()`, sets `IHttpsCompressionFeature.Mode` to `Compress` for anonymous
+  requests and `DoNotCompress` for authenticated ones. Authenticated pages stay uncompressed
+  because of BREACH (a secret plus reflected input, compressed over TLS). Precompressed static
+  assets already carry `Content-Encoding` and pass through untouched. Anonymous HTML shrinks by
+  about 80–90%; `/dances/waltz` goes from 56 KB to 11 KB.
 - **Cache-control middleware** runs after authentication and rate limiting:
-  - Anonymous `GET 200` HTML responses that don't set cookies get
-    `Cache-Control: public, max-age=300`.
+  - Anonymous `GET 200` HTML responses that don't set cookies get `Cache-Control: no-cache`:
+    browsers may keep them but revalidate every time, and `UseResponseCaching` won't store
+    them, because it isn't `public`. Until 2026-10-29 this branch never ran. Every page minted
+    an antiforgery token, so every response set a cookie and carried antiforgery's own
+    `no-cache, no-store`. Anonymous pages no longer carry a token (see
+    [frontend-architecture](../pages/frontend-architecture.md#menucontext-per-request-user-and-site-state)).
+    The branch used to say `public, max-age=300`, but that isn't safe yet.
+    `UseResponseCaching` doesn't check cookies, so it would serve a stored anonymous page to
+    signed-in users, and a browser would show the signed-out page for five minutes after login.
+    Real anonymous caching needs a cache keyed on sign-in state. That's Phase 2 of
+    [plans/bot-load-and-public-page-rendering](../plans/bot-load-and-public-page-rendering.md).
+  - Responses that set any cookie are left alone. That includes the legacy server-side `Usage`
+    cookie, which `DanceMusicController` sets only while `ClientSideUsageLogging` is off.
   - Authenticated HTML gets `no-store, no-cache, must-revalidate`.
   - `/identity/*` (including redirects to it), `/api/*` and `/song/rawsearchform` are excluded.
-  - **Azure Front Door is not deployed**, so today this only affects browser caching. One
-    consequence is replayed anonymous pages carrying stale antiforgery tokens, which is why the
-    antiforgery cookie now lasts a day. The CDN rollout is in
+    `/api/antiforgery/token` sets `no-store` itself.
+  - **Azure Front Door is not deployed.** The CDN rollout is in
     [plans/front-door-caching](../plans/front-door-caching.md).
 - **Database recovery hook:** `DatabaseRecoveryService.TriggerRecoveryIfNeeded()` runs early
   on every request (see [service-resilience](service-resilience.md)).
@@ -243,6 +262,12 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
   [runbooks/capture-memory-diagnostics](../runbooks/capture-memory-diagnostics.md)). HTTP
   request logs now go to storage, so per-client traffic can be checked next time
   ([logging-and-diagnostics § HTTP request logs](../observability/logging-and-diagnostics.md#http-request-logs)).
+- 2026-10-29: Response compression for anonymous responses (brotli/gzip), A1 of
+  [plans/bot-load-and-public-page-rendering](../plans/bot-load-and-public-page-rendering.md).
+  Dynamic HTML had gone out uncompressed to every crawler and visitor.
+- 2026-10-29: Anonymous pages stopped minting an antiforgery token (A3 of the same plan), so
+  they set no cookie. The cache-control middleware's anonymous branch, which had never run,
+  went from `public, max-age=300` to `no-cache`.
 - 2026-10-01: Consolidated from `SELF_CONTAINED_DEPLOYMENT.md`, `managed-identity-self-contained-plan.md`
   and the architecture sections of `azure-app-service-setup-managed-identity.md`. Stale details
   dropped: legacy pipeline files, `appsettings.SelfContained.json`, and in-app Kestrel port and

@@ -55,9 +55,15 @@
 }
 
 @functions{
+    // Only signed-in pages carry the antiforgery token. Minting one sets the antiforgery cookie,
+    // and a page that sets a cookie can't be cached, so anonymous pages fetch a token from
+    // /api/antiforgery/token when they first need one (ClientApp/src/helpers/AntiforgeryToken.ts).
+    // See architecture/plans/bot-load-and-public-page-rendering.md (A3).
     public string GetAntiXsrfRequestToken()
     {
-        return _xsrf.GetAndStoreTokens(Context).RequestToken;
+        return User.Identity?.IsAuthenticated == true
+            ? _xsrf.GetAndStoreTokens(Context).RequestToken
+            : string.Empty;
     }
 }
 
@@ -119,7 +125,12 @@
    was added. Both links are declared so the root file is also the one used in-page. *@
 <link rel="icon" href="~/favicon.ico" sizes="48x48"/>
 <link rel="icon" type="image/png" href="~/images/favicon.png"/>
-<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro|Merienda:700" rel="stylesheet" type="text/css">
+@* display=swap paints text in a fallback font instead of holding it invisible until the web
+   font arrives, and the preconnects start both Google Fonts connections before the stylesheet
+   asks for them. *@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro|Merienda:700&display=swap" rel="stylesheet" type="text/css">
 
 @if (hasIcons)
 {
@@ -223,7 +234,9 @@
 </script>
 
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
+@* defer: a plain script here blocks parsing (and first paint) until it downloads. The
+   initialise call below waits for window load, which comes after deferred scripts run. *@
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
 <script>
     window.addEventListener("load",
         function() {

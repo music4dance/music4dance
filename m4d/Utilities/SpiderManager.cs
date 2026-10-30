@@ -35,11 +35,25 @@ public static class SpiderManager
         return CheckSpiders(userAgent, true, configuration);
     }
 
-    private static bool CheckSpiders(string userAgent, bool badOnly, IConfiguration configuration)
+    /// <summary>
+    /// The same classification as <see cref="CheckAnySpiders"/>, without adding to the bot
+    /// report. For callers that look at a request a controller will classify again, such as
+    /// CrawlerThrottleMiddleware.
+    /// </summary>
+    public static bool IsSpider(string userAgent, IConfiguration configuration)
+    {
+        return CheckSpiders(userAgent, false, configuration, record: false);
+    }
+
+    private static bool CheckSpiders(string userAgent, bool badOnly, IConfiguration configuration,
+        bool record = true)
     {
         if (string.IsNullOrWhiteSpace(userAgent))
         {
-            EmptyAgents += 1;
+            if (record)
+            {
+                EmptyAgents += 1;
+            }
             return true;
         }
 
@@ -53,14 +67,17 @@ public static class SpiderManager
             return false;
         }
 
-        lock (s_botHits)
+        if (record)
         {
-            if (!s_botHits.TryGetValue(agent, out var count))
+            lock (s_botHits)
             {
-                count = 0;
-            }
+                if (!s_botHits.TryGetValue(agent, out var count))
+                {
+                    count = 0;
+                }
 
-            s_botHits[agent] = count + 1;
+                s_botHits[agent] = count + 1;
+            }
         }
 
         return !badOnly || botFilter.BadFragmentList.Any(agent.Contains);

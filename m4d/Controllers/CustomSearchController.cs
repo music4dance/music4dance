@@ -12,6 +12,8 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.FeatureManagement;
 using Microsoft.Net.Http.Headers;
 
+using System.Net;
+
 namespace m4d.Controllers;
 
 public class CustomSearchController : ContentController
@@ -34,6 +36,14 @@ public class CustomSearchController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> Index(string name, string dance = null, int page = 1)
     {
+        // An unknown name made CreateCustomSearchFilter throw (a 500 for every injection
+        // probe on ?name=), and a missing one reached name[0] below.
+        name = string.IsNullOrWhiteSpace(name) ? "holiday" : name;
+        if (!SongFilter.IsCustomSearchName(name))
+        {
+            return ReturnError(HttpStatusCode.NotFound, "There's no custom search with that name.");
+        }
+
         Filter = Database.SearchService.GetSongFilter().CreateCustomSearchFilter(name, dance, page);
         if (!Filter.DanceQuery.IsValid)
         {
@@ -89,10 +99,9 @@ public class CustomSearchController : ContentController
             }
 
             var dictionary = await UserMapper.GetUserNameDictionary(UserManager, ServiceHealth);
-            var histories = results.Songs
+            var histories = ForListViewer(results.Songs
                 .Select(s => UserMapper.AnonymizeHistory(s.GetHistory(Mapper), dictionary,
-                    User.Identity?.IsAuthenticated == true, User.Identity?.Name))
-                .ToList();
+                    User.Identity?.IsAuthenticated == true, User.Identity?.Name)));
             string description = null;
             switch (name.ToLowerInvariant())
             {

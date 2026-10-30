@@ -141,11 +141,17 @@ public class DanceController : ContentController
             return View("emptydance", ds);
         }
 
+        var model = new DanceModel(ds, DanceStatsManager.Instance, Mapper);
+        if (model.Histories != null)
+        {
+            model.Histories = ForListViewer(model.Histories);
+        }
+
         return Vue3(
             $"music4dance catalog: {ds.DanceName} Page",
             $"{ds.DanceName} Information, Top Ten List, and Resources.",
             "dance-details",
-            new DanceModel(ds, DanceStatsManager.Instance, Mapper)
+            model
         );
     }
 
