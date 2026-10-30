@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
@@ -421,6 +422,17 @@ public static class M4dApplicationExtensions
 
         services.AddResponseCaching();
 
+        // Dynamic responses (HTML, JSON) aren't compressed by Linux App Service, and static
+        // assets already go out precompressed by MapStaticAssets. EnableForHttps stays false:
+        // AnonymousCompressionMiddleware opts anonymous requests in, so authenticated pages are
+        // never compressed (BREACH). Both providers default to CompressionLevel.Fastest.
+        services.AddResponseCompression(options =>
+        {
+            options.EnableForHttps = false;
+            options.Providers.Add<BrotliCompressionProvider>();
+            options.Providers.Add<GzipCompressionProvider>();
+        });
+
         GlobalState.SetMarketing(configuration.GetSection("Configuration:Marketing"));
         // Re-read on every reload, so marketing settings that arrive late (App Configuration
         // recovering after a failed startup load) or change at runtime take effect.
@@ -716,6 +728,12 @@ public static class M4dApplicationExtensions
             app.Logger.LogWarning("HTTPS redirection is DISABLED for Spotify OAuth testing. Do not use in production!");
         }
 
+        // Wraps the response body so anything below can be compressed. Over HTTPS (production,
+        // once forwarded headers have run) it compresses only requests that
+        // AnonymousCompressionMiddleware opts in; responses that already carry Content-Encoding
+        // (precompressed static assets) pass through untouched.
+        app.UseResponseCompression();
+
         // wwwroot/AppData holds admin backups (with password hashes) and runtime caches; never
         // serve it as static content.
         app.UseMiddleware<m4d.Middleware.BlockAppDataMiddleware>();
@@ -767,6 +785,9 @@ public static class M4dApplicationExtensions
         // configured this earlier. But it is essential that this happen, so having the explicit
         // call here prevents it being lost in changes to or removal of the default identity configuration
         app.UseAuthentication();
+
+        // Compress anonymous responses only; needs context.User from UseAuthentication().
+        app.UseMiddleware<m4d.Middleware.AnonymousCompressionMiddleware>();
 
         // Rate limiting middleware: Protect Identity endpoints from bot attacks
         app.UseMiddleware<m4d.Middleware.RateLimitingMiddleware>();
