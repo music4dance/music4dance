@@ -341,6 +341,9 @@ public class SongController : ContentController
             if (!Filter.IsEmptyBot &&
                 SpiderManager.CheckAnySpiders(Request.Headers[HeaderNames.UserAgent], Configuration))
             {
+                // The stub for a search permutation has nothing worth indexing, but its links
+                // (back to /song) are worth following. Custom searches keep their stub indexable.
+                ViewData["Robots"] = "noindex, follow";
                 throw new RedirectException("BotFilter", Filter);
             }
 

@@ -154,6 +154,36 @@ public static class SiteMapInfo
 
     private static IEnumerable<SiteMapCategory> Categories { get; set; } = null;
 
+    // Site-map pages that don't belong in sitemap.xml: sign-in pages, pages that need an
+    // account, forms, and catalog views that crawlers only ever get the BotFilter stub for.
+    private static readonly string[] NotForCrawlers =
+    [
+        "identity/", "searches/", "song/augment", "song/advancedsearchform", "song/newmusic",
+    ];
+
+    /// <summary>
+    /// Absolute URLs for /sitemap.xml: every music4dance.net page in the HTML site map
+    /// (categories, dance pages, info pages and tools), less <see cref="NotForCrawlers"/>, in
+    /// site-map order without duplicates. Blog and help entries live on music4dance.blog and
+    /// are left out. Song, album and artist pages aren't listed; crawlers reach them by links.
+    /// </summary>
+    public static IEnumerable<string> GetCrawlerUrls(IEnumerable<SiteMapCategory> categories)
+    {
+        const string site = "https://www.music4dance.net/";
+
+        static IEnumerable<SiteMapEntry> Flatten(IEnumerable<SiteMapEntry> entries) =>
+            entries.SelectMany(e => new[] { e }.Concat(
+                e is SiteMapFile ? [] : Flatten(e.Children ?? [])));
+
+        return categories
+            .SelectMany(c => Flatten(c.Entries))
+            .Where(e => e.Reference != null &&
+                !NotForCrawlers.Any(p => e.Reference.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
+            .Select(e => e.FullPath)
+            .Where(url => url.StartsWith(site, StringComparison.Ordinal))
+            .Distinct();
+    }
+
     private static IEnumerable<SiteMapCategory> LoadCategories(IFileProvider fileProvider)
     {
         return

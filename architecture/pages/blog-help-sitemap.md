@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Last verified:** 2026-10-29 (`sitemap.xml`; the rest last checked 2026-10-01)
 **Code:** `m4d/ViewModels/SiteMapInfo.cs`, `m4d/ClientApp/src/models/SiteMapInfo.ts`,
 `m4d/ClientApp/src/assets/content/blogmap.txt`, `helpmap.txt`, `scripts/add-new-blog-posts.mjs`
 
@@ -88,6 +88,7 @@ From there:
 | --- | --- |
 | `HomeController.Index` → `HomeModel` → home page (`pages/home/App.vue`) | `HomeModel.BlogEntries` = the Blog entry's children (i.e. the blog categories, each still holding its post children). `App.vue` flattens this to all posts, picks the highest-`Date` post as the primary head link, and picks 3 more at random (excluding `OneTime` posts) for the rotating header links. The "Info" home section also renders the full blog tree via `<BlogFeatureLink>`, which recursively skips any entry (and its subtree) where `oneTime` is set. |
 | `HomeController.SiteMap` → `Views/Home/SiteMap.cshtml` + `_SiteMapEntry.cshtml` | The `/Home/SiteMap` page — a plain nested `<ul>` rendering of every category (Music/Info/Tools), including the full Help and Blog trees, at unlimited depth. This is the only place `helpmap.txt`'s data is used. |
+| `HomeController.SiteMapXml` → `GET /sitemap.xml` | The search-engine sitemap, named in `robots.txt`. `SiteMapInfo.GetCrawlerUrls` flattens the same categories (and the dance list) into absolute `www.music4dance.net` URLs, leaving out blog and help entries (they live on `music4dance.blog`, and `SiteMapFile` children aren't walked), sign-in and account pages, and pages crawlers only get the `BotFilter` stub for (`song/newmusic`, `song/advancedsearchform`, `song/augment`, `searches/`). That came to 80 URLs on 2026-10-29. Song, album and artist pages aren't listed; whether thin song pages should be indexed at all is an open question in [plans/bot-load-and-public-page-rendering](../plans/bot-load-and-public-page-rendering.md). No `lastmod`. `public, max-age=3600`. |
 
 `m4d/ClientApp/src/models/SiteMapInfo.ts` is a client-side `typedjson` mirror of the server
 `SiteMapEntry` shape (title/reference/description/oneTime/date/children), used to deserialize the

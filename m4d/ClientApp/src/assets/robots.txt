@@ -1,8 +1,47 @@
+Sitemap: https://www.music4dance.net/sitemap.xml
+
+# Search and sort permutations of the song catalog: crawlers get a stub page for these
+# (SpiderManager / BotFilter), so walking them only costs both sides. The catalog itself is
+# /song plus its paging, and every song, album and artist page stays open. Paths are
+# case-sensitive here but not on the site, so both casings in use are listed; each line is a
+# prefix (/song/advanced also covers /song/advancedsearch and /song/advancedsearchform).
+# /api/ is the client's JSON API. See architecture/plans/bot-load-and-public-page-rendering.md.
 User-agent: *
 Disallow: /identity/
+Disallow: /api/
+Disallow: /song/sort
+Disallow: /Song/Sort
+Disallow: /song/azuresearch
+Disallow: /Song/azuresearch
+Disallow: /Song/AzureSearch
+Disallow: /song/filtersearch
+Disallow: /song/filterSearch
+Disallow: /Song/filtersearch
+Disallow: /Song/FilterSearch
+Disallow: /song/advanced
+Disallow: /song/Advanced
+Disallow: /Song/Advanced
+Disallow: /song/rawsearch
+Disallow: /Song/RawSearch
 
+# Googlebot reads only its own group, so it repeats the rules above.
 User-agent: Googlebot
 Disallow: /identity/
+Disallow: /api/
+Disallow: /song/sort
+Disallow: /Song/Sort
+Disallow: /song/azuresearch
+Disallow: /Song/azuresearch
+Disallow: /Song/AzureSearch
+Disallow: /song/filtersearch
+Disallow: /song/filterSearch
+Disallow: /Song/filtersearch
+Disallow: /Song/FilterSearch
+Disallow: /song/advanced
+Disallow: /song/Advanced
+Disallow: /Song/Advanced
+Disallow: /song/rawsearch
+Disallow: /Song/RawSearch
 
 User-agent: facebookexternalhit
 Disallow: /identity/

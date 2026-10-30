@@ -1,4 +1,7 @@
-﻿using m4d.Services;
+﻿using System.Text;
+using System.Xml.Linq;
+
+using m4d.Services;
 using m4d.Services.ServiceHealth;
 using m4d.ViewModels;
 
@@ -52,6 +55,22 @@ public class HomeController(
     public IActionResult SiteMap([FromServices] IFileProvider fileProvider)
     {
         return View(SiteMapInfo.GetCategories(fileProvider));
+    }
+
+    // GET: /sitemap.xml - the crawlable pages of the HTML site map, for search engines.
+    // Referenced from robots.txt. The same for every visitor, so it's cacheable.
+    [HttpGet("/sitemap.xml")]
+    public IActionResult SiteMapXml([FromServices] IFileProvider fileProvider)
+    {
+        XNamespace ns = "http://www.sitemaps.org/schemas/sitemap/0.9";
+        var document = new XDocument(
+            new XDeclaration("1.0", "utf-8", null),
+            new XElement(ns + "urlset",
+                SiteMapInfo.GetCrawlerUrls(SiteMapInfo.GetCategories(fileProvider))
+                    .Select(url => new XElement(ns + "url", new XElement(ns + "loc", url)))));
+
+        Response.Headers.CacheControl = "public, max-age=3600";
+        return Content(document.Declaration + "\n" + document, "application/xml", Encoding.UTF8);
     }
 
     public IActionResult About()

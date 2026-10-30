@@ -65,6 +65,12 @@ All three consult `SpiderManager`, but check different lists and produce differe
    `ContentController.HandleRedirect`, which renders `View("BotFilter", Filter)`: a static page
    describing the filter in prose and pointing crawlers at the plain `/song` catalog instead of
    letting them re-crawl every filter permutation of the paginated, Azure-Search-backed results.
+   The `/song` stub is `noindex, follow` (`ViewData["Robots"]`, set before the throw). The
+   custom-search stub stays indexable, because those landing pages are in the site map.
+   `robots.txt` also disallows the permutation actions outright, so well-behaved crawlers stop
+   requesting them: `/song/sort`, `azuresearch`, `filtersearch`, `advanced*` and `rawsearch*`,
+   in both the lower-case and Pascal-case spellings seen in the logs. It also disallows `/api/`
+   and names `/sitemap.xml` (see [blog-help-sitemap](../pages/blog-help-sitemap.md)).
 
 2. **Full-page block** — `DMController.CheckSpiders()` (called from `SongController.Details`,
    `Album`, `Artist`) uses the narrower `CheckBadSpiders` and, only for that hostile subset,
@@ -159,6 +165,8 @@ Two companions reinforce it:
   never cached, and it never marks `/identity/*` responses cacheable. See
   [hosting-and-identity](../infrastructure/hosting-and-identity.md#request-pipeline-notes).
 - `robots.txt` disallows `/identity/` for `*`, Googlebot, `facebookexternalhit` and `Facebot`.
+  The source is `m4d/ClientApp/src/assets/robots.txt`, which the build copies to `wwwroot`.
+  Googlebot reads only its own group, so that group repeats every `*` rule.
 
 ## Layer 4: 4xx-by-URL tracking (`Http4xxTracker`)
 
@@ -312,6 +320,9 @@ Procedures that use this page: [runbooks/respond-to-attack](../runbooks/respond-
   `/customsearch/*` returned `500`. It was moved to `Views/Shared/`.
 - 2026-08-16 onward: The recurring 4xx triage began, and the known-attack lists grew (2026-09-14,
   2026-09-19). See [runbooks/triage-4xx](../runbooks/triage-4xx.md).
+- 2026-10-29: `robots.txt` disallows the catalog's search and sort permutations and `/api/`,
+  and names the new `/sitemap.xml`. The `/song` bot stub became `noindex, follow` (A4 of
+  [plans/bot-load-and-public-page-rendering](../plans/bot-load-and-public-page-rendering.md)).
 - 2026-10-01: Consolidated from `distributed-attack-mitigation.md`,
   `identity-endpoint-protection.md` and `meta-crawler-mitigation.md`. The triage log moved to a
   runbook and Phase 2/3 to a plan. Corrected along the way: CAPTCHA escalation is driven by global
