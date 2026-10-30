@@ -1,7 +1,7 @@
 # Bot Load and Public-Page Rendering Options
 
 **Type:** Plan
-**Status:** Proposed (options survey; no decision yet)
+**Status:** Partially implemented: Phase 1 (A1–A7) shipped 2026-10-29 on branch `bot-load-quick-wins`, not yet deployed; Phases 0, 2 and 3 not started
 **Last verified:** 2026-10-29
 **Code:** `m4d/Views/Shared/Vue3.cshtml`, `m4d/Views/Shared/_head.cshtml`, `m4d/Views/Shared/_vue-Layout.cshtml`,
 `m4d/Configuration/M4dApplicationExtensions.cs` (cache-control middleware), `m4d/Utilities/SpiderManager.cs`,
@@ -405,6 +405,39 @@ authenticated responses.
 
 At the end of Phase 1, re-run the Phase 0 measurements. Bot bandwidth should fall by an order
 of magnitude, and it may turn out that bot load no longer needs anything beyond A6.
+
+**Phase 1 as built (2026-10-29).** Each step is one commit on `bot-load-quick-wins`, and each
+reference doc describes its piece:
+
+| Step | What shipped | Reference |
+| --- | --- | --- |
+| A1 | Brotli/gzip for anonymous responses only (`AnonymousCompressionMiddleware`; authenticated pages stay uncompressed). `/dances/waltz` went from 56 KB to 11 KB. | [hosting-and-identity](../infrastructure/hosting-and-identity.md#request-pipeline-notes) |
+| A2 | `SongHistory.TrimAlbumsForList` for anonymous list pages: drops album properties a row can't reach. 52 production songs went from 1.10 MB to 0.45 MB with identical rows. | [song-search-results](../search/song-search-results.md) |
+| A3 | No antiforgery token in anonymous HTML; `GET /api/antiforgery/token` plus `AntiforgeryToken.ts`. The anonymous cache-control branch sends `no-cache`, not `public` (see below). | [frontend-architecture](../pages/frontend-architecture.md#menucontext-per-request-user-and-site-state) |
+| A4 | `robots.txt` disallows search permutations and `/api/`; `/sitemap.xml` (80 site-map pages); the `/song` bot stub is `noindex, follow`. | [bot-and-abuse-defense](../security/bot-and-abuse-defense.md), [blog-help-sitemap](../pages/blog-help-sitemap.md) |
+| A5 | `defer` on cookie consent; `display=swap` and preconnects for Google Fonts. | [frontend-architecture](../pages/frontend-architecture.md) |
+| A6 | `CrawlerThrottleMiddleware`: 20 requests/minute per crawler on catalog paths, search engines exempt, shown on `/Admin/Diagnostics`. | [bot-and-abuse-defense](../security/bot-and-abuse-defense.md) |
+| A7 | `FindByField` capped at 1,000 results, plus an exact-match album filter. The cause was unbounded SDK paging: `÷ (Deluxe)` matched 4,259 songs. | [artist-pages](../songs/artist-pages.md) |
+
+Learned along the way, and needed before Phase 2:
+
+- **Making anonymous HTML cacheable is more than removing the cookie.** `UseResponseCaching` is
+  in the pipeline (for the tag and dance-environment APIs). It doesn't look at cookies, so a
+  `public` anonymous page would be served from memory to signed-in users, and a browser would
+  show the signed-out page after login. The anonymous branch therefore sends `no-cache`. Phase 2
+  needs a cache that keys on sign-in state (ASP.NET Core `OutputCache` with a policy that skips
+  authenticated requests, or an edge rule on the identity cookie), and only then `public`.
+  Anonymous pages also vary by user agent today: `_head.cshtml` drops the AdSense script for
+  Googlebot, and a shared cache would hand that variant to people too.
+- **The legacy `Usage` cookie** (server-side usage logging, only while `ClientSideUsageLogging`
+  is off) also makes a page uncacheable. Production has the flag on.
+- **Deep catalog paging is slow** (`/Song?page=1584` took 10 s) because Azure Search's cost
+  grows with `skip`, and Azure rejects a `skip` over 100,000. The bot stub tells crawlers to
+  page through `/song`, so it wasn't capped. A song sitemap (open question 5) would let
+  crawlers reach songs without deep paging, and then paging could be capped.
+- **Locally, the real app can't reach the search index**: its configured credential is an app
+  registration Entra ID doesn't know (AADSTS700016), so A7 was checked with read-only REST
+  queries instead.
 
 ### Phase 2: Caching (after A3)
 

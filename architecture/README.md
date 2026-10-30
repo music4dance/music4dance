@@ -151,7 +151,7 @@ into `runbooks/` as its area is consolidated.
 | --- | --- | --- |
 | Public API & third-party authorization (DanzQ) | Foundation (PR 1) merged behind a disabled flag; PR 2 on hold after Apple denied the business plan, alternatives being explored | [plans/public-api-authorization](plans/public-api-authorization.md) |
 | Azure Front Door caching | Not started; app-side prep shipped | [plans/front-door-caching](plans/front-door-caching.md) |
-| Bot load and public-page rendering (compression, caching, SSR vs. bot HTML vs. Razor shell) | Proposed: options survey, no decision yet | [plans/bot-load-and-public-page-rendering](plans/bot-load-and-public-page-rendering.md) |
+| Bot load and public-page rendering (compression, caching, SSR vs. bot HTML vs. Razor shell) | Partially implemented: Phase 1 quick wins (A1–A7) on branch `bot-load-quick-wins`; caching and rendering phases not started | [plans/bot-load-and-public-page-rendering](plans/bot-load-and-public-page-rendering.md) |
 | Key Vault RBAC migration | Not started (vault `music4dance` still uses access policies, verified 2026-10-01) | [plans/key-vault-rbac-migration](plans/key-vault-rbac-migration.md) |
 | Attack mitigation Phase 2+ (telemetry, alerts, WAF, honeypots) | Proposed | [plans/attack-mitigation-phase2](plans/attack-mitigation-phase2.md) |
 | Contributor environments beyond the sandbox (test deploys, diagnostics, samplified data, own Azure) | Proposed | [plans/contributor-environments-next](plans/contributor-environments-next.md) |
