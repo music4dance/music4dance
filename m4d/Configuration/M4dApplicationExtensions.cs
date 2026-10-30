@@ -347,10 +347,9 @@ public static class M4dApplicationExtensions
         services.AddControllersWithViews();
 
         // Default antiforgery cookie has no explicit Expiration, so it's a session cookie -
-        // cleared when the browser closes. The anonymous-page HTML that embeds the matching
-        // token (menuContext.xsrfToken, _head.cshtml) is served with Cache-Control:
-        // public, max-age=300 (see M4dApplicationExtensions.cs cache-control middleware below)
-        // and can be replayed from the browser's own disk cache after the session cookie is
+        // cleared when the browser closes. Page HTML that embeds the matching token
+        // (menuContext.xsrfToken, _head.cshtml; signed-in pages only since 2026-10-29) can be
+        // replayed by the browser (session restore, back/forward) after the session cookie is
         // gone (browser restart, etc.), producing a token with no matching cookie. That's the
         // dominant failure mode behind the recurring, previously-silent 400s tracked in
         // architecture/observability/usage-tracking.md (History) and
@@ -869,14 +868,15 @@ public static class M4dApplicationExtensions
                 }
                 else
                 {
-                    // Anonymous users: Remove no-cache headers and allow caching by Azure Front Door
-                    // Remove any existing cache control headers that prevent caching
-                    context.Response.Headers.Remove("Cache-Control");
+                    // Anonymous users. Until anonymous pages stopped minting an antiforgery
+                    // token (and so a Set-Cookie) this branch never ran. It sends no-cache, not
+                    // public/max-age: UseResponseCaching below doesn't check cookies, so a public
+                    // anonymous page would be served from memory to signed-in users, and a
+                    // browser would show the signed-out page for its max-age after login. Making
+                    // anonymous HTML cacheable needs a cache that keys on sign-in state, which is
+                    // Phase 2 of architecture/plans/bot-load-and-public-page-rendering.md.
                     context.Response.Headers.Remove("Pragma");
-
-                    // Set cache-friendly headers for Azure Front Door
-                    // Cache for 5 minutes, allow both client and proxy (CDN) caching
-                    context.Response.Headers["Cache-Control"] = "public, max-age=300";
+                    context.Response.Headers["Cache-Control"] = "no-cache";
                 }
 
                 return Task.CompletedTask;

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import axios, { type InternalAxiosRequestConfig } from "axios";
 import { MenuContext } from "../MenuContext";
 
 function mockLocation(pathname: string, search: string = "") {
@@ -86,5 +87,47 @@ describe("MenuContext.getAccountLink", () => {
         `/identity/account/register?returnUrl=${encodeURIComponent("/song?filter=CHA")}`,
       );
     });
+  });
+});
+
+describe("MenuContext.axiosXsrf", () => {
+  beforeEach(() => sessionStorage.clear());
+  afterEach(() => vi.restoreAllMocks());
+
+  // Runs a request through the instance's interceptors and returns the headers it would send.
+  async function sentHeaders(ctx: MenuContext): Promise<InternalAxiosRequestConfig["headers"]> {
+    let captured: InternalAxiosRequestConfig | undefined;
+    await ctx.axiosXsrf.get("/api/suggestion/wal", {
+      adapter: async (config) => {
+        captured = config;
+        return { data: {}, status: 200, statusText: "OK", headers: {}, config };
+      },
+    });
+    return captured!.headers;
+  }
+
+  it("sends the page's token", async () => {
+    const get = vi.spyOn(axios, "get");
+
+    const headers = await sentHeaders(new MenuContext({ xsrfToken: "page-token" }));
+
+    expect(headers.get("RequestVerificationToken")).toBe("page-token");
+    expect(get).not.toHaveBeenCalled();
+  });
+
+  it("fetches a token first on an anonymous page", async () => {
+    vi.spyOn(axios, "get").mockResolvedValue({ data: { token: "fetched-token" } });
+
+    const headers = await sentHeaders(new MenuContext({ xsrfToken: "" }));
+
+    expect(headers.get("RequestVerificationToken")).toBe("fetched-token");
+  });
+
+  it("still sends the request when no token can be fetched", async () => {
+    vi.spyOn(axios, "get").mockRejectedValue(new Error("offline"));
+
+    const headers = await sentHeaders(new MenuContext({ xsrfToken: "" }));
+
+    expect(headers.get("RequestVerificationToken")).toBeUndefined();
   });
 });

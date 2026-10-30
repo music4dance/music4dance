@@ -1,5 +1,6 @@
 import type { AxiosInstance } from "axios";
 import axios from "axios";
+import { ensureAntiforgeryToken } from "@/helpers/AntiforgeryToken";
 import type { EngagementConfig } from "./EngagementConfig";
 
 export interface MenuContextInterface {
@@ -130,11 +131,21 @@ export class MenuContext implements MenuContextInterface {
     return `/identity/account/${page}?returnUrl=${encodeURIComponent(returnUrl)}`;
   }
 
+  /**
+   * axios with the antiforgery request token on every request. Anonymous pages have no token
+   * in their HTML, so the first request fetches one (see AntiforgeryToken.ts).
+   */
   public get axiosXsrf(): AxiosInstance {
     if (!this.axiosInstance) {
-      this.axiosInstance = axios.create({
-        headers: { RequestVerificationToken: this.xsrfToken },
+      const instance = axios.create();
+      instance.interceptors.request.use(async (config) => {
+        const token = await ensureAntiforgeryToken(this.xsrfToken).catch(() => "");
+        if (token) {
+          config.headers.set("RequestVerificationToken", token);
+        }
+        return config;
       });
+      this.axiosInstance = instance;
     }
     return this.axiosInstance;
   }

@@ -4,6 +4,7 @@
  */
 
 import type { MenuContextInterface } from "@/models/MenuContext";
+import { currentAntiforgeryToken, ensureAntiforgeryToken } from "@/helpers/AntiforgeryToken";
 
 interface UsageEvent {
   usageId: string;
@@ -85,15 +86,13 @@ export function useUsageTracking(config: Partial<UsageTrackerConfig> = {}) {
   };
 
   const finalConfig = { ...defaultConfig, ...config };
-  const xsrfToken = finalConfig.xsrfToken || finalConfig.menuContext?.xsrfToken || "";
+  // Signed-in pages carry the token; anonymous pages fetch one once batches are close to due
+  // (AntiforgeryToken.ts), so their HTML sets no cookie.
+  const pageXsrfToken = finalConfig.xsrfToken || finalConfig.menuContext?.xsrfToken || "";
 
   // Validate XSRF token in debug mode
-  if (finalConfig.debug) {
-    if (!xsrfToken) {
-      console.warn("Usage tracking: No XSRF token provided, API calls will fail");
-    } else if (xsrfToken.length < 20) {
-      console.warn("Usage tracking: XSRF token seems too short, may be invalid");
-    }
+  if (finalConfig.debug && pageXsrfToken && pageXsrfToken.length < 20) {
+    console.warn("Usage tracking: XSRF token seems too short, may be invalid");
   }
 
   if (!finalConfig.enabled) {
@@ -266,10 +265,14 @@ export function useUsageTracking(config: Partial<UsageTrackerConfig> = {}) {
     return false;
   }
 
-  // Send batch using sendBeacon with FormData
-  function sendBatch(events: UsageEvent[]): boolean {
+  // Send batch using sendBeacon with FormData. Without a token the server would reject it,
+  // so nothing is sent and the events stay queued for a later page.
+  function sendBatch(events: UsageEvent[], xsrfToken: string): boolean {
     if (events.length === 0) {
       return true;
+    }
+    if (!xsrfToken) {
+      return false;
     }
 
     // Create FormData with JSON payload and XSRF token
@@ -369,21 +372,39 @@ export function useUsageTracking(config: Partial<UsageTrackerConfig> = {}) {
     if (visitCount >= threshold && unsentEvents.length >= batchSize) {
       const eventsToSend = unsentEvents.slice(0, batchSize);
 
-      // Send synchronously using sendBeacon
-      const success = sendBatch(eventsToSend);
-
-      if (success) {
-        // Update lastSentIndex
-        const newQueue = loadQueue();
-        newQueue.lastSentIndex += eventsToSend.length;
-        saveQueue(newQueue);
-
-        if (finalConfig.debug) {
-          console.log("Usage tracking: Batch sent", {
-            eventsCount: eventsToSend.length,
-            newLastSentIndex: newQueue.lastSentIndex,
+      // Send synchronously using sendBeacon when a token is at hand; otherwise fetch one first.
+      const token = currentAntiforgeryToken(pageXsrfToken);
+      if (token) {
+        sendAndRecord(eventsToSend, token);
+      } else {
+        ensureAntiforgeryToken(pageXsrfToken)
+          .then((fetched) => sendAndRecord(eventsToSend, fetched))
+          .catch((error) => {
+            if (finalConfig.debug) {
+              console.warn("Usage tracking: Could not get an antiforgery token:", error);
+            }
           });
-        }
+      }
+    } else if (visitCount + 1 >= threshold && !currentAntiforgeryToken(pageXsrfToken)) {
+      // Sends (including on unload) start with the next page; have a token ready for them.
+      ensureAntiforgeryToken(pageXsrfToken).catch(() => {});
+    }
+  }
+
+  function sendAndRecord(eventsToSend: UsageEvent[], xsrfToken: string): void {
+    const success = sendBatch(eventsToSend, xsrfToken);
+
+    if (success) {
+      // Update lastSentIndex
+      const newQueue = loadQueue();
+      newQueue.lastSentIndex += eventsToSend.length;
+      saveQueue(newQueue);
+
+      if (finalConfig.debug) {
+        console.log("Usage tracking: Batch sent", {
+          eventsCount: eventsToSend.length,
+          newLastSentIndex: newQueue.lastSentIndex,
+        });
       }
     }
   }
@@ -459,7 +480,7 @@ export function useUsageTracking(config: Partial<UsageTrackerConfig> = {}) {
           });
         }
 
-        const success = sendBatch(unsentEvents);
+        const success = sendBatch(unsentEvents, currentAntiforgeryToken(pageXsrfToken));
         if (success) {
           // Update lastSentIndex (optimistic)
           queue.lastSentIndex = queue.events.length - 1;

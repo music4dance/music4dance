@@ -55,9 +55,15 @@
 }
 
 @functions{
+    // Only signed-in pages carry the antiforgery token. Minting one sets the antiforgery cookie,
+    // and a page that sets a cookie can't be cached, so anonymous pages fetch a token from
+    // /api/antiforgery/token when they first need one (ClientApp/src/helpers/AntiforgeryToken.ts).
+    // See architecture/plans/bot-load-and-public-page-rendering.md (A3).
     public string GetAntiXsrfRequestToken()
     {
-        return _xsrf.GetAndStoreTokens(Context).RequestToken;
+        return User.Identity?.IsAuthenticated == true
+            ? _xsrf.GetAndStoreTokens(Context).RequestToken
+            : string.Empty;
     }
 }
 
