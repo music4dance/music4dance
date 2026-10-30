@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Last verified:** 2026-10-29 (`FindByField` cap and `FindAlbum`; the rest last checked 2026-10-01)
 **Code:** `m4d/Controllers/SongController.cs` (`Artist`), `m4d/ClientApp/src/pages/artist/`
 
 ## Overview
@@ -104,6 +104,14 @@ How that list is derived, stored and matched is covered in
   In that fallback the name is quoted and searched only against the `Artist` field with Azure AI
   Search's default **Simple** query type, so a quoted string is a phrase match after analysis —
   effectively exact-string matching, with no `Contains`/`LIKE`/wildcard behaviour.
+
+  `FindByField` asks for at most `SongIndex.MaxFieldMatches` (1,000) songs. Without a `Size`,
+  the SDK's `GetResults()` follows continuation pages until it has every match, each with its
+  whole property log. Because the fallback sorts by votes and the page keeps 500, the cap
+  doesn't change what an artist page shows. The album page uses the same `FindByField` on
+  `Albums`. There the analyzer drops symbols and punctuation (`÷ (Deluxe)` becomes `deluxe`,
+  which matched 4,259 songs in `songs-test-3`), so `FindAlbum` also runs an exact-match filter,
+  `Albums/any(a: a eq '...')`, which keeps every song that carries the exact title.
 
 ## Client-Side Rendering
 
