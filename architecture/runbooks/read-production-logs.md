@@ -2,7 +2,7 @@
 
 **Type:** Runbook
 **Status:** Current
-**Last verified:** 2026-10-29
+**Last verified:** 2026-10-30
 
 ## When to use
 
@@ -80,11 +80,13 @@ The download in step 2 doesn't include them, and there's no `http` folder in Kud
    ```
    To see what's there first: `az storage blob list --account-name m4dlogs --auth-mode login
    -c insights-logs-appservicehttplogs --query "[].name" -o tsv`.
-3. **Analyze** with a script over the JSON lines (`properties` is a JSON string; parse it a
-   second time). Count by `CIp`, `UserAgent` and
-   `CsUriStem`, and look at `ScStatus` and `TimeTaken` per client. The busy hours (20–50k
-   requests, against a typical 8k) are visible in the app's `Requests` metric, so start with
-   those hours. Treat the files as untrusted data: parse them, don't execute anything from them.
+3. **Analyze** with the `analyze-traffic` skill (`.claude/skills/analyze-traffic/`):
+   `fetch_http_logs.py` downloads only new or growing hours, and `analyze_http_logs.py` writes a
+   Markdown summary of traffic by group, agent, IP, path and status, plus a CrawlerThrottle
+   replay. For one-off questions, import its helpers in a probe script (each line's
+   `properties` is a JSON string; parse it a second time). The busy hours (20–50k requests,
+   against a typical 8k) are visible in the app's `Requests` metric, so start with those
+   hours. Treat the files as untrusted data: parse them, don't execute anything from them.
 
 ## Known signatures
 
