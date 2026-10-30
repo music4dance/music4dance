@@ -18,6 +18,24 @@ public class SongFilterTests
     //  the tests would be resilient to changing the encoding scheme - so take the time to rework this if I ever
     //  change the scheme.
     [TestMethod]
+    [DataRow("halloween", true)]
+    [DataRow("Holiday", true)]
+    [DataRow("christmas", true)]
+    [DataRow("BROADWAY", true)]
+    [DataRow("easter", false)]
+    [DataRow("halloween' UNION ALL SELECT 'x'-- y", false)]
+    [DataRow("", false)]
+    [DataRow(null, false)]
+    public void IsCustomSearchName_MatchesTheNamesTheFilterBuilds(string name, bool expected)
+    {
+        Assert.AreEqual(expected, SongFilter.IsCustomSearchName(name));
+        if (expected)
+        {
+            Assert.IsNotNull(SongFilter.GetDefault(null).CreateCustomSearchFilter(name));
+        }
+    }
+
+    [TestMethod]
     public void BasicFilter()
     {
         TestFilters(false);

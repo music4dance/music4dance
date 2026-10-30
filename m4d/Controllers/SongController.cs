@@ -133,12 +133,24 @@ public class SongController : ContentController
         return await DoAzureSearch();
     }
 
+    /// <summary>
+    /// Spotify ids are base62 (22 characters today). Anything else, such as the injection
+    /// probes crawlers send on ?id=, went on to the Spotify lookup and got a 500, so reject it first.
+    /// </summary>
+    public static bool IsSpotifyId(string id) =>
+        !string.IsNullOrEmpty(id) && id.Length <= 64 && id.All(char.IsAsciiLetterOrDigit);
+
     [AllowAnonymous]
     public async Task<ActionResult> Playlist(string id, string type = "playlist")
     {
         if (string.IsNullOrWhiteSpace(id))
         {
             return ReturnError(HttpStatusCode.NotFound, "Playlist id is empty.");
+        }
+
+        if (!IsSpotifyId(id))
+        {
+            return ReturnError(HttpStatusCode.NotFound, "That isn't a Spotify playlist or album id.");
         }
 
         var isAlbum = string.Equals(type, "album", StringComparison.OrdinalIgnoreCase);

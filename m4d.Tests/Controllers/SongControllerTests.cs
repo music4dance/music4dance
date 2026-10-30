@@ -30,6 +30,19 @@ namespace m4d.Tests.Controllers;
 [TestClass]
 public class SongControllerTests
 {
+    [TestMethod]
+    [DataRow("4PGMLc2lfy6hsdmyj2rm2x", true)]
+    [DataRow("37i9dQZF1DXcBWIGoYBM5M", true)]
+    [DataRow("4PGMLc2lfy6hsdmyj2rm2x' UNION ALL SELECT 'x'-- y", false)]
+    [DataRow("4PGMLc2lfy6hsdmyj2rm2x UNION ALL SELECT NULL", false)]
+    [DataRow("../me/playlists", false)]
+    [DataRow("", false)]
+    [DataRow(null, false)]
+    public void IsSpotifyId_AcceptsOnlyBase62(string id, bool expected)
+    {
+        Assert.AreEqual(expected, SongController.IsSpotifyId(id));
+    }
+
     #region RemoveDeadPurchaseId Tests
 
     [TestMethod]

@@ -12,6 +12,8 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.FeatureManagement;
 using Microsoft.Net.Http.Headers;
 
+using System.Net;
+
 namespace m4d.Controllers;
 
 public class CustomSearchController : ContentController
@@ -34,6 +36,14 @@ public class CustomSearchController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> Index(string name, string dance = null, int page = 1)
     {
+        // An unknown name made CreateCustomSearchFilter throw (a 500 for every injection
+        // probe on ?name=), and a missing one reached name[0] below.
+        name = string.IsNullOrWhiteSpace(name) ? "holiday" : name;
+        if (!SongFilter.IsCustomSearchName(name))
+        {
+            return ReturnError(HttpStatusCode.NotFound, "There's no custom search with that name.");
+        }
+
         Filter = Database.SearchService.GetSongFilter().CreateCustomSearchFilter(name, dance, page);
         if (!Filter.DanceQuery.IsValid)
         {
