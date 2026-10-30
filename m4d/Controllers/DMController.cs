@@ -220,6 +220,18 @@ public class DanceMusicController(
 
     protected string UserName => Identity.Name;
 
+    /// <summary>
+    /// Song-list histories as this viewer should get them: anonymous viewers (crawlers among
+    /// them) get the album properties a list row can't show trimmed away
+    /// (SongHistory.TrimAlbumsForList); signed-in viewers get them complete.
+    /// </summary>
+    protected List<SongHistory> ForListViewer(IEnumerable<SongHistory> histories)
+    {
+        return User?.Identity?.IsAuthenticated == true
+            ? [.. histories]
+            : [.. histories.Select(h => h.TrimAlbumsForList())];
+    }
+
     protected IIdentity Identity
     {
         get

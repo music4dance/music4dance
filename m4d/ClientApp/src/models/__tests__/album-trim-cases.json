@@ -1,0 +1,261 @@
+{
+  "description": "Shared cases for SongHistory.TrimAlbumsForList (m4dModels/SongHistory.cs), which drops album properties a song-list row can't show from anonymous list pages. m4dModels.Tests/SongHistoryTrimTests.cs checks that the trim produces 'trimmed' from 'log' ('trimmed': null means the history comes back unchanged); src/models/__tests__/SongAlbumTrim.test.ts checks that the client builds the same list-row values from both. Each entry is one property; header lines ('.Create=', '.Edit=', 'User=...', 'Time=...') start blocks.",
+  "cases": [
+    {
+      "name": "keeps the first album and the first Spotify and iTunes albums",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=07/04/2026 09:03:55",
+        "Title=Candyman",
+        "Artist=Christina Aguilera",
+        "DanceRating=ECS+1",
+        "Tag+=East Coast Swing:Dance",
+        "Album:0=Back To Basics",
+        "Track:0=3",
+        ".Edit=",
+        "User=batch-i|P",
+        "Time=07/05/2026 10:00:00",
+        "Album:1=Hits 2006",
+        "Track:1=7",
+        "Purchase:1:IS=111",
+        "Purchase:1:IA=222",
+        "Album:2=Party Mix",
+        "Purchase:2:IS=333",
+        ".Edit=",
+        "User=batch-s|P",
+        "Time=07/06/2026 10:00:00",
+        "Album:3=Swing Time",
+        "Purchase:3:SS=sp1",
+        "Purchase:3:SA=sp2",
+        "Album:4=More Swing",
+        "Purchase:4:SS=sp3",
+        "Publisher:4=Label"
+      ],
+      "trimmed": [
+        ".Create=",
+        "User=dwgray",
+        "Time=07/04/2026 09:03:55",
+        "Title=Candyman",
+        "Artist=Christina Aguilera",
+        "DanceRating=ECS+1",
+        "Tag+=East Coast Swing:Dance",
+        "Album:0=Back To Basics",
+        "Track:0=3",
+        ".Edit=",
+        "User=batch-i|P",
+        "Time=07/05/2026 10:00:00",
+        "Album:1=Hits 2006",
+        "Track:1=7",
+        "Purchase:1:IS=111",
+        "Purchase:1:IA=222",
+        ".Edit=",
+        "User=batch-s|P",
+        "Time=07/06/2026 10:00:00",
+        "Album:3=Swing Time",
+        "Purchase:3:SS=sp1",
+        "Purchase:3:SA=sp2"
+      ]
+    },
+    {
+      "name": "drops albums whose only purchases are Amazon (always a search link)",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=07/04/2026 09:03:55",
+        "Title=Candyman",
+        "Artist=Christina Aguilera",
+        "Album:0=Back To Basics",
+        "Album:1=Amazon Only",
+        "Purchase:1:AS=D:B004AV2JPY",
+        "Purchase:1:AA=D:B004AV4IF8"
+      ],
+      "trimmed": [
+        ".Create=",
+        "User=dwgray",
+        "Time=07/04/2026 09:03:55",
+        "Title=Candyman",
+        "Artist=Christina Aguilera",
+        "Album:0=Back To Basics"
+      ]
+    },
+    {
+      "name": "a cleared album isn't the first album",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=07/04/2026 09:03:55",
+        "Title=Candyman",
+        "Artist=Christina Aguilera",
+        "Album:0=Gone",
+        "Track:0=1",
+        "Album:1=Kept",
+        "Track:1=2",
+        "Album:2=Dropped",
+        ".Edit=",
+        "User=dwgray",
+        "Time=07/05/2026 10:00:00",
+        "Album:0="
+      ],
+      "trimmed": [
+        ".Create=",
+        "User=dwgray",
+        "Time=07/04/2026 09:03:55",
+        "Title=Candyman",
+        "Artist=Christina Aguilera",
+        "Album:1=Kept",
+        "Track:1=2",
+        ".Edit=",
+        "User=dwgray",
+        "Time=07/05/2026 10:00:00"
+      ]
+    },
+    {
+      "name": "a removed purchase moves Spotify to a later album",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=07/04/2026 09:03:55",
+        "Title=Candyman",
+        "Artist=Christina Aguilera",
+        "Album:0=First",
+        "Album:1=Second",
+        "Purchase:1:SS=sp1",
+        "Album:2=Third",
+        "Purchase:2:SS=sp2",
+        "Album:3=Fourth",
+        "Purchase:3:SS=sp3",
+        ".Edit=",
+        "User=batch-s|P",
+        "Time=07/05/2026 10:00:00",
+        "Purchase-:1:SS=sp1"
+      ],
+      "trimmed": [
+        ".Create=",
+        "User=dwgray",
+        "Time=07/04/2026 09:03:55",
+        "Title=Candyman",
+        "Artist=Christina Aguilera",
+        "Album:0=First",
+        "Album:2=Third",
+        "Purchase:2:SS=sp2",
+        ".Edit=",
+        "User=batch-s|P",
+        "Time=07/05/2026 10:00:00"
+      ]
+    },
+    {
+      "name": "a purchase on an unnamed album index doesn't count",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=07/04/2026 09:03:55",
+        "Title=Candyman",
+        "Artist=Christina Aguilera",
+        "Album:0=First",
+        "Purchase:1:SS=sp1",
+        "Album:2=Named",
+        "Purchase:2:SS=sp2",
+        "Album:3=Last"
+      ],
+      "trimmed": [
+        ".Create=",
+        "User=dwgray",
+        "Time=07/04/2026 09:03:55",
+        "Title=Candyman",
+        "Artist=Christina Aguilera",
+        "Album:0=First",
+        "Album:2=Named",
+        "Purchase:2:SS=sp2"
+      ]
+    },
+    {
+      "name": "leaves everything but album properties alone",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=07/04/2026 09:03:55",
+        "Title=Candyman",
+        "Artist=Christina Aguilera",
+        "DanceRating=ECS+1",
+        "Tag+=East Coast Swing:Dance",
+        "Album:0=First",
+        "Album:1=Second",
+        ".Edit=",
+        "User=JuliaS|P",
+        "Time=07/07/2026 10:00:00",
+        "DanceRating=LHP+1",
+        "Tag+=Lindy Hop:Dance",
+        "Like=true",
+        "Tempo=140.0"
+      ],
+      "trimmed": [
+        ".Create=",
+        "User=dwgray",
+        "Time=07/04/2026 09:03:55",
+        "Title=Candyman",
+        "Artist=Christina Aguilera",
+        "DanceRating=ECS+1",
+        "Tag+=East Coast Swing:Dance",
+        "Album:0=First",
+        ".Edit=",
+        "User=JuliaS|P",
+        "Time=07/07/2026 10:00:00",
+        "DanceRating=LHP+1",
+        "Tag+=Lindy Hop:Dance",
+        "Like=true",
+        "Tempo=140.0"
+      ]
+    },
+    {
+      "name": "no albums: unchanged",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=07/04/2026 09:03:55",
+        "Title=Candyman",
+        "Artist=Christina Aguilera"
+      ],
+      "trimmed": null
+    },
+    {
+      "name": "an index that isn't a number: unchanged",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=07/04/2026 09:03:55",
+        "Title=Candyman",
+        "Album:0=First",
+        "Album:1=Second",
+        "Album:x=Bad index"
+      ],
+      "trimmed": null
+    },
+    {
+      "name": "a purchase without a qualifier: unchanged",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=07/04/2026 09:03:55",
+        "Title=Candyman",
+        "Album:0=First",
+        "Album:1=Second",
+        "Purchase:1=No qualifier"
+      ],
+      "trimmed": null
+    },
+    {
+      "name": "a purchase with a malformed qualifier: unchanged",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=07/04/2026 09:03:55",
+        "Title=Candyman",
+        "Album:0=First",
+        "Album:1=Second",
+        "Purchase:1:SSS=Bad qualifier"
+      ],
+      "trimmed": null
+    }
+  ]
+}

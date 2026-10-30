@@ -368,9 +368,9 @@ public class SongController : ContentController
     {
         var dictionary = await UserMapper.GetUserNameDictionary(UserManager, ServiceHealth);
         var isAuthenticated = Identity.IsAuthenticated;
-        return songs.Select(
+        return ForListViewer(songs.Select(
             s =>
-                UserMapper.AnonymizeHistory(s.GetHistory(Mapper), dictionary, isAuthenticated, UserName)).ToList();
+                UserMapper.AnonymizeHistory(s.GetHistory(Mapper), dictionary, isAuthenticated, UserName)));
     }
 
     private async Task<ActionResult> FormatSongList(IReadOnlyCollection<Song> songs,
@@ -876,6 +876,7 @@ public class SongController : ContentController
             {
                 var model = await AlbumViewModel.Create(
                     title, Mapper, DefaultCruftFilter(), Database);
+                model.Histories = ForListViewer(model.Histories);
                 return Vue3(
                     $"Album: {title}", $"Songs for dancing on {title}", "album",
                     model, danceEnvironment: true);
@@ -917,6 +918,7 @@ public class SongController : ContentController
 
         var model = await ArtistViewModel.Create(
             name, Mapper, DefaultCruftFilter(), Database, artistIndex);
+        model.Histories = ForListViewer(model.Histories);
 
         // Splitting credits turns one artist page into tens of thousands, most of them a
         // single song. Those are too thin to be worth indexing, but their songs are worth

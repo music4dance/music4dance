@@ -675,6 +675,12 @@ export class Song extends TaggableObject {
     return danceId ? this.findDanceRatingById(danceId)! : this;
   }
 
+  /**
+   * Anonymous song lists get histories trimmed by SongHistory.TrimAlbumsForList
+   * (m4dModels/SongHistory.cs), which mirrors this replay and keeps only albums[0] and the first
+   * Spotify and iTunes albums. If a list row starts reading other albums, change the trim too;
+   * album-trim-cases.json is shared by both sides' tests.
+   */
   private buildAlbumInfo(properties: SongProperty[]): AlbumDetails[] {
     const names = new Set<string>([
       PropertyType.albumField,

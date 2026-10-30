@@ -2,8 +2,8 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
-**Code:** `m4d/Controllers/SongController.cs`
+**Last verified:** 2026-10-29 (FormatSongList and the anonymous history trim; the rest last checked 2026-10-01)
+**Code:** `m4d/Controllers/SongController.cs`, `m4dModels/SongHistory.cs` (`TrimAlbumsForList`)
 
 ## Overview
 
@@ -99,6 +99,21 @@ Azure schema — has to be checked song-by-song after streaming candidates via `
 `SongFilterSparse` (serializable view of the current filter, used by the client to build follow-up
 requests), `Count` (matched total), `RawCount` (pre-cruft-filter total), and optional
 `HiddenColumns` (used by admin views like `MergeCandidates` to suppress irrelevant columns).
+
+**Anonymous lists get trimmed histories.** For anonymous viewers, crawlers included,
+`DanceMusicController.ForListViewer` passes each history through
+`SongHistory.TrimAlbumsForList` (`m4dModels/SongHistory.cs`). The trim keeps every property
+except the album group (`Album`, `Track`, `Publisher`, `Purchase`, `Purchase-`) for albums a list
+row can't reach. It keeps the first named album (track number) and the first albums with a
+Spotify and an iTunes song id (play links; Amazon is always a search link). Edit headers stay, so
+`modified`, `edited` and `modifiedBy` are unchanged. The trim mirrors the client's
+`Song.buildAlbumInfo` replay and returns the history untouched on any property name it doesn't
+expect. On 52 production songs (2026-10-29) it cut list-page history JSON from 1.10 MB to
+0.45 MB, and the client built identical list rows from both. Signed-in viewers, and the song
+details page, get complete histories. `ForListViewer` also covers custom search, album, artist,
+dance details and the playlist viewer. The shared cases are
+`m4d/ClientApp/src/models/__tests__/album-trim-cases.json`, run by `SongHistoryTrimTests` and
+`SongAlbumTrim.test.ts`.
 
 ---
 
