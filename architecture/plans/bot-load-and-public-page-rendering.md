@@ -435,9 +435,15 @@ Learned along the way, and needed before Phase 2:
   grows with `skip`, and Azure rejects a `skip` over 100,000. The bot stub tells crawlers to
   page through `/song`, so it wasn't capped. A song sitemap (open question 5) would let
   crawlers reach songs without deep paging, and then paging could be capped.
-- **Locally, the real app can't reach the search index**: its configured credential is an app
-  registration Entra ID doesn't know (AADSTS700016), so A7 was checked with read-only REST
-  queries instead.
+- **A7, checked end to end (2026-10-30)** with the real app against `songs-test-3`, compared with
+  production's old code. `÷ (Deluxe)` took 2.0 s instead of 5.1 s, and showed 14 songs instead
+  of 15. The missing song was a false match in the old code: the title matcher's fallback strips
+  punctuation, so Ed Sheeran's `=` and `÷ (Deluxe)` both reduce to an empty string.
+  "Greatest Hits" took 1.2 s instead of 8.5 s, with 784 songs instead of 787. It has 1,343 exact
+  and 4,585 phrase matches, so the 1,000 cap on each query drops a few; paging the exact query
+  would recover them if that page matters. Smaller albums matched exactly. (The local app
+  couldn't reach search at first because `AZURE_CLIENT_ID` in user secrets had a stray
+  character.)
 
 ### Phase 2: Caching (after A3)
 
