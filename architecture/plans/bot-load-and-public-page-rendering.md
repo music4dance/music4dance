@@ -445,6 +445,33 @@ Learned along the way, and needed before Phase 2:
   couldn't reach search at first because `AZURE_CLIENT_ID` in user secrets had a stray
   character.)
 
+**Follow-up: field-driven history pruning (generalizes A2).** Not scheduled. A2 trims one kind
+of property, album data a list row can't reach, with hand-written rules that mirror the client's
+`buildAlbumInfo`. The general version prunes a history down to the properties that actually
+produce what a view renders:
+
+- **Input:** the fields the view shows, with an index for array fields (for example `Title`,
+  `Artist`, `Tempo`, `DanceRating`, `Album:0`, plus the first Spotify and iTunes purchases). A
+  list row, the details page and the API could each declare their own set.
+- **Tracking:** `Song.Load` / `LoadProperties` (`m4dModels/Song.cs`) already replays the log to
+  build the song. With a field list, it would also record which property *instances* (the
+  actual entries in the log, not their types) produced each field's final value. For a
+  last-writer field such as `Title`, that's the last write that took effect (bot values
+  don't overwrite user values). For accumulating fields such as dance ratings, tags and votes,
+  it's every entry that still counts after removals.
+- **Output:** the history filtered to those instances. Edit headers (`.Create`/`.Edit`, `User`,
+  `Time`) stay, so `modified`, `edited` and `modifiedBy` are unchanged; drop a header only when
+  its block is empty and those values aren't in the field list either.
+- **Gain:** beyond A2's albums, this removes superseded values, such as the title and artist
+  renames that are common in the catalog, and every property no rendered field uses. A2
+  becomes one case of it.
+- **Risk:** the client replays the pruned log itself, so the server's notion of "the entry that
+  produced this value" must match the client's replay exactly. That covers the bot-versus-user
+  overwrite rule, per-dance tempo promotion, artists and deletions. Verify it the way A2 was:
+  shared C#/TypeScript fixtures (like `album-trim-cases.json`) plus an equivalence run over a
+  production sample. Keep it to anonymous viewers, as A2 is, because signed-in users edit from
+  the full log.
+
 ### Phase 2: Caching (after A3)
 
 Choose between **B1** alone (cheap, server-side, size-capped) and an edge (**B2** Front Door, or
