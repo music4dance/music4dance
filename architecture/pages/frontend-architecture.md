@@ -327,6 +327,9 @@ also fills `window.danceDatabaseJson` and `window.tagDatabaseJson` from the chec
 - 2026-10-29: anonymous pages no longer carry an antiforgery token. The client fetches one from
   `/api/antiforgery/token` when needed (`AntiforgeryToken.ts`), so anonymous HTML sets no
   cookie. A3 of [plans/bot-load-and-public-page-rendering](../plans/bot-load-and-public-page-rendering.md).
+- 2026-10-29: `_head.cshtml` loads the cookie-consent script with `defer` and the Google Fonts
+  stylesheet with `display=swap` plus preconnects, so neither holds up first paint (A5 of the
+  same plan).
 
 ## Related
 
