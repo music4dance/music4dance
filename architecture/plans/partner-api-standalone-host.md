@@ -472,10 +472,10 @@ What to put in front of the partner developer, and into the partner terms:
 
 The remaining single point of failure is **Azure Search**, and that's acceptable under best
 effort. It's a managed service with a much better track record than a single web app
-instance. But it isn't only an outage risk: the single Basic replica the website uses
-**throttled in 21 of the 720 hours** before the spike, up to 81% of queries in the worst hour
-(see [Spike results](#spike-results-2026-10-29)). During those hours the partner API returns
-503s however it's hosted. Two notes for expectations rather than action:
+instance. The other way it fails is throttling when the website overloads the shared replica:
+in the 30 days before the spike that was 34 minutes, almost all during one site overload
+(see [Spike results](#spike-results-2026-10-29)). The partner API returns 503s in those
+minutes however it's hosted. Two notes for expectations rather than action:
 
 - A single-replica search service is briefly unavailable during Microsoft's own maintenance.
   The partner's retry and cache behavior covers that.
@@ -588,22 +588,31 @@ No throttling at any step, and **one 2 GB instance** served all of it. 20 req/s 
 twice the uncached peak for 10,000 subscribers. The test deliberately stopped there rather
 than looking for the replica's ceiling, because test and prod indexes share the one replica.
 
-### The real constraint: the shared replica's own bursts
+### The remaining coupling: site overload on the shared replica
 
-In the 30 days before the spike the `music4dance` service (Basic, 1 replica, 1 partition)
-averaged ~2.2 QPS with hourly peaks of ~20 QPS, and **throttled in 21 hours**. The worst was
-81% of queries on 2026-10-24, and some throttling happened at only 18–30 QPS. Hourly average
-latency hit 4 s at worst, against a median of 10 ms. The cause isn't established; heavy site
-queries, crawler bursts, or bulk index writes are the candidates.
+From per-minute metrics for 2026-09-29 to 2026-10-28, the `music4dance` service (Basic,
+1 replica, 1 partition) averaged ~2.2 QPS and served ~4.2 million queries. It throttled in
+**34 of 43,200 minutes**, an estimated **~4,100 queries (0.1%)**:
 
-So partner traffic at 20 req/s is easily absorbed on a normal day, but partner availability is
-bounded by whatever pushes the site's replica over. Worth doing before production, in order:
-find what caused those throttled hours (and fix it for the website's sake too); then decide on
-a second replica if partner revenue justifies it. The per-client rate limit should stay
-conservative until then.
+| Days (UTC) | Minutes throttled | Est. throttled queries | Share of the day's queries |
+| --- | --- | --- | --- |
+| Oct 3–5, 15–16, 23 | 11 | ~260 | ≤0.05% |
+| Oct 24–25 | 23 | ~3,800 | 1.1–1.3% |
 
-The per-minute `SearchQueriesPerSecond` metric doesn't line up with known load windows (it
-looks sampled), so use the function's own search timings, not that metric, as the load guard.
+Oct 24–25 was a general site overload, and throttling of site traffic is being worked on
+separately. Outside that event, throttling was a handful of isolated minutes.
+
+Throttling is reported only as a percentage, so the counts are estimates: per-minute average
+QPS × 60 × throttled %. Read the metric at 1-minute grain. An hourly Maximum makes a single
+bad minute look like a bad hour (an earlier draft of this section read it that way), and a
+portal Average over 30 days hides it almost entirely.
+
+So partner traffic at 20 req/s is easily absorbed on a normal day, and partner availability is
+tied mainly to site overload events on the shared replica. Throttling site traffic protects
+both. A second replica is the option if partner revenue ever justifies it.
+
+The per-minute `SearchQueriesPerSecond` metric doesn't line up exactly with known load windows,
+so use the function's own search timings, not that metric, as the load guard.
 
 ### Bugs and corrections found
 
@@ -644,12 +653,10 @@ can be deleted in one step. The alias `songs-api-test` and the index-scoped role
    narrow, and needs the same care as the voting API.
 5. **Starting limits.** Do 20 req/s sustained, a burst of 50, and 100,000 calls/day suit the
    partner's launch plans? The spike showed 20 req/s is absorbed easily on a normal day, but
-   the capacity section argues for ~5 req/s if the 20% carve-out is policy, and the replica's
-   history of throttling argues for staying conservative. Pick one number for both sections.
+   the capacity section argues for ~5 req/s if the 20% carve-out is policy. Pick one number
+   for both sections.
 6. **Cold starts.** Startup warming only, or an always-ready instance as well? Depends on how
    the partner app handles a 2 s first lookup.
-7. **Throttled hours.** What drove the 21 throttled hours on the search service before the
-   spike? This matters for the website as much as for partners.
 
 ---
 
