@@ -1,9 +1,9 @@
 # Partner API: Standalone Host Independent of the Web App
 
 **Type:** Plan
-**Status:** Proposed (planning only, nothing built)
+**Status:** Proposed. Spike run 2026-10-29; see [Spike results](#spike-results-2026-10-29).
 **Last verified:** 2026-10-29
-**Code:** none yet. Would read the index built by `m4dModels/SongIndex.cs`; the existing in-app API foundation is under `m4d/PublicApi/`.
+**Code:** spike only: `m4d-api/` (Azure Functions project, not yet in `music4dance.sln`). Reads the index built by `m4dModels/SongIndex.cs`; the existing in-app API foundation is under `m4d/PublicApi/`.
 
 **Context:** The likely first integration is a third-party app that sells its own subscription,
 with the partner developer's backend calling music4dance server to server using a single
@@ -80,7 +80,8 @@ a complex field per dance, `dance_{ID}`, with `Votes`, `Tempo`, `TempoTags`, `St
 
 | Response field | Index source |
 | --- | --- |
-| `title`, `artist`, `length`, `tempo` (MPM) | Top-level fields |
+| `title`, `artist`, `length` | Top-level fields |
+| `tempo` (MPM) | Top-level `Tempo`, which is **BPM** (`Song.Tempo`; imports map a `BPM` column to it). Divide by the meter's beats per measure to get MPM, or expose it as `bpm` alongside. |
 | `meter` | Derived from `TempoTags` containing `4/4`, `3/4`, or `2/4`. This mirrors `Song.Meter` ([Song.cs:4682](../../m4dModels/Song.cs#L4682)). |
 | `danceRatings[].weight` | `dance_{ID}/Votes`. `-1` is the unconfirmed-only sentinel ([SongIndex.cs:2246](../../m4dModels/SongIndex.cs#L2246)); exclude it. |
 | `danceRatings[].tempo` | `dance_{ID}/Tempo` (already falls back to song tempo at index time) |
@@ -471,7 +472,10 @@ What to put in front of the partner developer, and into the partner terms:
 
 The remaining single point of failure is **Azure Search**, and that's acceptable under best
 effort. It's a managed service with a much better track record than a single web app
-instance. Two notes for expectations rather than action:
+instance. But it isn't only an outage risk: the single Basic replica the website uses
+**throttled in 21 of the 720 hours** before the spike, up to 81% of queries in the worst hour
+(see [Spike results](#spike-results-2026-10-29)). During those hours the partner API returns
+503s however it's hosted. Two notes for expectations rather than action:
 
 - A single-replica search service is briefly unavailable during Microsoft's own maintenance.
   The partner's retry and cache behavior covers that.
@@ -526,15 +530,95 @@ instance. Two notes for expectations rather than action:
 | **4. Unmatched queue** | Queue writes (misses and fuzzy-only results) in the function; admin drain and review page in `m4d` (can trail) |
 | **5. Production** | Prod alias, custom domain and certificate, alerts, runbook step added to search-index-versioning.md, production key issued to the first partner |
 
-Before PR 1, a short spike is worth doing: deploy a minimal Flex function with managed identity
-against the test search service, then measure:
+The spike below came before PR 1. Its `m4d-api/` project is the starting point for PRs 1 and 2.
 
-- Cold-start latency on a real resolve query, which decides whether an always-ready instance
-  is needed.
-- Warm latency for id and title/artist queries, which replaces the estimates in
-  [Capacity](#capacity-and-throughput).
-- A short load test (e.g. 50 req/s for a few minutes) against the **test** index, watching
-  Search latency and throttling.
+---
+
+## Spike results (2026-10-29)
+
+A minimal Flex function (`m4d-api/`: resolve + health, function-key auth, DanceLib for dance
+names) deployed to its own resource group, `m4d-api-spike`, in West US next to Search. Its
+managed identity has **Search Index Data Reader scoped to the `songs-test-3` index only**,
+queried through the alias `songs-api-test`. Index-scoped roles work through an alias.
+
+### Warm latency
+
+300 sequential requests over a sample of 300 confirmed songs from the test index:
+
+| | Server p50 / p95 | Plan estimate |
+| --- | --- | --- |
+| Id search query | 9 / 14 ms | 20–60 ms |
+| Title/artist search query | 13 / 27 ms | 50–150 ms |
+| Whole request, id hit | 10 / 15 ms | ~100 ms blended |
+| Whole request, id miss then title/artist | 21 / 35 ms | |
+
+From a home connection the client saw ~130 ms, almost all network round trip and a fresh TLS
+handshake per request. Function latency isn't a concern.
+
+Match quality on the sample: id lookups resolved 200 of 200 (after the ISRC case fix below).
+Title + artist put the expected song first in 98 of 100, and rated 98 of them `high`.
+
+### Cold starts
+
+Probes after idle gaps of 5, 10, 15, 20 and 30 minutes all landed on a **new instance**, so
+Flex scales to zero in under 5 minutes. A cold request took **2.2–2.5 s** at the client against
+~180 ms warm. About 0.5–0.65 s of that is the first Search call (managed-identity token plus
+connection setup); the rest is instance allocation and host start.
+
+So for live recognition, nearly every first lookup after a quiet spell is cold. Options:
+
+- Warm the credential and Search connection at startup (a hosted service that fetches a token
+  and runs one query). It's cheap and removes ~0.5 s.
+- One **always-ready instance**, which removes the rest at a small fixed monthly cost.
+- Accept it: a 2 s first lookup with the result shown when it arrives may be fine for the
+  partner's UX. Their call.
+
+### Load
+
+A stepped test against the test index at an ordinary hour (site Search load ~1.2 QPS),
+70% id lookups and 30% id miss then title/artist:
+
+| Step | Requests | Errors | Server p50 / p95 / max | Search p95 | Search QPS added |
+| --- | --- | --- | --- | --- | --- |
+| 5 req/s × 2 min | 601 | 0 | 10 / 37 / 93 ms | 23 ms | ~7 |
+| 10 req/s × 2 min | 1,201 | 0 | 8 / 24 / 113 ms | 14 ms | ~14 |
+| 20 req/s × 2 min | 2,401 | 0 | 8 / 22 / 203 ms | 14 ms | ~27 |
+
+No throttling at any step, and **one 2 GB instance** served all of it. 20 req/s is about
+twice the uncached peak for 10,000 subscribers. The test deliberately stopped there rather
+than looking for the replica's ceiling, because test and prod indexes share the one replica.
+
+### The real constraint: the shared replica's own bursts
+
+In the 30 days before the spike the `music4dance` service (Basic, 1 replica, 1 partition)
+averaged ~2.2 QPS with hourly peaks of ~20 QPS, and **throttled in 21 hours**. The worst was
+81% of queries on 2026-10-24, and some throttling happened at only 18–30 QPS. Hourly average
+latency hit 4 s at worst, against a median of 10 ms. The cause isn't established; heavy site
+queries, crawler bursts, or bulk index writes are the candidates.
+
+So partner traffic at 20 req/s is easily absorbed on a normal day, but partner availability is
+bounded by whatever pushes the site's replica over. Worth doing before production, in order:
+find what caused those throttled hours (and fix it for the website's sake too); then decide on
+a second replica if partner revenue justifies it. The per-client rate limit should stay
+conservative until then.
+
+The per-minute `SearchQueriesPerSecond` metric doesn't line up with known load windows (it
+looks sampled), so use the function's own search timings, not that metric, as the load guard.
+
+### Bugs and corrections found
+
+- **ISRC case.** Some ISRCs are stored lowercase in `ServiceIds` (e.g. `R:usdy41596491`), and
+  `search.in` is case-sensitive, so 3 of 100 ISRC lookups missed. The spike queries both cases.
+  The proper fix is normalizing to uppercase when the index (and the property log) is written.
+- **Tempo units.** The index's `Tempo` is BPM, not MPM; see the response-field table above.
+- **First-request cost.** The first Search call on an instance takes ~500 ms (token + TLS); see
+  [Cold starts](#cold-starts).
+
+### Spike resources
+
+Resource group `m4d-api-spike` (function app, storage, Application Insights, Log Analytics)
+can be deleted in one step. The alias `songs-api-test` and the index-scoped role assignment on
+`music4dance` stay useful for PR 1; remove them too if the plan is dropped.
 
 ---
 
@@ -559,7 +643,13 @@ against the test search service, then measure:
    accepted? That's the best signal for attaching ids to songs, but it's a write path, however
    narrow, and needs the same care as the voting API.
 5. **Starting limits.** Do 20 req/s sustained, a burst of 50, and 100,000 calls/day suit the
-   partner's launch plans?
+   partner's launch plans? The spike showed 20 req/s is absorbed easily on a normal day, but
+   the capacity section argues for ~5 req/s if the 20% carve-out is policy, and the replica's
+   history of throttling argues for staying conservative. Pick one number for both sections.
+6. **Cold starts.** Startup warming only, or an always-ready instance as well? Depends on how
+   the partner app handles a 2 s first lookup.
+7. **Throttled hours.** What drove the 21 throttled hours on the search service before the
+   spike? This matters for the website as much as for partners.
 
 ---
 
