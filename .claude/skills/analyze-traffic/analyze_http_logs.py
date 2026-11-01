@@ -92,6 +92,7 @@ FAMILIES = [
     (r"awariobot|awariosmartbot", "AwarioBot", "seo"),
     (r"megaindex", "MegaIndex", "seo"),
     (r"zoominfobot", "ZoominfoBot", "seo"),
+    (r"5six7eight", "5Six7Eight", "bot"),
     (r"sidetrade", "Sidetrade", "seo"),
     (r"facebookexternalhit|facebookcatalog", "facebookexternalhit", "social"),
     (r"twitterbot", "Twitterbot", "social"),
@@ -113,7 +114,7 @@ FAMILIES = [
     (r"node-fetch|axios/|undici|^node", "Node", "tool"),
     (r"libwww-perl|^perl", "Perl", "tool"),
     (r"scrapy", "Scrapy", "tool"),
-    (r"headlesschrome|phantomjs|puppeteer|playwright|selenium", "Headless browser", "tool"),
+    (r"headlesschrome|phantomjs|puppeteer|playwright|selenium|lightpanda", "Headless browser", "tool"),
 ]
 FAMILY_RES = [(re.compile(p), f, g) for p, f, g in FAMILIES]
 GENERIC_BOT = re.compile(r"([a-z0-9][a-z0-9_.\-]*(?:bot|spider|crawler)[a-z0-9_.\-]*)")
@@ -482,6 +483,28 @@ def main():
     table(["Hour", "Total"] + [GROUP_LABELS[g].split(" ")[0] for g in hg],
           [[h[5:].replace("T", " "), f"{sum(hourly[h].values()):,}"] + [f"{hourly[h][g]:,}" for g in hg]
            for h in sorted(hourly)])
+
+    # --- Busiest minutes --------------------------------------------------------
+    # Hourly totals hide short bursts; a few minutes at 30 pages a second can stall the site
+    # for everyone. 499 means the client gave up waiting.
+    heading("Busiest minutes (pages)")
+    minutes = defaultdict(lambda: {"pages": 0, "499": 0, "times": [], "groups": Counter()})
+    for r, (fam, g) in zip(rows, groups):
+        if kind_of(r[STEM]) != "page":
+            continue
+        m = minutes[r[T][:16]]
+        m["pages"] += 1
+        m["times"].append(r[TAKEN])
+        m["groups"][g] += 1
+        if r[STATUS] == "499":
+            m["499"] += 1
+    busiest = sorted(minutes, key=lambda k: -minutes[k]["pages"])[:args.top // 2]
+    median = sorted(m["pages"] for m in minutes.values())[len(minutes) // 2] if minutes else 0
+    print(f"- Median minute: {median} pages")
+    table(["Minute", "Pages", "499", "p50 ms", "Top group"],
+          [[k[5:].replace("T", " "), f"{m['pages']:,}", f"{m['499']:,}", sorted(m["times"])[len(m["times"]) // 2],
+            GROUP_LABELS[m["groups"].most_common(1)[0][0]]]
+           for k in sorted(busiest) for m in [minutes[k]]])
 
     # --- CrawlerThrottle replay -------------------------------------------------
     throttle_replay(rows, groups, args)

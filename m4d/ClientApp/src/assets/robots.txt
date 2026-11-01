@@ -48,6 +48,34 @@ Disallow: /Song/RawSearch
 Disallow: /searches
 Disallow: /Searches
 
+# Reflectionbot collects training data for Reflection AI's models and renders every page it
+# fetches; it was the largest single crawler by server time. It keeps song details and dance
+# pages but skips album and artist pages (the heaviest). It reads only its own group, so it
+# repeats the rules above.
+User-agent: Reflectionbot
+Disallow: /identity/
+Disallow: /api/
+Disallow: /song/sort
+Disallow: /Song/Sort
+Disallow: /song/azuresearch
+Disallow: /Song/azuresearch
+Disallow: /Song/AzureSearch
+Disallow: /song/filtersearch
+Disallow: /song/filterSearch
+Disallow: /Song/filtersearch
+Disallow: /Song/FilterSearch
+Disallow: /song/advanced
+Disallow: /song/Advanced
+Disallow: /Song/Advanced
+Disallow: /song/rawsearch
+Disallow: /Song/RawSearch
+Disallow: /searches
+Disallow: /Searches
+Disallow: /song/album
+Disallow: /Song/Album
+Disallow: /song/artist
+Disallow: /Song/Artist
+
 User-agent: facebookexternalhit
 Disallow: /identity/
 
