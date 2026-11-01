@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-30
+**Last verified:** 2026-10-31
 **Code:** `m4d/Middleware/RateLimitingMiddleware.cs`, `m4d/Middleware/Http4xxTrackingMiddleware.cs`,
 `m4d/Middleware/CrawlerThrottleMiddleware.cs`,
 `m4d/Security/` (`AuthenticationTracker`, `RateLimitingTracker`, `Http4xxTracker`, `CrawlerThrottle`),
@@ -192,7 +192,11 @@ Two companions reinforce it:
   [hosting-and-identity](../infrastructure/hosting-and-identity.md#request-pipeline-notes).
 - `robots.txt` disallows `/identity/` for `*`, Googlebot, `facebookexternalhit` and `Facebot`.
   The source is `m4d/ClientApp/src/assets/robots.txt`, which the build copies to `wwwroot`.
-  Googlebot reads only its own group, so that group repeats every `*` rule.
+  Googlebot reads only its own group, so that group repeats every `*` rule. So does the
+  `Reflectionbot` group, which also disallows `/song/album` and `/song/artist`: it's a
+  training crawler for Reflection AI's models that renders every page and is unlikely to
+  send visitors, so it keeps song details and dance pages but skips the heaviest ones
+  (2026-10-31).
 
 ## Layer 4: 4xx-by-URL tracking (`Http4xxTracker`)
 
@@ -347,6 +351,8 @@ Procedures that use this page: [runbooks/respond-to-attack](../runbooks/respond-
   `/customsearch/*` returned `500`. It was moved to `Views/Shared/`.
 - 2026-08-16 onward: The recurring 4xx triage began, and the known-attack lists grew (2026-09-14,
   2026-09-19). See [runbooks/triage-4xx](../runbooks/triage-4xx.md).
+- 2026-10-31: `robots.txt` keeps `Reflectionbot` off album and artist pages, on top of its
+  3-a-minute `AgentLimits` throttle.
 - 2026-10-29: Per-crawler throttle on catalog pages (A6 of the same plan).
 - 2026-10-29: `robots.txt` disallows the catalog's search and sort permutations and `/api/`,
   and names the new `/sitemap.xml`. The `/song` bot stub became `noindex, follow` (A4 of

@@ -72,6 +72,11 @@ cookie), and everyone else, counted as people.
   the replay sends 11,166 of 33,095 counted requests a 429, 4,659 of them to Reflectionbot.
 - **Done:** robots.txt now disallows `/searches` (580 requests, 494 from SEO tools; it needs
   sign-in, so they only got a redirect to the login page).
+- **Done (2026-10-31):** robots.txt gives `Reflectionbot` its own group that also disallows
+  `/song/album` and `/song/artist`. It's a training crawler for Reflection AI's models
+  (reflection.ai/bot), so unlike AI assistants and AI search it's unlikely to send visitors,
+  and album pages were about 45% of its page requests. It honors robots.txt (Reflection
+  says changes apply within about a day) and publishes its IP ranges, so it can be verified.
 - **Done:** the SQL-injection probes (`' UNION ALL SELECT …` on `/customsearch?name=` and
   `/song/playlist?id=`, 6 IPs) showed no sign of succeeding, but each one threw a 500. Unknown
   custom-search names and non-base62 playlist ids now get a 404.
