@@ -150,7 +150,7 @@ into `runbooks/` as its area is consolidated.
 | Plan | Status | Where |
 | --- | --- | --- |
 | Public API & third-party authorization (DanzQ) | Foundation (PR 1) merged behind a disabled flag; PR 2 on hold after Apple denied the business plan, alternatives being explored | [plans/public-api-authorization](plans/public-api-authorization.md) |
-| Partner API on a standalone host (Azure Functions over the search index, independent of the web app) | Proposed; spike run 2026-10-29 | [plans/partner-api-standalone-host](plans/partner-api-standalone-host.md) |
+| Partner API on a standalone host (Azure Functions over the search index, independent of the web app) | Proposed; spike complete, API key auth decided | [plans/partner-api-standalone-host](plans/partner-api-standalone-host.md) |
 | Azure Front Door caching | Not started; app-side prep shipped | [plans/front-door-caching](plans/front-door-caching.md) |
 | Key Vault RBAC migration | Not started (vault `music4dance` still uses access policies, verified 2026-10-01) | [plans/key-vault-rbac-migration](plans/key-vault-rbac-migration.md) |
 | Attack mitigation Phase 2+ (telemetry, alerts, WAF, honeypots) | Proposed | [plans/attack-mitigation-phase2](plans/attack-mitigation-phase2.md) |

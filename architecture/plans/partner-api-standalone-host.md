@@ -1,8 +1,8 @@
 # Partner API: Standalone Host Independent of the Web App
 
 **Type:** Plan
-**Status:** Proposed. Spike run 2026-10-29; see [Spike results](#spike-results-2026-10-29).
-**Last verified:** 2026-10-29
+**Status:** Proposed. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided 2026-11-01. Next: PR 1.
+**Last verified:** 2026-11-01
 **Code:** spike only: `m4d-api/` (Azure Functions project, not yet in `music4dance.sln`). Reads the index built by `m4dModels/SongIndex.cs`; the existing in-app API foundation is under `m4d/PublicApi/`.
 
 **Context:** The likely first integration is a third-party app that sells its own subscription,
@@ -149,24 +149,107 @@ outage longer than an hour (or any outage that hits a token refresh) takes the A
 
 Two credential schemes that don't depend on the app:
 
-| | **API key** (recommended to start) | **Entra ID client credentials** |
+| | **API key** (chosen) | **Entra ID client credentials** |
 | --- | --- | --- |
 | What the partner holds | A random 256-bit key, e.g. `m4d_live_…` | A client secret or certificate for an app registration in our tenant |
 | Validation | Function hashes the presented key (SHA-256) and compares against stored hashes in constant time | Function validates Entra JWTs: issuer, audience, `roles` claim `Songs.Read`. Built-in App Service auth (Easy Auth) can do this before code runs. |
 | Issuer availability | No issuer | Microsoft's identity platform (independent of m4d) |
 | Rotation | Two active keys per client; add new, partner switches, delete old | Standard secret/cert rollover |
-| Revocation | Delete the hash; takes effect on next config refresh | Disable the app registration or remove the role assignment |
+| Revocation | Disable or delete the key's vault secret; takes effect within the 5-minute refresh | Disable the app registration or remove the role assignment |
 | Build cost | ~50 lines | Configuration, plus the partner adopts MSAL or an equivalent library |
 | Standards story | Common for server-to-server APIs (Stripe-style); fine when the key never ships to devices | Full OAuth 2.0 client credentials |
 
-**Recommendation:** start with API keys, stored as hashes in the function's app settings (with a
-Key Vault reference if you want them out of plain config). Per-client records hold `clientId`,
-`keyHashes[]`, `dailyCap`, and `status`. Move to Entra if a partner prefers it, or if you want
-the "no bespoke auth" argument from the OAuth doc to hold here too. Either way the credential
-never goes in the partner's client app: anything shipped to devices can be extracted.
+**Decision: API keys.** Entra stays available if a later partner prefers it. Either way the
+credential never goes in the partner's client app: anything shipped to devices can be
+extracted.
 
 Header: `Authorization: Bearer m4d_live_…`, not a query string, so keys stay out of access
 logs. Reject anything that looks like a key in the URL.
+
+### Key format and generation
+
+```txt
+m4d_live_7KQ2M9XA4PZT_hR3v…(43 chars)
+└──┬───┘ └────┬─────┘ └─────┬──────┘
+ prefix     keyId         secret
+```
+
+- **Secret:** 32 bytes from `RandomNumberGenerator`, base64url (256 bits).
+- **keyId:** a short random id. Not secret; it names the key in logs, the vault, and admin pages.
+- **Prefix:** `m4d_test_` or `m4d_live_`, so the environment is visible and a leaked key is easy to
+  spot in a repo or log.
+- **Stored value:** SHA-256 of the whole key. A slow hash (bcrypt, PBKDF2) only helps with
+  low-entropy passwords; against a 256-bit random key it adds per-request latency for nothing.
+
+The web app generates the key and shows it **once**. It never stores the key, and doesn't
+need it again.
+
+### Issuing and handing over keys
+
+Keys are issued from music4dance.net, so the key never passes through email or through the
+site admin:
+
+1. An admin grants the partner developer's music4dance account a new `partnerDeveloper` role
+   and links it to a client record (name, limits).
+2. The partner developer signs in, opens an API keys page, generates a key with a label, and
+   copies it from the one-time display.
+3. Rotation: at most two active keys per client. Generate a new one, deploy it, revoke the old
+   one. Admins can revoke any key.
+
+SQL holds metadata only (keyId, client, owner, label, created, revoked), for the key list and
+audit. Neither the key nor its hash goes in the database, and the function never reads SQL.
+
+When the web app is down, keys can't be issued or revoked, but existing keys keep working.
+Issuance is off the request path, so it doesn't affect the API's independence.
+
+### Where the hashes live: a dedicated Key Vault
+
+Hashes and per-client limits go in a **small Key Vault used only for partner keys**, one per
+environment (`m4d-api-test` and `m4d-api`), in RBAC mode. The site's existing `music4dance` vault
+uses access policies, which grant permissions on the whole vault: reading it would expose every
+site secret to the function, and writing to it would let the web app overwrite any of them. A
+separate vault per environment also means the test site can't mint production keys.
+
+| Identity | Role on the partner-keys vault |
+| --- | --- |
+| Web app managed identity (already exists) | Key Vault Secrets Officer (issue and revoke) |
+| Function app managed identity | Key Vault Secrets User (read) |
+
+| Secret | Value | Notes |
+| --- | --- | --- |
+| `key-{keyId}` | SHA-256 hash (hex) | Tag `client`; the secret's expiry date gives optional key expiry; disable or delete to revoke |
+| `client-{clientId}` | JSON: name, rate, burst, `dailyCap`, status | Limits change without a function restart or redeploy |
+
+The hash isn't really secret, since the key can't be recovered from it. What needs protecting is
+who can *add* an entry, and the vault's RBAC and audit log cover that.
+
+**Manual fallback.** If the web app shouldn't write to the vault, the page still generates the
+key and hands it over, then shows an admin the keyId and hash to add with
+`az keyvault secret set`. Function app settings are the wrong place even for manual entry: every
+change restarts the app (a cold start), and a deploy can overwrite them.
+
+### Validation in the function
+
+- `AuthorizationLevel.Anonymous` on the endpoints, with a worker middleware doing the key
+  check, so the client id is available to the rate limiter, the usage table, and logs. The
+  platform's built-in function keys (used by the spike) go away; they're stored in plaintext in
+  the function's Storage account and carry no client identity.
+- On startup and then every 5 minutes, the function lists the vault's secrets and reads only
+  those that are new or changed (the list returns versions and dates, not values).
+- Per request: parse the keyId, look it up in memory, SHA-256 the presented key, compare with
+  `CryptographicOperations.FixedTimeEquals`. **An unknown keyId gets 401 without a vault call**,
+  so junk keys can't be used to load the vault.
+- After startup a vault outage doesn't matter: the cache keeps working, and only new keys and
+  revocations wait. An instance that starts during an outage has no keys and returns 503.
+
+### Cost
+
+Standard Key Vault has no monthly fee; secret operations are **$0.03 per 10,000** (West US
+retail price, checked 2026-11-01). The 5-minute refresh is ~9,000 operations a month per running
+instance, about $0.03; issuing and revoking keys is negligible. Two vaults come to a few cents a
+month. The cache is what keeps it there: a vault read on every request at 20 req/s would be
+~52 million operations, about $155 a month. Premium HSM keys, Managed HSM, and certificate
+renewals carry larger charges, but this design uses none of them.
 
 ---
 
@@ -185,21 +268,23 @@ logs. Reject anything that looks like a key in the URL.
  │  • key check → per-client limiter → resolve             │
  │  • in-memory result cache (10 min hits, 1 min misses)   │
  │  • DanceLib + bundled dances.json for names             │
- └──────┬──────────────────────┬───────────────────────────┘
-        │ managed identity      │ managed identity
-        │ Search Index Data     │ Storage Table/Queue Data
-        │ Reader only           │ Contributor
-        ▼                       ▼
- Azure AI Search           Storage account (the function's own)
-  alias songs-api-prod      • usage table: client/day/endpoint/method counts
-   → songs-prod-3           • unmatched queue: ids we didn't find
-                                   │
-                                   ▼  drained when the web app is up
-                            music4dance.net admin review
+ └──────┬──────────────────────┬──────────────────────┬────┘
+        │ managed identity     │ managed identity     │ managed identity
+        │ Search Index Data    │ Storage Table/Queue  │ Key Vault Secrets
+        │ Reader only          │ Data Contributor     │ User (read)
+        ▼                      ▼                      ▼
+ Azure AI Search          Storage account        Partner-keys vault
+  alias songs-api-prod     (the function's own)   • key-{keyId}: key hash
+   → songs-prod-3          • usage table          • client-{id}: limits
+                           • unmatched queue              ▲
+                                  │                       │ Secrets Officer:
+                                  ▼ drained when up       │ issue and revoke only
+                           music4dance.net ───────────────┘
+                            admin review, partner API keys page
 ```
 
-The web app appears only at the bottom right, as an optional consumer of the unmatched queue.
-Nothing on the request path touches it.
+The web app appears only at the bottom: as an optional consumer of the unmatched queue, and as
+the place keys are issued and revoked. Nothing on the request path touches it.
 
 ### Endpoints
 
@@ -303,8 +388,8 @@ without reading m4d's config.
 All of this goes to the function's own Storage account, never SQL:
 
 - **Per-client rate limit.** This is the main throttle. It's a token bucket in memory per
-  instance, with a sustained rate and a burst size per client, read from configuration so
-  they can change without a redeploy. See [Capacity](#capacity-and-throughput) for starting
+  instance, with a sustained rate and a burst size per client, read from the client's
+  `client-{clientId}` secret in the partner-keys vault so they can change without a redeploy. See [Capacity](#capacity-and-throughput) for starting
   values.
 - **Daily cap.** A daily counter per client in Table Storage, flushed every ~30 seconds. When
   the day's total passes the client's `dailyCap`, return `429` with `Retry-After`. Across
@@ -468,6 +553,7 @@ What to put in front of the partner developer, and into the partner terms:
 | Web app overloaded by crawlers/attack | API slow or down | **API up**; partner traffic doesn't compete for web app threads either |
 | Azure Search down | API down | API down (503 + `Retry-After`) |
 | Function Storage account down | n/a | API up; counters and queue writes dropped, see above |
+| Partner-keys vault down | n/a | API up on cached keys; new keys and revocations wait. An instance that starts during the outage returns 503. |
 | Entra ID down (if chosen) | n/a | New tokens fail; cached tokens work until expiry |
 
 The remaining single point of failure is **Azure Search**, and that's acceptable under best
@@ -487,9 +573,10 @@ minutes however it's hosted. Two notes for expectations rather than action:
 
 ## Operations
 
-- **Infrastructure as code.** Bicep for the Flex plan, function app, Storage account, and role
-  assignments (Search Index Data Reader on `music4dance`, Storage data roles on its own
-  account), under `m4d-api/infra/` or similar. One resource group per environment.
+- **Infrastructure as code.** Bicep for the Flex plan, function app, Storage account,
+  partner-keys vault, and role assignments (Search Index Data Reader on the index, Storage data
+  roles on its own account, Secrets User on the vault for the function and Secrets Officer for
+  the matching web app), under `m4d-api/infra/` or similar. One resource group per environment.
 - **Environments.** `m4d-api-test` → alias `songs-api-test`, `m4d-api` → `songs-api-prod`. Give
   the partner developer a test key first.
 - **Deployment.** Flex deploys a zip package to blob storage. Add a separate stage or pipeline
@@ -526,9 +613,10 @@ minutes however it's hosted. Two notes for expectations rather than action:
 | --- | --- |
 | **1. Skeleton + infra** | `m4d-api` Functions project (isolated, .NET 10), Bicep, `/v1/health`, test environment deployed, search alias for test |
 | **2. Resolve** | Single-track id resolution, title/artist fallback with candidates and `evidence` (length delta, match quality, suggested confidence), projection from index fields, dance names from `DanceLib`, the index contract test in `m4dModels.Tests`, unit tests with a faked `SearchClient` |
-| **3. Auth + limits** | API key validation, per-client config, rate limit, daily cap, usage table |
-| **4. Unmatched queue** | Queue writes (misses and fuzzy-only results) in the function; admin drain and review page in `m4d` (can trail) |
-| **5. Production** | Prod alias, custom domain and certificate, alerts, runbook step added to search-index-versioning.md, production key issued to the first partner |
+| **3. Auth + limits** | Key validation middleware with the vault-backed cache, per-client config from the vault, rate limit, daily cap, usage table. Test keys added by hand (the manual fallback) until PR 4. |
+| **4. Key issuance** | In `m4d`: `partnerDeveloper` role, client and key metadata tables (EF migration), API keys page (generate once, list, revoke), admin view of clients and keys, vault writes from the web app's identity |
+| **5. Unmatched queue** | Queue writes (misses and fuzzy-only results) in the function; admin drain and review page in `m4d` (can trail) |
+| **6. Production** | Prod alias, custom domain and certificate, alerts, runbook step added to search-index-versioning.md, production key issued to the first partner |
 
 The spike below came before PR 1. Its `m4d-api/` project is the starting point for PRs 1 and 2.
 
@@ -536,8 +624,8 @@ The spike below came before PR 1. Its `m4d-api/` project is the starting point f
 
 ## Spike results (2026-10-29)
 
-A minimal Flex function (`m4d-api/`: resolve + health, function-key auth, DanceLib for dance
-names) deployed to its own resource group, `m4d-api-spike`, in West US next to Search. Its
+A minimal Flex function (`m4d-api/`: resolve + health, the platform's function-key auth as a
+stand-in for the API key design, DanceLib for dance names) deployed to its own resource group, `m4d-api-spike`, in West US next to Search. Its
 managed identity has **Search Index Data Reader scoped to the `songs-test-3` index only**,
 queried through the alias `songs-api-test`. Index-scoped roles work through an alias.
 
@@ -639,23 +727,22 @@ can be deleted in one step. The alias `songs-api-test` and the index-scoped role
 | Usage pattern | Live recognition, one track per call. Library import is a separate discussion. |
 | Subscriber ids | Not sent. Settlement uses call volume or the partner's reporting. |
 | Fuzzy matches | Returned as candidates with evidence (including length); the third-party app decides how to present them. |
+| Client authentication | API keys, issued by the partner developer from a music4dance.net page, hashes in a dedicated Key Vault per environment. See [Authentication](#authentication-dont-route-token-issuance-through-the-web-app). |
 
 ## Open questions
 
-1. **API key vs Entra.** Does the partner developer have a preference, or existing Azure/Entra
-   tooling?
-2. **Duration.** Can the partner's recognition path supply track duration (e.g. from the Apple
+1. **Duration.** Can the partner's recognition path supply track duration (e.g. from the Apple
    Music catalog)? Without it, length can't be used as evidence for fuzzy matches.
-3. **Fuzzy thresholds.** The ±5 s / ±15 s length bands and text-match rules are starting
+2. **Fuzzy thresholds.** The ±5 s / ±15 s length bands and text-match rules are starting
    guesses. Tune them against a sample of real recognitions before launch.
-4. **Accepted-candidate feedback.** Would the partner report which fuzzy candidate a user
+3. **Accepted-candidate feedback.** Would the partner report which fuzzy candidate a user
    accepted? That's the best signal for attaching ids to songs, but it's a write path, however
    narrow, and needs the same care as the voting API.
-5. **Starting limits.** Do 20 req/s sustained, a burst of 50, and 100,000 calls/day suit the
+4. **Starting limits.** Do 20 req/s sustained, a burst of 50, and 100,000 calls/day suit the
    partner's launch plans? The spike showed 20 req/s is absorbed easily on a normal day, but
    the capacity section argues for ~5 req/s if the 20% carve-out is policy. Pick one number
    for both sections.
-6. **Cold starts.** Startup warming only, or an always-ready instance as well? Depends on how
+5. **Cold starts.** Startup warming only, or an always-ready instance as well? Depends on how
    the partner app handles a 2 s first lookup.
 
 ---
