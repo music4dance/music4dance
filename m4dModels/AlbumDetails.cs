@@ -451,6 +451,16 @@ public partial class AlbumDetails
 
     #region Merging
 
+    // Album names made only of symbols ("÷", "=") clean to "", so they key on their own trimmed
+    // name rather than all merging into one album
+    private static string MergeKey(AlbumDetails album, string artist)
+    {
+        var name = Song.CleanAlbum(album.Name, artist);
+        return string.IsNullOrEmpty(name)
+            ? (album.Name ?? string.Empty).Trim().ToUpperInvariant()
+            : name;
+    }
+
     public static IList<AlbumDetails> MergeAlbums(IList<AlbumDetails> albums, string artist,
         bool preserveIndices)
     {
@@ -460,7 +470,7 @@ public partial class AlbumDetails
 
         foreach (var a in albums)
         {
-            var name = Song.CleanAlbum(a.Name, artist);
+            var name = MergeKey(a, artist);
             if (dict.TryGetValue(name, out var l))
             {
                 duplicate = true;
@@ -483,7 +493,7 @@ public partial class AlbumDetails
         var merge = new List<AlbumDetails>();
         foreach (var a in albums)
         {
-            var name = Song.CleanAlbum(a.Name, artist);
+            var name = MergeKey(a, artist);
             if (!dict.TryGetValue(name, out var l))
             {
                 continue;

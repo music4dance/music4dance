@@ -4927,12 +4927,10 @@ public class Song : TaggableObject
         var title = CleanAlbum(album, Artist);
 
         foreach (var ad in Albums.Where(
-            ad => string.Equals(
-                CleanAlbum(ad.Name, Artist), title,
-                StringComparison.CurrentCultureIgnoreCase)))
+            ad => NamesMatch(ad.Name, album) || NonEmptyMatch(CleanAlbum(ad.Name, Artist), title)))
         {
             candidates.Add(ad);
-            if (!string.Equals(ad.Name, album, StringComparison.CurrentCultureIgnoreCase))
+            if (!NamesMatch(ad.Name, album))
             {
                 continue;
             }
@@ -5321,31 +5319,13 @@ public class Song : TaggableObject
 
     public AlbumDetails AlbumFromTitle(string title)
     {
-        AlbumDetails ret = null;
-        AlbumDetails alt = null;
-
-        // We'll prefer the normalized album name, but if we can't find it we'll grab the stripped version...
+        // We'll prefer the exact name, then the normalized album name, but if we can't find
+        // either we'll grab the stripped version...
         var stripped = CreateNormalForm(title);
         var normal = NormalizeAlbumString(title);
-        foreach (var album in Albums)
-        {
-            if (string.Equals(
-                normal, NormalizeAlbumString(album.Name),
-                StringComparison.InvariantCultureIgnoreCase))
-            {
-                ret = album;
-                break;
-            }
-
-            if (string.Equals(
-                stripped, NormalizeAlbumString(album.Name),
-                StringComparison.InvariantCultureIgnoreCase))
-            {
-                alt = album;
-            }
-        }
-
-        return ret ?? alt;
+        return Albums.FirstOrDefault(album => NamesMatch(title, album.Name))
+            ?? Albums.FirstOrDefault(album => NonEmptyMatch(normal, NormalizeAlbumString(album.Name)))
+            ?? Albums.LastOrDefault(album => NonEmptyMatch(stripped, NormalizeAlbumString(album.Name)));
     }
 
     public int TrackFromAlbum(string title)
@@ -5546,7 +5526,8 @@ public class Song : TaggableObject
 
     public bool TitleArtistMatch(string title, string artist)
     {
-        return SoftArtistMatch(artist, Artist) && (DoMatch(CreateNormalForm(title), CreateNormalForm(Title)) ||
+        return SoftArtistMatch(artist, Artist) && (NamesMatch(title, Title) ||
+            DoMatch(CreateNormalForm(title), CreateNormalForm(Title)) ||
             DoMatch(NormalizeAlbumString(title), NormalizeAlbumString(Title)) ||
             DoMatch(CleanAlbum(title, artist), CleanAlbum(Title, Artist)));
     }
@@ -5586,10 +5567,33 @@ public class Song : TaggableObject
 
     private static bool DoMatch(string s1, string s2)
     {
-        var ret = string.Equals(s1, s2, StringComparison.OrdinalIgnoreCase);
+        var ret = NonEmptyMatch(s1, s2);
         var rv = ret ? "==" : "!=";
         Trace.WriteLineIf(TraceLevels.General.TraceWarning, $"{rv}{s1}{s2}");
         return ret;
+    }
+
+    /// <summary>
+    ///     Whether two names (titles, albums, artists) are the same: equal apart from case and
+    ///     surrounding whitespace, or, given <paramref name="normalize" />, with equal normalized
+    ///     forms. Names made only of symbols ("÷", "=", "+") all normalize to "", so an empty
+    ///     normalized form never counts as a match.
+    /// </summary>
+    public static bool NamesMatch(string s1, string s2, Func<string, string> normalize = null)
+    {
+        if (string.IsNullOrWhiteSpace(s1) || string.IsNullOrWhiteSpace(s2))
+        {
+            return false;
+        }
+
+        return string.Equals(s1.Trim(), s2.Trim(), StringComparison.InvariantCultureIgnoreCase) ||
+            normalize != null && NonEmptyMatch(normalize(s1), normalize(s2));
+    }
+
+    private static bool NonEmptyMatch(string n1, string n2)
+    {
+        return !string.IsNullOrEmpty(n1) &&
+            string.Equals(n1, n2, StringComparison.InvariantCultureIgnoreCase);
     }
 
     public string TitleArtistString => CreateNormalForm(Title) + "+" + CreateNormalForm(Artist);
