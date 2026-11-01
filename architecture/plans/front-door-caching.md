@@ -2,8 +2,9 @@
 
 **Type:** Plan
 **Status:** Not started (owner confirmed 2026-10-01). Phase 1 (application prep) shipped; Front Door
-itself has never been deployed.
-**Last verified:** 2026-10-01
+itself has never been deployed. Being weighed against Cloudflare: see
+[plans/bot-load-and-public-page-rendering § Edge options compared](bot-load-and-public-page-rendering.md#edge-options-compared-2026-10-31).
+**Last verified:** 2026-10-31
 
 Put Azure Front Door in front of the App Service to cache anonymous HTML at the edge, cut origin
 load, and add WAF and bot rules, while never caching authenticated or Identity responses.
@@ -29,10 +30,78 @@ load, and add WAF and bot rules, while never caching authenticated or Identity r
   sections 3–5 below.
 
 Before starting, re-check two things:
+
 - The forwarded-header handling (`KnownProxies` / `KnownNetworks` aren't restricted today), so
   that the client IP used by rate limiting comes from Front Door's `X-Forwarded-For` / `X-Azure-ClientIp`.
 - The antiforgery-token interaction with cached anonymous pages, which is the reason the
   antiforgery cookie lasts a day.
+
+## 2. A low-maintenance setup that stays in Azure (2026-10-31)
+
+The main reason to prefer Front Door over Cloudflare is that it adds nothing to manage outside
+Azure: no DNS move, and no certificate to issue, upload or renew. This is the setup that keeps
+it that way.
+
+**Today:** DNS is at Namecheap. `www.music4dance.net` is a CNAME to `msc4dnc.azurewebsites.net`,
+and `music4dance.net` is an A record to the app's IP. Both use free App Service managed
+certificates that Azure renews. The app 308-redirects the apex to `www`, keeping path and query
+(`AddRedirectToWwwPermanent` in `M4dApplicationExtensions.cs`), and every canonical URL
+(sitemap, links) is on `www`. Mail is Microsoft 365, via MX records that Front Door doesn't
+touch.
+
+**Certificates: put only `www` on Front Door.**
+
+| Hostname | Points at | Certificate | Renewal |
+| --- | --- | --- | --- |
+| `www.music4dance.net` | CNAME to the Front Door endpoint (`*.azurefd.net`) | Front Door managed (DigiCert), free | Automatic, because the CNAME points directly at the endpoint |
+| `music4dance.net` | A record to App Service, unchanged | App Service managed, unchanged | Automatic, unchanged |
+| `api.music4dance.net` (planned) | CNAME to the Azure Function | App Service/Functions managed | Automatic |
+
+- Front Door renews a managed certificate on its own **only** when the hostname is a CNAME
+  pointing straight at the endpoint. An **apex** domain on Front Door can't be a CNAME (it needs
+  an alias record or flattening), so its certificate drops to *Pending revalidation* 45 days
+  before every expiry and needs a new `_dnsauth` TXT record by hand. Leaving the apex on App
+  Service avoids that. It costs nothing, since the apex only ever answers with a redirect.
+- Adding `www` takes one `_dnsauth.www` TXT record at Namecheap (deletable after validation),
+  then the CNAME switch. Add the domain and let validation finish **before** switching the
+  CNAME, so there's no gap. If a CAA record is ever added, it must allow `digicert.com`.
+- DNS can stay at Namecheap. Moving it to Azure DNS (about $0.50 a month per zone) is optional;
+  it makes the TXT step a button in the portal, but isn't needed for `www`.
+
+**Locking the origin to Front Door.** App Service access restrictions (service tag
+`AzureFrontDoor.Backend` plus an `X-Azure-FDID` header match on this profile's ID) apply to
+every hostname on the app, so they would also block the apex and its redirect. Two ways round
+that:
+
+- Check `X-Azure-FDID` in middleware instead, placed after the rewriter: apex requests are
+  redirected before the check, and any other request without this profile's ID gets a 403. The
+  rewriter runs first in `UseM4dPipeline`, so this is a few lines. Keep the expected ID in
+  configuration.
+- Or put the apex on Front Door too and accept the manual TXT revalidation before each
+  certificate renewal.
+
+The middleware is the low-maintenance choice. Without either, bots can skip the edge by
+calling `msc4dnc.azurewebsites.net` directly.
+
+**Client IP.** Configure `ForwardedHeadersOptions` (`M4dApplicationExtensions.cs`, the
+`UseForwardedHeaders` call) to trust Front Door, or read `X-Azure-ClientIP`, so rate limiting,
+the crawler throttle and the HTTP logs see visitors rather than Front Door's addresses.
+
+**Signed-in users.** The cookie-based bypass is a Front Door rule set (available on Standard):
+condition "request cookies contains `music4dance`" (the identity cookie), action "cache
+behavior: bypass". The app still marks authenticated responses `no-store` as a second guard.
+
+**Tier.** Standard: $35 a month plus usage, about $50 a month at current volumes; it gives the
+cache, custom WAF rules (IP rate limits, geo and header matches) and managed certificates.
+Premium: $330 a month plus usage; it adds the Bot Manager rule set and the WAF JavaScript
+challenge, which is what bot management needs. The JavaScript challenge doesn't apply to AJAX
+and API calls, and a client that passes is challenged again when its IP changes. Cost detail
+and the Cloudflare comparison are in
+[plans/bot-load-and-public-page-rendering § Edge options compared](bot-load-and-public-page-rendering.md#edge-options-compared-2026-10-31).
+
+**Limits of this setup.** Standard caches and rate-limits, but it can't recognize the
+residential-proxy headless traffic seen on 2026-10-31. If that becomes the main problem, it's
+Premium or Cloudflare.
 
 ## 3. Azure Front Door Configuration Strategy
 
