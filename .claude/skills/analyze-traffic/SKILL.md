@@ -22,8 +22,8 @@ Every pass produces:
 Setup, format and privacy notes for these logs are in
 `architecture/observability/logging-and-diagnostics.md` (HTTP request logs). The
 context for why this matters (crawler load, the phased plan, the throttle) is in
-`architecture/plans/bot-load-and-public-page-rendering.md`; its "Full-day sample"
-section holds the previous result to compare against.
+`architecture/plans/bot-load-and-public-page-rendering.md`; its section 1.1
+("Baseline" and "After Phase 1 deployed") holds the previous results to compare against.
 
 These logs aren't the App Service application logs. For warnings, errors and
 exceptions use the `analyze-logs` skill instead.
@@ -87,7 +87,8 @@ sections are:
 | Page paths by group | What each group crawls |
 | Status codes by group, 5xx by path | Errors, and who triggers them |
 | Slowest page paths | Where server time goes |
-| Requests per hour | Bursts and when they happened |
+| Requests per hour | Daily shape and which hours were busy |
+| Busiest minutes | Short bursts (hundreds of pages a minute), their 499s (clients that gave up) and latency |
 | CrawlerThrottle replay | 429s the A6 throttle would have sent, and automated agents it can't see |
 
 **How browser user agents are split.** Each client is an (IP, user agent) pair, judged
@@ -119,7 +120,7 @@ Keep the script general: when a new crawler or pattern turns up, extend `FAMILIE
 
 ## Step 6: Record and report
 
-Update the "Full-day sample" section of
+Update section 1.1 of
 `architecture/plans/bot-load-and-public-page-rendering.md` (or the reference doc it
 was folded into, once the plan ships) when the picture has changed meaningfully, with
 the date and window. Summarize; never put raw IPs, cookies or query strings with

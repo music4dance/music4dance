@@ -1,8 +1,8 @@
 # Bot Load and Public-Page Rendering Options
 
 **Type:** Plan
-**Status:** Partially implemented: Phase 1 (A1–A7) shipped 2026-10-29 on branch `bot-load-quick-wins`, not yet deployed; Phases 0, 2 and 3 not started
-**Last verified:** 2026-10-30
+**Status:** Partially implemented: Phase 1 (A1–A7) deployed 2026-10-30 (PR #365) and measured afterwards; Phase 0 partly done (weekday baseline); Phases 2 and 3 not started
+**Last verified:** 2026-10-31
 **Code:** `m4d/Views/Shared/Vue3.cshtml`, `m4d/Views/Shared/_head.cshtml`, `m4d/Views/Shared/_vue-Layout.cshtml`,
 `m4d/Configuration/M4dApplicationExtensions.cs` (cache-control middleware), `m4d/Utilities/SpiderManager.cs`,
 `m4d/Controllers/SongController.cs`, `m4d/ClientApp/vite.config.ts`
@@ -15,55 +15,26 @@ plus a large inline JSON model, and the browser has to build the page:
 2. **Search ranking.** Google indexes the site, but client rendering costs a lot of page-load
    performance (LCP), and many non-Google crawlers never see the content as HTML.
 
-It records what was measured on 2026-10-29, sets out the options broadly (including ones this
+It records what was measured before and after the first fixes, sets out the options broadly (including ones this
 plan doesn't recommend, so they don't need re-researching), compares them, and proposes a
 phased path. Signed-in users stay on today's live client rendering in every option. Only the
 anonymous experience changes.
 
-## 1. What we measured (2026-10-29)
+## 1. What we measured (2026-10-29 to 2026-10-31)
 
 ### 1.1 Traffic mix
 
 Source: the App Service HTTP logs in storage `m4dlogs`
-([runbooks/read-production-logs](../runbooks/read-production-logs.md)), **one 22-minute window**
-(21:50–22:12 UTC, 3,210 requests). Bots were classified by user-agent. Treat the numbers as an
-indication until a full day is analyzed (Phase 0).
+([runbooks/read-production-logs](../runbooks/read-production-logs.md)), analyzed with the
+`analyze-traffic` skill (`.claude/skills/analyze-traffic/`). Rerun it to refresh these numbers.
 
-| Class | Page requests | HTML bytes out | Server time (sum of `TimeTaken`) |
-| --- | ---: | ---: | ---: |
-| Self-identified bots | 905 (91%) | 70.0 MB (80%) | 91.5 s (93%) |
-| Browser user-agents | 90 | 16.5 MB | 6.8 s |
-| App Service Always On | 6 | 0.9 MB | 0.1 s |
+#### Baseline: a full day before Phase 1 (2026-10-29/30)
 
-- **Some of the "browser" traffic is bots too.** 56 of the 90 browser-UA page requests came from
-  IPs that never fetched a single JS or CSS asset, so likely about 35 of those page views were
-  human.
-- **Top bots by page requests:** DotBot (522, mostly `/song/sort` permutations that already get
-  the cheap `BotFilter` stub), Reflectionbot (134), PetalBot (98), ExaSearchBot (43), bingbot (22),
-  Applebot (21), ElevenLabsCrawler (20), Googlebot (15).
-- **The expensive targets are album, details and artist pages.** `/song/album` drew 119 bot hits
-  that averaged **270 KB** each (the largest was 1.5 MB) and accounted for 32 MB of the 70 MB.
-  Next came `/song/details/*` (90 hits, 17 MB) and `/song/artist*` (35 hits, 6 MB). AI and
-  answer-engine crawlers (Exa, ElevenLabs, Reflection, Perplexity, DuckAssist) hit these heavily.
-  These pages are only ever blocked for the narrow `BadFragments` list.
-- **Few bots run the JS.** Reflectionbot (1,023 asset requests), DuckAssistBot and Applebot load
-  the bundles. Most others take only the HTML, so for them the content is just the JSON inside
-  `var model_ = ...`.
-- **Slow outliers:** bingbot on `/song/album?title=÷ (Deluxe)` took **49.9 s** and got 0 bytes (a
-  timeout), and `/song/Advanced?...&page=1584` took 10.3 s. Both are worth a look on their own.
-- **Absolute load in this window was modest.** Average concurrency was well under one request.
-  Bots are most of the traffic, but this sample doesn't show them overwhelming a core. The
-  October out-of-memory restarts correlated with a platform base image, not with traffic. The
-  memory angle is in section 1.3.
-
-#### Full-day sample (2026-10-29/30)
-
-24 hours, 2026-10-29 21:50 to 2026-10-30 21:48 UTC, before any of Phase 1 was deployed:
-199,385 requests, 51,420 of them pages, 7.7 GB out and 54 minutes of summed server time.
-Produced by the `analyze-traffic` skill (`.claude/skills/analyze-traffic/`), which also separates
-browser user agents by behavior: clients that never ran the page's JS, clients with a headless
-pattern (ran JS but fetched no page themselves, or one page with no referrer and no cookie), and
-everyone else, counted as people.
+24 hours, 2026-10-29 21:50 to 2026-10-30 21:48 UTC: 199,385 requests, 51,420 of them pages,
+7.7 GB out and 54 minutes of summed server time. Bots are classified by user agent. Browser
+user agents are split by behavior: clients that never ran the page's JS, clients with a
+headless pattern (ran JS but fetched no page themselves, or one page with no referrer and no
+cookie), and everyone else, counted as people.
 
 | Group | Pages | Bytes out | Server time | Biggest members |
 | --- | ---: | ---: | ---: | --- |
@@ -75,9 +46,21 @@ everyone else, counted as people.
 | Scripts | 3.3% | 5.8% | 3.3% | `DmxMusic/1.0` (1,575 `/song/filtersearch` pages, from a consumer VPN) |
 | **People** | **2.4%** | **5.4%** | **8.9%** | 577 clients, 1,230 page views; 160 arrived from Google, 7 from other search engines |
 
-- **The 22-minute window was representative.** Automation is about 97% of page requests and 91%
-  of server time over the full day too.
-- **`/song/album` is 37% of server time** (p50 27 ms, p95 147 ms, max 49.9 s). A7 targets this.
+- **Automation is about 97% of page requests and 91% of server time.** A first look at a
+  22-minute window on 2026-10-29 (3,210 requests) showed the same split.
+- **The expensive targets are album, details and artist pages**, and AI and answer-engine
+  crawlers (Exa, ElevenLabs, Reflection, Perplexity, DuckAssist) hit them heavily. Album pages
+  averaged about 270 KB each, up to 1.5 MB. **`/song/album` was 37% of server time** (p50
+  27 ms, p95 147 ms, max 49.9 s).
+- **Few bots run the JS.** Reflectionbot, DuckAssistBot and Applebot load the bundles. Most
+  others take only the HTML, so for them the content is just the JSON inside
+  `var model_ = ...`.
+- **Slow outliers:** bingbot on `/song/album?title=÷ (Deluxe)` took 49.9 s and timed out, and
+  `/song/Advanced?...&page=1584` took 10.3 s. A7 fixed the first; deep paging is discussed
+  under Phase 1.
+- **Absolute load was modest.** Average concurrency was well under one request; bots are most
+  of the traffic, but they weren't overwhelming a core. The October out-of-memory restarts
+  correlated with a platform base image, not with traffic. The memory angle is in section 1.3.
 - **The A6 throttle, replayed over the day,** would have answered 6,440 of 32,804 counted requests
   with 429: DotBot 5,766, Exa 629, ElevenLabs 44. It wouldn't touch Reflectionbot, the largest
   consumer, which averages about 5 pages a minute under one user agent. Agents that `IsSpider`
@@ -89,9 +72,59 @@ everyone else, counted as people.
   the replay sends 11,166 of 33,095 counted requests a 429, 4,659 of them to Reflectionbot.
 - **Done:** robots.txt now disallows `/searches` (580 requests, 494 from SEO tools; it needs
   sign-in, so they only got a redirect to the login page).
+- **Done (2026-10-31):** robots.txt gives `Reflectionbot` its own group that also disallows
+  `/song/album` and `/song/artist`. It's a training crawler for Reflection AI's models
+  (reflection.ai/bot), so unlike AI assistants and AI search it's unlikely to send visitors,
+  and album pages were about 45% of its page requests. It honors robots.txt (Reflection
+  says changes apply within about a day) and publishes its IP ranges, so it can be verified.
 - **Done:** the SQL-injection probes (`' UNION ALL SELECT …` on `/customsearch?name=` and
   `/song/playlist?id=`, 6 IPs) showed no sign of succeeding, but each one threw a 500. Unknown
   custom-search names and non-base62 playlist ids now get a 404.
+
+#### After Phase 1 deployed (2026-10-31)
+
+22 hours, 2026-10-31 00:00 to 22:00 UTC, starting about an hour after the deploy. Per-hour
+figures below leave out the Chrome/153 wave described next, so they compare like with like.
+
+| Per hour | Before (10-29/30) | After (10-31) |
+| --- | ---: | ---: |
+| Page MB out | 254 | 90 (−65%) |
+| `/song/album` average response | 170 KB | 15 KB |
+| `/song/artist` average response | 166 KB | 20 KB |
+| `/song/details/*` average response | 184 KB | 63 KB (compression only; A2 doesn't trim details) |
+| `/song/sort` requests | 219 | 29 |
+| `/searches` requests | 23 | 3 |
+| Reflectionbot pages / asset requests | 309 / 2,389 | 220 / 892 |
+| DotBot pages | 569 | 271 |
+| 500s (whole window) | 553 | 0 |
+| 429s (whole window) | 0 | 2,321 (Reflectionbot 1,619, DotBot 394, Exa 298, ElevenLabs 13) |
+| Server time outside the bursts below | 2.2 min | 2.5–3 min |
+
+- **Phase 1 is doing what it was meant to.** Compression and A2 cut page bytes by two thirds,
+  the throttle is answering Reflectionbot, DotBot and Exa with 429s and both are fetching less,
+  robots.txt took most crawlers off `/song/sort` and `/searches`, and the injection probes no
+  longer cause 500s. Search engines are unaffected (no 429s; Applebot, Bingbot and PetalBot at
+  the same rates).
+- **A residential-proxy scraping wave started at 16:20 UTC.** 212,000 requests (14,000 page
+  requests, 8,177 distinct `/song/details/*` pages, the rest the page's own bundles and
+  `/api/health/status`) under one user agent, `Chrome/153.0.0.0` on Windows, from **54,000 IPs**
+  (at most 58 per IP), mostly consumer ISP ranges in Latin America and Asia. It runs the page's
+  JS, sends no cookies at all, and never appeared before 16:20. It arrives in bursts of 1–3
+  minutes roughly every hour, peaking at about 3,200 pages a minute (the median minute is 34).
+  In the 17:12–17:13 and 19:16 bursts the server fell behind: page latency for everyone went
+  from a 13 ms median to about 3.6 s, and most of the wave's own requests ended as 499 (client
+  gave up). It recovered within a minute or two each time, with no 5xx and no restart. The
+  wave accounted for about 90% of the day's 19 hours of server time. Nothing in Phase 1 can
+  see it: no single IP or user agent stands out enough to throttle without hitting people, and
+  a server cache wouldn't help much because most of its pages are distinct.
+- **5Six7Eight** (`compatible; 5Six7Eight/1.0; Anzeige fuer Tanzvereine`, one German IP) made
+  10,000 `/song/search` lookups, about 7 a minute all day. It's polite and cheap (27 server
+  minutes), but `IsSpider` doesn't recognize it, so the throttle ignores it. `DmxMusic/1.0`
+  continues (2,637 `/song/filtersearch` pages).
+- **Output cache estimate (B1).** Replaying the day's anonymous page requests through a cache
+  keyed on path and query: 18% would be hits at a 5-minute TTL, 22% at 6 hours. About 5,100 of
+  those hits are the wave retrying the same details pages during a burst, so for everyone else
+  the hit rate is nearer 13%.
 
 ### 1.2 What a public page costs
 
@@ -246,6 +279,69 @@ Like any CSRF token scheme, this does nothing against XSS.
   or Pro tier includes caching, Bot Fight Mode, verified-bot identification, and AI-crawler
   blocking and controls. That's often more bot tooling per dollar than Front Door Standard. The
   costs: a second vendor, and the client-IP/forwarded-header work noted in the Front Door plan.
+  Details below.
+
+#### B3 in detail: what moving to Cloudflare involves (2026-10-31)
+
+Today the domain's DNS is at Namecheap. `music4dance.net` and `www.music4dance.net` use free
+App Service managed certificates (GeoTrust, auto-renewed by Azure), and the app 308-redirects
+the apex to `www`. Mail is Microsoft 365 (MX `music4dance-net.mail.protection.outlook.com`).
+
+- **Certificates.** A proxied request has two TLS legs. Visitor to Cloudflare uses Cloudflare's
+  Universal SSL certificate, which Cloudflare issues and renews on its own. Cloudflare to App
+  Service still needs a certificate on the app, checked by setting the SSL mode to **Full
+  (strict)**. The App Service managed certificate is the risk: Azure renews it only while the
+  hostname's DNS points straight at `azurewebsites.net`, and a proxied record points at
+  Cloudflare. Reports of silent renewal failures behind the proxy are common (not confirmed in
+  Microsoft's docs). Use a **Cloudflare Origin CA certificate** instead: free, valid up to 15
+  years, trusted only by Cloudflare, uploaded to App Service once. That fits, since the origin
+  should only accept Cloudflare anyway.
+- **DNS.** Every record moves to Cloudflare, each marked proxied (orange cloud) or DNS only
+  (grey cloud). Before switching nameservers, check the import caught the MX, SPF and DKIM
+  records and any `asuid` TXT verification records; mail records stay DNS only. Cloudflare
+  flattens a CNAME at the apex.
+- **Subdomains can point anywhere.** For the planned API, `api.music4dance.net` as a **DNS-only**
+  CNAME to the Azure Function's hostname leaves Cloudflare out of the path, and Azure's free
+  certificate works because the CNAME really does point at Azure. If it's proxied instead, note
+  that Free's Bot Fight Mode applies to the whole zone and can't be skipped, so it could
+  challenge legitimate API clients (which are scripts by definition); Pro's Super Bot Fight Mode
+  can be skipped by a WAF custom rule (verify before relying on it).
+- **App changes:** read the client IP from `CF-Connecting-IP`, and restrict App Service access
+  to Cloudflare's published IP ranges (there's no Azure service tag for them).
+
+#### Edge options compared (2026-10-31)
+
+Volumes, from the HTTP logs: about 230,000 requests and 3.8 GB a day after Phase 1, so roughly
+**7 million requests and 115 GB a month**. A day like 2026-10-31 with the scraping wave was
+about 460,000 requests and 6.5 GB, roughly **14 million and 200 GB a month** if it were every
+day. List prices, North America:
+
+| | Front Door Standard | Front Door Premium | Cloudflare Free | Cloudflare Pro | Cloudflare Business |
+| --- | --- | --- | --- | --- | --- |
+| Base | $35/month | $330/month | $0 | $20/month annual, $25 monthly | $200 annual, $250 monthly |
+| Usage | $0.083/GB to clients, $0.009 per 10,000 requests | $0.083/GB, $0.015 per 10,000 requests | not billed by bandwidth or requests | same | same |
+| Estimate, typical month | about $50 | about $350 | $0 | $20–25 | $200–250 |
+| Estimate, wave every day | about $65 | about $370 | $0 | $20–25 | $200–250 |
+| How it scales | +$8.30 per extra 100 GB, +$9 per extra 10M requests | +$8.30 per 100 GB, +$15 per 10M requests | flat | flat | flat |
+| Bot tooling | WAF custom rules only (IP rate limits, geo, header matches) | adds the Bot Manager rule set and the JavaScript challenge action | Bot Fight Mode (simple bots, headless browsers; not adjustable) | Super Bot Fight Mode with JavaScript detections, adjustable | adds detection of more sophisticated bots |
+| AI-crawler controls | custom rules by user agent | same | AI Crawl Control (allow/block per crawler) | same | same |
+| Certificates | managed, auto-renewed for `www` (CNAME); see the Front Door plan for the apex | same | Universal SSL edge cert plus a 15-year Origin CA cert | same | same |
+| DNS | stays at Namecheap | same | moves to Cloudflare | same | same |
+
+Notes on the comparison:
+
+- **Billing source.** The subscription is Visual Studio Enterprise, so Front Door's charges
+  would come out of its monthly Azure credit; Cloudflare is a separate card charge.
+- **Price as a lever against floods.** A flood of requests raises a Front Door bill a little
+  (14 million requests is about $13 on Standard). Cloudflare's DDoS protection is unmetered.
+- **Neither is guaranteed against the 2026-10-31 wave.** It runs JavaScript, so a JavaScript
+  challenge alone may not stop it; what helps is fingerprinting automation (headless signals,
+  TLS fingerprints), which is what Cloudflare's bot modes do and Front Door Standard doesn't.
+  Per-IP rate limits on either platform don't touch 54,000 IPs.
+- **At equal bot capability, Cloudflare Pro costs about a fifteenth of Front Door Premium.**
+  Front Door Standard is the choice that keeps everything in Azure with the least to manage
+  ([plans/front-door-caching § 2](front-door-caching.md#2-a-low-maintenance-setup-that-stays-in-azure-2026-10-31)),
+  but it gets caching, not bot detection.
 
 **A caveat that matters here:** bots crawl the *long tail* (each song or album page is fetched
 rarely), so caching cuts origin load for popular pages much more than for crawler traffic. For
@@ -417,8 +513,9 @@ isn't ready yet.
 
 - Analyze **a full day** (ideally a weekday and a weekend day) of HTTP logs with the same
   classification as section 1.1. Record the baseline: bot share of requests, bytes and time;
-  top crawlers; top page types. **Weekday done 2026-10-30** (section 1.1, "Full-day sample");
-  rerun with the `analyze-traffic` skill for a weekend day and after Phase 1 deploys.
+  top crawlers; top page types. **Weekday done 2026-10-30** (section 1.1, "Baseline");
+  **post-deploy rerun done 2026-10-31** (section 1.1, "After Phase 1 deployed"). A clean weekend
+  day is still missing, since the 2026-10-31 wave swamps that day's numbers.
 - Pull **Search Console**: the Core Web Vitals report (which URL groups fail, and on which
   metric), the Page indexing reasons, and Crawl stats (requests per day, average response size
   and time). This answers "what does Google dislike" before Phase 3 commits to a direction.
@@ -444,8 +541,12 @@ authenticated responses.
 At the end of Phase 1, re-run the Phase 0 measurements. Bot bandwidth should fall by an order
 of magnitude, and it may turn out that bot load no longer needs anything beyond A6.
 
-**Phase 1 as built (2026-10-29).** Each step is one commit on `bot-load-quick-wins`, and each
-reference doc describes its piece:
+**Phase 1 as built (2026-10-29, deployed 2026-10-30 about 23:00 UTC in PR #365).** Each step
+is one commit on `bot-load-quick-wins`, and each reference doc describes its piece. The same PR
+added `CrawlerThrottle:AgentLimits`, the `/searches` robots rule and the 404s for injection
+probes (section 1.1). The results are in section 1.1, "After Phase 1 deployed": bot bandwidth
+fell by about two thirds rather than the order of magnitude hoped for; details pages, which
+A2 doesn't trim, are now the largest share.
 
 | Step | What shipped | Reference |
 | --- | --- | --- |
@@ -516,6 +617,26 @@ Choose between **B1** alone (cheap, server-side, size-capped) and an edge (**B2*
 **B3** Cloudflare, which leads on bot tooling per dollar). Update
 [plans/front-door-caching](front-door-caching.md) with the outcome, either way.
 
+What the 2026-10-31 data adds:
+
+- **B1 is now possible but modest.** A3 removed the per-request token, so anonymous pages no
+  longer set a cookie. The remaining per-request differences an `OutputCache` policy has to
+  handle: the AdSense script is left out for Googlebot (`_head.cshtml`), and `IsSpider` agents
+  get the `/song` bot stub, so the cache key needs a bot/Googlebot flag; the default policy
+  already skips signed-in requests and responses that set a cookie. Memory is bounded by the
+  store's `SizeLimit` (100 MB by default). Expected hit rate is about 13–20% (section 1.1), and
+  the request locking in `OutputCache` would collapse the wave's duplicate requests within a
+  burst, but not its first fetch of each distinct page.
+- **The edge decision is now about bot management more than caching.** The wave is the kind
+  of traffic an origin can't separate from people: tens of thousands of residential IPs, a
+  current-looking Chrome, real JS execution. Per-IP rate limits (Cloudflare's included) don't
+  touch it. Edge bot detection that fingerprints headless browsers (Cloudflare Bot Fight Mode
+  or Pro's Super Bot Fight Mode, Front Door's WAF bot rules) is the realistic answer.
+- **An origin-side stopgap** if bursts keep stalling the site before an edge is in place: a
+  concurrency limit on anonymous catalog pages for requests that carry none of the site's
+  cookies, which sheds a burst quickly with 503s instead of letting every request slow to 3–4
+  s. First-time visitors would also be refused during a burst, so this is a trade-off.
+
 ### Phase 3: Content in the HTML
 
 1. **Spike E on one page** (`dance-details`: modest model, real interactivity, high SEO value).
@@ -546,7 +667,8 @@ Not recommended: **G** (cost, and no real-user benefit) and **H** (a rewrite).
    large share of song pages "Crawled, currently not indexed"? The answer could move Phase 3
    ahead of Phase 2, or push it back.
 3. **Edge vendor:** is moving DNS to Cloudflare acceptable, or is the preference to stay
-   all-Azure (Front Door)?
+   all-Azure (Front Door)? As of 2026-10-31 the owner is weighing Cloudflare over Front Door, and the
+   residential-proxy wave (section 1.1) makes edge bot detection more pressing than caching.
 4. **Runtime appetite:** is a Node sidecar acceptable to run, or should SSR stay in-process (E2),
    or not happen (D)?
 5. **Song-page indexing strategy:** should every song page be indexable, or should thin songs
