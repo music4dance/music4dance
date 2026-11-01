@@ -51,16 +51,11 @@ public class AlbumViewModel : SongListModel
 
             if (artist == null && !string.IsNullOrWhiteSpace(song.Artist))
             {
-                artist = Song.CreateNormalForm(song.Artist);
+                artist = song.Artist;
             }
-            else if (uniqueArtist)
+            else if (uniqueArtist && !Song.NamesMatch(song.Artist, artist, Song.CreateNormalForm))
             {
-                if (!string.Equals(
-                    Song.CreateNormalForm(song.Artist), artist,
-                    StringComparison.InvariantCultureIgnoreCase))
-                {
-                    uniqueArtist = false;
-                }
+                uniqueArtist = false;
             }
 
             albumTitle ??= album.Name;
