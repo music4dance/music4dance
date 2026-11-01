@@ -150,6 +150,7 @@ into `runbooks/` as its area is consolidated.
 | Plan | Status | Where |
 | --- | --- | --- |
 | Public API & third-party authorization (DanzQ) | Foundation (PR 1) merged behind a disabled flag; PR 2 on hold after Apple denied the business plan, alternatives being explored | [plans/public-api-authorization](plans/public-api-authorization.md) |
+| Partner API on a standalone host (Azure Functions over the search index, independent of the web app) | Proposed; spike complete, API key auth decided | [plans/partner-api-standalone-host](plans/partner-api-standalone-host.md) |
 | Azure Front Door caching | Not started; app-side prep shipped | [plans/front-door-caching](plans/front-door-caching.md) |
 | Bot load and public-page rendering (compression, caching, SSR vs. bot HTML vs. Razor shell) | Partially implemented: Phase 1 quick wins (A1–A7) on branch `bot-load-quick-wins`; caching and rendering phases not started | [plans/bot-load-and-public-page-rendering](plans/bot-load-and-public-page-rendering.md) |
 | Migrate email off Azure Communication Services (ACS Email retires 2028-09-30) to SMTP via a transactional provider | Proposed | [plans/acs-email-migration](plans/acs-email-migration.md) |
