@@ -1,9 +1,9 @@
 # Partner API: Standalone Host Independent of the Web App
 
 **Type:** Plan
-**Status:** Proposed. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided 2026-11-01. Next: PR 1.
+**Status:** In progress. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided and PR 1 (skeleton + test environment) deployed 2026-11-01.
 **Last verified:** 2026-11-01
-**Code:** none on main yet. The spike's `m4d-api/` project is on branch `spike/partner-api` (not for merging). Reads the index built by `m4dModels/SongIndex.cs`; the existing in-app API foundation is under `m4d/PublicApi/`.
+**Code:** `m4d-api/` (Azure Functions project; `/v1/health` only so far), with infrastructure and the deploy script in `m4d-api/infra/`. The spike's resolve code is on branch `spike/partner-api` (not for merging) until PR 2. Reads the index built by `m4dModels/SongIndex.cs`; the existing in-app API foundation is under `m4d/PublicApi/`.
 
 **Context:** The likely first integration is a third-party app that sells its own subscription,
 with the partner developer's backend calling music4dance server to server using a single
@@ -371,6 +371,11 @@ without reading m4d's config.
   "repoint the API alias" step to the production migration runbook, after verification (Step
   3). Alias updates propagate within about 10 seconds, and Search refuses to delete an index
   an alias still points at, which is a useful guard against pulling the rug out.
+- **Index-scoped role follows the index, not the alias.** The function's Search Index Data
+  Reader role is assigned on the index itself (Search indexes aren't ARM resources, so
+  `m4d-api/infra/deploy.ps1` does it, not Bicep). The cutover step is therefore: grant the
+  function's identity the role on the new index, *then* repoint the alias. In the other order
+  the API gets 403s until the role is granted.
 - **Schema contract test.** The function selects a fixed field list. Add a test in
   `m4dModels.Tests` that calls `SongIndex.BuildIndexFields()` and asserts every field and
   subfield the API selects exists. It runs in CI-SERVER, so an index change that would break
@@ -574,14 +579,21 @@ minutes however it's hosted. Two notes for expectations rather than action:
 
 ## Operations
 
-- **Infrastructure as code.** Bicep for the Flex plan, function app, Storage account,
-  partner-keys vault, and role assignments (Search Index Data Reader on the index, Storage data
-  roles on its own account, Secrets User on the vault for the function and Secrets Officer for
-  the matching web app), under `m4d-api/infra/` or similar. One resource group per environment.
-- **Environments.** `m4d-api-test` → alias `songs-api-test`, `m4d-api` → `songs-api-prod`. Give
-  the partner developer a test key first.
-- **Deployment.** Flex deploys a zip package to blob storage. Add a separate stage or pipeline
-  so API deploys and web app deploys are independent; that independence is the point.
+- **Infrastructure as code.** `m4d-api/infra/main.bicep` with `test.bicepparam` and
+  `prod.bicepparam`: Flex plan, function app, Storage account (identity access only, no
+  account keys), partner-keys vault, Application Insights with its Log Analytics workspace, and
+  role assignments (Storage data roles on its own account, Secrets User on the vault for the
+  function, Secrets Officer for the matching web app). `m4d-api/infra/deploy.ps1 -Environment
+  test|prod` creates the resource group, deploys the template, grants the index role, and
+  deploys the code. One resource group per environment, named like the function app.
+- **Environments.** `m4d-api-test` → alias `songs-api-test`, key writer web app `m4d-test`;
+  `m4d-api` → `songs-api-prod`, key writer `msc4dnc`. In test, the person deploying also gets
+  Secrets Officer, for adding keys by hand until PR 4. Give the partner developer a test key
+  first.
+- **Deployment.** Infrastructure changes create role assignments, so they run by hand from
+  `deploy.ps1` under an Owner account; they're rare. Code deploys need only rights to deploy to
+  the function app: `deploy.ps1 -SkipInfrastructure` today, and later a separate pipeline stage
+  so API deploys and web app deploys stay independent (that independence is the point).
   `azure-pipelines.yml` today targets the web apps only.
 - **Custom domain.** `api.music4dance.net` with a Flex site-scoped managed certificate. DNS
   points straight at the function, not through Front Door or the web app, so a Front Door
@@ -715,8 +727,10 @@ so use the function's own search timings, not that metric, as the load guard.
 ### Spike resources
 
 Resource group `m4d-api-spike` (function app, storage, Application Insights, Log Analytics)
-can be deleted in one step. The alias `songs-api-test` and the index-scoped role assignment on
-`music4dance` stay useful for PR 1; remove them too if the plan is dropped.
+can be deleted in one step once the `m4d-api-test` environment has run the same checks with
+the resolve code (PR 2). Remove the spike app's index role assignment on `songs-test-3` at the
+same time, or it's left pointing at a deleted identity. The alias `songs-api-test` stays; the
+test environment uses it.
 
 ---
 
