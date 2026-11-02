@@ -58,7 +58,11 @@ It runs the YAML from the branch being deployed. It runs these steps:
    step sets the app settings `SELF_CONTAINED_DEPLOYMENT`, `ASPNETCORE_ENVIRONMENT`,
    `SEARCHINDEX`, `SEARCHINDEXVERSION` and `WEBSITES_CONTAINER_START_TIME_LIMIT=600`, plus the
    startup command, so nothing needs to be set by hand in the portal.
-5. Sets the App Service health check path to `/health/ready`. This step is non-fatal.
+5. Restarts the app, but only when step 3 switched `WEBSITE_RUN_FROM_PACKAGE` on or off, then
+   waits for it to answer with a 200. Without this, App Service fails to remount `wwwroot` when the
+   package arrives while the app is mid-startup, stops the site, and waits about five minutes before
+   retrying.
+6. Sets the App Service health check path to `/health/ready`. This step is non-fatal.
 
 With **runFromPackage** on, Kudu keeps the zip in `/home/data/SitePackages` and mounts it
 read-only as `/home/site/wwwroot`, then restarts. Files never change under a running process, so

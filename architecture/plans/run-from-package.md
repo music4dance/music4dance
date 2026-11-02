@@ -131,6 +131,24 @@ runs **before** the deploy:
 
 The step is fatal on failure. If it fails before writing anything, nothing changes.
 
+**Restart after a switch.** The first test deploy (2026-11-02) showed what happens when the
+setting flips:
+
+| Time (UTC) | What happened |
+| --- | --- |
+| 20:46:48 | Settings step restarts the app; with no package yet, the new container starts the old build from `wwwroot` while the previous container keeps serving |
+| 20:47:34 | Package uploaded |
+| 20:48:03 | App Service tries to mount the package into the still-starting container: "Container failed to remount volume. Terminate." It records `ContainerStartupFailure` and stops the site |
+| 20:48:31 | Previous container stopped; the site is down from here |
+| 20:53:24 | App Service retries on its own; the new build answers at about 20:53:48 |
+
+That's about 5m15s down, nearly all of it App Service's wait before retrying. So the settings
+step sets a `runFromPackageSwitched` pipeline variable whenever it adds or deletes
+`WEBSITE_RUN_FROM_PACKAGE`, and a step after the deploy restarts the app when it's set. It then
+polls the site until it answers with a 200 (up to 10 minutes), and logs how long that took. The
+deploy's own config update may still be settling when it restarts, so if the site isn't up after
+three minutes it restarts once more. Ordinary deploys skip the step.
+
 **Self-contained mode risk:** its startup command executes `/home/site/wwwroot/m4d` directly, and
 that depends on the execute bit surviving in the mounted zip. Verify this on `m4d-test`, or retire
 self-contained mode. Framework-dependent mode (`dotnet m4d.dll`) has no such issue and is the
@@ -166,7 +184,9 @@ production. No portal or SSH steps either time.
    `while true; do curl -s -o /dev/null -w "%{http_code}
 " https://m4d-test.azurewebsites.net/; sleep 1; done`.
    The first deploy has an extra restart, when the settings step switches the app over before the
-   package arrives. Expect it to be unavailable from that restart until the package is mounted.
+   package arrives; see "Restart after a switch" above for what that did on the first run. To
+   check the restart step, run the pipeline with `runFromPackage` off and then on again: each run
+   should log `m4d-test is up after Ns`, and the outage should be close to a normal startup.
    Verify:
    - the log shows `App data root: /home/data/m4d`, and then the dance stats rebuild lines
      (`Dance stats loaded from the fallback snapshot ...`, `Dance stats rebuilt ...`)

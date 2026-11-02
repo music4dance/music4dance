@@ -6,7 +6,8 @@
 # The pipeline automatically configures the target app service based on deployment mode:
 # - Sets SELF_CONTAINED_DEPLOYMENT environment variable (true/false)
 # - Configures startup command (/home/site/wwwroot/m4d for self-contained, empty for framework-dependent)
-# - Sets M4D_DATA_ROOT and, with runFromPackage, WEBSITE_RUN_FROM_PACKAGE (before the deploy)
+# - Sets M4D_DATA_ROOT and, with runFromPackage, WEBSITE_RUN_FROM_PACKAGE (before the deploy),
+#   and restarts the app after the deploy when that switches run-from-package on or off
 # - No manual Azure Portal configuration required
 
 pool:
@@ -150,6 +151,11 @@ steps:
           UPDATES+=("WEBSITE_RUN_FROM_PACKAGE=1")
         fi
 
+        SWITCHED=false
+        if [ "$WANT_RUN_FROM_PACKAGE" = "true" ] && [ "$CURRENT_RUN_FROM_PACKAGE" != "1" ]; then
+          SWITCHED=true
+        fi
+
         if [ ${#UPDATES[@]} -gt 0 ]; then
           echo "Setting ${UPDATES[*]}"
           az webapp config appsettings set -g "$GROUP" -n "$APP" --settings "${UPDATES[@]}" -o none
@@ -157,7 +163,9 @@ steps:
         if [ "$WANT_RUN_FROM_PACKAGE" != "true" ] && [ -n "$CURRENT_RUN_FROM_PACKAGE" ]; then
           echo "Removing WEBSITE_RUN_FROM_PACKAGE"
           az webapp config appsettings delete -g "$GROUP" -n "$APP" --setting-names WEBSITE_RUN_FROM_PACKAGE -o none
+          SWITCHED=true
         fi
+        echo "##vso[task.setvariable variable=runFromPackageSwitched]$SWITCHED"
 
   # ===== DEPLOY WITH CONFIGURATION =====
   # Deploy and configure app settings in a single atomic operation
@@ -188,6 +196,45 @@ steps:
       runtimeStack: "DOTNETCORE|10.0"
       startUpCommand: "dotnet m4d.dll"
       appSettings: -SELF_CONTAINED_DEPLOYMENT false -ASPNETCORE_ENVIRONMENT $(aspnetEnvironment) -SEARCHINDEX $(searchIndex) -SEARCHINDEXVERSION $(searchIndexVersion) -WEBSITES_CONTAINER_START_TIME_LIMIT 600
+
+  # ===== RESTART AFTER A RUN FROM PACKAGE SWITCH =====
+  # Switching WEBSITE_RUN_FROM_PACKAGE restarts the app before the package exists. When the package
+  # then arrives mid-startup, App Service fails to remount wwwroot, stops the site and waits about
+  # five minutes before retrying on its own (seen on m4d-test, 2026-11-02). Restart it right away
+  # instead, and wait for it to answer. The deploy's own config update can still be settling, so a
+  # restart that hasn't come up in three minutes is tried once more. Ordinary deploys skip this.
+  - task: AzureCLI@2
+    displayName: "Restart after Run From Package switch"
+    condition: and(succeeded(), eq(variables['runFromPackageSwitched'], 'true'))
+    inputs:
+      azureSubscription: "m4d-release"
+      scriptType: "bash"
+      scriptLocation: "inlineScript"
+      inlineScript: |
+        set -uo pipefail
+        APP=$(appName)
+        GROUP=$(az webapp list --query "[?name=='$APP'].resourceGroup" -o tsv)
+        HOST=$(az webapp show -g "$GROUP" -n "$APP" --query defaultHostName -o tsv)
+
+        echo "Restarting $APP"
+        az webapp restart -g "$GROUP" -n "$APP" -o none
+        START=$SECONDS
+        RETRIED=false
+        while [ $((SECONDS - START)) -lt 600 ]; do
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://$HOST/" || true)
+          if [ "$CODE" = "200" ]; then
+            echo "$APP is up after $((SECONDS - START))s"
+            exit 0
+          fi
+          if [ "$RETRIED" = "false" ] && [ $((SECONDS - START)) -ge 180 ]; then
+            echo "Not up after $((SECONDS - START))s (last status $CODE); restarting again"
+            az webapp restart -g "$GROUP" -n "$APP" -o none
+            RETRIED=true
+          fi
+          sleep 5
+        done
+        echo "##vso[task.logissue type=error]$APP did not answer with 200 within 10 minutes of the restart"
+        exit 1
 
   # ===== CONFIGURE HEALTH CHECK =====
   # Points Azure's platform health check at /health/ready (reflects live database health) instead
