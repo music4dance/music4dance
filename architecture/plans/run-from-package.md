@@ -2,8 +2,9 @@
 
 **Type:** Plan
 **Status:** Partially implemented
-**Last verified:** 2026-11-01
+**Last verified:** 2026-11-02
 **Code:** `azure-pipelines.yml`, `m4d/Configuration/M4dApplicationExtensions.cs`,
+`m4d/Services/DanceStatsHostedService.cs`, `m4dModels/DanceStatsManager.cs`,
 `m4d/Controllers/DMController.cs`, `m4d/Controllers/AdminController.cs`,
 `m4d/Controllers/SongController.cs`, `m4d/ViewModels/SiteMapInfo.cs`,
 `m4dModels/DanceStatsFileManager.cs`, `m4dModels/ArtistIndexFileManager.cs`,
@@ -108,50 +109,86 @@ doesn't, compare against the assembly's build time instead. Locally (sandbox wit
 
 ### 4. Pipeline
 
-Add `-M4D_DATA_ROOT /home/data/m4d -WEBSITE_RUN_FROM_PACKAGE 1` to both `appSettings` lines in
-`azure-pipelines.yml` (the self-contained and framework-dependent `AzureWebApp@1` tasks), so the
-portal needs no manual settings.
+**`appSettings` alone won't do it.** On Linux, `AzureWebApp@1` zip-deploys first and applies
+`appSettings` afterwards (`PostDeploymentStep` in `BuiltInLinuxWebAppDeploymentProvider`). Kudu
+decides when the zip arrives whether to extract it or store it in `/home/data/SitePackages` and
+mount it. If `WEBSITE_RUN_FROM_PACKAGE=1` came in through `appSettings`, the deploy would extract
+as before, then restart with the flag on and no stored package.
+
+As built, a `runFromPackage` pipeline parameter (default `true`) drives an `AzureCLI@2` step that
+runs **before** the deploy:
+
+- It always sets `M4D_DATA_ROOT=/home/data/m4d`, so flipping `runFromPackage` never moves the data.
+- With `runFromPackage`, it sets `WEBSITE_RUN_FROM_PACKAGE=1`; without it, it deletes the setting
+  and the deploy extracts into `wwwroot` as before.
+- It writes only what has changed, since each write restarts the app. An ordinary deploy with
+  nothing to change makes no writes.
+- `appsettings list` takes no `--ids`, so the step looks up the app's resource group and uses
+  `-g`/`-n`.
+
+The step is fatal on failure. If it fails before writing anything, nothing changes.
 
 **Self-contained mode risk:** its startup command executes `/home/site/wwwroot/m4d` directly, and
 that depends on the execute bit surviving in the mounted zip. Verify this on `m4d-test`, or retire
 self-contained mode. Framework-dependent mode (`dotnet m4d.dll`) has no such issue and is the
 default.
 
+### 5. No data migration
+
+Once the package is mounted, the old extracted `wwwroot`, including its `AppData`, is hidden from
+the app. That data isn't copied, because nothing in it needs to be:
+
+- **Dance stats** start from the checked-in fallback snapshot. When they do,
+  `DanceStatsHostedService` starts a background rebuild from the search index (the same
+  `ClearCache(fromStore: true)` the 6-hourly songstats job runs), which writes the new cache.
+  Before this change, a fallback load waited for that job. `IDanceStatsFileManager` now separates
+  `GetStats` (runtime cache only) from `GetFallbackStats`, so the manager can tell the two apart;
+  Admin → Diagnostics shows `Source = Fallback` until the rebuild lands.
+- **The artist index** reads its fallback snapshot. That snapshot is older than its lifetime, so
+  the first request starts a background rebuild, which writes the new snapshot.
+- **The update message** only exists while an admin has one set. Set it again after the switch
+  if one is active.
+- **Backups and the usage import file** were downloaded or used when they were made. The old
+  copies stay on disk in the hidden `wwwroot/AppData`, and reappear if run-from-package is turned
+  off.
+
 ## Rollout
 
-Each step is verified on `m4d-test` before production.
+The code and the pipeline ship in one PR. Azure DevOps runs the YAML from the branch being
+deployed, so the branch is deployed to test with the same pipeline that later deploys `main` to
+production. No portal or SSH steps either time.
 
-1. **PR 1: code (done).** `AppDataPaths`, repointed writers, and the sitemap override. Nothing
-   changes while `M4D_DATA_ROOT` is unset. Unit tests:
-   - path resolution (unset → `WebRootPath`; set → that path)
-   - `SiteMapFile` picks the newer of override and package
-   - the existing `ArtistIndexFileTests` still pass
-2. **Test: move the data.** Set `M4D_DATA_ROOT=/home/data/m4d` on `m4d-test`. Over SSH, run
-   `mkdir -p /home/data/m4d && cp -a /home/site/wwwroot/AppData /home/data/m4d/`, then restart.
+1. **Test.** Deploy the branch to `m4d-test` (framework-dependent, `runFromPackage` on) while a
+   loop polls the site, e.g.
+   `while true; do curl -s -o /dev/null -w "%{http_code}
+" https://m4d-test.azurewebsites.net/; sleep 1; done`.
+   The first deploy has an extra restart, when the settings step switches the app over before the
+   package arrives. Expect it to be unavailable from that restart until the package is mounted.
    Verify:
-   - a database backup and an index backup download, and the files land in `/home/data/m4d/AppData`
-   - `dance-environment.json` and the artist snapshot are rewritten there
-   - an update message set in Admin lands in `update-message.json` there and survives a restart
-   - a `blogmap.txt` upload to `/home/data/m4d/content/` shows up after Update Sitemap
-3. **PR 2: pipeline.** Add both settings and deploy to test while a loop polls the site, e.g.
-   `while true; do curl -s -o /dev/null -w "%{http_code}\n" https://m4d-test.azurewebsites.net/; sleep 1; done`.
-   Count the non-200s and how long they last. Confirm there are no `BadImageFormatException`s in
-   the logs.
-4. **Production.** Copy `AppData` first: once the package is mounted, it hides the old extracted
-   `wwwroot`, including its `AppData` (backups, caches and any active `update-message.json`).
-   Then deploy and pull the logs.
+   - the log shows `App data root: /home/data/m4d`, and then the dance stats rebuild lines
+     (`Dance stats loaded from the fallback snapshot ...`, `Dance stats rebuilt ...`)
+   - `/home/data/m4d/AppData` gets `dance-environment.json`, and the artist snapshot after the
+     first artist page
+   - a database backup and an index backup download
+   - an update message set in Admin survives a restart
+   - a `blogmap.txt` uploaded to `/home/data/m4d/content/` shows up after Update Sitemap, and the
+     `Site map: using ...` log line shows a sane packaged timestamp
+   - a second deploy: count the non-200s and how long they last, and confirm there are no
+     `BadImageFormatException`s in the logs
+2. **Production.** Merge, then deploy `main` with the same parameters and pull the logs.
 
 ## Rollback
 
-Remove `WEBSITE_RUN_FROM_PACKAGE` (portal or `az webapp config appsettings delete`) and redeploy.
-Everything under `/home/data/m4d` is unaffected, and the code keeps using it while
-`M4D_DATA_ROOT` is set.
+Run the pipeline with `runFromPackage` off. It deletes `WEBSITE_RUN_FROM_PACKAGE` and the deploy
+extracts into `wwwroot` again. `M4D_DATA_ROOT` stays set, so the data under `/home/data/m4d` keeps
+being used. Deploying a commit from before this change would ignore `M4D_DATA_ROOT` and go back to
+the old `wwwroot/AppData`.
 
 ## Open questions
 
 - **The restart gap.** With a single instance, a deploy still restarts the app, and
   `WEBSITES_CONTAINER_START_TIME_LIMIT` is 600s. Expect a startup gap rather than 500s from a
-  process running half-replaced assemblies. Record the measured gap from rollout step 3 here.
+  process running half-replaced assemblies. Record the measured gap from rollout step 1 here.
 - **Cleaning up old backups.** `/home` counts against the plan's storage quota, and backups now
   persist across deploys. Consider pruning backups older than N days, or document a manual
   clean-up.

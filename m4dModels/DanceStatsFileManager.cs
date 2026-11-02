@@ -6,7 +6,10 @@ public interface IDanceStatsFileManager
 {
     Task<string> GetDances();
     Task<string> GetGroups();
+    /// <summary>The runtime cache, or null when there isn't one.</summary>
     Task<string> GetStats();
+    /// <summary>The snapshot in source control, or null when there isn't one.</summary>
+    Task<string> GetFallbackStats();
     Task WriteStats(string stats);
 
 }
@@ -37,14 +40,14 @@ public class DanceStatsFileManager(string appRoot, string fileName = "dance-envi
 
     public async Task<string> GetStats()
     {
-        // Try runtime cache first (AppData/dance-environment.json)
+        // Runtime cache (AppData/dance-environment.json)
         var path = Path.Combine(AppData, $"{FileName}.json");
-        if (File.Exists(path))
-        {
-            return await File.ReadAllTextAsync(path);
-        }
+        return File.Exists(path) ? await File.ReadAllTextAsync(path) : null;
+    }
 
-        // Fall back to static cache in source control (content/dance-environment-fallback.json)
+    public async Task<string> GetFallbackStats()
+    {
+        // Static cache in source control (content/dance-environment-fallback.json)
         var fallbackPath = Path.Combine(Content, $"{FileName}-fallback.json");
         if (File.Exists(fallbackPath))
         {

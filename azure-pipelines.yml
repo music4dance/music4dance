@@ -6,6 +6,7 @@
 # The pipeline automatically configures the target app service based on deployment mode:
 # - Sets SELF_CONTAINED_DEPLOYMENT environment variable (true/false)
 # - Configures startup command (/home/site/wwwroot/m4d for self-contained, empty for framework-dependent)
+# - Sets M4D_DATA_ROOT and, with runFromPackage, WEBSITE_RUN_FROM_PACKAGE (before the deploy)
 # - No manual Azure Portal configuration required
 
 pool:
@@ -27,6 +28,13 @@ parameters:
     values:
       - "production"
       - "test"
+
+  # Mounts the deployed zip read-only as wwwroot instead of extracting it over the running app,
+  # so a deploy never serves half-replaced assemblies. Turn it off to go back to extracting.
+  - name: runFromPackage
+    displayName: "Run From Package"
+    type: boolean
+    default: true
 
 variables:
   buildConfiguration: "Release"
@@ -101,6 +109,55 @@ steps:
       publishWebProjects: false
       projects: "m4d/m4d.csproj"
       arguments: "--configuration $(buildConfiguration) --runtime linux-x64"
+
+  # ===== RUN FROM PACKAGE =====
+  # Kudu decides when the zip arrives whether to extract it into wwwroot or keep it in
+  # /home/data/SitePackages and mount it, and AzureWebApp@1 applies its appSettings only after
+  # deploying - so WEBSITE_RUN_FROM_PACKAGE has to be set here, before the deploy. M4D_DATA_ROOT
+  # moves the app's runtime writes out of wwwroot. It's set either way, so flipping runFromPackage
+  # doesn't move the data. Settings are written only when they change, because each write
+  # restarts the app. See architecture/plans/run-from-package.md.
+  - task: AzureCLI@2
+    displayName: "Configure Run From Package (${{ parameters.runFromPackage }})"
+    inputs:
+      azureSubscription: "m4d-release"
+      scriptType: "bash"
+      scriptLocation: "inlineScript"
+      inlineScript: |
+        set -euo pipefail
+        APP=$(appName)
+        GROUP=$(az webapp list --query "[?name=='$APP'].resourceGroup" -o tsv)
+        if [ -z "$GROUP" ]; then
+          echo "##vso[task.logissue type=error]Could not find app '$APP'"
+          exit 1
+        fi
+
+        setting() {
+          az webapp config appsettings list -g "$GROUP" -n "$APP" --query "[?name=='$1'].value | [0]" -o tsv
+        }
+
+        DATA_ROOT=/home/data/m4d
+        WANT_RUN_FROM_PACKAGE=$(echo "${{ parameters.runFromPackage }}" | tr '[:upper:]' '[:lower:]')
+        CURRENT_ROOT=$(setting M4D_DATA_ROOT)
+        CURRENT_RUN_FROM_PACKAGE=$(setting WEBSITE_RUN_FROM_PACKAGE)
+        echo "Current: M4D_DATA_ROOT='$CURRENT_ROOT' WEBSITE_RUN_FROM_PACKAGE='$CURRENT_RUN_FROM_PACKAGE'"
+
+        UPDATES=()
+        if [ "$CURRENT_ROOT" != "$DATA_ROOT" ]; then
+          UPDATES+=("M4D_DATA_ROOT=$DATA_ROOT")
+        fi
+        if [ "$WANT_RUN_FROM_PACKAGE" = "true" ] && [ "$CURRENT_RUN_FROM_PACKAGE" != "1" ]; then
+          UPDATES+=("WEBSITE_RUN_FROM_PACKAGE=1")
+        fi
+
+        if [ ${#UPDATES[@]} -gt 0 ]; then
+          echo "Setting ${UPDATES[*]}"
+          az webapp config appsettings set -g "$GROUP" -n "$APP" --settings "${UPDATES[@]}" -o none
+        fi
+        if [ "$WANT_RUN_FROM_PACKAGE" != "true" ] && [ -n "$CURRENT_RUN_FROM_PACKAGE" ]; then
+          echo "Removing WEBSITE_RUN_FROM_PACKAGE"
+          az webapp config appsettings delete -g "$GROUP" -n "$APP" --setting-names WEBSITE_RUN_FROM_PACKAGE -o none
+        fi
 
   # ===== DEPLOY WITH CONFIGURATION =====
   # Deploy and configure app settings in a single atomic operation

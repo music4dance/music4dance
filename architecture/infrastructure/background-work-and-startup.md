@@ -78,7 +78,11 @@ include it.
 Creates a scope, builds a `DanceMusicService`, and calls `IDanceStatsManager.Initialize`.
 `DanceStatsManager.Initialize` loads the dance environment from the file cache first
 (`LoadFromAppData`: the runtime `dance-environment.json`, then the checked-in fallback snapshot)
-and only rebuilds it from the search index (`LoadFromAzure`) if no file exists. Either path ends
+and only rebuilds it from the search index (`LoadFromAzure`) if no file exists. When it had to use
+the fallback (`Source` is `Fallback`, for example on a first start against a new
+`M4D_DATA_ROOT`), the hosted service then starts a background `ClearCache(fromStore: true)`. That
+rebuild replaces the snapshot's stats and writes the runtime cache. If it fails, it logs a warning
+and the fallback serves until the next songstats job. Either path ends
 in `DanceStatsInstance.FixupStats`, which wires up dance groups and then does the
 database-dependent part: attaching each dance's `SpotifyFromSearch` playlist id and creating
 placeholder `Dance` rows for new dances. `FixupStats` skips that part when `Database` is already

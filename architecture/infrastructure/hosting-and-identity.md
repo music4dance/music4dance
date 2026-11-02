@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-01
+**Last verified:** 2026-11-02
 **Code:** `azure-pipelines.yml`, `m4d/Program.cs`, `m4d/Configuration/M4dApplicationExtensions.cs`,
 `m4d/Configuration/AppDataPaths.cs`,
 `m4d/Services/StartupInitializationService.cs`, `m4d/m4d.csproj`
@@ -42,17 +42,28 @@ Resources live in resource group `m4d-Web`.
 
 ## Deployment
 
-`azure-pipelines.yml` is the only pipeline. It's an Azure DevOps pipeline with two runtime
-parameters: **environment** (`test` by default, or `production`) and **deploymentMode**
-(`framework-dependent` by default, or `self-contained`). It runs these steps:
+`azure-pipelines.yml` is the only pipeline. It's an Azure DevOps pipeline with three runtime
+parameters: **environment** (`test` by default, or `production`), **deploymentMode**
+(`framework-dependent` by default, or `self-contained`) and **runFromPackage** (on by default).
+It runs the YAML from the branch being deployed. It runs these steps:
 
 1. Builds the Vue client (Node 22, Yarn via Corepack).
 2. Builds and publishes `m4d` for `linux-x64` with the .NET 10 SDK.
-3. Deploys with `AzureWebApp@1` through the `m4d-release` service connection. The same deploy
+3. Sets `M4D_DATA_ROOT=/home/data/m4d`. It also sets `WEBSITE_RUN_FROM_PACKAGE=1` when
+   **runFromPackage** is on and deletes it when off. This has to happen before the deploy,
+   because Kudu decides when the zip arrives whether to extract or mount it, and the deploy task
+   applies its own app settings only afterwards. The step writes only settings that changed,
+   because each write restarts the app.
+4. Deploys with `AzureWebApp@1` through the `m4d-release` service connection. The same deploy
    step sets the app settings `SELF_CONTAINED_DEPLOYMENT`, `ASPNETCORE_ENVIRONMENT`,
    `SEARCHINDEX`, `SEARCHINDEXVERSION` and `WEBSITES_CONTAINER_START_TIME_LIMIT=600`, plus the
    startup command, so nothing needs to be set by hand in the portal.
-4. Sets the App Service health check path to `/health/ready`. This step is non-fatal.
+5. Sets the App Service health check path to `/health/ready`. This step is non-fatal.
+
+With **runFromPackage** on, Kudu keeps the zip in `/home/data/SitePackages` and mounts it
+read-only as `/home/site/wwwroot`, then restarts. Files never change under a running process, so
+a deploy can't serve half-replaced assemblies. Turning it off goes back to extracting into
+`wwwroot`.
 
 | | Framework-dependent (default) | Self-contained |
 | --- | --- | --- |
@@ -72,13 +83,16 @@ certificates.
 `SMOKE_TEST_MODE=true` boots a minimal app that skips all Azure configuration. It's for
 container diagnostics.
 
-`M4D_DATA_ROOT` sets where the app writes at runtime (`AppDataPaths`): admin backups, usage
-exports, the dance stats and artist index caches and the update message go to `<root>/AppData`,
-and uploaded `blogmap.txt` / `helpmap.txt` overrides are read from `<root>/content`. Unset, the
-root is the web root, so those files land in `wwwroot/AppData`. The app logs the root at startup
-(`App data root: ...`) and creates both folders then. Moving it to `/home/data/m4d` so the
-package can be mounted read-only is in progress; see
-[plans/run-from-package](../plans/run-from-package.md).
+`M4D_DATA_ROOT` sets where the app writes at runtime (`AppDataPaths`). The pipeline sets it to
+`/home/data/m4d`, on the persistent `/home` volume and outside the read-only package:
+
+- Admin backups, usage exports, the dance stats and artist index caches and the update message
+  go to `<root>/AppData`.
+- Uploaded `blogmap.txt` / `helpmap.txt` overrides are read from `<root>/content`.
+
+Unset (local runs), the root is the web root, so those files land in `wwwroot/AppData`. The app
+logs the root at startup (`App data root: ...`) and creates both folders then. See
+[plans/run-from-package](../plans/run-from-package.md) for the rollout.
 
 ## Identity and secrets
 
@@ -277,8 +291,9 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
 - 2026-10-29: Anonymous pages stopped minting an antiforgery token (A3 of the same plan), so
   they set no cookie. The cache-control middleware's anonymous branch, which had never run,
   went from `public, max-age=300` to `no-cache`.
-- 2026-11-01: Added `M4D_DATA_ROOT` (PR 1 of [plans/run-from-package](../plans/run-from-package.md)).
-  Unset on both apps for now, so nothing moves until it's set.
+- 2026-11-02: `M4D_DATA_ROOT` and a **runFromPackage** pipeline parameter
+  ([plans/run-from-package](../plans/run-from-package.md)), to end the 500s each deploy caused by
+  zip-deploying over a running process.
 - 2026-10-01: Consolidated from `SELF_CONTAINED_DEPLOYMENT.md`, `managed-identity-self-contained-plan.md`
   and the architecture sections of `azure-app-service-setup-managed-identity.md`. Stale details
   dropped: legacy pipeline files, `appsettings.SelfContained.json`, and in-app Kestrel port and
