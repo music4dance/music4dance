@@ -59,8 +59,8 @@ public sealed class SiteMapDance(DanceObject dance) : SiteMapEntry
 public sealed class SiteMapFile : SiteMapEntry
 {
     /// <param name="overrideDirectory">
-    /// Where an uploaded {filename}.txt can stand in for the packaged one without a deploy (the
-    /// content folder under M4D_DATA_ROOT); see <see cref="ChoosePath"/>.
+    /// Where an uploaded {filename}.txt can stand in for the packaged one without a deploy
+    /// (<see cref="m4d.Configuration.AppDataPaths.AppData"/>); see <see cref="ChoosePath"/>.
     /// </param>
     public SiteMapFile(string filename, IFileProvider fileProvider, string overrideDirectory = null,
         ILogger logger = null)

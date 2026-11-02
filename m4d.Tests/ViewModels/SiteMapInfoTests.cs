@@ -113,7 +113,7 @@ public class SiteMapInfoTests
     [TestMethod]
     public void ChoosePath_UsesThePackagedCopyWhenTheOverrideIsTheSameFile()
     {
-        // With M4D_DATA_ROOT unset the override folder is wwwroot/content itself
+        // Defensive: an override folder pointed at the packaged one never counts as an override
         WithFolders((packaged, _) =>
         {
             var packagedPath = Write(packaged, "blogmap.txt", "Packaged", Then);

@@ -23,7 +23,6 @@ public class AppDataPathsTests
 
         Assert.AreEqual(Path.GetFullPath(webRoot), paths.Root);
         Assert.AreEqual(Path.Combine(Path.GetFullPath(webRoot), "AppData"), paths.AppData);
-        Assert.AreEqual(Path.Combine(Path.GetFullPath(webRoot), "content"), paths.Content);
     }
 
     [TestMethod]
@@ -52,7 +51,7 @@ public class AppDataPathsTests
     }
 
     [TestMethod]
-    public void EnsureCreated_CreatesBothFolders()
+    public void EnsureCreated_CreatesTheAppDataFolder()
     {
         var root = Path.Combine(Path.GetTempPath(), $"m4d-data-root-{Guid.NewGuid():N}");
         try
@@ -60,7 +59,6 @@ public class AppDataPathsTests
             var paths = new AppDataPaths(root).EnsureCreated();
 
             Assert.IsTrue(Directory.Exists(paths.AppData));
-            Assert.IsTrue(Directory.Exists(paths.Content));
         }
         finally
         {

@@ -29,7 +29,7 @@ public class HomeController(
             "Home Page",
             "music4dance.net is an online music catalog, tool and educational resource to help Ballroom, Salsa, Swing, Tango and other dancers find fun and exciting music.",
             "home",
-            new HomeModel(SiteMapInfo.GetCategories(fileProvider, appDataPaths.Content, Logger)),
+            new HomeModel(SiteMapInfo.GetCategories(fileProvider, appDataPaths.AppData, Logger)),
             script: "_fbLike",
             danceEnvironment: true);
     }
@@ -57,7 +57,7 @@ public class HomeController(
     public IActionResult SiteMap([FromServices] IFileProvider fileProvider,
         [FromServices] AppDataPaths appDataPaths)
     {
-        return View(SiteMapInfo.GetCategories(fileProvider, appDataPaths.Content, Logger));
+        return View(SiteMapInfo.GetCategories(fileProvider, appDataPaths.AppData, Logger));
     }
 
     // GET: /sitemap.xml - the crawlable pages of the HTML site map, for search engines.
@@ -70,7 +70,7 @@ public class HomeController(
         var document = new XDocument(
             new XDeclaration("1.0", "utf-8", null),
             new XElement(ns + "urlset",
-                SiteMapInfo.GetCrawlerUrls(SiteMapInfo.GetCategories(fileProvider, appDataPaths.Content, Logger))
+                SiteMapInfo.GetCrawlerUrls(SiteMapInfo.GetCategories(fileProvider, appDataPaths.AppData, Logger))
                     .Select(url => new XElement(ns + "url", new XElement(ns + "loc", url)))));
 
         Response.Headers.CacheControl = "public, max-age=3600";

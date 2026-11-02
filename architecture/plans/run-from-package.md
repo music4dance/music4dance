@@ -66,9 +66,12 @@ setting:
 - **Test and production:** `/home/data/m4d`.
 
 As built: `AppDataPaths(Root)` (`m4d/Configuration/AppDataPaths.cs`), with `AppData` =
-`Root/AppData` and `Content` = `Root/content`. `AddM4dApplication` resolves it, registers it as a
-singleton, creates both directories at startup (so a misconfigured path fails at boot rather than
-on the first backup) and logs `App data root: <path>`.
+`Root/AppData`. Everything the app writes, and the sitemap overrides it reads, live there; there
+is no separate `content` folder under the data root, since nothing there is served and the
+public/private split that keeps `wwwroot/content` apart from `wwwroot/AppData` doesn't apply.
+`AddM4dApplication` resolves it, registers it as a singleton, creates the directory at startup (so
+a misconfigured path fails at boot rather than on the first backup) and logs
+`App data root: <path>`.
 
 ### 2. Repoint the writers
 
@@ -90,11 +93,11 @@ on the first backup) and logs `App data root: <path>`.
 
 ### 3. `blogmap.txt` / `helpmap.txt` overrides
 
-`SiteMapFile` reads `<Root>/content/{name}.txt` when it exists **and is newer than** the
+`SiteMapFile` reads `<Root>/AppData/{name}.txt` when it exists **and is newer than** the
 packaged `wwwroot/content/{name}.txt`. Otherwise it reads the packaged copy. It logs which copy
-it used.
+it used. Locally (no `M4D_DATA_ROOT`) that's `wwwroot/AppData`, which a build doesn't overwrite.
 
-- **Fast path:** upload the edited file to `/home/data/m4d/content/` with Kudu, then run
+- **Fast path:** upload the edited file to `/home/data/m4d/AppData/` with Kudu, then run
   **Admin → Initialization Tasks → Update Sitemap**. The edit is live without a deploy.
 - **The next deploy wins automatically:** the packaged copy's timestamp is the build time, so once
   the committed change ships, the package copy is newer and takes over. A stale override can't
@@ -171,7 +174,7 @@ production. No portal or SSH steps either time.
      first artist page
    - a database backup and an index backup download
    - an update message set in Admin survives a restart
-   - a `blogmap.txt` uploaded to `/home/data/m4d/content/` shows up after Update Sitemap, and the
+   - a `blogmap.txt` uploaded to `/home/data/m4d/AppData/` shows up after Update Sitemap, and the
      `Site map: using ...` log line shows a sane packaged timestamp
    - a second deploy: count the non-200s and how long they last, and confirm there are no
      `BadImageFormatException`s in the logs
@@ -201,7 +204,7 @@ Fold the as-built design into the reference docs and delete this plan (see
 - [hosting-and-identity](../infrastructure/hosting-and-identity.md): the deployment table, Run From
   Package, and `M4D_DATA_ROOT`.
 - [transfer-files-to-app-service](../runbooks/transfer-files-to-app-service.md) and
-  [link-new-blog-posts](../runbooks/link-new-blog-posts.md): upload to `/home/data/m4d/content/`,
+  [link-new-blog-posts](../runbooks/link-new-blog-posts.md): upload to `/home/data/m4d/AppData/`,
   not `wwwroot`.
 - AppData paths in [overview](../overview.md),
   [dance-domain-model](../dances/dance-domain-model.md),

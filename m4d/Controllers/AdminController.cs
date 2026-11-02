@@ -906,7 +906,7 @@ public class AdminController(
     {
         ViewBag.Name = "Update Sitemap";
 
-        SiteMapInfo.ReloadCategories(fileProvider, appDataPaths.Content, Logger);
+        SiteMapInfo.ReloadCategories(fileProvider, appDataPaths.AppData, Logger);
 
         return RedirectToAction("SiteMap", "Home");
     }

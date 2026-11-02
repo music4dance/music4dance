@@ -88,10 +88,10 @@ container diagnostics.
 
 - Admin backups, usage exports, the dance stats and artist index caches and the update message
   go to `<root>/AppData`.
-- Uploaded `blogmap.txt` / `helpmap.txt` overrides are read from `<root>/content`.
+- Uploaded `blogmap.txt` / `helpmap.txt` overrides are read from the same folder.
 
 Unset (local runs), the root is the web root, so those files land in `wwwroot/AppData`. The app
-logs the root at startup (`App data root: ...`) and creates both folders then. See
+logs the root at startup (`App data root: ...`) and creates the folder then. See
 [plans/run-from-package](../plans/run-from-package.md) for the rollout.
 
 ## Identity and secrets
