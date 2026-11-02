@@ -51,8 +51,8 @@ Refresh them:
 5. Review the diffs. Expect count changes and new top songs and artists, but not dances
    disappearing. Then commit them in a PR.
 
-The artist file is written indented, which matches prettier's formatting, so `yarn format` has
-nothing to change. Line endings are normalized to LF by `.gitattributes` on commit.
+The artist file is written indented with a trailing newline, which matches prettier's formatting,
+so `yarn format` has nothing to change. Line endings are normalized to LF by `.gitattributes` on commit.
 
 The manual `ArtistIndexSnapshot` test harness can also regenerate the artist file from an index
 backup instead of a live index (see

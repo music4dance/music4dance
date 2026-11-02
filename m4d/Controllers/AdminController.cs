@@ -1072,7 +1072,8 @@ public class AdminController(
         try
         {
             System.IO.File.WriteAllText(dancePath, DanceStatsManager.Instance.SaveToJson(), Encoding.UTF8);
-            System.IO.File.WriteAllText(artistPath, artists.SaveToJson(Newtonsoft.Json.Formatting.Indented));
+            // Indented with a trailing newline: prettier owns the format of files under src/
+            System.IO.File.WriteAllText(artistPath, artists.SaveToJson(Newtonsoft.Json.Formatting.Indented) + "\n");
             ViewBag.Success = true;
             ViewBag.Message = $"Wrote dance stats snapshot to {dancePath} and " +
                 $"{artists.Count:N0} artists to {artistPath}";
