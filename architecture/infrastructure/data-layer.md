@@ -28,7 +28,7 @@ Some things that look like data come from neither store:
   `Modified` and `DanceLinks`, and `Dance.Info` (ignored by EF) joins the two by `Id`.
 - Dance and tag statistics (`DanceStatsInstance`) are computed from the index
   (`DanceStatsManager.LoadFromAzure`), with a file cache for cold starts. See
-  [runbooks/refresh-dance-fallback-snapshot](../runbooks/refresh-dance-fallback-snapshot.md).
+  [runbooks/refresh-fallback-snapshots](../runbooks/refresh-fallback-snapshots.md).
 
 The song format is in [song-internal-format](../songs/song-internal-format.md); index schemas and
 versions are in [search-index-versioning](../search/search-index-versioning.md).

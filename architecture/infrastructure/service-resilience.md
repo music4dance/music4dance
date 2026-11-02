@@ -104,7 +104,7 @@ or a `503` JSON response instead of an unhandled exception.
 
 The snapshot exists for fresh deployments, where the runtime cache hasn't been built yet. It
 goes stale between refreshes; see
-[runbooks/refresh-dance-fallback-snapshot](../runbooks/refresh-dance-fallback-snapshot.md).
+[runbooks/refresh-fallback-snapshots](../runbooks/refresh-fallback-snapshots.md).
 `artist-index-fallback.json` plays the same role for the artist index (see
 [individual-artists](../songs/individual-artists.md)).
 
@@ -361,7 +361,7 @@ notified, so no lone "recovered" email follows. Configuration and testing steps 
 - [configuration-and-feature-flags](configuration-and-feature-flags.md): the keys whose absence marks a service unavailable
 - [data-layer](data-layer.md): `DanceMusicContext` registration and startup migrations
 - [runbooks/configure-failure-email](../runbooks/configure-failure-email.md)
-- [runbooks/refresh-dance-fallback-snapshot](../runbooks/refresh-dance-fallback-snapshot.md)
+- [runbooks/refresh-fallback-snapshots](../runbooks/refresh-fallback-snapshots.md)
 - [dance-domain-model](../dances/dance-domain-model.md): `DanceStats` build, file cache and startup load
 - [user-name-visibility](../users-admin/user-name-visibility.md): `UNAVAILABLE` rendering when user data can't be loaded
 - [admin-pages](../users-admin/admin-pages.md): admin diagnostics surfaces

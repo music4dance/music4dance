@@ -50,7 +50,7 @@ These are already safe:
 - `Directory.CreateDirectory(wwwroot/vclient)` (`M4dApplicationExtensions.cs` ~563): `vclient` is
   in the package, and creating an existing directory doesn't write.
 - Data protection keys (self-contained mode) go to `$HOME/site/keys`, outside `wwwroot`.
-- `ExportDanceFallback` writes to `ClientApp/src/...` and `FileEmailSender` is sandbox-only. Both
+- `ExportFallbacks` writes to `ClientApp/src/...` and `FileEmailSender` is sandbox-only. Both
   are development tools.
 
 ## Design
