@@ -19,6 +19,10 @@
     <PackageReference Include="System.Linq.Async" />
   </ItemGroup>
   <ItemGroup>
+    <!-- The partner API's field names, checked by PartnerApiIndexContractTests -->
+    <Compile Include="..\m4d-api\IndexFields.cs" Link="PartnerApi\IndexFields.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\m4dModels\m4dModels.csproj" />
     <ProjectReference Include="..\m4dModels.Sandbox\m4dModels.Sandbox.csproj" />
   </ItemGroup>

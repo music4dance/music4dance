@@ -32,6 +32,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "architecture", "architectur
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "m4d-api", "m4d-api\m4d-api.csproj", "{D3DE5B2E-6E79-4987-938C-4F51D268FE0B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "m4d-api.Tests", "m4d-api.Tests\m4d-api.Tests.csproj", "{B8A31A77-34F3-46AF-8BBB-03DC22227830}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -174,6 +176,18 @@ Global
 		{D3DE5B2E-6E79-4987-938C-4F51D268FE0B}.Release|ARM.Build.0 = Release|Any CPU
 		{D3DE5B2E-6E79-4987-938C-4F51D268FE0B}.Release|x86.ActiveCfg = Release|Any CPU
 		{D3DE5B2E-6E79-4987-938C-4F51D268FE0B}.Release|x86.Build.0 = Release|Any CPU
+		{B8A31A77-34F3-46AF-8BBB-03DC22227830}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8A31A77-34F3-46AF-8BBB-03DC22227830}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8A31A77-34F3-46AF-8BBB-03DC22227830}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{B8A31A77-34F3-46AF-8BBB-03DC22227830}.Debug|ARM.Build.0 = Debug|Any CPU
+		{B8A31A77-34F3-46AF-8BBB-03DC22227830}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B8A31A77-34F3-46AF-8BBB-03DC22227830}.Debug|x86.Build.0 = Debug|Any CPU
+		{B8A31A77-34F3-46AF-8BBB-03DC22227830}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8A31A77-34F3-46AF-8BBB-03DC22227830}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8A31A77-34F3-46AF-8BBB-03DC22227830}.Release|ARM.ActiveCfg = Release|Any CPU
+		{B8A31A77-34F3-46AF-8BBB-03DC22227830}.Release|ARM.Build.0 = Release|Any CPU
+		{B8A31A77-34F3-46AF-8BBB-03DC22227830}.Release|x86.ActiveCfg = Release|Any CPU
+		{B8A31A77-34F3-46AF-8BBB-03DC22227830}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

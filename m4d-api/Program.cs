@@ -1,5 +1,7 @@
 using Azure.Identity;
 using Azure.Search.Documents;
+using DanceLibrary;
+using m4dApi;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.Configuration;
@@ -21,5 +23,9 @@ var indexName = builder.Configuration.GetValue<string>("SEARCH_INDEX");
 
 builder.Services.AddSingleton(
     new SearchClient(endpoint, indexName, new ManagedIdentityCredential(ManagedIdentityId.SystemAssigned)));
+builder.Services.AddSingleton(_ => Dances.Load(
+    File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "dances.json")),
+    File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "dancegroups.json"))));
+builder.Services.AddSingleton<SongResolver>();
 
 builder.Build().Run();
