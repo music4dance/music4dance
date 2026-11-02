@@ -11,10 +11,17 @@ public interface IDanceStatsFileManager
 
 }
 
-public class DanceStatsFileManager(string appRoot, string fileName = "dance-environment") : IDanceStatsFileManager
+/// <summary>
+/// Reads the packaged dance files from <paramref name="appRoot"/>/content and keeps the runtime
+/// cache in <paramref name="dataRoot"/>/AppData. The two differ when the package is mounted
+/// read-only and runtime files live on the /home volume (M4D_DATA_ROOT); dataRoot defaults to
+/// appRoot.
+/// </summary>
+public class DanceStatsFileManager(string appRoot, string fileName = "dance-environment", string dataRoot = null)
+    : IDanceStatsFileManager
 {
     private string AppRoot { get; } = appRoot;
-    private string AppData => Path.Combine(AppRoot, "AppData");
+    private string AppData => Path.Combine(dataRoot ?? AppRoot, "AppData");
     private string Content => Path.Combine(AppRoot, "content");
     private readonly string FileName = fileName;
 

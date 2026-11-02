@@ -474,6 +474,12 @@ public static class M4dApplicationExtensions
         // Startup health for the services above, which all read their credentials at use time
         _ = SecretBackedServices.UpdateHealth(configuration, serviceHealth, markMissing: true);
 
+        // Runtime writes (backups, caches, sitemap overrides) go here rather than into wwwroot, which
+        // is read-only when the deployed package is mounted (WEBSITE_RUN_FROM_PACKAGE)
+        var appDataPaths = AppDataPaths.Resolve(configuration, environment.WebRootPath).EnsureCreated();
+        services.AddSingleton(appDataPaths);
+        Console.WriteLine($"App data root: {appDataPaths.Root}");
+
         if (appOptions.ConfigureSearch)
         {
             var appRoot = environment.WebRootPath;
@@ -487,7 +493,8 @@ public static class M4dApplicationExtensions
                 manager.OnSearchSuccess = () => serviceHealth.MarkHealthy("SearchService");
                 return manager;
             });
-            services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(new DanceStatsFileManager(appRoot)));
+            services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(
+                new DanceStatsFileManager(appRoot, dataRoot: appDataPaths.Root)));
         }
 
         services.AddScoped<m4d.Services.SpotifyAuthService>();
@@ -515,13 +522,13 @@ public static class M4dApplicationExtensions
 
         // The snapshot is persisted beside dance-environment.json so a restart doesn't cost the
         // first visitor a full streaming pass. Gated on ConfigureSearch, like the dance stats file
-        // manager above: the sandbox builds its index from seeded songs in memory, and its
-        // WebRootPath is m4d/wwwroot, so persisting would have it trade snapshots with the real
+        // manager above: the sandbox builds its index from seeded songs in memory, and its data
+        // root falls back to m4d/wwwroot, so persisting would have it trade snapshots with the real
         // dev app - each one reading back the other's catalog on its next start.
         services.AddSingleton(sp => new m4d.Services.ArtistIndexCache(
             sp.GetRequiredService<ILogger<m4d.Services.ArtistIndexCache>>(),
             appOptions.ConfigureSearch && !string.IsNullOrEmpty(environment.WebRootPath)
-                ? new ArtistIndexFileManager(environment.WebRootPath)
+                ? new ArtistIndexFileManager(environment.WebRootPath, dataRoot: appDataPaths.Root)
                 : null));
 
         // Persisted beside dance-environment.json so the banner survives a restart and is shared
@@ -529,8 +536,8 @@ public static class M4dApplicationExtensions
         // the artist index cache above: the sandbox shares m4d/wwwroot with the real dev app.
         services.AddSingleton(sp => new m4d.Services.UpdateMessageService(
             sp.GetRequiredService<ILogger<m4d.Services.UpdateMessageService>>(),
-            appOptions.ConfigureSearch && !string.IsNullOrEmpty(environment.WebRootPath)
-                ? new m4d.Services.UpdateMessageFileManager(environment.WebRootPath)
+            appOptions.ConfigureSearch
+                ? new m4d.Services.UpdateMessageFileManager(appDataPaths.Root)
                 : null,
             GlobalState.StartTime));
 
@@ -744,8 +751,8 @@ public static class M4dApplicationExtensions
             app.UseResponseCompression();
         }
 
-        // wwwroot/AppData holds admin backups (with password hashes) and runtime caches; never
-        // serve it as static content.
+        // wwwroot/AppData holds admin backups (with password hashes) and runtime caches whenever
+        // M4D_DATA_ROOT is unset (see AppDataPaths); never serve it as static content.
         app.UseMiddleware<m4d.Middleware.BlockAppDataMiddleware>();
 
         // MapStaticAssets() requires a manifest file that doesn't get properly included

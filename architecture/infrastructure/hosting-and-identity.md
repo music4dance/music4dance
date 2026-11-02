@@ -2,8 +2,9 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-29
+**Last verified:** 2026-11-01
 **Code:** `azure-pipelines.yml`, `m4d/Program.cs`, `m4d/Configuration/M4dApplicationExtensions.cs`,
+`m4d/Configuration/AppDataPaths.cs`,
 `m4d/Services/StartupInitializationService.cs`, `m4d/m4d.csproj`
 
 Where music4dance runs, how it's deployed, how it authenticates to Azure, and what happens
@@ -70,6 +71,14 @@ certificates.
 
 `SMOKE_TEST_MODE=true` boots a minimal app that skips all Azure configuration. It's for
 container diagnostics.
+
+`M4D_DATA_ROOT` sets where the app writes at runtime (`AppDataPaths`): admin backups, usage
+exports, the dance stats and artist index caches and the update message go to `<root>/AppData`,
+and uploaded `blogmap.txt` / `helpmap.txt` overrides are read from `<root>/content`. Unset, the
+root is the web root, so those files land in `wwwroot/AppData`. The app logs the root at startup
+(`App data root: ...`) and creates both folders then. Moving it to `/home/data/m4d` so the
+package can be mounted read-only is in progress; see
+[plans/run-from-package](../plans/run-from-package.md).
 
 ## Identity and secrets
 
@@ -268,6 +277,8 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
 - 2026-10-29: Anonymous pages stopped minting an antiforgery token (A3 of the same plan), so
   they set no cookie. The cache-control middleware's anonymous branch, which had never run,
   went from `public, max-age=300` to `no-cache`.
+- 2026-11-01: Added `M4D_DATA_ROOT` (PR 1 of [plans/run-from-package](../plans/run-from-package.md)).
+  Unset on both apps for now, so nothing moves until it's set.
 - 2026-10-01: Consolidated from `SELF_CONTAINED_DEPLOYMENT.md`, `managed-identity-self-contained-plan.md`
   and the architecture sections of `azure-app-service-setup-managed-identity.md`. Stale details
   dropped: legacy pipeline files, `appsettings.SelfContained.json`, and in-app Kestrel port and

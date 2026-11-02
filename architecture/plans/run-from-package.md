@@ -1,13 +1,13 @@
 # Run From Package: Atomic Deploys Without a Staging Slot
 
 **Type:** Plan
-**Status:** Proposed
+**Status:** Partially implemented
 **Last verified:** 2026-11-01
 **Code:** `azure-pipelines.yml`, `m4d/Configuration/M4dApplicationExtensions.cs`,
 `m4d/Controllers/DMController.cs`, `m4d/Controllers/AdminController.cs`,
 `m4d/Controllers/SongController.cs`, `m4d/ViewModels/SiteMapInfo.cs`,
 `m4dModels/DanceStatsFileManager.cs`, `m4dModels/ArtistIndexFileManager.cs`,
-`m4d/Services/UpdateMessageFileManager.cs`
+`m4d/Services/UpdateMessageFileManager.cs`, `m4d/Configuration/AppDataPaths.cs`
 
 ## Problem
 
@@ -64,22 +64,27 @@ setting:
   in `wwwroot/AppData`.
 - **Test and production:** `/home/data/m4d`.
 
-Register a small immutable record, for example `AppDataPaths(Root)`, with `AppData` =
-`Root/AppData` and `Content` = `Root/content`. Create it in `AddM4dApplication` and create both
-directories eagerly at startup, so a misconfigured path fails at boot rather than on the first
-backup.
+As built: `AppDataPaths(Root)` (`m4d/Configuration/AppDataPaths.cs`), with `AppData` =
+`Root/AppData` and `Content` = `Root/content`. `AddM4dApplication` resolves it, registers it as a
+singleton, creates both directories at startup (so a misconfigured path fails at boot rather than
+on the first backup) and logs `App data root: <path>`.
 
 ### 2. Repoint the writers
 
-- `DanceStatsFileManager`, `ArtistIndexFileManager` and `UpdateMessageFileManager` get
-  `AppDataPaths.Root` instead of `WebRootPath`. All three already append `AppData`, so their file
-  layout doesn't change. Keep the `ConfigureSearch` gating on the last two: the sandbox still
-  resolves to `m4d/wwwroot` and shares it with the dev app.
+- `UpdateMessageFileManager` gets `AppDataPaths.Root` instead of `WebRootPath`.
+- `DanceStatsFileManager` and `ArtistIndexFileManager` take a new optional `dataRoot` for their
+  `AppData` cache. They can't simply be repointed: they also read packaged files from
+  `<root>/content` (`dances.json`, `dancegroups.json` and the `*-fallback.json` snapshots), which
+  stay in the package. So they keep `WebRootPath` for content and get `dataRoot:
+  AppDataPaths.Root`.
+- The `ConfigureSearch` gating stays on the artist index and update message managers: the
+  sandbox still resolves to `m4d/wwwroot` and shares it with the dev app.
 - `EnsureAppData` returns `AppDataPaths.AppData`.
 - The two `File("~/AppData/" + fname, …)` returns become
   `PhysicalFile(path, MediaTypeNames.Text.Plain, fname)`, because the file is no longer under the
   web root.
-- `BatchProcess` writes its before/after logs to `AppDataPaths.AppData`.
+- `BatchProcess` writes its before/after logs to `AppDataPaths.AppData`. Only
+  `BatchCleanupProperties?log=true` asks for them.
 - Keep `BlockAppDataMiddleware` as defense in depth: locally `AppData` is still under `wwwroot`.
 
 ### 3. `blogmap.txt` / `helpmap.txt` overrides
@@ -94,8 +99,12 @@ it used.
   the committed change ships, the package copy is newer and takes over. A stale override can't
   shadow later commits, and a deploy can't silently revert a fresh upload.
 
-Check during implementation that the mounted zip reports entry times as `LastWriteTimeUtc`. If it
-doesn't, compare against the assembly's build time instead.
+When an override exists, `SiteMapFile.ChoosePath` logs both timestamps (`Site map: using
+override|packaged copy; override ... written ..., packaged ... written ...`). Use that line on
+`m4d-test` to check that the mounted zip reports entry times as `LastWriteTimeUtc`. If it
+doesn't, compare against the assembly's build time instead. Locally (sandbox with
+`M4D_DATA_ROOT` pointed at a scratch folder) a newer override was picked up on the first load of
+`/home/sitemap`.
 
 ### 4. Pipeline
 
@@ -112,8 +121,8 @@ default.
 
 Each step is verified on `m4d-test` before production.
 
-1. **PR 1: code.** `AppDataPaths`, repointed writers, and the sitemap override. Nothing changes
-   while `M4D_DATA_ROOT` is unset. Unit tests:
+1. **PR 1: code (done).** `AppDataPaths`, repointed writers, and the sitemap override. Nothing
+   changes while `M4D_DATA_ROOT` is unset. Unit tests:
    - path resolution (unset → `WebRootPath`; set → that path)
    - `SiteMapFile` picks the newer of override and package
    - the existing `ArtistIndexFileTests` still pass

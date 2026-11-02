@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Xml.Linq;
 
+using m4d.Configuration;
 using m4d.Services;
 using m4d.Services.ServiceHealth;
 using m4d.ViewModels;
@@ -21,13 +22,14 @@ public class HomeController(
     ServiceHealthManager serviceHealth) : CommerceController(context, userManager, searchService, danceStatsManager, configuration,
         fileProvider, backroundTaskQueue, featureManager, logger, serviceHealth)
 {
-    public IActionResult Index([FromServices] IFileProvider fileProvider)
+    public IActionResult Index([FromServices] IFileProvider fileProvider,
+        [FromServices] AppDataPaths appDataPaths)
     {
         return Vue3(
             "Home Page",
             "music4dance.net is an online music catalog, tool and educational resource to help Ballroom, Salsa, Swing, Tango and other dancers find fun and exciting music.",
             "home",
-            new HomeModel(SiteMapInfo.GetCategories(fileProvider)),
+            new HomeModel(SiteMapInfo.GetCategories(fileProvider, appDataPaths.Content, Logger)),
             script: "_fbLike",
             danceEnvironment: true);
     }
@@ -52,21 +54,23 @@ public class HomeController(
         return RedirectPermanent("/dances");
     }
 
-    public IActionResult SiteMap([FromServices] IFileProvider fileProvider)
+    public IActionResult SiteMap([FromServices] IFileProvider fileProvider,
+        [FromServices] AppDataPaths appDataPaths)
     {
-        return View(SiteMapInfo.GetCategories(fileProvider));
+        return View(SiteMapInfo.GetCategories(fileProvider, appDataPaths.Content, Logger));
     }
 
     // GET: /sitemap.xml - the crawlable pages of the HTML site map, for search engines.
     // Referenced from robots.txt. The same for every visitor, so it's cacheable.
     [HttpGet("/sitemap.xml")]
-    public IActionResult SiteMapXml([FromServices] IFileProvider fileProvider)
+    public IActionResult SiteMapXml([FromServices] IFileProvider fileProvider,
+        [FromServices] AppDataPaths appDataPaths)
     {
         XNamespace ns = "http://www.sitemaps.org/schemas/sitemap/0.9";
         var document = new XDocument(
             new XDeclaration("1.0", "utf-8", null),
             new XElement(ns + "urlset",
-                SiteMapInfo.GetCrawlerUrls(SiteMapInfo.GetCategories(fileProvider))
+                SiteMapInfo.GetCrawlerUrls(SiteMapInfo.GetCategories(fileProvider, appDataPaths.Content, Logger))
                     .Select(url => new XElement(ns + "url", new XElement(ns + "loc", url)))));
 
         Response.Headers.CacheControl = "public, max-age=3600";

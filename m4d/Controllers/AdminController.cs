@@ -901,11 +901,12 @@ public class AdminController(
     //
     // Get: //UpdateSitemap
     [Authorize(Roles = "dbAdmin")]
-    public ActionResult UpdateSitemap([FromServices] IFileProvider fileProvider)
+    public ActionResult UpdateSitemap([FromServices] IFileProvider fileProvider,
+        [FromServices] AppDataPaths appDataPaths)
     {
         ViewBag.Name = "Update Sitemap";
 
-        SiteMapInfo.ReloadCategories(fileProvider);
+        SiteMapInfo.ReloadCategories(fileProvider, appDataPaths.Content, Logger);
 
         return RedirectToAction("SiteMap", "Home");
     }
@@ -1436,7 +1437,7 @@ public class AdminController(
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> LoadUsageFromAppData(
-        [FromServices] IWebHostEnvironment environment,
+        [FromServices] AppDataPaths appDataPaths,
         string fileName = "usage.tsv",
         int batchSize = 5000,
         bool truncate = true)
@@ -1450,7 +1451,7 @@ public class AdminController(
 
             StartAdminTask("LoadUsageFromAppData");
 
-            var appDataPath = EnsureAppData(environment);
+            var appDataPath = EnsureAppData(appDataPaths);
 
             // Normalize and validate the requested file name before constructing the path
             var effectiveFileName = string.IsNullOrWhiteSpace(fileName) ? "usage.tsv" : fileName;
@@ -1960,7 +1961,7 @@ public class AdminController(
     // Get: //IndexBackup
     [Authorize(Roles = "showDiagnostics")]
     public async Task<ActionResult> IndexBackup(
-        [FromServices] IWebHostEnvironment environment,
+        [FromServices] AppDataPaths appDataPaths,
         string name = "default",
         string filter = null,
         int writeBufferSize = 100,
@@ -1975,7 +1976,7 @@ public class AdminController(
 
             var dt = DateTime.Now;
             var fname = $"index-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}.txt";
-            var path = Path.Combine(EnsureAppData(environment), fname);
+            var path = Path.Combine(EnsureAppData(appDataPaths), fname);
 
             var songFilter = filter == null ? null : Database.SearchService.GetSongFilter(filter);
 
@@ -2012,7 +2013,7 @@ public class AdminController(
             }
 
             AdminMonitor.CompleteTask(true, $"Backup ({n} songs) complete to: {path}");
-            return File("~/AppData/" + fname, MediaTypeNames.Text.Plain, fname);
+            return PhysicalFile(path, MediaTypeNames.Text.Plain, fname);
         }
         catch (OperationCanceledException)
         {
@@ -2027,7 +2028,7 @@ public class AdminController(
     //
     // Get: //BackupDatabase
     [Authorize(Roles = "showDiagnostics")]
-    public ActionResult BackupDatabase([FromServices] IWebHostEnvironment environment,
+    public ActionResult BackupDatabase([FromServices] AppDataPaths appDataPaths,
         bool users = true, bool tags = true, bool dances = true, bool playlists = true,
         bool searches = true, bool songs = true, string useLookupHistory = null)
     {
@@ -2040,7 +2041,7 @@ public class AdminController(
             var dt = DateTime.Now;
             var h = history ? "-lookup" : string.Empty;
             var fname = $"backup-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}{h}.txt";
-            var path = Path.Combine(EnsureAppData(environment), fname);
+            var path = Path.Combine(EnsureAppData(appDataPaths), fname);
 
             Database.Context.Database.SetCommandTimeout(new TimeSpan(0, 5, 0));
 
@@ -2119,7 +2120,7 @@ public class AdminController(
             }
 
             AdminMonitor.CompleteTask(true, "Backup complete to: " + path);
-            return File("~/AppData/" + fname, MediaTypeNames.Text.Plain, fname);
+            return PhysicalFile(path, MediaTypeNames.Text.Plain, fname);
             //AdminMonitor.CompleteTask(true, "Backup complete to: " + path);
             //var res = new FilePathResult("~/content/" + fname,System.Net.Mime.MediaTypeNames.Text.Plain);
             //res.FileDownloadName = fname;

@@ -1,4 +1,5 @@
-﻿using m4d.Services;
+﻿using m4d.Configuration;
+using m4d.Services;
 using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 using m4d.ViewModels;
@@ -453,9 +454,9 @@ public class DanceMusicController(
         }
     }
 
-    protected string EnsureAppData(IWebHostEnvironment environment)
+    protected static string EnsureAppData(AppDataPaths appDataPaths)
     {
-        var path = Path.Combine(environment.WebRootPath, "AppData");
+        var path = appDataPaths.AppData;
         if (!Directory.Exists(path))
         {
             _ = Directory.CreateDirectory(path);
