@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "m4d.Tests", "m4d.Tests\m4d.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "architecture", "architecture\architecture.csproj", "{BC58737F-1468-6DD3-75D8-8D31D34DE1D3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "m4d-api", "m4d-api\m4d-api.csproj", "{D3DE5B2E-6E79-4987-938C-4F51D268FE0B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -160,6 +162,18 @@ Global
 		{BC58737F-1468-6DD3-75D8-8D31D34DE1D3}.Release|ARM.Build.0 = Release|Any CPU
 		{BC58737F-1468-6DD3-75D8-8D31D34DE1D3}.Release|x86.ActiveCfg = Release|Any CPU
 		{BC58737F-1468-6DD3-75D8-8D31D34DE1D3}.Release|x86.Build.0 = Release|Any CPU
+		{D3DE5B2E-6E79-4987-938C-4F51D268FE0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3DE5B2E-6E79-4987-938C-4F51D268FE0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3DE5B2E-6E79-4987-938C-4F51D268FE0B}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{D3DE5B2E-6E79-4987-938C-4F51D268FE0B}.Debug|ARM.Build.0 = Debug|Any CPU
+		{D3DE5B2E-6E79-4987-938C-4F51D268FE0B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D3DE5B2E-6E79-4987-938C-4F51D268FE0B}.Debug|x86.Build.0 = Debug|Any CPU
+		{D3DE5B2E-6E79-4987-938C-4F51D268FE0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3DE5B2E-6E79-4987-938C-4F51D268FE0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3DE5B2E-6E79-4987-938C-4F51D268FE0B}.Release|ARM.ActiveCfg = Release|Any CPU
+		{D3DE5B2E-6E79-4987-938C-4F51D268FE0B}.Release|ARM.Build.0 = Release|Any CPU
+		{D3DE5B2E-6E79-4987-938C-4F51D268FE0B}.Release|x86.ActiveCfg = Release|Any CPU
+		{D3DE5B2E-6E79-4987-938C-4F51D268FE0B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
