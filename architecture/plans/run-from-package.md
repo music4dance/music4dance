@@ -144,10 +144,26 @@ setting flips:
 
 That's about 5m15s down, nearly all of it App Service's wait before retrying. So the settings
 step sets a `runFromPackageSwitched` pipeline variable whenever it adds or deletes
-`WEBSITE_RUN_FROM_PACKAGE`, and a step after the deploy restarts the app when it's set. It then
-polls the site until it answers with a 200 (up to 10 minutes), and logs how long that took. The
-deploy's own config update may still be settling when it restarts, so if the site isn't up after
-three minutes it restarts once more. Ordinary deploys skip the step.
+`WEBSITE_RUN_FROM_PACKAGE`, and a step after the deploy stops and starts the app when it's set.
+It then polls the site until it answers with a 200 (up to 10 minutes), and logs how long that
+took. If the site isn't up after three minutes it starts it once more. Ordinary deploys skip the
+step.
+
+It stops and starts rather than restarting because of a manual test on `m4d-test` the same
+evening (all UTC):
+
+- 21:01:03: a restart. A new container starts while the old one keeps serving.
+- 21:01:45: a second restart cancels that start ("Site startup probe failed after 24.5s",
+  "Failed to start site. Revert by stopping site"). The old container is still serving, but no new
+  start follows.
+- 21:02:01 and 21:02:10: a stop, then a start. The site is down from 21:02:18. The container
+  launches at 21:03:36, about 80s after the start, and passes its startup probe 16s later, at
+  21:03:53.
+
+So a restart that lands mid-start can leave the site stopped, which is the state the restart step
+exists to get out of. A stop followed by a start doesn't race with anything. A single
+uninterrupted restart probably costs close to nothing, since the old container serves until the
+new one passes its probe, but that still needs a clean measurement.
 
 **Self-contained mode risk:** its startup command executes `/home/site/wwwroot/m4d` directly, and
 that depends on the execute bit surviving in the mounted zip. Verify this on `m4d-test`, or retire
@@ -185,7 +201,7 @@ production. No portal or SSH steps either time.
 " https://m4d-test.azurewebsites.net/; sleep 1; done`.
    The first deploy has an extra restart, when the settings step switches the app over before the
    package arrives; see "Restart after a switch" above for what that did on the first run. To
-   check the restart step, run the pipeline with `runFromPackage` off and then on again: each run
+   check the stop-and-start step, run the pipeline with `runFromPackage` off and then on again: each run
    should log `m4d-test is up after Ns`, and the outage should be close to a normal startup.
    Verify:
    - the log shows `App data root: /home/data/m4d`, and then the dance stats rebuild lines
