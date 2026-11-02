@@ -1020,40 +1020,67 @@ public class AdminController(
     }
 
     //
-    // Post: //ExportDanceFallback
+    // Post: //ExportFallbacks
     //
-    // Writes the current in-memory dance stats (DanceStatsManager.Instance) over the
-    // checked-in cold-start snapshot at ClientApp/src/assets/content/dance-environment-fallback.json.
+    // Writes the checked-in cold-start snapshots under ClientApp/src/assets/content:
+    //   dance-environment-fallback.json - the current in-memory dance stats (DanceStatsManager.Instance)
+    //   artist-index-fallback.json      - an artist index built fresh from the search index, not the
+    //                                     one ArtistIndexCache holds, which may have been read back
+    //                                     from the old fallback itself
     // Run ClearSongCache?reloadFromStore=true first against a production-like DB/index so the
-    // snapshot reflects real song counts, not a sparse local dev dataset.
+    // snapshots reflect the real catalog, not a sparse local dev dataset.
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "showDiagnostics")]
-    public ActionResult ExportDanceFallback([FromServices] IWebHostEnvironment environment)
+    public async Task<ActionResult> ExportFallbacks([FromServices] IWebHostEnvironment environment)
     {
-        ViewBag.Name = "ExportDanceFallback";
+        ViewBag.Name = "ExportFallbacks";
 
-        var path = Path.Combine(
-            environment.ContentRootPath, "ClientApp", "src", "assets", "content",
-            "dance-environment-fallback.json");
+        var content = Path.Combine(environment.ContentRootPath, "ClientApp", "src", "assets", "content");
+        var dancePath = Path.Combine(content, "dance-environment-fallback.json");
+        var artistPath = Path.Combine(content, "artist-index-fallback.json");
 
-        if (!System.IO.File.Exists(path))
+        var missing = new[] { dancePath, artistPath }.Where(p => !System.IO.File.Exists(p)).ToList();
+        if (missing.Count > 0)
         {
             ViewBag.Success = false;
-            ViewBag.Message = $"Fallback snapshot not found at {path}";
+            ViewBag.Message = $"Fallback snapshot not found at {string.Join(", ", missing)}";
+            return View("Results");
+        }
+
+        ArtistIndex artists;
+        try
+        {
+            artists = await ArtistIndex.BuildAsync(SongIndex.StreamSongArtistsAsync(CruftFilter.NoCruft));
+        }
+        catch (Exception ex)
+        {
+            ViewBag.Success = false;
+            ViewBag.Message = $"Failed to build the artist index: {ex.Message}";
+            return View("Results");
+        }
+
+        // An index mid-rebuild answers with no songs rather than failing; a blank fallback would
+        // leave a fresh deploy with no artist pages, so refuse it rather than write it.
+        if (artists.Count == 0)
+        {
+            ViewBag.Success = false;
+            ViewBag.Message = "The artist index came back empty; no snapshots were written";
             return View("Results");
         }
 
         try
         {
-            System.IO.File.WriteAllText(path, DanceStatsManager.Instance.SaveToJson(), Encoding.UTF8);
+            System.IO.File.WriteAllText(dancePath, DanceStatsManager.Instance.SaveToJson(), Encoding.UTF8);
+            System.IO.File.WriteAllText(artistPath, artists.SaveToJson(Newtonsoft.Json.Formatting.Indented));
             ViewBag.Success = true;
-            ViewBag.Message = $"Wrote dance stats snapshot to {path}";
+            ViewBag.Message = $"Wrote dance stats snapshot to {dancePath} and " +
+                $"{artists.Count:N0} artists to {artistPath}";
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             ViewBag.Success = false;
-            ViewBag.Message = $"Failed to write dance stats snapshot to {path}: {ex.Message}";
+            ViewBag.Message = $"Failed to write the fallback snapshots: {ex.Message}";
         }
 
         return View("Results");

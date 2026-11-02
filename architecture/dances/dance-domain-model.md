@@ -12,7 +12,7 @@ What a "dance" is in music4dance: the static dance library (types, styles, group
 organizations) defined in two JSON files, the C# and TypeScript object models built from them,
 and `DanceStats`, the per-dance statistics layer computed from the song index and cached on disk.
 For adding a dance, see [runbooks/add-a-dance](../runbooks/add-a-dance.md). For the cold-start
-snapshot, see [runbooks/refresh-dance-fallback-snapshot](../runbooks/refresh-dance-fallback-snapshot.md).
+snapshot, see [runbooks/refresh-fallback-snapshots](../runbooks/refresh-fallback-snapshots.md).
 
 ## Source data
 
@@ -249,7 +249,7 @@ No client code in `m4d/ClientApp/src` calls `api/danceenvironment`.
 ## Related
 
 - [runbooks/add-a-dance](../runbooks/add-a-dance.md): adding a dance type or group
-- [runbooks/refresh-dance-fallback-snapshot](../runbooks/refresh-dance-fallback-snapshot.md)
+- [runbooks/refresh-fallback-snapshots](../runbooks/refresh-fallback-snapshots.md)
 - [service-resilience](../infrastructure/service-resilience.md): degraded startup and file fallback
 - [tempo-validation-rules](../songs/tempo-validation-rules.md): per-dance tempo correction
 - [dance-family-voting](../songs/dance-family-voting.md): style families when voting

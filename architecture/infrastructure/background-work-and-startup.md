@@ -285,5 +285,5 @@ and `ArtistIndexCache` loads and rebuilds the artist snapshot in the background
   `AdminMonitor`
 - [usage-tracking](../observability/usage-tracking.md) and
   [saved-searches](../search/saved-searches.md): what the queued writes record
-- [runbooks/refresh-dance-fallback-snapshot](../runbooks/refresh-dance-fallback-snapshot.md): the
+- [runbooks/refresh-fallback-snapshots](../runbooks/refresh-fallback-snapshots.md): the
   dance-stats file the startup load falls back to

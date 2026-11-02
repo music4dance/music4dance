@@ -136,7 +136,7 @@ into `runbooks/` as its area is consolidated.
 | Deploy to test or production | [runbooks/deploy](runbooks/deploy.md) |
 | Configure service-failure email alerts | [runbooks/configure-failure-email](runbooks/configure-failure-email.md) |
 | Renew the AutoMapper license key (yearly; emailed 30 days ahead) | [runbooks/renew-automapper-license](runbooks/renew-automapper-license.md) |
-| Refresh the cold-start dance fallback snapshot | [runbooks/refresh-dance-fallback-snapshot](runbooks/refresh-dance-fallback-snapshot.md) |
+| Refresh the cold-start dance and artist fallback snapshots | [runbooks/refresh-fallback-snapshots](runbooks/refresh-fallback-snapshots.md) |
 | Read production logs (app logs and HTTP request logs) | [runbooks/read-production-logs](runbooks/read-production-logs.md) |
 | Upload / download files on the App Service (Kudu; FTP is off) | [runbooks/transfer-files-to-app-service](runbooks/transfer-files-to-app-service.md) |
 | Capture memory diagnostics / dumps | [runbooks/capture-memory-diagnostics](runbooks/capture-memory-diagnostics.md) |
