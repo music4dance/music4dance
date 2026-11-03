@@ -6,15 +6,25 @@ public interface IDanceStatsFileManager
 {
     Task<string> GetDances();
     Task<string> GetGroups();
+    /// <summary>The runtime cache, or null when there isn't one.</summary>
     Task<string> GetStats();
+    /// <summary>The snapshot in source control, or null when there isn't one.</summary>
+    Task<string> GetFallbackStats();
     Task WriteStats(string stats);
 
 }
 
-public class DanceStatsFileManager(string appRoot, string fileName = "dance-environment") : IDanceStatsFileManager
+/// <summary>
+/// Reads the packaged dance files from <paramref name="appRoot"/>/content and keeps the runtime
+/// cache in <paramref name="dataRoot"/>/AppData. The two differ when the package is mounted
+/// read-only and runtime files live on the /home volume (M4D_DATA_ROOT); dataRoot defaults to
+/// appRoot.
+/// </summary>
+public class DanceStatsFileManager(string appRoot, string fileName = "dance-environment", string dataRoot = null)
+    : IDanceStatsFileManager
 {
     private string AppRoot { get; } = appRoot;
-    private string AppData => Path.Combine(AppRoot, "AppData");
+    private string AppData => Path.Combine(dataRoot ?? AppRoot, "AppData");
     private string Content => Path.Combine(AppRoot, "content");
     private readonly string FileName = fileName;
 
@@ -30,14 +40,14 @@ public class DanceStatsFileManager(string appRoot, string fileName = "dance-envi
 
     public async Task<string> GetStats()
     {
-        // Try runtime cache first (AppData/dance-environment.json)
+        // Runtime cache (AppData/dance-environment.json)
         var path = Path.Combine(AppData, $"{FileName}.json");
-        if (File.Exists(path))
-        {
-            return await File.ReadAllTextAsync(path);
-        }
+        return File.Exists(path) ? await File.ReadAllTextAsync(path) : null;
+    }
 
-        // Fall back to static cache in source control (content/dance-environment-fallback.json)
+    public async Task<string> GetFallbackStats()
+    {
+        // Static cache in source control (content/dance-environment-fallback.json)
         var fallbackPath = Path.Combine(Content, $"{FileName}-fallback.json");
         if (File.Exists(fallbackPath))
         {

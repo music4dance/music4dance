@@ -158,7 +158,7 @@ into `runbooks/` as its area is consolidated.
 | Key Vault RBAC migration | Not started (vault `music4dance` still uses access policies, verified 2026-10-01) | [plans/key-vault-rbac-migration](plans/key-vault-rbac-migration.md) |
 | Attack mitigation Phase 2+ (telemetry, alerts, WAF, honeypots) | Proposed | [plans/attack-mitigation-phase2](plans/attack-mitigation-phase2.md) |
 | Contributor environments beyond the sandbox (test deploys, diagnostics, samplified data, own Azure) | Proposed | [plans/contributor-environments-next](plans/contributor-environments-next.md) |
-| Run From Package: atomic deploys, persistent data moved out of `wwwroot` | Proposed | [plans/run-from-package](plans/run-from-package.md) |
+| Run From Package: atomic deploys, persistent data moved out of `wwwroot` | Partially implemented | [plans/run-from-package](plans/run-from-package.md) |
 | Durable log storage (Blob / Log Analytics / tuned App Insights) | Proposed | [plans/log-persistence-options](plans/log-persistence-options.md) |
 | Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
 | Visitor engagement next steps (post-launch priorities, enhancements) | Proposed | [plans/visitor-engagement-next](plans/visitor-engagement-next.md) |

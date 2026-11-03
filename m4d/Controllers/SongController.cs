@@ -5,6 +5,7 @@ using Azure.Search.Documents.Models;
 
 using DanceLibrary;
 
+using m4d.Configuration;
 using m4d.Services;
 using m4d.Services.ServiceHealth;
 using m4d.Utilities;
@@ -1778,14 +1779,15 @@ public class SongController : ContentController
     }
 
     [Authorize(Roles = "dbAdmin")]
-    public ActionResult BatchCleanupProperties(string type = "OBGIYSMPNE", int count = -1, bool log = false)
+    public ActionResult BatchCleanupProperties([FromServices] AppDataPaths appDataPaths,
+        string type = "OBGIYSMPNE", int count = -1, bool log = false)
     {
         UseVue = UseVue.No;
         return BatchProcess(
              async (dms, song) =>
                  await song.CleanupProperties(dms, type)
                         ? song
-                        : null, count: count, preview: log, log: log);
+                        : null, count: count, preview: log, logDirectory: log ? EnsureAppData(appDataPaths) : null);
     }
 
     [Authorize(Roles = "dbAdmin")]
@@ -1810,9 +1812,12 @@ public class SongController : ContentController
                     : song, preview: true);
     }
 
+    // With a logDirectory, writes each changed song's before and after serialization there
     private ActionResult BatchProcess(
-        Func<DanceMusicCoreService, Song, Task<Song>> act, int count = -1, bool preview = false, bool log = false)
+        Func<DanceMusicCoreService, Song, Task<Song>> act, int count = -1, bool preview = false,
+        string logDirectory = null)
     {
+        var log = logDirectory != null;
         StreamWriter before = null;
         StreamWriter after = null;
 
@@ -1826,8 +1831,9 @@ public class SongController : ContentController
             if (log)
             {
                 var dt = DateTime.Now;
-                before = new StreamWriter($"before-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}-{dt.TimeOfDay.TotalSeconds}.txt");
-                after = new StreamWriter($"after-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}-{dt.TimeOfDay.TotalSeconds}.txt");
+                var stamp = $"{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}-{dt.TimeOfDay.TotalSeconds}";
+                before = new StreamWriter(Path.Combine(logDirectory, $"before-{stamp}.txt"));
+                after = new StreamWriter(Path.Combine(logDirectory, $"after-{stamp}.txt"));
             }
 
             var tried = 0;

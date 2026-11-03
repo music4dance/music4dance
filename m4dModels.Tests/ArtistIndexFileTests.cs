@@ -88,6 +88,32 @@ public class ArtistIndexFileTests
     }
 
     [TestMethod]
+    public async Task FileManager_KeepsTheRuntimeSnapshotUnderTheDataRoot()
+    {
+        // With M4D_DATA_ROOT set, the packaged content stays where the package is mounted
+        // (read-only) and only the runtime snapshot moves to the persistent data root.
+        var root = TempRoot();
+        var dataRoot = TempRoot();
+        try
+        {
+            var files = new ArtistIndexFileManager(root, dataRoot: dataRoot);
+            WriteFallback(root, ArtistIndex.Build([["Fallback Artist"]]).SaveToJson());
+
+            Assert.AreEqual("Fallback Artist", ArtistIndex.LoadFromJson(await files.Read()).Top(1).Single().Name);
+
+            await files.Write(ArtistIndex.Build([["Runtime Artist"]]).SaveToJson());
+            Assert.IsTrue(File.Exists(Path.Combine(dataRoot, "AppData", "artist-index.json")));
+            Assert.IsFalse(Directory.Exists(Path.Combine(root, "AppData")));
+            Assert.AreEqual("Runtime Artist", ArtistIndex.LoadFromJson(await files.Read()).Top(1).Single().Name);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+            Directory.Delete(dataRoot, recursive: true);
+        }
+    }
+
+    [TestMethod]
     public async Task FileManager_ReadsNullWhenThereIsNoSnapshotAtAll()
     {
         var root = TempRoot();

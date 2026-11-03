@@ -15,11 +15,13 @@ public interface IArtistIndexFileManager
 /// for a fresh streaming pass - and can keep answering when the search service is unreachable.
 /// Mirrors <see cref="DanceStatsFileManager"/>: a runtime cache under AppData, falling back to a
 /// snapshot in source control under content. See architecture/songs/individual-artists.md §9.6.
+/// The runtime cache goes under <paramref name="dataRoot"/> when one is given (M4D_DATA_ROOT, on
+/// the /home volume), since the packaged content may be mounted read-only.
 /// </summary>
-public class ArtistIndexFileManager(string appRoot, string fileName = "artist-index")
+public class ArtistIndexFileManager(string appRoot, string fileName = "artist-index", string dataRoot = null)
     : IArtistIndexFileManager
 {
-    private string AppData => Path.Combine(appRoot, "AppData");
+    private string AppData => Path.Combine(dataRoot ?? appRoot, "AppData");
     private string Content => Path.Combine(appRoot, "content");
     private string RuntimePath => Path.Combine(AppData, $"{fileName}.json");
     private string FallbackPath => Path.Combine(Content, $"{fileName}-fallback.json");

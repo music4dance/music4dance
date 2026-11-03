@@ -6,6 +6,8 @@
 # The pipeline automatically configures the target app service based on deployment mode:
 # - Sets SELF_CONTAINED_DEPLOYMENT environment variable (true/false)
 # - Configures startup command (/home/site/wwwroot/m4d for self-contained, empty for framework-dependent)
+# - Sets M4D_DATA_ROOT and, with runFromPackage, WEBSITE_RUN_FROM_PACKAGE (before the deploy),
+#   and stops and starts the app after the deploy when that switches run-from-package on or off
 # - No manual Azure Portal configuration required
 
 pool:
@@ -27,6 +29,13 @@ parameters:
     values:
       - "production"
       - "test"
+
+  # Mounts the deployed zip read-only as wwwroot instead of extracting it over the running app,
+  # so a deploy never serves half-replaced assemblies. Turn it off to go back to extracting.
+  - name: runFromPackage
+    displayName: "Run From Package"
+    type: boolean
+    default: true
 
 variables:
   buildConfiguration: "Release"
@@ -102,6 +111,62 @@ steps:
       projects: "m4d/m4d.csproj"
       arguments: "--configuration $(buildConfiguration) --runtime linux-x64"
 
+  # ===== RUN FROM PACKAGE =====
+  # Kudu decides when the zip arrives whether to extract it into wwwroot or keep it in
+  # /home/data/SitePackages and mount it, and AzureWebApp@1 applies its appSettings only after
+  # deploying - so WEBSITE_RUN_FROM_PACKAGE has to be set here, before the deploy. M4D_DATA_ROOT
+  # moves the app's runtime writes out of wwwroot. It's set either way, so flipping runFromPackage
+  # doesn't move the data. Settings are written only when they change, because each write
+  # restarts the app. See architecture/plans/run-from-package.md.
+  - task: AzureCLI@2
+    displayName: "Configure Run From Package (${{ parameters.runFromPackage }})"
+    inputs:
+      azureSubscription: "m4d-release"
+      scriptType: "bash"
+      scriptLocation: "inlineScript"
+      inlineScript: |
+        set -euo pipefail
+        APP=$(appName)
+        GROUP=$(az webapp list --query "[?name=='$APP'].resourceGroup" -o tsv)
+        if [ -z "$GROUP" ]; then
+          echo "##vso[task.logissue type=error]Could not find app '$APP'"
+          exit 1
+        fi
+
+        setting() {
+          az webapp config appsettings list -g "$GROUP" -n "$APP" --query "[?name=='$1'].value | [0]" -o tsv
+        }
+
+        DATA_ROOT=/home/data/m4d
+        WANT_RUN_FROM_PACKAGE=$(echo "${{ parameters.runFromPackage }}" | tr '[:upper:]' '[:lower:]')
+        CURRENT_ROOT=$(setting M4D_DATA_ROOT)
+        CURRENT_RUN_FROM_PACKAGE=$(setting WEBSITE_RUN_FROM_PACKAGE)
+        echo "Current: M4D_DATA_ROOT='$CURRENT_ROOT' WEBSITE_RUN_FROM_PACKAGE='$CURRENT_RUN_FROM_PACKAGE'"
+
+        UPDATES=()
+        if [ "$CURRENT_ROOT" != "$DATA_ROOT" ]; then
+          UPDATES+=("M4D_DATA_ROOT=$DATA_ROOT")
+        fi
+        if [ "$WANT_RUN_FROM_PACKAGE" = "true" ] && [ "$CURRENT_RUN_FROM_PACKAGE" != "1" ]; then
+          UPDATES+=("WEBSITE_RUN_FROM_PACKAGE=1")
+        fi
+
+        SWITCHED=false
+        if [ "$WANT_RUN_FROM_PACKAGE" = "true" ] && [ "$CURRENT_RUN_FROM_PACKAGE" != "1" ]; then
+          SWITCHED=true
+        fi
+
+        if [ ${#UPDATES[@]} -gt 0 ]; then
+          echo "Setting ${UPDATES[*]}"
+          az webapp config appsettings set -g "$GROUP" -n "$APP" --settings "${UPDATES[@]}" -o none
+        fi
+        if [ "$WANT_RUN_FROM_PACKAGE" != "true" ] && [ -n "$CURRENT_RUN_FROM_PACKAGE" ]; then
+          echo "Removing WEBSITE_RUN_FROM_PACKAGE"
+          az webapp config appsettings delete -g "$GROUP" -n "$APP" --setting-names WEBSITE_RUN_FROM_PACKAGE -o none
+          SWITCHED=true
+        fi
+        echo "##vso[task.setvariable variable=runFromPackageSwitched]$SWITCHED"
+
   # ===== DEPLOY WITH CONFIGURATION =====
   # Deploy and configure app settings in a single atomic operation
   # This approach uses the AzureWebApp task's built-in appSettings parameter
@@ -132,10 +197,54 @@ steps:
       startUpCommand: "dotnet m4d.dll"
       appSettings: -SELF_CONTAINED_DEPLOYMENT false -ASPNETCORE_ENVIRONMENT $(aspnetEnvironment) -SEARCHINDEX $(searchIndex) -SEARCHINDEXVERSION $(searchIndexVersion) -WEBSITES_CONTAINER_START_TIME_LIMIT 600
 
+  # ===== RESTART AFTER A RUN FROM PACKAGE SWITCH =====
+  # Switching WEBSITE_RUN_FROM_PACKAGE restarts the app before the package exists. When the package
+  # then arrives mid-startup, App Service fails to remount wwwroot, stops the site and waits about
+  # five minutes before retrying on its own (seen on m4d-test, 2026-11-02). Start it right away
+  # instead, and wait for it to answer. This stops and then starts rather than restarting: a restart
+  # that lands while a start is still in progress cancels that start, and App Service then stops the
+  # site and leaves it stopped. A site that hasn't come up in three minutes gets one more start.
+  # Ordinary deploys skip this.
+  - task: AzureCLI@2
+    displayName: "Stop and start after Run From Package switch"
+    condition: and(succeeded(), eq(variables['runFromPackageSwitched'], 'true'))
+    inputs:
+      azureSubscription: "m4d-release"
+      scriptType: "bash"
+      scriptLocation: "inlineScript"
+      inlineScript: |
+        set -uo pipefail
+        APP=$(appName)
+        GROUP=$(az webapp list --query "[?name=='$APP'].resourceGroup" -o tsv)
+        HOST=$(az webapp show -g "$GROUP" -n "$APP" --query defaultHostName -o tsv)
+
+        echo "Stopping and starting $APP"
+        az webapp stop -g "$GROUP" -n "$APP" -o none
+        az webapp start -g "$GROUP" -n "$APP" -o none
+        START=$SECONDS
+        RETRIED=false
+        while [ $((SECONDS - START)) -lt 600 ]; do
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://$HOST/" || true)
+          if [ "$CODE" = "200" ]; then
+            echo "$APP is up after $((SECONDS - START))s"
+            exit 0
+          fi
+          if [ "$RETRIED" = "false" ] && [ $((SECONDS - START)) -ge 180 ]; then
+            echo "Not up after $((SECONDS - START))s (last status $CODE); starting again"
+            az webapp start -g "$GROUP" -n "$APP" -o none
+            RETRIED=true
+          fi
+          sleep 5
+        done
+        echo "##vso[task.logissue type=error]$APP did not answer with 200 within 10 minutes of the start"
+        exit 1
+
   # ===== CONFIGURE HEALTH CHECK =====
   # Points Azure's platform health check at /health/ready (reflects live database health) instead
   # of the default of no check at all. Looks up the app by name so this doesn't need a hardcoded
   # resource group. Non-fatal: a failure here shouldn't block an otherwise-successful deployment.
+  # Writes only when the path differs: every config write restarts the app, and one landing just
+  # after the Run From Package stop-and-start added a second outage (m4d-test, 2026-11-02).
   - task: AzureCLI@2
     displayName: "Configure health check path"
     continueOnError: true
@@ -147,6 +256,8 @@ steps:
         APP_ID=$(az webapp list --query "[?name=='$(appName)'].id" -o tsv)
         if [ -z "$APP_ID" ]; then
           echo "##vso[task.logissue type=warning]Could not find app '$(appName)' to configure health check path"
+        elif [ "$(az webapp config show --ids "$APP_ID" --query healthCheckPath -o tsv)" = "/health/ready" ]; then
+          echo "Health check path is already /health/ready"
         else
           az webapp config set --ids "$APP_ID" --generic-configurations '{"healthCheckPath": "/health/ready"}'
         fi
