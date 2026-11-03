@@ -1,8 +1,9 @@
 # Persistent Site Update Message
 
 **Type:** Plan
-**Status:** Partially implemented. Options A and A2 (a shared file in `wwwroot/AppData`, re-read
-every 30 seconds) shipped 2026-10-25. The options below are for running beyond one App Service
+**Status:** Partially implemented. Options A and A2 (a shared file in `AppData`, re-read
+every 30 seconds) shipped 2026-10-25; since 2026-11-02 the file is under `/home/data/m4d` in
+Azure (`M4D_DATA_ROOT`). The options below are for running beyond one App Service
 plan.
 **Last verified:** 2026-10-25
 **Code:** `m4d/Services/UpdateMessageService.cs`, `m4d/Services/UpdateMessageFileManager.cs`

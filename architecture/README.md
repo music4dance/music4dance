@@ -95,7 +95,7 @@ procedural, to become a runbook.
 
 | Doc | Kind | What it covers |
 | --- | --- | --- |
-| [hosting-and-identity](infrastructure/hosting-and-identity.md) | Ref | Environments, deployment pipeline and modes, managed identity per service, App Configuration, startup sequence, health checks, cache-control headers |
+| [hosting-and-identity](infrastructure/hosting-and-identity.md) | Ref | Environments, deployment pipeline and modes, Run From Package, the runtime data root (`M4D_DATA_ROOT`), managed identity per service, App Configuration, startup sequence, health checks, cache-control headers |
 | [service-resilience](infrastructure/service-resilience.md) | Ref | Graceful degradation and recovery when SQL, Search, App Configuration, OAuth, email or reCAPTCHA fail; health endpoints; status banner and the persisted admin update message; admin failure emails; known issues |
 | [background-work-and-startup](infrastructure/background-work-and-startup.md) | Ref | Hosted services and their start order, `BackgroundTaskQueue`, `DatabaseRecoveryService` hook, `/api/recompute` jobs and their Logic App callers, fire-and-forget admin jobs and `AdminMonitor` |
 | [ci-cd-and-release](infrastructure/ci-cd-and-release.md) | Ref | GitHub workflows (CI-SERVER `-warnaserror`, CI-CLIENT lint/type-check/tests, DCO, nightly E2E), `main` ruleset, Dependabot, the Azure DevOps deploy pipeline, PR-to-production flow |
@@ -158,7 +158,6 @@ into `runbooks/` as its area is consolidated.
 | Key Vault RBAC migration | Not started (vault `music4dance` still uses access policies, verified 2026-10-01) | [plans/key-vault-rbac-migration](plans/key-vault-rbac-migration.md) |
 | Attack mitigation Phase 2+ (telemetry, alerts, WAF, honeypots) | Proposed | [plans/attack-mitigation-phase2](plans/attack-mitigation-phase2.md) |
 | Contributor environments beyond the sandbox (test deploys, diagnostics, samplified data, own Azure) | Proposed | [plans/contributor-environments-next](plans/contributor-environments-next.md) |
-| Run From Package: atomic deploys, persistent data moved out of `wwwroot` | Partially implemented | [plans/run-from-package](plans/run-from-package.md) |
 | Durable log storage (Blob / Log Analytics / tuned App Insights) | Proposed | [plans/log-persistence-options](plans/log-persistence-options.md) |
 | Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
 | Visitor engagement next steps (post-launch priorities, enhancements) | Proposed | [plans/visitor-engagement-next](plans/visitor-engagement-next.md) |

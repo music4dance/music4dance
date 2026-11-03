@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-29 (`sitemap.xml`; the rest last checked 2026-10-01)
+**Last verified:** 2026-11-03 (live override; `sitemap.xml` 2026-10-29; the rest last checked 2026-10-01)
 **Code:** `m4d/ViewModels/SiteMapInfo.cs`, `m4d/ClientApp/src/models/SiteMapInfo.ts`,
 `m4d/ClientApp/src/assets/content/blogmap.txt`, `helpmap.txt`, `scripts/add-new-blog-posts.mjs`
 
@@ -29,6 +29,15 @@ MSBuild target in [`m4d/m4d.csproj`](../../m4d/m4d.csproj) (`BeforeTargets="Buil
 `ClientApp/src/assets/**/*` to `wwwroot/%(RecursiveDir)`). **Always edit the copy under
 `ClientApp/src/assets/content/`** — the `wwwroot` copy is regenerated on every `dotnet build` and
 any direct edit there is lost.
+
+**Live override.** A `blogmap.txt` / `helpmap.txt` uploaded to the app's data folder
+(`/home/data/m4d/AppData/` in Azure, `wwwroot/AppData/` locally; see
+[hosting-and-identity § Runtime data root](../infrastructure/hosting-and-identity.md#runtime-data-root))
+replaces the packaged copy **only while it's newer**. `SiteMapFile.ChoosePath` compares the two
+`LastWriteTimeUtc`s and logs both (`Site map: using override|packaged copy; override ... written
+..., packaged ... written ...`). So an upload goes live without a deploy (after **Update
+Sitemap**), and once the committed change is deployed the packaged copy is newer and takes over.
+The packaged copy is read-only in Azure: the deployed zip is mounted, not extracted.
 
 ## File format
 
@@ -79,8 +88,11 @@ including the deploy-free fast path and the required **Update Sitemap** reload, 
 of `SiteMapEntry`. `SiteMapInfo.LoadCategories` wires two `SiteMapFile` instances into the "Info"
 category, alongside hand-coded static entries (About, FAQ, etc.):
 
-- `new SiteMapFile("helpmap", fileProvider) { Title = "Help", Reference = "blog/music4dance-help" }`
-- `new SiteMapFile("blogmap", fileProvider) { Title = "Blog", Reference = "blog" }`
+- `new SiteMapFile("helpmap", fileProvider, overrideDirectory, logger) { Title = "Help", Reference = "blog/music4dance-help" }`
+- `new SiteMapFile("blogmap", fileProvider, overrideDirectory, logger) { Title = "Blog", Reference = "blog" }`
+
+`overrideDirectory` is `AppDataPaths.AppData`, passed in by `HomeController` and
+`AdminController.UpdateSitemap`.
 
 From there:
 

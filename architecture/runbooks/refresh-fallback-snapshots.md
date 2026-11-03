@@ -10,7 +10,8 @@ Two checked-in "last known good" snapshots live in `m4d/ClientApp/src/assets/con
 
 - `dance-environment-fallback.json`: dances, groups, and per-dance song counts and top songs.
   `DanceStatsFileManager` serves it when the runtime cache (`AppData/dance-environment.json`)
-  doesn't exist yet.
+  doesn't exist yet, and the app then rebuilds the cache from the search index in the
+  background.
 - `artist-index-fallback.json`: every individual artist with a song count. `ArtistIndexFileManager`
   serves it when the runtime snapshot (`AppData/artist-index.json`) doesn't exist yet. See
   [individual-artists § 9.6](../songs/individual-artists.md#96-the-snapshot-on-disk).
@@ -62,7 +63,8 @@ backup instead of a live index (see
 
 - The Results page reports `Wrote dance stats snapshot to … and N artists to …`.
 - To exercise the files, stop the app, delete `wwwroot/AppData/dance-environment.json` and
-  `wwwroot/AppData/artist-index.json`, then start with the database unreachable. Load a dance page
+  `wwwroot/AppData/artist-index.json` (locally; under `M4D_DATA_ROOT` if it's set), then start
+  with the database unreachable. Load a dance page
   and `/song/artists`. The console should log
   `Runtime cache not found, loading from static fallback` for the dances, and the app log should
   show `Loaded artist index from disk` with the new snapshot's count and built time.

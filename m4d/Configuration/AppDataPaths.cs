@@ -6,7 +6,7 @@ namespace m4d.Configuration;
 /// Test and production set <see cref="RootSetting"/> to a folder on the persistent /home volume,
 /// outside wwwroot, so the deployed package can be mounted read-only
 /// (WEBSITE_RUN_FROM_PACKAGE). Unset, the root is the web root, so local runs keep their files in
-/// wwwroot/AppData as before. See architecture/plans/run-from-package.md.
+/// wwwroot/AppData as before. See architecture/infrastructure/hosting-and-identity.md.
 /// </summary>
 public sealed record AppDataPaths(string Root)
 {

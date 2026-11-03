@@ -2,9 +2,9 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-02
+**Last verified:** 2026-11-03
 **Code:** `azure-pipelines.yml`, `m4d/Program.cs`, `m4d/Configuration/M4dApplicationExtensions.cs`,
-`m4d/Configuration/AppDataPaths.cs`,
+`m4d/Configuration/AppDataPaths.cs`, `m4d/Middleware/BlockAppDataMiddleware.cs`,
 `m4d/Services/StartupInitializationService.cs`, `m4d/m4d.csproj`
 
 Where music4dance runs, how it's deployed, how it authenticates to Azure, and what happens
@@ -66,10 +66,42 @@ It runs the YAML from the branch being deployed. It runs these steps:
 6. Sets the App Service health check path to `/health/ready`, only if it isn't already, since
    every config write restarts the app. This step is non-fatal.
 
-With **runFromPackage** on, Kudu keeps the zip in `/home/data/SitePackages` and mounts it
-read-only as `/home/site/wwwroot`, then restarts. Files never change under a running process, so
-a deploy can't serve half-replaced assemblies. Turning it off goes back to extracting into
-`wwwroot`.
+### Run From Package
+
+With **runFromPackage** on (`WEBSITE_RUN_FROM_PACKAGE=1`), Kudu keeps the zip in
+`/home/data/SitePackages` (`packagename.txt` names the current one) and mounts it read-only as
+`/home/site/wwwroot`, then restarts. Files never change under a running process, so a deploy
+can't serve half-replaced assemblies. Before this, `AzureWebApp@1` extracted the zip over the
+running app and every production deploy produced about 4½ minutes of
+`BadImageFormatException: Index not found` 500s (213 of them, plus 39 "The response has already
+started", on 2026-10-13). A staging slot would also fix that, but it needs the Standard tier and
+a second warm instance, which is over budget.
+
+**An ordinary deploy has no downtime.** App Service starts a container on the new package while
+the old one keeps serving, and switches over once the new one passes its startup probe. On
+`m4d-test`, a deploy polled once a second (2026-11-02) and a portal restart both saw no failed
+requests.
+
+**A deploy that switches the setting on or off has an outage**, once:
+
+- The settings write in step 3 restarts the app before the package exists. When the package
+  arrives mid-start, App Service logs "Container failed to remount volume. Terminate.", records
+  `ContainerStartupFailure`, stops the site, and waited about five minutes before retrying on the
+  first test deploy. Turning the setting off has its own version: the restart runs the old
+  extracted build, the deploy extracts over it, and it crashes (`Aborted (core dumped)`, exit
+  code 134).
+- Step 5's stop-and-start gets out of that state without waiting. It isn't a restart: a restart
+  that lands while a start is in progress cancels that start, and App Service then stops the site
+  and leaves it stopped.
+- Measured: about 45s down on `m4d-test`. On production (2026-11-03) it was about 4 minutes,
+  including some 502s, because the start landed on a different worker: about 2½ minutes before
+  that worker logged anything, then 29s pulling the runtime image, then 41s to pass the probe.
+  Which worker a start lands on isn't something the pipeline controls.
+
+**Rollback:** run the pipeline with **runFromPackage** off. That deletes the setting and the
+deploy extracts into `wwwroot` again, with the switching outage above. `M4D_DATA_ROOT` stays
+set, so the app keeps its data. Deploying a commit from before 2026-11-02 would ignore
+`M4D_DATA_ROOT` and go back to `wwwroot/AppData`.
 
 | | Framework-dependent (default) | Self-contained |
 | --- | --- | --- |
@@ -89,16 +121,33 @@ certificates.
 `SMOKE_TEST_MODE=true` boots a minimal app that skips all Azure configuration. It's for
 container diagnostics.
 
+### Runtime data root
+
 `M4D_DATA_ROOT` sets where the app writes at runtime (`AppDataPaths`). The pipeline sets it to
-`/home/data/m4d`, on the persistent `/home` volume and outside the read-only package:
+`/home/data/m4d`, on the persistent `/home` volume and outside the read-only package, whether or
+not **runFromPackage** is on. Everything lives in `<root>/AppData`:
 
-- Admin backups, usage exports, the dance stats and artist index caches and the update message
-  go to `<root>/AppData`.
-- Uploaded `blogmap.txt` / `helpmap.txt` overrides are read from the same folder.
+- Admin backups and usage exports. Downloads go through `PhysicalFile`, not static files.
+- `BatchProcess` before/after logs (`BatchCleanupProperties?log=true`).
+- The dance stats cache (`dance-environment.json`), the artist index snapshot
+  (`artist-index.json`) and the update message (`update-message.json`). `DanceStatsFileManager`
+  and `ArtistIndexFileManager` take this as a separate `dataRoot`, because their packaged
+  fallbacks still come from `wwwroot/content`.
+- Uploaded `blogmap.txt` / `helpmap.txt` overrides, read when newer than the packaged copy (see
+  [blog-help-sitemap](../pages/blog-help-sitemap.md)).
 
-Unset (local runs), the root is the web root, so those files land in `wwwroot/AppData`. The app
-logs the root at startup (`App data root: ...`) and creates the folder then. See
-[plans/run-from-package](../plans/run-from-package.md) for the rollout.
+Unset (local runs, the sandbox and tests), the root is the web root, so those files land in
+`wwwroot/AppData`. That's why `BlockAppDataMiddleware` still returns 404 for `/AppData`. The app
+logs the root at startup (`App data root: ...`) and creates the folder then.
+
+There's no separate `content` folder under the data root. `wwwroot/content` and `wwwroot/AppData`
+are kept apart because one is served publicly and the other isn't, and nothing under
+`/home/data/m4d` is served.
+
+Nothing was copied over when production switched. The dance stats loaded the checked-in
+fallback and rebuilt from the search index in the background (19s on production), the artist
+index rebuilds on first use, and older backups stay on disk in the old extracted
+`wwwroot/AppData`, hidden while the package is mounted.
 
 ## Identity and secrets
 
@@ -249,7 +298,11 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
   [plans/front-door-caching](../plans/front-door-caching.md) (not started).
 - **Restrict `KnownProxies` / `KnownNetworks`** once a fixed front end exists.
 - **Retire self-contained mode**, if framework-dependent stays reliable. That would remove the
-  `SELF_CONTAINED_DEPLOYMENT` branches.
+  `SELF_CONTAINED_DEPLOYMENT` branches. It's also untested with Run From Package: its startup
+  command runs `/home/site/wwwroot/m4d` directly, which needs the execute bit to survive in the
+  mounted zip.
+- **Prune old backups** under `/home/data/m4d/AppData`. `/home` counts against the plan's storage
+  quota, and backups now persist across deploys.
 - **Scale out to two instances**, so the health check can pull a bad instance, if an SLA or
   subscriber growth justifies the cost.
 
@@ -297,9 +350,11 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
 - 2026-10-29: Anonymous pages stopped minting an antiforgery token (A3 of the same plan), so
   they set no cookie. The cache-control middleware's anonymous branch, which had never run,
   went from `public, max-age=300` to `no-cache`.
-- 2026-11-02: `M4D_DATA_ROOT` and a **runFromPackage** pipeline parameter
-  ([plans/run-from-package](../plans/run-from-package.md)), to end the 500s each deploy caused by
-  zip-deploying over a running process.
+- 2026-11-02: Run From Package and `M4D_DATA_ROOT` (#373), to end the 500s each deploy caused
+  by extracting over a running process. Tested on `m4d-test`, then switched on in production on
+  2026-11-03 (about 4 minutes down, once). The stop-and-start after a switch and the
+  write-only-if-different health check step both came from the test runs. A background dance
+  stats rebuild after a fallback load came in the same PR.
 - 2026-10-01: Consolidated from `SELF_CONTAINED_DEPLOYMENT.md`, `managed-identity-self-contained-plan.md`
   and the architecture sections of `azure-app-service-setup-managed-identity.md`. Stale details
   dropped: legacy pipeline files, `appsettings.SelfContained.json`, and in-app Kestrel port and

@@ -544,7 +544,7 @@ that file works:
 
 | | |
 | --- | --- |
-| Runtime snapshot | `wwwroot/AppData/artist-index.json`, written after every successful build |
+| Runtime snapshot | `AppData/artist-index.json` under the runtime data root (`/home/data/m4d` in Azure, `wwwroot` locally; see [hosting-and-identity § Runtime data root](../infrastructure/hosting-and-identity.md#runtime-data-root)), written after every successful build |
 | Fallback in source control | `ClientApp/src/assets/content/artist-index-fallback.json`, copied to `wwwroot/content/` by m4d's `assets` build target; refreshed by `/Admin/ExportFallbacks` ([runbook](../runbooks/refresh-fallback-snapshots.md)) |
 
 Read order is runtime, then fallback. It buys three things:
