@@ -876,6 +876,12 @@ default `"D"` format, no braces. A line looks like (tabs shown as spaces for rea
 SongId=6a85cd4e-2981-4017-b433-cfdacd443d0a  .Create=  User=RosarioAlcantar|P  Time=08/23/2026 09:07:48  Title=Con Paso Fino  ...
 ```
 
+**Querying it:** `scripts/song_snapshot.py` loads the newest `local/index-*.txt`, replays each line
+into scalars and albums/purchase ids (a Python subset of `Song.Load` / `Song.BuildAlbumInfo`), and
+runs a named query against the whole catalog — e.g. `python -I scripts/song_snapshot.py
+duplicate-ids` lists Spotify/iTunes/Amazon/ISRC ids held by more than one song. Add new catalog
+questions there as further queries rather than as one-off scripts.
+
 ### 12.3 Reconciling the Two When Matching by SongId
 
 Both files use the exact same per-song wire format (§1) and both round-trip through `Guid.TryParse`
