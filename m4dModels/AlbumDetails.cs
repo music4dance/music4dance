@@ -163,7 +163,12 @@ public partial class AlbumDetails
     {
         Purchase ??= [];
 
-        Purchase[BuildPurchaseKey(pt, ms)] = value;
+        var key = BuildPurchaseKey(pt, ms);
+        Purchase[key] = string.IsNullOrWhiteSpace(value)
+            ? value
+            : string.Join(
+                IdSeparator,
+                SplitIds(value).Select(id => MusicService.NormalizePurchaseId(key, id)).Distinct());
     }
 
     // Services (Spotify in particular) periodically reissue a different id for what is
@@ -187,6 +192,7 @@ public partial class AlbumDetails
             return false;
         }
 
+        value = MusicService.GetService(ms).NormalizeId(value);
         var ids = GetPurchaseIdentifiers(ms, pt);
         if (ids.Contains(value))
         {
@@ -210,6 +216,7 @@ public partial class AlbumDetails
             return false;
         }
 
+        id = MusicService.NormalizePurchaseId(purchaseKey, id);
         Purchase ??= [];
         if (Purchase.TryGetValue(purchaseKey, out var existing) && !string.IsNullOrWhiteSpace(existing))
         {
@@ -241,6 +248,7 @@ public partial class AlbumDetails
             return false;
         }
 
+        id = MusicService.NormalizePurchaseId(purchaseKey, id);
         if (!Purchase.TryGetValue(purchaseKey, out var existing) || string.IsNullOrWhiteSpace(existing))
         {
             return false;

@@ -5,6 +5,7 @@ Usage: python -I scripts/song_snapshot.py [--snapshot local/index-YYYY-MM-DD.txt
 Queries:
   summary         song count, album / purchase id coverage per service
   duplicate-ids   service ids (Spotify, iTunes, Amazon, ISRC) shared by more than one song
+  id-formats      purchase ids not in their service's canonical spelling (MusicService.NormalizeId)
 
 Run `python -I scripts/song_snapshot.py <query> --help` for a query's own options.
 
@@ -51,10 +52,11 @@ ALBUM_FIELDS = {"Album", "Publisher", "Track", "Purchase", "Purchase-",
 
 
 def unescape(value: str) -> str:
-    """Reverse SongProperty's value escaping (song-internal-format.md S1.2)."""
-    return (value.replace("\\<EQ>\\", "=")
-            .replace("\u001aT", "\t")
-            .replace("\u001aR", "\r\n"))
+    """Reverse SongProperty.Load and the SongProperty(name, value) constructor's unescaping."""
+    return (value.replace("\u001aT", "\t")
+            .replace("\u001aR", "\r\n")
+            .replace("\\t", "\t")
+            .replace("\\<EQ>\\", "="))
 
 
 @dataclass
@@ -219,10 +221,24 @@ def qualifier_label(qualifier: str) -> str:
 
 
 def normalize_id(qualifier: str, value: str) -> str:
-    # ISRCs show up both as "GBSMU2538994" and "GB-SMU-25-38994"
-    if qualifier == "RS":
-        return value.replace("-", "").upper()
+    """Mirror of MusicService.NormalizeId for the service named by qualifier[0]."""
+    if not value.strip():
+        return value
+    match qualifier[:1]:
+        case "R":   # ISRCService: "gb-smu-25-38994" -> "GBSMU2538994"
+            return re.sub(r"[-\s]", "", value).upper()
+        case "A":   # AmazonService: a bare ASIN gets the digital prefix
+            return value if ":" in value else "D:" + value
     return value
+
+
+# What a well-formed id looks like once normalized, per service char
+CANONICAL = {
+    "S": re.compile(r"[0-9A-Za-z]{22}"),
+    "I": re.compile(r"\d+"),
+    "A": re.compile(r"[AD]:[0-9A-Z]{10}"),
+    "R": re.compile(r"[A-Z]{2}[0-9A-Z]{3}\d{7}"),
+}
 
 
 # --- summary -----------------------------------------------------------------------------
@@ -337,12 +353,63 @@ def add_duplicate_ids_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--csv", type=Path, help="write every shared id and its songs to this CSV file")
 
 
+# --- id-formats --------------------------------------------------------------------------
+
+def query_id_formats(songs: list[Song], args: argparse.Namespace) -> None:
+    """Checks the raw purchase values in the log rather than the replayed albums, since the
+    point is to see what a reload would rewrite."""
+    totals: dict[str, Counter] = defaultdict(Counter)
+    samples: dict[tuple[str, str], list[str]] = defaultdict(list)
+    affected: dict[str, set[str]] = defaultdict(set)
+    for s in songs:
+        for p in s.props:
+            if p.base not in ("Purchase", "Purchase-") or not p.qualifier or not p.value.strip():
+                continue
+            q = p.qualifier
+            totals[q]["total"] += 1
+            normalized = normalize_id(q, p.value)
+            pattern = CANONICAL.get(q[0])
+            kind = None
+            if normalized != p.value:
+                kind = "non-canonical"
+                affected[q].add(s.song_id)
+            if pattern and not pattern.fullmatch(normalized):
+                kind = "malformed"
+            if kind:
+                totals[q][kind] += 1
+                if len(samples[(q, kind)]) < args.samples:
+                    samples[(q, kind)].append(f"{p.value!r} in {s.song_id}")
+
+    print(f"Snapshot: {args.snapshot.name}  ({len(songs):,} songs)")
+    print()
+    print(f"{'Qualifier':<10}{'Service':<16}{'Values':>10}{'Non-canonical':>15}{'Songs':>8}{'Malformed':>11}")
+    for q in sorted(totals):
+        t = totals[q]
+        print(f"{q:<10}{qualifier_label(q):<16}{t['total']:>10,}{t['non-canonical']:>15,}"
+              f"{len(affected[q]):>8,}{t['malformed']:>11,}")
+    print()
+    print("Non-canonical: a reload rewrites these to MusicService.NormalizeId's spelling.")
+    print("Malformed: not a valid-looking id even once normalized; a reload leaves it as is.")
+    for (q, kind), values in sorted(samples.items()):
+        print()
+        print(f"== {q} {kind} ==")
+        for v in values:
+            print(f"    {v}")
+
+
+def add_id_formats_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--samples", type=int, default=5,
+                        help="example values to show per qualifier and problem (default: %(default)s)")
+
+
 # --- entry point -------------------------------------------------------------------------
 
 QUERIES = {
     "summary": (query_summary, add_summary_args, "song count and purchase id coverage"),
     "duplicate-ids": (query_duplicate_ids, add_duplicate_ids_args,
                       "service ids shared by more than one song"),
+    "id-formats": (query_id_formats, add_id_formats_args,
+                   "purchase ids not in their service's canonical spelling"),
 }
 
 

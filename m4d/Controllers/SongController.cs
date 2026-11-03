@@ -233,7 +233,7 @@ public class SongController : ContentController
             {
                 var isrcService = MusicService.GetService(ServiceType.ISRC);
                 var tracksByIsrc = isrcCandidates
-                    .GroupBy(t => t.ISRC)
+                    .GroupBy(t => isrcService.NormalizeId(t.ISRC))
                     .ToDictionary(g => g.Key, g => g.ToList());
 
                 var isrcResults = await SongIndex.Search(

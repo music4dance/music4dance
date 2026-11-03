@@ -241,7 +241,7 @@ internal class SpotifyService : MusicService
                 TrackNumber = trackNum,
                 IsPlayable = isPlayable,
                 SampleUrl = sample,
-                ISRC = isrc
+                ISRC = GetService(ServiceType.ISRC).NormalizeId(isrc)
             };
 
             return st;

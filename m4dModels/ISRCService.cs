@@ -21,6 +21,13 @@ public class ISRCService() : MusicService(ServiceType.ISRC, 'R', "ISRC", null, n
 
     public override bool ShowInProfile => false;
 
+    // Spotify hands back the same code as "USRC17607839", "usrc17607839" and "US-RC1-76-07839";
+    // ServiceIds filters are exact-match, so only the uppercase, undelimited form is stored.
+    public override string NormalizeId(string id)
+        => string.IsNullOrWhiteSpace(id)
+            ? id
+            : new string([.. id.Where(c => c != '-' && !char.IsWhiteSpace(c))]).ToUpperInvariant();
+
     public override Task<IList<ServiceTrack>> ParseSearchResults(
         dynamic results, Func<string, Task<dynamic>> getResult,
         IEnumerable<string> excludeTracks, bool includeGenres = true)

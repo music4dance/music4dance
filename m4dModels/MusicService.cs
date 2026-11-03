@@ -291,6 +291,18 @@ public class MusicService
         return string.IsNullOrEmpty(type) ? throw new ArgumentNullException(nameof(type)) : GetService(type[0]);
     }
 
+    /// <summary>
+    /// The canonical spelling of <paramref name="id"/> for the service named by the first
+    /// character of <paramref name="purchaseKey"/> (e.g. "RS", "SS"), so every spelling a
+    /// service has handed us reads, compares and indexes as one id.
+    /// </summary>
+    public static string NormalizePurchaseId(string purchaseKey, string id)
+    {
+        return string.IsNullOrWhiteSpace(id) || string.IsNullOrEmpty(purchaseKey)
+            ? id
+            : GetService(purchaseKey[0])?.NormalizeId(id) ?? id;
+    }
+
     static MusicService()
     {
         IdMap = [];
