@@ -148,8 +148,40 @@ public class SongProperty : IEquatable<SongProperty>
 
     #region Properties
 
-    public string Name { get; set; }
-    public string Value { get; set; }
+    // Purchase ids are kept in their service's canonical spelling (MusicService.NormalizeId), so
+    // a log written with any other spelling loads - and is re-saved - as the canonical one.
+    // Normalized in both setters so object initializers get it whichever they assign first.
+    public string Name
+    {
+        get => _name;
+        set
+        {
+            _name = value;
+            _value = NormalizePurchaseValue(_name, _value);
+        }
+    }
+
+    public string Value
+    {
+        get => _value;
+        set => _value = NormalizePurchaseValue(_name, value);
+    }
+
+    private string _name;
+    private string _value;
+
+    private static string NormalizePurchaseValue(string name, string value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || name == null ||
+            !name.StartsWith(Song.PurchaseField, StringComparison.Ordinal))
+        {
+            return value;
+        }
+
+        return ParseBaseName(name) is Song.PurchaseField or Song.RemovedPurchaseField
+            ? MusicService.NormalizePurchaseId(ParseQualifier(name), value)
+            : value;
+    }
 
     public object ObjectValue
     {

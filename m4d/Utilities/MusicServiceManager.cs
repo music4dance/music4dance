@@ -510,6 +510,7 @@ public class MusicServiceManager(IConfiguration configuration)
         }
 
         var isrcService = MusicService.GetService(ServiceType.ISRC);
+        isrc = isrcService.NormalizeId(isrc);
         var match = await dms.SongIndex.GetSongFromService(isrcService, isrc);
         if (match != null)
         {
