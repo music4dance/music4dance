@@ -243,6 +243,8 @@ steps:
   # Points Azure's platform health check at /health/ready (reflects live database health) instead
   # of the default of no check at all. Looks up the app by name so this doesn't need a hardcoded
   # resource group. Non-fatal: a failure here shouldn't block an otherwise-successful deployment.
+  # Writes only when the path differs: every config write restarts the app, and one landing just
+  # after the Run From Package stop-and-start added a second outage (m4d-test, 2026-11-02).
   - task: AzureCLI@2
     displayName: "Configure health check path"
     continueOnError: true
@@ -254,6 +256,8 @@ steps:
         APP_ID=$(az webapp list --query "[?name=='$(appName)'].id" -o tsv)
         if [ -z "$APP_ID" ]; then
           echo "##vso[task.logissue type=warning]Could not find app '$(appName)' to configure health check path"
+        elif [ "$(az webapp config show --ids "$APP_ID" --query healthCheckPath -o tsv)" = "/health/ready" ]; then
+          echo "Health check path is already /health/ready"
         else
           az webapp config set --ids "$APP_ID" --generic-configurations '{"healthCheckPath": "/health/ready"}'
         fi

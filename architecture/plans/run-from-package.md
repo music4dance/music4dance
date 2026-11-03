@@ -161,9 +161,27 @@ evening (all UTC):
   21:03:53.
 
 So a restart that lands mid-start can leave the site stopped, which is the state the restart step
-exists to get out of. A stop followed by a start doesn't race with anything. A single
-uninterrupted restart probably costs close to nothing, since the old container serves until the
-new one passes its probe, but that still needs a clean measurement.
+exists to get out of. A stop followed by a start doesn't race with anything.
+
+**Measured on `m4d-test`** (a 1-second poll of `/`, so outages are ±10s, the curl timeout):
+
+- **A single restart from the portal (21:15):** no failed requests. The new container started at
+  21:15:07 and passed its probe at 21:15:50. The old one served until then and stopped at
+  21:16:11.
+- **`runFromPackage` off (22:37):** deleting the setting restarted the app on the old extracted
+  build, and the deploy extracted over it mid-start. It crashed (`Exception.ToString() failed`,
+  `Aborted (core dumped)`): the failure this plan exists to remove. The stop-and-start had the new
+  build up after ~45s down.
+- **`runFromPackage` on (22:45):** the same remount failure as the first deploy. The stop-and-start
+  had it up after ~45s down, instead of ~5 minutes.
+- **An ordinary deploy, on (22:54):** no failed requests. The new package's container started at
+  22:54:59 while the old one served, took over at 22:55:30, and the old one stopped at 22:55:51.
+
+Both switching runs also had a second outage of 25–35s. The health check step rewrote
+`/health/ready` on every deploy, and a config write restarts the app even when nothing changes.
+Landing a few seconds after the stop-and-start, that restart didn't overlap the old container. The
+step now writes only when the path differs, which should leave a switching deploy with one ~45s
+outage.
 
 **Self-contained mode risk:** its startup command executes `/home/site/wwwroot/m4d` directly, and
 that depends on the execute bit surviving in the mounted zip. Verify this on `m4d-test`, or retire
@@ -197,8 +215,7 @@ production. No portal or SSH steps either time.
 
 1. **Test.** Deploy the branch to `m4d-test` (framework-dependent, `runFromPackage` on) while a
    loop polls the site, e.g.
-   `while true; do curl -s -o /dev/null -w "%{http_code}
-" https://m4d-test.azurewebsites.net/; sleep 1; done`.
+   `while true; do curl -s -o /dev/null -w "%{http_code}\n" https://m4d-test.azurewebsites.net/; sleep 1; done`.
    The first deploy has an extra restart, when the settings step switches the app over before the
    package arrives; see "Restart after a switch" above for what that did on the first run. To
    check the stop-and-start step, run the pipeline with `runFromPackage` off and then on again: each run
@@ -225,9 +242,9 @@ the old `wwwroot/AppData`.
 
 ## Open questions
 
-- **The restart gap.** With a single instance, a deploy still restarts the app, and
-  `WEBSITES_CONTAINER_START_TIME_LIMIT` is 600s. Expect a startup gap rather than 500s from a
-  process running half-replaced assemblies. Record the measured gap from rollout step 1 here.
+- **The restart gap.** Answered on `m4d-test`: none for an ordinary deploy, since the old
+  container serves until the new one passes its probe (see "Measured on `m4d-test`" above). Only
+  the deploy that switches the setting has an outage. Confirm the production numbers match.
 - **Cleaning up old backups.** `/home` counts against the plan's storage quota, and backups now
   persist across deploys. Consider pruning backups older than N days, or document a manual
   clean-up.

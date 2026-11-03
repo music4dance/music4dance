@@ -63,7 +63,8 @@ It runs the YAML from the branch being deployed. It runs these steps:
    when the package arrives while the app is mid-startup, stops the site, and waits about five
    minutes before retrying. It's a stop and a start rather than a restart, because a restart that
    lands while a start is in progress cancels that start and leaves the site stopped.
-6. Sets the App Service health check path to `/health/ready`. This step is non-fatal.
+6. Sets the App Service health check path to `/health/ready`, only if it isn't already, since
+   every config write restarts the app. This step is non-fatal.
 
 With **runFromPackage** on, Kudu keeps the zip in `/home/data/SitePackages` and mounts it
 read-only as `/home/site/wwwroot`, then restarts. Files never change under a running process, so
@@ -188,8 +189,8 @@ The app is built to pass a liveness probe in seconds, even while dependencies ar
   here. It reports healthy mid-migration, and doing so once caused a production incident:
   requests hit a database that wasn't ready yet.
 - `/health/ready`: `503` while `Database` is unhealthy, `200 ready` otherwise. The pipeline
-  sets this as the App Service health check path on every deploy. Changing the path restarts
-  the app.
+  makes this the App Service health check path, writing it only when it isn't already set,
+  because a write restarts the app even when the value doesn't change.
 
 Azure pings the path every minute and marks the instance unhealthy after
 `WEBSITE_HEALTHCHECK_MAXPINGFAILURES` consecutive failures (default 10). On a **single-instance**
