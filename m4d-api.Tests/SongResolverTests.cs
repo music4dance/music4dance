@@ -46,7 +46,7 @@ public class SongResolverTests
     }
 
     [TestMethod]
-    public async Task Resolve_SendsEveryIdInOneConfirmedOnlyQuery()
+    public async Task Resolve_SendsEveryIdInOneQuery()
     {
         var search = new FakeSearch().Returns(Song("a", serviceIds: [$"S:{SpotifyId}"], dances: ("WCS", 3, 120, null)));
 
@@ -56,13 +56,68 @@ public class SongResolverTests
             CancellationToken.None);
 
         Assert.HasCount(1, search.Queries);
-        var filter = search.Queries[0].Options.Filter;
-        StringAssert.Contains(filter, $"search.in(id, 'R:{Isrc},R:{Isrc.ToLowerInvariant()},I:1440818839,S:{SpotifyId}')");
-        StringAssert.EndsWith(filter, $" and {IndexFields.ConfirmedOnly}");
+        Assert.AreEqual(
+            $"ServiceIds/any(id: search.in(id, 'R:{Isrc},R:{Isrc.ToLowerInvariant()},I:1440818839,S:{SpotifyId}'))",
+            search.Queries[0].Options.Filter);
         Assert.AreEqual("exact", result.Match);
         Assert.AreEqual("spotifyId", result.Method);
         Assert.HasCount(1, result.Candidates);
+        CollectionAssert.AreEqual(new[] { "spotifyId" }, result.Candidates[0].MatchedBy);
         Assert.IsNull(result.Candidates[0].Evidence);
+    }
+
+    [TestMethod]
+    public async Task Resolve_ReturnsAnIdMatchWithNoConfirmedDancesInsteadOfFallingBack()
+    {
+        var search = new FakeSearch().Returns(Song("a", serviceIds: [$"R:{Isrc}"], dances: ("WCS", -1, 120, null)));
+
+        var result = await search.Resolver.Resolve(
+            Request(isrc: Isrc, title: "Blue Bayou", artist: "Linda Ronstadt"), CancellationToken.None);
+
+        Assert.HasCount(1, search.Queries);
+        Assert.AreEqual("exact", result.Match);
+        Assert.AreEqual("a", result.Candidates[0].SongId);
+        Assert.IsEmpty(result.Candidates[0].DanceRatings);
+    }
+
+    [TestMethod]
+    public async Task Resolve_ReportsIdsThatPointAtDifferentSongsAsAmbiguous()
+    {
+        var search = new FakeSearch().Returns(
+            Song("apple", serviceIds: ["I:1440818839"], dances: ("WCS", 9, 120, null)),
+            Song("isrc", serviceIds: [$"R:{Isrc}", "S:other"], dances: ("WCS", 2, 120, null)));
+
+        var result = await search.Resolver.Resolve(
+            Request(isrc: Isrc, appleMusicId: "1440818839", title: "Blue Bayou", artist: "Linda Ronstadt"),
+            CancellationToken.None);
+
+        Assert.HasCount(1, search.Queries);
+        Assert.AreEqual("ambiguous", result.Match);
+        Assert.IsNull(result.Method);
+        // The ISRC identifies the recording, so its song comes first whatever the votes
+        CollectionAssert.AreEqual(new[] { "isrc", "apple" }, result.Candidates.Select(c => c.SongId).ToArray());
+        CollectionAssert.AreEqual(new[] { "isrc" }, result.Candidates[0].MatchedBy);
+        CollectionAssert.AreEqual(new[] { "appleMusicId" }, result.Candidates[1].MatchedBy);
+        Assert.IsTrue(result.Candidates.All(c => c.Evidence == null));
+    }
+
+    [TestMethod]
+    public async Task Resolve_TreatsSongsLinkedByASharedIdAsOneRecording()
+    {
+        // "both" carries the ISRC and the Apple id, so all three are duplicates of one recording
+        var search = new FakeSearch().Returns(
+            Song("apple", serviceIds: ["I:1440818839"], dances: ("WCS", 2, 120, null)),
+            Song("isrc", serviceIds: [$"R:{Isrc}"], dances: ("WCS", 7, 120, null)),
+            Song("both", serviceIds: [$"R:{Isrc}", "I:1440818839"], dances: ("WCS", 3, 120, null)));
+
+        var result = await search.Resolver.Resolve(
+            Request(isrc: Isrc, appleMusicId: "1440818839"), CancellationToken.None);
+
+        Assert.AreEqual("exact", result.Match);
+        Assert.AreEqual("isrc", result.Method);
+        Assert.HasCount(1, result.Candidates);
+        Assert.AreEqual("isrc", result.Candidates[0].SongId);
+        CollectionAssert.AreEqual(new[] { "isrc", "appleMusicId" }, result.Candidates[0].MatchedBy);
     }
 
     [TestMethod]

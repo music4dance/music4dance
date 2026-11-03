@@ -16,9 +16,14 @@ public record ResolveRequest(
 
 public record DanceRating(string DanceId, string DanceName, int Weight, double? BeatsPerMinute, string[] Styles);
 
+/// <summary>
+/// MatchedBy (id matches only) lists the supplied ids that point at this song; Evidence (title
+/// and artist matches only) is how well the text matched.
+/// </summary>
 public record Candidate(
     string SongId, string SongUrl, string Title, string Artist, int? LengthSeconds, double? BeatsPerMinute,
     string Meter, DanceRating[] DanceRatings,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string[] MatchedBy,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] Evidence Evidence);
 
 public record QueryTiming(string Kind, long Ms, int Results);
@@ -100,21 +105,27 @@ public partial class SongResolver
         var ids = RequestedIds(request);
         if (ids.Count > 0)
         {
-            // Ids are validated to [A-Za-z0-9], so they can't break out of the search.in literal
+            // Ids are validated to [A-Za-z0-9], so they can't break out of the search.in literal.
+            // No confirmed-content filter: a song the id identifies is the right answer even
+            // before it has confirmed dances, and comes back with an empty danceRatings.
             var options = new SearchOptions
             {
-                Filter = $"{IndexFields.ServiceIds}/any(id: search.in(id, '{string.Join(",", ids.Select(i => i.Id))}'))"
-                    + $" and {IndexFields.ConfirmedOnly}",
-                Size = 5,
+                Filter = $"{IndexFields.ServiceIds}/any(id: search.in(id, '{string.Join(",", ids.Select(i => i.Id))}'))",
+                Size = 10,
             };
             var docs = await Query("*", options, "id", queries, cancellationToken);
             if (docs.Count > 0)
             {
-                // Duplicates awaiting merge can share an id: prefer the most confirmed votes
-                var best = docs.MaxBy(d => Votes(d, IndexFields.AllDances) ?? 0);
-                var serviceIds = Strings(Field(best, IndexFields.ServiceIds)).ToHashSet();
-                var method = ids.First(i => serviceIds.Contains(i.Id)).Method;
-                return new ResolveResult("exact", method, [ToCandidate(best, null)], queries);
+                var recordings = Recordings(docs, ids);
+                // Duplicates awaiting merge share an id: prefer the most confirmed votes
+                var candidates = recordings
+                    .Select(r => ToCandidate(r.Songs.MaxBy(d => Votes(d, IndexFields.AllDances) ?? 0), null, r.Methods))
+                    .ToArray();
+                return candidates.Length == 1
+                    ? new ResolveResult("exact", candidates[0].MatchedBy[0], candidates, queries)
+                    // The supplied ids point at different songs, likely different recordings: let
+                    // the caller treat it as uncertain rather than pick one
+                    : new ResolveResult("ambiguous", null, candidates, queries);
             }
         }
 
@@ -130,7 +141,7 @@ public partial class SongResolver
                 queries, cancellationToken);
             if (docs.Count > 0)
             {
-                var candidates = docs.Select(d => ToCandidate(d, request)).ToArray();
+                var candidates = docs.Select(d => ToCandidate(d, request, null)).ToArray();
                 return new ResolveResult("fuzzy", "titleArtist", candidates, queries);
             }
         }
@@ -158,7 +169,38 @@ public partial class SongResolver
         return docs;
     }
 
-    private Candidate ToCandidate(SearchDocument doc, ResolveRequest fuzzyRequest)
+    /// <summary>
+    /// Groups id hits into recordings: songs that share a supplied id are duplicates of one
+    /// recording, while songs with no id in common are different ones. Ordered by the priority
+    /// of the ids, so the recording the ISRC identifies comes first.
+    /// </summary>
+    private static List<(string[] Methods, List<SearchDocument> Songs)> Recordings(
+        List<SearchDocument> docs, List<(string Method, string Id)> ids)
+    {
+        var priority = ids.Select(i => i.Method).Distinct().ToList();
+        var groups = new List<(HashSet<string> Methods, List<SearchDocument> Songs)>();
+        foreach (var doc in docs)
+        {
+            var serviceIds = Strings(Field(doc, IndexFields.ServiceIds)).ToHashSet();
+            var methods = ids.Where(i => serviceIds.Contains(i.Id)).Select(i => i.Method).ToHashSet();
+            // A song can bridge two groups, e.g. one carrying both the ISRC and the Apple id
+            var joined = groups.Where(g => g.Methods.Overlaps(methods)).ToList();
+            var merged = (Methods: methods, Songs: new List<SearchDocument> { doc });
+            foreach (var group in joined)
+            {
+                merged.Methods.UnionWith(group.Methods);
+                merged.Songs.AddRange(group.Songs);
+                groups.Remove(group);
+            }
+            groups.Add(merged);
+        }
+        return groups
+            .Select(g => (Methods: g.Methods.OrderBy(priority.IndexOf).ToArray(), g.Songs))
+            .OrderBy(g => priority.IndexOf(g.Methods[0]))
+            .ToList();
+    }
+
+    private Candidate ToCandidate(SearchDocument doc, ResolveRequest fuzzyRequest, string[] matchedBy)
     {
         var songId = Field(doc, IndexFields.SongId)?.ToString();
         var title = Field(doc, IndexFields.Title)?.ToString();
@@ -183,7 +225,7 @@ public partial class SongResolver
         // The index stores tempo as beats per minute, so it passes through unconverted
         return new Candidate(
             songId, SongUrlBase + songId, title, artist, length, AsDouble(Field(doc, IndexFields.Tempo)), meter,
-            ratings, evidence);
+            ratings, matchedBy, evidence);
     }
 
     // dance_{ID}/Tempo already falls back to the song's tempo at index time

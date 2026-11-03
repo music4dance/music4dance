@@ -68,6 +68,7 @@ public class ResolveFunctionsTests
         Assert.IsFalse(root.TryGetProperty("queries", out _));
         var candidate = root.GetProperty("candidates")[0];
         Assert.IsFalse(candidate.TryGetProperty("evidence", out _));
+        Assert.AreEqual("isrc", candidate.GetProperty("matchedBy")[0].GetString());
         Assert.AreEqual(231, candidate.GetProperty("lengthSeconds").GetInt32());
         Assert.AreEqual(120, candidate.GetProperty("beatsPerMinute").GetDouble());
         Assert.IsFalse(candidate.TryGetProperty("tempo", out _));
@@ -87,7 +88,9 @@ public class ResolveFunctionsTests
 
         var ok = (OkObjectResult)result;
         using var json = JsonDocument.Parse(JsonSerializer.Serialize(ok.Value, JsonSerializerOptions.Web));
-        var evidence = json.RootElement.GetProperty("candidates")[0].GetProperty("evidence");
+        var candidate = json.RootElement.GetProperty("candidates")[0];
+        Assert.IsFalse(candidate.TryGetProperty("matchedBy", out _));
+        var evidence = candidate.GetProperty("evidence");
         Assert.AreEqual("high", evidence.GetProperty("confidence").GetString());
         Assert.AreEqual(JsonValueKind.Null, evidence.GetProperty("lengthDeltaSeconds").ValueKind);
     }

@@ -312,8 +312,8 @@ The third-party app decides whether to show a result, ask "Is this the song?", o
 
 ```json
 {
-  "match": "exact",            // "exact" | "fuzzy" | "none"
-  "method": "isrc",            // isrc | appleMusicId | spotifyId | titleArtist
+  "match": "exact",            // "exact" | "ambiguous" | "fuzzy" | "none"
+  "method": "isrc",            // isrc | appleMusicId | spotifyId | titleArtist; null for ambiguous and none
   "candidates": [
     {
       "songId": "3f2a…",
@@ -326,7 +326,8 @@ The third-party app decides whether to show a result, ask "Is this the song?", o
       "danceRatings": [
         { "danceId": "WCS", "danceName": "West Coast Swing", "weight": 12,
           "beatsPerMinute": 119, "styles": [] }
-      ],
+      ],                        // empty when the song has no confirmed dances yet
+      "matchedBy": ["isrc", "appleMusicId"],   // present only for id matches
       "evidence": {             // present only for fuzzy candidates
         "titleMatch": "normalized",   // exact | normalized | partial | none
         "artistMatch": "exact",       // exact | normalized | partial | none
@@ -339,8 +340,21 @@ The third-party app decides whether to show a result, ask "Is this the song?", o
 ```
 
 - **Exact** returns one candidate. If several songs share the id (duplicates awaiting merge),
-  return the one with the most confirmed dance votes (`dance_ALL/Votes`).
-- **Fuzzy** returns up to 3 candidates, best first, each with `evidence`.
+  return the one with the most confirmed dance votes (`dance_ALL/Votes`). Songs linked through a
+  shared id count as one recording: a song carrying both the ISRC and the Apple id ties an
+  ISRC-only duplicate and an Apple-only duplicate together. `matchedBy` lists every supplied id
+  that points at it.
+- **Ambiguous** means the supplied ids point at different songs with no id in common (say, the
+  ISRC at one recording and the Apple id at another). Rather than recommend dances for what
+  may be the wrong version, the API returns one candidate per recording, each with its own
+  `matchedBy`. The ISRC's song comes first, since the ISRC identifies the recording, then
+  Apple Music, then Spotify. The partner shows it as an uncertain match.
+- **An id match doesn't need confirmed dances.** A song an id identifies is returned even if it
+  has no confirmed dances yet, with an empty `danceRatings`, rather than falling through to a
+  title search. The partner can show "No dances yet" and link to the song page, where users
+  can add them.
+- **Fuzzy** returns up to 3 candidates, best first, each with `evidence`. Title search keeps the
+  confirmed-content filter (below), so it only suggests songs that have dances.
 - **Length is the strongest tie-breaker.** Same title and artist but a different recording
   (live, extended mix, radio edit, re-recording) usually differs in length, and often in tempo,
   which is exactly what matters for dancing. Suggested rule: within ±5 s is supporting evidence;
@@ -366,16 +380,18 @@ The third-party app decides whether to show a result, ask "Is this the song?", o
   than medium." The `evidence` fields are stable, so the partner can apply its own rule and we
   can change ours.
 
-When the result is `fuzzy` or `none`, enqueue the recognized identifiers as unmatched (below).
+When the result is `ambiguous`, `fuzzy` or `none`, enqueue the recognized identifiers as
+unmatched (below); for `ambiguous`, a reviewer decides which song each id belongs to.
 Record the fuzzy candidate ids alongside the unmatched identifiers. A reviewer can then
 attach the ISRC or Apple id to the right song in one step. If the partner ever reports which
 candidate the user accepted, that becomes a much stronger signal (see open questions).
 
-Always apply the confirmed-content cruft filter from `AddCruftInfo`
+Title search applies the confirmed-content cruft filter from `AddCruftInfo`
 ([SongIndex.cs:1529](../../m4dModels/SongIndex.cs#L1529)): `DanceTags/any()` and
 `(not DanceTags/any() or dance_ALL/Votes ne null)`, which the function sends in its simplified
-form, `DanceTags/any() and dance_ALL/Votes ne null`. That way partners never see songs with no
-dances or only unconfirmed ones.
+form, `DanceTags/any() and dance_ALL/Votes ne null`. That way fuzzy suggestions never include
+songs with no dances or only unconfirmed ones. The id query doesn't apply it (see above).
+Unconfirmed-only dance ratings are left out of `danceRatings` either way.
 
 ### Index coupling: alias plus contract test
 
@@ -423,7 +439,7 @@ All of this goes to the function's own Storage account, never SQL:
   holding counts. This is the self-verifying volume number for a tiered-fee settlement. It has
   no sampling problem, unlike deriving counts from Application Insights. There are no
   per-subscriber ids; settlement uses these volumes or the partner's own sales reporting.
-- **Unmatched identifiers.** Enqueue misses and fuzzy-only results, deduplicated per instance.
+- **Unmatched identifiers.** Enqueue misses, ambiguous results and fuzzy-only results, deduplicated per instance.
   The web app gets an admin page (later) that drains the queue into a review list. If the web
   app is down, the queue just grows. A Storage queue message lives 7 days by default, and
   that's configurable.
@@ -645,7 +661,7 @@ minutes however it's hosted. Two notes for expectations rather than action:
 | **2. Resolve** | Single-track id resolution, title/artist fallback with candidates and `evidence` (length delta, match quality, suggested confidence), projection from index fields, dance names from `DanceLib`, the index contract test in `m4dModels.Tests`, unit tests with a faked `SearchClient` |
 | **3. Auth + limits** | Key validation middleware with the vault-backed cache, per-client config from the vault, rate limit, daily cap, usage table. Test keys added by hand (the manual fallback) until PR 4. |
 | **4. Key issuance** | In `m4d`: `partnerDeveloper` role, client and key metadata tables (EF migration), API keys page (generate once, list, revoke), admin view of clients and keys, vault writes from the web app's identity |
-| **5. Unmatched queue** | Queue writes (misses and fuzzy-only results) in the function; admin drain and review page in `m4d` (can trail) |
+| **5. Unmatched queue** | Queue writes (misses, ambiguous and fuzzy-only results) in the function; admin drain and review page in `m4d` (can trail) |
 | **6. Production** | Prod alias, custom domain and certificate, alerts, runbook step added to search-index-versioning.md, production key issued to the first partner |
 
 The spike below came before PR 1. Its `m4d-api/` project is the starting point for PRs 1 and 2.
