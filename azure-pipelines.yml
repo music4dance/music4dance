@@ -117,7 +117,7 @@ steps:
   # deploying - so WEBSITE_RUN_FROM_PACKAGE has to be set here, before the deploy. M4D_DATA_ROOT
   # moves the app's runtime writes out of wwwroot. It's set either way, so flipping runFromPackage
   # doesn't move the data. Settings are written only when they change, because each write
-  # restarts the app. See architecture/plans/run-from-package.md.
+  # restarts the app. See architecture/infrastructure/hosting-and-identity.md (Run From Package).
   - task: AzureCLI@2
     displayName: "Configure Run From Package (${{ parameters.runFromPackage }})"
     inputs:

@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01
+**Last verified:** 2026-11-03
 **Code:** `.github/workflows/ci-server.yaml`, `.github/workflows/ci-client.yaml`,
 `.github/workflows/dco.yml`, `.github/workflows/e2e.yaml`, `azure-pipelines.yml`,
 `scripts/verify-line-endings.ps1`
@@ -124,11 +124,13 @@ it sets are described in [hosting-and-identity § Deployment](hosting-and-identi
 
 Things worth knowing that aren't covered there:
 
-- **Parameters, not variables.** `environment` (`test` default, or `production`) and
-  `deploymentMode` (`framework-dependent` default, or `self-contained`) are runtime
-  `parameters`. Compile-time `${{ if }}` blocks turn them into the `appName`,
+- **Parameters, not variables.** `environment` (`test` default, or `production`),
+  `deploymentMode` (`framework-dependent` default, or `self-contained`) and `runFromPackage` (on
+  by default) are runtime `parameters`. Compile-time `${{ if }}` blocks turn them into the `appName`,
   `aspnetEnvironment`, `searchIndex`, `searchIndexVersion` and `useSelfContained` variables, so
-  defining pipeline variables with those names in the Azure DevOps UI breaks the selection.
+  defining pipeline variables with those names in the Azure DevOps UI breaks the selection. The
+  Run From Package settings step also sets `runFromPackageSwitched` at run time, which decides
+  whether the stop-and-start step runs.
 - **No tests, no warning gate.** The pipeline runs `dotnet build --configuration Release` without
   `-warnaserror` and runs no tests. It trusts that the commit being deployed already passed
   GitHub CI.

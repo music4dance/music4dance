@@ -2,7 +2,7 @@
 
 **Type:** Runbook
 **Status:** Current
-**Last verified:** 2026-10-01
+**Last verified:** 2026-11-03
 
 ## When to use
 
@@ -58,8 +58,10 @@ to keep memory flat. Progress shows in the admin task monitor.
 
 **Load from AppData steps:**
 
-1. Copy the TSV into `m4d/wwwroot/AppData/` (created on demand by `EnsureAppData`). The default
-   file name is `usage.tsv`; any plain file name in that folder is accepted.
+1. Copy the TSV into the app's `AppData` folder (created at startup): `m4d/wwwroot/AppData/`
+   locally, or `/home/data/m4d/AppData/` on an App Service (see
+   [transfer-files-to-app-service](transfer-files-to-app-service.md)). The default file name is
+   `usage.tsv`; any plain file name in that folder is accepted.
 2. On the Upload Backup page, set the file name and batch size, and leave **Truncate table first**
    checked for a full reload (it runs `TRUNCATE TABLE UsageLog`).
 3. Submit and watch the task monitor for the final record count.
@@ -67,8 +69,8 @@ to keep memory flat. Progress shows in the admin task monitor.
 
 **Caveats:**
 
-- `dotnet clean` runs `m4d`'s `clean-client` target, which deletes all of `wwwroot` — including
-  `wwwroot/AppData`. Re-copy the file after a clean.
+- Locally, `dotnet clean` runs `m4d`'s `clean-client` target, which deletes all of `wwwroot`,
+  including `wwwroot/AppData`. Re-copy the file after a clean.
 - The incremental loader does not de-duplicate. Loading a file that overlaps existing rows
   produces duplicates; use a full truncate-and-load instead when in doubt.
 - For a large local table, add the [local performance indexes](#local-performance-indexes) after
