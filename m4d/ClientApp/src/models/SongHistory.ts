@@ -2,7 +2,6 @@ import { deserializeArtists, serializeArtists } from "./ArtistNames";
 import type { AxiosInstance } from "axios";
 import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 import { v4 as uuidv4 } from "uuid";
-import { Song } from "./Song";
 import { SongChange } from "./SongChange";
 import { SongEditor } from "./SongEditor";
 import { PropertyType, SongProperty } from "./SongProperty";
@@ -10,22 +9,10 @@ import { TagList } from "./TagList";
 import { TrackModel } from "./TrackModel";
 import { UserQuery } from "./UserQuery";
 import type { DanceRating } from "./DanceRating";
-import { formatNow } from "@/helpers/timeHelpers";
 
 export interface DanceVoters {
   up: string[];
   down: string[];
-}
-
-interface SongRef {
-  song: Song;
-  index: number;
-}
-
-interface AlbumMap {
-  name: string;
-  index: number;
-  songs: SongRef[];
 }
 
 @jsonObject
@@ -69,97 +56,21 @@ export class SongHistory {
     });
   }
 
-  public static merge(songId: string, songs: SongHistory[], user: string): SongHistory {
-    SongHistory.fixupAlbums(songs);
-    const sorted = songs.sort((a, b) => a.created.valueOf() - b.created.valueOf());
-    return new SongHistory({
-      id: songId,
-      properties: [
-        ...sorted.flatMap((s) => s.annotated),
-        new SongProperty({
-          name: PropertyType.mergeCommand,
-          value: sorted.map((s) => s.id).join(";"),
-        }),
-        new SongProperty({
-          name: PropertyType.userField,
-          value: user,
-        }),
-        new SongProperty({
-          name: PropertyType.timeField,
-          value: formatNow(),
-        }),
-      ],
-    });
-  }
-
-  // Since we use unique indices for album names per song, we have to remap those indices
-  //  to a global space that covers all the albums.  This algortithm first creates a list
-  //  of all unique albums (by name) and then renames all album properties with the new indices
-  private static fixupAlbums(histories: SongHistory[]): void {
-    const songs = histories.map((h) => Song.fromHistory(h));
-    const albums: AlbumMap[] = [];
-
-    // Build a list of unique albums with back-references to the song(s) they came from
-    songs.forEach((s) => {
-      s.albums?.forEach((a) => {
-        let albumMap = albums.find(
-          (x) => SongHistory.normalizeString(x.name) === SongHistory.normalizeString(a.name!),
-        );
-        if (!albumMap) {
-          albumMap = {
-            name: a.name ?? "Unknown Album",
-            index: albums.length,
-            songs: [],
-          };
-          albums.push(albumMap);
-        }
-        albumMap.songs.push({ song: s, index: a.index ?? 0 });
-      });
-    });
-
-    histories.forEach((h) => h.fixupAlbums(albums));
-  }
-
-  private static normalizeString(str: string) {
-    return str
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase();
-  }
-
-  private fixupAlbums(albums: AlbumMap[]): void {
-    const songId = this.id;
-    const idxMap = albums
-      .filter((a) => !!a.songs.find((s) => s.song.songId === this.id))
-      .map((a) => ({
-        newIdx: a.index,
-        oldIdx: a.songs.find((s) => s.song.songId === this.id)!.index,
-      }));
-
-    let fail = 0;
-    this.properties.forEach((p) => {
-      const index = p.safeIndex;
-      if (index !== undefined) {
-        const map = idxMap.find((m) => m.oldIdx === index);
-        if (!map) {
-          console.log(`Unable to album index ${index} for song ${songId}`);
-          fail += 1;
-        } else if (map.newIdx !== map.oldIdx) {
-          p.name = SongProperty.BuildIndexName(p.baseName, map.newIdx, p.qualifier);
-        }
-      }
-      if (fail) {
-        throw new Error(`Album fixup failed for ${fail} times`);
-      }
-    });
-  }
-
   @jsonMember(String) public id!: string; // GUID
   @jsonArrayMember(SongProperty) public properties!: SongProperty[];
 
   public constructor(init?: Partial<SongHistory>) {
     this.id = init?.id ?? uuidv4();
     this.properties = init?.properties ?? [];
+  }
+
+  /** Every distinct non-empty value the field has held, oldest first. */
+  public fieldValues(name: string): string[] {
+    return [
+      ...new Set(
+        this.properties.filter((p) => p.name === name && !!p.value?.trim()).map((p) => p.value),
+      ),
+    ];
   }
 
   private get changes(): SongChange[] {

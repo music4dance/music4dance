@@ -95,6 +95,19 @@ const showSave = computed(() => {
   return checkDances.value || edit.value;
 });
 const history = computed(() => (editor.value ? editor.value.history : props.model.songHistory));
+// Admins merging songs pick the key fields from any value the songs held.
+const alternatives = computed<Partial<Record<string, string[]>>>(() =>
+  context.isAdmin
+    ? Object.fromEntries(
+        [
+          PropertyType.titleField,
+          PropertyType.artistField,
+          PropertyType.tempoField,
+          PropertyType.lengthField,
+        ].map((name) => [name, props.model.songHistory.fieldValues(name)]),
+      )
+    : {},
+);
 const modified = computed(() => {
   const value = editor.value?.modified ?? false;
   if (value && !toastValue) {
@@ -379,6 +392,7 @@ onBeforeUnmount(() => {
               name="Title"
               :value="song.title"
               :editing="editing"
+              :alternatives="alternatives[PropertyType.titleField]"
               :is-creator="isCreator"
               role="dbAdmin"
               @update-field="updateField($event)"
@@ -388,6 +402,7 @@ onBeforeUnmount(() => {
             name="Artist"
             :value="song.artist"
             :editing="editing"
+            :alternatives="alternatives[PropertyType.artistField]"
             :is-creator="isCreator"
             :roles="['dbAdmin', 'canEdit']"
             @update-field="updateField($event)"
@@ -508,6 +523,7 @@ onBeforeUnmount(() => {
           :editing="editing"
           :is-creator="isCreator"
           :user="model.userName"
+          :alternatives="alternatives"
           @update-field="updateField($event)"
           @edit="requestEdit($event)"
         /><BButton

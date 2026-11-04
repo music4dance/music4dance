@@ -397,6 +397,84 @@ public class MergeTests
         Assert.AreEqual(song1.SongId.ToString(), commandIndices[4].Prop.Value, "Fifth should be song1.Edit (Jan 5)");
     }
 
+    private static async Task<(DanceMusicCoreService, ApplicationUser)> AlbumService(string name)
+    {
+        var dms = await DanceMusicTester.CreateService(name, useTestSongIndex: true);
+        await DanceMusicTester.AddUser(dms, "dwgray", false);
+        return (dms, await dms.FindUser("dwgray"));
+    }
+
+    private static async Task<Song> SaveSong(DanceMusicCoreService dms, string data)
+    {
+        var song = await Song.Create(data, dms);
+        await dms.SongIndex.SaveSong(song);
+        return song;
+    }
+
+    private static string AlbumIds(AlbumDetails album) =>
+        string.Join(",", album.GetExtendedPurchaseIds(PurchaseType.Song).Order());
+
+    [TestMethod]
+    public async Task SimpleMerge_KeepsEachSongsAlbums()
+    {
+        var (dms, user) = await AlbumService("TestDb_SimpleMerge_Albums");
+        var song1 = await SaveSong(dms, ".Create=\tUser=dwgray\tTime=01/01/2020 10:00:00 AM\tTitle=Song\tArtist=Artist\tAlbum:00=Album One\tTrack:00=1\tPurchase:00:SS=aaa");
+        var song2 = await SaveSong(dms, ".Create=\tUser=dwgray\tTime=01/02/2020 10:00:00 AM\tTitle=Song\tArtist=Artist\tAlbum:00=Album Two\tTrack:00=2\tPurchase:00:SS=bbb");
+
+        var merged = await dms.SongIndex.SimpleMergeSongs(user, [song1, song2]);
+
+        Assert.HasCount(2, merged.Albums);
+        var one = merged.Albums.Single(a => a.Name == "Album One");
+        var two = merged.Albums.Single(a => a.Name == "Album Two");
+        Assert.AreEqual(1, one.Track);
+        Assert.AreEqual("S:aaa", AlbumIds(one));
+        Assert.AreEqual(2, two.Track);
+        Assert.AreEqual("S:bbb", AlbumIds(two));
+    }
+
+    [TestMethod]
+    public async Task SimpleMerge_CombinesAnAlbumBothSongsHold()
+    {
+        var (dms, user) = await AlbumService("TestDb_SimpleMerge_SameAlbum");
+        var song1 = await SaveSong(dms, ".Create=\tUser=dwgray\tTime=01/01/2020 10:00:00 AM\tTitle=Song\tArtist=Artist\tAlbum:00=Other\tAlbum:01=Café Hits\tPurchase:01:SS=aaa");
+        var song2 = await SaveSong(dms, ".Create=\tUser=dwgray\tTime=01/02/2020 10:00:00 AM\tTitle=Song\tArtist=Artist\tAlbum:00=cafe hits\tPurchase:00:IS=111");
+
+        var merged = await dms.SongIndex.SimpleMergeSongs(user, [song1, song2]);
+
+        Assert.HasCount(2, merged.Albums);
+        var cafe = merged.Albums.Single(a => a.Index == 1);
+        Assert.AreEqual("I:111,S:aaa", AlbumIds(cafe));
+    }
+
+    [TestMethod]
+    public async Task SimpleMerge_KeepsADeletedAlbumApart()
+    {
+        var (dms, user) = await AlbumService("TestDb_SimpleMerge_DeletedAlbum");
+        // song1 deleted its album 0; its old purchase id must not land on song2's album 0.
+        var song1 = await SaveSong(dms, ".Create=\tUser=dwgray\tTime=01/01/2020 10:00:00 AM\tTitle=Song\tArtist=Artist\tAlbum:00=Wrong\tPurchase:00:SS=aaa\tAlbum:01=Kept\tPurchase:01:SS=ccc\t.Edit=\tUser=dwgray\tTime=01/03/2020 10:00:00 AM\tAlbum:00=");
+        var song2 = await SaveSong(dms, ".Create=\tUser=dwgray\tTime=01/02/2020 10:00:00 AM\tTitle=Song\tArtist=Artist\tAlbum:00=Right\tPurchase:00:SS=bbb");
+
+        var merged = await dms.SongIndex.SimpleMergeSongs(user, [song1, song2]);
+
+        Assert.HasCount(2, merged.Albums);
+        Assert.AreEqual("S:ccc", AlbumIds(merged.Albums.Single(a => a.Name == "Kept")));
+        Assert.AreEqual("S:bbb", AlbumIds(merged.Albums.Single(a => a.Name == "Right")));
+    }
+
+    [TestMethod]
+    public async Task SimpleMerge_DropsAlbumOrderAndRenumbersPromotions()
+    {
+        var (dms, user) = await AlbumService("TestDb_SimpleMerge_AlbumOrder");
+        var song1 = await SaveSong(dms, ".Create=\tUser=dwgray\tTime=01/01/2020 10:00:00 AM\tTitle=Song\tArtist=Artist\tAlbum:00=A\tAlbum:01=B\tOrderAlbums=1,0");
+        var song2 = await SaveSong(dms, ".Create=\tUser=dwgray\tTime=01/02/2020 10:00:00 AM\tTitle=Song\tArtist=Artist\tAlbum:00=C\tAlbum:01=D\tPromoteAlbum:01=1");
+
+        var merged = await dms.SongIndex.SimpleMergeSongs(user, [song1, song2]);
+
+        Assert.IsFalse(merged.SongProperties.Any(p => p.BaseName == Song.AlbumOrder));
+        Assert.HasCount(4, merged.Albums);
+        Assert.AreEqual("D", merged.Albums[0].Name);
+    }
+
     // NOTE: .NoMerge filtering is implemented in SongController.AutoMerge after full song reload.
     // Songs with .NoMerge in their history are excluded from AutoMerge execution.
     // To test manually: Add ".NoMerge=  User=admin  Time=MM/dd/yyyy hh:mm:ss tt" to a song's history,

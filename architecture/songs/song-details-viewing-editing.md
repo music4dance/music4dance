@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Last verified:** 2026-11-04 (`startEditing` and merged-value links traced; the rest: 2026-10-01, code references checked, behavior not re-traced)
 **Code:** `m4d/Controllers/SongController.cs` (`Details`), `m4d/ClientApp/src/pages/song/`, `m4d/ClientApp/src/pages/song/components/SongCore.vue`
 
 ## Overview
@@ -87,7 +87,9 @@ The client-side state manager for the editing workflow. Initialized from a `Song
 **Props:**
 
 - `model: SongDetailsModel` — the server-provided model.
-- `startEditing?: boolean` — if true, enters edit mode immediately (used for the "Add Song" flow).
+- `startEditing?: boolean` — if true, enters edit mode immediately. Used by the "Add Song" flow, and
+  by the song page (`pages/song/App.vue`) for an admin whose URL carries `?edit`, which is where a
+  merge lands ([song-merge-algorithm](song-merge-algorithm.md) § Settling the fields).
 - `creating?: boolean` — if true, uses `create()` instead of `saveChanges()`, and button reads "Add Song".
 
 **Key reactive state:**
@@ -116,6 +118,11 @@ The first time `modified` becomes true, a "Don't Forget!" bootstrap-vue-next toa
 ### Header Row
 
 - **Title** (italic) and **Artist** are rendered via `<FieldEditor>` — clicking "Edit" reveals text inputs.
+- **Merged-value links** (admin only, while editing): Title, Artist, and in `SongStats` Tempo and
+  Length, get an `alternatives` list from `SongHistory.fieldValues(name)`, which holds every distinct
+  value the song's history has set. `FieldEditor` shows those that differ from the current value as
+  links under the input, and clicking one sets the field. They matter most after a merge, when the
+  history holds each source song's values.
 - **Like button** (`<SongLikeButton>`) — toggling calls `editor.toggleLike()`, which appends a `Like` property.
 - **Action buttons** (right column, visible when `editing || context.canTag`):
   - Environment links (admin only): Production / Test / Local shortcuts.

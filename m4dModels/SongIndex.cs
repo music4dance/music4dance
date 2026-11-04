@@ -511,111 +511,6 @@ public class SongIndex
         return delta;
     }
 
-    private static IList<AlbumDetails> MergeAlbums(IEnumerable<Song> songs, string def,
-        ICollection<string> keys, string artist)
-    {
-        var details = songs as IList<Song> ?? [.. songs];
-        var albumsIn = new List<AlbumDetails>();
-        var albumsOut = new List<AlbumDetails>();
-
-        foreach (var sd in details)
-        {
-            albumsIn.AddRange(sd.Albums);
-        }
-
-        var defIdx = -1;
-        if (!string.IsNullOrWhiteSpace(def))
-        {
-            _ = int.TryParse(def, out defIdx);
-        }
-
-        var idx = 0;
-        if (defIdx >= 0 && albumsIn.Count > defIdx)
-        {
-            var t = albumsIn[defIdx];
-            t.Index = 0;
-            albumsOut.Add(t);
-            idx = 1;
-        }
-
-        for (var i = 0; i < albumsIn.Count; i++)
-        {
-            if (i == defIdx)
-            {
-                continue;
-            }
-
-            var name = Song.AlbumListField + "_" + i;
-
-            if (defIdx != -1 && !keys.Contains(name))
-            {
-                continue;
-            }
-
-            var t = albumsIn[i];
-            t.Index = idx;
-            albumsOut.Add(t);
-            idx += 1;
-        }
-
-        return AlbumDetails.MergeAlbums(albumsOut, artist, false);
-    }
-
-    public async Task<Song> MergeSongs(ApplicationUser user, List<Song> songs, string title,
-        string artist,
-        decimal? tempo, int? length, IList<AlbumDetails> albums)
-    {
-        var songIds = songs.Select(s => s.SongId).ToList();
-        var stringIds = string.Join(";", songIds.Select(id => id.ToString()));
-
-        if (songs.Any(s => s.SongProperties == null))
-        {
-            songs = [.. (await DanceMusicService.SongIndex.FindSongs(songIds))];
-        }
-
-        var song = await CreateSong(user, null, null, Song.MergeCommand, stringIds);
-
-        // Add in the properties for all of the songs and then delete them
-        foreach (var from in songs)
-        {
-            await song.UpdateProperties(
-                from.SongProperties, DanceMusicService,
-                [
-                    Song.FailedLookup, Song.AlbumField, Song.TrackField, Song.PublisherField,
-                    Song.PurchaseField, Song.AlbumListField, Song.AlbumOrder, Song.AlbumPromote
-                ]);
-            await DeleteSong(user, from);
-        }
-
-        var sd = new Song(title, artist, tempo, length, [])
-        {
-            Danceability = song.Danceability,
-            Energy = song.Energy,
-            Valence = song.Valence,
-            Sample = song.Sample
-        };
-
-        _ = song.Edit(user, sd, null, DanceMusicService.DanceStats);
-
-        song.CreateAlbums(albums);
-
-        song = await Song.Create(song.SongId, song.SongProperties, DanceMusicService);
-        _ = await song.CleanupProperties(DanceMusicService, "RE");
-
-        await SaveSong(song);
-
-        return song;
-    }
-
-    public async Task<Song> MergeSongs(ApplicationUser user, List<Song> songs, string title,
-        string artist,
-        decimal? tempo, int? length, string defAlbums, HashSet<string> keys)
-    {
-        return await MergeSongs(
-            user, songs, title, artist, tempo, length,
-            MergeAlbums(songs, defAlbums, keys, artist));
-    }
-
     /// <summary>
     /// Simple merge: concatenates all song properties, annotates .Create/.Edit with original song GUID,
     /// and sorts by timestamp. Preserves all information for potential unmerging.
@@ -632,10 +527,11 @@ public class SongIndex
         // All action types (including .Merge, .Delete, .NoMerge) are parsed and sorted so that
         // audit history is preserved in chronological order regardless of action type.
         var allBlocks = new List<SongPropertyBlock>();
+        var properties = RenumberAlbums(songs);
 
         foreach (var song in songs)
         {
-            var blocks = SongPropertyBlockParser.ParseBlocks(song.SongProperties);
+            var blocks = SongPropertyBlockParser.ParseBlocks(properties[song.SongId]);
 
             foreach (var block in blocks)
             {
@@ -673,6 +569,80 @@ public class SongIndex
         await SaveSong(mergedSong);
 
         return mergedSong;
+    }
+
+    private static readonly HashSet<string> AlbumIndexedFields =
+    [
+        Song.AlbumField, Song.TrackField, Song.PublisherField, Song.PurchaseField,
+        Song.RemovedPurchaseField, Song.AlbumPromote
+    ];
+
+    /// <summary>
+    /// Each song numbers its albums from 0, so before their histories are woven together every
+    /// song's album indices move into one shared numbering: an album with the same name as one an
+    /// earlier song holds takes that song's index, any other index gets a new one. OrderAlbums is
+    /// dropped, since one song's order would hide the albums of the others.
+    /// </summary>
+    internal static Dictionary<Guid, List<SongProperty>> RenumberAlbums(IEnumerable<Song> songs)
+    {
+        var shared = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        var next = 0;
+        var result = new Dictionary<Guid, List<SongProperty>>();
+
+        foreach (var song in songs)
+        {
+            var map = new Dictionary<int, int>();
+            foreach (var album in song.Albums.Where(a => !string.IsNullOrWhiteSpace(a.Name)))
+            {
+                var key = Song.NormalizeAlbumString(album.Name);
+                if (!string.IsNullOrEmpty(key) && shared.TryGetValue(key, out var index) &&
+                    !map.ContainsValue(index))
+                {
+                    map[album.Index] = index;
+                    continue;
+                }
+
+                map[album.Index] = next;
+                if (!string.IsNullOrEmpty(key))
+                {
+                    _ = shared.TryAdd(key, next);
+                }
+                next += 1;
+            }
+
+            var renumbered = new List<SongProperty>();
+            foreach (var prop in song.SongProperties)
+            {
+                var baseName = prop.BaseName;
+                if (baseName == Song.AlbumOrder)
+                {
+                    continue;
+                }
+
+                var index = prop.Index;
+                if (!index.HasValue || !AlbumIndexedFields.Contains(baseName))
+                {
+                    renumbered.Add(prop);
+                    continue;
+                }
+
+                // An album the song later deleted isn't in song.Albums, but its properties still
+                // need an index of their own.
+                if (!map.TryGetValue(index.Value, out var target))
+                {
+                    target = next++;
+                    map[index.Value] = target;
+                }
+
+                renumbered.Add(target == index.Value
+                    ? prop
+                    : new SongProperty(SongProperty.FormatName(baseName, target, prop.Qualifier), prop.Value));
+            }
+
+            result[song.SongId] = renumbered;
+        }
+
+        return result;
     }
 
 
