@@ -133,6 +133,8 @@ factory exists; `m4d` is the startup project.
 | `20260326002120_SearchMostRecentPage` | `MostRecentPage` on `Searches` |
 | `20260831134022_DanzQApiFoundation` | The four `OpenIddict*` tables |
 | `20261004051118_CheckoutSessions` | `CheckoutSessions` table |
+| `20261008163443_ServiceAccountTokens` | `ServiceAccountTokens` table |
+| `20261104060703_SharedIdCandidates` | `SharedIdCandidates` table ([shared-id-review](../songs/shared-id-review.md)) |
 
 **Tooling.** `dotnet-ef` is a local tool pinned in `m4d/.config/dotnet-tools.json`. There's no
 manifest at the repo root, so run it from `m4d/`:

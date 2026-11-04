@@ -1,0 +1,215 @@
+@using m4d.ViewModels
+@using m4dModels
+@model SharedIdsModel
+
+@{
+    ViewBag.Title = "Shared Song Ids";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+
+    static string FormatLength(int? seconds) =>
+        seconds.HasValue ? $"{seconds.Value / 60}:{seconds.Value % 60:00}" : "";
+}
+
+<h1>@ViewBag.Title</h1>
+
+<p>
+    Songs that hold the same Spotify, iTunes or ISRC id. When enrichment is about to give a song an
+    id another song already holds, it leaves the id off and queues the pair here.
+    <strong>Merge</strong> folds the checked songs into one, keeping all of their history.
+    <strong>Not the same</strong> leaves the ids where they are and stops the pairs from being
+    queued again.
+</p>
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-info">@Model.Message</div>
+}
+
+<p>
+    @Model.PendingCandidates.ToString("N0") pending pairs in @Model.ClusterCount.ToString("N0") clusters.
+</p>
+
+<div class="mb-3">
+    @using (Html.BeginForm("SeedSharedIds", "Admin", FormMethod.Post, new { style = "display:inline" }))
+    {
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-outline-secondary"
+                onclick="return confirm('Scan the index and queue every pair of songs that already share an id?');">
+            Queue existing shared ids
+        </button>
+    }
+    @using (Html.BeginForm("MergeMatchingSharedIds", "Admin", FormMethod.Post, new { style = "display:inline" }))
+    {
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-outline-danger"
+                onclick="return confirm('Merge every pending cluster whose songs share an id and also have the same title and artist? Clusters with a rejected pair or a .NoMerge song are skipped.');">
+            Merge all with matching title and artist
+        </button>
+    }
+</div>
+
+@{
+    var index = 0;
+}
+@foreach (var cluster in Model.Clusters)
+{
+    index += 1;
+    var mergeForm = $"merge-{index}";
+    var shared = cluster.ServiceIds.ToHashSet();
+    <div class="card mb-4">
+        <div class="card-header">
+            <strong>@string.Join(", ", cluster.ServiceIds)</strong>
+            @if (cluster.TitleArtistMatch)
+            {
+                <span class="badge bg-success ms-2">Title and artist match</span>
+            }
+            @if (cluster.HasRejectedPair)
+            {
+                <span class="badge bg-warning text-dark ms-2">Has a rejected pair</span>
+            }
+        </div>
+        <div class="card-body">
+            @if (cluster.Songs.Count == 0)
+            {
+                <p class="text-muted">These songs changed while the page loaded. Reload to see them.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <tr>
+                            <th></th>
+                            @foreach (var song in cluster.Songs)
+                            {
+                                <th>
+                                    <input type="checkbox" name="songIds" value="@song.SongId" form="@mergeForm" checked />
+                                    <a href="/song/details/@song.SongId" target="_blank" rel="noopener noreferrer">@song.Title</a>
+                                </th>
+                            }
+                        </tr>
+                        <tr>
+                            <th>Artist</th>
+                            @foreach (var song in cluster.Songs)
+                            {
+                                <td>@song.Artist</td>
+                            }
+                        </tr>
+                        <tr>
+                            <th>Length</th>
+                            @foreach (var song in cluster.Songs)
+                            {
+                                <td>@FormatLength(song.Length)</td>
+                            }
+                        </tr>
+                        <tr>
+                            <th>Tempo</th>
+                            @foreach (var song in cluster.Songs)
+                            {
+                                <td>@song.Tempo</td>
+                            }
+                        </tr>
+                        <tr>
+                            <th>Dances</th>
+                            @foreach (var song in cluster.Songs)
+                            {
+                                <td>@string.Join(", ", song.DanceRatings.OrderByDescending(r => r.Weight).Select(r => $"{r.DanceId}{r.Weight:+#;-#;0}"))</td>
+                            }
+                        </tr>
+                        <tr>
+                            <th>Albums</th>
+                            @foreach (var song in cluster.Songs)
+                            {
+                                <td>
+                                    @foreach (var album in song.Albums)
+                                    {
+                                        <div>
+                                            @album.Name @(album.Track.HasValue ? $"#{album.Track}" : "")
+                                            @foreach (var id in album.GetExtendedPurchaseIds(PurchaseType.Song))
+                                            {
+                                                if (shared.Contains(id))
+                                                {
+                                                    <mark class="small">@id</mark>
+                                                }
+                                                else
+                                                {
+                                                    <span class="small text-muted">@id</span>
+                                                }
+                                            }
+                                        </div>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                        <tr>
+                            <th>Created</th>
+                            @foreach (var song in cluster.Songs)
+                            {
+                                <td>@song.Created.ToString("yyyy-MM-dd")</td>
+                            }
+                        </tr>
+                    </table>
+                </div>
+
+                <ul class="small">
+                    @foreach (var candidate in cluster.Candidates)
+                    {
+                        <li>
+                            @candidate.Source, @candidate.Created.ToString("yyyy-MM-dd"): @candidate.ServiceIds
+                            @if (!string.IsNullOrEmpty(candidate.Detail))
+                            {
+                                <span class="text-muted">(@candidate.Detail)</span>
+                            }
+                        </li>
+                    }
+                </ul>
+
+                <form id="@mergeForm" method="post" action="@Url.Action("MergeSharedIds")" style="display:inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="page" value="@Model.Page" />
+                    <button type="submit" class="btn btn-sm btn-primary">Merge checked</button>
+                </form>
+                <form method="post" action="@Url.Action("RejectSharedIds")" style="display:inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="page" value="@Model.Page" />
+                    @foreach (var candidate in cluster.Candidates)
+                    {
+                        <input type="hidden" name="candidateIds" value="@candidate.Id" />
+                    }
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">Not the same</button>
+                </form>
+                <form method="post" action="@Url.Action("BulkEdit", "Song")" target="_blank" style="display:inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="action" value="Merge" />
+                    @foreach (var song in cluster.Songs)
+                    {
+                        <input type="hidden" name="selectedSongs" value="@song.SongId" />
+                    }
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">Open in merge editor</button>
+                </form>
+            }
+        </div>
+    </div>
+}
+
+@if (Model.PageCount > 1)
+{
+    <nav>
+        <ul class="pagination">
+            @for (var p = 1; p <= Model.PageCount; p++)
+            {
+                if (p == Model.Page)
+                {
+                    <li class="page-item active"><span class="page-link">@p</span></li>
+                }
+                else if (p <= 3 || p > Model.PageCount - 3 || Math.Abs(p - Model.Page) <= 2)
+                {
+                    <li class="page-item"><a class="page-link" href="@Url.Action("SharedIds", new { page = p })">@p</a></li>
+                }
+                else if (p == 4 || p == Model.PageCount - 3)
+                {
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                }
+            }
+        </ul>
+    </nav>
+}
