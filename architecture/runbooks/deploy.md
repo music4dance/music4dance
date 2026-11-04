@@ -2,7 +2,7 @@
 
 **Type:** Runbook
 **Status:** Current
-**Last verified:** 2026-11-03 (against `azure-pipelines.yml`)
+**Last verified:** 2026-11-04 (against `azure-pipelines.yml`)
 
 ## When to use
 
@@ -44,8 +44,8 @@ deploys fit after PR checks and merge, see [ci-cd-and-release](../infrastructure
 Deploy to `test` first and verify before running `production`.
 
 An ordinary deploy has no downtime: the old container serves until the new one passes its
-startup probe. A run that switches Run From Package on or off takes the site down once, for
-between about 45 seconds and 4 minutes (see
+startup probe (confirmed on production 2026-11-04). A run that switches Run From Package on or
+off takes the site down once, for between about 45 seconds and 4 minutes (see
 [hosting-and-identity § Run From Package](../infrastructure/hosting-and-identity.md#run-from-package)).
 
 ## Verification
