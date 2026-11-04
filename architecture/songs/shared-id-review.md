@@ -67,13 +67,13 @@ ids (shared ones highlighted), and created date, plus each row's source and deta
 
 Loading a page follows any song that was merged or deleted since it was queued
 (`LoadSongs` → `SongIndex.FindMergedSong`) and re-points its rows, so merges made through the
-title-based tools or the merge editor resolve themselves.
+title-based tools or **Merge and edit** resolve themselves.
 
 | Action | What it does |
 | --- | --- |
 | **Merge checked** (`POST /Admin/MergeSharedIds`) | `SongIndex.SimpleMergeSongs` on the checked songs, which keeps all their history. Rows between them become `Merged`; their rows with other songs, pending or rejected, move to the merged song. Unchecking a song leaves it in the queue paired with the merged song. |
 | **Not the same** (`POST /Admin/RejectSharedIds`) | Marks every pending row in the cluster `Rejected`. |
-| **Open in merge editor** | Posts the songs to `/Song/BulkEdit` (`action=Merge`), the field-by-field editor, in a new tab. |
+| **Merge and edit** | Posts the songs to `/Song/BulkEdit` (`action=Merge`) in a new tab, which merges them as **Merge checked** does and opens the merged song in the editor to pick its title, artist, tempo and length. |
 | **Merge all with matching title and artist** (`POST /Admin/MergeMatchingSharedIds`) | A background task (watch `/Admin/AdminStatus`). It merges every pending cluster whose songs all share the same title and the same non-empty artist (`Song.CreateTitleHash`, as the title-based merge candidates compare them). Every cluster shares an id by construction. It skips clusters with a rejected pair inside them, or with a `.NoMerge` song. |
 | **Queue existing shared ids** (`POST /Admin/SeedSharedIds`) | Runs the seed as a background task. |
 
