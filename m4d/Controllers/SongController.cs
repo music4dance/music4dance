@@ -2294,8 +2294,16 @@ public class SongController : ContentController
         // Clear merge candidates cache
         Database.RemoveMergeCandidates(songList);
 
-        // Clear dance stats cache
-        await DanceStatsManager.ClearCache(Database, true);
+        // The merge has committed by now, so a failed stats rebuild mustn't turn it into an error
+        // page: retrying would try to merge songs that no longer exist.
+        try
+        {
+            await DanceStatsManager.ClearCache(Database, true);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Dance stats rebuild after merging into {SongId} failed", mergedSong.SongId);
+        }
 
         return RedirectToAction("Details", new { id = mergedSong.SongId, edit = true });
     }

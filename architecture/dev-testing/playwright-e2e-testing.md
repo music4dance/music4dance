@@ -1,7 +1,7 @@
 # Playwright End-to-End Testing
 
 **Type:** Reference
-**Status:** Current. Implemented; `e2e/tests/` has 10 spec files as of 2026-10-12 (8 when first written).
+**Status:** Current. Implemented; `e2e/tests/` has 11 spec files as of 2026-11-04 (8 when first written).
 **Last verified:** 2026-10-01 (file references checked)
 **Code:** `e2e/`, `.github/workflows/e2e.yaml`
 
@@ -92,6 +92,7 @@ e2e/
     tagging.spec.ts     # add/remove a tag, verify TagListEditor state
     playlist.spec.ts    # create a playlist from search results
     custom-search.spec.ts      # build a filter via UI, assert the URL round-trips
+    merge.spec.ts       # merge two songs from a list, pick fields from either in the editor
   .gitignore            # test-results/, playwright-report/, blob-report/
 ```
 
