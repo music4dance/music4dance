@@ -26,6 +26,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 
 using System.Globalization;
+using System.Net;
 using System.Net.Mime;
 using System.Security.Claims;
 using System.Text;
@@ -178,6 +179,169 @@ public class AdminController(
     {
         ViewBag.Message = message;
         return View(await store.Get(ServiceType.Spotify));
+    }
+
+    //
+    // GET: /Admin/SharedIds
+    // The review queue of songs that share a Spotify, iTunes or ISRC id - see
+    // architecture/songs/shared-id-review.md
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> SharedIds(int page = 1, string message = null)
+    {
+        if (ServiceHealth?.IsServiceHealthy("SearchService") == false)
+        {
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
+        page = Math.Max(1, page);
+        var log = Database.SharedIds;
+        IReadOnlyList<SharedIdCluster> clusters = [];
+        List<SharedIdCluster> shown = [];
+
+        // Loading a page follows songs merged or deleted since they were queued, which can change
+        // the clusters, so compute them again until a page loads cleanly
+        for (var attempt = 0; attempt < 3; attempt++)
+        {
+            clusters = await log.PendingClusters();
+            shown = [.. clusters.Skip((page - 1) * SharedIdsModel.PageSize).Take(SharedIdsModel.PageSize)];
+            var current = true;
+            foreach (var cluster in shown)
+            {
+                current &= await log.LoadSongs(cluster);
+            }
+
+            if (current)
+            {
+                break;
+            }
+        }
+
+        return View(new SharedIdsModel
+        {
+            PendingCandidates = await log.PendingCount(),
+            ClusterCount = clusters.Count,
+            Page = page,
+            Clusters = shown,
+            Message = message
+        });
+    }
+
+    //
+    // POST: /Admin/MergeSharedIds
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> MergeSharedIds(Guid[] songIds, int page = 1)
+    {
+        var user = await Database.FindUser(UserName);
+        var merged = await Database.SharedIds.Merge(user, songIds ?? []);
+        if (merged != null)
+        {
+            await DanceStatsManager.ClearCache(Database, false);
+        }
+
+        return RedirectToAction(nameof(SharedIds), new
+        {
+            page,
+            message = merged == null
+                ? "Choose at least two songs that are still in the catalog to merge."
+                : $"Merged {songIds.Length} songs into \"{merged.Title}\" ({merged.SongId})."
+        });
+    }
+
+    //
+    // POST: /Admin/RejectSharedIds
+    // The songs are different: the shared id stays where it is and the pairs aren't queued again
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> RejectSharedIds(int[] candidateIds, int page = 1)
+    {
+        var user = await Database.FindUser(UserName);
+        await Database.SharedIds.Reject(user, candidateIds ?? []);
+        return RedirectToAction(nameof(SharedIds), new { page, message = "Marked as different songs." });
+    }
+
+    //
+    // POST: /Admin/SeedSharedIds
+    // Queues every pair of songs that already share an id
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult SeedSharedIds()
+    {
+        try
+        {
+            StartAdminTask("SeedSharedIds");
+            AdminMonitor.UpdateTask("SeedSharedIds");
+
+            var dms = Database.GetTransientService();
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var added = await dms.SharedIds.Seed(AdminMonitor.UpdateTask);
+                    AdminMonitor.CompleteTask(true, $"SeedSharedIds: Added={added}");
+                }
+                catch (Exception e)
+                {
+                    AdminMonitor.CompleteTask(false, $"SeedSharedIds: Failed={e.Message}");
+                }
+                finally
+                {
+                    dms.Dispose();
+                }
+            });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"SeedSharedIds: {e.Message}", e);
+        }
+    }
+
+    //
+    // POST: /Admin/MergeMatchingSharedIds
+    // Merges every pending cluster whose songs also have the same title and artist
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> MergeMatchingSharedIds()
+    {
+        try
+        {
+            StartAdminTask("MergeMatchingSharedIds");
+            AdminMonitor.UpdateTask("MergeMatchingSharedIds");
+
+            var user = await Database.FindUser(UserName);
+            var dms = Database.GetTransientService();
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var merged = await dms.SharedIds.MergeMatching(user, AdminMonitor.UpdateTask);
+                    await DanceStatsManager.ClearCache(dms, false);
+                    AdminMonitor.CompleteTask(true, $"MergeMatchingSharedIds: Merged={merged}");
+                }
+                catch (Exception e)
+                {
+                    AdminMonitor.CompleteTask(false, $"MergeMatchingSharedIds: Failed={e.Message}");
+                }
+                finally
+                {
+                    dms.Dispose();
+                }
+            });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"MergeMatchingSharedIds: {e.Message}", e);
+        }
     }
 
     //

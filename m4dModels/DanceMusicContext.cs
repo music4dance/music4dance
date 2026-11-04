@@ -69,6 +69,7 @@ public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : Id
         _ = builder.Entity<UsageLog>().ToTable("UsageLog");
         _ = builder.Entity<CheckoutSession>().ToTable("CheckoutSessions");
         _ = builder.Entity<ServiceAccountToken>().ToTable("ServiceAccountTokens");
+        _ = builder.Entity<SharedIdCandidate>().ToTable("SharedIdCandidates");
 
         _ = builder.Entity<Dance>().Property(dance => dance.Id).HasMaxLength(5);
         _ = builder.Entity<Dance>().Ignore(dance => dance.Info);
@@ -115,6 +116,13 @@ public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : Id
         _ = builder.Entity<ServiceAccountToken>().Property(t => t.InvalidReason).HasMaxLength(1024);
         _ = builder.Entity<ServiceAccountToken>().Ignore(t => t.ExpiresAt);
         _ = builder.Entity<ServiceAccountToken>().Ignore(t => t.IsValid);
+
+        _ = builder.Entity<SharedIdCandidate>().HasIndex(c => new { c.SongA, c.SongB }).IsUnique();
+        _ = builder.Entity<SharedIdCandidate>().HasIndex(c => c.Status);
+        _ = builder.Entity<SharedIdCandidate>().Property(c => c.ServiceIds).HasMaxLength(1024);
+        _ = builder.Entity<SharedIdCandidate>().Property(c => c.Source).HasMaxLength(64);
+        _ = builder.Entity<SharedIdCandidate>().Property(c => c.Detail).HasMaxLength(1024);
+        _ = builder.Entity<SharedIdCandidate>().Property(c => c.ResolvedBy).HasMaxLength(256);
 
         // Customize the ASP.NET Identity model and override the defaults if needed.
         // For example, you can rename the ASP.NET Identity table names and more.
@@ -170,5 +178,7 @@ public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : Id
     public DbSet<CheckoutSession> CheckoutSessions { get; set; }
 
     public DbSet<ServiceAccountToken> ServiceAccountTokens { get; set; }
+
+    public DbSet<SharedIdCandidate> SharedIdCandidates { get; set; }
     #endregion
 }
