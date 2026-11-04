@@ -2,12 +2,46 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
-**Code:** `m4dModels/MergeManager.cs`, `m4d/Controllers/SongController.cs` (merge actions)
+**Last verified:** 2026-11-03 (§ Matching new songs by service id traced; the rest: code references checked, behavior not re-traced)
+**Code:** `m4dModels/MergeManager.cs`, `m4d/Controllers/SongController.cs` (merge actions), `m4dModels/SongIndex.cs` (service id matching)
 
 ## Overview
 
 The music4dance merge system identifies and consolidates duplicate songs in the catalog. Since songs come from multiple sources (user imports, music services like Spotify/iTunes, web scraping), duplicates are inevitable. The merge algorithm uses a multi-level matching strategy combined with conflict resolution to create a single, comprehensive song record.
+
+The title-based levels below clean up duplicates after the fact. The first line of defense is
+refusing to create one: see [Matching new songs by service id](#matching-new-songs-by-service-id).
+
+## Matching New Songs by Service Id
+
+A Spotify track id, an iTunes track id and an ISRC each identify one recording, so a new song
+holding any id that a catalog song already holds is that song. Every path that adds songs checks
+for this before it saves, and appends to the existing song instead of creating another.
+
+**The lookup.** `SongIndex.FindSongsByServiceIds` runs one exact-match filter,
+`ServiceIds/any(id: search.in(id, 'S:…,I:…,R:…', ','))`, for all of a song's ids.
+`FindSongByServiceIds(song)` returns the other song sharing the most of them. `GetSongFromService`
+goes through the same filter. The filter is exact, which is why purchase ids are stored in each
+service's canonical spelling ([song-internal-format](song-internal-format.md) § 3.6). Amazon ids are
+not in `ServiceIds` (`AmazonService.IsIndexed` is false), so they can't be matched.
+
+**The merge.** `SongIndex.MergeIntoSong(user, target, edit)` folds a never-saved song into the one
+it duplicates. It calls `Song.AlignAlbumIndexes` first: `AdditiveMerge` pairs albums by index,
+which is right for an edit of the same song but would put a separate record's album-0 ids on
+whichever album the target has at index 0. Aligning moves each incoming album onto the target's
+album of the same name, or onto a fresh index.
+
+| Path | When the check runs |
+| --- | --- |
+| Spotify playlist imports and the admin catalog upload (`MatchSongs`) | `MergeFromPurchaseInfo` matches on all three ids, after the SongId override and before the title match. `Song.CreateFromTrack` keeps the track's ISRC so it can. |
+| The same, after enrichment (`DMController.MergeCatalogPipeline`) | `SongIndex.MergeNewSongsByServiceIds` runs after `ConditionalUpdateSongAndServices`, which can add iTunes ids and ISRCs that `MatchSongs` never saw. It folds each new song into a song earlier in the batch or in the index that holds one of its ids, and re-points its `LocalMerger` (`MatchType.Exact`), so the upload results page counts it as a merge. |
+| Add a song by link or search (`MusicServiceManager.CreateSong`) | After enrichment. A hit attaches the user's track to the existing song, so the add page shows "Edit Song". |
+| Save a new song (`POST /api/song` → `SongIndex.CreateOrMergeSong`) | Just before the save, which catches a double submit or a song another user added in the meantime. Skipped for a `.Merge`, whose properties carry the ids of the songs it replaces. |
+
+Enrichment of an *existing* song (`UpdateSongAndServices`, `GetISRCData`, `AttachTracksToSong`)
+does not check yet. It is the source of nearly all current shared ids: in the 2026-11-03 snapshot,
+about 99% of the second copies of a shared id were attached by a later `batch-i`/`batch-s` edit,
+not at creation.
 
 ## Merge Levels
 

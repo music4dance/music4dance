@@ -346,8 +346,16 @@ public class DanceMusicController(
         {
             AdminMonitor.UpdateTask("UpdateService", i);
             _ = await MusicServiceManager.ConditionalUpdateSongAndServices(dms, song);
-            _ = await song.CleanupProperties(dms, "HYE");
             i += 1;
+        }
+
+        // Enrichment can give a new song an id that another song already holds
+        AdminMonitor.UpdateTask("MergeByServiceIds");
+        modified = await dms.SongIndex.MergeNewSongsByServiceIds(user, modified, review.Merge);
+
+        foreach (var song in modified)
+        {
+            _ = await song.CleanupProperties(dms, "HYE");
         }
 
         return modified;
