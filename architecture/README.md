@@ -30,7 +30,7 @@ procedural, to become a runbook.
 | --- | --- | --- |
 | [song-internal-format](songs/song-internal-format.md) | Ref | The append-only `SongProperty` log: wire format, field reference, edit blocks, user types, index compression |
 | [song-details-viewing-editing](songs/song-details-viewing-editing.md) | Ref | Song details page, `SongCore.vue`, editing flow, permissions, pseudo-users, per-dance tempo |
-| [song-merge-algorithm](songs/song-merge-algorithm.md) | Ref | Duplicate detection levels, title normalization, merge workflow and modes |
+| [song-merge-algorithm](songs/song-merge-algorithm.md) | Ref | Service id matching, duplicate detection levels, title normalization, the history-weaving merge and the post-merge editor |
 | [song-upload-format](songs/song-upload-format.md) | Ref | `UploadCatalog` file format: header fields, tags, upload form parameters |
 | [add-augment-song](songs/add-augment-song.md) | Ref | `/song/augment`: locating a track, server-side lookup/dedup, saving user edits |
 | [service-track-lookup](songs/service-track-lookup.md) | Ref | Backend resolution of a Spotify/Apple track ID to a catalog song |

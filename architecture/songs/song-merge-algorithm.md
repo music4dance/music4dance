@@ -3,7 +3,7 @@
 **Type:** Reference
 **Status:** Current
 **Last verified:** 2026-11-04 (§ Merging and § Settling the fields traced; § Matching new songs by service id traced 2026-11-03; the rest: code references checked, behavior not re-traced)
-**Code:** `m4dModels/MergeManager.cs`, `m4d/Controllers/SongController.cs` (merge actions), `m4dModels/SongIndex.cs` (service id matching)
+**Code:** `m4dModels/MergeManager.cs`, `m4d/Controllers/SongController.cs` (merge actions), `m4dModels/SongIndex.cs` (`SimpleMergeSongs`, `RenumberAlbums`, service id matching), `m4d/ClientApp/src/pages/song/components/FieldEditor.vue` (merged-value links)
 
 ## Overview
 
@@ -329,6 +329,10 @@ each list the other values the song's history holds (`SongHistory.fieldValues`, 
 `.Edit` after the `.Merge`, so the merge itself stays reversible. Batch merges (auto-merge, the
 shared-id queue) skip this step and keep the latest values.
 
+After the merge commits, the controller rebuilds the dance stats (`DanceStatsManager.ClearCache`).
+A failed rebuild is logged as a warning and the redirect still happens: the sources are already
+deleted, so an error page would leave the admin nothing to retry.
+
 ### Auto Merge Behavior
 
 **Current Implementation** (as of latest update):
@@ -443,15 +447,15 @@ After merge:
 
 **Recommended Practice:**
 
-1. Run Level 1 auto-merge first (highest volume, high confidence)
+1. Run auto-merge first (the admin page's AutoMerge link uses Level 3: title, artist and length)
 2. Review Level 0 candidates manually (identical metadata)
-3. Review Level 3 candidates carefully (title/artist only)
+3. Review Level 2 candidates carefully (title only)
 
-**Typical Volumes:**
+**Typical Volumes** (estimates, not re-measured):
 
-- Level 1: 50-500 candidates (auto-merge safe)
+- Level 1: 50-500 candidates
 - Level 0: 10-50 candidates (very high confidence)
-- Level 3: 100-1000 candidates (requires review)
+- Level 2: 100-1000 candidates (requires review)
 
 ## Edge Cases & Special Handling
 
@@ -536,6 +540,12 @@ Common variations handled automatically:
   same-named albums combined, deleted albums kept apart, `OrderAlbums` dropped)
 - User history preservation
 
+**Client Tests**: `SongHistory.fieldValues`, and the `FieldEditor` alternatives (shown only while
+editing, current value left out, numeric values compared as numbers, a click sets the field)
+
+**End-to-end**: `e2e/tests/merge.spec.ts` merges two songs from a search, picks the earlier song's
+artist and tempo in the editor, saves, and checks the stored song keeps both albums
+
 ### Validation Commands
 
 **Check Merge Candidates:**
@@ -565,7 +575,6 @@ GET /Song/MergeCandidates?level=1&autoCommit=true
 2. **Confidence Scoring**: Assign merge confidence percentages
 3. **User Feedback**: Allow users to flag bad merges
 4. **Acoustic Fingerprinting**: Use audio analysis for matching
-5. **ISRC Matching**: Use International Standard Recording Code when available
 
 ### Known Limitations
 
@@ -579,5 +588,6 @@ GET /Song/MergeCandidates?level=1&autoCommit=true
 - **Testing Patterns**: `architecture/dev-testing/testing-patterns.md`
 - **Dance Library**: `DanceLib/Dances.cs`
 - **Song Model**: `m4dModels/Song.cs` (especially `MungeString` method)
-- **Merge Controller**: `m4d/Controllers/SongController.cs` (`MergeCandidates`, `AutoMerge`, `MergeResults`)
+- **Merge Controller**: `m4d/Controllers/SongController.cs` (`MergeCandidates`, with `autoCommit` for auto-merge; `ClearMergeCache`; `BulkEdit` → `Merge`)
+- **Song editor**: [song-details-viewing-editing](song-details-viewing-editing.md) (`?edit`, merged-value links)
 - **Block Parser**: `m4dModels/SongPropertyBlockParser.cs` — shared infrastructure used by both `SimpleMergeSongs` (chronological sorting) and `ChunkedSong` (batch cleanup); keeps the block-layout contract (`[Action, User, Time, content…]`) in one place
