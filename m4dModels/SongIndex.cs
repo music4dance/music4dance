@@ -181,12 +181,55 @@ public class SongIndex
             return null;
         }
 
-        var sid = $"\"{service.CID}:{id}\"";
-        var parameters = new SearchOptions();
-        parameters.SearchFields.Add(ServiceIds);
-        var results = await DoSearch(sid, parameters, CruftFilter.AllCruft);
-        var r = results.GetResults().FirstOrDefault();
-        return r == null ? null : await CreateSong(r.Document);
+        return (await FindSongsByServiceIds([$"{service.CID}:{id}"])).FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Every song holding any of <paramref name="serviceIds"/>, spelled as the ServiceIds field
+    /// stores them ("S:{spotify}", "I:{itunes}", "R:{isrc}" - see
+    /// AlbumDetails.GetExtendedPurchaseIds), in one exact-match query.
+    /// </summary>
+    public virtual async Task<IList<Song>> FindSongsByServiceIds(IEnumerable<string> serviceIds)
+    {
+        var ids = serviceIds?.Where(id => !string.IsNullOrWhiteSpace(id)).Distinct().ToList() ?? [];
+        if (ids.Count == 0)
+        {
+            return [];
+        }
+
+        var list = string.Join(',', ids.Select(id => id.Replace("'", "''")));
+        var response = await DoSearch(
+            null,
+            new SearchOptions { Filter = $"ServiceIds/any(id: search.in(id, '{list}', ','))" },
+            CruftFilter.AllCruft);
+        return await CreateSongs(response.GetResults());
+    }
+
+    /// <summary>
+    /// The catalog song, other than <paramref name="song"/> itself, that shares the most
+    /// Spotify, iTunes and ISRC ids with it, or null if none shares any.
+    /// </summary>
+    public async Task<Song> FindSongByServiceIds(Song song)
+    {
+        var ids = song.GetExtendedPurchaseIds().ToHashSet();
+        var matches = await FindSongsByServiceIds(ids);
+        return matches
+            .Where(s => s.SongId != song.SongId)
+            .OrderByDescending(s => s.GetExtendedPurchaseIds().Count(ids.Contains))
+            .FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Folds <paramref name="edit"/>, a song record that was never saved, into
+    /// <paramref name="target"/>, the catalog song it turned out to duplicate, so that adding a
+    /// song a second time appends to the first one instead.
+    /// </summary>
+    public async Task<bool> MergeIntoSong(ApplicationUser user, Song target, Song edit)
+    {
+        target.AlignAlbumIndexes(edit);
+        var modified = AdditiveMerge(user, target, edit, null);
+        await ReloadSong(target);
+        return modified;
     }
 
     #endregion
@@ -226,10 +269,28 @@ public class SongIndex
     public async Task<bool> CreateOrMergeSong(ICollection<SongProperty> props, ApplicationUser user)
     {
         var properties = props.ToList();
-        await SaveSong(await Song.Create(Guid.NewGuid(), properties, DanceMusicService));
+        var song = await Song.Create(Guid.NewGuid(), properties, DanceMusicService);
         var mergeIdx = properties.FindLastIndex(p => p.BaseName == Song.MergeCommand);
         var actionIdx = properties.FindLastIndex(p => p.IsAction);
-        if (mergeIdx != -1 && mergeIdx == actionIdx)
+        var isMerge = mergeIdx != -1 && mergeIdx == actionIdx;
+
+        // A merge carries the ids of the songs it replaces, so only a plain add is checked. The
+        // add page looked the song up when the user picked it, but the song may have been added
+        // since (a double submit, or another user), and enrichment may have added ids that the
+        // lookup never saw.
+        var existing = isMerge || user == null ? null : await FindSongByServiceIds(song);
+        if (existing != null)
+        {
+            if (await MergeIntoSong(user, existing, song))
+            {
+                await SaveSong(existing);
+            }
+
+            return true;
+        }
+
+        await SaveSong(song);
+        if (isMerge)
         {
             var merge = properties[mergeIdx];
             var ids = merge.Value.Split(';');
@@ -781,26 +842,92 @@ public class SongIndex
 
     private async Task<LocalMerger> MergeFromPurchaseInfo(Song song)
     {
-        // ReSharper disable once LoopCanBeConvertedToQuery
-        foreach (var service in MusicService.GetSearchableServices())
-        {
-            var ids = song.GetPurchaseIds(service);
-
-            foreach (var id in ids)
+        var match = await FindSongByServiceIds(song);
+        return match == null
+            ? null
+            : new LocalMerger
             {
-                var match = await GetSongFromService(service, id);
-                if (match != null)
-                {
-                    return new LocalMerger
-                    {
-                        Left = song, Right = match, MatchType = MatchType.Exact,
-                        Conflict = false
-                    };
-                }
+                Left = song, Right = match, MatchType = MatchType.Exact, Conflict = false
+            };
+    }
+
+    /// <summary>
+    /// The last merge step of a catalog commit, run after service enrichment has added ids
+    /// (iTunes matches, ISRCs) that MatchSongs couldn't see. Folds each new song
+    /// (MatchType.None in <paramref name="merges"/>) whose Spotify, iTunes or ISRC ids are
+    /// already held, by a song earlier in the batch or by one in the index, into that song,
+    /// and points its merger at it. Returns the songs left to save.
+    /// </summary>
+    public async Task<List<Song>> MergeNewSongsByServiceIds(ApplicationUser user,
+        IList<Song> songs, IList<LocalMerger> merges)
+    {
+        var newMergers = new Dictionary<Guid, LocalMerger>();
+        foreach (var m in merges.Where(m => m.MatchType == MatchType.None))
+        {
+            _ = newMergers.TryAdd(m.Left.SongId, m);
+        }
+
+        var bySongId = new Dictionary<Guid, Song>();
+        foreach (var s in songs)
+        {
+            _ = bySongId.TryAdd(s.SongId, s);
+        }
+
+        var holders = new Dictionary<string, Song>();
+        void Register(Song s)
+        {
+            foreach (var id in s.GetExtendedPurchaseIds())
+            {
+                _ = holders.TryAdd(id, s);
             }
         }
 
-        return null;
+        foreach (var s in songs.Where(s => !newMergers.ContainsKey(s.SongId)))
+        {
+            Register(s);
+        }
+
+        var mergedAway = new HashSet<Guid>();
+        var added = new List<Song>();
+        foreach (var song in songs)
+        {
+            if (!newMergers.TryGetValue(song.SongId, out var merger))
+            {
+                continue;
+            }
+
+            var target = song.GetExtendedPurchaseIds()
+                    .Select(id => holders.GetValueOrDefault(id))
+                    .FirstOrDefault(s => s != null)
+                ?? await FindSongByServiceIds(song);
+            if (target == null)
+            {
+                Register(song);
+                continue;
+            }
+
+            // Edit the batch's own copy of a song so the save below doesn't overwrite it
+            if (bySongId.TryGetValue(target.SongId, out var inBatch))
+            {
+                target = inBatch;
+            }
+            else
+            {
+                bySongId[target.SongId] = target;
+                added.Add(target);
+            }
+
+            Trace.WriteLineIf(
+                TraceLevels.General.TraceInfo,
+                $"Merging new song {song.SongId} into {target.SongId}, which shares its service ids");
+            _ = await MergeIntoSong(user, target, song);
+            Register(target);
+            _ = mergedAway.Add(song.SongId);
+            merger.Right = target;
+            merger.MatchType = MatchType.Exact;
+        }
+
+        return [.. songs.Where(s => !mergedAway.Contains(s.SongId)), .. added];
     }
 
     #endregion

@@ -487,6 +487,22 @@ public class MusicServiceManager(IConfiguration configuration)
         _ = await UpdateFromTracks(dms, song, [track]);
         _ = await UpdateAudioData(dms, service, song);
 
+        // Enrichment can add ids (an iTunes match, ISRCs for other Spotify ids) that the checks
+        // above couldn't see; if a catalog song already holds one, attach the track to it instead
+        if (!found)
+        {
+            var existing = await dms.SongIndex.FindSongByServiceIds(song);
+            if (existing != null)
+            {
+                Logger.LogInformation(
+                    "Service id match after enrichment: track {TrackId} goes to existing song {SongId}",
+                    id, existing.SongId);
+                _ = await UpdateFromTracks(dms, existing, [track]);
+                song = existing;
+                found = true;
+            }
+        }
+
         if (found)
         {
             await dms.SongIndex.SaveSong(song);

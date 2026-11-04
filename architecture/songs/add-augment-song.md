@@ -123,7 +123,8 @@ public async Task<Song> CreateSong(DanceMusicCoreService dms,
     var song = await Song.UserCreateFromTrack(dms, user, track, danceId);   // transient candidate
 
     var found = false;
-    var oldSong = await dms.SongIndex.FindMatchingSong(song);      // dedup by title (+ length)
+    var oldSong = await FindSongByISRC(dms, track.ISRC)            // dedup by the track's ISRC,
+        ?? await dms.SongIndex.FindMatchingSong(song);             // then by title (+ length)
     if (oldSong != null)
     {
         found = true;
@@ -134,20 +135,22 @@ public async Task<Song> CreateSong(DanceMusicCoreService dms,
     _ = await UpdateFromTracks(dms, song, [track]); // apply *this* track's data explicitly
     _ = await UpdateAudioData(dms, service, song);  // tempo/danceability/sample, if missing
 
+    // ...then, for a new song, dedup again on the ids enrichment added (FindSongByServiceIds)
+
     if (found)
     {
-        await dms.SongIndex.SaveSong(song);          // persist (new songs are saved earlier)
+        await dms.SongIndex.SaveSong(song);          // persist (a new song is saved by the POST)
     }
 
     return song;
 }
 ```
 
-- **Dedup**: `SongIndex.FindMatchingSong` (`MergeFromTitle` under the hood — same general family
-  of title-similarity matching as [song-merge-algorithm](song-merge-algorithm.md), though that document covers the
-  admin merge-candidate UI specifically) only treats `MatchType.Exact` or `MatchType.Length` as a
-  match. Anything weaker and `found` stays `false` — a new song gets created, even if it's
-  arguably "the same song" the cataloger was thinking of.
+- **Dedup**: the track's ISRC, then `SongIndex.FindMatchingSong` (`MergeFromTitle` under the
+  hood), which only treats `MatchType.Exact` or `MatchType.Length` as a match. After enrichment, a
+  new song's ids are checked once more, and again when it's saved. See
+  [service-track-lookup](service-track-lookup.md) for the steps and
+  [song-merge-algorithm](song-merge-algorithm.md) § Matching new songs by service id for every path.
 - **Attribution split**: `Song.UserCreateFromTrack` attributes the row creation to the real
   `user`, but immediately re-attributes the rest of the initial property block to the *service's*
   bot/pseudo `ApplicationUser` (e.g. `spotify|P`) — the human only gets credit for the implicit
@@ -309,7 +312,7 @@ saved through a completely separate path (`SongEditor.ts`, `APIControllers/SongC
 | Case | Client call | Server action |
 | --- | --- | --- |
 | Editing an existing song (the common Augment outcome — "Edit Song") | `PATCH /api/song/{id}` | `SongIndex.AppendHistory` — normal user edit, attributed to the signed-in user |
-| Brand new song (`created: true`) | `POST /api/song/` | `SongIndex.CreateOrMergeSong` |
+| Brand new song (`created: true`) | `POST /api/song/` | `SongIndex.CreateOrMergeSong`, which appends to a catalog song holding one of its Spotify/iTunes/ISRC ids instead of creating one |
 | Admin raw edit | `PUT /api/song/{id}` | `SongIndex.AdminEditSong` |
 
 This split matters for the architecture: the service-ID merge/enrichment fix above happens
