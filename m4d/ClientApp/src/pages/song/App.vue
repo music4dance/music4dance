@@ -7,6 +7,8 @@ declare const model_: string;
 const model = TypedJSON.parse(model_, SongDetailsModel)!;
 const context = getMenuContext();
 const searchAvailable = context.searchHealthy !== false;
+// A merge lands here with ?edit so the admin can settle the merged song's fields.
+const startEditing = context.isAdmin && new URLSearchParams(window.location.search).has("edit");
 
 // TODO:
 //  Figure out how to be better about updating global taglist - this works, but we're doing
@@ -20,6 +22,6 @@ const searchAvailable = context.searchHealthy !== false;
 
 <template>
   <PageFrame id="app">
-    <SongCore v-if="searchAvailable" :model="model" />
+    <SongCore v-if="searchAvailable" :model="model" :start-editing="startEditing" />
   </PageFrame>
 </template>

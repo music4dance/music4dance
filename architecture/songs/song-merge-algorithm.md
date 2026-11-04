@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-03 (§ Matching new songs by service id traced; the rest: code references checked, behavior not re-traced)
+**Last verified:** 2026-11-04 (§ Merging and § Settling the fields traced; § Matching new songs by service id traced 2026-11-03; the rest: code references checked, behavior not re-traced)
 **Code:** `m4dModels/MergeManager.cs`, `m4d/Controllers/SongController.cs` (merge actions), `m4dModels/SongIndex.cs` (service id matching)
 
 ## Overview
@@ -261,120 +261,39 @@ Database.FindMergeCandidates(count, level)
 
 **Optimization**: Candidate clusters are cached to avoid repeated expensive queries
 
-### 2. Conflict Resolution
+### 2. Merging
 
-When merging multiple songs, conflicts are resolved using `ResolveStringField`, `ResolveIntField`, `ResolveDecimalField`:
-
-**Resolution Strategy:**
-
-1. If form data provided (manual merge): Use user's selection
-2. Otherwise (auto-merge): Use first non-null value
-
-**Fields Resolved:**
-
-- `Title` (string)
-- `Artist` (string)
-- `Tempo` (decimal?)
-- `Length` (int?)
-
-### 3. Album Merging
-
-Albums are merged using `AlbumDetails.BuildAlbumInfo()`:
-
-1. Collect all albums from all songs being merged
-2. Deduplicate by album name (normalized comparison)
-3. Merge purchase IDs (Spotify, iTunes, Amazon) across matching albums
-4. Preserve track numbers and publisher information
-
-### 4. Property Concatenation
-
-**User History**: All edit histories from all source songs are preserved
-
-- Each user's contributions remain attributed
-- Timestamps preserved chronologically
-- Vote history (like/dislike) maintained per user
-
-**Tags**: Combined from all sources
-
-- Song-level tags merged
-- Dance-specific tags preserved per dance rating
-- Duplicate tags removed
-
-**Dance Ratings**: Summed across songs
-
-- If Song A has "CHA+1" and Song B has "CHA+2", merged song has "CHA+3"
-- Supports both positive (like) and negative (dislike) ratings
-
-**Comments**: All comments preserved with attributions
-
-## Merge Execution Modes
-
-The system provides **two merge strategies**: Smart Merge and Simple Merge.
-
-### Smart Merge (Manual Admin Operations)
-
-**Implementation**: `SongIndex.MergeSongs()`
-**Location**: `m4dModels\SongIndex.cs`
-
-**Used For**:
-
-- Manual admin merges via UI (`GET /Song/BulkEdit` → "Merge" action)
-- Requires admin review and conflict resolution
-
-**Process**:
-
-1. Admin selects songs to merge from search results
-2. System presents merge form showing conflicts (title, artist, tempo, length)
-3. Admin resolves conflicts by selecting preferred values
-4. Creates new merged song with resolved fields
-5. Merges user histories (preserves every edit)
-6. Combines tags (song-level and dance-level)
-7. Sums dance ratings across all songs
-8. Merges album information
-9. Records `.Merge=` command in song history
-10. Deletes source songs from index
-11. Returns new consolidated song
-
-**Conflict Resolution**:
-
-- If form data provided: Uses admin's selection
-- Otherwise: Uses first non-null value
-
-**Result**: Precise control over merged song properties with smart field selection
-
-### Simple Merge (Automatic Batch Operations)
-
-**Implementation**: `SongIndex.SimpleMergeSongs()`
-**Location**: `m4dModels\SongIndex.cs`
-
-**Used For**:
-
-- Auto-merge batch processing (`GET /Song/MergeCandidates?autoCommit=true`)
-- Admin simple merge via UI (`POST /Song/BulkEdit` → "SimpleMerge" button)
-- Preserves complete history for potential unmerging
-
-**Admin UI Access**:
-
-- Navigate to Admin → Initialization Tasks → "Merge Songs" section
-- Enter two song GUIDs in the text boxes
-- Click **"SimpleMerge"** button to execute automatic merge
-- Click **"Preview"** button to see Vue3 merge preview (no actual merge)
+Every merge goes through `SongIndex.SimpleMergeSongs`: the admin bulk edit ("Merge" in the song
+list's Multi-Edit menu, `POST /Song/BulkEdit` with `action=Merge`), auto-merge
+(`MergeManager.AutoMerge`), and the shared-id review queue. Up to 2026-11 there was also a
+field-by-field merge (`SongIndex.MergeSongs`, `Views/Song/Merge.cshtml`) that rebuilt the song from
+the chosen title, artist, tempo, length and albums, and a client-side preview (`song-merge` page).
+Both are gone; the editor step below replaces the field choices.
 
 **Algorithm**:
 
 1. **Load full songs** - Ensures all SongProperties are available
-2. **Group by edit blocks** - Properties between `.Create`/`.Edit` and `.User=` are kept together
-3. **Annotate commands** - Replaces empty `.Create=` and `.Edit=` with `.Create={songGUID}` and `.Edit={songGUID}`
-4. **Sort by timestamp** - Orders all edit blocks chronologically
-5. **Add merge metadata** - Appends `.Merge=` command with source song GUIDs
-6. **Create new song** - Generates new GUID, creates song from merged properties
-7. **Delete source songs** - Removes original songs from database
+2. **Renumber albums** - Each song numbers its albums from 0, so `RenumberAlbums` moves every
+   song's album properties (`Album`, `Track`, `Publisher`, `Purchase`, `Purchase-`,
+   `PromoteAlbum`) into one shared numbering. An album whose name matches one an earlier song holds
+   (`Song.NormalizeAlbumString`, case-insensitive) takes that album's index, so their purchase ids
+   combine; every other index, including one for an album the song later deleted, gets a new one.
+   `OrderAlbums` is dropped: it lists only one song's albums, and replaying it would hide the rest.
+3. **Group by edit blocks** - Properties between `.Create`/`.Edit` and `.User=` are kept together
+4. **Annotate commands** - Replaces empty `.Create=` and `.Edit=` with `.Create={songGUID}` and `.Edit={songGUID}`
+5. **Sort by timestamp** - Orders all edit blocks chronologically
+6. **Add merge metadata** - Appends `.Merge=` command with source song GUIDs
+7. **Create new song** - Generates new GUID, creates song from merged properties
+8. **Delete source songs** - Removes original songs from database
+
+Replaying the woven history gives each field the value of the latest block that set it, and sums
+dance ratings, tags and comments across the songs.
 
 **Benefits**:
 
 - **100% information preservation** - Every edit from every source song retained
 - **Unmerge capability** - Original song GUIDs allow reconstruction
-- **Simpler logic** - No complex conflict resolution
+- **Simpler logic** - No conflict resolution at merge time
 - **Complete audit trail** - User attributions preserved with original song context
 
 **Example Merge**:
@@ -401,21 +320,14 @@ The system provides **two merge strategies**: Smart Merge and Simple Merge.
 .Merge={song1-guid};{song2-guid}    User=dwgray  Time=01/04/2020 01:00:00 PM
 ```
 
-**Result**: Verbose but accurate - contains complete history from all source songs
+### 3. Settling the fields
 
-### Comparison: Smart vs Simple Merge
-
-| Aspect              | Smart Merge            | Simple Merge                 |
-| ------------------- | ---------------------- | ---------------------------- |
-| **Properties**      | Merged/deduplicated    | All preserved (concatenated) |
-| **Conflicts**       | Manual/auto resolution | All versions kept            |
-| **Size**            | Smaller                | Larger (all properties)      |
-| **Accuracy**        | May lose data          | 100% accurate                |
-| **Unmerge**         | Difficult/impossible   | Straightforward              |
-| **Complexity**      | High (conflict logic)  | Low (concat + sort)          |
-| **GUID Annotation** | No                     | Yes (every command)          |
-| **Use Case**        | Manual admin merge     | Auto-merge batches           |
-| **Implementation**  | `MergeSongs()`         | `SimpleMergeSongs()`         |
+The bulk-edit merge commits, then redirects to the merged song's page with `?edit`, which opens
+it in the editor for an admin. While an admin edits any song, the title, artist, tempo and length
+each list the other values the song's history holds (`SongHistory.fieldValues`, passed to
+`FieldEditor` as `alternatives`) as links; clicking one sets the field. Saving records an ordinary
+`.Edit` after the `.Merge`, so the merge itself stays reversible. Batch merges (auto-merge, the
+shared-id queue) skip this step and keep the latest values.
 
 ### Auto Merge Behavior
 
@@ -490,9 +402,9 @@ public async Task<List<Song>> UnmergeSong(Guid mergedSongId)
 
 ### SongIndex Operations
 
-**`MergeSongs()`**: Core merge implementation
+**`SimpleMergeSongs()`**: Core merge implementation
 
-- Transaction-safe merge operation
+- Creates the merged song and deletes the sources
 - Updates search index
 - Records merge provenance in `.Merge` command
 
@@ -620,8 +532,8 @@ Common variations handled automatically:
 
 **Integration Tests**: Merge workflow tests
 
-- Multi-song merge with conflict resolution
-- Album merging with purchase ID consolidation
+- `MergeTests`: block weaving and GUID annotation, and album renumbering (separate albums kept,
+  same-named albums combined, deleted albums kept apart, `OrderAlbums` dropped)
 - User history preservation
 
 ### Validation Commands

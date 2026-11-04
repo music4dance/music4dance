@@ -1665,11 +1665,7 @@ public class SongController : ContentController
         switch (action)
         {
             case "Merge":
-                return Merge(songs);
-            case "SimpleMerge":
-                return await SimpleMerge(songs);
-            case "Preview":
-                return SongMerge(songs);
+                return await Merge(songs);
             case "Delete":
                 return await Delete(songs, Filter);
             case "CleanupAlbums":
@@ -1678,36 +1674,6 @@ public class SongController : ContentController
                 var list = songs.ToList().AsReadOnly();
                 return await FormatSongList(list, list.Count);
         }
-    }
-
-    //
-    // Merge: /Song/Merge
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "dbAdmin")]
-    public async Task<ActionResult> MergeResults(string songIds)
-    {
-        var songs = (await SongIndex.FindSongs(songIds.Split(',').Select(Guid.Parse))).ToList();
-
-        // Create a merged version of the song (and commit to DB)
-
-        // Get the logged in user
-        var user = await Database.FindUser(User.Identity?.Name);
-
-        var song = await SongIndex.MergeSongs(
-            user, songs,
-            ResolveStringField(Song.TitleField, songs, Request.Form),
-            ResolveStringField(Song.ArtistField, songs, Request.Form),
-            ResolveDecimalField(Song.TempoField, songs, Request.Form),
-            ResolveIntField(Song.LengthField, songs, Request.Form),
-            Request.Form[Song.AlbumListField], [.. Request.Form.Keys]);
-
-        Database.RemoveMergeCandidates(songs);
-
-        await DanceStatsManager.ClearCache(Database, true);
-
-        ViewBag.BackAction = "MergeCandidates";
-
-        return await Details(song?.SongId);
     }
 
     // CleanMusicServices: /Song/CleanMusicServices
@@ -2306,29 +2272,23 @@ public class SongController : ContentController
 
     #region Merge
 
-    private ActionResult Merge(IEnumerable<Song> songs)
-    {
-        var sm = new SongMerge([.. songs], Database.DanceStats);
-
-        return View("Merge", sm);
-    }
-
-    private async Task<ActionResult> SimpleMerge(IEnumerable<Song> songs)
+    // Merges the songs, keeping every song's history, then opens the merged song in the editor so
+    // the title, artist, tempo and length can be set from any of the values the songs held.
+    private async Task<ActionResult> Merge(IEnumerable<Song> songs)
     {
         UseVue = UseVue.No;
 
         var songList = songs.ToList();
         if (songList.Count < 2)
         {
-            ViewBag.Title = "SimpleMerge Error";
-            ViewBag.Message = "SimpleMerge requires at least 2 songs. Please select 2 or more songs to merge.";
+            ViewBag.Title = "Merge Error";
+            ViewBag.Message = "Merge requires at least 2 songs. Please select 2 or more songs to merge.";
             return View("Info");
         }
 
         // Get the logged in user
         var user = await Database.FindUser(User.Identity?.Name);
 
-        // Execute simple merge
         var mergedSong = await SongIndex.SimpleMergeSongs(user, songList);
 
         // Clear merge candidates cache
@@ -2337,20 +2297,8 @@ public class SongController : ContentController
         // Clear dance stats cache
         await DanceStatsManager.ClearCache(Database, true);
 
-        ViewBag.BackAction = "MergeCandidates";
-
-        return await Details(mergedSong?.SongId);
+        return RedirectToAction("Details", new { id = mergedSong.SongId, edit = true });
     }
-
-    private ActionResult SongMerge(IEnumerable<Song> songs)
-    {
-        var sm = new SongMergeModel(songs.Select(s => s.GetHistory(Mapper)));
-        var title = "Merge Songs";
-        return Vue3(title, $"music4dance catalog: {title} dance information", "song-merge",
-            sm, helpPage: "song", danceEnvironment: true, tagEnvironment: true);
-
-    }
-
 
     private async Task<ActionResult> CleanupAlbums(IEnumerable<Song> songs)
     {
@@ -2377,69 +2325,6 @@ public class SongController : ContentController
         return View("Info");
     }
 
-    private string ResolveStringField(string fieldName, IList<Song> songs,
-        IFormCollection form = null)
-    {
-        return ResolveMergeField(fieldName, songs, form) as string;
-    }
-
-
-    private int? ResolveIntField(string fieldName, IList<Song> songs,
-        IFormCollection form = null)
-    {
-        return ResolveMergeField(fieldName, songs, form) as int?;
-    }
-
-    private decimal? ResolveDecimalField(string fieldName, IList<Song> songs,
-        IFormCollection form = null)
-    {
-        return ResolveMergeField(fieldName, songs, form) as decimal?;
-    }
-
-    private static object ResolveMergeField(string fieldName, IList<Song> songs,
-        IFormCollection form = null)
-    {
-        // If fieldName doesn't exist, this means that we didn't add a radio button for the field because all the
-        //  values were the same.  So just return the value of the first song.
-
-        // if form is != null we disambiguate based on form otherwise it's the first non-null field
-
-        var idx = 0;
-        if (form != null)
-        {
-            var s = form[fieldName];
-            if (!string.IsNullOrWhiteSpace(s))
-            {
-                _ = int.TryParse(s, out idx);
-            }
-        }
-        else
-        {
-            for (var i = 0; i < songs.Count; i++)
-            {
-                var s = songs[i];
-
-                if (s.GetType().GetProperty(fieldName)?.GetValue(s) == null)
-                {
-                    continue;
-                }
-
-                idx = i;
-                break;
-            }
-        }
-
-        var song = songs[idx];
-        var type = song.GetType();
-        var prop = type.GetProperty(fieldName);
-        if (prop != null)
-        {
-            var o = prop.GetValue(song);
-            return o;
-        }
-
-        return null;
-    }
 
     #endregion
 }

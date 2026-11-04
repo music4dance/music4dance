@@ -370,8 +370,7 @@ services" below, the Tier 1 table just hadn't caught up to that yet.
 ### Tier 2 — reasonable follow-ups, not part of the first cut
 
 Self-registration + the `FileEmailSender` `.eml` flow (mentioned as newly testable in L1e), the
-song-history viewer, `activity-log`, `admin-users`, `tempo-list`'s interactive checklist,
-`song-merge`. None of these are core to "does music4dance match music to dances correctly" —
+song-history viewer, `activity-log`, `admin-users`, `tempo-list`'s interactive checklist. None of these are core to "does music4dance match music to dances correctly" —
 add them opportunistically when someone is already touching that area, not as a batch.
 
 ---
