@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-03
+**Last verified:** 2026-11-04
 **Code:** `azure-pipelines.yml`, `m4d/Program.cs`, `m4d/Configuration/M4dApplicationExtensions.cs`,
 `m4d/Configuration/AppDataPaths.cs`, `m4d/Middleware/BlockAppDataMiddleware.cs`,
 `m4d/Services/StartupInitializationService.cs`, `m4d/m4d.csproj`
@@ -80,7 +80,12 @@ a second warm instance, which is over budget.
 **An ordinary deploy has no downtime.** App Service starts a container on the new package while
 the old one keeps serving, and switches over once the new one passes its startup probe. On
 `m4d-test`, a deploy polled once a second (2026-11-02) and a portal restart both saw no failed
-requests.
+requests. The first ordinary production deploy (2026-11-04, polled about once a second for 21
+minutes) got a 200 on every request. The zip deploy was the only Azure operation, with no
+settings write, stop-and-start or health check write. The new container started on the same
+worker, with the runtime image already cached, 9s after the deploy call, and passed its startup
+probe 41s later; the old one stopped 21s after that. Four requests in the first five minutes
+took 1.2–1.7s against the usual 0.2s, while the new process warmed up.
 
 **A deploy that switches the setting on or off has an outage**, once:
 
@@ -147,7 +152,9 @@ are kept apart because one is served publicly and the other isn't, and nothing u
 Nothing was copied over when production switched. The dance stats loaded the checked-in
 fallback and rebuilt from the search index in the background (19s on production), the artist
 index rebuilds on first use, and older backups stay on disk in the old extracted
-`wwwroot/AppData`, hidden while the package is mounted.
+`wwwroot/AppData`, hidden while the package is mounted. On the next deploy (2026-11-04) the
+dance stats loaded straight from the runtime cache under `/home/data/m4d/AppData`, with no
+fallback or rebuild, so the cache now survives deploys.
 
 ## Identity and secrets
 
@@ -355,6 +362,8 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
   2026-11-03 (about 4 minutes down, once). The stop-and-start after a switch and the
   write-only-if-different health check step both came from the test runs. A background dance
   stats rebuild after a fallback load came in the same PR.
+- 2026-11-04: The first ordinary production deploy with Run From Package on had no failed
+  requests, and the dance stats cache survived it (see [Run From Package](#run-from-package)).
 - 2026-10-01: Consolidated from `SELF_CONTAINED_DEPLOYMENT.md`, `managed-identity-self-contained-plan.md`
   and the architecture sections of `azure-app-service-setup-managed-identity.md`. Stale details
   dropped: legacy pipeline files, `appsettings.SelfContained.json`, and in-app Kestrel port and
