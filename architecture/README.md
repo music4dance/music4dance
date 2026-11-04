@@ -158,6 +158,7 @@ into `runbooks/` as its area is consolidated.
 | Bot load and public-page rendering (compression, caching, SSR vs. bot HTML vs. Razor shell) | Partially implemented: Phase 1 quick wins (A1–A7) deployed 2026-10-30; caching (Front Door vs. Cloudflare compared) and rendering phases not started | [plans/bot-load-and-public-page-rendering](plans/bot-load-and-public-page-rendering.md) |
 | Key Vault RBAC migration | Not started (vault `music4dance` still uses access policies, verified 2026-10-01) | [plans/key-vault-rbac-migration](plans/key-vault-rbac-migration.md) |
 | Attack mitigation Phase 2+ (telemetry, alerts, WAF, honeypots) | Proposed | [plans/attack-mitigation-phase2](plans/attack-mitigation-phase2.md) |
+| Cloudflare migration: DNS from Namecheap to Cloudflare (registration stays), edge proxy, Origin CA certificate, Bot Fight Mode (attack-mitigation step 2.2) | Proposed; Free plan chosen to start | [plans/cloudflare-migration](plans/cloudflare-migration.md) |
 | Contributor environments beyond the sandbox (test deploys, diagnostics, samplified data, own Azure) | Proposed | [plans/contributor-environments-next](plans/contributor-environments-next.md) |
 | Durable log storage (Blob / Log Analytics / tuned App Insights) | Proposed | [plans/log-persistence-options](plans/log-persistence-options.md) |
 | Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
