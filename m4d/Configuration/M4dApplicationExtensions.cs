@@ -787,14 +787,19 @@ public static class M4dApplicationExtensions
             await next();
         });
 
-        // Configure forwarded headers for Azure Front Door
-        // This must come before authentication to ensure RemoteIpAddress is correct
+        // Forwarded headers. These must come before authentication and rate limiting so that
+        // RemoteIpAddress is the visitor's. With default KnownProxies (loopback only) this call
+        // applies X-Forwarded-For only for a local proxy. On App Service, the front end's
+        // X-Forwarded-For is applied before this (when ASPNETCORE_FORWARDEDHEADERS_ENABLED is
+        // set) or not at all; CloudflareClientIpMiddleware below copes with either.
         app.UseForwardedHeaders(new ForwardedHeadersOptions
         {
             ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-            // Note: In production behind Azure Front Door, configure KnownNetworks/KnownProxies
-            // to restrict which proxies can set these headers for additional security
         });
+
+        // Behind Cloudflare: replace the edge server's address with CF-Connecting-IP, but only
+        // for requests relayed from Cloudflare's published ranges.
+        app.UseMiddleware<m4d.Middleware.CloudflareClientIpMiddleware>();
 
         // Authentication middleware: Populates context.User from authentication cookies
         // This MUST come before any middleware that checks context.User.Identity.IsAuthenticated
