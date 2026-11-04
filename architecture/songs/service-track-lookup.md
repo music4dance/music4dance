@@ -105,8 +105,7 @@ more first. See [song-merge-algorithm](song-merge-algorithm.md) § Matching new 
    is memoized in a static, process-lifetime-only cache (`s_trackCache`, keyed `"{CID}:{id}"`,
    cleared wholesale once it exceeds 10,000 entries — not an LRU). For Spotify, `ParseTrackResults`
    already reads `external_ids.isrc` into `ServiceTrack.ISRC`
-   ([SpotifyService.cs:182-193](../../m4dModels/SpotifyService.cs#L182)) — that data is available
-   here but currently unused for dedup (see "Known Gap" below).
+   ([SpotifyService.cs:182-193](../../m4dModels/SpotifyService.cs#L182)), which step 3 uses.
 2. **`Song.UserCreateFromTrack`** — builds a transient, unsaved `Song` from the fetched track (row
    creation attributed to the real user, everything else re-attributed to the service's bot user —
    see [add-augment-song](add-augment-song.md) § "Attribution split").
@@ -129,7 +128,9 @@ more first. See [song-merge-algorithm](song-merge-algorithm.md) § Matching new 
    on the song that don't have one yet, in case step 5 didn't cover every album).
 7. **`FindSongByServiceIds`** — steps 4 to 6 can give a new song ids (an iTunes match found by
    title, ISRCs) that steps 1 and 3 never saw. If a catalog song already holds one, the track is
-   attached to that song instead.
+   attached to that song instead. When the song being enriched is already in the catalog (a
+   step 3 match), steps 4 to 6 instead leave off any id another song holds and queue the pair
+   for review ([shared-id-review](shared-id-review.md)).
 
 Step 1 only succeeds if the *literal* id being looked up is already on file. Services, Spotify in
 particular, periodically reissue a different track id for the same recording (see

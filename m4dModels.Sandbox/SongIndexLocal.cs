@@ -618,6 +618,33 @@ public class SongIndexLocal : SongIndex
         return Task.FromResult(matches);
     }
 
+    /// <summary>
+    /// In-memory stand-in for the AlternateIds lookup: the stored song whose .Merge command
+    /// names <paramref name="id"/>.
+    /// </summary>
+    public override Task<Song> FindMergedSong(Guid id)
+    {
+        var key = id.ToString();
+        return Task.FromResult(_songStore.Values.FirstOrDefault(
+            s => !s.IsNull && s.GetAltids().Contains(key)));
+    }
+
+    public override async IAsyncEnumerable<(Guid SongId, IReadOnlyList<string> ServiceIds)> StreamSongServiceIdsAsync(
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        foreach (var song in _songStore.Values.Where(s => !s.IsNull).ToList())
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var ids = song.GetExtendedPurchaseIds();
+            if (ids.Count > 0)
+            {
+                yield return (song.SongId, [.. ids]);
+            }
+        }
+
+        await Task.CompletedTask;
+    }
+
     // Record for capturing EditSong calls
     public record EditSongCall(
         ApplicationUser User,

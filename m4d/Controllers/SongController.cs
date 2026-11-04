@@ -252,9 +252,12 @@ public class SongController : ContentController
 
                 foreach (var song in isrcResults.Songs)
                 {
+                    // A track already attached to another song holding the same ISRC (a
+                    // duplicate pair that's in the shared-id review queue) stays there
                     var tracksToAttach = song.GetPurchaseIds(isrcService)
                         .Where(tracksByIsrc.ContainsKey)
                         .SelectMany(isrc => tracksByIsrc[isrc])
+                        .Where(t => !matchedTrackIds.Contains(t.TrackId))
                         .ToList();
 
                     if (tracksToAttach.Count == 0)

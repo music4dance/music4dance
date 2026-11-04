@@ -39,9 +39,11 @@ album of the same name, or onto a fresh index.
 | Save a new song (`POST /api/song` → `SongIndex.CreateOrMergeSong`) | Just before the save, which catches a double submit or a song another user added in the meantime. Skipped for a `.Merge`, whose properties carry the ids of the songs it replaces. |
 
 Enrichment of an *existing* song (`UpdateSongAndServices`, `GetISRCData`, `AttachTracksToSong`)
-does not check yet. It is the source of nearly all current shared ids: in the 2026-11-03 snapshot,
-about 99% of the second copies of a shared id were attached by a later `batch-i`/`batch-s` edit,
-not at creation.
+was the source of nearly all shared ids: in the 2026-11-03 snapshot, about 99% of the second
+copies of a shared id were attached by a later `batch-i`/`batch-s` edit, not at creation. It now
+leaves an id that another song holds where it is, and queues the pair for review. See
+[shared-id-review](shared-id-review.md), which also covers clearing the pairs that already
+share an id.
 
 ## Merge Levels
 

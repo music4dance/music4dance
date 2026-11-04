@@ -34,6 +34,7 @@ procedural, to become a runbook.
 | [song-upload-format](songs/song-upload-format.md) | Ref | `UploadCatalog` file format: header fields, tags, upload form parameters |
 | [add-augment-song](songs/add-augment-song.md) | Ref | `/song/augment`: locating a track, server-side lookup/dedup, saving user edits |
 | [service-track-lookup](songs/service-track-lookup.md) | Ref | Backend resolution of a Spotify/Apple track ID to a catalog song |
+| [shared-id-review](songs/shared-id-review.md) | Ref | Enrichment guard against giving a second song a held Spotify/iTunes/ISRC id, and the `/Admin/SharedIds` merge queue |
 | [drop-target-lookup](songs/drop-target-lookup.md) | Ref | `useDropTarget`: pasted service IDs/URLs in ordinary search boxes |
 | [dance-family-voting](songs/dance-family-voting.md) | Ref | Voting with style families (International, American, …): auto-selection, family choice modal, vote/tag encoding |
 | [unconfirmed-dance-votes](songs/unconfirmed-dance-votes.md) | Ref | Excluding bulk-imported, unconfirmed dance ratings from default search |

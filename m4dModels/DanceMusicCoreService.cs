@@ -66,6 +66,10 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
     public MergeManager MergeManager =>
         _mergeManager ??= new MergeManager(SongIndex, DanceStatsManager);
 
+    private SharedIdLog _sharedIds;
+
+    public SharedIdLog SharedIds => _sharedIds ??= new SharedIdLog(this);
+
     public SongIndex GetSongIndex(string id, bool? isNext = null)
     {
         if (_songSearch != null && isNext == null

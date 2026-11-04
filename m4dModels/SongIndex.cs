@@ -466,7 +466,7 @@ public class SongIndex
     #endregion
 
     #region Merge
-    public async Task<Song> FindMergedSong(Guid id)
+    public virtual async Task<Song> FindMergedSong(Guid id)
     {
         var response = await DoSearch(
             null,
@@ -1971,6 +1971,57 @@ public class SongIndex
                 if (credit.Length > 0)
                 {
                     yield return [credit];
+                }
+            }
+
+            hasMore = batchCount == pageSize;
+        }
+    }
+
+    /// <summary>
+    /// Streams the ServiceIds field of every song that has one (SharedIdLog.Seed), with the same
+    /// key-set pagination as StreamSongArtistsAsync.
+    /// </summary>
+    public virtual async IAsyncEnumerable<(Guid SongId, IReadOnlyList<string> ServiceIds)> StreamSongServiceIdsAsync(
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        const int pageSize = 1000;
+
+        DateTimeOffset? lastModified = null;
+        string lastId = null;
+        var hasMore = true;
+
+        while (hasMore)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var parameters = new SearchOptions { Size = pageSize, IncludeTotalCount = false };
+            parameters.OrderBy.Add($"{ModifiedField} desc");
+            parameters.OrderBy.Add($"{SongIdField} desc");
+            parameters.Select.AddRange([SongIdField, ModifiedField, ServiceIds]);
+            parameters.Filter = $"{ServiceIds}/any()";
+            if (lastModified != null && lastId != null)
+            {
+                var modifiedStr = lastModified.Value.ToString("o");
+                parameters.Filter +=
+                    $" and (({ModifiedField} lt {modifiedStr}) or ({ModifiedField} eq {modifiedStr} and {SongIdField} lt '{lastId}'))";
+            }
+
+            var response = await DoSearch(null, parameters, CruftFilter.AllCruft);
+
+            var batchCount = 0;
+            foreach (var result in response.GetResults())
+            {
+                var doc = result.Document;
+                lastModified = doc.GetDateTimeOffset(ModifiedField);
+                lastId = doc.GetString(SongIdField);
+                batchCount++;
+
+                if (Guid.TryParse(lastId, out var songId) &&
+                    doc.TryGetValue(ServiceIds, out var value) && value is IEnumerable<object> ids)
+                {
+                    yield return (songId, [.. ids.Select(id => id?.ToString())
+                        .Where(id => !string.IsNullOrWhiteSpace(id))]);
                 }
             }
 
