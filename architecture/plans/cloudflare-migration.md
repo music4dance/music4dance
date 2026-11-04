@@ -1,7 +1,7 @@
 # Cloudflare Migration (DNS and Edge Proxy)
 
 **Type:** Plan
-**Status:** Proposed. The owner has chosen Cloudflare over Front Door for attack-mitigation step 2.2 and is starting on the Free plan (2026-11-04).
+**Status:** In progress. The owner has chosen Cloudflare over Front Door for attack-mitigation step 2.2 and is starting on the Free plan (2026-11-04). Phase 1 is done; Phase 2 is next.
 **Last verified:** 2026-11-04 (live DNS records queried, code paths checked)
 **Code:** `m4d/Configuration/M4dApplicationExtensions.cs` (`UseForwardedHeaders`), `m4d/Middleware/RateLimitingMiddleware.cs` (`GetClientIdentifier`), `m4d/Areas/Identity/Pages/Account/Login.cshtml.cs`, `Register.cshtml.cs`, `LoginModelBase.cs`, `m4d/Controllers/PaymentController.cs`, `azure-pipelines.yml` (readiness check)
 
@@ -42,7 +42,7 @@ Free's limits that affect this site, and how the plan deals with each:
 
 | Limit | Affects | Handling |
 | --- | --- | --- |
-| Bot Fight Mode can't be skipped | Any script that calls `www`: the two Logic Apps (`/playlist/updatebatch`, `/api/recompute/songstats`) and any future partner API on `www` | Move the Logic Apps to `msc4dnc.azurewebsites.net`, which bypasses Cloudflare (Phase 1). The deploy pipeline already uses that host. The planned `api.music4dance.net` stays DNS only. |
+| Bot Fight Mode can't be skipped | Any script that calls `www`: the Logic Apps (`/playlist/updatebatch`, `/api/recompute/*`) and any future partner API on `www` | Move the Logic Apps to `msc4dnc.azurewebsites.net`, which bypasses Cloudflare (Phase 1). The deploy pipeline already uses that host. The planned `api.music4dance.net` stays DNS only. |
 | 100 MB request body | Admin uploads: `LoadIdx` index files are about 135 MB (`local/index-2026-09-30.txt`) | Upload on `msc4dnc.azurewebsites.net`, not `www`. |
 | 100 s origin timeout (the visitor gets a 524) | Long synchronous admin actions | Same: use the `azurewebsites.net` host for those. |
 | No log push (Enterprise only) | HTTP request logs, which record the connecting IP. After the proxy goes on, that's Cloudflare's address. | The app fix in Phase 1 corrects the IP the app sees. The `analyze-traffic` skill's per-IP grouping needs a follow-up (section 4). |
@@ -129,6 +129,10 @@ The cutover is split so that each step changes one thing and can be undone on it
 
 ### Phase 1: App and caller changes (ship before Phase 4)
 
+**Done 2026-11-04.** The client-IP change shipped in #385, and all six Logic Apps now call
+`msc4dnc.azurewebsites.net`. The two steps below are kept for reference until this plan is folded
+into the reference docs.
+
 **PR: trust `CF-Connecting-IP` from Cloudflare only.** Behind the proxy,
 `Connection.RemoteIpAddress` becomes a Cloudflare edge address. Everything that keys on it would
 then lump thousands of visitors together: the identity rate limits and lockouts in
@@ -150,10 +154,13 @@ an edge node.
 - The change does nothing until the proxy is on, so it can ship any time before Phase 4.
 - Document it in [bot-and-abuse-defense](../security/bot-and-abuse-defense.md).
 
-**Move the Logic Apps off `www`** (Azure portal, any time). Change UpdatePlaylists and
-UpdateSongStats (and the two refresh Logic Apps, when they're created) to call
-`https://msc4dnc.azurewebsites.net/...` instead of `https://www.music4dance.net/...`. Run each
-once by hand and confirm it gets a `200`. They authenticate with a token, not a host-bound
+**Move the Logic Apps off `www`** (Azure portal, any time). Change every Logic App in `m4d-Web`
+(UpdatePlaylists, UpdateSongStats, UpdateSubscriptions, RefreshTopNPlaylists,
+RefreshSeasonalPlaylists, and the disabled UpdateSpotify) to call
+`https://msc4dnc.azurewebsites.net/...` instead of `https://www.music4dance.net/...`. Confirm the
+next runs get a `200`. The app redirects only the `music4dance.net` apex to `www`, so the
+`azurewebsites.net` host is served directly, and Phase 7's origin lock exempts `/api/*` and
+`/playlist/updatebatch*` on that host. They authenticate with a token, not a host-bound
 cookie, so the host shouldn't matter. Update the table in
 [spotify-playlist-automation](../music-services/spotify-playlist-automation.md) and the
 [runbook](../runbooks/spotify-from-search-maintenance.md).
