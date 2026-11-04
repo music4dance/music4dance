@@ -296,7 +296,19 @@ again. That's the trigger to consider Pro (section 1).
 
 ### Phase 7 (optional): Lock the origin
 
-Bots that know `msc4dnc.azurewebsites.net` can skip Cloudflare entirely. Don't use App Service
+There are two ways around Cloudflare:
+
+- **The default host.** Bots that know `msc4dnc.azurewebsites.net` can use it directly.
+- **The custom domain, sent straight to the origin.** A client can skip the DNS lookup and
+  connect to the origin address while still asking for `www`, for example
+  `curl --resolve www.music4dance.net:443:40.82.255.134 https://www.music4dance.net/`. App
+  Service serves it because the hostname is bound there. The origin address is easy to find: look
+  up `msc4dnc.azurewebsites.net`, or check DNS-history services for where `www` pointed before
+  the move.
+
+The bare IP with no matching `Host` gets Azure's generic 404, so it isn't a third way in.
+
+Don't use App Service
 access restrictions to stop that: they apply to every hostname, so they would also block the
 Logic Apps, admin uploads and the pipeline's readiness check
 (`azure-pipelines.yml` curls `https://$HOST/` on the default hostname).
@@ -311,6 +323,15 @@ Instead, mirror the Front Door plan's `X-Azure-FDID` idea:
   Admins sign in on the `azurewebsites.net` host when they need it for uploads.
 - Point the pipeline's readiness check at `/health/startup`, which returns 200 as soon as the
   process listens.
+
+An alternative to the secret header is **Authenticated Origin Pulls**, which Free allows:
+- Cloudflare presents its client certificate on every connection to the origin.
+- App Service is set to request client certificates, with exclusion paths for the exempt
+  routes above.
+- The middleware checks the forwarded certificate (`X-ARR-ClientCert`) against Cloudflare's
+  origin-pull CA.
+
+It's stronger, because there's no shared secret to leak, but it takes more setup.
 
 Decide on this after a few weeks of Phase 6 data. It's worth doing only if the HTTP logs show
 meaningful traffic still reaching the origin outside Cloudflare.
