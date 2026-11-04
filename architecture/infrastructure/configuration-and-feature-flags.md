@@ -146,6 +146,8 @@ go in user secrets.
 | `RateLimiting:GlobalMaxRequestsPerWindow` | same | Startup | `100` | `100` (sandbox `1000`) |
 | `RateLimiting:GlobalWindowMinutes` | same | Startup | `1` | `1` |
 | `RateLimiting:CaptchaThresholdPercent` | same | Startup | `20` | `20` |
+| `CloudflareClientIp:Enabled` | `CloudflareClientIpOptions` (`CloudflareClientIpMiddleware`) | Startup | `true` | (unset) |
+| `CloudflareClientIp:IpRanges` (`;`-separated CIDRs) | same | Startup | Cloudflare's published IPv4 and IPv6 ranges (2026-11-04) | (unset) |
 | `Configuration:BotFilter:ExcludeTokens` / `ExcludeFragments` / `BadFragments` (`;`-separated) | `SpiderManager` (`BotFilterInfo`) | Every check | Empty: no user agent is treated as a bot except an empty one | (unset; App Configuration) |
 | `CrawlerThrottle:Enabled` | `CrawlerThrottleOptions` (`CrawlerThrottleMiddleware`, `/Admin/Diagnostics`) | Per request | `true` | `true` |
 | `CrawlerThrottle:MaxRequestsPerMinute` | same | Per request | `20` | `20` |
