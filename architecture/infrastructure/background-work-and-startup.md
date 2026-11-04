@@ -186,8 +186,8 @@ The work runs **inside the request**, not on the queue, and the response is `200
 
 **Who calls it.** The Logic App definitions live in Azure, not in this repo. The inventory in
 [spotify-playlist-automation](../music-services/spotify-playlist-automation.md) lists
-**UpdateSongStats**, which calls `/api/recompute/songstats` every 6 hours. The caller of
-`subscription` isn't recorded in the repo; the public API plan describes it as a nightly job.
+**UpdateSongStats**, which calls `/api/recompute/songstats` every 6 hours, and
+**UpdateSubscriptions**, which calls `/api/recompute/subscription` daily.
 The same token also guards `GET /PlayList/UpdateBatch` and `UpdateBatchStatus`, which compete for
 the same `AdminMonitor` slot.
 

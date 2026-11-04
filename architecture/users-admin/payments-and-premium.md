@@ -191,9 +191,8 @@ takes effect on the next payment request.
 | `GET /api/recompute/subscription` | `RecomputeController.DoHandleSubscriptions`: for every user with `SubscriptionEnd < now`, removes `premium` if present. Token-authorized like the other recompute jobs (`TokenRequirement`, see [spotify-playlist-automation](../music-services/spotify-playlist-automation.md#entry-point)). |
 
 Expiry only removes the `premium` role. It doesn't reset `SubscriptionLevel`, doesn't touch the
-`trial` role, and nothing in this repo schedules the call: the Logic App inventory in
-[spotify-playlist-automation](../music-services/spotify-playlist-automation.md) lists only the
-`songstats` recompute, so whether `subscription` runs on a schedule isn't recorded here.
+`trial` role. The **UpdateSubscriptions** Logic App calls it daily (see the inventory in
+[spotify-playlist-automation](../music-services/spotify-playlist-automation.md)).
 
 ## Server-side gates
 

@@ -44,12 +44,13 @@ with `Failed to set playlist` (Spotify checks ownership); reconnect with the rig
 
 One-time Azure setup, after the first connect. Copy the existing **UpdatePlaylists** Logic App
 twice (same HTTP polling trigger, `Authorization: Token ...` header and key), and change each
-copy's URL and recurrence:
+copy's URL and recurrence. Use the `msc4dnc.azurewebsites.net` host, not `www`, so the calls skip
+Cloudflare's bot challenges:
 
 | Logic App | URL | Recurrence |
 | --- | --- | --- |
-| RefreshTopNPlaylists | `https://www.music4dance.net/playlist/updatebatch?type=SpotifyFromSearch&seasonal=false` | Weekly. Pick a day and hour that miss the daily UpdatePlaylists run and the 6-hourly UpdateSongStats run by an hour or more. |
-| RefreshSeasonalPlaylists | `https://www.music4dance.net/playlist/updatebatch?type=SpotifyFromSearch&seasonal=true` | Monthly, at an hour that doesn't collide with the others (including the weekly run). |
+| RefreshTopNPlaylists | `https://msc4dnc.azurewebsites.net/playlist/updatebatch?type=SpotifyFromSearch&seasonal=false` | Weekly. Pick a day and hour that miss the daily UpdatePlaylists run and the 6-hourly UpdateSongStats run by an hour or more. |
+| RefreshSeasonalPlaylists | `https://msc4dnc.azurewebsites.net/playlist/updatebatch?type=SpotifyFromSearch&seasonal=true` | Monthly, at an hour that doesn't collide with the others (including the weekly run). |
 
 All four jobs share the single `AdminMonitor` slot. A run that collides gets `409` and shows as a
 failed run; the next scheduled run tries again. A `424` means the service account needs
