@@ -21,6 +21,13 @@ three ways by what they did over the whole window:
   typed the URL in for a single page);
 - everyone else: likely people.
 
+A host section splits the requests by the Host header: the custom domains, the default
+azurewebsites.net host (open to anyone who knows the name, so a way around the edge
+proxy), and the Kudu (scm) deploy host. It also counts requests to the custom domains
+that didn't come from a Cloudflare address. After the Cloudflare cutover, those are
+clients reaching the origin directly (architecture/plans/cloudflare-migration.md,
+Phase 7).
+
 The last section replays the requests through the CrawlerThrottle rules (A6 in
 architecture/plans/bot-load-and-public-page-rendering.md) to estimate how many would
 have been answered with 429.
@@ -43,6 +50,8 @@ from urllib.parse import urlparse
 # where one agent's string contains another's (Applebot before the generic "bot" rule).
 FAMILIES = [
     (r"^alwayson$", "AlwaysOn", "platform"),
+    (r"azure-logic-apps", "Azure Logic Apps", "platform"),
+    (r"^vsts_|^azurecli/|^azure-pipelines", "Azure deploy/CLI", "platform"),
     (r"googlebot|google-inspectiontool|googleother|google-extended|storebot-google", "Googlebot", "search"),
     (r"adsbot-google|mediapartners-google|google-adwords|google-read-aloud|feedfetcher-google", "Google (ads/other)", "search"),
     (r"bingbot|bingpreview|adidxbot|msnbot", "Bingbot", "search"),
@@ -120,7 +129,7 @@ FAMILY_RES = [(re.compile(p), f, g) for p, f, g in FAMILIES]
 GENERIC_BOT = re.compile(r"([a-z0-9][a-z0-9_.\-]*(?:bot|spider|crawler)[a-z0-9_.\-]*)")
 
 GROUP_LABELS = {
-    "platform": "Platform (AlwaysOn)",
+    "platform": "Platform (AlwaysOn, Logic Apps, deploys)",
     "search": "Search engines",
     "ai": "AI crawlers/fetchers",
     "seo": "SEO/marketing tools",
@@ -155,6 +164,19 @@ SEARCH_REFERRERS = [
     (r"^t\.co$|twitter\.com$|x\.com$", "X/Twitter"), (r"music4dance\.(net|blog)$", None),
 ]
 REFERRER_RES = [(re.compile(p), n) for p, n in SEARCH_REFERRERS]
+
+CUSTOM_HOSTS = ("www.music4dance.net", "music4dance.net")
+HOST_PORT = re.compile(r":\d+$")  # IPv6 hosts are bracketed, so this only takes a port
+# Cloudflare's published edge ranges (https://www.cloudflare.com/ips/, copied 2026-11-04).
+# They change rarely; refresh the list if the "via Cloudflare" share looks off.
+CLOUDFLARE_NETS = [ipaddress.ip_network(n) for n in (
+    "173.245.48.0/20", "103.21.244.0/22", "103.22.200.0/22", "103.31.4.0/22",
+    "141.101.64.0/18", "108.162.192.0/18", "190.93.240.0/20", "188.114.96.0/20",
+    "197.234.240.0/22", "198.41.128.0/17", "162.158.0.0/15", "104.16.0.0/13",
+    "104.24.0.0/14", "172.64.0.0/13", "131.0.72.0/22",
+    "2400:cb00::/32", "2606:4700::/32", "2803:f800::/32", "2405:b500::/32",
+    "2405:8100::/32", "2a06:98c0::/29", "2c0f:f248::/32",
+)]
 
 
 def classify_agent(ua):
@@ -193,6 +215,34 @@ def referrer_source(referer):
         if rx.search(host):
             return name  # None for our own pages (internal navigation)
     return host or "(unparseable)"
+
+
+def host_kind(host):
+    """Which way a request came in, from its Host header (lower-cased, no port)."""
+    if host in CUSTOM_HOSTS:
+        return "custom"
+    if host.endswith(".scm.azurewebsites.net"):
+        return "scm"
+    if host.endswith(".azurewebsites.net"):
+        return "default"
+    try:
+        ipaddress.ip_address(host.strip("[]"))
+        return "bare IP"
+    except ValueError:
+        return "other" if host else "(none)"
+
+
+_cf_cache = {}
+
+
+def via_cloudflare(ip):
+    if ip not in _cf_cache:
+        try:
+            addr = ipaddress.ip_address(ip)
+            _cf_cache[ip] = any(addr in n for n in CLOUDFLARE_NETS if n.version == addr.version)
+        except ValueError:
+            _cf_cache[ip] = False
+    return _cf_cache[ip]
 
 
 def kind_of(stem):
@@ -241,6 +291,7 @@ def load(log_dir, since, until):
                 ua = p.get("UserAgent") or ""
                 ua = intern.setdefault(ua, ua)
                 cookie = p.get("Cookie") or ""
+                host = HOST_PORT.sub("", (p.get("CsHost") or "").lower())
                 rows.append((
                     t,
                     p.get("CIp") or "",
@@ -254,12 +305,13 @@ def load(log_dir, since, until):
                     p.get("Referer") or "",
                     any(c in cookie for c in JS_COOKIES),
                     bool(AUTH_COOKIE.search(cookie)),
+                    intern.setdefault(host, host),
                 ))
     rows.sort(key=lambda r: r[0])
     return files, rows
 
 
-T, IP, UA, METHOD, STEM, QUERY, STATUS, TAKEN, BYTES, REFERER, JSCOOKIE, AUTH = range(12)
+T, IP, UA, METHOD, STEM, QUERY, STATUS, TAKEN, BYTES, REFERER, JSCOOKIE, AUTH, HOST = range(13)
 
 
 def pct(n, d):
@@ -359,6 +411,8 @@ def main():
             f"{g_bytes[g] / 1e6:,.0f}", pct(g_bytes[g], tb), f"{g_ms[g] / 3.6e6:.2f}", pct(g_ms[g], tm),
             f"{len(g_ips[g]):,}"]
            for g in GROUP_ORDER if g_req[g]])
+
+    host_report(rows, kinds, groups)
 
     # --- Top families -------------------------------------------------------------
     f_page, f_bytes, f_ms, f_ips, f_err, f_req = Counter(), Counter(), Counter(), defaultdict(set), Counter(), Counter()
@@ -508,6 +562,79 @@ def main():
 
     # --- CrawlerThrottle replay -------------------------------------------------
     throttle_replay(rows, groups, args)
+
+
+def host_report(rows, kinds, groups):
+    """Requests by Host header, then the ways around the edge proxy: the default
+    azurewebsites.net host, a bare IP or unknown host, and the custom domains reached
+    without Cloudflare. Platform callers (AlwaysOn, Logic Apps, deploys) and signed-in
+    requests are expected there, so the detail leaves them out."""
+    heading("Traffic by host")
+    h_req, h_page, h_ms, h_ips, h_err, h_cf, h_grp = (
+        Counter(), Counter(), Counter(), defaultdict(set), Counter(), Counter(), defaultdict(Counter))
+    for r, k, (fam, g) in zip(rows, kinds, groups):
+        h = r[HOST] or "(none)"
+        h_req[h] += 1
+        h_ms[h] += r[TAKEN]
+        h_ips[h].add(r[IP])
+        h_grp[h][g] += 1
+        h_page[h] += k == "page"
+        h_err[h] += r[STATUS] >= "400"
+        h_cf[h] += via_cloudflare(r[IP])
+    table(["Host", "Kind", "Requests", "Pages", "Server min", "IPs", "Via Cloudflare", "4xx/5xx", "Top groups"],
+          [[h, host_kind(h), f"{n:,}", f"{h_page[h]:,}", f"{h_ms[h] / 6e4:,.1f}", f"{len(h_ips[h]):,}",
+            pct(h_cf[h], n).strip(), f"{h_err[h]:,}",
+            ", ".join(f"{g} {c:,}" for g, c in h_grp[h].most_common(3))]
+           for h, n in h_req.most_common()],
+          ["l", "l", "r", "r", "r", "r", "r", "r", "l"])
+
+    sel_all = list(zip(rows, kinds, groups))
+
+    def unexpected(r, g):
+        return g != "platform" and not r[AUTH]
+
+    def detail(title, sel):
+        print(f"\n{title}: {len(sel):,} requests ({sum(1 for _, k, _ in sel if k == 'page'):,} pages) "
+              f"from {len({(r[IP], r[UA]) for r, _, _ in sel}):,} clients, {len({r[IP] for r, _, _ in sel}):,} IPs, "
+              f"{len({subnet(r[IP]) for r, _, _ in sel}):,} subnets")
+        if not sel:
+            return
+        print()
+        print("- Groups: " + ", ".join(
+            f"{GROUP_LABELS[g]} {n:,}" for g, n in Counter(g for _, _, (_, g) in sel).most_common()))
+        print("- Agents: " + ", ".join(
+            f"{f} {n:,}" for f, n in Counter(f for _, _, (f, _) in sel).most_common(8)))
+        print("- Paths (pages and API): " + ", ".join(
+            f"{s} {n:,}" for s, n in Counter(path_stem(r[STEM]) for r, k, _ in sel if k != "asset").most_common(8)))
+        print("- Status: " + ", ".join(
+            f"{s} {n:,}" for s, n in Counter(r[STATUS] for r, _, _ in sel).most_common(6)))
+        print("- Days: " + ", ".join(
+            f"{d} {n:,}" for d, n in sorted(Counter(r[T][:10] for r, _, _ in sel).items())))
+        sn, sn_f = Counter(), defaultdict(Counter)
+        for r, _, (f, g) in sel:
+            sn[subnet(r[IP])] += 1
+            sn_f[subnet(r[IP])][f"{f}, {g}"] += 1
+        print("- Subnets: " + ", ".join(
+            f"{s} {n:,} ({sn_f[s].most_common(1)[0][0]})" for s, n in sn.most_common(5)))
+
+    detail("Default host (*.azurewebsites.net), without platform callers or signed-in requests",
+           [x for x in sel_all if host_kind(x[0][HOST]) == "default" and unexpected(x[0], x[2][1])])
+    other = [x for x in sel_all if host_kind(x[0][HOST]) in ("bare IP", "other", "(none)")]
+    if other:
+        detail("Bare IP or unknown host", other)
+
+    custom = [x for x in sel_all if host_kind(x[0][HOST]) == "custom"]
+    cf = sum(1 for r, _, _ in custom if via_cloudflare(r[IP]))
+    print(f"\nCustom domains via Cloudflare: {cf:,} of {len(custom):,} ({pct(cf, len(custom)).strip()}).")
+    # A few requests come from Cloudflare addresses even before the cutover (WARP users and
+    # Workers egress from the same ranges), so look for a majority, not any at all.
+    if cf * 2 < len(custom):
+        print("That's under half, so the DNS isn't proxied yet (a few WARP or Workers clients use "
+              "Cloudflare addresses too) and there's no direct-to-origin traffic to separate out.")
+    else:
+        detail("Custom domains reached directly, not through Cloudflare (without platform callers "
+               "or signed-in requests)",
+               [x for x in custom if not via_cloudflare(x[0][IP]) and unexpected(x[0], x[2][1])])
 
 
 def throttle_replay(rows, groups, args):

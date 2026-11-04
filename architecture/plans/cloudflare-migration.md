@@ -334,7 +334,42 @@ An alternative to the secret header is **Authenticated Origin Pulls**, which Fre
 It's stronger, because there's no shared secret to leak, but it takes more setup.
 
 Decide on this after a few weeks of Phase 6 data. It's worth doing only if the HTTP logs show
-meaningful traffic still reaching the origin outside Cloudflare.
+meaningful traffic still reaching the origin outside Cloudflare. The `analyze-traffic` skill's
+**Traffic by host** section measures both ways in. Each log record's `CsHost` gives the default
+host. For the custom domains, a `c-ip` outside Cloudflare's published ranges means the request
+went straight to the origin.
+
+**Baseline before the cutover (2026-10-29 22:00 to 2026-11-04 19:00 UTC, 142 hours, 2.13M
+requests):**
+
+| Host | Requests | Pages | Server time | Notes |
+| --- | ---: | ---: | ---: | --- |
+| `www.music4dance.net` | 2,061,959 | 316,509 | 80.4 h | Everything else |
+| `music4dance.net` | 59,453 | 53,031 | 3 min | Redirects to `www`; mostly SEO tools |
+| `msc4dnc.azurewebsites.net` | 3,696 | 3,460 | 7 min | See below |
+| `msc4dnc.scm.azurewebsites.net` | 29 | 2 | 5 min | Pipeline deploys and `az` |
+
+- **Almost nobody uses the default host today:** 0.17% of requests, and 0.15% of server time.
+  - Of its 3,696 requests, 3,427 were a single `curl` loop against `/` on 2026-11-03, from the
+    maintainer's own network (the same /24 is signed in on `www`).
+  - The rest, about 270 over six days, was:
+    - Mobile browsers fetching only `/` with no referrer, from about 20 rotating IPs: a small
+      headless farm.
+    - Censys.
+    - Probes for `/mcp` and `/sse` from a Python client.
+    - The new Logic App calls, which started 2026-11-04.
+  - None of it was crawling: apart from health and API calls, every page request was for `/`.
+- **The direct-to-origin check has nothing to measure yet.** Only 2 of 2.12M custom-domain
+  requests came from Cloudflare addresses (WARP or Workers clients), which is expected while
+  DNS points at Azure.
+- **After Phase 4, compare against this.** Expect:
+  - `www` and the apex at close to 100% via Cloudflare. The exceptions are AlwaysOn, which
+    calls `www` from inside Azure, and signed-in requests; the skill's detail leaves out both,
+    along with the other platform callers.
+  - The default host at the Logic Apps plus admin uploads.
+
+  Growth of either back door past a few hundred anonymous page views a day is the signal to do
+  this phase.
 
 ## 4. Follow-ups and docs
 
@@ -349,7 +384,9 @@ When the phases ship, fold the as-built result into the reference docs and delet
 - `analyze-traffic` skill: after Phase 4, the App Service HTTP logs record Cloudflare's IP as
   `c-ip`, so the per-client grouping (IP + user agent) degrades. Options: have the app's
   HTTP logging include `CF-Connecting-IP`, or lean on Cloudflare's Security Events and Analytics.
-  Decide before the next traffic review.
+  Decide before the next traffic review. The skill's per-host section (Phase 7 baseline) doesn't
+  depend on this: it needs only the edge IP, which is what tells proxied and direct requests
+  apart.
 - [plans/front-door-caching](front-door-caching.md): mark it superseded, or delete it.
 - [plans/bot-load-and-public-page-rendering](bot-load-and-public-page-rendering.md): close open
   question 3 (edge vendor) and point B3 here.
