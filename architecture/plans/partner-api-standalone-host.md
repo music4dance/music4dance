@@ -515,6 +515,72 @@ rather than shared. An earlier draft had the cap fail closed after 5 minutes wit
 that contradicted the failure-modes table (Storage down, API up), and per-instance counting
 already catches a runaway client. A Storage blip doesn't become a partner outage.
 
+### Reviewing unmatched ids: reuse the shared-id queue where it fits (PR 5)
+
+[Shared id review](../songs/shared-id-review.md) (#381) added `SharedIdCandidates`, a SQL queue
+of **pairs of catalog songs** with the ids that link them, and `/Admin/SharedIds`, where an admin
+merges a pair or marks it as different songs. Only one of the three results PR 5 queues is a
+pair of songs, so it reuses that queue for that one and adds a small queue for the other two.
+
+| Result | What the reviewer decides | Where it goes |
+| --- | --- | --- |
+| `ambiguous` | The partner's ids for one track (say its ISRC and its Apple id) point at different catalog songs. Are those songs the same recording? | `SharedIdCandidates`, as is |
+| `fuzzy` with ids | Which candidate, if any, should carry the partner's ids | New unmatched-track queue |
+| `none` with ids | Whether to add the song | New unmatched-track queue |
+| `fuzzy` or `none` with only title and artist | Nothing to attach; it only counts demand | Counted in the unmatched-track queue, or dropped |
+
+**`ambiguous` fits as is.** The resolver groups songs that share a supplied id as duplicates of
+one recording, which the shared-id seed already queues. It reports `ambiguous` only when the
+supplied ids land on songs with no id in common, a pair the seed can't see. When the web app
+drains the message, it calls `SharedIdLog.Record` for each pair of candidate songs:
+
+- `ids`: the supplied ids each song holds, spelled as `ServiceIds` spells them (`R:…`, `I:…`, `S:…`);
+- `source`: `Partner API ({clientId})`;
+- `detail`: the partner's title, artist and duration.
+
+The review page then works unchanged. `SharedIdCluster.ServiceIds` is the union of the rows' ids,
+so it highlights the ISRC on one song and the Apple id on the other, though neither id is
+actually shared. **Merge checked** and **Not the same** do the right thing. A rejected pair stays
+rejected, so repeat lookups of the same track don't queue it again. `LoadSongs` already follows
+songs merged since they were queued. No schema change is needed; `Source` is 64 characters, which
+a client id (40 at most) fits in.
+
+**`fuzzy` and `none` need their own queue.** They have at most one catalog song in play, and the
+action is to attach ids or add a song, not to merge. `SharedIdCandidates` has a non-null pair and
+a unique index on it. Forcing a track into it as a pair of a song with itself, or as a pair with
+an empty Guid, would break the cluster grouping and the merge actions. So PR 5 adds a table that
+follows the same conventions:
+
+- One row per track, keyed by its normalized ids, plus the title, artist and duration.
+- A request count, plus first and last seen, as a demand signal for what to add first.
+- The candidate song ids at the last lookup, and the client.
+- `Status` (`Pending`, `Attached`, `Added`, `Dismissed`), with `ResolvedBy` and `ResolvedAt`.
+
+The page for it can borrow the shared-id page's song cards. Its two actions reuse existing paths:
+
+- **Attach** looks up the service track by ISRC or Apple id and calls
+  `MusicServiceManager.AttachTracksToSong`. That path already runs the `SharedIdLog.CheckIds`
+  guard, so an id another song turns out to hold since the lookup becomes a shared-id candidate
+  rather than a duplicate.
+- **Add** goes through `CreateSong`, which matches on service ids before saving.
+
+**Changes PR 5 needs or would benefit from:**
+
+- **Needed: web app access to the queue.** The bicep grants the web apps only Secrets Officer
+  on the partner-keys vault. Draining needs Storage Queue Data Message Processor for each web
+  app's identity on the function's Storage account, plus a `PartnerApi:UnmatchedQueueUri` setting.
+- **Needed: candidate song ids in the message.** For `ambiguous`, the function sends the
+  candidates' song ids and which supplied ids each holds (`Candidate.MatchedBy` already says
+  this), so the drain doesn't have to query the index again. The drain still re-checks each
+  song with `FindMergedSong`, since the queue can be days old.
+- **Desirable: a `Partner API` filter on `/Admin/SharedIds`.** Partner pairs show what a paying
+  partner hit, so they're worth reviewing ahead of the 1,754 seeded clusters. A source filter or
+  sort on `PendingClusters` would do it. It isn't required.
+- **Desirable: deduplicate in SQL, not just per instance.** Repeat lookups of the same track
+  should bump the unmatched row's count, and for `ambiguous` `Record` already merges into the
+  existing pair. That makes per-instance deduplication in the function an optimization rather
+  than a correctness need, so the function can keep it simple (a bounded in-memory set per day).
+
 ---
 
 ## Capacity and throughput
@@ -731,7 +797,7 @@ minutes however it's hosted. Two notes for expectations rather than action:
 | **2. Resolve** | Single-track id resolution, title/artist fallback with candidates and `evidence` (length delta, match quality, suggested confidence), projection from index fields, dance names from `DanceLib`, the index contract test in `m4dModels.Tests`, unit tests with a faked `SearchClient` |
 | **3. Auth + limits** (done) | Key validation with the vault-backed cache, per-client config from the vault, rate limit, daily cap, usage table, `new-key.ps1` for issuing keys by hand |
 | **4. Key issuance** (done) | In `m4d`: `partnerDeveloper` role, client and key metadata tables (EF migration), API keys page (generate once, list, revoke), admin view of clients and keys, vault writes from the web app's identity |
-| **5. Unmatched queue** | Queue writes (misses, ambiguous and fuzzy-only results) in the function; admin drain and review page in `m4d` (can trail) |
+| **5. Unmatched queue** | Queue writes (misses, ambiguous and fuzzy-only results) in the function; admin drain in `m4d` that sends `ambiguous` pairs to the shared-id queue and the rest to a new unmatched-track table with its review page (can trail; see [Reviewing unmatched ids](#reviewing-unmatched-ids-reuse-the-shared-id-queue-where-it-fits-pr-5)) |
 | **6. Production** | Prod alias, custom domain and certificate, alerts, runbook step added to search-index-versioning.md, production key issued to the first partner |
 
 The spike below came before PR 1. Its `m4d-api/` project is the starting point for PRs 1 and 2.
@@ -877,6 +943,7 @@ the test environment uses it.
   step joins
 - [song-search-service.md](../search/song-search-service.md): the in-app search layer this
   bypasses
+- [shared-id-review.md](../songs/shared-id-review.md): the pair queue and review page PR 5 reuses for `ambiguous` results
 - [hosting-and-identity.md](../infrastructure/hosting-and-identity.md): existing
   managed-identity RBAC pattern
 - [Azure Functions Flex Consumption plan](https://learn.microsoft.com/azure/azure-functions/flex-consumption-plan)
