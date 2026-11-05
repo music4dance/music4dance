@@ -440,7 +440,10 @@ and [DanceRating.cs](../../m4dModels/DanceRating.cs):
 }
 ```
 
-Tempo is MPM, consistent with the domain. Trial tier omits `tags` and per-rating `tempo`,
+Tempo is MPM, consistent with the domain. (Superseded for the partner API: the standalone host
+returns `beatsPerMinute` instead. See
+[partner-api-standalone-host.md](partner-api-standalone-host.md#exact-vs-fuzzy-matches-return-evidence-let-the-partner-decide).)
+Trial tier omits `tags` and per-rating `tempo`,
 and truncates `danceRatings` to 3.
 
 ### The API must not accept cookies

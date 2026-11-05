@@ -1,9 +1,9 @@
 # Partner API: Standalone Host Independent of the Web App
 
 **Type:** Plan
-**Status:** In progress. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided and PR 1 (skeleton + test environment) deployed 2026-11-01.
+**Status:** In progress. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided and PR 1 (skeleton + test environment) deployed 2026-11-01; PR 2 (resolve) deployed to test 2026-11-01.
 **Last verified:** 2026-11-01
-**Code:** `m4d-api/` (Azure Functions project; `/v1/health` only so far), with infrastructure and the deploy script in `m4d-api/infra/`. The spike's resolve code is on branch `spike/partner-api` (not for merging) until PR 2. Reads the index built by `m4dModels/SongIndex.cs`; the existing in-app API foundation is under `m4d/PublicApi/`.
+**Code:** `m4d-api/` (Azure Functions project: `/v1/health` and `/v1/songs/resolve`, the latter behind the platform's function key until PR 3), with infrastructure and the deploy script in `m4d-api/infra/` and unit tests in `m4d-api.Tests/`. Reads the index built by `m4dModels/SongIndex.cs`, guarded by `m4dModels.Tests/PartnerApiIndexContractTests.cs`; the existing in-app API foundation is under `m4d/PublicApi/`.
 
 **Context:** The likely first integration is a third-party app that sells its own subscription,
 with the partner developer's backend calling music4dance server to server using a single
@@ -81,11 +81,11 @@ a complex field per dance, `dance_{ID}`, with `Votes`, `Tempo`, `TempoTags`, `St
 | Response field | Index source |
 | --- | --- |
 | `title`, `artist`, `length` | Top-level fields |
-| `tempo` (MPM) | Top-level `Tempo`, which is **BPM** (`Song.Tempo`; imports map a `BPM` column to it). Divide by the meter's beats per measure to get MPM, or expose it as `bpm` alongside. |
+| `beatsPerMinute` | Top-level `Tempo`, which is stored as **beats per minute** (`Song.Tempo`; imports map a `BPM` column to it). Returned unconverted; see [Tempo units](#exact-vs-fuzzy-matches-return-evidence-let-the-partner-decide). |
 | `meter` | Derived from `TempoTags` containing `4/4`, `3/4`, or `2/4`. This mirrors `Song.Meter` ([Song.cs:4682](../../m4dModels/Song.cs#L4682)). |
 | `danceRatings[].weight` | `dance_{ID}/Votes`. `-1` is the unconfirmed-only sentinel ([SongIndex.cs:2246](../../m4dModels/SongIndex.cs#L2246)); exclude it. |
-| `danceRatings[].tempo` | `dance_{ID}/Tempo` (already falls back to song tempo at index time) |
-| `danceRatings[].tags` | `dance_{ID}/StyleTags` etc. |
+| `danceRatings[].beatsPerMinute` | `dance_{ID}/Tempo`, also beats per minute (already falls back to song tempo at index time) |
+| `danceRatings[].styles` | `dance_{ID}/StyleTags` |
 | `match.method` | Which requested id appears in the returned `ServiceIds` |
 | Fuzzy-match signals (`lengthSeconds`, etc.) | `Length` (seconds, already filterable for the site's length range), `Title`, `Artist`, search `@search.score` |
 | `songUrl` | Built from `SongId`: a "View on music4dance" deep link the partner app can show |
@@ -312,8 +312,8 @@ The third-party app decides whether to show a result, ask "Is this the song?", o
 
 ```json
 {
-  "match": "exact",            // "exact" | "fuzzy" | "none"
-  "method": "isrc",            // isrc | appleMusicId | spotifyId | titleArtist
+  "match": "exact",            // "exact" | "ambiguous" | "fuzzy" | "none"
+  "method": "isrc",            // isrc | appleMusicId | spotifyId | titleArtist; null for ambiguous and none
   "candidates": [
     {
       "songId": "3f2a…",
@@ -321,11 +321,15 @@ The third-party app decides whether to show a result, ask "Is this the song?", o
       "title": "Blue Bayou",
       "artist": "Linda Ronstadt",
       "lengthSeconds": 231,
-      "tempo": 44.5,
+      "beatsPerMinute": 178,    // beats (not bars or measures) per minute
       "meter": "4/4",
-      "danceRatings": [ … ],
+      "danceRatings": [
+        { "danceId": "WCS", "danceName": "West Coast Swing", "weight": 12,
+          "beatsPerMinute": 119, "styles": [] }
+      ],                        // empty when the song has no confirmed dances yet
+      "matchedBy": ["isrc", "appleMusicId"],   // present only for id matches
       "evidence": {             // present only for fuzzy candidates
-        "titleMatch": "normalized",   // exact | normalized | partial
+        "titleMatch": "normalized",   // exact | normalized | partial | none
         "artistMatch": "exact",       // exact | normalized | partial | none
         "lengthDeltaSeconds": 2,      // null when either side has no length
         "confidence": "high"          // server's suggestion: high | medium | low
@@ -336,8 +340,21 @@ The third-party app decides whether to show a result, ask "Is this the song?", o
 ```
 
 - **Exact** returns one candidate. If several songs share the id (duplicates awaiting merge),
-  return the one with the most confirmed dance votes (`dance_ALL/Votes`).
-- **Fuzzy** returns up to 3 candidates, best first, each with `evidence`.
+  return the one with the most confirmed dance votes (`dance_ALL/Votes`). Songs linked through a
+  shared id count as one recording: a song carrying both the ISRC and the Apple id ties an
+  ISRC-only duplicate and an Apple-only duplicate together. `matchedBy` lists every supplied id
+  that points at it.
+- **Ambiguous** means the supplied ids point at different songs with no id in common (say, the
+  ISRC at one recording and the Apple id at another). Rather than recommend dances for what
+  may be the wrong version, the API returns one candidate per recording, each with its own
+  `matchedBy`. The ISRC's song comes first, since the ISRC identifies the recording, then
+  Apple Music, then Spotify. The partner shows it as an uncertain match.
+- **An id match doesn't need confirmed dances.** A song an id identifies is returned even if it
+  has no confirmed dances yet, with an empty `danceRatings`, rather than falling through to a
+  title search. The partner can show "No dances yet" and link to the song page, where users
+  can add them.
+- **Fuzzy** returns up to 3 candidates, best first, each with `evidence`. Title search keeps the
+  confirmed-content filter (below), so it only suggests songs that have dances.
 - **Length is the strongest tie-breaker.** Same title and artist but a different recording
   (live, extended mix, radio edit, re-recording) usually differs in length, and often in tempo,
   which is exactly what matters for dancing. Suggested rule: within ±5 s is supporting evidence;
@@ -345,20 +362,36 @@ The third-party app decides whether to show a result, ask "Is this the song?", o
   thresholds from real data.
 - Remix and dance-edit titles (see `Dances.GetAllDanceWordsUpper`, which the merge code uses
   for remix detection) should lower confidence when the recognized title lacks the qualifier,
-  or vice versa.
+  or vice versa. As built, a title that only contains the other ("Blue Bayou" against "Blue
+  Bayou (Live)") is a `partial` match and gets `low`. An artist that doesn't match at all also
+  gets `low`; a partial artist ("feat." credits) gets `medium`. Finer rules wait for real
+  recognitions (open question 2).
+- **Tempo units.** Every tempo in the API is in **beats per minute**: the count of beats
+  (quarter notes in 4/4) per minute, not bars or measures per minute. "BPM" is sometimes used
+  for *bars* per minute, especially in Europe, so the field is spelled out as `beatsPerMinute`
+  and partner-facing docs should spell it out too rather than abbreviate. A 4/4 song at 120
+  beats per minute is 30 bars per minute. The site shows MPM (measures per minute) for some
+  dances, but the API doesn't convert: it returns the index value as stored, so the unit is the
+  same whether or not the song has a `meter`, and partners divide by the meter if they want
+  bars.
+- **Styles.** `danceRatings[].styles` is the dance's `StyleTags` (e.g. `International`). Other
+  tag categories aren't exposed yet.
 - The confidence levels are guidance and part of the contract only as "high means more likely
   than medium." The `evidence` fields are stable, so the partner can apply its own rule and we
   can change ours.
 
-When the result is `fuzzy` or `none`, enqueue the recognized identifiers as unmatched (below).
+When the result is `ambiguous`, `fuzzy` or `none`, enqueue the recognized identifiers as
+unmatched (below); for `ambiguous`, a reviewer decides which song each id belongs to.
 Record the fuzzy candidate ids alongside the unmatched identifiers. A reviewer can then
 attach the ISRC or Apple id to the right song in one step. If the partner ever reports which
 candidate the user accepted, that becomes a much stronger signal (see open questions).
 
-Always apply the confirmed-content cruft filter from `AddCruftInfo`
+Title search applies the confirmed-content cruft filter from `AddCruftInfo`
 ([SongIndex.cs:1529](../../m4dModels/SongIndex.cs#L1529)): `DanceTags/any()` and
-`(not DanceTags/any() or dance_ALL/Votes ne null)`. That way partners never see songs with no
-dances or only unconfirmed ones.
+`(not DanceTags/any() or dance_ALL/Votes ne null)`, which the function sends in its simplified
+form, `DanceTags/any() and dance_ALL/Votes ne null`. That way fuzzy suggestions never include
+songs with no dances or only unconfirmed ones. The id query doesn't apply it (see above).
+Unconfirmed-only dance ratings are left out of `danceRatings` either way.
 
 ### Index coupling: alias plus contract test
 
@@ -376,18 +409,18 @@ without reading m4d's config.
   `m4d-api/infra/deploy.ps1` does it, not Bicep). The cutover step is therefore: grant the
   function's identity the role on the new index, *then* repoint the alias. In the other order
   the API gets 403s until the role is granted.
-- **Schema contract test.** The function selects a fixed field list. Add a test in
-  `m4dModels.Tests` that calls `SongIndex.BuildIndexFields()` and asserts every field and
-  subfield the API selects exists. It runs in CI-SERVER, so an index change that would break
-  the API fails the web app's PR, not the partner in production.
-- **Field-name constants.** Don't make the function reference `m4dModels`; that drags in EF and
-  most of the app. Either copy the handful of names into the function with the contract test
-  as the guard, or move them to a tiny shared file linked into both projects. Prefer the
-  copy-plus-test; it's the smaller change.
-- **Title and artist ranking.** Whatever normalization the in-app resolve endpoint (PR 4 of
-  the OAuth plan) would have used for fuzzy matching needs to live somewhere both can reach,
-  most likely `DanceLib` or a new dependency-free library. Keep it pure (strings in, score
-  out) so it moves easily.
+- **Field-name constants.** The function doesn't reference `m4dModels`, which would drag in EF
+  and most of the app. Its field names are copied into `m4d-api/IndexFields.cs`, a
+  dependency-free file.
+- **Schema contract test.** `m4dModels.Tests/PartnerApiIndexContractTests.cs` links
+  `IndexFields.cs` and checks it against `SongIndex.BuildIndexFields()`. It checks that every
+  field the API selects exists, that `Title` and `Artist` are searchable and the filtered fields
+  filterable, and that every dance's `dance_{ID}` field has the subfields the API reads. It runs
+  in CI-SERVER, so an index change that would break the API fails the web app's PR, not the
+  partner in production.
+- **Title and artist ranking.** Search's own ranking orders the candidates; the evidence rules
+  are in `m4d-api/MatchEvidence.cs`. It's pure (strings in, evidence out), so it can move to
+  `DanceLib` if the web app ever needs the same rules.
 
 ### Metering, settlement data, and unmatched ids
 
@@ -406,7 +439,7 @@ All of this goes to the function's own Storage account, never SQL:
   holding counts. This is the self-verifying volume number for a tiered-fee settlement. It has
   no sampling problem, unlike deriving counts from Application Insights. There are no
   per-subscriber ids; settlement uses these volumes or the partner's own sales reporting.
-- **Unmatched identifiers.** Enqueue misses and fuzzy-only results, deduplicated per instance.
+- **Unmatched identifiers.** Enqueue misses, ambiguous results and fuzzy-only results, deduplicated per instance.
   The web app gets an admin page (later) that drains the queue into a review list. If the web
   app is down, the queue just grows. A Storage queue message lives 7 days by default, and
   that's configurable.
@@ -628,7 +661,7 @@ minutes however it's hosted. Two notes for expectations rather than action:
 | **2. Resolve** | Single-track id resolution, title/artist fallback with candidates and `evidence` (length delta, match quality, suggested confidence), projection from index fields, dance names from `DanceLib`, the index contract test in `m4dModels.Tests`, unit tests with a faked `SearchClient` |
 | **3. Auth + limits** | Key validation middleware with the vault-backed cache, per-client config from the vault, rate limit, daily cap, usage table. Test keys added by hand (the manual fallback) until PR 4. |
 | **4. Key issuance** | In `m4d`: `partnerDeveloper` role, client and key metadata tables (EF migration), API keys page (generate once, list, revoke), admin view of clients and keys, vault writes from the web app's identity |
-| **5. Unmatched queue** | Queue writes (misses and fuzzy-only results) in the function; admin drain and review page in `m4d` (can trail) |
+| **5. Unmatched queue** | Queue writes (misses, ambiguous and fuzzy-only results) in the function; admin drain and review page in `m4d` (can trail) |
 | **6. Production** | Prod alias, custom domain and certificate, alerts, runbook step added to search-index-versioning.md, production key issued to the first partner |
 
 The spike below came before PR 1. Its `m4d-api/` project is the starting point for PRs 1 and 2.
@@ -720,17 +753,22 @@ so use the function's own search timings, not that metric, as the load guard.
 - **ISRC case.** Some ISRCs are stored lowercase in `ServiceIds` (e.g. `R:usdy41596491`), and
   `search.in` is case-sensitive, so 3 of 100 ISRC lookups missed. The spike queries both cases.
   The proper fix is normalizing to uppercase when the index (and the property log) is written.
-- **Tempo units.** The index's `Tempo` is BPM, not MPM; see the response-field table above.
+- **Tempo units.** The index's `Tempo` is beats per minute, not measures per minute; see the
+  response-field table above.
 - **First-request cost.** The first Search call on an instance takes ~500 ms (token + TLS); see
   [Cold starts](#cold-starts).
 
 ### Spike resources
 
-Resource group `m4d-api-spike` (function app, storage, Application Insights, Log Analytics)
-can be deleted in one step once the `m4d-api-test` environment has run the same checks with
-the resolve code (PR 2). Remove the spike app's index role assignment on `songs-test-3` at the
-same time, or it's left pointing at a deleted identity. The alias `songs-api-test` stays; the
-test environment uses it.
+On 2026-11-01 the `m4d-api-test` environment, running the PR 2 resolve code, matched the
+spike's quality run on the same 300-song sample. All 200 id lookups were exact. Title + artist
+put the expected song first in 98 of 100 and rated all 98 `high`; the other two were rated
+`low`.
+
+So resource group `m4d-api-spike` (function app, storage, Application Insights, Log Analytics)
+can be deleted in one step. Remove the spike app's index role assignment on `songs-test-3` at
+the same time, or it's left pointing at a deleted identity. The alias `songs-api-test` stays;
+the test environment uses it.
 
 ---
 

@@ -17,6 +17,12 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DanceLib\DanceLibrary.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="host.json" CopyToOutputDirectory="PreserveNewest" />
+    <!-- The same dance definitions the site ships, so dance names match music4dance.net -->
+    <None Include="..\m4d\ClientApp\src\assets\content\dances.json" Link="dances.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\m4d\ClientApp\src\assets\content\dancegroups.json" Link="dancegroups.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
