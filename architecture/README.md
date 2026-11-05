@@ -135,6 +135,7 @@ into `runbooks/` as its area is consolidated.
 | Link new blog posts / help articles | [runbooks/link-new-blog-posts](runbooks/link-new-blog-posts.md) |
 | Provision a new App Service instance | [runbooks/provision-app-service](runbooks/provision-app-service.md) |
 | Deploy to test or production | [runbooks/deploy](runbooks/deploy.md) |
+| Add a partner API client, issue, rotate or revoke its keys | [runbooks/add-a-partner](runbooks/add-a-partner.md) |
 | Configure service-failure email alerts | [runbooks/configure-failure-email](runbooks/configure-failure-email.md) |
 | Renew the AutoMapper license key (yearly; emailed 30 days ahead) | [runbooks/renew-automapper-license](runbooks/renew-automapper-license.md) |
 | Refresh the cold-start dance and artist fallback snapshots | [runbooks/refresh-fallback-snapshots](runbooks/refresh-fallback-snapshots.md) |

@@ -943,6 +943,7 @@ the test environment uses it.
   step joins
 - [song-search-service.md](../search/song-search-service.md): the in-app search layer this
   bypasses
+- [add-a-partner](../runbooks/add-a-partner.md): adding a client, issuing, rotating and revoking keys
 - [shared-id-review.md](../songs/shared-id-review.md): the pair queue and review page PR 5 reuses for `ambiguous` results
 - [hosting-and-identity.md](../infrastructure/hosting-and-identity.md): existing
   managed-identity RBAC pattern
