@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
@@ -124,6 +124,28 @@ public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : Id
         _ = builder.Entity<SharedIdCandidate>().Property(c => c.Detail).HasMaxLength(1024);
         _ = builder.Entity<SharedIdCandidate>().Property(c => c.ResolvedBy).HasMaxLength(256);
 
+        // Partner API clients and key metadata; the key hashes live only in the partner-keys vault
+        _ = builder.Entity<PartnerClient>().ToTable("PartnerClients");
+        _ = builder.Entity<PartnerClient>().Property(c => c.Id).HasMaxLength(40);
+        _ = builder.Entity<PartnerClient>().Property(c => c.Name).HasMaxLength(100).IsRequired();
+
+        _ = builder.Entity<PartnerDeveloper>().ToTable("PartnerDevelopers");
+        _ = builder.Entity<PartnerDeveloper>().HasKey(d => new { d.ClientId, d.UserId });
+        _ = builder.Entity<PartnerDeveloper>().HasOne(d => d.Client).WithMany(c => c.Developers)
+            .HasForeignKey(d => d.ClientId);
+        _ = builder.Entity<PartnerDeveloper>().HasOne(d => d.User).WithMany()
+            .HasForeignKey(d => d.UserId);
+
+        _ = builder.Entity<PartnerApiKey>().ToTable("PartnerApiKeys");
+        _ = builder.Entity<PartnerApiKey>().HasKey(k => k.KeyId);
+        _ = builder.Entity<PartnerApiKey>().Property(k => k.KeyId).HasMaxLength(12);
+        _ = builder.Entity<PartnerApiKey>().Property(k => k.Label).HasMaxLength(100);
+        _ = builder.Entity<PartnerApiKey>().Property(k => k.CreatedBy).HasMaxLength(256);
+        _ = builder.Entity<PartnerApiKey>().Property(k => k.RevokedBy).HasMaxLength(256);
+        _ = builder.Entity<PartnerApiKey>().Ignore(k => k.IsActive);
+        _ = builder.Entity<PartnerApiKey>().HasOne(k => k.Client).WithMany(c => c.Keys)
+            .HasForeignKey(k => k.ClientId).IsRequired();
+
         // Customize the ASP.NET Identity model and override the defaults if needed.
         // For example, you can rename the ASP.NET Identity table names and more.
         // Add your customizations after calling base.OnModelCreating(builder);
@@ -180,5 +202,9 @@ public class DanceMusicContext(DbContextOptions<DanceMusicContext> options) : Id
     public DbSet<ServiceAccountToken> ServiceAccountTokens { get; set; }
 
     public DbSet<SharedIdCandidate> SharedIdCandidates { get; set; }
+
+    public DbSet<PartnerClient> PartnerClients { get; set; }
+    public DbSet<PartnerDeveloper> PartnerDevelopers { get; set; }
+    public DbSet<PartnerApiKey> PartnerApiKeys { get; set; }
     #endregion
 }

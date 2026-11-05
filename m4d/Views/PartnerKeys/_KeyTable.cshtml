@@ -1,0 +1,92 @@
+@using m4dModels
+@model (PartnerClient Client, bool FromAdmin)
+
+@{
+    var keys = Model.Client.Keys.OrderBy(k => k.Revoked.HasValue).ThenByDescending(k => k.Created).ToList();
+    var active = keys.Count(k => k.IsActive);
+}
+
+@if (keys.Count == 0)
+{
+    <p class="text-muted">No keys yet.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Key id</th>
+                    <th>Label</th>
+                    <th>Created</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var key in keys)
+                {
+                    <tr class="@(key.IsActive ? "" : "text-muted")">
+                        <td><code>@key.KeyId</code></td>
+                        <td>@key.Label</td>
+                        <td>@key.Created.ToString("yyyy-MM-dd HH:mm") UTC by @key.CreatedBy</td>
+                        <td>
+                            @if (key.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span>Revoked @key.Revoked?.ToString("yyyy-MM-dd HH:mm") UTC by @key.RevokedBy</span>
+                            }
+                        </td>
+                        <td>
+                            @if (key.IsActive)
+                            {
+                                @using (Html.BeginForm("Revoke", "PartnerKeys", FormMethod.Post))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="keyId" value="@key.KeyId" />
+                                    <input type="hidden" name="fromAdmin" value="@(Model.FromAdmin ? "true" : "false")" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Revoke key @key.KeyId? Requests using it start failing within 5 minutes, and this can\'t be undone.');">
+                                        Revoke
+                                    </button>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (Model.Client.Disabled)
+{
+    <p class="text-muted">This client is disabled, so no new keys can be generated.</p>
+}
+else if (active >= m4d.PublicApi.PartnerKeyService.MaxActiveKeys)
+{
+    <p class="text-muted">
+        This client has @active active keys, the most it can have. To rotate, revoke the old key once
+        the new one is deployed, then generate the next one.
+    </p>
+}
+else
+{
+    @using (Html.BeginForm("Generate", "PartnerKeys", FormMethod.Post, new { @class = "row g-2 align-items-center" }))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="clientId" value="@Model.Client.Id" />
+        <input type="hidden" name="fromAdmin" value="@(Model.FromAdmin ? "true" : "false")" />
+        <div class="col-auto">
+            <label class="visually-hidden" for="label-@Model.Client.Id">Label</label>
+            <input type="text" class="form-control" id="label-@Model.Client.Id" name="label" maxlength="100"
+                   placeholder="Label, e.g. production backend" />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Generate a new key</button>
+        </div>
+    }
+}

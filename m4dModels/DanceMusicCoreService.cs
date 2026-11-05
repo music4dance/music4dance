@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 using System.Security.Claims;
 
@@ -104,8 +104,11 @@ public partial class DanceMusicCoreService(DanceMusicContext context, ISearchSer
     public static readonly string BetaRole = "beta";
     public static readonly string TrialRole = "trial";
 
+    // Can issue and revoke API keys for the partner clients it's linked to (PartnerDeveloper)
+    public static readonly string PartnerDeveloperRole = "partnerDeveloper";
+
     public static readonly string[] Roles =
-        [DiagRole, EditRole, DbaRole, TagRole, PremiumRole, TrialRole, BetaRole];
+        [DiagRole, EditRole, DbaRole, TagRole, PremiumRole, TrialRole, BetaRole, PartnerDeveloperRole];
 
     public static IEnumerable<string> UserRoles(ClaimsPrincipal user)
     {

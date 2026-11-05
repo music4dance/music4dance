@@ -1,7 +1,7 @@
 # Partner API: Standalone Host Independent of the Web App
 
 **Type:** Plan
-**Status:** In progress. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided and PR 1 (skeleton + test environment) deployed 2026-11-01; PR 2 (resolve) deployed to test 2026-11-01; PR 3 (API keys and limits) deployed to test 2026-11-04.
+**Status:** In progress. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided and PR 1 (skeleton + test environment) deployed 2026-11-01; PR 2 (resolve) deployed to test 2026-11-01; PR 3 (API keys and limits) deployed to test and PR 4 (key issuing pages) checked end to end against it 2026-11-04.
 **Last verified:** 2026-11-04
 **Code:** `m4d-api/` (Azure Functions project: `/v1/health`, and `/v1/songs/resolve` behind partner API keys, a per-client rate limit and a daily cap), with infrastructure and the deploy script in `m4d-api/infra/` and unit tests in `m4d-api.Tests/`. Reads the index built by `m4dModels/SongIndex.cs`, guarded by `m4dModels.Tests/PartnerApiIndexContractTests.cs`; the existing in-app API foundation is under `m4d/PublicApi/`.
 
@@ -201,6 +201,34 @@ audit. Neither the key nor its hash goes in the database, and the function never
 
 When the web app is down, keys can't be issued or revoked, but existing keys keep working.
 Issuance is off the request path, so it doesn't affect the API's independence.
+
+**As built (PR 4):**
+
+- **Admin page** `/PartnerKeys/Clients` (`dbAdmin`, linked from the admin index): add clients
+  (the client id is permanent, since it names the vault secret and the usage rows), edit name,
+  limits and disabled status, link and unlink developer accounts by user name or email, and
+  generate or revoke any client's keys. Linking grants `partnerDeveloper`; unlinking from the
+  last client removes it. Keys a developer issued stay active after unlinking.
+- **Developer page** `/PartnerKeys` (`partnerDeveloper`, linked from the account pages): the
+  developer's clients and keys, a label field, Generate and Revoke. The new key appears once on
+  a `no-store` response that isn't redirected, so it never sits in a URL, `TempData` or the
+  database.
+- **Tables** (migration `PartnerApiKeys`): `PartnerClients` (id, name, limits, disabled),
+  `PartnerDevelopers` (client and account), `PartnerApiKeys` (keyId, client, label, created and
+  revoked, with who).
+- **Order of writes:** issuing writes the vault, then SQL; if SQL fails the vault secret is
+  disabled again. Revoking disables every version of the vault secret (without reading it), then
+  marks the row revoked. Saving a client writes its config secret, then SQL.
+- **Code:** `m4d/Controllers/PartnerKeysController.cs`, `m4d/PublicApi/PartnerKeyService.cs`,
+  `m4d/PublicApi/PartnerKeyVault.cs`, and `m4d-api/PartnerKeyFormat.cs` linked into `m4d`, so
+  the issuer and the validator share one key format.
+- **Configuration:** `PartnerApi:KeyVaultUri` (the environment's partner-keys vault) and
+  `PartnerApi:Environment` (`live` for `m4d_live_` keys, anything else for `m4d_test_`). Set
+  `https://m4d-api-keys-test.vault.azure.net/` and `test` for `m4d-test`, and
+  `https://m4d-api-keys.vault.azure.net/` and `live` for `msc4dnc`. Without a vault URI the
+  pages still issue keys and show the `az keyvault secret set` command for an admin (the manual
+  fallback below). Locally, the site's development service principal has no role on either
+  vault; run with `--AZURE_CLIENT_ID=` to fall back to your own `az login`.
 
 ### Where the hashes live: a dedicated Key Vault
 
@@ -660,7 +688,7 @@ minutes however it's hosted. Two notes for expectations rather than action:
   deploys the code. One resource group per environment, named like the function app.
 - **Environments.** `m4d-api-test` → alias `songs-api-test`, key writer web app `m4d-test`;
   `m4d-api` → `songs-api-prod`, key writer `msc4dnc`. In test, the person deploying also gets
-  Secrets Officer, for adding keys by hand until PR 4. Give the partner developer a test key
+  Secrets Officer, for adding keys by hand with `new-key.ps1`. Give the partner developer a test key
   first.
 - **Deployment.** Infrastructure changes create role assignments, so they run by hand from
   `deploy.ps1` under an Owner account; they're rare. Code deploys need only rights to deploy to
@@ -702,7 +730,7 @@ minutes however it's hosted. Two notes for expectations rather than action:
 | **1. Skeleton + infra** | `m4d-api` Functions project (isolated, .NET 10), Bicep, `/v1/health`, test environment deployed, search alias for test |
 | **2. Resolve** | Single-track id resolution, title/artist fallback with candidates and `evidence` (length delta, match quality, suggested confidence), projection from index fields, dance names from `DanceLib`, the index contract test in `m4dModels.Tests`, unit tests with a faked `SearchClient` |
 | **3. Auth + limits** (done) | Key validation with the vault-backed cache, per-client config from the vault, rate limit, daily cap, usage table, `new-key.ps1` for issuing keys by hand |
-| **4. Key issuance** | In `m4d`: `partnerDeveloper` role, client and key metadata tables (EF migration), API keys page (generate once, list, revoke), admin view of clients and keys, vault writes from the web app's identity |
+| **4. Key issuance** (done) | In `m4d`: `partnerDeveloper` role, client and key metadata tables (EF migration), API keys page (generate once, list, revoke), admin view of clients and keys, vault writes from the web app's identity |
 | **5. Unmatched queue** | Queue writes (misses, ambiguous and fuzzy-only results) in the function; admin drain and review page in `m4d` (can trail) |
 | **6. Production** | Prod alias, custom domain and certificate, alerts, runbook step added to search-index-versioning.md, production key issued to the first partner |
 
