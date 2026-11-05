@@ -12,6 +12,8 @@ const props = defineProps<{
   editing?: boolean;
   isCreator?: boolean;
   user?: string;
+  /** Other values each field has held, keyed by field name (see FieldEditor). */
+  alternatives?: Partial<Record<string, string[]>>;
 }>();
 
 const context = getMenuContext();
@@ -61,6 +63,7 @@ const formatEchoNest = (n: number): string => {
         ><FieldEditor
           name="Length"
           :value="song.length ? song.length.toString() : ''"
+          :alternatives="alternatives?.[PropertyType.lengthField]"
           input-width="10.5em"
           :editing="editing"
           :is-creator="isCreator"
@@ -78,6 +81,7 @@ const formatEchoNest = (n: number): string => {
         ><FieldEditor
           name="Tempo"
           :value="tempoEditorValue"
+          :alternatives="alternatives?.[PropertyType.tempoField]"
           :placeholder="tempoPlaceholder"
           input-width="10.5em"
           input-class="tempo-input-wide tempo-inferred"

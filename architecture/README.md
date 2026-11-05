@@ -30,10 +30,11 @@ procedural, to become a runbook.
 | --- | --- | --- |
 | [song-internal-format](songs/song-internal-format.md) | Ref | The append-only `SongProperty` log: wire format, field reference, edit blocks, user types, index compression |
 | [song-details-viewing-editing](songs/song-details-viewing-editing.md) | Ref | Song details page, `SongCore.vue`, editing flow, permissions, pseudo-users, per-dance tempo |
-| [song-merge-algorithm](songs/song-merge-algorithm.md) | Ref | Duplicate detection levels, title normalization, merge workflow and modes |
+| [song-merge-algorithm](songs/song-merge-algorithm.md) | Ref | Service id matching, duplicate detection levels, title normalization, the history-weaving merge and the post-merge editor |
 | [song-upload-format](songs/song-upload-format.md) | Ref | `UploadCatalog` file format: header fields, tags, upload form parameters |
 | [add-augment-song](songs/add-augment-song.md) | Ref | `/song/augment`: locating a track, server-side lookup/dedup, saving user edits |
 | [service-track-lookup](songs/service-track-lookup.md) | Ref | Backend resolution of a Spotify/Apple track ID to a catalog song |
+| [shared-id-review](songs/shared-id-review.md) | Ref | Enrichment guard against giving a second song a held Spotify/iTunes/ISRC id, and the `/Admin/SharedIds` merge queue |
 | [drop-target-lookup](songs/drop-target-lookup.md) | Ref | `useDropTarget`: pasted service IDs/URLs in ordinary search boxes |
 | [dance-family-voting](songs/dance-family-voting.md) | Ref | Voting with style families (International, American, …): auto-selection, family choice modal, vote/tag encoding |
 | [unconfirmed-dance-votes](songs/unconfirmed-dance-votes.md) | Ref | Excluding bulk-imported, unconfirmed dance ratings from default search |
@@ -95,7 +96,7 @@ procedural, to become a runbook.
 
 | Doc | Kind | What it covers |
 | --- | --- | --- |
-| [hosting-and-identity](infrastructure/hosting-and-identity.md) | Ref | Environments, deployment pipeline and modes, managed identity per service, App Configuration, startup sequence, health checks, cache-control headers |
+| [hosting-and-identity](infrastructure/hosting-and-identity.md) | Ref | Environments, deployment pipeline and modes, Run From Package, the runtime data root (`M4D_DATA_ROOT`), managed identity per service, App Configuration, startup sequence, health checks, cache-control headers |
 | [service-resilience](infrastructure/service-resilience.md) | Ref | Graceful degradation and recovery when SQL, Search, App Configuration, OAuth, email or reCAPTCHA fail; health endpoints; status banner and the persisted admin update message; admin failure emails; known issues |
 | [background-work-and-startup](infrastructure/background-work-and-startup.md) | Ref | Hosted services and their start order, `BackgroundTaskQueue`, `DatabaseRecoveryService` hook, `/api/recompute` jobs and their Logic App callers, fire-and-forget admin jobs and `AdminMonitor` |
 | [ci-cd-and-release](infrastructure/ci-cd-and-release.md) | Ref | GitHub workflows (CI-SERVER `-warnaserror`, CI-CLIENT lint/type-check/tests, DCO, nightly E2E), `main` ruleset, Dependabot, the Azure DevOps deploy pipeline, PR-to-production flow |
@@ -136,7 +137,7 @@ into `runbooks/` as its area is consolidated.
 | Deploy to test or production | [runbooks/deploy](runbooks/deploy.md) |
 | Configure service-failure email alerts | [runbooks/configure-failure-email](runbooks/configure-failure-email.md) |
 | Renew the AutoMapper license key (yearly; emailed 30 days ahead) | [runbooks/renew-automapper-license](runbooks/renew-automapper-license.md) |
-| Refresh the cold-start dance fallback snapshot | [runbooks/refresh-dance-fallback-snapshot](runbooks/refresh-dance-fallback-snapshot.md) |
+| Refresh the cold-start dance and artist fallback snapshots | [runbooks/refresh-fallback-snapshots](runbooks/refresh-fallback-snapshots.md) |
 | Read production logs (app logs and HTTP request logs) | [runbooks/read-production-logs](runbooks/read-production-logs.md) |
 | Upload / download files on the App Service (Kudu; FTP is off) | [runbooks/transfer-files-to-app-service](runbooks/transfer-files-to-app-service.md) |
 | Capture memory diagnostics / dumps | [runbooks/capture-memory-diagnostics](runbooks/capture-memory-diagnostics.md) |
@@ -151,14 +152,15 @@ into `runbooks/` as its area is consolidated.
 | --- | --- | --- |
 | Public API & third-party authorization (DanzQ) | Foundation (PR 1) merged behind a disabled flag; PR 2 on hold after Apple denied the business plan, alternatives being explored | [plans/public-api-authorization](plans/public-api-authorization.md) |
 | Partner API on a standalone host (Azure Functions over the search index, independent of the web app) | In progress: spike complete, API key auth decided, test environment serving resolve (PR 2) | [plans/partner-api-standalone-host](plans/partner-api-standalone-host.md) |
+| Apple Music API migration: replace the iTunes Search/Lookup API (ISRC backfill, reverse ISRC enrichment, search), plus link switch, customer export and curated playlists | Proposed; Apple Developer membership confirmed, so stage 0 (token + ISRC backfill) is unblocked | [plans/apple-music-api-migration](plans/apple-music-api-migration.md) |
 | Azure Front Door caching | Not started; app-side prep shipped | [plans/front-door-caching](plans/front-door-caching.md) |
 | Bot load and public-page rendering (compression, caching, SSR vs. bot HTML vs. Razor shell) | Partially implemented: Phase 1 quick wins (A1–A7) on branch `bot-load-quick-wins`; caching and rendering phases not started | [plans/bot-load-and-public-page-rendering](plans/bot-load-and-public-page-rendering.md) |
 | Migrate email off Azure Communication Services (ACS Email retires 2028-09-30) to SMTP via a transactional provider | Proposed | [plans/acs-email-migration](plans/acs-email-migration.md) |
 | Bot load and public-page rendering (compression, caching, SSR vs. bot HTML vs. Razor shell) | Partially implemented: Phase 1 quick wins (A1–A7) deployed 2026-10-30; caching (Front Door vs. Cloudflare compared) and rendering phases not started | [plans/bot-load-and-public-page-rendering](plans/bot-load-and-public-page-rendering.md) |
 | Key Vault RBAC migration | Not started (vault `music4dance` still uses access policies, verified 2026-10-01) | [plans/key-vault-rbac-migration](plans/key-vault-rbac-migration.md) |
 | Attack mitigation Phase 2+ (telemetry, alerts, WAF, honeypots) | Proposed | [plans/attack-mitigation-phase2](plans/attack-mitigation-phase2.md) |
+| Cloudflare migration: DNS from Namecheap to Cloudflare (registration stays), edge proxy, Origin CA certificate, Bot Fight Mode (attack-mitigation step 2.2) | In progress (Phase 1 done); Free plan chosen to start | [plans/cloudflare-migration](plans/cloudflare-migration.md) |
 | Contributor environments beyond the sandbox (test deploys, diagnostics, samplified data, own Azure) | Proposed | [plans/contributor-environments-next](plans/contributor-environments-next.md) |
-| Run From Package: atomic deploys, persistent data moved out of `wwwroot` | Proposed | [plans/run-from-package](plans/run-from-package.md) |
 | Durable log storage (Blob / Log Analytics / tuned App Insights) | Proposed | [plans/log-persistence-options](plans/log-persistence-options.md) |
 | Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
 | Visitor engagement next steps (post-launch priorities, enhancements) | Proposed | [plans/visitor-engagement-next](plans/visitor-engagement-next.md) |

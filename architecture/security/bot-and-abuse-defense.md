@@ -2,10 +2,10 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-31
+**Last verified:** 2026-11-04
 **Code:** `m4d/Middleware/RateLimitingMiddleware.cs`, `m4d/Middleware/Http4xxTrackingMiddleware.cs`,
-`m4d/Middleware/CrawlerThrottleMiddleware.cs`,
-`m4d/Security/` (`AuthenticationTracker`, `RateLimitingTracker`, `Http4xxTracker`, `CrawlerThrottle`),
+`m4d/Middleware/CrawlerThrottleMiddleware.cs`, `m4d/Middleware/CloudflareClientIpMiddleware.cs`,
+`m4d/Security/` (`AuthenticationTracker`, `RateLimitingTracker`, `Http4xxTracker`, `CrawlerThrottle`, `CloudflareClientIp`),
 `m4d/Utilities/SpiderManager.cs`, `m4d/Utilities/GlobalState.cs`, `m4d/Views/Admin/Diagnostics.cshtml`
 
 How music4dance handles crawlers, scrapers, credential stuffing and scanner noise. The four layers
@@ -133,7 +133,20 @@ Every decision goes to `RateLimitingTracker`, a 10,000-event circular buffer wit
 to `a.b.c.xxx` and user agents truncated to 256 characters.
 
 The client IP is `HttpContext.Connection.RemoteIpAddress`, after the forwarded-headers middleware
-has run. Raw `X-Forwarded-For` is never trusted directly.
+and `CloudflareClientIpMiddleware` have run. Raw `X-Forwarded-For` is never trusted directly.
+
+**Behind Cloudflare.** `CloudflareClientIpMiddleware` (right after `UseForwardedHeaders`, before
+authentication) replaces a Cloudflare edge server's address with the visitor's, taken from
+`CF-Connecting-IP`. Without it, every visitor routed through one edge server would share a rate
+limit and a lockout. It trusts the header only when the address that handed the request to App
+Service is in `CloudflareClientIp:IpRanges` (Cloudflare's published ranges; check
+<https://www.cloudflare.com/ips-v4> and `ips-v6` now and then). That address is
+`RemoteIpAddress` when App Service has already applied its `X-Forwarded-For`. When it hasn't,
+`RemoteIpAddress` is the front end's private address, and the last `X-Forwarded-For` entry
+(the one the front end appends) is used instead. Requests that skip Cloudflare
+(`msc4dnc.azurewebsites.net`, local dev) are left alone, so sending the header yourself does
+nothing. It's inert until DNS is proxied; see
+[plans/cloudflare-migration](../plans/cloudflare-migration.md).
 
 **CAPTCHA.** `GlobalState.RequireCaptcha` is a timed flag: setting it lasts 5 minutes, and setting
 it again extends the window. It's enforced only where the `Captcha` feature flag allows:
@@ -351,6 +364,9 @@ Procedures that use this page: [runbooks/respond-to-attack](../runbooks/respond-
   `/customsearch/*` returned `500`. It was moved to `Views/Shared/`.
 - 2026-08-16 onward: The recurring 4xx triage began, and the known-attack lists grew (2026-09-14,
   2026-09-19). See [runbooks/triage-4xx](../runbooks/triage-4xx.md).
+- 2026-11-04: `CloudflareClientIpMiddleware` takes the client IP from `CF-Connecting-IP` for
+  requests relayed from Cloudflare's ranges, ahead of the move to Cloudflare (Phase 1 of
+  [plans/cloudflare-migration](../plans/cloudflare-migration.md)).
 - 2026-10-31: `robots.txt` keeps `Reflectionbot` off album and artist pages, on top of its
   3-a-minute `AgentLimits` throttle.
 - 2026-10-29: Per-crawler throttle on catalog pages (A6 of the same plan).

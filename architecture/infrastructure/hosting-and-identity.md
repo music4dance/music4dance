@@ -2,8 +2,9 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-29
+**Last verified:** 2026-11-04
 **Code:** `azure-pipelines.yml`, `m4d/Program.cs`, `m4d/Configuration/M4dApplicationExtensions.cs`,
+`m4d/Configuration/AppDataPaths.cs`, `m4d/Middleware/BlockAppDataMiddleware.cs`,
 `m4d/Services/StartupInitializationService.cs`, `m4d/m4d.csproj`
 
 Where music4dance runs, how it's deployed, how it authenticates to Azure, and what happens
@@ -41,17 +42,71 @@ Resources live in resource group `m4d-Web`.
 
 ## Deployment
 
-`azure-pipelines.yml` is the only pipeline. It's an Azure DevOps pipeline with two runtime
-parameters: **environment** (`test` by default, or `production`) and **deploymentMode**
-(`framework-dependent` by default, or `self-contained`). It runs these steps:
+`azure-pipelines.yml` is the only pipeline. It's an Azure DevOps pipeline with three runtime
+parameters: **environment** (`test` by default, or `production`), **deploymentMode**
+(`framework-dependent` by default, or `self-contained`) and **runFromPackage** (on by default).
+It runs the YAML from the branch being deployed. It runs these steps:
 
 1. Builds the Vue client (Node 22, Yarn via Corepack).
 2. Builds and publishes `m4d` for `linux-x64` with the .NET 10 SDK.
-3. Deploys with `AzureWebApp@1` through the `m4d-release` service connection. The same deploy
+3. Sets `M4D_DATA_ROOT=/home/data/m4d`. It also sets `WEBSITE_RUN_FROM_PACKAGE=1` when
+   **runFromPackage** is on and deletes it when off. This has to happen before the deploy,
+   because Kudu decides when the zip arrives whether to extract or mount it, and the deploy task
+   applies its own app settings only afterwards. The step writes only settings that changed,
+   because each write restarts the app.
+4. Deploys with `AzureWebApp@1` through the `m4d-release` service connection. The same deploy
    step sets the app settings `SELF_CONTAINED_DEPLOYMENT`, `ASPNETCORE_ENVIRONMENT`,
    `SEARCHINDEX`, `SEARCHINDEXVERSION` and `WEBSITES_CONTAINER_START_TIME_LIMIT=600`, plus the
    startup command, so nothing needs to be set by hand in the portal.
-4. Sets the App Service health check path to `/health/ready`. This step is non-fatal.
+5. Stops and starts the app, but only when step 3 switched `WEBSITE_RUN_FROM_PACKAGE` on or off,
+   then waits for it to answer with a 200. Without this, App Service fails to remount `wwwroot`
+   when the package arrives while the app is mid-startup, stops the site, and waits about five
+   minutes before retrying. It's a stop and a start rather than a restart, because a restart that
+   lands while a start is in progress cancels that start and leaves the site stopped.
+6. Sets the App Service health check path to `/health/ready`, only if it isn't already, since
+   every config write restarts the app. This step is non-fatal.
+
+### Run From Package
+
+With **runFromPackage** on (`WEBSITE_RUN_FROM_PACKAGE=1`), Kudu keeps the zip in
+`/home/data/SitePackages` (`packagename.txt` names the current one) and mounts it read-only as
+`/home/site/wwwroot`, then restarts. Files never change under a running process, so a deploy
+can't serve half-replaced assemblies. Before this, `AzureWebApp@1` extracted the zip over the
+running app and every production deploy produced about 4½ minutes of
+`BadImageFormatException: Index not found` 500s (213 of them, plus 39 "The response has already
+started", on 2026-10-13). A staging slot would also fix that, but it needs the Standard tier and
+a second warm instance, which is over budget.
+
+**An ordinary deploy has no downtime.** App Service starts a container on the new package while
+the old one keeps serving, and switches over once the new one passes its startup probe. On
+`m4d-test`, a deploy polled once a second (2026-11-02) and a portal restart both saw no failed
+requests. The first ordinary production deploy (2026-11-04, polled about once a second for 21
+minutes) got a 200 on every request. The zip deploy was the only Azure operation, with no
+settings write, stop-and-start or health check write. The new container started on the same
+worker, with the runtime image already cached, 9s after the deploy call, and passed its startup
+probe 41s later; the old one stopped 21s after that. Four requests in the first five minutes
+took 1.2–1.7s against the usual 0.2s, while the new process warmed up.
+
+**A deploy that switches the setting on or off has an outage**, once:
+
+- The settings write in step 3 restarts the app before the package exists. When the package
+  arrives mid-start, App Service logs "Container failed to remount volume. Terminate.", records
+  `ContainerStartupFailure`, stops the site, and waited about five minutes before retrying on the
+  first test deploy. Turning the setting off has its own version: the restart runs the old
+  extracted build, the deploy extracts over it, and it crashes (`Aborted (core dumped)`, exit
+  code 134).
+- Step 5's stop-and-start gets out of that state without waiting. It isn't a restart: a restart
+  that lands while a start is in progress cancels that start, and App Service then stops the site
+  and leaves it stopped.
+- Measured: about 45s down on `m4d-test`. On production (2026-11-03) it was about 4 minutes,
+  including some 502s, because the start landed on a different worker: about 2½ minutes before
+  that worker logged anything, then 29s pulling the runtime image, then 41s to pass the probe.
+  Which worker a start lands on isn't something the pipeline controls.
+
+**Rollback:** run the pipeline with **runFromPackage** off. That deletes the setting and the
+deploy extracts into `wwwroot` again, with the switching outage above. `M4D_DATA_ROOT` stays
+set, so the app keeps its data. Deploying a commit from before 2026-11-02 would ignore
+`M4D_DATA_ROOT` and go back to `wwwroot/AppData`.
 
 | | Framework-dependent (default) | Self-contained |
 | --- | --- | --- |
@@ -70,6 +125,36 @@ certificates.
 
 `SMOKE_TEST_MODE=true` boots a minimal app that skips all Azure configuration. It's for
 container diagnostics.
+
+### Runtime data root
+
+`M4D_DATA_ROOT` sets where the app writes at runtime (`AppDataPaths`). The pipeline sets it to
+`/home/data/m4d`, on the persistent `/home` volume and outside the read-only package, whether or
+not **runFromPackage** is on. Everything lives in `<root>/AppData`:
+
+- Admin backups and usage exports. Downloads go through `PhysicalFile`, not static files.
+- `BatchProcess` before/after logs (`BatchCleanupProperties?log=true`).
+- The dance stats cache (`dance-environment.json`), the artist index snapshot
+  (`artist-index.json`) and the update message (`update-message.json`). `DanceStatsFileManager`
+  and `ArtistIndexFileManager` take this as a separate `dataRoot`, because their packaged
+  fallbacks still come from `wwwroot/content`.
+- Uploaded `blogmap.txt` / `helpmap.txt` overrides, read when newer than the packaged copy (see
+  [blog-help-sitemap](../pages/blog-help-sitemap.md)).
+
+Unset (local runs, the sandbox and tests), the root is the web root, so those files land in
+`wwwroot/AppData`. That's why `BlockAppDataMiddleware` still returns 404 for `/AppData`. The app
+logs the root at startup (`App data root: ...`) and creates the folder then.
+
+There's no separate `content` folder under the data root. `wwwroot/content` and `wwwroot/AppData`
+are kept apart because one is served publicly and the other isn't, and nothing under
+`/home/data/m4d` is served.
+
+Nothing was copied over when production switched. The dance stats loaded the checked-in
+fallback and rebuilt from the search index in the background (19s on production), the artist
+index rebuilds on first use, and older backups stay on disk in the old extracted
+`wwwroot/AppData`, hidden while the package is mounted. On the next deploy (2026-11-04) the
+dance stats loaded straight from the runtime cache under `/home/data/m4d/AppData`, with no
+fallback or rebuild, so the cache now survives deploys.
 
 ## Identity and secrets
 
@@ -160,8 +245,8 @@ The app is built to pass a liveness probe in seconds, even while dependencies ar
   here. It reports healthy mid-migration, and doing so once caused a production incident:
   requests hit a database that wasn't ready yet.
 - `/health/ready`: `503` while `Database` is unhealthy, `200 ready` otherwise. The pipeline
-  sets this as the App Service health check path on every deploy. Changing the path restarts
-  the app.
+  makes this the App Service health check path, writing it only when it isn't already set,
+  because a write restarts the app even when the value doesn't change.
 
 Azure pings the path every minute and marks the instance unhealthy after
 `WEBSITE_HEALTHCHECK_MAXPINGFAILURES` consecutive failures (default 10). On a **single-instance**
@@ -220,7 +305,11 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
   [plans/front-door-caching](../plans/front-door-caching.md) (not started).
 - **Restrict `KnownProxies` / `KnownNetworks`** once a fixed front end exists.
 - **Retire self-contained mode**, if framework-dependent stays reliable. That would remove the
-  `SELF_CONTAINED_DEPLOYMENT` branches.
+  `SELF_CONTAINED_DEPLOYMENT` branches. It's also untested with Run From Package: its startup
+  command runs `/home/site/wwwroot/m4d` directly, which needs the execute bit to survive in the
+  mounted zip.
+- **Prune old backups** under `/home/data/m4d/AppData`. `/home` counts against the plan's storage
+  quota, and backups now persist across deploys.
 - **Scale out to two instances**, so the health check can pull a bad instance, if an SLA or
   subscriber growth justifies the cost.
 
@@ -268,6 +357,13 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
 - 2026-10-29: Anonymous pages stopped minting an antiforgery token (A3 of the same plan), so
   they set no cookie. The cache-control middleware's anonymous branch, which had never run,
   went from `public, max-age=300` to `no-cache`.
+- 2026-11-02: Run From Package and `M4D_DATA_ROOT` (#373), to end the 500s each deploy caused
+  by extracting over a running process. Tested on `m4d-test`, then switched on in production on
+  2026-11-03 (about 4 minutes down, once). The stop-and-start after a switch and the
+  write-only-if-different health check step both came from the test runs. A background dance
+  stats rebuild after a fallback load came in the same PR.
+- 2026-11-04: The first ordinary production deploy with Run From Package on had no failed
+  requests, and the dance stats cache survived it (see [Run From Package](#run-from-package)).
 - 2026-10-01: Consolidated from `SELF_CONTAINED_DEPLOYMENT.md`, `managed-identity-self-contained-plan.md`
   and the architecture sections of `azure-app-service-setup-managed-identity.md`. Stale details
   dropped: legacy pipeline files, `appsettings.SelfContained.json`, and in-app Kestrel port and

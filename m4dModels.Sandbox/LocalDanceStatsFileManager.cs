@@ -49,6 +49,9 @@ public class LocalDanceStatsFileManager : IDanceStatsFileManager
         });
     }
 
+    // GetStats always answers, so there's never a fallback to need
+    public Task<string> GetFallbackStats() => Task.FromResult<string>(null);
+
     public Task WriteStats(string stats)
     {
         // No-op - nothing to persist to in-memory/sandbox usage

@@ -34,6 +34,12 @@ public class DanceStatsManager : IDanceStatsManager
         FileManager = fileManager;
     }
 
+    /// <summary>
+    /// <see cref="Source"/> when the stats came from the snapshot in source control because there
+    /// was no runtime cache. They're as old as that snapshot until something rebuilds them.
+    /// </summary>
+    public const string FallbackSource = "Fallback";
+
     private IDanceStatsFileManager FileManager { get; }
     public DateTime LastUpdate { get; private set; }
     public string Source { get; private set; }
@@ -93,14 +99,20 @@ public class DanceStatsManager : IDanceStatsManager
 
     private async Task<DanceStatsInstance> LoadFromAppData(DanceMusicCoreService dms, object serviceHealthManager = null)
     {
+        var source = "AppData";
         var json = await FileManager.GetStats();
+        if (json == null)
+        {
+            source = FallbackSource;
+            json = await FileManager.GetFallbackStats();
+        }
         if (json == null)
         {
             return null;
         }
         await InitializeDanceLibrary();
         LastUpdate = DateTime.Now;
-        Source = "AppData";
+        Source = source;
         Instance = await DanceStatsInstance.LoadFromJson(json, dms, this, serviceHealthManager);
         return Instance;
     }

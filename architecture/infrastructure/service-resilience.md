@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-25
+**Last verified:** 2026-11-03
 **Code:** `m4d/Services/ServiceHealth/`, `m4d/Services/DatabaseRecoveryService.cs`,
 `m4d/Services/AppConfigurationRecoveryService.cs`, `m4d/Configuration/AppConfigurationStartup.cs`,
 `m4d/Configuration/SecretBackedServices.cs`,
@@ -93,18 +93,21 @@ or a `503` JSON response instead of an unhandled exception.
 - Server-side usage logging (`DMController`) and search logging (`SongSearch`) skip their writes
   while the database is down.
 
-**Dance data.** Dance pages, Tempi and Counter read the dance environment through
-`DanceStatsFileManager.GetStats()`, which tries, in order:
+**Dance data.** Dance pages, Tempi and Counter read the dance environment that
+`DanceStatsManager.LoadFromAppData` loads, which tries, in order:
 
-1. The runtime cache, `wwwroot/AppData/dance-environment.json`. It's written whenever stats are
-   rebuilt from the database.
-2. The checked-in cold-start snapshot, `content/dance-environment-fallback.json`. Its source is
-   `m4d/ClientApp/src/assets/content/dance-environment-fallback.json`.
+1. The runtime cache, `AppData/dance-environment.json` under the runtime data root
+   (`/home/data/m4d` in Azure; see [hosting-and-identity § Runtime data root](hosting-and-identity.md#runtime-data-root)). It's written
+   whenever stats are rebuilt from the database.
+2. The checked-in cold-start snapshot, `wwwroot/content/dance-environment-fallback.json`
+   (`GetFallbackStats`). Its source is
+   `m4d/ClientApp/src/assets/content/dance-environment-fallback.json`. When this is what loaded,
+   `DanceStatsHostedService` rebuilds from the search index in the background.
 3. Nothing, which leaves an empty dance environment.
 
 The snapshot exists for fresh deployments, where the runtime cache hasn't been built yet. It
 goes stale between refreshes; see
-[runbooks/refresh-dance-fallback-snapshot](../runbooks/refresh-dance-fallback-snapshot.md).
+[runbooks/refresh-fallback-snapshots](../runbooks/refresh-fallback-snapshots.md).
 `artist-index-fallback.json` plays the same role for the artist index (see
 [individual-artists](../songs/individual-artists.md)).
 
@@ -208,8 +211,8 @@ The admin update message is owned by the singleton `UpdateMessageService`, and
 length of a rebuild, and doesn't persist it, because nothing would clear it if the rebuild died
 with the process.
 
-- **Storage.** Each change writes `wwwroot/AppData/update-message.json` (`UpdateMessageFileManager`,
-  next to `dance-environment.json`), and Clear deletes it. The file holds the message, a
+- **Storage.** Each change writes `AppData/update-message.json` under the runtime data root
+  (`UpdateMessageFileManager`, next to `dance-environment.json`), and Clear deletes it. The file holds the message, a
   `Persist` flag, who set it, and when (UTC). It's written aside and moved into place, so a reader
   never sees half a file. `BlockAppDataMiddleware` keeps it off the web.
 - **Persist across restarts.** This is a checkbox on the admin form. On startup, the service
@@ -361,7 +364,7 @@ notified, so no lone "recovered" email follows. Configuration and testing steps 
 - [configuration-and-feature-flags](configuration-and-feature-flags.md): the keys whose absence marks a service unavailable
 - [data-layer](data-layer.md): `DanceMusicContext` registration and startup migrations
 - [runbooks/configure-failure-email](../runbooks/configure-failure-email.md)
-- [runbooks/refresh-dance-fallback-snapshot](../runbooks/refresh-dance-fallback-snapshot.md)
+- [runbooks/refresh-fallback-snapshots](../runbooks/refresh-fallback-snapshots.md)
 - [dance-domain-model](../dances/dance-domain-model.md): `DanceStats` build, file cache and startup load
 - [user-name-visibility](../users-admin/user-name-visibility.md): `UNAVAILABLE` rendering when user data can't be loaded
 - [admin-pages](../users-admin/admin-pages.md): admin diagnostics surfaces

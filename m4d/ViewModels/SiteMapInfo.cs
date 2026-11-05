@@ -58,9 +58,18 @@ public sealed class SiteMapDance(DanceObject dance) : SiteMapEntry
 // https://stackoverflow.com/questions/43992261/how-to-get-absolute-path-in-asp-net-core-alternative-way-for-server-mappath
 public sealed class SiteMapFile : SiteMapEntry
 {
-    public SiteMapFile(string filename, IFileProvider fileProvider)
+    /// <param name="overrideDirectory">
+    /// Where an uploaded {filename}.txt can stand in for the packaged one without a deploy
+    /// (<see cref="m4d.Configuration.AppDataPaths.AppData"/>); see <see cref="ChoosePath"/>.
+    /// </param>
+    public SiteMapFile(string filename, IFileProvider fileProvider, string overrideDirectory = null,
+        ILogger logger = null)
     {
-        var path = fileProvider.GetFileInfo($"/wwwroot/content/{filename}.txt").PhysicalPath;
+        var packaged = fileProvider.GetFileInfo($"/wwwroot/content/{filename}.txt").PhysicalPath;
+        var path = ChoosePath(
+            packaged,
+            overrideDirectory == null ? null : Path.Combine(overrideDirectory, $"{filename}.txt"),
+            logger);
         var lines = File.ReadAllLines(path);
         var family = new Stack<List<SiteMapEntry>>();
         var depths = new Stack<int>();
@@ -120,6 +129,30 @@ public sealed class SiteMapFile : SiteMapEntry
         var t = family.Pop();
         family.Peek()[^1].Children = t;
     }
+
+    /// <summary>
+    /// The override when it exists and is newer than the packaged copy, otherwise the packaged
+    /// copy. The packaged copy's time is when the build checked it out, so an upload made since
+    /// the last deploy wins, and the next deploy that ships a committed edit takes over again
+    /// without anyone having to delete the upload.
+    /// </summary>
+    public static string ChoosePath(string packagedPath, string overridePath, ILogger logger = null)
+    {
+        if (overridePath == null || !File.Exists(overridePath) ||
+            string.Equals(Path.GetFullPath(overridePath), Path.GetFullPath(packagedPath),
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return packagedPath;
+        }
+
+        var overrideTime = File.GetLastWriteTimeUtc(overridePath);
+        var packagedTime = File.GetLastWriteTimeUtc(packagedPath);
+        var useOverride = overrideTime > packagedTime;
+        logger?.LogInformation(
+            "Site map: using {Chosen}; override {Override} written {OverrideTime:o}, packaged {Packaged} written {PackagedTime:o}",
+            useOverride ? "override" : "packaged copy", overridePath, overrideTime, packagedPath, packagedTime);
+        return useOverride ? overridePath : packagedPath;
+    }
 }
 
 
@@ -142,14 +175,16 @@ public class SiteMapDances : SiteMapCategory
 
 public static class SiteMapInfo
 {
-    public static void ReloadCategories(IFileProvider fileProvider)
+    public static void ReloadCategories(IFileProvider fileProvider, string overrideDirectory = null,
+        ILogger logger = null)
     {
-        Categories = LoadCategories(fileProvider);
+        Categories = LoadCategories(fileProvider, overrideDirectory, logger);
     }
 
-    public static IEnumerable<SiteMapCategory> GetCategories(IFileProvider fileProvider)
+    public static IEnumerable<SiteMapCategory> GetCategories(IFileProvider fileProvider,
+        string overrideDirectory = null, ILogger logger = null)
     {
-        return Categories ??= LoadCategories(fileProvider);
+        return Categories ??= LoadCategories(fileProvider, overrideDirectory, logger);
     }
 
     private static IEnumerable<SiteMapCategory> Categories { get; set; } = null;
@@ -184,7 +219,8 @@ public static class SiteMapInfo
             .Distinct();
     }
 
-    private static IEnumerable<SiteMapCategory> LoadCategories(IFileProvider fileProvider)
+    private static IEnumerable<SiteMapCategory> LoadCategories(IFileProvider fileProvider,
+        string overrideDirectory, ILogger logger)
     {
         return
         [
@@ -264,9 +300,9 @@ public static class SiteMapInfo
                     new() { Title = "Credits", Reference = "home/credits", Crawl = true },
                     new() { Title = "Reading List", Reference = "home/readinglist", Crawl = true },
                     new() { Title = "Technical Blog", Reference = "home/technicalblog", Crawl = true },
-                    new SiteMapFile("helpmap", fileProvider)
+                    new SiteMapFile("helpmap", fileProvider, overrideDirectory, logger)
                         { Title = "Help", Reference = "blog/music4dance-help" },
-                    new SiteMapFile("blogmap", fileProvider)
+                    new SiteMapFile("blogmap", fileProvider, overrideDirectory, logger)
                         { Title = "Blog", Reference = "blog" },
                 ]
             },

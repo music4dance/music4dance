@@ -1,4 +1,5 @@
-﻿using m4d.Services;
+﻿using m4d.Configuration;
+using m4d.Services;
 using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 using m4d.ViewModels;
@@ -345,8 +346,16 @@ public class DanceMusicController(
         {
             AdminMonitor.UpdateTask("UpdateService", i);
             _ = await MusicServiceManager.ConditionalUpdateSongAndServices(dms, song);
-            _ = await song.CleanupProperties(dms, "HYE");
             i += 1;
+        }
+
+        // Enrichment can give a new song an id that another song already holds
+        AdminMonitor.UpdateTask("MergeByServiceIds");
+        modified = await dms.SongIndex.MergeNewSongsByServiceIds(user, modified, review.Merge);
+
+        foreach (var song in modified)
+        {
+            _ = await song.CleanupProperties(dms, "HYE");
         }
 
         return modified;
@@ -453,9 +462,9 @@ public class DanceMusicController(
         }
     }
 
-    protected string EnsureAppData(IWebHostEnvironment environment)
+    protected static string EnsureAppData(AppDataPaths appDataPaths)
     {
-        var path = Path.Combine(environment.WebRootPath, "AppData");
+        var path = appDataPaths.AppData;
         if (!Directory.Exists(path))
         {
             _ = Directory.CreateDirectory(path);

@@ -314,6 +314,23 @@ Purchase qualifiers combine a service code and purchase type code. Examples:
 | `IA`      | iTunes (`I`) | Album (`A`)      |
 | `SS`      | Spotify (`S`)| Song (`S`)       |
 | `SA`      | Spotify (`S`)| Album (`A`)      |
+| `RS`      | ISRC (`R`)   | Song (`S`)       |
+
+#### Purchase id normalization
+
+Each id is held in its service's canonical spelling, from `MusicService.NormalizeId`: ISRCs are
+uppercased with hyphens and whitespace removed (`us-rc1-76-07839` → `USRC17607839`), and a bare
+Amazon ASIN gets the `D:` prefix. Spotify ids are case-sensitive base62 and iTunes ids are numeric,
+so both are left exactly as received. `SongProperty`'s `Name`/`Value` setters apply it to every
+`Purchase`/`Purchase-` property, and `AlbumDetails` applies it to every id it adds or removes. A
+log written with another spelling therefore loads as the canonical one, matches it in
+`Purchase-` and duplicate checks, and is re-saved in that spelling. The `ServiceIds` index field
+(`R:{isrc}` etc.) is filtered by exact match, so this is what lets an ISRC lookup find a song
+whatever case Spotify returned the code in.
+
+Rows that predate this (the 2026-11-01 snapshot had 2,265 lowercase or hyphenated ISRCs across
+2,147 songs) are rewritten by `/Admin/ReloadAllSongs`. `python -I scripts/song_snapshot.py
+id-formats` against a fresh `/Admin/IndexBackup` export reports any non-canonical ids remaining.
 
 ### 3.7 User Preference Fields
 
@@ -875,6 +892,13 @@ default `"D"` format, no braces. A line looks like (tabs shown as spaces for rea
 ```text
 SongId=6a85cd4e-2981-4017-b433-cfdacd443d0a  .Create=  User=RosarioAlcantar|P  Time=08/23/2026 09:07:48  Title=Con Paso Fino  ...
 ```
+
+**Querying it:** `scripts/song_snapshot.py` loads the newest `local/index-*.txt`, replays each line
+into scalars and albums/purchase ids (a Python subset of `Song.Load` / `Song.BuildAlbumInfo`), and
+runs a named query against the whole catalog — e.g. `python -I scripts/song_snapshot.py
+duplicate-ids` lists Spotify/iTunes/Amazon/ISRC ids held by more than one song, and `id-formats`
+lists ids not in their canonical spelling (§3.6). Add new catalog
+questions there as further queries rather than as one-off scripts.
 
 ### 12.3 Reconciling the Two When Matching by SongId
 

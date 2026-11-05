@@ -289,9 +289,10 @@ To regenerate it:
 2. On the **Admin > Initialization Tasks** page, click **Reload Song Stats > From Store** (or hit
    `/Admin/ClearSongCache?reloadFromStore=true`) to load a fresh `DanceStatsManager.Instance` from
    that store.
-3. Click **Export Dance Fallback** on the same page (or hit `/Admin/ExportDanceFallback`; also
+3. Click **Export Fallbacks** on the same page (or POST `/Admin/ExportFallbacks`; also
    requires the `showDiagnostics` role). This writes `DanceStatsManager.Instance.SaveToJson()`
-   directly over `ClientApp/src/assets/content/dance-environment-fallback.json`.
+   directly over `ClientApp/src/assets/content/dance-environment-fallback.json` (and refreshes
+   `artist-index-fallback.json` beside it).
 4. Review the diff (it should be additive/incremental — spot-check that only expected dances
    changed) and commit it.
 
@@ -349,7 +350,7 @@ The following are fully driven by the JSON data and require no manual updates:
 - [ ] _(If new group)_ Added menu link to `MainMenu.vue`
 - [ ] _(If writing tests)_ Updated test JSON data files
 - [ ] Ran `/Admin/ClearSongCache` (or restarted the app in dev) to reload the dance library
-- [ ] Regenerated `dance-environment-fallback.json` via `/Admin/ExportDanceFallback` against a
+- [ ] Regenerated `dance-environment-fallback.json` via `/Admin/ExportFallbacks` against a
       production-like DB/index and committed the diff
 
 ---

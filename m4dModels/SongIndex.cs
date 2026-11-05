@@ -181,12 +181,55 @@ public class SongIndex
             return null;
         }
 
-        var sid = $"\"{service.CID}:{id}\"";
-        var parameters = new SearchOptions();
-        parameters.SearchFields.Add(ServiceIds);
-        var results = await DoSearch(sid, parameters, CruftFilter.AllCruft);
-        var r = results.GetResults().FirstOrDefault();
-        return r == null ? null : await CreateSong(r.Document);
+        return (await FindSongsByServiceIds([$"{service.CID}:{id}"])).FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Every song holding any of <paramref name="serviceIds"/>, spelled as the ServiceIds field
+    /// stores them ("S:{spotify}", "I:{itunes}", "R:{isrc}" - see
+    /// AlbumDetails.GetExtendedPurchaseIds), in one exact-match query.
+    /// </summary>
+    public virtual async Task<IList<Song>> FindSongsByServiceIds(IEnumerable<string> serviceIds)
+    {
+        var ids = serviceIds?.Where(id => !string.IsNullOrWhiteSpace(id)).Distinct().ToList() ?? [];
+        if (ids.Count == 0)
+        {
+            return [];
+        }
+
+        var list = string.Join(',', ids.Select(id => id.Replace("'", "''")));
+        var response = await DoSearch(
+            null,
+            new SearchOptions { Filter = $"ServiceIds/any(id: search.in(id, '{list}', ','))" },
+            CruftFilter.AllCruft);
+        return await CreateSongs(response.GetResults());
+    }
+
+    /// <summary>
+    /// The catalog song, other than <paramref name="song"/> itself, that shares the most
+    /// Spotify, iTunes and ISRC ids with it, or null if none shares any.
+    /// </summary>
+    public async Task<Song> FindSongByServiceIds(Song song)
+    {
+        var ids = song.GetExtendedPurchaseIds().ToHashSet();
+        var matches = await FindSongsByServiceIds(ids);
+        return matches
+            .Where(s => s.SongId != song.SongId)
+            .OrderByDescending(s => s.GetExtendedPurchaseIds().Count(ids.Contains))
+            .FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Folds <paramref name="edit"/>, a song record that was never saved, into
+    /// <paramref name="target"/>, the catalog song it turned out to duplicate, so that adding a
+    /// song a second time appends to the first one instead.
+    /// </summary>
+    public async Task<bool> MergeIntoSong(ApplicationUser user, Song target, Song edit)
+    {
+        target.AlignAlbumIndexes(edit);
+        var modified = AdditiveMerge(user, target, edit, null);
+        await ReloadSong(target);
+        return modified;
     }
 
     #endregion
@@ -226,10 +269,28 @@ public class SongIndex
     public async Task<bool> CreateOrMergeSong(ICollection<SongProperty> props, ApplicationUser user)
     {
         var properties = props.ToList();
-        await SaveSong(await Song.Create(Guid.NewGuid(), properties, DanceMusicService));
+        var song = await Song.Create(Guid.NewGuid(), properties, DanceMusicService);
         var mergeIdx = properties.FindLastIndex(p => p.BaseName == Song.MergeCommand);
         var actionIdx = properties.FindLastIndex(p => p.IsAction);
-        if (mergeIdx != -1 && mergeIdx == actionIdx)
+        var isMerge = mergeIdx != -1 && mergeIdx == actionIdx;
+
+        // A merge carries the ids of the songs it replaces, so only a plain add is checked. The
+        // add page looked the song up when the user picked it, but the song may have been added
+        // since (a double submit, or another user), and enrichment may have added ids that the
+        // lookup never saw.
+        var existing = isMerge || user == null ? null : await FindSongByServiceIds(song);
+        if (existing != null)
+        {
+            if (await MergeIntoSong(user, existing, song))
+            {
+                await SaveSong(existing);
+            }
+
+            return true;
+        }
+
+        await SaveSong(song);
+        if (isMerge)
         {
             var merge = properties[mergeIdx];
             var ids = merge.Value.Split(';');
@@ -405,7 +466,7 @@ public class SongIndex
     #endregion
 
     #region Merge
-    public async Task<Song> FindMergedSong(Guid id)
+    public virtual async Task<Song> FindMergedSong(Guid id)
     {
         var response = await DoSearch(
             null,
@@ -450,111 +511,6 @@ public class SongIndex
         return delta;
     }
 
-    private static IList<AlbumDetails> MergeAlbums(IEnumerable<Song> songs, string def,
-        ICollection<string> keys, string artist)
-    {
-        var details = songs as IList<Song> ?? [.. songs];
-        var albumsIn = new List<AlbumDetails>();
-        var albumsOut = new List<AlbumDetails>();
-
-        foreach (var sd in details)
-        {
-            albumsIn.AddRange(sd.Albums);
-        }
-
-        var defIdx = -1;
-        if (!string.IsNullOrWhiteSpace(def))
-        {
-            _ = int.TryParse(def, out defIdx);
-        }
-
-        var idx = 0;
-        if (defIdx >= 0 && albumsIn.Count > defIdx)
-        {
-            var t = albumsIn[defIdx];
-            t.Index = 0;
-            albumsOut.Add(t);
-            idx = 1;
-        }
-
-        for (var i = 0; i < albumsIn.Count; i++)
-        {
-            if (i == defIdx)
-            {
-                continue;
-            }
-
-            var name = Song.AlbumListField + "_" + i;
-
-            if (defIdx != -1 && !keys.Contains(name))
-            {
-                continue;
-            }
-
-            var t = albumsIn[i];
-            t.Index = idx;
-            albumsOut.Add(t);
-            idx += 1;
-        }
-
-        return AlbumDetails.MergeAlbums(albumsOut, artist, false);
-    }
-
-    public async Task<Song> MergeSongs(ApplicationUser user, List<Song> songs, string title,
-        string artist,
-        decimal? tempo, int? length, IList<AlbumDetails> albums)
-    {
-        var songIds = songs.Select(s => s.SongId).ToList();
-        var stringIds = string.Join(";", songIds.Select(id => id.ToString()));
-
-        if (songs.Any(s => s.SongProperties == null))
-        {
-            songs = [.. (await DanceMusicService.SongIndex.FindSongs(songIds))];
-        }
-
-        var song = await CreateSong(user, null, null, Song.MergeCommand, stringIds);
-
-        // Add in the properties for all of the songs and then delete them
-        foreach (var from in songs)
-        {
-            await song.UpdateProperties(
-                from.SongProperties, DanceMusicService,
-                [
-                    Song.FailedLookup, Song.AlbumField, Song.TrackField, Song.PublisherField,
-                    Song.PurchaseField, Song.AlbumListField, Song.AlbumOrder, Song.AlbumPromote
-                ]);
-            await DeleteSong(user, from);
-        }
-
-        var sd = new Song(title, artist, tempo, length, [])
-        {
-            Danceability = song.Danceability,
-            Energy = song.Energy,
-            Valence = song.Valence,
-            Sample = song.Sample
-        };
-
-        _ = song.Edit(user, sd, null, DanceMusicService.DanceStats);
-
-        song.CreateAlbums(albums);
-
-        song = await Song.Create(song.SongId, song.SongProperties, DanceMusicService);
-        _ = await song.CleanupProperties(DanceMusicService, "RE");
-
-        await SaveSong(song);
-
-        return song;
-    }
-
-    public async Task<Song> MergeSongs(ApplicationUser user, List<Song> songs, string title,
-        string artist,
-        decimal? tempo, int? length, string defAlbums, HashSet<string> keys)
-    {
-        return await MergeSongs(
-            user, songs, title, artist, tempo, length,
-            MergeAlbums(songs, defAlbums, keys, artist));
-    }
-
     /// <summary>
     /// Simple merge: concatenates all song properties, annotates .Create/.Edit with original song GUID,
     /// and sorts by timestamp. Preserves all information for potential unmerging.
@@ -571,10 +527,11 @@ public class SongIndex
         // All action types (including .Merge, .Delete, .NoMerge) are parsed and sorted so that
         // audit history is preserved in chronological order regardless of action type.
         var allBlocks = new List<SongPropertyBlock>();
+        var properties = RenumberAlbums(songs);
 
         foreach (var song in songs)
         {
-            var blocks = SongPropertyBlockParser.ParseBlocks(song.SongProperties);
+            var blocks = SongPropertyBlockParser.ParseBlocks(properties[song.SongId]);
 
             foreach (var block in blocks)
             {
@@ -612,6 +569,80 @@ public class SongIndex
         await SaveSong(mergedSong);
 
         return mergedSong;
+    }
+
+    private static readonly HashSet<string> AlbumIndexedFields =
+    [
+        Song.AlbumField, Song.TrackField, Song.PublisherField, Song.PurchaseField,
+        Song.RemovedPurchaseField, Song.AlbumPromote
+    ];
+
+    /// <summary>
+    /// Each song numbers its albums from 0, so before their histories are woven together every
+    /// song's album indices move into one shared numbering: an album with the same name as one an
+    /// earlier song holds takes that song's index, any other index gets a new one. OrderAlbums is
+    /// dropped, since one song's order would hide the albums of the others.
+    /// </summary>
+    internal static Dictionary<Guid, List<SongProperty>> RenumberAlbums(IEnumerable<Song> songs)
+    {
+        var shared = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        var next = 0;
+        var result = new Dictionary<Guid, List<SongProperty>>();
+
+        foreach (var song in songs)
+        {
+            var map = new Dictionary<int, int>();
+            foreach (var album in song.Albums.Where(a => !string.IsNullOrWhiteSpace(a.Name)))
+            {
+                var key = Song.NormalizeAlbumString(album.Name);
+                if (!string.IsNullOrEmpty(key) && shared.TryGetValue(key, out var index) &&
+                    !map.ContainsValue(index))
+                {
+                    map[album.Index] = index;
+                    continue;
+                }
+
+                map[album.Index] = next;
+                if (!string.IsNullOrEmpty(key))
+                {
+                    _ = shared.TryAdd(key, next);
+                }
+                next += 1;
+            }
+
+            var renumbered = new List<SongProperty>();
+            foreach (var prop in song.SongProperties)
+            {
+                var baseName = prop.BaseName;
+                if (baseName == Song.AlbumOrder)
+                {
+                    continue;
+                }
+
+                var index = prop.Index;
+                if (!index.HasValue || !AlbumIndexedFields.Contains(baseName))
+                {
+                    renumbered.Add(prop);
+                    continue;
+                }
+
+                // An album the song later deleted isn't in song.Albums, but its properties still
+                // need an index of their own.
+                if (!map.TryGetValue(index.Value, out var target))
+                {
+                    target = next++;
+                    map[index.Value] = target;
+                }
+
+                renumbered.Add(target == index.Value
+                    ? prop
+                    : new SongProperty(SongProperty.FormatName(baseName, target, prop.Qualifier), prop.Value));
+            }
+
+            result[song.SongId] = renumbered;
+        }
+
+        return result;
     }
 
 
@@ -781,26 +812,92 @@ public class SongIndex
 
     private async Task<LocalMerger> MergeFromPurchaseInfo(Song song)
     {
-        // ReSharper disable once LoopCanBeConvertedToQuery
-        foreach (var service in MusicService.GetSearchableServices())
-        {
-            var ids = song.GetPurchaseIds(service);
-
-            foreach (var id in ids)
+        var match = await FindSongByServiceIds(song);
+        return match == null
+            ? null
+            : new LocalMerger
             {
-                var match = await GetSongFromService(service, id);
-                if (match != null)
-                {
-                    return new LocalMerger
-                    {
-                        Left = song, Right = match, MatchType = MatchType.Exact,
-                        Conflict = false
-                    };
-                }
+                Left = song, Right = match, MatchType = MatchType.Exact, Conflict = false
+            };
+    }
+
+    /// <summary>
+    /// The last merge step of a catalog commit, run after service enrichment has added ids
+    /// (iTunes matches, ISRCs) that MatchSongs couldn't see. Folds each new song
+    /// (MatchType.None in <paramref name="merges"/>) whose Spotify, iTunes or ISRC ids are
+    /// already held, by a song earlier in the batch or by one in the index, into that song,
+    /// and points its merger at it. Returns the songs left to save.
+    /// </summary>
+    public async Task<List<Song>> MergeNewSongsByServiceIds(ApplicationUser user,
+        IList<Song> songs, IList<LocalMerger> merges)
+    {
+        var newMergers = new Dictionary<Guid, LocalMerger>();
+        foreach (var m in merges.Where(m => m.MatchType == MatchType.None))
+        {
+            _ = newMergers.TryAdd(m.Left.SongId, m);
+        }
+
+        var bySongId = new Dictionary<Guid, Song>();
+        foreach (var s in songs)
+        {
+            _ = bySongId.TryAdd(s.SongId, s);
+        }
+
+        var holders = new Dictionary<string, Song>();
+        void Register(Song s)
+        {
+            foreach (var id in s.GetExtendedPurchaseIds())
+            {
+                _ = holders.TryAdd(id, s);
             }
         }
 
-        return null;
+        foreach (var s in songs.Where(s => !newMergers.ContainsKey(s.SongId)))
+        {
+            Register(s);
+        }
+
+        var mergedAway = new HashSet<Guid>();
+        var added = new List<Song>();
+        foreach (var song in songs)
+        {
+            if (!newMergers.TryGetValue(song.SongId, out var merger))
+            {
+                continue;
+            }
+
+            var target = song.GetExtendedPurchaseIds()
+                    .Select(id => holders.GetValueOrDefault(id))
+                    .FirstOrDefault(s => s != null)
+                ?? await FindSongByServiceIds(song);
+            if (target == null)
+            {
+                Register(song);
+                continue;
+            }
+
+            // Edit the batch's own copy of a song so the save below doesn't overwrite it
+            if (bySongId.TryGetValue(target.SongId, out var inBatch))
+            {
+                target = inBatch;
+            }
+            else
+            {
+                bySongId[target.SongId] = target;
+                added.Add(target);
+            }
+
+            Trace.WriteLineIf(
+                TraceLevels.General.TraceInfo,
+                $"Merging new song {song.SongId} into {target.SongId}, which shares its service ids");
+            _ = await MergeIntoSong(user, target, song);
+            Register(target);
+            _ = mergedAway.Add(song.SongId);
+            merger.Right = target;
+            merger.MatchType = MatchType.Exact;
+        }
+
+        return [.. songs.Where(s => !mergedAway.Contains(s.SongId)), .. added];
     }
 
     #endregion
@@ -1874,6 +1971,57 @@ public class SongIndex
                 if (credit.Length > 0)
                 {
                     yield return [credit];
+                }
+            }
+
+            hasMore = batchCount == pageSize;
+        }
+    }
+
+    /// <summary>
+    /// Streams the ServiceIds field of every song that has one (SharedIdLog.Seed), with the same
+    /// key-set pagination as StreamSongArtistsAsync.
+    /// </summary>
+    public virtual async IAsyncEnumerable<(Guid SongId, IReadOnlyList<string> ServiceIds)> StreamSongServiceIdsAsync(
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        const int pageSize = 1000;
+
+        DateTimeOffset? lastModified = null;
+        string lastId = null;
+        var hasMore = true;
+
+        while (hasMore)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var parameters = new SearchOptions { Size = pageSize, IncludeTotalCount = false };
+            parameters.OrderBy.Add($"{ModifiedField} desc");
+            parameters.OrderBy.Add($"{SongIdField} desc");
+            parameters.Select.AddRange([SongIdField, ModifiedField, ServiceIds]);
+            parameters.Filter = $"{ServiceIds}/any()";
+            if (lastModified != null && lastId != null)
+            {
+                var modifiedStr = lastModified.Value.ToString("o");
+                parameters.Filter +=
+                    $" and (({ModifiedField} lt {modifiedStr}) or ({ModifiedField} eq {modifiedStr} and {SongIdField} lt '{lastId}'))";
+            }
+
+            var response = await DoSearch(null, parameters, CruftFilter.AllCruft);
+
+            var batchCount = 0;
+            foreach (var result in response.GetResults())
+            {
+                var doc = result.Document;
+                lastModified = doc.GetDateTimeOffset(ModifiedField);
+                lastId = doc.GetString(SongIdField);
+                batchCount++;
+
+                if (Guid.TryParse(lastId, out var songId) &&
+                    doc.TryGetValue(ServiceIds, out var value) && value is IEnumerable<object> ids)
+                {
+                    yield return (songId, [.. ids.Select(id => id?.ToString())
+                        .Where(id => !string.IsNullOrWhiteSpace(id))]);
                 }
             }
 

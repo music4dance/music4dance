@@ -19,7 +19,6 @@ const editAction = ref("");
 const editProperties = ref("");
 const tempoMultiplier = ref(0.5);
 
-const simpleMerge = ref<HTMLInputElement | null>(null);
 const deleteSongs = ref<HTMLInputElement | null>(null);
 const cleanupAlbums = ref<HTMLInputElement | null>(null);
 const merge = ref<HTMLInputElement | null>(null);
@@ -61,7 +60,6 @@ const onBulkEdit = (submit: HTMLInputElement | null): void => {
     <BCol>
       <BButtonToolbar aria-label="Admin song modifiers">
         <BDropdown right text="Multi-Edit" class="mx-1 mb-1">
-          <BDropdownItem @click="onBulkEdit(simpleMerge)">Simple Merge</BDropdownItem>
           <BDropdownItem @click="onBulkEdit(merge)">Merge</BDropdownItem>
           <BDropdownItem @click="onBulkEdit(deleteSongs)">Delete</BDropdownItem>
           <BDropdownItem @click="onBulkEdit(cleanupAlbums)">Cleanup Albums</BDropdownItem>
@@ -113,7 +111,6 @@ const onBulkEdit = (submit: HTMLInputElement | null): void => {
         <input type="hidden" name="filter" :value="model.filter.query" />
         <input type="submit" name="action" :value="editAction" />
         <input ref="merge" type="submit" name="action" value="Merge" />
-        <input ref="simpleMerge" type="submit" name="action" value="SimpleMerge" />
         <input ref="deleteSongs" type="submit" name="action" value="Delete" />
         <input ref="cleanupAlbums" type="submit" name="action" value="cleanupAlbums" />
       </form>

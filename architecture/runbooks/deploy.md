@@ -2,7 +2,7 @@
 
 **Type:** Runbook
 **Status:** Current
-**Last verified:** 2026-10-01 (against `azure-pipelines.yml`)
+**Last verified:** 2026-11-04 (against `azure-pipelines.yml`)
 
 ## When to use
 
@@ -27,24 +27,36 @@ deploys fit after PR checks and merge, see [ci-cd-and-release](../infrastructure
    they won't be picked up.
    - **Target Environment**: `test` deploys to `m4d-test`; `production` deploys to `msc4dnc`.
    - **Deployment Mode**: `framework-dependent` (the default) or `self-contained`.
+   - **Run From Package**: on (the default) mounts the package read-only instead of extracting
+     it. Leave it on; turning it off is the rollback below.
 3. Run. The pipeline does the rest:
    - builds the client and server
    - publishes for `linux-x64`
+   - sets `M4D_DATA_ROOT` and `WEBSITE_RUN_FROM_PACKAGE`, if they've changed
    - deploys
+   - stops and starts the app, only if Run From Package was just switched on or off
    - sets `SELF_CONTAINED_DEPLOYMENT`, `ASPNETCORE_ENVIRONMENT`, `SEARCHINDEX`, `SEARCHINDEXVERSION`
      and `WEBSITES_CONTAINER_START_TIME_LIMIT`, plus the startup command
-   - points the health check at `/health/ready`
+   - points the health check at `/health/ready`, if it isn't already
 
    Switching modes needs no portal changes.
 
 Deploy to `test` first and verify before running `production`.
+
+An ordinary deploy has no downtime: the old container serves until the new one passes its
+startup probe (confirmed on production 2026-11-04). A run that switches Run From Package on or
+off takes the site down once, for between about 45 seconds and 4 minutes (see
+[hosting-and-identity § Run From Package](../infrastructure/hosting-and-identity.md#run-from-package)).
 
 ## Verification
 
 - `GET https://<app>/health/ready` returns `200 {"status":"ready"}`.
 - `GET https://<app>/api/health/report` shows no unexpected `Unavailable` services.
 - Kudu → `/home/LogFiles/Application/`: the startup report ends `Overall Status: HEALTHY`, and
-  the log shows `Production environment detected. Deployment mode: <mode>`.
+  the log shows `Production environment detected. Deployment mode: <mode>` and
+  `App data root: /home/data/m4d`.
+- With Run From Package on, `/home/data/SitePackages/packagename.txt` names the zip this run
+  uploaded.
 - Load the home page, a dance page, and a song search.
 
 ## Rollback
@@ -52,6 +64,10 @@ Deploy to `test` first and verify before running `production`.
 Re-run the pipeline on the previous good commit or branch with the same parameters.
 Deployments are full-package, so this is the whole rollback. If the release included a search
 index cutover, also follow that runbook's rollback section.
+
+To go back to extracting into `wwwroot`, run with **Run From Package** off. Runtime data stays
+in `/home/data/m4d`. A commit from before 2026-11-02 ignores `M4D_DATA_ROOT` and uses
+`wwwroot/AppData` again.
 
 ## Troubleshooting
 
@@ -71,7 +87,7 @@ index cutover, also follow that runbook's rollback section.
 Useful console commands (Kudu / SSH):
 
 ```bash
-printenv | grep -E 'PORT|HOME|SELF_CONTAINED|WEBSITE|SEARCHINDEX'
+printenv | grep -E 'PORT|HOME|SELF_CONTAINED|WEBSITE|SEARCHINDEX|M4D_DATA_ROOT'
 ls -la $HOME/site/keys/
 tail -f /home/LogFiles/Application/*.log
 ```

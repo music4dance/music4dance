@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-08 (service account shipped)
+**Last verified:** 2026-11-04 (Logic App inventory retaken)
 **Code:** `m4d/Controllers/PlayListController.cs`, `m4d/Utilities/AdmAuthentication.cs`,
 `m4d/Utilities/ServiceAccountPrincipal.cs`, `m4d/Services/ServiceAccountTokenStore.cs`,
 `m4d/Services/ServiceAccountMonitor.cs`, `m4d/Utilities/MusicServiceManager.cs`,
@@ -112,18 +112,24 @@ Handling), so reconnecting the service account about twice a year is the remaini
 - `GET /PlayList/UpdateBatchStatus` (same token) returns `{IsRunning, Succeeded, Status}` from
   `AdminMonitor`, for polling the outcome.
 
-The Logic App definitions live in Azure, not in this repo:
+The Logic App definitions live in Azure (resource group `m4d-Web`), not in this repo. They call
+the App Service's default host, `https://msc4dnc.azurewebsites.net`, rather than `www`, so they
+skip the Cloudflare edge and its bot challenges (see
+[cloudflare-migration](../plans/cloudflare-migration.md)). The app doesn't redirect that host,
+and the calls carry a token rather than a cookie, so the host makes no difference to the app.
 
-| Logic App | Call | Schedule |
+| Logic App | Call (on `https://msc4dnc.azurewebsites.net`) | Schedule (Pacific) |
 | --- | --- | --- |
-| UpdatePlaylists | `GET https://www.music4dance.net/playlist/updatebatch` (no `type`, so `SongsFromSpotify`) | Daily |
-| UpdateSongStats | `GET https://www.music4dance.net/api/recompute/songstats` | Every 6 hours |
-| Refresh top-N playlists (to create) | `GET .../playlist/updatebatch?type=SpotifyFromSearch&seasonal=false` | Weekly, offset from the other two so they don't fight over `AdminMonitor` |
-| Refresh seasonal playlists (to create) | `GET .../playlist/updatebatch?type=SpotifyFromSearch&seasonal=true` | Monthly, year round, offset from the weekly run |
+| UpdatePlaylists | `GET /playlist/updatebatch` (no `type`, so `SongsFromSpotify`) | Daily, midnight |
+| UpdateSongStats | `GET /api/recompute/songstats` | Every 6 hours |
+| UpdateSubscriptions | `GET /api/recompute/subscription` | Daily |
+| RefreshTopNPlaylists | `GET /playlist/updatebatch?type=SpotifyFromSearch&seasonal=false` | Weekly, Sunday 1 am |
+| RefreshSeasonalPlaylists | `GET /playlist/updatebatch?type=SpotifyFromSearch&seasonal=true` | Monthly, the 1st at 2 am |
+| UpdateSpotify (disabled) | `GET /playlist/updatebatch` | Weekly; an older copy of UpdatePlaylists |
 
 The owner chose weekly for the top-N lists and monthly, year round, for the Holiday/Halloween
 lists (2026-10-08). The seasonal lists stay public all year, so a monthly refresh keeps them
-current without churning them every week. Creating the two new Logic Apps is a step in the
+current without churning them every week. Setting up the two refresh Logic Apps is a step in the
 [runbook](../runbooks/spotify-from-search-maintenance.md#steps-set-up-the-scheduled-refreshes).
 UpdateSongStats every 6 hours also means the dance-page playlist links refresh on their own (see
 below) and the service account's expiry is checked four times a day.
@@ -232,6 +238,9 @@ automation.
   `ServiceAccountTokens` table, the admin connect flow, `ServiceAccountPrincipal`, expiry
   alerts from `songstats`, `UpdateBatch?type=SpotifyFromSearch&seasonal=`, and chunked
   `SetPlaylistTracks`. Schedules chosen: weekly top-N, monthly seasonal.
+- 2026-11-04: Inventory retaken (six Logic Apps, including UpdateSubscriptions and the disabled
+  UpdateSpotify). All six moved from `www.music4dance.net` to `msc4dnc.azurewebsites.net` ahead
+  of the Cloudflare proxy.
 
 ## Related
 

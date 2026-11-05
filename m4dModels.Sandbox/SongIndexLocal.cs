@@ -605,22 +605,44 @@ public class SongIndexLocal : SongIndex
     }
 
     /// <summary>
-    /// In-memory stand-in for the Azure-backed exact ServiceIds lookup: scans songs already
-    /// saved via SaveSong for one whose extended purchase ids contain "{CID}:{id}". Lets tests
-    /// exercise service-id/ISRC lookup paths (e.g. MusicServiceManager.CreateSong's ISRC
-    /// fallback) without a real search backend.
+    /// In-memory stand-in for the Azure-backed exact ServiceIds lookup (which GetSongFromService
+    /// also goes through): scans songs already saved via SaveSong for any whose extended purchase
+    /// ids include one of <paramref name="serviceIds"/>. Lets tests exercise service-id/ISRC
+    /// lookup paths without a real search backend.
     /// </summary>
-    public override Task<Song> GetSongFromService(MusicService service, string id)
+    public override Task<IList<Song>> FindSongsByServiceIds(IEnumerable<string> serviceIds)
     {
-        if (string.IsNullOrWhiteSpace(id))
+        var needles = serviceIds?.Where(id => !string.IsNullOrWhiteSpace(id)).ToHashSet() ?? [];
+        IList<Song> matches = [.. _songStore.Values.Where(
+            s => !s.IsNull && s.GetExtendedPurchaseIds().Any(needles.Contains))];
+        return Task.FromResult(matches);
+    }
+
+    /// <summary>
+    /// In-memory stand-in for the AlternateIds lookup: the stored song whose .Merge command
+    /// names <paramref name="id"/>.
+    /// </summary>
+    public override Task<Song> FindMergedSong(Guid id)
+    {
+        var key = id.ToString();
+        return Task.FromResult(_songStore.Values.FirstOrDefault(
+            s => !s.IsNull && s.GetAltids().Contains(key)));
+    }
+
+    public override async IAsyncEnumerable<(Guid SongId, IReadOnlyList<string> ServiceIds)> StreamSongServiceIdsAsync(
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        foreach (var song in _songStore.Values.Where(s => !s.IsNull).ToList())
         {
-            return Task.FromResult<Song>(null);
+            cancellationToken.ThrowIfCancellationRequested();
+            var ids = song.GetExtendedPurchaseIds();
+            if (ids.Count > 0)
+            {
+                yield return (song.SongId, [.. ids]);
+            }
         }
 
-        var needle = $"{service.CID}:{id}";
-        var match = _songStore.Values.FirstOrDefault(
-            s => s.GetExtendedPurchaseIds().Contains(needle));
-        return Task.FromResult(match);
+        await Task.CompletedTask;
     }
 
     // Record for capturing EditSong calls

@@ -78,7 +78,11 @@ include it.
 Creates a scope, builds a `DanceMusicService`, and calls `IDanceStatsManager.Initialize`.
 `DanceStatsManager.Initialize` loads the dance environment from the file cache first
 (`LoadFromAppData`: the runtime `dance-environment.json`, then the checked-in fallback snapshot)
-and only rebuilds it from the search index (`LoadFromAzure`) if no file exists. Either path ends
+and only rebuilds it from the search index (`LoadFromAzure`) if no file exists. When it had to use
+the fallback (`Source` is `Fallback`, for example on a first start against a new
+`M4D_DATA_ROOT`), the hosted service then starts a background `ClearCache(fromStore: true)`. That
+rebuild replaces the snapshot's stats and writes the runtime cache. If it fails, it logs a warning
+and the fallback serves until the next songstats job. Either path ends
 in `DanceStatsInstance.FixupStats`, which wires up dance groups and then does the
 database-dependent part: attaching each dance's `SpotifyFromSearch` playlist id and creating
 placeholder `Dance` rows for new dances. `FixupStats` skips that part when `Database` is already
@@ -182,8 +186,8 @@ The work runs **inside the request**, not on the queue, and the response is `200
 
 **Who calls it.** The Logic App definitions live in Azure, not in this repo. The inventory in
 [spotify-playlist-automation](../music-services/spotify-playlist-automation.md) lists
-**UpdateSongStats**, which calls `/api/recompute/songstats` every 6 hours. The caller of
-`subscription` isn't recorded in the repo; the public API plan describes it as a nightly job.
+**UpdateSongStats**, which calls `/api/recompute/songstats` every 6 hours, and
+**UpdateSubscriptions**, which calls `/api/recompute/subscription` daily.
 The same token also guards `GET /PlayList/UpdateBatch` and `UpdateBatchStatus`, which compete for
 the same `AdminMonitor` slot.
 
@@ -285,5 +289,5 @@ and `ArtistIndexCache` loads and rebuilds the artist snapshot in the background
   `AdminMonitor`
 - [usage-tracking](../observability/usage-tracking.md) and
   [saved-searches](../search/saved-searches.md): what the queued writes record
-- [runbooks/refresh-dance-fallback-snapshot](../runbooks/refresh-dance-fallback-snapshot.md): the
+- [runbooks/refresh-fallback-snapshots](../runbooks/refresh-fallback-snapshots.md): the
   dance-stats file the startup load falls back to

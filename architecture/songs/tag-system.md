@@ -92,7 +92,7 @@ on `DanceStatsInstance.TagManager` and is exposed as `DanceMusicCoreService.TagM
   `DanceStatsInstance` JSON constructor rebuilds a `TagManager` from it). The cold-start fallback
   and sandbox stats files carry it the same way. See
   [song-internal-format](song-internal-format.md) and
-  [refresh-dance-fallback-snapshot](../runbooks/refresh-dance-fallback-snapshot.md).
+  [refresh-fallback-snapshots](../runbooks/refresh-fallback-snapshots.md).
 - **Live updates.** When a user adds or removes a tag, `TaggableObject.DoUpdate` calls
   `UpdateTagGroups`, which does `FindOrCreateTagGroup(tag).Count += 1` (or `-= 1`) on the shared
   map. New tags therefore show up in the map immediately. Their counts drift until the next stats

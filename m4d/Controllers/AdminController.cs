@@ -26,6 +26,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 
 using System.Globalization;
+using System.Net;
 using System.Net.Mime;
 using System.Security.Claims;
 using System.Text;
@@ -178,6 +179,169 @@ public class AdminController(
     {
         ViewBag.Message = message;
         return View(await store.Get(ServiceType.Spotify));
+    }
+
+    //
+    // GET: /Admin/SharedIds
+    // The review queue of songs that share a Spotify, iTunes or ISRC id - see
+    // architecture/songs/shared-id-review.md
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> SharedIds(int page = 1, string message = null)
+    {
+        if (ServiceHealth?.IsServiceHealthy("SearchService") == false)
+        {
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
+        page = Math.Max(1, page);
+        var log = Database.SharedIds;
+        IReadOnlyList<SharedIdCluster> clusters = [];
+        List<SharedIdCluster> shown = [];
+
+        // Loading a page follows songs merged or deleted since they were queued, which can change
+        // the clusters, so compute them again until a page loads cleanly
+        for (var attempt = 0; attempt < 3; attempt++)
+        {
+            clusters = await log.PendingClusters();
+            shown = [.. clusters.Skip((page - 1) * SharedIdsModel.PageSize).Take(SharedIdsModel.PageSize)];
+            var current = true;
+            foreach (var cluster in shown)
+            {
+                current &= await log.LoadSongs(cluster);
+            }
+
+            if (current)
+            {
+                break;
+            }
+        }
+
+        return View(new SharedIdsModel
+        {
+            PendingCandidates = await log.PendingCount(),
+            ClusterCount = clusters.Count,
+            Page = page,
+            Clusters = shown,
+            Message = message
+        });
+    }
+
+    //
+    // POST: /Admin/MergeSharedIds
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> MergeSharedIds(Guid[] songIds, int page = 1)
+    {
+        var user = await Database.FindUser(UserName);
+        var merged = await Database.SharedIds.Merge(user, songIds ?? []);
+        if (merged != null)
+        {
+            await DanceStatsManager.ClearCache(Database, false);
+        }
+
+        return RedirectToAction(nameof(SharedIds), new
+        {
+            page,
+            message = merged == null
+                ? "Choose at least two songs that are still in the catalog to merge."
+                : $"Merged {songIds.Length} songs into \"{merged.Title}\" ({merged.SongId})."
+        });
+    }
+
+    //
+    // POST: /Admin/RejectSharedIds
+    // The songs are different: the shared id stays where it is and the pairs aren't queued again
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> RejectSharedIds(int[] candidateIds, int page = 1)
+    {
+        var user = await Database.FindUser(UserName);
+        await Database.SharedIds.Reject(user, candidateIds ?? []);
+        return RedirectToAction(nameof(SharedIds), new { page, message = "Marked as different songs." });
+    }
+
+    //
+    // POST: /Admin/SeedSharedIds
+    // Queues every pair of songs that already share an id
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult SeedSharedIds()
+    {
+        try
+        {
+            StartAdminTask("SeedSharedIds");
+            AdminMonitor.UpdateTask("SeedSharedIds");
+
+            var dms = Database.GetTransientService();
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var added = await dms.SharedIds.Seed(AdminMonitor.UpdateTask);
+                    AdminMonitor.CompleteTask(true, $"SeedSharedIds: Added={added}");
+                }
+                catch (Exception e)
+                {
+                    AdminMonitor.CompleteTask(false, $"SeedSharedIds: Failed={e.Message}");
+                }
+                finally
+                {
+                    dms.Dispose();
+                }
+            });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"SeedSharedIds: {e.Message}", e);
+        }
+    }
+
+    //
+    // POST: /Admin/MergeMatchingSharedIds
+    // Merges every pending cluster whose songs also have the same title and artist
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> MergeMatchingSharedIds()
+    {
+        try
+        {
+            StartAdminTask("MergeMatchingSharedIds");
+            AdminMonitor.UpdateTask("MergeMatchingSharedIds");
+
+            var user = await Database.FindUser(UserName);
+            var dms = Database.GetTransientService();
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var merged = await dms.SharedIds.MergeMatching(user, AdminMonitor.UpdateTask);
+                    await DanceStatsManager.ClearCache(dms, false);
+                    AdminMonitor.CompleteTask(true, $"MergeMatchingSharedIds: Merged={merged}");
+                }
+                catch (Exception e)
+                {
+                    AdminMonitor.CompleteTask(false, $"MergeMatchingSharedIds: Failed={e.Message}");
+                }
+                finally
+                {
+                    dms.Dispose();
+                }
+            });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"MergeMatchingSharedIds: {e.Message}", e);
+        }
     }
 
     //
@@ -901,11 +1065,12 @@ public class AdminController(
     //
     // Get: //UpdateSitemap
     [Authorize(Roles = "dbAdmin")]
-    public ActionResult UpdateSitemap([FromServices] IFileProvider fileProvider)
+    public ActionResult UpdateSitemap([FromServices] IFileProvider fileProvider,
+        [FromServices] AppDataPaths appDataPaths)
     {
         ViewBag.Name = "Update Sitemap";
 
-        SiteMapInfo.ReloadCategories(fileProvider);
+        SiteMapInfo.ReloadCategories(fileProvider, appDataPaths.AppData, Logger);
 
         return RedirectToAction("SiteMap", "Home");
     }
@@ -1020,40 +1185,68 @@ public class AdminController(
     }
 
     //
-    // Post: //ExportDanceFallback
+    // Post: //ExportFallbacks
     //
-    // Writes the current in-memory dance stats (DanceStatsManager.Instance) over the
-    // checked-in cold-start snapshot at ClientApp/src/assets/content/dance-environment-fallback.json.
+    // Writes the checked-in cold-start snapshots under ClientApp/src/assets/content:
+    //   dance-environment-fallback.json - the current in-memory dance stats (DanceStatsManager.Instance)
+    //   artist-index-fallback.json      - an artist index built fresh from the search index, not the
+    //                                     one ArtistIndexCache holds, which may have been read back
+    //                                     from the old fallback itself
     // Run ClearSongCache?reloadFromStore=true first against a production-like DB/index so the
-    // snapshot reflects real song counts, not a sparse local dev dataset.
+    // snapshots reflect the real catalog, not a sparse local dev dataset.
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "showDiagnostics")]
-    public ActionResult ExportDanceFallback([FromServices] IWebHostEnvironment environment)
+    public async Task<ActionResult> ExportFallbacks([FromServices] IWebHostEnvironment environment)
     {
-        ViewBag.Name = "ExportDanceFallback";
+        ViewBag.Name = "ExportFallbacks";
 
-        var path = Path.Combine(
-            environment.ContentRootPath, "ClientApp", "src", "assets", "content",
-            "dance-environment-fallback.json");
+        var content = Path.Combine(environment.ContentRootPath, "ClientApp", "src", "assets", "content");
+        var dancePath = Path.Combine(content, "dance-environment-fallback.json");
+        var artistPath = Path.Combine(content, "artist-index-fallback.json");
 
-        if (!System.IO.File.Exists(path))
+        var missing = new[] { dancePath, artistPath }.Where(p => !System.IO.File.Exists(p)).ToList();
+        if (missing.Count > 0)
         {
             ViewBag.Success = false;
-            ViewBag.Message = $"Fallback snapshot not found at {path}";
+            ViewBag.Message = $"Fallback snapshot not found at {string.Join(", ", missing)}";
+            return View("Results");
+        }
+
+        ArtistIndex artists;
+        try
+        {
+            artists = await ArtistIndex.BuildAsync(SongIndex.StreamSongArtistsAsync(CruftFilter.NoCruft));
+        }
+        catch (Exception ex)
+        {
+            ViewBag.Success = false;
+            ViewBag.Message = $"Failed to build the artist index: {ex.Message}";
+            return View("Results");
+        }
+
+        // An index mid-rebuild answers with no songs rather than failing; a blank fallback would
+        // leave a fresh deploy with no artist pages, so refuse it rather than write it.
+        if (artists.Count == 0)
+        {
+            ViewBag.Success = false;
+            ViewBag.Message = "The artist index came back empty; no snapshots were written";
             return View("Results");
         }
 
         try
         {
-            System.IO.File.WriteAllText(path, DanceStatsManager.Instance.SaveToJson(), Encoding.UTF8);
+            System.IO.File.WriteAllText(dancePath, DanceStatsManager.Instance.SaveToJson(), Encoding.UTF8);
+            // Indented with a trailing newline: prettier owns the format of files under src/
+            System.IO.File.WriteAllText(artistPath, artists.SaveToJson(Newtonsoft.Json.Formatting.Indented) + "\n");
             ViewBag.Success = true;
-            ViewBag.Message = $"Wrote dance stats snapshot to {path}";
+            ViewBag.Message = $"Wrote dance stats snapshot to {dancePath} and " +
+                $"{artists.Count:N0} artists to {artistPath}";
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             ViewBag.Success = false;
-            ViewBag.Message = $"Failed to write dance stats snapshot to {path}: {ex.Message}";
+            ViewBag.Message = $"Failed to write the fallback snapshots: {ex.Message}";
         }
 
         return View("Results");
@@ -1436,7 +1629,7 @@ public class AdminController(
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "dbAdmin")]
     public async Task<ActionResult> LoadUsageFromAppData(
-        [FromServices] IWebHostEnvironment environment,
+        [FromServices] AppDataPaths appDataPaths,
         string fileName = "usage.tsv",
         int batchSize = 5000,
         bool truncate = true)
@@ -1450,7 +1643,7 @@ public class AdminController(
 
             StartAdminTask("LoadUsageFromAppData");
 
-            var appDataPath = EnsureAppData(environment);
+            var appDataPath = EnsureAppData(appDataPaths);
 
             // Normalize and validate the requested file name before constructing the path
             var effectiveFileName = string.IsNullOrWhiteSpace(fileName) ? "usage.tsv" : fileName;
@@ -1960,7 +2153,7 @@ public class AdminController(
     // Get: //IndexBackup
     [Authorize(Roles = "showDiagnostics")]
     public async Task<ActionResult> IndexBackup(
-        [FromServices] IWebHostEnvironment environment,
+        [FromServices] AppDataPaths appDataPaths,
         string name = "default",
         string filter = null,
         int writeBufferSize = 100,
@@ -1975,7 +2168,7 @@ public class AdminController(
 
             var dt = DateTime.Now;
             var fname = $"index-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}.txt";
-            var path = Path.Combine(EnsureAppData(environment), fname);
+            var path = Path.Combine(EnsureAppData(appDataPaths), fname);
 
             var songFilter = filter == null ? null : Database.SearchService.GetSongFilter(filter);
 
@@ -2012,7 +2205,7 @@ public class AdminController(
             }
 
             AdminMonitor.CompleteTask(true, $"Backup ({n} songs) complete to: {path}");
-            return File("~/AppData/" + fname, MediaTypeNames.Text.Plain, fname);
+            return PhysicalFile(path, MediaTypeNames.Text.Plain, fname);
         }
         catch (OperationCanceledException)
         {
@@ -2027,7 +2220,7 @@ public class AdminController(
     //
     // Get: //BackupDatabase
     [Authorize(Roles = "showDiagnostics")]
-    public ActionResult BackupDatabase([FromServices] IWebHostEnvironment environment,
+    public ActionResult BackupDatabase([FromServices] AppDataPaths appDataPaths,
         bool users = true, bool tags = true, bool dances = true, bool playlists = true,
         bool searches = true, bool songs = true, string useLookupHistory = null)
     {
@@ -2040,7 +2233,7 @@ public class AdminController(
             var dt = DateTime.Now;
             var h = history ? "-lookup" : string.Empty;
             var fname = $"backup-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}{h}.txt";
-            var path = Path.Combine(EnsureAppData(environment), fname);
+            var path = Path.Combine(EnsureAppData(appDataPaths), fname);
 
             Database.Context.Database.SetCommandTimeout(new TimeSpan(0, 5, 0));
 
@@ -2119,7 +2312,7 @@ public class AdminController(
             }
 
             AdminMonitor.CompleteTask(true, "Backup complete to: " + path);
-            return File("~/AppData/" + fname, MediaTypeNames.Text.Plain, fname);
+            return PhysicalFile(path, MediaTypeNames.Text.Plain, fname);
             //AdminMonitor.CompleteTask(true, "Backup complete to: " + path);
             //var res = new FilePathResult("~/content/" + fname,System.Net.Mime.MediaTypeNames.Text.Plain);
             //res.FileDownloadName = fname;

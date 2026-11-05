@@ -1572,6 +1572,15 @@ public class Song : TaggableObject
             cells.Add(track.TrackId);
         }
 
+        // Kept so MatchSongs can find a catalog song holding the same recording under another id
+        if (!string.IsNullOrWhiteSpace(track.ISRC))
+        {
+            fields.Add(
+                PurchaseField + ":00:" +
+                AlbumDetails.BuildPurchaseKey(PurchaseType.Song, ServiceType.ISRC));
+            cells.Add(track.ISRC);
+        }
+
         return await CreateFromRow(user, fields, cells, database, DanceRatingIncrement);
     }
 
@@ -2618,6 +2627,24 @@ public class Song : TaggableObject
     }
 
     // This is an additive merge - only add new things if they don't conflict with the old
+    // AdditiveMerge pairs albums by index, which is right for an edit of this song but not for a
+    // separate record of it: renumber edit's albums so each lands on this song's album of the same
+    // name, or on a fresh index past every album index this song has used.
+    public void AlignAlbumIndexes(Song edit)
+    {
+        var next = SongProperties
+            .Where(p => p.BaseName is AlbumField or TrackField or PublisherField or PurchaseField)
+            .Select(p => p.Index ?? -1)
+            .DefaultIfEmpty(-1)
+            .Max() + 1;
+        var used = new HashSet<int>();
+        foreach (var album in edit.Albums)
+        {
+            var match = FindAlbum(album.Name, album.Track);
+            album.Index = match != null && used.Add(match.Index) ? match.Index : next++;
+        }
+    }
+
     public bool AdditiveMerge(ApplicationUser user, Song edit, List<string> addDances,
         DanceStatsInstance stats)
     {

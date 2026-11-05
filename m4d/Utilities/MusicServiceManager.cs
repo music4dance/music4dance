@@ -125,12 +125,23 @@ public class MusicServiceManager(IConfiguration configuration)
             return false;
         }
 
+        // Leave an id another song already holds where it is and queue the pair for review,
+        // rather than giving the id a second song (see SharedIdLog)
+        var held = await dms.SharedIds.CheckIds(sd, TrackClaims(tracks),
+            $"{MusicService.GetService(tracks[0].Service).Name} lookup");
+        tracks = [.. tracks.Where(t => !held.Contains(TrackKey(t)))];
+        if (tracks.Count == 0)
+        {
+            return false;
+        }
+
         var edit = await Song.Create(sd, dms);
 
         var tags = new TagList();
         foreach (var foundTrack in tracks)
         {
-            _ = UpdateMusicServiceFromTrack(dms, edit, foundTrack, ref tags);
+            _ = UpdateMusicServiceFromTrack(dms, edit, foundTrack, ref tags,
+                includeIsrc: !held.Contains(IsrcKey(foundTrack.ISRC)));
         }
 
         var user = MusicService.GetService(tracks[0].Service).ApplicationUser;
@@ -221,8 +232,51 @@ public class MusicServiceManager(IConfiguration configuration)
         return found;
     }
 
+    private static string TrackKey(ServiceTrack track)
+    {
+        var service = MusicService.GetService(track.Service);
+        return $"{service.CID}:{service.NormalizeId(track.TrackId)}";
+    }
+
+    private static string IsrcKey(string isrc)
+    {
+        if (string.IsNullOrWhiteSpace(isrc))
+        {
+            return null;
+        }
+
+        var service = MusicService.GetService(ServiceType.ISRC);
+        return $"{service.CID}:{service.NormalizeId(isrc)}";
+    }
+
+    private static string DescribeTrack(ServiceTrack track)
+    {
+        var length = track.Duration.HasValue
+            ? $" ({track.Duration.Value / 60}:{track.Duration.Value % 60:00})"
+            : string.Empty;
+        return $"{MusicService.GetService(track.Service).Name} {track.TrackId}: " +
+            $"{track.Name} by {track.Artist} on {track.Album}{length}";
+    }
+
+    // The ids attaching these tracks would add: each track's own id and its ISRC
+    private static Dictionary<string, string> TrackClaims(IEnumerable<ServiceTrack> tracks)
+    {
+        var claims = new Dictionary<string, string>();
+        foreach (var track in tracks)
+        {
+            _ = claims.TryAdd(TrackKey(track), DescribeTrack(track));
+            var isrc = IsrcKey(track.ISRC);
+            if (isrc != null)
+            {
+                _ = claims.TryAdd(isrc, DescribeTrack(track));
+            }
+        }
+
+        return claims;
+    }
+
     public static Song UpdateMusicServiceFromTrack(DanceMusicCoreService dms,
-        Song song, ServiceTrack track, ref TagList tags)
+        Song song, ServiceTrack track, ref TagList tags, bool includeIsrc = true)
     {
         var trackId = track.TrackId;
         var ret = UpdateMusicService(
@@ -230,7 +284,7 @@ public class MusicServiceManager(IConfiguration configuration)
             track.Name, track.Album, track.Artist, trackId, track.CollectionId,
             track.AltId, track.Duration.ToString(), track.TrackNumber);
 
-        if (!string.IsNullOrWhiteSpace(track.ISRC))
+        if (includeIsrc && !string.IsNullOrWhiteSpace(track.ISRC))
         {
             var ad = song.FindAlbum(track.Album, track.TrackNumber);
             ad?.AddPurchaseId(PurchaseType.Song, ServiceType.ISRC, track.ISRC);
@@ -487,6 +541,22 @@ public class MusicServiceManager(IConfiguration configuration)
         _ = await UpdateFromTracks(dms, song, [track]);
         _ = await UpdateAudioData(dms, service, song);
 
+        // Enrichment can add ids (an iTunes match, ISRCs for other Spotify ids) that the checks
+        // above couldn't see; if a catalog song already holds one, attach the track to it instead
+        if (!found)
+        {
+            var existing = await dms.SongIndex.FindSongByServiceIds(song);
+            if (existing != null)
+            {
+                Logger.LogInformation(
+                    "Service id match after enrichment: track {TrackId} goes to existing song {SongId}",
+                    id, existing.SongId);
+                _ = await UpdateFromTracks(dms, existing, [track]);
+                song = existing;
+                found = true;
+            }
+        }
+
         if (found)
         {
             await dms.SongIndex.SaveSong(song);
@@ -510,6 +580,7 @@ public class MusicServiceManager(IConfiguration configuration)
         }
 
         var isrcService = MusicService.GetService(ServiceType.ISRC);
+        isrc = isrcService.NormalizeId(isrc);
         var match = await dms.SongIndex.GetSongFromService(isrcService, isrc);
         if (match != null)
         {
@@ -1060,6 +1131,7 @@ public class MusicServiceManager(IConfiguration configuration)
             edit.Albums.SelectMany(
                 a => a.GetPurchaseIdentifiers(ServiceType.ISRC, PurchaseType.Song)));
 
+        var found = new List<(AlbumDetails Album, ServiceTrack Track)>();
         foreach (var spotifyId in song.GetPurchaseIds(spotify))
         {
             var track = await GetMusicServiceTrack(spotifyId, spotify);
@@ -1074,8 +1146,25 @@ public class MusicServiceManager(IConfiguration configuration)
                       .Contains(spotifyId));
             if (album != null)
             {
-                changed |= album.AddPurchaseId(PurchaseType.Song, ServiceType.ISRC, track.ISRC);
+                found.Add((album, track));
             }
+        }
+
+        if (found.Count == 0)
+        {
+            return false;
+        }
+
+        var claims = new Dictionary<string, string>();
+        foreach (var (_, track) in found)
+        {
+            _ = claims.TryAdd(IsrcKey(track.ISRC), DescribeTrack(track));
+        }
+
+        var held = await dms.SharedIds.CheckIds(song, claims, "ISRC lookup");
+        foreach (var (album, track) in found.Where(f => !held.Contains(IsrcKey(f.Track.ISRC))))
+        {
+            changed |= album.AddPurchaseId(PurchaseType.Song, ServiceType.ISRC, track.ISRC);
         }
 
         return changed && await dms.SongIndex.EditSong(user, song, edit);

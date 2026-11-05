@@ -2,7 +2,7 @@
 
 **Type:** Runbook
 **Status:** Current
-**Last verified:** 2026-10-30
+**Last verified:** 2026-11-03
 
 ## When to use
 
@@ -95,7 +95,7 @@ entries).
 
 | Signature | Count | Cause | Status |
 | --- | --- | --- | --- |
-| Kestrel `An unhandled exception was thrown` → `BadImageFormatException: Index not found` (from `Logger'1..ctor`), followed by `The response has already started` | 213 + 39 in 4½ min | `AzureWebApp@1` zip-deploys over `wwwroot` while the old process is still serving, so assemblies change underneath it. The burst runs from deploy start until the new container's health report | **Open**: Run From Package or a staging slot swap |
+| Kestrel `An unhandled exception was thrown` → `BadImageFormatException: Index not found` (from `Logger'1..ctor`), followed by `The response has already started` | 213 + 39 in 4½ min | `AzureWebApp@1` zip-deploys over `wwwroot` while the old process is still serving, so assemblies change underneath it. The burst runs from deploy start until the new container's health report | **Fixed** 2026-11-03: deploys now use Run From Package, which mounts the new package instead of extracting over the running app (see [hosting-and-identity § Run From Package](../infrastructure/hosting-and-identity.md#run-from-package)). Seeing this again means `WEBSITE_RUN_FROM_PACKAGE` is off |
 | `Couldn't find dance <id>` from `DanceQueryItem.FromValue` via `BotFilter.cshtml` | 10 | Crawlers send song filters naming dances that don't exist (`4387`, `DanceTags`); parsing threw during view render, giving a 500 | **Fixed 2026-10-13**: `DanceQuery.IsValid` check returns 400 in `SongController.DoAzureSearch` and `CustomSearchController.Index` |
 | `NullReferenceException` or `Exception: Unknown holiday` at `CustomSearchController.Index`; 500s on `/song/playlist` | 551 a day (HTTP logs, 2026-10-30) | SQL-injection probes (`' UNION ALL SELECT …`) on `?name=` and `?id=` from a few IPs, plus requests with no `name`. Nothing reached SQL; the unknown name threw in `CreateCustomSearchFilter`, and the bad id went straight to the Spotify lookup (which call threw wasn't pinned down) | **Fixed 2026-10-30**: unknown names and non-base62 playlist ids return 404; a missing name defaults to Holiday |
 | `Azure.Core` `404 Not Found` with a `Sync-Token` header, every ~5 min | ~815 | App Configuration refresh polls `Configuration:Sentinel` with label `Production`, which doesn't exist (only unlabeled and `Staging` do). Also means bumping a sentinel never refreshes production | **Fixed 2026-10-14**: the refresh now watches the unlabeled sentinel (`AppConfigurationStartup`) |

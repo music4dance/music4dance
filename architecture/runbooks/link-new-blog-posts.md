@@ -2,7 +2,7 @@
 
 **Type:** Runbook
 **Status:** Current
-**Last verified:** 2026-10-01
+**Last verified:** 2026-11-03
 
 ## When to use
 
@@ -37,11 +37,13 @@ is handled by the `music4dance-wp-handoff` skill.
 4. **Ship it.** Either:
    - **Normal path:** commit and deploy (see [deploy](deploy.md)). The build copies
      `ClientApp/src/assets/content/*` into `wwwroot/content/`.
-   - **Fast path (no deploy):** upload the edited `blogmap.txt` / `helpmap.txt` over the live
-     copies in the deployed site's `wwwroot/content/` folder (see
-     [transfer-files-to-app-service](transfer-files-to-app-service.md)). Confirm the exact path in Kudu before
-     overwriting, because it differs between deployment modes. **Also commit the same change**,
-     or the next deploy silently reverts it.
+   - **Fast path (no deploy):** upload the edited `blogmap.txt` / `helpmap.txt` to
+     `/home/data/m4d/AppData/` (see
+     [transfer-files-to-app-service](transfer-files-to-app-service.md)). The site uses it while
+     it's newer than the deployed copy, and logs which one it chose
+     (`Site map: using override|packaged copy; ...`). **Also commit the same change.** Once a
+     deploy ships it, the deployed copy is newer and takes over, so the upload never needs
+     cleaning up.
 5. **Reload the site map:** **Admin → Initialization Tasks → Update Sitemap**
    (`AdminController.UpdateSitemap`). The parsed tree is cached in memory, so neither path takes
    effect until this runs, or until the app restarts.

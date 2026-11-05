@@ -80,6 +80,7 @@ sections are:
 | Section | Read it for |
 | --- | --- |
 | Traffic by group | Share of pages, bytes and server time per group |
+| Traffic by host | Requests per `Host` header, and the two ways around Cloudflare: the default `msc4dnc.azurewebsites.net` host, and custom-domain requests from outside Cloudflare's IP ranges (meaningful only after the DNS is proxied). Platform callers and signed-in requests are left out of the detail. Compare with the baseline in `architecture/plans/cloudflare-migration.md`, Phase 7 |
 | Top agents by server time | The individual crawlers and browser families that cost the most |
 | People | Clients, page views, referrer sources, top pages, browsers |
 | Browser user agents that behave like automation | Headless farms and no-JS scrapers, by subnet |

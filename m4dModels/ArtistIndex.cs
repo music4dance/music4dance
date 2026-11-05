@@ -111,14 +111,15 @@ public class ArtistIndex
     /// <summary>
     /// The snapshot as JSON: the display name and song count per artist, plus when it was built.
     /// The match and sort keys aren't stored because they're derived from the name, which keeps
-    /// the file at roughly half a megabyte for the whole catalog.
+    /// the file at roughly half a megabyte for the whole catalog. Compact by default; the
+    /// checked-in fallback is written indented, which is how prettier formats it in source control.
     /// </summary>
-    public string SaveToJson() =>
+    public string SaveToJson(Formatting formatting = Formatting.None) =>
         JsonConvert.SerializeObject(new ArtistIndexFile
         {
             Built = Built,
             Artists = _entries.ToDictionary(e => e.Entry.Name, e => e.Entry.Songs, StringComparer.Ordinal),
-        }, FileSettings);
+        }, formatting, FileSettings);
 
     /// <summary>
     /// Reads back a <see cref="SaveToJson"/> snapshot, keeping its original <see cref="Built"/>

@@ -1068,3 +1068,21 @@ describe("SongHistory", () => {
     });
   });
 });
+
+describe("SongHistory.fieldValues", () => {
+  it("returns each distinct non-empty value, oldest first", () => {
+    const history = makeHistory([
+      { name: ".Create", value: "a" },
+      { name: "Title", value: "Song" },
+      { name: "Tempo", value: "120.0" },
+      { name: ".Create", value: "b" },
+      { name: "Title", value: "Song (Remastered)" },
+      { name: ".Edit", value: "b" },
+      { name: "Title", value: "" },
+      { name: "Title", value: "Song" },
+    ]);
+    expect(history.fieldValues("Title")).toEqual(["Song", "Song (Remastered)"]);
+    expect(history.fieldValues("Tempo")).toEqual(["120.0"]);
+    expect(history.fieldValues("Artist")).toEqual([]);
+  });
+});

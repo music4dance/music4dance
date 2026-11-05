@@ -192,6 +192,9 @@ Batch/service-account operations use pseudo-users named `batch-s` (Spotify) and 
 
 ## Future improvements
 
+- **Apple Music API migration:** replace the iTunes Search/Lookup API with the Apple Music API
+  (ISRCs, reverse ISRC lookup, batch lookups, higher rate limits) and switch purchase links to
+  `music.apple.com`. See [apple-music-api-migration](../plans/apple-music-api-migration.md).
 - **Amazon Product Advertising API (PA-API 5):** real search, availability and ASIN refresh, for
   accurate links and better affiliate conversion. `IsSearchable`, `ParseSearchResults` and
   `ParseTrackResults` are the extension points, and the Spotify and iTunes credential and
@@ -206,11 +209,10 @@ Batch/service-account operations use pseudo-users named `batch-s` (Spotify) and 
 
 ## History
 
-- 2026: **Amazon renewal.** Stale ASIN product links were replaced with affiliate *search*
+- 2026: **Amazon renewal.** Stale ASIN product links were replaced with affiliate _search_
   links for every song. The "Available on Amazon" filter was removed. ASINs were kept in the
   database unused. OneLink was enrolled for 10 marketplaces. Options considered: search links,
   PA-API 5, embed/streaming links, and a hybrid with ASINs; geographic routing via single
   storefront, OneLink, browser locale, IP geolocation, or user preference. The default `Purchase/any()` published
   filter is unaffected, because retained ASINs still populate the `Purchase` collection.
   Consolidated here from `amazon-music-renewal.md` on 2026-10-01.
-

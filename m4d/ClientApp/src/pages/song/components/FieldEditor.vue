@@ -18,6 +18,8 @@ const props = defineProps<{
   placeholder?: string;
   inputClass?: string;
   inputWidth?: string;
+  /** Other values the field has held (e.g. from the songs merged into this one), offered as links while editing. */
+  alternatives?: string[];
 }>();
 
 const emit = defineEmits<{
@@ -41,6 +43,16 @@ const commitValue = () => {
 };
 
 const isNumber = computed(() => props.type === "number");
+const normalize = (v: string): string =>
+  isNumber.value && v.trim() ? String(Number(v)) : v.trim();
+const choices = computed(() => {
+  const current = normalize(String(localValue.value ?? ""));
+  return [...new Set((props.alternatives ?? []).map(normalize))].filter((v) => v && v !== current);
+});
+const choose = (v: string) => {
+  localValue.value = v;
+  commitValue();
+};
 const computedType = computed(() => props.type ?? "text");
 const hasEditPermission = computed(() => {
   if (props.overridePermission || props.isCreator) {
@@ -70,6 +82,18 @@ const hasEditPermission = computed(() => {
     <span v-else
       ><slot>{{ value }}</slot></span
     >
+    <span v-if="editing && hasEditPermission && choices.length" class="field-alternatives">
+      <BButton
+        v-for="choice in choices"
+        :key="choice"
+        variant="link"
+        size="sm"
+        class="p-0 me-2"
+        :data-alternative="choice"
+        @click="choose(choice)"
+        >{{ choice }}</BButton
+      >
+    </span>
   </span>
 </template>
 
@@ -79,5 +103,11 @@ const hasEditPermission = computed(() => {
 }
 .text {
   width: auto;
+}
+.field-alternatives {
+  display: block;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: normal;
 }
 </style>

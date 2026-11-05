@@ -5,6 +5,7 @@ using Azure.Search.Documents.Models;
 
 using DanceLibrary;
 
+using m4d.Configuration;
 using m4d.Services;
 using m4d.Services.ServiceHealth;
 using m4d.Utilities;
@@ -232,7 +233,7 @@ public class SongController : ContentController
             {
                 var isrcService = MusicService.GetService(ServiceType.ISRC);
                 var tracksByIsrc = isrcCandidates
-                    .GroupBy(t => t.ISRC)
+                    .GroupBy(t => isrcService.NormalizeId(t.ISRC))
                     .ToDictionary(g => g.Key, g => g.ToList());
 
                 var isrcResults = await SongIndex.Search(
@@ -251,9 +252,12 @@ public class SongController : ContentController
 
                 foreach (var song in isrcResults.Songs)
                 {
+                    // A track already attached to another song holding the same ISRC (a
+                    // duplicate pair that's in the shared-id review queue) stays there
                     var tracksToAttach = song.GetPurchaseIds(isrcService)
                         .Where(tracksByIsrc.ContainsKey)
                         .SelectMany(isrc => tracksByIsrc[isrc])
+                        .Where(t => !matchedTrackIds.Contains(t.TrackId))
                         .ToList();
 
                     if (tracksToAttach.Count == 0)
@@ -1664,11 +1668,7 @@ public class SongController : ContentController
         switch (action)
         {
             case "Merge":
-                return Merge(songs);
-            case "SimpleMerge":
-                return await SimpleMerge(songs);
-            case "Preview":
-                return SongMerge(songs);
+                return await Merge(songs);
             case "Delete":
                 return await Delete(songs, Filter);
             case "CleanupAlbums":
@@ -1677,36 +1677,6 @@ public class SongController : ContentController
                 var list = songs.ToList().AsReadOnly();
                 return await FormatSongList(list, list.Count);
         }
-    }
-
-    //
-    // Merge: /Song/Merge
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "dbAdmin")]
-    public async Task<ActionResult> MergeResults(string songIds)
-    {
-        var songs = (await SongIndex.FindSongs(songIds.Split(',').Select(Guid.Parse))).ToList();
-
-        // Create a merged version of the song (and commit to DB)
-
-        // Get the logged in user
-        var user = await Database.FindUser(User.Identity?.Name);
-
-        var song = await SongIndex.MergeSongs(
-            user, songs,
-            ResolveStringField(Song.TitleField, songs, Request.Form),
-            ResolveStringField(Song.ArtistField, songs, Request.Form),
-            ResolveDecimalField(Song.TempoField, songs, Request.Form),
-            ResolveIntField(Song.LengthField, songs, Request.Form),
-            Request.Form[Song.AlbumListField], [.. Request.Form.Keys]);
-
-        Database.RemoveMergeCandidates(songs);
-
-        await DanceStatsManager.ClearCache(Database, true);
-
-        ViewBag.BackAction = "MergeCandidates";
-
-        return await Details(song?.SongId);
     }
 
     // CleanMusicServices: /Song/CleanMusicServices
@@ -1778,14 +1748,15 @@ public class SongController : ContentController
     }
 
     [Authorize(Roles = "dbAdmin")]
-    public ActionResult BatchCleanupProperties(string type = "OBGIYSMPNE", int count = -1, bool log = false)
+    public ActionResult BatchCleanupProperties([FromServices] AppDataPaths appDataPaths,
+        string type = "OBGIYSMPNE", int count = -1, bool log = false)
     {
         UseVue = UseVue.No;
         return BatchProcess(
              async (dms, song) =>
                  await song.CleanupProperties(dms, type)
                         ? song
-                        : null, count: count, preview: log, log: log);
+                        : null, count: count, preview: log, logDirectory: log ? EnsureAppData(appDataPaths) : null);
     }
 
     [Authorize(Roles = "dbAdmin")]
@@ -1810,9 +1781,12 @@ public class SongController : ContentController
                     : song, preview: true);
     }
 
+    // With a logDirectory, writes each changed song's before and after serialization there
     private ActionResult BatchProcess(
-        Func<DanceMusicCoreService, Song, Task<Song>> act, int count = -1, bool preview = false, bool log = false)
+        Func<DanceMusicCoreService, Song, Task<Song>> act, int count = -1, bool preview = false,
+        string logDirectory = null)
     {
+        var log = logDirectory != null;
         StreamWriter before = null;
         StreamWriter after = null;
 
@@ -1826,8 +1800,9 @@ public class SongController : ContentController
             if (log)
             {
                 var dt = DateTime.Now;
-                before = new StreamWriter($"before-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}-{dt.TimeOfDay.TotalSeconds}.txt");
-                after = new StreamWriter($"after-{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}-{dt.TimeOfDay.TotalSeconds}.txt");
+                var stamp = $"{dt.Year:d4}-{dt.Month:d2}-{dt.Day:d2}-{dt.TimeOfDay.TotalSeconds}";
+                before = new StreamWriter(Path.Combine(logDirectory, $"before-{stamp}.txt"));
+                after = new StreamWriter(Path.Combine(logDirectory, $"after-{stamp}.txt"));
             }
 
             var tried = 0;
@@ -2300,51 +2275,41 @@ public class SongController : ContentController
 
     #region Merge
 
-    private ActionResult Merge(IEnumerable<Song> songs)
-    {
-        var sm = new SongMerge([.. songs], Database.DanceStats);
-
-        return View("Merge", sm);
-    }
-
-    private async Task<ActionResult> SimpleMerge(IEnumerable<Song> songs)
+    // Merges the songs, keeping every song's history, then opens the merged song in the editor so
+    // the title, artist, tempo and length can be set from any of the values the songs held.
+    private async Task<ActionResult> Merge(IEnumerable<Song> songs)
     {
         UseVue = UseVue.No;
 
         var songList = songs.ToList();
         if (songList.Count < 2)
         {
-            ViewBag.Title = "SimpleMerge Error";
-            ViewBag.Message = "SimpleMerge requires at least 2 songs. Please select 2 or more songs to merge.";
+            ViewBag.Title = "Merge Error";
+            ViewBag.Message = "Merge requires at least 2 songs. Please select 2 or more songs to merge.";
             return View("Info");
         }
 
         // Get the logged in user
         var user = await Database.FindUser(User.Identity?.Name);
 
-        // Execute simple merge
         var mergedSong = await SongIndex.SimpleMergeSongs(user, songList);
 
         // Clear merge candidates cache
         Database.RemoveMergeCandidates(songList);
 
-        // Clear dance stats cache
-        await DanceStatsManager.ClearCache(Database, true);
+        // The merge has committed by now, so a failed stats rebuild mustn't turn it into an error
+        // page: retrying would try to merge songs that no longer exist.
+        try
+        {
+            await DanceStatsManager.ClearCache(Database, true);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Dance stats rebuild after merging into {SongId} failed", mergedSong.SongId);
+        }
 
-        ViewBag.BackAction = "MergeCandidates";
-
-        return await Details(mergedSong?.SongId);
+        return RedirectToAction("Details", new { id = mergedSong.SongId, edit = true });
     }
-
-    private ActionResult SongMerge(IEnumerable<Song> songs)
-    {
-        var sm = new SongMergeModel(songs.Select(s => s.GetHistory(Mapper)));
-        var title = "Merge Songs";
-        return Vue3(title, $"music4dance catalog: {title} dance information", "song-merge",
-            sm, helpPage: "song", danceEnvironment: true, tagEnvironment: true);
-
-    }
-
 
     private async Task<ActionResult> CleanupAlbums(IEnumerable<Song> songs)
     {
@@ -2371,69 +2336,6 @@ public class SongController : ContentController
         return View("Info");
     }
 
-    private string ResolveStringField(string fieldName, IList<Song> songs,
-        IFormCollection form = null)
-    {
-        return ResolveMergeField(fieldName, songs, form) as string;
-    }
-
-
-    private int? ResolveIntField(string fieldName, IList<Song> songs,
-        IFormCollection form = null)
-    {
-        return ResolveMergeField(fieldName, songs, form) as int?;
-    }
-
-    private decimal? ResolveDecimalField(string fieldName, IList<Song> songs,
-        IFormCollection form = null)
-    {
-        return ResolveMergeField(fieldName, songs, form) as decimal?;
-    }
-
-    private static object ResolveMergeField(string fieldName, IList<Song> songs,
-        IFormCollection form = null)
-    {
-        // If fieldName doesn't exist, this means that we didn't add a radio button for the field because all the
-        //  values were the same.  So just return the value of the first song.
-
-        // if form is != null we disambiguate based on form otherwise it's the first non-null field
-
-        var idx = 0;
-        if (form != null)
-        {
-            var s = form[fieldName];
-            if (!string.IsNullOrWhiteSpace(s))
-            {
-                _ = int.TryParse(s, out idx);
-            }
-        }
-        else
-        {
-            for (var i = 0; i < songs.Count; i++)
-            {
-                var s = songs[i];
-
-                if (s.GetType().GetProperty(fieldName)?.GetValue(s) == null)
-                {
-                    continue;
-                }
-
-                idx = i;
-                break;
-            }
-        }
-
-        var song = songs[idx];
-        var type = song.GetType();
-        var prop = type.GetProperty(fieldName);
-        if (prop != null)
-        {
-            var o = prop.GetValue(song);
-            return o;
-        }
-
-        return null;
-    }
 
     #endregion
 }

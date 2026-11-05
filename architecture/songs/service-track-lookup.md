@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Last verified:** 2026-11-03 (CreateSong dedup steps traced)
 **Code:** `m4d/APIControllers/ServiceTrackController.cs`
 
 ## Overview
@@ -50,16 +50,15 @@ public async Task<IActionResult> Get(string id, bool localOnly = false, string d
 song = await SongIndex.GetSongFromService(service, id);
 ```
 
-`SongIndex.GetSongFromService` ([SongIndex.cs:156](../../m4dModels/SongIndex.cs#L156)) runs an exact
-phrase search against the Azure Search `ServiceIds` field for `"{CID}:{id}"` (e.g.
-`"S:4iV5W9uYEdYUVa79Axb7Rh"`). `ServiceIds` is populated from
+`SongIndex.GetSongFromService` runs an exact-match filter (`SongIndex.FindSongsByServiceIds`)
+on the Azure Search `ServiceIds` field for `{CID}:{id}` (e.g.
+`S:4iV5W9uYEdYUVa79Axb7Rh`). `ServiceIds` is populated from
 `Song.GetExtendedPurchaseIds()`/`AlbumDetails.GetExtendedPurchaseIds()`, which flattens *every*
 accumulated ID in every purchase slot across every service — including ISRC (`R:{isrc}`), since
 `ISRCService.IsIndexed` is `true` even though it has no external search API (see
-[music-service-model](../music-services/music-service-model.md) § IsIndexed vs CanSearchExternally). So this same method already works
-for an ISRC lookup today if a caller passes `MusicService.GetService(ServiceType.ISRC)` — nothing
-currently does, which was the gap the ISRC fallback (since implemented as
-`MusicServiceManager.FindSongByISRC`) addresses.
+[music-service-model](../music-services/music-service-model.md) § IsIndexed vs CanSearchExternally). So the same method does
+an ISRC lookup when passed `MusicService.GetService(ServiceType.ISRC)`, which is what
+`MusicServiceManager.FindSongByISRC` does.
 
 If a match is found, resolution stops here — `localOnly` is irrelevant, nothing is created or
 modified.
@@ -79,32 +78,41 @@ if (track == null) return null;
 var song = await Song.UserCreateFromTrack(dms, user, track, danceId);  // 2. transient candidate
 
 var found = false;
-var oldSong = await dms.SongIndex.FindMatchingSong(song);  // 3. dedupe — title/length only
+var oldSong = await FindSongByISRC(dms, track.ISRC)        // 3. dedupe — the track's ISRC,
+    ?? await dms.SongIndex.FindMatchingSong(song);         //    then title/length
 if (oldSong != null) { found = true; song = oldSong; }
 
 _ = await UpdateSongAndServices(dms, song);   // 4. blanket re-search of every searchable service
 _ = await UpdateFromTracks(dms, song, [track]);  // 5. apply *this* track's data explicitly
 _ = await UpdateAudioData(dms, service, song);   // 6. tempo/danceability/sample/ISRC, if missing
 
-if (found) { await dms.SongIndex.SaveSong(song); }  // new songs are saved earlier, inside UserCreateFromTrack
+if (!found)                                    // 7. dedupe again on the ids enrichment added
+{
+    var existing = await dms.SongIndex.FindSongByServiceIds(song);
+    if (existing != null) { _ = await UpdateFromTracks(dms, existing, [track]); song = existing; found = true; }
+}
+
+if (found) { await dms.SongIndex.SaveSong(song); }  // a new song isn't saved here: see below
 return song;
 ```
+
+A new song is returned unsaved. The add page shows it as "Create Song", and it is saved only when
+the user submits it (`POST /api/song` → `SongIndex.CreateOrMergeSong`), which checks its ids once
+more first. See [song-merge-algorithm](song-merge-algorithm.md) § Matching new songs by service id.
 
 1. **`GetMusicServiceTrack(id, service)`** — fetches the track's own metadata from the live
    service API (`BuildTrackRequest` → `service.ParseTrackResults`), *not* a catalog lookup. Result
    is memoized in a static, process-lifetime-only cache (`s_trackCache`, keyed `"{CID}:{id}"`,
    cleared wholesale once it exceeds 10,000 entries — not an LRU). For Spotify, `ParseTrackResults`
    already reads `external_ids.isrc` into `ServiceTrack.ISRC`
-   ([SpotifyService.cs:182-193](../../m4dModels/SpotifyService.cs#L182)) — that data is available
-   here but currently unused for dedup (see "Known Gap" below).
-2. **`Song.UserCreateFromTrack`** — builds a transient `Song` from the fetched track and
-   immediately saves it (row creation attributed to the real user, everything else re-attributed
-   to the service's bot user — see [add-augment-song](add-augment-song.md) § "Attribution split").
-3. **`FindMatchingSong`** — the *only* dedup check. Wraps `MergeFromTitle`
-   ([SongIndex.cs:685](../../m4dModels/SongIndex.cs#L685)): searches the catalog by title, then
-   requires `MatchType.Exact` or `MatchType.Length` title/artist similarity. Anything weaker (or a
-   title that doesn't cluster together at all) results in the transient song from step 2 being kept
-   as a brand-new catalog entry.
+   ([SpotifyService.cs:182-193](../../m4dModels/SpotifyService.cs#L182)), which step 3 uses.
+2. **`Song.UserCreateFromTrack`** — builds a transient, unsaved `Song` from the fetched track (row
+   creation attributed to the real user, everything else re-attributed to the service's bot user —
+   see [add-augment-song](add-augment-song.md) § "Attribution split").
+3. **`FindSongByISRC`, then `FindMatchingSong`** — the track's ISRC first (Spotify only; iTunes
+   tracks carry none), then `MergeFromTitle`: searches the catalog by title, then requires
+   `MatchType.Exact` or `MatchType.Length` title/artist similarity. Anything weaker leaves the
+   transient song from step 2 as a new song, unless step 7 finds it.
 4. **`UpdateSongAndServices`** — a blanket "fill in whatever's missing from every searchable
    service" pass (iTunes, Spotify — not just the one being added), independent of the specific
    track being resolved. Mostly a no-op for the service actually in play (step 5 handles that
@@ -118,20 +126,16 @@ return song;
 6. **`UpdateAudioData`** — tempo/danceability/valence (Spotify audio features), sample preview URL
    (Spotify, falling back to iTunes), and `GetISRCData` (backfills ISRC for *existing* Spotify IDs
    on the song that don't have one yet, in case step 5 didn't cover every album).
+7. **`FindSongByServiceIds`** — steps 4 to 6 can give a new song ids (an iTunes match found by
+   title, ISRCs) that steps 1 and 3 never saw. If a catalog song already holds one, the track is
+   attached to that song instead. When the song being enriched is already in the catalog (a
+   step 3 match), steps 4 to 6 instead leave off any id another song holds and queue the pair
+   for review ([shared-id-review](shared-id-review.md)).
 
-### Known Gap: no ISRC-based dedup in Step 3
-
-Step 1 (exact ID match) only succeeds if the *literal* ID being looked up is already on file.
-Services — Spotify in particular — periodically reissue a different track ID for what is,
-recording-wise, the same song (see [music-service-model](../music-services/music-service-model.md) § "Multi-ID Accumulation"). When that
-happens, Step 1 misses, and Step 3's title-only dedup is the sole remaining defense against
-creating a duplicate. A title/artist near-miss (parenthetical differences, alternate spellings,
-etc.) that `FindMatchingSong` doesn't recognize results in a duplicate catalog song — even though
-the *ISRC* on the freshly-fetched track (available for free as part of Step 2's `GetMusicServiceTrack`
-call) may already be sitting on an existing song via a previously-known Spotify ID for the same
-recording. There is no code path today that checks the fetched track's ISRC against the catalog
-before falling through to title matching. The fix has since shipped as
-`MusicServiceManager.FindSongByISRC`, which `CreateSong` tries before title matching.
+Step 1 only succeeds if the *literal* id being looked up is already on file. Services, Spotify in
+particular, periodically reissue a different track id for the same recording (see
+[music-service-model](../music-services/music-service-model.md) § "Multi-ID Accumulation"), which
+is why steps 3 and 7 match on the other ids too.
 
 ## Related Code
 
@@ -139,7 +143,7 @@ before falling through to title matching. The fix has since shipped as
 | --- | --- |
 | `m4d/APIControllers/ServiceTrackController.cs` | `Get` — Step 1/Step 2 orchestration |
 | `m4d/Utilities/MusicServiceManager.cs` | `CreateSong`, `GetMusicServiceTrack`, `UpdateSongAndServices`, `UpdateFromTracks`, `UpdateAudioData`, `GetISRCData` |
-| `m4dModels/SongIndex.cs` | `GetSongFromService` (exact `ServiceIds` match), `FindMatchingSong`/`MergeFromTitle` (title dedup) |
+| `m4dModels/SongIndex.cs` | `GetSongFromService`/`FindSongsByServiceIds`/`FindSongByServiceIds` (exact `ServiceIds` match), `FindMatchingSong`/`MergeFromTitle` (title dedup) |
 | `m4dModels/Song.cs` | `UserCreateFromTrack`, `FindAlbum` |
 | `m4dModels/SpotifyService.cs` | `ParseTrackResults` — parses `external_ids.isrc` |
 | `m4dModels/MusicService.cs` | `GetService(char)`, service registry |

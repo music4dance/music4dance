@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01
+**Last verified:** 2026-11-03
 **Code:** `DanceLib/` (`Dances.cs`, `DanceType.cs`, `DanceInstance.cs`, `TempoRange.cs`, `Meter.cs`),
 `m4d/ClientApp/src/assets/content/dances.json`, `dancegroups.json`,
 `m4dModels/DanceStatsManager.cs`, `m4dModels/DanceStatsInstance.cs`, `m4dModels/DanceStatsFileManager.cs`,
@@ -12,7 +12,7 @@ What a "dance" is in music4dance: the static dance library (types, styles, group
 organizations) defined in two JSON files, the C# and TypeScript object models built from them,
 and `DanceStats`, the per-dance statistics layer computed from the song index and cached on disk.
 For adding a dance, see [runbooks/add-a-dance](../runbooks/add-a-dance.md). For the cold-start
-snapshot, see [runbooks/refresh-dance-fallback-snapshot](../runbooks/refresh-dance-fallback-snapshot.md).
+snapshot, see [runbooks/refresh-fallback-snapshots](../runbooks/refresh-fallback-snapshots.md).
 
 ## Source data
 
@@ -142,17 +142,23 @@ has.
 ### Caching and startup
 
 `DanceStatsManager` (singleton `IDanceStatsManager`) owns the current instance.
-`DanceStatsFileManager(appRoot)`, with `appRoot` = `wwwroot`, does the file I/O:
+`DanceStatsFileManager(appRoot, dataRoot: ...)`, with `appRoot` = `wwwroot` and `dataRoot` = the
+runtime data root (`/home/data/m4d` in Azure, `wwwroot` locally; see
+[hosting-and-identity § Runtime data root](../infrastructure/hosting-and-identity.md#runtime-data-root)), does the file I/O:
 
 | Method | Reads / writes |
 | --- | --- |
 | `GetDances` / `GetGroups` | `wwwroot/content/dances.json`, `dancegroups.json` |
-| `GetStats` | `wwwroot/AppData/dance-environment.json` (runtime cache), else `wwwroot/content/dance-environment-fallback.json` (checked-in snapshot), else `null` |
-| `WriteStats` | `wwwroot/AppData/dance-environment.json` |
+| `GetStats` | `<dataRoot>/AppData/dance-environment.json` (runtime cache), else `null` |
+| `GetFallbackStats` | `wwwroot/content/dance-environment-fallback.json` (checked-in snapshot), else `null` |
+| `WriteStats` | `<dataRoot>/AppData/dance-environment.json` |
 
 `DanceStatsHostedService` runs `DanceStatsManager.Initialize` at startup: it loads from the file
-cache (`LoadFromAppData`) if there is one, and otherwise builds from the index and database
-(`LoadFromAzure`). Both paths call `InitializeDanceLibrary`, which reloads `dances.json` and
+cache (`LoadFromAppData`: the runtime cache, else the fallback snapshot) if there is one, and
+otherwise builds from the index and database (`LoadFromAzure`). A load from the fallback sets
+`Source = Fallback`, and the hosted service then rebuilds from the search index in the background
+(`ClearCache(fromStore: true)`), so a fresh deploy doesn't serve the snapshot until the next
+songstats job. Both paths call `InitializeDanceLibrary`, which reloads `dances.json` and
 `dancegroups.json` into `Dances.Instance`. If initialization throws, the service logs it, marks
 `Database` unavailable, and the app starts in degraded mode. See
 [service-resilience § Degraded behavior](../infrastructure/service-resilience.md#degraded-behavior).
@@ -249,7 +255,7 @@ No client code in `m4d/ClientApp/src` calls `api/danceenvironment`.
 ## Related
 
 - [runbooks/add-a-dance](../runbooks/add-a-dance.md): adding a dance type or group
-- [runbooks/refresh-dance-fallback-snapshot](../runbooks/refresh-dance-fallback-snapshot.md)
+- [runbooks/refresh-fallback-snapshots](../runbooks/refresh-fallback-snapshots.md)
 - [service-resilience](../infrastructure/service-resilience.md): degraded startup and file fallback
 - [tempo-validation-rules](../songs/tempo-validation-rules.md): per-dance tempo correction
 - [dance-family-voting](../songs/dance-family-voting.md): style families when voting

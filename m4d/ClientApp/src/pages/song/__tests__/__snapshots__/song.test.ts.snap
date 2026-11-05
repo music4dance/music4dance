@@ -19,7 +19,10 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
                     <!---->
                   </div>
                 </div>
-              </transition-stub></span><i><span data-v-b2e59ff0=""><span data-v-b2e59ff0="">Hey Santa Claus</span></span></i><span style="font-size: 0.75em; padding-left: 0.5em;"> by </span><span data-v-b2e59ff0=""><span data-v-b2e59ff0=""><span style="font-size: 0.75em;"><a href="/song/artist?name=Moonglows">Moonglows</a></span></span></span>
+              </transition-stub></span><i><span data-v-b2e59ff0=""><span data-v-b2e59ff0="">Hey Santa Claus</span>
+                <!--v-if--></span>
+              </i><span style="font-size: 0.75em; padding-left: 0.5em;"> by </span><span data-v-b2e59ff0=""><span data-v-b2e59ff0=""><span style="font-size: 0.75em;"><a href="/song/artist?name=Moonglows">Moonglows</a></span></span>
+              <!--v-if--></span>
             </h1>
             <!--v-if-->
           </div>
@@ -192,11 +195,14 @@ exports[`Song Details > Renders the Song Details Page 1`] = `
             <table data-v-381110ba="" id="BootstrapVueNext__ID__v-9__" class="table b-table table-borderless table-sm">
               <tr data-v-381110ba="" class="">
                 <th data-v-381110ba="" scope="col" class="">Length</th>
-                <td data-v-381110ba="" class=""><span data-v-b2e59ff0="" data-v-381110ba=""><span data-v-b2e59ff0="">145</span></span> Seconds</td>
+                <td data-v-381110ba="" class=""><span data-v-b2e59ff0="" data-v-381110ba=""><span data-v-b2e59ff0="">145</span>
+                  <!--v-if--></span> Seconds
+                </td>
               </tr>
               <tr data-v-381110ba="" class="">
                 <th data-v-381110ba="" scope="col" class="">Tempo</th>
-                <td data-v-381110ba="" class=""><span data-v-b2e59ff0="" data-v-381110ba=""><span data-v-b2e59ff0="">151.7</span></span> BPM<a data-v-4d7308ba="" data-v-381110ba="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" rel="noopener noreferrer" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
+                <td data-v-381110ba="" class=""><span data-v-b2e59ff0="" data-v-381110ba=""><span data-v-b2e59ff0="">151.7</span>
+                  <!--v-if--></span> BPM<a data-v-4d7308ba="" data-v-381110ba="" href="https://music4dance.blog/music4dance-help/song-list/#tempo-note" target="_blank" rel="noopener noreferrer" title="This tempo was algorithmically generated. Click to learn more." class="algo-generated-icon"><svg data-v-4d7308ba="" viewBox="0 0 16 16" width="1.2em" height="1.2em">
                       <g fill="currentColor">
                         <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"></path>
                         <path d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5"></path>

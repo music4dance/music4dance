@@ -544,8 +544,8 @@ that file works:
 
 | | |
 | --- | --- |
-| Runtime snapshot | `wwwroot/AppData/artist-index.json`, written after every successful build |
-| Fallback in source control | `ClientApp/src/assets/content/artist-index-fallback.json`, copied to `wwwroot/content/` by m4d's `assets` build target |
+| Runtime snapshot | `AppData/artist-index.json` under the runtime data root (`/home/data/m4d` in Azure, `wwwroot` locally; see [hosting-and-identity § Runtime data root](../infrastructure/hosting-and-identity.md#runtime-data-root)), written after every successful build |
+| Fallback in source control | `ClientApp/src/assets/content/artist-index-fallback.json`, copied to `wwwroot/content/` by m4d's `assets` build target; refreshed by `/Admin/ExportFallbacks` ([runbook](../runbooks/refresh-fallback-snapshots.md)) |
 
 Read order is runtime, then fallback. It buys three things:
 
@@ -633,6 +633,11 @@ dates the snapshot from the backup's own timestamp, not from when it ran, so the
 stale one as stale. It writes compact JSON, so run `yarn format` in `m4d/ClientApp`
 afterwards - prettier owns the formatting of everything under `src/`, and would otherwise reformat
 it on someone else's next run.
+
+The routine way to refresh the snapshot is **Admin → Initialization Tasks → Export Fallbacks**,
+which builds it from the live index alongside the dance fallback (see
+[runbooks/refresh-fallback-snapshots](../runbooks/refresh-fallback-snapshots.md)). Use this
+harness when you want it built from a backup instead.
 
 ---
 

@@ -271,7 +271,7 @@ admin/batch jobs. Listed here as placeholders only:
 - **Song detail**: `Details`, `Album`, `Artist`, `Augment`, `UpdateSongAndServices`,
   `UpdateRatings`, `CleanupAlbums`, `CleanMusicServices`.
 - **Editing/deletion**: `Delete`/`DeleteConfirmed`, `UndoUserChanges`.
-- **Merge workflow**: `MergeResults`, `SimpleMerge`, `Merge`/`SongMerge` (preview),
+- **Merge workflow**: `BulkEdit` (`action=Merge`) → `Merge`, `MergeCandidates`,
   `ClearMergeCache`. See [song-merge-algorithm](../songs/song-merge-algorithm.md).
 - **Spotify playlist creation** (distinct again from both `Playlist` above and
   [playlist-management](../music-services/playlist-management.md)): `CreateSpotify` (GET form + POST handler) builds a *new* Spotify

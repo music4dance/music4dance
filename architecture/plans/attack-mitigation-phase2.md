@@ -40,6 +40,10 @@ Before starting, re-check two dependencies:
 
 ### 2.2 Azure Front Door Basic + IP Reputation
 
+**Decided 2026-11-04: Cloudflare (Free plan to start) instead of Front Door.** The steps are in
+[plans/cloudflare-migration](cloudflare-migration.md). The Front Door notes below are kept for
+reference; the IP reputation options still apply.
+
 **Azure Front Door Basic Benefits**:
 
 - **DDoS Protection**: Basic level included (protects against volumetric attacks)
