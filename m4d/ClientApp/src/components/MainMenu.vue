@@ -1,4 +1,6 @@
 <script setup lang="ts">
+// The template's Admin dropdown lists the same pages as the admin index
+// (m4d/Views/Admin/Index.cshtml): add an admin page to both.
 import { MenuContext } from "@/models/MenuContext";
 import { computed, ref, useTemplateRef } from "vue";
 import logo from "@/assets/images/header-logo.png";
@@ -282,6 +284,8 @@ function search(s?: string): void {
             <BDropdownItem href="/admin/spotifyserviceaccount"
               >Spotify Service Account</BDropdownItem
             >
+            <BDropdownItem href="/admin/sharedids">Shared Song Ids</BDropdownItem>
+            <BDropdownItem href="/partnerkeys/clients">Partner API Clients</BDropdownItem>
           </BNavItemDropdown>
         </BNavbarNav>
 

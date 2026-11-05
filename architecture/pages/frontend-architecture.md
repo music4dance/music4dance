@@ -294,7 +294,9 @@ also fills `window.danceDatabaseJson` and `window.tagDatabaseJson` from the chec
 5. **Test.** Add `src/pages/{name}/__tests__/{name}.test.ts` with a `testPageSnapshot` test and,
    if needed, a sample model.
 6. **Links.** Add the page to `MainMenu` or the site map if it should be discoverable. For the
-   blog/help site map, see [blog-help-sitemap](blog-help-sitemap.md).
+   blog/help site map, see [blog-help-sitemap](blog-help-sitemap.md). An admin page goes in
+   both the **Admin** dropdown in `MainMenu.vue` and the admin index
+   (`m4d/Views/Admin/Index.cshtml`); keep the two lists in sync.
 
 ## Future improvements
 
