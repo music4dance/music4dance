@@ -1,0 +1,50 @@
+@using m4d.ViewModels
+@model IssuedKeyModel
+
+@{
+    ViewBag.Title = "New Partner API Key";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
+}
+
+<h1>@ViewBag.Title</h1>
+
+<div class="alert alert-warning">
+    <strong>Copy this key now.</strong> It isn't stored anywhere, so this is the only time it's shown.
+    If you lose it, revoke it and generate another.
+</div>
+
+<div class="input-group mb-3">
+    <input type="text" class="form-control font-monospace" id="partner-key" value="@Model.Key.Key" readonly
+           aria-label="API key" />
+    <button class="btn btn-outline-secondary" type="button" id="copy-partner-key">Copy</button>
+</div>
+
+<p>
+    Key id <code>@Model.Key.KeyId</code> for client <code>@Model.Key.ClientId</code>. The API accepts it
+    within 5 minutes.
+</p>
+
+@if (Model.Key.ManualCommand != null)
+{
+    <div class="alert alert-info">
+        <p>
+            This site isn't connected to the partner-keys vault, so the key won't work until an admin adds
+            its hash. That's safe to send by email or chat: the key can't be recovered from it.
+        </p>
+        <pre class="mb-0"><code>@Model.Key.ManualCommand</code></pre>
+    </div>
+}
+
+<p>@Html.ActionLink("Done", Model.ReturnAction, "PartnerKeys", null, new { @class = "btn btn-primary" })</p>
+
+<script>
+    document.getElementById("copy-partner-key").addEventListener("click", async () => {
+        const field = document.getElementById("partner-key");
+        field.select();
+        try {
+            await navigator.clipboard.writeText(field.value);
+        } catch {
+            document.execCommand("copy");
+        }
+    });
+</script>

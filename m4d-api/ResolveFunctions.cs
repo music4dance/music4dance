@@ -6,15 +6,22 @@ using Microsoft.Extensions.Logging;
 
 namespace m4dApi;
 
-public class ResolveFunctions(SongResolver resolver, ILogger<ResolveFunctions> logger)
+public class ResolveFunctions(SongResolver resolver, PartnerGate gate, UsageMeter usage, ILogger<ResolveFunctions> logger)
 {
-    // AuthorizationLevel.Function (the platform's function key) keeps the endpoint closed until
-    // API key validation replaces it in PR 3 of the plan
+    // Anonymous at the platform level: PartnerGate checks the partner's API key, so the client is
+    // known to the rate limit, the usage table and the logs. The platform's function keys carry
+    // no client identity and are stored in plaintext.
     [Function("Resolve")]
     public async Task<IActionResult> Resolve(
-        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "v1/songs/resolve")] HttpRequest request)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "v1/songs/resolve")] HttpRequest request)
     {
         var cancellationToken = request.HttpContext.RequestAborted;
+
+        var admission = await gate.Admit(request);
+        if (!admission.Admitted)
+        {
+            return admission.Rejection;
+        }
 
         ResolveRequest body;
         try
@@ -40,9 +47,11 @@ public class ResolveFunctions(SongResolver resolver, ILogger<ResolveFunctions> l
         try
         {
             var result = await resolver.Resolve(body, cancellationToken);
+            usage.Record(admission.ClientId, result.Match);
             // Per-query Search timings are the load guard for the shared replica (see the plan)
             logger.LogInformation(
-                "Resolved {Match} by {Method}: {Queries}", result.Match, result.Method,
+                "Resolved {Match} by {Method} for {Client}: {Queries}", result.Match, result.Method,
+                admission.ClientId,
                 string.Join(", ", result.Queries.Select(q => $"{q.Kind} {q.Ms} ms {q.Results} results")));
             return new OkObjectResult(result);
         }

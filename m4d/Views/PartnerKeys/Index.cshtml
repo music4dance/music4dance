@@ -1,0 +1,53 @@
+@using m4d.ViewModels
+@model PartnerKeysModel
+
+@{
+    ViewBag.Title = "Partner API Keys";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildInfoTrail(ViewBag.Title);
+}
+
+<h1>@ViewBag.Title</h1>
+
+<p>
+    Keys for the music4dance partner API. Send a key from your server in the
+    <code>Authorization: Bearer &lt;key&gt;</code> header. Never put a key in a URL, and never ship one
+    inside an app that runs on people's devices, where it can be extracted.
+</p>
+<p>
+    A key is shown once, when you generate it; music4dance keeps only a hash. To rotate a key, generate
+    a new one, deploy it, then revoke the old one. A client can have two active keys at a time.
+    @if (!Model.IsLive)
+    {
+        <strong>These are test keys (<code>m4d_test_…</code>) for the test API.</strong>
+    }
+</p>
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-info">@Model.Message</div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="alert alert-danger">@Model.Error</div>
+}
+
+@if (Model.Clients.Count == 0)
+{
+    <p>Your account isn't linked to a partner client yet. Ask music4dance to link it.</p>
+}
+
+@foreach (var client in Model.Clients)
+{
+    <div class="card mb-4">
+        <div class="card-header">
+            <strong>@client.Name</strong> <span class="text-muted">(@client.Id)</span>
+            @if (client.Disabled)
+            {
+                <span class="badge bg-secondary ms-2">Disabled</span>
+            }
+        </div>
+        <div class="card-body">
+            <partial name="_KeyTable" model="(client, false)" />
+        </div>
+    </div>
+}

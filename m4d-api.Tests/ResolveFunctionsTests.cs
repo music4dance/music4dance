@@ -10,17 +10,54 @@ namespace m4dApi.Tests;
 [TestClass]
 public class ResolveFunctionsTests
 {
-    private static HttpRequest Post(string body, string contentType = "application/json")
+    private FakePartners _partners;
+
+    [TestInitialize]
+    public void Initialize() => _partners = new FakePartners();
+
+    private HttpRequest Post(string body, string contentType = "application/json", bool withKey = true)
     {
         var context = new DefaultHttpContext();
         context.Request.Method = "POST";
         context.Request.ContentType = contentType;
         context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
+        if (withKey)
+        {
+            context.Request.Headers.Authorization = $"Bearer {_partners.Key}";
+        }
+
         return context.Request;
     }
 
-    private static Task<IActionResult> Resolve(FakeSearch search, HttpRequest request) =>
-        new ResolveFunctions(search.Resolver, NullLogger<ResolveFunctions>.Instance).Resolve(request);
+    private Task<IActionResult> Resolve(FakeSearch search, HttpRequest request) =>
+        new ResolveFunctions(search.Resolver, _partners.Gate, _partners.Usage, NullLogger<ResolveFunctions>.Instance)
+            .Resolve(request);
+
+    [TestMethod]
+    public async Task Resolve_RejectsAMissingKeyBeforeSearching()
+    {
+        var search = new FakeSearch();
+
+        var result = await Resolve(search, Post("{\"isrc\":\"USWB19902945\"}", withKey: false));
+
+        Assert.AreEqual(StatusCodes.Status401Unauthorized, (result as ObjectResult)?.StatusCode);
+        Assert.IsEmpty(search.Queries);
+    }
+
+    [TestMethod]
+    public async Task Resolve_RecordsUsageByMatch()
+    {
+        var search = new FakeSearch().Returns(Song("a", serviceIds: ["R:USWB19902945"], dances: ("WCS", 3, 120, null)));
+
+        _ = await Resolve(search, Post("{\"isrc\":\"USWB19902945\"}"));
+        _ = await Resolve(new FakeSearch(), Post("{\"isrc\":\"USWB19902946\"}"));
+        await _partners.Usage.Flush(CancellationToken.None);
+
+        var row = _partners.Table.Rows[(FakePartners.ClientId, "2026-11-04")];
+        Assert.AreEqual(1, row["exact"]);
+        Assert.AreEqual(1, row["none"]);
+        Assert.AreEqual(2, row[StorageUsageTable.TotalColumn]);
+    }
 
     [TestMethod]
     [DataRow("{not json", "application/json", "Request body is not valid JSON")]

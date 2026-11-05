@@ -468,6 +468,24 @@ public static class M4dApplicationExtensions
 
         services.AddPublicApiFoundation(configuration, environment);
 
+        // Partner API keys (m4d-api): hashes and client limits go to the partner-keys vault the
+        // API reads. Without PartnerApi:KeyVaultUri, keys are still issued and the page shows the
+        // vault command to run by hand.
+        var partnerVaultUri = configuration["PartnerApi:KeyVaultUri"];
+        if (!string.IsNullOrEmpty(partnerVaultUri))
+        {
+            services.AddSingleton<IPartnerKeyVault>(new PartnerKeyVault(
+                new Azure.Security.KeyVault.Secrets.SecretClient(new Uri(partnerVaultUri), azureCredential)));
+        }
+        else
+        {
+            var live = string.Equals(configuration["PartnerApi:Environment"], "live", StringComparison.OrdinalIgnoreCase);
+            services.AddSingleton<IPartnerKeyVault>(
+                new UnconnectedPartnerKeyVault(live ? "m4d-api-keys" : "m4d-api-keys-test"));
+        }
+
+        services.AddScoped<PartnerKeyService>();
+
         // reCAPTCHA
         services.AddReCaptchaWithResilience(configuration);
 

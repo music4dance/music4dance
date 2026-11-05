@@ -565,6 +565,87 @@ namespace m4dModels.Migrations
                     b.ToTable("DanceLink", (string)null);
                 });
 
+            modelBuilder.Entity("m4dModels.PartnerApiKey", b =>
+                {
+                    b.Property<string>("KeyId")
+                        .HasMaxLength(12)
+                        .HasColumnType("nvarchar(12)");
+
+                    b.Property<string>("ClientId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Label")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTimeOffset?>("Revoked")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("RevokedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("KeyId");
+
+                    b.HasIndex("ClientId");
+
+                    b.ToTable("PartnerApiKeys", (string)null);
+                });
+
+            modelBuilder.Entity("m4dModels.PartnerClient", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<int?>("Burst")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long?>("DailyCap")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("Disabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<double?>("RatePerSecond")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PartnerClients", (string)null);
+                });
+
+            modelBuilder.Entity("m4dModels.PartnerDeveloper", b =>
+                {
+                    b.Property<string>("ClientId")
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ClientId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PartnerDevelopers", (string)null);
+                });
+
             modelBuilder.Entity("m4dModels.PlayList", b =>
                 {
                     b.Property<string>("Id")
@@ -891,6 +972,36 @@ namespace m4dModels.Migrations
                         .HasForeignKey("DanceId");
                 });
 
+            modelBuilder.Entity("m4dModels.PartnerApiKey", b =>
+                {
+                    b.HasOne("m4dModels.PartnerClient", "Client")
+                        .WithMany("Keys")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("m4dModels.PartnerDeveloper", b =>
+                {
+                    b.HasOne("m4dModels.PartnerClient", "Client")
+                        .WithMany("Developers")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("m4dModels.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("m4dModels.Search", b =>
                 {
                     b.HasOne("m4dModels.ApplicationUser", "ApplicationUser")
@@ -931,6 +1042,13 @@ namespace m4dModels.Migrations
             modelBuilder.Entity("m4dModels.Dance", b =>
                 {
                     b.Navigation("DanceLinks");
+                });
+
+            modelBuilder.Entity("m4dModels.PartnerClient", b =>
+                {
+                    b.Navigation("Developers");
+
+                    b.Navigation("Keys");
                 });
 #pragma warning restore 612, 618
         }

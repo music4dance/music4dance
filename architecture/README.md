@@ -135,6 +135,7 @@ into `runbooks/` as its area is consolidated.
 | Link new blog posts / help articles | [runbooks/link-new-blog-posts](runbooks/link-new-blog-posts.md) |
 | Provision a new App Service instance | [runbooks/provision-app-service](runbooks/provision-app-service.md) |
 | Deploy to test or production | [runbooks/deploy](runbooks/deploy.md) |
+| Add a partner API client, issue, rotate or revoke its keys | [runbooks/add-a-partner](runbooks/add-a-partner.md) |
 | Configure service-failure email alerts | [runbooks/configure-failure-email](runbooks/configure-failure-email.md) |
 | Renew the AutoMapper license key (yearly; emailed 30 days ahead) | [runbooks/renew-automapper-license](runbooks/renew-automapper-license.md) |
 | Refresh the cold-start dance and artist fallback snapshots | [runbooks/refresh-fallback-snapshots](runbooks/refresh-fallback-snapshots.md) |
@@ -151,7 +152,7 @@ into `runbooks/` as its area is consolidated.
 | Plan | Status | Where |
 | --- | --- | --- |
 | Public API & third-party authorization (DanzQ) | Foundation (PR 1) merged behind a disabled flag; PR 2 on hold after Apple denied the business plan, alternatives being explored | [plans/public-api-authorization](plans/public-api-authorization.md) |
-| Partner API on a standalone host (Azure Functions over the search index, independent of the web app) | In progress: spike complete, API key auth decided, test environment serving resolve (PR 2) | [plans/partner-api-standalone-host](plans/partner-api-standalone-host.md) |
+| Partner API on a standalone host (Azure Functions over the search index, independent of the web app) | In progress: test environment serving resolve behind partner API keys and limits (PRs 2–3); key issuing pages in the web app (PR 4) | [plans/partner-api-standalone-host](plans/partner-api-standalone-host.md) |
 | Apple Music API migration: replace the iTunes Search/Lookup API (ISRC backfill, reverse ISRC enrichment, search), plus link switch, customer export and curated playlists | Proposed; Apple Developer membership confirmed, so stage 0 (token + ISRC backfill) is unblocked | [plans/apple-music-api-migration](plans/apple-music-api-migration.md) |
 | Azure Front Door caching | Not started; app-side prep shipped | [plans/front-door-caching](plans/front-door-caching.md) |
 | Bot load and public-page rendering (compression, caching, SSR vs. bot HTML vs. Razor shell) | Partially implemented: Phase 1 quick wins (A1–A7) on branch `bot-load-quick-wins`; caching and rendering phases not started | [plans/bot-load-and-public-page-rendering](plans/bot-load-and-public-page-rendering.md) |

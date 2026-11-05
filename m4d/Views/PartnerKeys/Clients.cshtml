@@ -1,0 +1,145 @@
+@using m4d.ViewModels
+@model PartnerClientsModel
+
+@{
+    ViewBag.Title = "Partner API Clients";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+}
+
+<h1>@ViewBag.Title</h1>
+
+<p>
+    Clients of the standalone partner API (<code>m4d-api</code>), the accounts that can issue their keys,
+    and the keys themselves. Limits and status are copied to the partner-keys vault, where the API
+    reads them within 5 minutes; an empty limit uses the API's default. Developers manage their own
+    keys at @Html.ActionLink("Partner API Keys", "Index", "PartnerKeys").
+    @(Model.IsLive ? "This site issues live keys." : "This site issues test keys.")
+</p>
+
+@if (!Model.VaultConnected)
+{
+    <div class="alert alert-warning">
+        <code>PartnerApi:KeyVaultUri</code> isn't set, so nothing is written to the vault. Keys and
+        clients are still recorded here, with the vault command to run by hand.
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-info">@Model.Message</div>
+}
+@if (!string.IsNullOrEmpty(Model.ManualCommand))
+{
+    <div class="alert alert-info"><pre class="mb-0"><code>@Model.ManualCommand</code></pre></div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="alert alert-danger">@Model.Error</div>
+}
+
+@foreach (var client in Model.Clients)
+{
+    <div class="card mb-4">
+        <div class="card-header">
+            <strong>@client.Name</strong> <span class="text-muted">(@client.Id)</span>
+            @if (client.Disabled)
+            {
+                <span class="badge bg-secondary ms-2">Disabled</span>
+            }
+        </div>
+        <div class="card-body">
+            <h5>Limits</h5>
+            @using (Html.BeginForm("SaveClient", "PartnerKeys", FormMethod.Post, new { @class = "row g-2 align-items-end mb-3" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@client.Id" />
+                <div class="col-sm-3">
+                    <label class="form-label" for="name-@client.Id">Name</label>
+                    <input class="form-control" id="name-@client.Id" name="name" value="@client.Name" maxlength="100" required />
+                </div>
+                <div class="col-sm-2">
+                    <label class="form-label" for="rate-@client.Id">Requests/second</label>
+                    <input class="form-control" id="rate-@client.Id" name="ratePerSecond" type="number" step="any" min="0.01" value="@client.RatePerSecond" placeholder="default" />
+                </div>
+                <div class="col-sm-2">
+                    <label class="form-label" for="burst-@client.Id">Burst</label>
+                    <input class="form-control" id="burst-@client.Id" name="burst" type="number" min="1" value="@client.Burst" placeholder="default" />
+                </div>
+                <div class="col-sm-2">
+                    <label class="form-label" for="cap-@client.Id">Daily cap</label>
+                    <input class="form-control" id="cap-@client.Id" name="dailyCap" type="number" min="1" value="@client.DailyCap" placeholder="default" />
+                </div>
+                <div class="col-sm-1 form-check ms-2">
+                    <input class="form-check-input" id="disabled-@client.Id" name="disabled" type="checkbox" value="true" @(client.Disabled ? "checked" : "") />
+                    <label class="form-check-label" for="disabled-@client.Id">Disabled</label>
+                </div>
+                <div class="col-sm-auto">
+                    <button type="submit" class="btn btn-outline-primary">Save</button>
+                </div>
+            }
+
+            <h5>Developers</h5>
+            <ul>
+                @foreach (var developer in client.Developers.OrderBy(d => d.User?.UserName))
+                {
+                    <li>
+                        @developer.User?.UserName
+                        @using (Html.BeginForm("RemoveDeveloper", "PartnerKeys", FormMethod.Post, new { style = "display:inline" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="clientId" value="@client.Id" />
+                            <input type="hidden" name="userId" value="@developer.UserId" />
+                            <button type="submit" class="btn btn-link btn-sm p-0 ms-2">remove</button>
+                        }
+                    </li>
+                }
+            </ul>
+            @using (Html.BeginForm("AddDeveloper", "PartnerKeys", FormMethod.Post, new { @class = "row g-2 mb-3" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="clientId" value="@client.Id" />
+                <div class="col-auto">
+                    <label class="visually-hidden" for="developer-@client.Id">User name or email</label>
+                    <input class="form-control" id="developer-@client.Id" name="userName" placeholder="User name or email" required />
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-outline-primary">Add developer</button>
+                </div>
+            }
+
+            <h5>Keys</h5>
+            <partial name="_KeyTable" model="(client, true)" />
+        </div>
+    </div>
+}
+
+<h2>Add a client</h2>
+@using (Html.BeginForm("SaveClient", "PartnerKeys", FormMethod.Post, new { @class = "row g-2 align-items-end" }))
+{
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="create" value="true" />
+    <div class="col-sm-2">
+        <label class="form-label" for="new-id">Client id</label>
+        <input class="form-control" id="new-id" name="id" pattern="[a-z0-9][a-z0-9\-]{1,39}" maxlength="40" required
+               placeholder="e.g. acme" title="2 to 40 lowercase letters, digits and dashes" />
+    </div>
+    <div class="col-sm-3">
+        <label class="form-label" for="new-name">Name</label>
+        <input class="form-control" id="new-name" name="name" maxlength="100" required />
+    </div>
+    <div class="col-sm-2">
+        <label class="form-label" for="new-rate">Requests/second</label>
+        <input class="form-control" id="new-rate" name="ratePerSecond" type="number" step="any" min="0.01" placeholder="default" />
+    </div>
+    <div class="col-sm-2">
+        <label class="form-label" for="new-burst">Burst</label>
+        <input class="form-control" id="new-burst" name="burst" type="number" min="1" placeholder="default" />
+    </div>
+    <div class="col-sm-2">
+        <label class="form-label" for="new-cap">Daily cap</label>
+        <input class="form-control" id="new-cap" name="dailyCap" type="number" min="1" placeholder="default" />
+    </div>
+    <div class="col-sm-auto">
+        <button type="submit" class="btn btn-primary">Add</button>
+    </div>
+    <p class="form-text">The client id names the client in the vault and in the API's usage table, so it can't be changed later.</p>
+}

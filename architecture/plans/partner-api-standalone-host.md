@@ -1,9 +1,9 @@
 # Partner API: Standalone Host Independent of the Web App
 
 **Type:** Plan
-**Status:** In progress. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided and PR 1 (skeleton + test environment) deployed 2026-11-01; PR 2 (resolve) deployed to test 2026-11-01.
-**Last verified:** 2026-11-01
-**Code:** `m4d-api/` (Azure Functions project: `/v1/health` and `/v1/songs/resolve`, the latter behind the platform's function key until PR 3), with infrastructure and the deploy script in `m4d-api/infra/` and unit tests in `m4d-api.Tests/`. Reads the index built by `m4dModels/SongIndex.cs`, guarded by `m4dModels.Tests/PartnerApiIndexContractTests.cs`; the existing in-app API foundation is under `m4d/PublicApi/`.
+**Status:** In progress. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided and PR 1 (skeleton + test environment) deployed 2026-11-01; PR 2 (resolve) deployed to test 2026-11-01; PR 3 (API keys and limits) deployed to test and PR 4 (key issuing pages) checked end to end against it 2026-11-04.
+**Last verified:** 2026-11-04
+**Code:** `m4d-api/` (Azure Functions project: `/v1/health`, and `/v1/songs/resolve` behind partner API keys, a per-client rate limit and a daily cap), with infrastructure and the deploy script in `m4d-api/infra/` and unit tests in `m4d-api.Tests/`. Reads the index built by `m4dModels/SongIndex.cs`, guarded by `m4dModels.Tests/PartnerApiIndexContractTests.cs`; the existing in-app API foundation is under `m4d/PublicApi/`.
 
 **Context:** The likely first integration is a third-party app that sells its own subscription,
 with the partner developer's backend calling music4dance server to server using a single
@@ -202,6 +202,34 @@ audit. Neither the key nor its hash goes in the database, and the function never
 When the web app is down, keys can't be issued or revoked, but existing keys keep working.
 Issuance is off the request path, so it doesn't affect the API's independence.
 
+**As built (PR 4):**
+
+- **Admin page** `/PartnerKeys/Clients` (`dbAdmin`, linked from the admin index): add clients
+  (the client id is permanent, since it names the vault secret and the usage rows), edit name,
+  limits and disabled status, link and unlink developer accounts by user name or email, and
+  generate or revoke any client's keys. Linking grants `partnerDeveloper`; unlinking from the
+  last client removes it. Keys a developer issued stay active after unlinking.
+- **Developer page** `/PartnerKeys` (`partnerDeveloper`, linked from the account pages): the
+  developer's clients and keys, a label field, Generate and Revoke. The new key appears once on
+  a `no-store` response that isn't redirected, so it never sits in a URL, `TempData` or the
+  database.
+- **Tables** (migration `PartnerApiKeys`): `PartnerClients` (id, name, limits, disabled),
+  `PartnerDevelopers` (client and account), `PartnerApiKeys` (keyId, client, label, created and
+  revoked, with who).
+- **Order of writes:** issuing writes the vault, then SQL; if SQL fails the vault secret is
+  disabled again. Revoking disables every version of the vault secret (without reading it), then
+  marks the row revoked. Saving a client writes its config secret, then SQL.
+- **Code:** `m4d/Controllers/PartnerKeysController.cs`, `m4d/PublicApi/PartnerKeyService.cs`,
+  `m4d/PublicApi/PartnerKeyVault.cs`, and `m4d-api/PartnerKeyFormat.cs` linked into `m4d`, so
+  the issuer and the validator share one key format.
+- **Configuration:** `PartnerApi:KeyVaultUri` (the environment's partner-keys vault) and
+  `PartnerApi:Environment` (`live` for `m4d_live_` keys, anything else for `m4d_test_`). Set
+  `https://m4d-api-keys-test.vault.azure.net/` and `test` for `m4d-test`, and
+  `https://m4d-api-keys.vault.azure.net/` and `live` for `msc4dnc`. Without a vault URI the
+  pages still issue keys and show the `az keyvault secret set` command for an admin (the manual
+  fallback below). Locally, the site's development service principal has no role on either
+  vault; run with `--AZURE_CLIENT_ID=` to fall back to your own `az login`.
+
 ### Where the hashes live: a dedicated Key Vault
 
 Hashes and per-client limits go in a **small Key Vault used only for partner keys**, one per
@@ -231,17 +259,44 @@ change restarts the app (a cold start), and a deploy can overwrite them.
 
 ### Validation in the function
 
-- `AuthorizationLevel.Anonymous` on the endpoints, with a worker middleware doing the key
-  check, so the client id is available to the rate limiter, the usage table, and logs. The
-  platform's built-in function keys (used by the spike) go away; they're stored in plaintext in
-  the function's Storage account and carry no client identity.
+Built in PR 3: `PartnerKeyFormat.cs` (format and vault layout, shared with the web app),
+`PartnerKeyStore.cs` (the cache), and `PartnerGate.cs` (the per-request checks).
+
+- `AuthorizationLevel.Anonymous` on the endpoints. `PartnerGate.Admit` runs first in each
+  authenticated function, so the client id is available to the rate limiter, the usage table, and
+  logs. It's a call rather than worker middleware: with one authenticated endpoint that's the
+  same thing, and it can be unit tested on a plain `HttpRequest`. The platform's built-in function
+  keys (used by the spike) are gone; they're stored in plaintext in the function's Storage
+  account and carry no client identity.
 - On startup and then every 5 minutes, the function lists the vault's secrets and reads only
-  those that are new or changed (the list returns versions and dates, not values).
+  those that are new or changed (the list returns versions and dates, not values). Disabled
+  secrets are dropped without being read; the vault refuses to return their values anyway. A key
+  past its secret's expiry date is rejected even before the next refresh. A malformed client
+  secret keeps the client's previous config rather than locking it out.
 - Per request: parse the keyId, look it up in memory, SHA-256 the presented key, compare with
   `CryptographicOperations.FixedTimeEquals`. **An unknown keyId gets 401 without a vault call**,
   so junk keys can't be used to load the vault.
+- A key-shaped value anywhere in the query string gets 400, even alongside a valid header.
+- The keys load in the background when an instance starts. A request that wakes a cold
+  instance (Flex scales to zero within 5 minutes) waits up to 10 seconds for that first load
+  instead of being refused; on the test environment the first version answered the waking request
+  with 503.
 - After startup a vault outage doesn't matter: the cache keeps working, and only new keys and
-  revocations wait. An instance that starts during an outage has no keys and returns 503.
+  revocations wait. An instance that starts during an outage has no keys and returns 503 with
+  `Retry-After: 30` after the 10-second wait, retrying the vault every 15 seconds.
+
+| Status | When |
+| --- | --- |
+| 400 | A key in the URL |
+| 401 | No `Authorization: Bearer` header, or a malformed, unknown, revoked, expired or wrong key (`WWW-Authenticate: Bearer`) |
+| 403 | The key's client is `disabled` |
+| 429 | Over the daily cap (`Retry-After` until UTC midnight) or the rate limit (`Retry-After` until the next token) |
+| 503 | No keys loaded within 10 seconds of the instance starting |
+
+**Manual issuing:** `m4d-api/infra/new-key.ps1 -Environment test|prod` issues (`-ClientId`,
+optionally `-Name` and limits to write the client secret, `-OutFile` to keep the key off the
+screen), lists (`-List`) and revokes (`-Revoke keyId`) keys with the same vault writes as the web
+app's page.
 
 ### Cost
 
@@ -426,27 +481,105 @@ without reading m4d's config.
 
 All of this goes to the function's own Storage account, never SQL:
 
-- **Per-client rate limit.** This is the main throttle. It's a token bucket in memory per
-  instance, with a sustained rate and a burst size per client, read from the client's
-  `client-{clientId}` secret in the partner-keys vault so they can change without a redeploy. See [Capacity](#capacity-and-throughput) for starting
-  values.
-- **Daily cap.** A daily counter per client in Table Storage, flushed every ~30 seconds. When
-  the day's total passes the client's `dailyCap`, return `429` with `Retry-After`. Across
+- **Per-client rate limit** (`ClientRateLimiter.cs`). This is the main throttle. It's a token
+  bucket in memory per instance, with a sustained rate and a burst size per client, read from
+  the client's `client-{clientId}` secret in the partner-keys vault so they can change without a
+  redeploy. With two instances a client can get up to twice its rate; the instance cap bounds
+  that. See [Capacity](#capacity-and-throughput) for starting values.
+- **Defaults.** A client secret is JSON like
+  `{"name":"…","ratePerSecond":5,"burst":20,"dailyCap":100000,"status":"active"}`. Any limit it
+  leaves out, or every limit for a key whose client has no secret, comes from the app settings
+  `PARTNER_DEFAULT_RATE`, `PARTNER_DEFAULT_BURST` and `PARTNER_DEFAULT_DAILY_CAP` (20, 50 and
+  100,000 when unset, per [Starting settings](#starting-settings-all-configurable)).
+- **Daily cap** (`UsageMeter.cs`). Counts are kept in memory and flushed to Table Storage every
+  30 seconds, which also reads back the totals other instances flushed. When the day's total
+  reaches the client's `dailyCap`, return `429` with `Retry-After` until UTC midnight. Across
   instances it's accurate to within one flush interval, which is fine for a cap meant to catch
   runaway bugs.
 - **Max instance count.** A backstop on cost and Search load, not the primary throttle.
-- **Usage aggregates.** One row per client, day, and match method (`exact` / `fuzzy` / `none`),
-  holding counts. This is the self-verifying volume number for a tiered-fee settlement. It has
-  no sampling problem, unlike deriving counts from Application Insights. There are no
+- **Usage aggregates.** Table `usage`, one row per client and UTC day (PartitionKey client id,
+  RowKey `yyyy-MM-dd`), with a column per result (`exact`, `ambiguous`, `fuzzy`, `none`), a
+  `limited` column for requests the rate limit or cap turned away, and `total` (results only,
+  which is what the cap reads). Instances update a row with ETag optimistic concurrency, so
+  their counts add up. This is the self-verifying volume number for a tiered-fee settlement. It
+  has no sampling problem, unlike deriving counts from Application Insights. There are no
   per-subscriber ids; settlement uses these volumes or the partner's own sales reporting.
 - **Unmatched identifiers.** Enqueue misses, ambiguous results and fuzzy-only results, deduplicated per instance.
   The web app gets an admin page (later) that drains the queue into a review list. If the web
   app is down, the queue just grows. A Storage queue message lives 7 days by default, and
   that's configurable.
 
-Storage failures must **fail open** on logging (serve the result, drop the counter increment)
-and **fail closed** only on the cap check when the counter has been unreadable for long
-enough to matter (say 5 minutes). A Storage blip shouldn't become a partner outage.
+Storage failures **fail open**: the counts stay in memory and go out with a later flush, and
+the cap keeps working from what each instance has seen, so during an outage it's per instance
+rather than shared. An earlier draft had the cap fail closed after 5 minutes without Storage;
+that contradicted the failure-modes table (Storage down, API up), and per-instance counting
+already catches a runaway client. A Storage blip doesn't become a partner outage.
+
+### Reviewing unmatched ids: reuse the shared-id queue where it fits (PR 5)
+
+[Shared id review](../songs/shared-id-review.md) (#381) added `SharedIdCandidates`, a SQL queue
+of **pairs of catalog songs** with the ids that link them, and `/Admin/SharedIds`, where an admin
+merges a pair or marks it as different songs. Only one of the three results PR 5 queues is a
+pair of songs, so it reuses that queue for that one and adds a small queue for the other two.
+
+| Result | What the reviewer decides | Where it goes |
+| --- | --- | --- |
+| `ambiguous` | The partner's ids for one track (say its ISRC and its Apple id) point at different catalog songs. Are those songs the same recording? | `SharedIdCandidates`, as is |
+| `fuzzy` with ids | Which candidate, if any, should carry the partner's ids | New unmatched-track queue |
+| `none` with ids | Whether to add the song | New unmatched-track queue |
+| `fuzzy` or `none` with only title and artist | Nothing to attach; it only counts demand | Counted in the unmatched-track queue, or dropped |
+
+**`ambiguous` fits as is.** The resolver groups songs that share a supplied id as duplicates of
+one recording, which the shared-id seed already queues. It reports `ambiguous` only when the
+supplied ids land on songs with no id in common, a pair the seed can't see. When the web app
+drains the message, it calls `SharedIdLog.Record` for each pair of candidate songs:
+
+- `ids`: the supplied ids each song holds, spelled as `ServiceIds` spells them (`R:…`, `I:…`, `S:…`);
+- `source`: `Partner API ({clientId})`;
+- `detail`: the partner's title, artist and duration.
+
+The review page then works unchanged. `SharedIdCluster.ServiceIds` is the union of the rows' ids,
+so it highlights the ISRC on one song and the Apple id on the other, though neither id is
+actually shared. **Merge checked** and **Not the same** do the right thing. A rejected pair stays
+rejected, so repeat lookups of the same track don't queue it again. `LoadSongs` already follows
+songs merged since they were queued. No schema change is needed; `Source` is 64 characters, which
+a client id (40 at most) fits in.
+
+**`fuzzy` and `none` need their own queue.** They have at most one catalog song in play, and the
+action is to attach ids or add a song, not to merge. `SharedIdCandidates` has a non-null pair and
+a unique index on it. Forcing a track into it as a pair of a song with itself, or as a pair with
+an empty Guid, would break the cluster grouping and the merge actions. So PR 5 adds a table that
+follows the same conventions:
+
+- One row per track, keyed by its normalized ids, plus the title, artist and duration.
+- A request count, plus first and last seen, as a demand signal for what to add first.
+- The candidate song ids at the last lookup, and the client.
+- `Status` (`Pending`, `Attached`, `Added`, `Dismissed`), with `ResolvedBy` and `ResolvedAt`.
+
+The page for it can borrow the shared-id page's song cards. Its two actions reuse existing paths:
+
+- **Attach** looks up the service track by ISRC or Apple id and calls
+  `MusicServiceManager.AttachTracksToSong`. That path already runs the `SharedIdLog.CheckIds`
+  guard, so an id another song turns out to hold since the lookup becomes a shared-id candidate
+  rather than a duplicate.
+- **Add** goes through `CreateSong`, which matches on service ids before saving.
+
+**Changes PR 5 needs or would benefit from:**
+
+- **Needed: web app access to the queue.** The bicep grants the web apps only Secrets Officer
+  on the partner-keys vault. Draining needs Storage Queue Data Message Processor for each web
+  app's identity on the function's Storage account, plus a `PartnerApi:UnmatchedQueueUri` setting.
+- **Needed: candidate song ids in the message.** For `ambiguous`, the function sends the
+  candidates' song ids and which supplied ids each holds (`Candidate.MatchedBy` already says
+  this), so the drain doesn't have to query the index again. The drain still re-checks each
+  song with `FindMergedSong`, since the queue can be days old.
+- **Desirable: a `Partner API` filter on `/Admin/SharedIds`.** Partner pairs show what a paying
+  partner hit, so they're worth reviewing ahead of the 1,754 seeded clusters. A source filter or
+  sort on `PendingClusters` would do it. It isn't required.
+- **Desirable: deduplicate in SQL, not just per instance.** Repeat lookups of the same track
+  should bump the unmatched row's count, and for `ambiguous` `Record` already merges into the
+  existing pair. That makes per-instance deduplication in the function an optimization rather
+  than a correctness need, so the function can keep it simple (a bounded in-memory set per day).
 
 ---
 
@@ -621,7 +754,7 @@ minutes however it's hosted. Two notes for expectations rather than action:
   deploys the code. One resource group per environment, named like the function app.
 - **Environments.** `m4d-api-test` → alias `songs-api-test`, key writer web app `m4d-test`;
   `m4d-api` → `songs-api-prod`, key writer `msc4dnc`. In test, the person deploying also gets
-  Secrets Officer, for adding keys by hand until PR 4. Give the partner developer a test key
+  Secrets Officer, for adding keys by hand with `new-key.ps1`. Give the partner developer a test key
   first.
 - **Deployment.** Infrastructure changes create role assignments, so they run by hand from
   `deploy.ps1` under an Owner account; they're rare. Code deploys need only rights to deploy to
@@ -633,7 +766,10 @@ minutes however it's hosted. Two notes for expectations rather than action:
   misconfiguration can't take it down either. A versioned path (`/v1`) is the contract.
 - **Monitoring.** Application Insights on the function, with an availability test against
   `/v1/health` from a couple of regions and alerts on 5xx rate, on p95 latency, and on a
-  client reaching its daily cap.
+  client reaching its daily cap (logged as a warning: `Client {Client} reached its daily cap`).
+  `Program.cs` removes the Application Insights SDK's default Warning-and-above filter; until PR
+  3 it silently dropped the per-query Search timings (`Resolved {Match} by {Method} for {Client}`)
+  and every other Information log.
 - **Build hygiene.** The new project joins `music4dance.sln`, so the warning-clean
   `-warnaserror` CI build covers it.
 
@@ -659,9 +795,9 @@ minutes however it's hosted. Two notes for expectations rather than action:
 | --- | --- |
 | **1. Skeleton + infra** | `m4d-api` Functions project (isolated, .NET 10), Bicep, `/v1/health`, test environment deployed, search alias for test |
 | **2. Resolve** | Single-track id resolution, title/artist fallback with candidates and `evidence` (length delta, match quality, suggested confidence), projection from index fields, dance names from `DanceLib`, the index contract test in `m4dModels.Tests`, unit tests with a faked `SearchClient` |
-| **3. Auth + limits** | Key validation middleware with the vault-backed cache, per-client config from the vault, rate limit, daily cap, usage table. Test keys added by hand (the manual fallback) until PR 4. |
-| **4. Key issuance** | In `m4d`: `partnerDeveloper` role, client and key metadata tables (EF migration), API keys page (generate once, list, revoke), admin view of clients and keys, vault writes from the web app's identity |
-| **5. Unmatched queue** | Queue writes (misses, ambiguous and fuzzy-only results) in the function; admin drain and review page in `m4d` (can trail) |
+| **3. Auth + limits** (done) | Key validation with the vault-backed cache, per-client config from the vault, rate limit, daily cap, usage table, `new-key.ps1` for issuing keys by hand |
+| **4. Key issuance** (done) | In `m4d`: `partnerDeveloper` role, client and key metadata tables (EF migration), API keys page (generate once, list, revoke), admin view of clients and keys, vault writes from the web app's identity |
+| **5. Unmatched queue** | Queue writes (misses, ambiguous and fuzzy-only results) in the function; admin drain in `m4d` that sends `ambiguous` pairs to the shared-id queue and the rest to a new unmatched-track table with its review page (can trail; see [Reviewing unmatched ids](#reviewing-unmatched-ids-reuse-the-shared-id-queue-where-it-fits-pr-5)) |
 | **6. Production** | Prod alias, custom domain and certificate, alerts, runbook step added to search-index-versioning.md, production key issued to the first partner |
 
 The spike below came before PR 1. Its `m4d-api/` project is the starting point for PRs 1 and 2.
@@ -807,6 +943,8 @@ the test environment uses it.
   step joins
 - [song-search-service.md](../search/song-search-service.md): the in-app search layer this
   bypasses
+- [add-a-partner](../runbooks/add-a-partner.md): adding a client, issuing, rotating and revoking keys
+- [shared-id-review.md](../songs/shared-id-review.md): the pair queue and review page PR 5 reuses for `ambiguous` results
 - [hosting-and-identity.md](../infrastructure/hosting-and-identity.md): existing
   managed-identity RBAC pattern
 - [Azure Functions Flex Consumption plan](https://learn.microsoft.com/azure/azure-functions/flex-consumption-plan)

@@ -135,6 +135,7 @@ factory exists; `m4d` is the startup project.
 | `20261004051118_CheckoutSessions` | `CheckoutSessions` table |
 | `20261008163443_ServiceAccountTokens` | `ServiceAccountTokens` table |
 | `20261104060703_SharedIdCandidates` | `SharedIdCandidates` table ([shared-id-review](../songs/shared-id-review.md)) |
+| `20261105042010_PartnerApiKeys` | `PartnerClients`, `PartnerDevelopers` and `PartnerApiKeys` tables ([partner-api-standalone-host](../plans/partner-api-standalone-host.md#issuing-and-handing-over-keys)) |
 
 **Tooling.** `dotnet-ef` is a local tool pinned in `m4d/.config/dotnet-tools.json`. There's no
 manifest at the repo root, so run it from `m4d/`:
