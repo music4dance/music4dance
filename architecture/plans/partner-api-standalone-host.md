@@ -1,9 +1,9 @@
 # Partner API: Standalone Host Independent of the Web App
 
 **Type:** Plan
-**Status:** In progress. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided and PR 1 (skeleton + test environment) deployed 2026-11-01; PR 2 (resolve) deployed to test 2026-11-01.
-**Last verified:** 2026-11-01
-**Code:** `m4d-api/` (Azure Functions project: `/v1/health` and `/v1/songs/resolve`, the latter behind the platform's function key until PR 3), with infrastructure and the deploy script in `m4d-api/infra/` and unit tests in `m4d-api.Tests/`. Reads the index built by `m4dModels/SongIndex.cs`, guarded by `m4dModels.Tests/PartnerApiIndexContractTests.cs`; the existing in-app API foundation is under `m4d/PublicApi/`.
+**Status:** In progress. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided and PR 1 (skeleton + test environment) deployed 2026-11-01; PR 2 (resolve) deployed to test 2026-11-01; PR 3 (API keys and limits) deployed to test 2026-11-04.
+**Last verified:** 2026-11-04
+**Code:** `m4d-api/` (Azure Functions project: `/v1/health`, and `/v1/songs/resolve` behind partner API keys, a per-client rate limit and a daily cap), with infrastructure and the deploy script in `m4d-api/infra/` and unit tests in `m4d-api.Tests/`. Reads the index built by `m4dModels/SongIndex.cs`, guarded by `m4dModels.Tests/PartnerApiIndexContractTests.cs`; the existing in-app API foundation is under `m4d/PublicApi/`.
 
 **Context:** The likely first integration is a third-party app that sells its own subscription,
 with the partner developer's backend calling music4dance server to server using a single
@@ -231,17 +231,44 @@ change restarts the app (a cold start), and a deploy can overwrite them.
 
 ### Validation in the function
 
-- `AuthorizationLevel.Anonymous` on the endpoints, with a worker middleware doing the key
-  check, so the client id is available to the rate limiter, the usage table, and logs. The
-  platform's built-in function keys (used by the spike) go away; they're stored in plaintext in
-  the function's Storage account and carry no client identity.
+Built in PR 3: `PartnerKeyFormat.cs` (format and vault layout, shared with the web app),
+`PartnerKeyStore.cs` (the cache), and `PartnerGate.cs` (the per-request checks).
+
+- `AuthorizationLevel.Anonymous` on the endpoints. `PartnerGate.Admit` runs first in each
+  authenticated function, so the client id is available to the rate limiter, the usage table, and
+  logs. It's a call rather than worker middleware: with one authenticated endpoint that's the
+  same thing, and it can be unit tested on a plain `HttpRequest`. The platform's built-in function
+  keys (used by the spike) are gone; they're stored in plaintext in the function's Storage
+  account and carry no client identity.
 - On startup and then every 5 minutes, the function lists the vault's secrets and reads only
-  those that are new or changed (the list returns versions and dates, not values).
+  those that are new or changed (the list returns versions and dates, not values). Disabled
+  secrets are dropped without being read; the vault refuses to return their values anyway. A key
+  past its secret's expiry date is rejected even before the next refresh. A malformed client
+  secret keeps the client's previous config rather than locking it out.
 - Per request: parse the keyId, look it up in memory, SHA-256 the presented key, compare with
   `CryptographicOperations.FixedTimeEquals`. **An unknown keyId gets 401 without a vault call**,
   so junk keys can't be used to load the vault.
+- A key-shaped value anywhere in the query string gets 400, even alongside a valid header.
+- The keys load in the background when an instance starts. A request that wakes a cold
+  instance (Flex scales to zero within 5 minutes) waits up to 10 seconds for that first load
+  instead of being refused; on the test environment the first version answered the waking request
+  with 503.
 - After startup a vault outage doesn't matter: the cache keeps working, and only new keys and
-  revocations wait. An instance that starts during an outage has no keys and returns 503.
+  revocations wait. An instance that starts during an outage has no keys and returns 503 with
+  `Retry-After: 30` after the 10-second wait, retrying the vault every 15 seconds.
+
+| Status | When |
+| --- | --- |
+| 400 | A key in the URL |
+| 401 | No `Authorization: Bearer` header, or a malformed, unknown, revoked, expired or wrong key (`WWW-Authenticate: Bearer`) |
+| 403 | The key's client is `disabled` |
+| 429 | Over the daily cap (`Retry-After` until UTC midnight) or the rate limit (`Retry-After` until the next token) |
+| 503 | No keys loaded within 10 seconds of the instance starting |
+
+**Manual issuing:** `m4d-api/infra/new-key.ps1 -Environment test|prod` issues (`-ClientId`,
+optionally `-Name` and limits to write the client secret, `-OutFile` to keep the key off the
+screen), lists (`-List`) and revokes (`-Revoke keyId`) keys with the same vault writes as the web
+app's page.
 
 ### Cost
 
@@ -426,27 +453,39 @@ without reading m4d's config.
 
 All of this goes to the function's own Storage account, never SQL:
 
-- **Per-client rate limit.** This is the main throttle. It's a token bucket in memory per
-  instance, with a sustained rate and a burst size per client, read from the client's
-  `client-{clientId}` secret in the partner-keys vault so they can change without a redeploy. See [Capacity](#capacity-and-throughput) for starting
-  values.
-- **Daily cap.** A daily counter per client in Table Storage, flushed every ~30 seconds. When
-  the day's total passes the client's `dailyCap`, return `429` with `Retry-After`. Across
+- **Per-client rate limit** (`ClientRateLimiter.cs`). This is the main throttle. It's a token
+  bucket in memory per instance, with a sustained rate and a burst size per client, read from
+  the client's `client-{clientId}` secret in the partner-keys vault so they can change without a
+  redeploy. With two instances a client can get up to twice its rate; the instance cap bounds
+  that. See [Capacity](#capacity-and-throughput) for starting values.
+- **Defaults.** A client secret is JSON like
+  `{"name":"…","ratePerSecond":5,"burst":20,"dailyCap":100000,"status":"active"}`. Any limit it
+  leaves out, or every limit for a key whose client has no secret, comes from the app settings
+  `PARTNER_DEFAULT_RATE`, `PARTNER_DEFAULT_BURST` and `PARTNER_DEFAULT_DAILY_CAP` (20, 50 and
+  100,000 when unset, per [Starting settings](#starting-settings-all-configurable)).
+- **Daily cap** (`UsageMeter.cs`). Counts are kept in memory and flushed to Table Storage every
+  30 seconds, which also reads back the totals other instances flushed. When the day's total
+  reaches the client's `dailyCap`, return `429` with `Retry-After` until UTC midnight. Across
   instances it's accurate to within one flush interval, which is fine for a cap meant to catch
   runaway bugs.
 - **Max instance count.** A backstop on cost and Search load, not the primary throttle.
-- **Usage aggregates.** One row per client, day, and match method (`exact` / `fuzzy` / `none`),
-  holding counts. This is the self-verifying volume number for a tiered-fee settlement. It has
-  no sampling problem, unlike deriving counts from Application Insights. There are no
+- **Usage aggregates.** Table `usage`, one row per client and UTC day (PartitionKey client id,
+  RowKey `yyyy-MM-dd`), with a column per result (`exact`, `ambiguous`, `fuzzy`, `none`), a
+  `limited` column for requests the rate limit or cap turned away, and `total` (results only,
+  which is what the cap reads). Instances update a row with ETag optimistic concurrency, so
+  their counts add up. This is the self-verifying volume number for a tiered-fee settlement. It
+  has no sampling problem, unlike deriving counts from Application Insights. There are no
   per-subscriber ids; settlement uses these volumes or the partner's own sales reporting.
 - **Unmatched identifiers.** Enqueue misses, ambiguous results and fuzzy-only results, deduplicated per instance.
   The web app gets an admin page (later) that drains the queue into a review list. If the web
   app is down, the queue just grows. A Storage queue message lives 7 days by default, and
   that's configurable.
 
-Storage failures must **fail open** on logging (serve the result, drop the counter increment)
-and **fail closed** only on the cap check when the counter has been unreadable for long
-enough to matter (say 5 minutes). A Storage blip shouldn't become a partner outage.
+Storage failures **fail open**: the counts stay in memory and go out with a later flush, and
+the cap keeps working from what each instance has seen, so during an outage it's per instance
+rather than shared. An earlier draft had the cap fail closed after 5 minutes without Storage;
+that contradicted the failure-modes table (Storage down, API up), and per-instance counting
+already catches a runaway client. A Storage blip doesn't become a partner outage.
 
 ---
 
@@ -633,7 +672,10 @@ minutes however it's hosted. Two notes for expectations rather than action:
   misconfiguration can't take it down either. A versioned path (`/v1`) is the contract.
 - **Monitoring.** Application Insights on the function, with an availability test against
   `/v1/health` from a couple of regions and alerts on 5xx rate, on p95 latency, and on a
-  client reaching its daily cap.
+  client reaching its daily cap (logged as a warning: `Client {Client} reached its daily cap`).
+  `Program.cs` removes the Application Insights SDK's default Warning-and-above filter; until PR
+  3 it silently dropped the per-query Search timings (`Resolved {Match} by {Method} for {Client}`)
+  and every other Information log.
 - **Build hygiene.** The new project joins `music4dance.sln`, so the warning-clean
   `-warnaserror` CI build covers it.
 
@@ -659,7 +701,7 @@ minutes however it's hosted. Two notes for expectations rather than action:
 | --- | --- |
 | **1. Skeleton + infra** | `m4d-api` Functions project (isolated, .NET 10), Bicep, `/v1/health`, test environment deployed, search alias for test |
 | **2. Resolve** | Single-track id resolution, title/artist fallback with candidates and `evidence` (length delta, match quality, suggested confidence), projection from index fields, dance names from `DanceLib`, the index contract test in `m4dModels.Tests`, unit tests with a faked `SearchClient` |
-| **3. Auth + limits** | Key validation middleware with the vault-backed cache, per-client config from the vault, rate limit, daily cap, usage table. Test keys added by hand (the manual fallback) until PR 4. |
+| **3. Auth + limits** (done) | Key validation with the vault-backed cache, per-client config from the vault, rate limit, daily cap, usage table, `new-key.ps1` for issuing keys by hand |
 | **4. Key issuance** | In `m4d`: `partnerDeveloper` role, client and key metadata tables (EF migration), API keys page (generate once, list, revoke), admin view of clients and keys, vault writes from the web app's identity |
 | **5. Unmatched queue** | Queue writes (misses, ambiguous and fuzzy-only results) in the function; admin drain and review page in `m4d` (can trail) |
 | **6. Production** | Prod alias, custom domain and certificate, alerts, runbook step added to search-index-versioning.md, production key issued to the first partner |
