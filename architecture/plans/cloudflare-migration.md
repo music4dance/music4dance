@@ -74,8 +74,8 @@ truth**; add new records there, not at Namecheap.
 | `@` | TXT | ~~`Value: v=spf1 include:hotmail.com ~all`~~ (malformed legacy record) | **Deleted 2026-11-05.** Cloudflare flagged it as a second SPF record, which can send mail to spam |
 | `asuid` | TXT | `0316C3E4…ED55` (App Service domain verification) | n/a |
 | `asuid.www` | TXT | same value | n/a |
-| `awverify` | CNAME | `awverify.m4d.azurewebsites.net` (pre-`asuid` App Service verification, for an old app name) | **DNS only**. Stale; clean up afterwards |
-| `awverify.www` | CNAME | `awverify.m4d.azurewebsites.net` | **DNS only**. Stale; clean up afterwards |
+| ~~`awverify`~~ | CNAME | `awverify.m4d.azurewebsites.net` (pre-`asuid` App Service verification, for an old app name) | **Deleted 2026-11-06** (see below) |
+| ~~`awverify.www`~~ | CNAME | `awverify.m4d.azurewebsites.net` | **Deleted 2026-11-06** |
 | `autodiscover` | CNAME | `autodiscover.outlook.com` | **DNS only** |
 | `selector1._domainkey` | CNAME | `selector1-music4dance-net._domainkey.msc4dnc.onmicrosoft.com` | **DNS only** |
 | `selector2._domainkey` | CNAME | `selector2-music4dance-net._domainkey.msc4dnc.onmicrosoft.com` | **DNS only** |
@@ -98,6 +98,11 @@ Every record except `@` and `www` must stay **DNS only**. Cloudflare's import te
 CNAMEs as proxied, and a proxied `autodiscover` or DKIM CNAME breaks Outlook setup or mail
 signing. The import missed the SRV records, the four `selector*._domainkey` CNAMEs, the
 `awverify` CNAMEs and `asuid.www`; all were added by hand.
+
+The two `awverify` CNAMEs were deleted early because Cloudflare flagged them as dangling.
+`m4d.azurewebsites.net` no longer exists (NXDOMAIN, and no `m4d` app in the subscription), so
+anyone could create an app with that name and claim the target. App Service has used the
+`asuid` TXT records for verification for years, so nothing depends on `awverify`.
 
 **`api` stays DNS only** when the
 [partner API](partner-api-standalone-host.md#operations) gets its custom domain:
@@ -199,14 +204,38 @@ cookie, so the host shouldn't matter. Update the table in
    - Check the MX priority and the exact TXT values. Quoting gets mangled sometimes.
    - TTL "Auto" is fine.
 4. **Configure these settings now**, so they're already in place when the proxy goes on:
-   - **SSL/TLS, Overview:** encryption mode **Full (strict)**. It works with today's App Service
-     managed certificates, which are publicly trusted for both hostnames. Never use
-     **Flexible**: it sends plain HTTP to the origin, and the app's HTTPS redirect then loops.
+   - **SSL/TLS, Overview:** choose **Custom SSL/TLS**, then encryption mode **Full (strict)**.
+     Don't leave it on **Automatic SSL/TLS** (Cloudflare's default for new zones):
+     - Automatic moves up one mode at a time. It scans the origin about monthly, then shifts
+       traffic to the new mode in 10% steps. So after Phase 4 the zone could spend weeks on
+       **Full**, which encrypts but doesn't check the origin certificate.
+     - We already know the origin supports Full (strict). Setting it outright means every proxied
+       request checks the certificate from the first one, and a broken origin certificate shows
+       up at once as a 526 error, not as a quiet step down.
+     - Full (strict) works with today's App Service managed certificates, which are publicly
+       trusted for both hostnames, and with the Origin CA certificate from Phase 5.
+     - Never use **Flexible**: it sends plain HTTP to the origin, and the app's HTTPS redirect
+       then loops.
    - **SSL/TLS, Edge Certificates:** **Always Use HTTPS** on, **Minimum TLS Version** 1.2. Leave
      Cloudflare's HSTS off, because the app already sends HSTS (`UseHsts`).
+     - The dashboard warns that this can loop with an origin that also redirects to HTTPS. That
+       happens only with **Flexible**. With Full (strict), Cloudflare always connects to the
+       origin over HTTPS, so the app's `UseHttpsRedirection` / `AddRedirectToHttps` and App
+       Service **HTTPS Only** never fire for proxied requests. **Keep the origin redirects**: they
+       still protect the `azurewebsites.net` host and anything that reaches the origin directly.
    - **Security, Bots:** **Bot Fight Mode off** for now (turned on in Phase 6).
    - **Speed** (or **Optimization**): **Rocket Loader** off. Leave any automatic Web Analytics
      beacon injection off; the site already has GA4.
+     - **Cloudflare Fonts:** worth turning on, but **after Phase 4 is stable**, so the cutover
+       changes one thing at a time. It rewrites the Google Fonts stylesheet link in
+       `m4d/Views/Shared/_head.cshtml` (Source Sans Pro and Merienda) to serve the fonts from
+       `music4dance.net`. That saves the connections to `fonts.googleapis.com` and
+       `fonts.gstatic.com` and stops sending visitors' IPs to Google for fonts. The app sets no
+       Content-Security-Policy, so nothing blocks the rewritten URLs. Once it's on, drop the two
+       `preconnect` links above it. Check a page's fonts and the browser console afterwards.
+     - **Early Hints:** leave it off. Cloudflare sends `103 Early Hints` only from `Link`
+       preload headers on origin responses, and the app sends none (Vite's preloads are tags in
+       the HTML). It would do nothing until the app adds those headers.
    - **Scrape Shield:** **Email Address Obfuscation** off. It rewrites emails in the HTML and
      could corrupt the inline JSON page models.
    - **Caching, Configuration:** leave the defaults (static files by extension, respecting the
@@ -425,8 +454,6 @@ When the phases ship, fold the as-built result into the reference docs and delet
   question 3 (edge vendor) and point B3 here.
 - **DNS cleanup, about a month after Phase 4 (early December 2026):**
   - Delete the legacy TXT record at `@` (`music4dance.azurewebsites.net`).
-  - Delete the `awverify` and `awverify.www` CNAMEs, which point at an app name that no longer
-    exists.
   - **Tighten DMARC.** `_dmarc` has been `v=DMARC1; p=none` (report only) since 2026-11-05.
     Turn on Cloudflare's **Email, DMARC Management** now so reports collect in the meantime.
     Once a few weeks of reports show only Microsoft 365 and ACS sending as `music4dance.net`,
