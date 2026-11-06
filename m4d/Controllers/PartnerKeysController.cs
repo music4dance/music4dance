@@ -138,7 +138,8 @@ public class PartnerKeysController(
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = AdminRole)]
-    public async Task<ActionResult> AddDeveloper(string clientId, string userName)
+    public async Task<ActionResult> AddDeveloper(string clientId, string userName,
+        [FromServices] RoleManager<IdentityRole> roleManager)
     {
         var user = string.IsNullOrWhiteSpace(userName)
             ? null
@@ -157,9 +158,25 @@ public class PartnerKeysController(
             return RedirectToAction(nameof(Clients), new { error = ex.Message });
         }
 
-        if (!await UserManager.IsInRoleAsync(user, DanceMusicCoreService.PartnerDeveloperRole))
+        // Only Development seeds roles (UserManagerHelpers.SeedRoles), so the first developer
+        // added on test or production creates the role; AddToRoleAsync throws if it's missing.
+        var role = DanceMusicCoreService.PartnerDeveloperRole;
+        if (!await roleManager.RoleExistsAsync(role))
         {
-            _ = await UserManager.AddToRoleAsync(user, DanceMusicCoreService.PartnerDeveloperRole);
+            var created = await roleManager.CreateAsync(new IdentityRole { Name = role });
+            if (!created.Succeeded && !await roleManager.RoleExistsAsync(role))
+            {
+                return RedirectToAction(nameof(Clients), new { error = $"Couldn't create the {role} role: {Errors(created)}" });
+            }
+        }
+
+        if (!await UserManager.IsInRoleAsync(user, role))
+        {
+            var added = await UserManager.AddToRoleAsync(user, role);
+            if (!added.Succeeded)
+            {
+                return RedirectToAction(nameof(Clients), new { error = $"Couldn't give {user.UserName} the {role} role: {Errors(added)}" });
+            }
         }
 
         return RedirectToAction(nameof(Clients), new { message = $"{user.UserName} can now issue keys for {clientId}." });
@@ -206,4 +223,7 @@ public class PartnerKeysController(
 
     private RedirectToActionResult Back(bool fromAdmin, string message = null, string error = null) =>
         RedirectToAction(fromAdmin ? nameof(Clients) : nameof(Index), new { message, error });
+
+    private static string Errors(IdentityResult result) =>
+        string.Join(" ", result.Errors.Select(e => e.Description));
 }
