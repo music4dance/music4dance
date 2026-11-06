@@ -191,7 +191,8 @@ cookie, so the host shouldn't matter. Update the table in
 
 **Done 2026-11-05.** Every record reconciled with section 2 and set to DNS only. Step 4's
 settings were applied 2026-11-06: **Custom SSL/TLS, Full (strict)** (switched from the
-Automatic default) and **Always Use HTTPS** on, with the origin redirects kept. Cloudflare Fonts
+Automatic default) and **Always Use HTTPS** on, with the origin redirects kept; the other step 4
+settings were confirmed the same day. Cloudflare Fonts
 waits until after Phase 4, and Early Hints stays off.
 
 1. Sign up at <https://dash.cloudflare.com/sign-up> with the email from Phase 0, verify it, and
@@ -289,9 +290,9 @@ the Phase 0 export if Namecheap didn't keep them.
 ### Phase 4: Turn the proxy on
 
 Prerequisites: the Phase 1 PR is deployed, the zone is Active, and the edge certificate is
-Active. The Phase 2 SSL settings are set (Custom SSL/TLS, Full (strict); Always Use HTTPS on).
-Also confirm the rest of Phase 2 step 4: Minimum TLS 1.2, Cloudflare HSTS off, Bot Fight Mode
-off, Rocket Loader off, Email Address Obfuscation off.
+Active. All of Phase 2 step 4 is set (confirmed 2026-11-06): Custom SSL/TLS, Full (strict);
+Always Use HTTPS on; Minimum TLS 1.2; Cloudflare HSTS off; Bot Fight Mode off; Rocket Loader
+off; Email Address Obfuscation off.
 
 Proxy only `@` and `www`. A proxied record's TTL is fixed at Auto (5 minutes), so there's no
 TTL to set on them. The DNS-only records keep their own TTLs.
