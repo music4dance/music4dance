@@ -295,6 +295,14 @@ Active. All of Phase 2 step 4 is set (confirmed 2026-11-06): Custom SSL/TLS, Ful
 Always Use HTTPS on; Minimum TLS 1.2; Cloudflare HSTS off; Bot Fight Mode off; Rocket Loader
 off; Email Address Obfuscation off.
 
+**In progress.** `www` proxied at 2026-11-06 20:38 UTC. Within two minutes about 95% of `www`
+requests came from Cloudflare addresses, with no 5xx, the usual page latency (median 15–60 ms
+a minute), and signed-in sessions working through the edge. The remaining direct requests
+(about 3 a minute after 20:45) were crawlers that hold DNS answers longer than the TTL (Bingbot,
+Bytespider, Sogou, a few Chinese cloud headless browsers) plus AlwaysOn, which calls from inside
+the App Service. Plain HTTP gets a 301 from the edge (Always Use HTTPS), and the origin's HSTS
+header passes through.
+
 Proxy only `@` and `www`. A proxied record's TTL is fixed at Auto (5 minutes), so there's no
 TTL to set on them. The DNS-only records keep their own TTLs.
 
