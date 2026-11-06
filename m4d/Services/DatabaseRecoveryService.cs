@@ -6,6 +6,7 @@ using m4d.Services.ServiceHealth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace m4d.Services;
 
@@ -19,8 +20,9 @@ namespace m4d.Services;
 /// (default 1 minute).
 ///
 /// The reconnection attempt is fire-and-forget so it never delays the user's request.
-/// On success it marks the database healthy and re-runs the deferred FixupStats
-/// initialisation that was skipped during startup.
+/// On success it runs any migrations that startup deferred (see <see cref="DeferMigrations"/>),
+/// marks the database healthy and re-runs the deferred FixupStats initialisation that was
+/// skipped during startup.
 /// </summary>
 public class DatabaseRecoveryService
 {
@@ -36,6 +38,11 @@ public class DatabaseRecoveryService
     // Throttle: last attempt start time in UTC ticks (updated before Task.Run so
     // concurrent callers see the updated value immediately and don't queue extra tasks).
     private long _lastRetryUtcTicks = 0;
+
+    // Set by startup when it couldn't run the migrations (the database was unavailable, or the
+    // migration itself failed). Without it a reconnect would mark the database healthy on the old
+    // schema, and every page that touches a new table would throw until the next restart.
+    private volatile bool _migrationsDeferred;
 
     public DatabaseRecoveryService(
         IServiceProvider serviceProvider,
@@ -53,6 +60,16 @@ public class DatabaseRecoveryService
 
         _logger.LogInformation("DatabaseRecoveryService initialised (retry interval: {Interval})", _retryInterval);
     }
+
+    /// <summary>True while startup's migrations are still waiting to run.</summary>
+    public bool MigrationsDeferred => _migrationsDeferred;
+
+    /// <summary>
+    /// Records that startup didn't run the migrations, so the next successful reconnection runs
+    /// them before marking the database healthy. Startup doesn't call this when it skips
+    /// migrations on purpose (PROD_DB or TEST_DB), so recovery never migrates those databases.
+    /// </summary>
+    public void DeferMigrations() => _migrationsDeferred = true;
 
     /// <summary>
     /// Call on every user request (cheap when the database is healthy).
@@ -100,7 +117,7 @@ public class DatabaseRecoveryService
     // Private helpers
     // ---------------------------------------------------------------------------
 
-    private async Task AttemptRecoveryAsync(string connectionString)
+    internal async Task AttemptRecoveryAsync(string connectionString)
     {
         // Allow only one concurrent attempt; others return immediately
         if (!await _retryLock.WaitAsync(0))
@@ -135,20 +152,11 @@ public class DatabaseRecoveryService
                 return;
             }
 
-            var testOptions = new DbContextOptionsBuilder<DanceMusicContext>()
-                .UseSqlServer(testConnStr, o =>
-                {
-                    o.CommandTimeout(60);
-                    // No EnableRetryOnFailure here – we want a single fast-fail probe
-                })
-                .Options;
-
             bool canConnect;
             var sw = Stopwatch.StartNew();
             try
             {
-                using var testContext = new DanceMusicContext(testOptions);
-                canConnect = await testContext.Database.CanConnectAsync();
+                canConnect = await ProbeAsync(testConnStr);
             }
             catch (Exception ex)
             {
@@ -171,6 +179,27 @@ public class DatabaseRecoveryService
             _logger.LogInformation(
                 "Database recovery: connection restored in {Elapsed}ms – running post-recovery initialisation",
                 sw.ElapsedMilliseconds);
+
+            // --- Deferred migrations -----------------------------------------------
+            // Run them before marking the database healthy: a healthy database on the old schema
+            // fails on every query against a table the new release added.
+            if (_migrationsDeferred)
+            {
+                try
+                {
+                    _logger.LogInformation("Database recovery: running the migrations deferred at startup...");
+                    await MigrateAsync(testConnStr);
+                    _migrationsDeferred = false;
+                    _logger.LogInformation("Database recovery: deferred migrations completed");
+                }
+                catch (Exception ex)
+                {
+                    // Stay unavailable so the next request retries the migration.
+                    _logger.LogError(ex, "Database recovery: deferred migrations failed – {Error}", ex.Message);
+                    _serviceHealth.MarkUnavailable("Database", $"Migration failed: {ex.GetType().Name}: {ex.Message}");
+                    return;
+                }
+            }
 
             // Mark healthy immediately so controllers start serving real content.
             // FixupStats below will re-confirm (and re-mark unavailable on failure).
@@ -216,4 +245,26 @@ public class DatabaseRecoveryService
             _retryLock.Release();
         }
     }
+
+    /// <summary>Checks the connection. Virtual so tests can run recovery without SQL Server.</summary>
+    internal virtual async Task<bool> ProbeAsync(string connectionString)
+    {
+        using var context = new DanceMusicContext(CreateOptions(connectionString));
+        return await context.Database.CanConnectAsync();
+    }
+
+    /// <summary>Applies pending migrations. Virtual so tests can run recovery without SQL Server.</summary>
+    internal virtual async Task MigrateAsync(string connectionString)
+    {
+        using var context = new DanceMusicContext(CreateOptions(connectionString));
+        await context.Database.MigrateAsync();
+    }
+
+    // The same options as startup's migration context: no EnableRetryOnFailure (a single
+    // fast-fail attempt; the next request retries) and PendingModelChangesWarning ignored.
+    private static DbContextOptions<DanceMusicContext> CreateOptions(string connectionString) =>
+        new DbContextOptionsBuilder<DanceMusicContext>()
+            .UseSqlServer(connectionString, o => o.CommandTimeout(60))
+            .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning))
+            .Options;
 }

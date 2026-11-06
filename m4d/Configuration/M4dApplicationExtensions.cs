@@ -1015,11 +1015,20 @@ public static class M4dApplicationExtensions
                 catch (Exception ex)
                 {
                     serviceHealth.MarkUnavailable("Database", $"Migration failed: {ex.GetType().Name}: {ex.Message}");
+                    // Usually an on-demand database that's still waking up: retry the migration
+                    // when DatabaseRecoveryService reconnects, rather than serving the old schema.
+                    app.Services.GetRequiredService<DatabaseRecoveryService>().DeferMigrations();
                     Console.WriteLine($"ERROR: Database migration failed: {ex.GetType().Name}: {ex.Message}");
-                    Console.WriteLine("WARNING: Continuing without database - data features will be unavailable");
+                    Console.WriteLine("WARNING: Continuing without database - migrations will run when it reconnects");
                 }
             }
-            else if (useProdDb || useTestDb)
+            else if (!useProdDb && !useTestDb)
+            {
+                // The startup health check already found the database unavailable.
+                app.Services.GetRequiredService<DatabaseRecoveryService>().DeferMigrations();
+                Console.WriteLine("Database unavailable - migrations will run when it reconnects");
+            }
+            else
             {
                 Console.WriteLine("Skipping database migrations - PROD_DB or TEST_DB is set");
             }
