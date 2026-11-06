@@ -162,7 +162,13 @@ before any hosted service touches it:
 - On success it marks `Database` healthy and, in Development, runs
   `UserManagerHelpers.SeedData` (roles, plus admin, test and editor users when their
   `M4D_*_USER` settings exist).
-- On failure it marks `Database` unavailable and keeps starting.
+- On failure it marks `Database` unavailable and keeps starting, and tells
+  `DatabaseRecoveryService` the migrations were deferred. It does the same when the startup
+  health check already found the database unavailable. The next successful reconnection runs
+  the migrations before it marks `Database` healthy, and if they fail again it stays unavailable
+  and retries on a later request. Before this, a deploy that started while the on-demand test
+  database was waking up came back healthy on the old schema, and pages that read the new tables
+  threw until the next restart.
 - It's **skipped when `PROD_DB` or `TEST_DB` is in effect**, so a local session pointed at a
   shared database never changes that database's schema.
 
@@ -270,6 +276,8 @@ loading is covered in [usage-tracking](../observability/usage-tracking.md).
 - 2026-10-02, #326 (`af5513b8`): `RestoreDatabase` and `Reseed` require `dbAdmin` again (they had
   been `[AllowAnonymous]`); the no-op `UpdateDatabase` action removed.
 - 2026-10-04: `CheckoutSessions` table; `/AppData` blocked from static-file serving.
+- 2026-11-05: A startup migration that fails, or that's skipped because the database is
+  unavailable, is retried by `DatabaseRecoveryService` before it marks the database healthy.
 
 ## Related
 

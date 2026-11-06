@@ -127,8 +127,10 @@ reads them.)
   pipeline. While `Database` is `Unavailable` and a connection string exists, it starts a
   fire-and-forget reconnection probe, never blocking the request. Probes run at most once per
   `ServiceHealth:DatabaseRetryInterval` (default `00:01:00`, set in `appsettings.json`), and only
-  one runs at a time. On success it marks the database healthy and re-runs the deferred
-  `FixupStats` initialization. This covers the on-demand Azure SQL cold start, where the app
+  one runs at a time. On success it first runs any migrations startup couldn't (see
+  [data-layer § Migrations](data-layer.md#migrations)); if they fail, `Database` stays
+  unavailable and a later request retries. Then it marks the database healthy and re-runs the
+  deferred `FixupStats` initialization. This covers the on-demand Azure SQL cold start, where the app
   wakes 20–45 seconds before the database.
 - **App Configuration and the secret-backed services:** see below.
 - **Everything else:** recovers only through the cooldown, or on restart.
@@ -348,6 +350,9 @@ notified, so no lone "recovered" email follows. Configuration and testing steps 
 - 2026-10-07: The status email is opted into with `ServiceHealth:AdminNotifications:StartupStatus`
   instead of running only in Azure, so it can be tested locally and turned off per environment.
   A `[Notifications]` console line on startup shows the settings the notifier sees.
+- 2026-11-05: `DatabaseRecoveryService` runs the migrations startup deferred before marking the
+  database healthy. A test deploy had come back healthy on the old schema after its migration hit
+  a cold database.
 - 2026-10-01: The plan and the eight phase reports were consolidated into this document. The
   originals are in git history under `architecture/infrastructure/service-resilience-*.md`.
 - 2026-10-14: `CredentialExpiryMonitor` checks every `IExpiringCredential` on songstats; the

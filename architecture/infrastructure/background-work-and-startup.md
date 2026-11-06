@@ -155,8 +155,9 @@ them explicitly ([testing-patterns](../dev-testing/testing-patterns.md)).
 A singleton that inline middleware calls on every request, right after the 4xx-tracking
 middleware and before forwarded headers and authentication. While `Database` is `Unavailable`
 and a connection string exists, it starts a throttled, fire-and-forget probe (at most one every
-`ServiceHealth:DatabaseRetryInterval`, one at a time). On success it marks `Database` healthy and
-re-runs `FixupStats` in a fresh scope, so the parts skipped during a cold start get done. If
+`ServiceHealth:DatabaseRetryInterval`, one at a time). On success it runs any migrations startup
+deferred (it stays unavailable if they fail), marks `Database` healthy and re-runs `FixupStats`
+in a fresh scope, so the parts skipped during a cold start get done. If
 `DanceStatsManager.Instance` is still null (the hosted service never loaded the stats at all), it
 logs a warning and skips `FixupStats`. The full behavior, and the cooldown interaction that can
 make `/health/ready` report ready between failed probes, are in
@@ -276,6 +277,7 @@ and `ArtistIndexCache` loads and rebuilds the artist snapshot in the background
 - 2026-10-01: This document created.
 - 2026-10-06: `AppConfigurationRecoveryService` added after a production App Configuration
   startup timeout left the app degraded until a manual restart; it completes the load in place.
+- 2026-11-05: `DatabaseRecoveryService` runs migrations that startup deferred.
 
 ## Related
 
