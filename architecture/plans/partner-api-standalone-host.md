@@ -775,7 +775,7 @@ minutes however it's hosted. Two notes for expectations rather than action:
 - **Custom domain.** `api.music4dance.net` with a Flex site-scoped managed certificate. DNS
   points straight at the function, not through the web app or an edge proxy, so an edge
   misconfiguration can't take it down either. A versioned path (`/v1`) is the contract.
-  - The zone's DNS moved to Cloudflare on 2026-11-06 (see
+  - The zone's DNS moved to Cloudflare on 2026-11-05 (see
     [cloudflare-migration](cloudflare-migration.md)). Create the records **in Cloudflare**; any
     record added at Namecheap is ignored. They are a CNAME `api` to the function app's default
     hostname and a TXT `asuid.api` with the function app's domain verification ID, which Azure
