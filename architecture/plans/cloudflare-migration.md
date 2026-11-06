@@ -1,7 +1,7 @@
 # Cloudflare Migration (DNS and Edge Proxy)
 
 **Type:** Plan
-**Status:** In progress. The owner has chosen Cloudflare over Front Door for attack-mitigation step 2.2 and is starting on the Free plan (2026-11-04). Phases 1 to 3 are done: the zone is Active on Cloudflare's nameservers with every record DNS only, the edge certificate is Active, and mail and verification checks pass (2026-11-05). SSL/TLS is Full (strict) with Always Use HTTPS on, and the dangling `awverify` CNAMEs are deleted (2026-11-06). Phase 4 (proxy on) is next, after #385 is deployed.
+**Status:** In progress. The owner has chosen Cloudflare over Front Door for attack-mitigation step 2.2 and is starting on the Free plan (2026-11-04). Phases 1 to 3 are done: the zone is Active on Cloudflare's nameservers with every record DNS only, the edge certificate is Active, and mail and verification checks pass (2026-11-05). SSL/TLS is Full (strict) with Always Use HTTPS on, and the dangling `awverify` CNAMEs are deleted (2026-11-06). #385 (client IP from `CF-Connecting-IP`) is in production since 2026-11-06 04:22 UTC (build 20261105.3). Phase 4 (proxy on) is next; every prerequisite is met.
 **Last verified:** 2026-11-05 (every section 2 name queried against Namecheap and both Cloudflare nameservers: no differences)
 **Code:** `m4d/Configuration/M4dApplicationExtensions.cs` (`UseForwardedHeaders`), `m4d/Middleware/RateLimitingMiddleware.cs` (`GetClientIdentifier`), `m4d/Areas/Identity/Pages/Account/Login.cshtml.cs`, `Register.cshtml.cs`, `LoginModelBase.cs`, `m4d/Controllers/PaymentController.cs`, `azure-pipelines.yml` (readiness check)
 
@@ -151,7 +151,8 @@ The cutover is split so that each step changes one thing and can be undone on it
 
 ### Phase 1: App and caller changes (ship before Phase 4)
 
-**Done 2026-11-04.** The client-IP change shipped in #385, and all six Logic Apps now call
+**Done 2026-11-04.** The client-IP change shipped in #385 (deployed to production 2026-11-06
+04:22 UTC, build 20261105.3), and all six Logic Apps now call
 `msc4dnc.azurewebsites.net`. The two steps below are kept for reference until this plan is folded
 into the reference docs.
 
