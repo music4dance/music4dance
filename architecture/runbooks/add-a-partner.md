@@ -76,7 +76,10 @@ Skip this if the web app's `/PartnerKeys/Clients` page doesn't show the notice t
 
 1. Have the developer register on the same site, if they haven't.
 2. On the client, enter their user name or email under **Developers** and select
-   **Add developer**. This grants the `partnerDeveloper` role.
+   **Add developer**. This grants the `partnerDeveloper` role, creating the role the first time
+   on a site that doesn't have it yet.
+3. If adding a developer ever fails partway, so they're listed but can't open `/PartnerKeys`,
+   add them again. It's safe to repeat, and it grants the role.
 
 ### 3. The developer generates a key
 
