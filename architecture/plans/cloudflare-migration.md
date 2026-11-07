@@ -1,8 +1,8 @@
 # Cloudflare Migration (DNS and Edge Proxy)
 
 **Type:** Plan
-**Status:** In progress. The owner has chosen Cloudflare over Front Door for attack-mitigation step 2.2 and is starting on the Free plan (2026-11-04). Phases 1 to 3 are done: the zone is Active on Cloudflare's nameservers with every record DNS only, the edge certificate is Active, and mail and verification checks pass (2026-11-05). SSL/TLS is Full (strict) with Always Use HTTPS on, and the dangling `awverify` CNAMEs are deleted (2026-11-06). #385 (client IP from `CF-Connecting-IP`) is in production since 2026-11-06 04:22 UTC (build 20261105.3). Phase 4 is done: `www` and `@` have been proxied since 2026-11-06, and the first day was clean (2026-11-07). Phase 6 is in progress: Bot Fight Mode has been on since 2026-11-07, and Precursor is a later step that depends on what Bot Fight Mode leaves. Phase 5 is due by the end of January 2027.
-**Last verified:** 2026-11-05 (every section 2 name queried against Namecheap and both Cloudflare nameservers: no differences)
+**Status:** In progress, paused on 2026-11-07 to let the site run before the next review. The owner chose Cloudflare over Front Door for attack-mitigation step 2.2 and is on the Free plan (2026-11-04). Phases 1 to 4 are done: DNS has been on Cloudflare since 2026-11-05; SSL/TLS is Full (strict) with Always Use HTTPS on; #385 (client IP from `CF-Connecting-IP`) has been in production since 2026-11-06 04:22 UTC; `www` and `@` have been proxied since 2026-11-06, and the first day was clean. Phase 6 is in progress: Bot Fight Mode and leaked credentials detection (detect only) have been on since 2026-11-07. Phase 5 is due by the end of January 2027. The next steps are listed under "Where this stands".
+**Last verified:** 2026-11-07 (proxy and first-day logs); 2026-11-05 (every section 2 name queried against Namecheap and both Cloudflare nameservers: no differences)
 **Code:** `m4d/Configuration/M4dApplicationExtensions.cs` (`UseForwardedHeaders`), `m4d/Middleware/RateLimitingMiddleware.cs` (`GetClientIdentifier`), `m4d/Areas/Identity/Pages/Account/Login.cshtml.cs`, `Register.cshtml.cs`, `LoginModelBase.cs`, `m4d/Controllers/PaymentController.cs`, `azure-pipelines.yml` (readiness check)
 
 This plan moves `music4dance.net` DNS from Namecheap to Cloudflare and puts Cloudflare's proxy in
@@ -14,6 +14,31 @@ Those docs already compare Cloudflare with Front Door, so this one covers only h
 The **registration stays at Namecheap**. Only the nameservers change. Registrar and DNS host are
 independent, so there's no reason to transfer the domain, though moving it to Cloudflare
 Registrar later (at-cost renewals) is an option.
+
+## Where this stands (2026-11-07)
+
+Done:
+- DNS on Cloudflare (Phases 1–3).
+- Proxy on for `www` and `@` (Phase 4).
+- Bot Fight Mode on (Phase 6 step 1).
+- Leaked credentials detection on, detect only (Phase 6 step 3).
+
+Next session, after a day or two of data:
+
+1. Rerun `analyze-traffic` and `analyze-logs`. Compare with `local/http-logs/traffic-2026-11-07.md`,
+   the day before Bot Fight Mode, especially the headless group, then check **Security, Events**
+   and Search Console crawl stats.
+2. Decide on Precursor (Phase 6 step 2) from what the headless group did.
+3. Leaked credentials: turn on the header transform, test whether Cloudflare recognizes the login
+   form, then decide on the app-side follow-up (Phase 6 step 3).
+4. Add the scanner WAF rule (step 4) and update the respond-to-attack runbook (step 6).
+5. Build the app-side request log that records the real client IP, so `analyze-traffic` keeps its
+   per-IP view (section 4).
+6. A small fix: `HomeController.Index` and other GET-only actions throw a 500 on a POST. They
+   should answer only GET.
+7. Turn on Cloudflare Fonts and remove the Google Fonts preconnect links (Phase 2 notes).
+8. Phase 5 (Origin CA certificate) by the end of January 2027.
+9. DNS cleanup and DMARC tightening in early December 2026 (section 4).
 
 HTML caching isn't part of this plan. Cloudflare doesn't cache HTML by default, and the app
 marks anonymous pages `no-cache` and signed-in pages `no-store`. Edge caching of HTML is Phase 2
@@ -415,7 +440,7 @@ one-off scripts pointed at `www`, and those would start getting challenged.
         again.
      4. If Armed doesn't help either, that's a reason to move to Pro (section 1).
    - **Rollback.** Set the mode back to **Off**.
-3. **Leaked credentials detection: detect only, no blocking.** There's no sign of credential
+3. **Leaked credentials detection: detect only, no blocking.** Detection was turned on 2026-11-07. The header transform, the login-form test and the app side are deferred to the next session. There's no sign of credential
    stuffing today: login POSTs are rare, and the 5k `/identity/account/*` requests a day are
    crawlers fetching the pages. So this is defence in depth.
    - **What Free gets.** Only "password leaked" (`cf.waf.credential_check.password_leaked`).
@@ -548,9 +573,15 @@ When the phases ship, fold the as-built result into the reference docs and delet
 - [bot-and-abuse-defense](../security/bot-and-abuse-defense.md): the client-IP middleware, Bot
   Fight Mode, the scanner WAF rule.
 - `analyze-traffic` skill: after Phase 4, the App Service HTTP logs record Cloudflare's IP as
-  `c-ip`, so the per-client grouping (IP + user agent) degrades. Options: have the app's
-  HTTP logging include `CF-Connecting-IP`, or lean on Cloudflare's Security Events and Analytics.
-  Decide before the next traffic review. The skill's per-host section (Phase 7 baseline) doesn't
+  `c-ip`, so the per-client grouping (IP + user agent) degrades. That log can't record
+  `CF-Connecting-IP`, because it has no header fields. The chosen fix is an app-side request log:
+  - A middleware after `CloudflareClientIpMiddleware` writes one record per request, with the
+    same fields as the platform log plus the real client IP.
+  - Records are batched about once a minute into hourly blobs in `m4dlogs`, with the same layout
+    and the same 30-day delete rule.
+  - `analyze-traffic` reads them and keeps the platform log as a cross-check.
+
+  Until it ships, use `/Admin/Diagnostics` and Cloudflare's Security Events for per-IP views. The skill's per-host section (Phase 7 baseline) doesn't
   depend on this: it needs only the edge IP, which is what tells proxied and direct requests
   apart.
 - [plans/front-door-caching](front-door-caching.md): mark it superseded, or delete it.

@@ -151,6 +151,22 @@ figures below leave out the Chrome/153 wave described next, so they compare like
   A POST to a dance page should be a 4xx; the exception is in the App Service logs
   (`analyze-logs`).
 
+#### First day behind the Cloudflare proxy (2026-11-06/07)
+
+22 hours, 2026-11-06 21:00 to 2026-11-07 18:30 UTC, with `www` and `@` proxied and Bot Fight Mode
+still off. 137,000 requests, 0.4 server-hours.
+- 98% of requests came through Cloudflare. Requests that went straight to the origin dropped to
+  about 10 an hour, all crawlers with stale DNS.
+- The groups look as before. The headless pattern is still the largest by requests: 46,000,
+  mostly assets for pages the farm fetches elsewhere. Applebot is the biggest by server time
+  (23%). Moz DotBot sends most of the apex's 20,000 redirects and gets most of the 626
+  `CrawlerThrottle` 429s.
+- Per-IP sections now show Cloudflare edge addresses (for example a single edge /24 carries
+  Exa and the headless farm), so they no longer identify clients. Details and the fix are in
+  [cloudflare-migration](cloudflare-migration.md) Phase 4 and section 4.
+
+This day is the before picture for Bot Fight Mode, which went on 2026-11-07.
+
 ### 1.2 What a public page costs
 
 The sizes below were measured with `curl` against production.
