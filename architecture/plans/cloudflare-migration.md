@@ -415,13 +415,44 @@ one-off scripts pointed at `www`, and those would start getting challenged.
         again.
      4. If Armed doesn't help either, that's a reason to move to Pro (section 1).
    - **Rollback.** Set the mode back to **Off**.
-3. **One custom WAF rule** for scanner noise: block the probe paths that the 4xx triage keeps
+3. **Leaked credentials detection: detect only, no blocking.** There's no sign of credential
+   stuffing today: login POSTs are rare, and the 5k `/identity/account/*` requests a day are
+   crawlers fetching the pages. So this is defence in depth.
+   - **What Free gets.** Only "password leaked" (`cf.waf.credential_check.password_leaked`).
+     Matching a username and password together needs Pro. Cloudflare compares a hash and doesn't
+     keep passwords. A match also flags common weak passwords, not just stolen pairs. That's why
+     the site shouldn't block on it: it would lock real users with weak passwords out of sign-in.
+   - **Turn on.** Turn on the detection (Security, Settings, Leaked credentials detection; check
+     whether it's already on). Also turn on the **Add Leaked Credentials Checks Header** managed
+     transform (Rules, Transform Rules, Managed Transforms). On Free that sends
+     `Exposed-Credential-Check: 4` to the origin when the password is known-leaked. Neither
+     changes what visitors see.
+   - **Check that it recognizes the login form.** Cloudflare looks for common login forms by
+     default. Ours is ASP.NET Identity, which POSTs `Input.UserName` and `Input.Password` to
+     `/identity/account/login`, and the docs don't list it. Choosing custom detection locations is
+     Enterprise only. To test:
+     1. Add a temporary custom rule: `ip.src eq <your IP> and
+        cf.waf.credential_check.password_leaked`, action **Block**.
+     2. Sign in with a made-up username and a well-known leaked password (say `password123`).
+     3. A Cloudflare block page means it works. The app's normal "invalid login" means
+        Cloudflare doesn't recognize the form. In that case stop here, since Free can't fix it.
+     4. Delete the rule afterwards.
+   - **App side (follow-up, optional).** If the header arrives, the login and change-password
+     handlers can read it:
+     - After a successful sign-in with `Exposed-Credential-Check` set, send the user to change
+       their password with a short explanation.
+     - On register and change password, refuse a password that comes in flagged.
+     - Log only that the flag was seen, never the credentials.
+   - **Not now.** A rate-limiting rule on leaked-password login attempts is Cloudflare's usual
+     suggestion, but it would use the one Free rate-limiting rule (step 5). Consider it only if
+     the logs start showing credential stuffing.
+4. **One custom WAF rule** for scanner noise: block the probe paths that the 4xx triage keeps
    seeing (for example URI path ends with `.php`, or starts with `/wp-`, `/.env` or `/.git`).
    Take the list from [runbooks/triage-4xx](../runbooks/triage-4xx.md). This keeps them off the
    origin and out of the 4xx tracker.
-4. **Keep the Free plan's one rate-limiting rule spare.** The app's own identity rate limits and
+5. **Keep the Free plan's one rate-limiting rule spare.** The app's own identity rate limits and
    `CrawlerThrottle` already cover login and crawlers.
-5. **Update [runbooks/respond-to-attack](../runbooks/respond-to-attack.md)** with the edge
+6. **Update [runbooks/respond-to-attack](../runbooks/respond-to-attack.md)** with the edge
    controls: Security level **I'm Under Attack** (a challenge for every visitor, one switch), a
    temporary custom rule to challenge a country, ASN or user agent, and **Development Mode**
    (bypasses the cache for 3 hours) for troubleshooting.
