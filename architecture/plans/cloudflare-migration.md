@@ -321,11 +321,18 @@ TTL to set on them. The DNS-only records keep their own TTLs.
 **Rollback:** switch `@` and `www` back to **DNS only**. It takes effect within minutes (the
 proxied TTL is 5 minutes) and goes straight back to today's path, with no nameserver change.
 
-### Phase 5: Origin certificate (within two weeks of Phase 4, before managed-cert renewal)
+### Phase 5: Origin certificate (before the managed certificates renew)
 
 Azure renews a managed certificate only while the hostname resolves to App Service. Behind the
 proxy it resolves to Cloudflare, so renewals would fail silently at some point. Replace the
 managed certificates with a Cloudflare Origin CA certificate.
+
+Phases 5 and 6 don't depend on each other, so they can run in either order. Phase 5 has a
+deadline but no traffic effect. Phase 6 changes traffic, so it should run as soon as Phase 4
+looks stable. As of 2026-11-06 the managed certificates expire on 2027-03-22 (`music4dance.net`)
+and 2027-04-02 (`www`). Azure starts renewing about 45 days before expiry, so finish Phase 5 by
+the end of January 2027. The two expired certificates from 2020 and 2021 that are still listed
+can be deleted at the same time.
 
 1. Cloudflare **SSL/TLS, Origin Server, Create Certificate**: "Generate private key and CSR
    with Cloudflare", key type RSA (2048), hostnames `music4dance.net` and `*.music4dance.net`,
@@ -349,6 +356,13 @@ error, because Origin CA is trusted only by Cloudflare. That's intended. `msc4dn
 keeps Microsoft's own certificate and isn't affected.
 
 ### Phase 6: Turn on bot protection and observe
+
+Prerequisites: both `@` and `www` are proxied, and about a day of proxied traffic has been
+checked with `analyze-traffic` and `analyze-logs`. That day is the before picture for Bot Fight
+Mode. Phase 5 doesn't need to be done first. Nothing outside a browser calls the custom hostnames
+any more: the Logic Apps moved to the default host in Phase 1, the site has no Stripe webhooks,
+and AlwaysOn calls from inside App Service. That leaves only external uptime monitors and
+one-off scripts pointed at `www`, and those would start getting challenged.
 
 1. **Security, Bots: Bot Fight Mode on.** This is the "defer to Cloudflare" step. Afterwards:
    - Watch **Security, Events** daily for a week. Cloudflare logs every challenge and block
