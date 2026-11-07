@@ -1,8 +1,8 @@
 # Cloudflare Migration (DNS and Edge Proxy)
 
 **Type:** Plan
-**Status:** In progress. The owner has chosen Cloudflare over Front Door for attack-mitigation step 2.2 and is starting on the Free plan (2026-11-04). Phase 1 is done; Phase 2 is next.
-**Last verified:** 2026-11-04 (live DNS records queried, code paths checked)
+**Status:** In progress. The owner has chosen Cloudflare over Front Door for attack-mitigation step 2.2 and is starting on the Free plan (2026-11-04). Phases 1 to 3 are done: the zone is Active on Cloudflare's nameservers with every record DNS only, the edge certificate is Active, and mail and verification checks pass (2026-11-05). SSL/TLS is Full (strict) with Always Use HTTPS on, and the dangling `awverify` CNAMEs are deleted (2026-11-06). #385 (client IP from `CF-Connecting-IP`) is in production since 2026-11-06 04:22 UTC (build 20261105.3). Phase 4 (proxy on) is next; every prerequisite is met.
+**Last verified:** 2026-11-05 (every section 2 name queried against Namecheap and both Cloudflare nameservers: no differences)
 **Code:** `m4d/Configuration/M4dApplicationExtensions.cs` (`UseForwardedHeaders`), `m4d/Middleware/RateLimitingMiddleware.cs` (`GetClientIdentifier`), `m4d/Areas/Identity/Pages/Account/Login.cshtml.cs`, `Register.cshtml.cs`, `LoginModelBase.cs`, `m4d/Controllers/PaymentController.cs`, `azure-pipelines.yml` (readiness check)
 
 This plan moves `music4dance.net` DNS from Namecheap to Cloudflare and puts Cloudflare's proxy in
@@ -55,10 +55,11 @@ the site needs and it can't be moved off `www`; if the headless wave still reach
 with Bot Fight Mode on; or if the 5 custom rules or 1 rate-limit rule run out. Upgrading is a
 plan change on the same zone, with no migration.
 
-## 2. Current DNS inventory (queried 2026-11-04)
+## 2. Current DNS inventory (queried 2026-11-04, reconciled 2026-11-05)
 
-Queried against 1.1.1.1 for the usual names. **The Namecheap Advanced DNS page is the source of
-truth.** Compare against it in Phase 0, because a name nobody thought to query won't show here.
+First queried against 1.1.1.1 for the usual names, then reconciled against the Namecheap
+Advanced DNS page in Phase 2. Since Phase 3, **Cloudflare's DNS Records page is the source of
+truth**; add new records there, not at Namecheap.
 
 | Name | Type | Value | Proxy at Cloudflare |
 | --- | --- | --- | --- |
@@ -70,9 +71,11 @@ truth.** Compare against it in Phase 0, because a name nobody thought to query w
 | `@` | TXT | `ms-domain-verification=7aa2f36c-…` (ACS email domain) | n/a |
 | `@` | TXT | `google-site-verification=ts3n79ot…` (Search Console) | n/a |
 | `@` | TXT | `music4dance.azurewebsites.net` (legacy, probably an old App Service verification) | n/a. Copy as-is; clean up afterwards |
-| `@` | TXT | `Value: v=spf1 include:hotmail.com ~all` (malformed legacy record) | n/a. Copy as-is; clean up afterwards |
+| `@` | TXT | ~~`Value: v=spf1 include:hotmail.com ~all`~~ (malformed legacy record) | **Deleted 2026-11-05.** Cloudflare flagged it as a second SPF record, which can send mail to spam |
 | `asuid` | TXT | `0316C3E4…ED55` (App Service domain verification) | n/a |
 | `asuid.www` | TXT | same value | n/a |
+| ~~`awverify`~~ | CNAME | `awverify.m4d.azurewebsites.net` (pre-`asuid` App Service verification, for an old app name) | **Deleted 2026-11-06** (see below) |
+| ~~`awverify.www`~~ | CNAME | `awverify.m4d.azurewebsites.net` | **Deleted 2026-11-06** |
 | `autodiscover` | CNAME | `autodiscover.outlook.com` | **DNS only** |
 | `selector1._domainkey` | CNAME | `selector1-music4dance-net._domainkey.msc4dnc.onmicrosoft.com` | **DNS only** |
 | `selector2._domainkey` | CNAME | `selector2-music4dance-net._domainkey.msc4dnc.onmicrosoft.com` | **DNS only** |
@@ -82,15 +85,34 @@ truth.** Compare against it in Phase 0, because a name nobody thought to query w
 | `enterpriseenrollment` | CNAME | `enterpriseenrollment.manage.microsoft.com` | **DNS only** |
 | `lyncdiscover` | CNAME | `webdir.online.lync.com` | **DNS only** |
 | `sip` | CNAME | `sipdir.online.lync.com` | **DNS only** |
-| `_sip._tls` | SRV | `sipdir.online.lync.com` (copy priority, weight and port from Namecheap) | n/a |
-| `_sipfederationtls._tcp` | SRV | `sipfed.online.lync.com` (copy priority, weight and port) | n/a |
+| `_sip._tls` | SRV | priority 100, weight 0, port 443, target `sipdir.online.lync.com` | n/a |
+| `_sipfederationtls._tcp` | SRV | priority 100, weight 0, port 5061, target `sipfed.online.lync.com` | n/a |
+| `_dmarc` | TXT | `v=DMARC1; p=none` (monitoring only; added 2026-11-05) | n/a |
+| `api` | CNAME | the `m4d-api` function app's default hostname (**planned**, partner API PR 6) | **DNS only, always** (see below) |
+| `asuid.api` | TXT | the function app's domain verification ID (**planned**, PR 6) | n/a |
 
-Also checked: no CAA record (Universal SSL needs none), no `_dmarc` record, no DNSSEC (no DS at
-the registry), and nothing at `api`, `blog`, `mail` or `test`.
+Also checked: no CAA record (Universal SSL needs none), no DNSSEC (no DS at the registry), and
+nothing at `blog`, `mail` or `test`.
 
 Every record except `@` and `www` must stay **DNS only**. Cloudflare's import tends to mark
 CNAMEs as proxied, and a proxied `autodiscover` or DKIM CNAME breaks Outlook setup or mail
-signing. The SRV records are the ones its scan usually misses.
+signing. The import missed the SRV records, the four `selector*._domainkey` CNAMEs, the
+`awverify` CNAMEs and `asuid.www`; all were added by hand.
+
+The two `awverify` CNAMEs were deleted early because Cloudflare flagged them as dangling.
+`m4d.azurewebsites.net` no longer exists (NXDOMAIN, and no `m4d` app in the subscription), so
+anyone could create an app with that name and claim the target. App Service has used the
+`asuid` TXT records for verification for years, so nothing depends on `awverify`.
+
+**`api` stays DNS only** when the
+[partner API](partner-api-standalone-host.md#operations) gets its custom domain:
+
+- Its Flex site-scoped managed certificate can only be issued and renewed while the name
+  resolves to the function, the same problem Phase 5 solves for `www`.
+- Bot Fight Mode can't be skipped for a host, and partner calls are server to server with no
+  browser to pass a challenge.
+- Keeping it off the proxy means a Cloudflare outage or setting mistake can't take the API down,
+  the same independence the partner API plan wants from the web app.
 
 ## 3. Steps
 
@@ -129,7 +151,8 @@ The cutover is split so that each step changes one thing and can be undone on it
 
 ### Phase 1: App and caller changes (ship before Phase 4)
 
-**Done 2026-11-04.** The client-IP change shipped in #385, and all six Logic Apps now call
+**Done 2026-11-04.** The client-IP change shipped in #385 (deployed to production 2026-11-06
+04:22 UTC, build 20261105.3), and all six Logic Apps now call
 `msc4dnc.azurewebsites.net`. The two steps below are kept for reference until this plan is folded
 into the reference docs.
 
@@ -167,6 +190,12 @@ cookie, so the host shouldn't matter. Update the table in
 
 ### Phase 2: Create the Cloudflare account and zone (no user impact)
 
+**Done 2026-11-05.** Every record reconciled with section 2 and set to DNS only. Step 4's
+settings were applied 2026-11-06: **Custom SSL/TLS, Full (strict)** (switched from the
+Automatic default) and **Always Use HTTPS** on, with the origin redirects kept; the other step 4
+settings were confirmed the same day. Cloudflare Fonts
+waits until after Phase 4, and Early Hints stays off.
+
 1. Sign up at <https://dash.cloudflare.com/sign-up> with the email from Phase 0, verify it, and
    turn on two-factor authentication (**My Profile**, then **Authentication**). Save the backup
    codes in a password manager.
@@ -180,43 +209,78 @@ cookie, so the host shouldn't matter. Update the table in
    - Check the MX priority and the exact TXT values. Quoting gets mangled sometimes.
    - TTL "Auto" is fine.
 4. **Configure these settings now**, so they're already in place when the proxy goes on:
-   - **SSL/TLS, Overview:** encryption mode **Full (strict)**. It works with today's App Service
-     managed certificates, which are publicly trusted for both hostnames. Never use
-     **Flexible**: it sends plain HTTP to the origin, and the app's HTTPS redirect then loops.
+   - **SSL/TLS, Overview:** choose **Custom SSL/TLS**, then encryption mode **Full (strict)**.
+     Don't leave it on **Automatic SSL/TLS** (Cloudflare's default for new zones):
+     - Automatic moves up one mode at a time. It scans the origin about monthly, then shifts
+       traffic to the new mode in 10% steps. So after Phase 4 the zone could spend weeks on
+       **Full**, which encrypts but doesn't check the origin certificate.
+     - We already know the origin supports Full (strict). Setting it outright means every proxied
+       request checks the certificate from the first one, and a broken origin certificate shows
+       up at once as a 526 error, not as a quiet step down.
+     - Full (strict) works with today's App Service managed certificates, which are publicly
+       trusted for both hostnames, and with the Origin CA certificate from Phase 5.
+     - Never use **Flexible**: it sends plain HTTP to the origin, and the app's HTTPS redirect
+       then loops.
    - **SSL/TLS, Edge Certificates:** **Always Use HTTPS** on, **Minimum TLS Version** 1.2. Leave
      Cloudflare's HSTS off, because the app already sends HSTS (`UseHsts`).
+     - The dashboard warns that this can loop with an origin that also redirects to HTTPS. That
+       happens only with **Flexible**. With Full (strict), Cloudflare always connects to the
+       origin over HTTPS, so the app's `UseHttpsRedirection` / `AddRedirectToHttps` and App
+       Service **HTTPS Only** never fire for proxied requests. **Keep the origin redirects**: they
+       still protect the `azurewebsites.net` host and anything that reaches the origin directly.
    - **Security, Bots:** **Bot Fight Mode off** for now (turned on in Phase 6).
    - **Speed** (or **Optimization**): **Rocket Loader** off. Leave any automatic Web Analytics
      beacon injection off; the site already has GA4.
+     - **Cloudflare Fonts:** worth turning on, but **after Phase 4 is stable**, so the cutover
+       changes one thing at a time. It rewrites the Google Fonts stylesheet link in
+       `m4d/Views/Shared/_head.cshtml` (Source Sans Pro and Merienda) to serve the fonts from
+       `music4dance.net`. That saves the connections to `fonts.googleapis.com` and
+       `fonts.gstatic.com` and stops sending visitors' IPs to Google for fonts. The app sets no
+       Content-Security-Policy, so nothing blocks the rewritten URLs. Once it's on, drop the two
+       `preconnect` links above it. Check a page's fonts and the browser console afterwards.
+     - **Early Hints:** leave it off. Cloudflare sends `103 Early Hints` only from `Link`
+       preload headers on origin responses, and the app sends none (Vite's preloads are tags in
+       the HTML). It would do nothing until the app adds those headers.
    - **Scrape Shield:** **Email Address Obfuscation** off. It rewrites emails in the HTML and
      could corrupt the inline JSON page models.
    - **Caching, Configuration:** leave the defaults (static files by extension, respecting the
      origin's `Cache-Control`). **Browser Cache TTL:** "Respect existing headers".
-5. Note the two nameservers Cloudflare assigns (for example `xxx.ns.cloudflare.com` and
-   `yyy.ns.cloudflare.com`).
+5. Note the two nameservers Cloudflare assigns. This zone got `algin.ns.cloudflare.com` (spelled
+   `algin`, not `align`) and `hazel.ns.cloudflare.com`.
 
 ### Phase 3: Move the nameservers at Namecheap (DNS only, so no traffic change)
+
+**Done 2026-11-05.** The zone is Active, every check in step 3 passed, and the edge certificate
+is Active.
 
 Pick a quiet time. Nothing should visibly change for users.
 
 1. Namecheap **Domain List**, then **Manage** next to `music4dance.net`. In the **Nameservers**
    row, change **Namecheap BasicDNS** to **Custom DNS**, enter the two Cloudflare nameservers,
    and save with the green check mark.
-   - From this point Namecheap's own host records are no longer served. Cloudflare's copy is the
-     live DNS, which is why Phase 2's reconcile matters.
+   - Cloudflare's copy becomes the live DNS, which is why Phase 2's reconcile matters.
+     Namecheap's own servers (`dns1.registrar-servers.com`) kept answering with the old records
+     afterwards, so resolvers that still had the old NS cached got the same answers. Edits made
+     at Namecheap after this point are ignored.
    - The registration, auto-renew and registrar lock stay at Namecheap. Keep auto-renew on.
 2. In Cloudflare, use **Check nameservers** on the zone overview. Activation usually takes
    minutes to a few hours. The `.net` registry caches nameserver changes for up to 48 hours, and
-   resolvers switch over gradually. Both providers serve the same answers in the meantime, so
-   that's harmless. Cloudflare emails when the zone is **Active**.
+   resolvers switch over gradually (on the day, 8.8.8.8 had switched while 1.1.1.1 still had
+   Namecheap cached). Both providers serve the same answers in the meantime, so that's harmless.
+   Cloudflare emails when the zone is **Active**.
 3. **Verify.**
-   - `Resolve-DnsName music4dance.net -Type NS -Server 1.1.1.1` shows the Cloudflare
+   - `Resolve-DnsName music4dance.net -Type NS -Server 8.8.8.8` shows the Cloudflare
      nameservers.
-   - Run the section 2 query list against Cloudflare's nameserver directly
-     (`-Server xxx.ns.cloudflare.com`) and diff it against the table.
+   - Run the section 2 query list against each Cloudflare nameserver directly
+     (`-Server algin.ns.cloudflare.com`, `-Server hazel.ns.cloudflare.com`) and against
+     `dns1.registrar-servers.com`, and diff them. `Resolve-DnsName` can't query CAA, so check
+     that one in the dashboard. Done 2026-11-05: no differences.
    - Send and receive a test email on a Microsoft 365 mailbox.
    - Trigger an ACS email (a password reset) and check that the received message shows DKIM
-     `pass`.
+     `pass`. Use a Gmail address and **Show original**: the outer `Authentication-Results`
+     header should show `dkim=pass header.i=@music4dance.net
+     header.s=selector1-azurecomm-prod-net` and `spf=pass`. (The `ARC-Authentication-Results`
+     from Microsoft's internal hop shows `dkim=none`; that's expected.) Passed 2026-11-05.
    - Search Console still shows the property as verified.
 4. **Wait** until **SSL/TLS, Edge Certificates** shows the Universal certificate covering
    `music4dance.net, *.music4dance.net` as **Active**. Proxying before that serves TLS errors.
@@ -227,7 +291,20 @@ the Phase 0 export if Namecheap didn't keep them.
 ### Phase 4: Turn the proxy on
 
 Prerequisites: the Phase 1 PR is deployed, the zone is Active, and the edge certificate is
-Active.
+Active. All of Phase 2 step 4 is set (confirmed 2026-11-06): Custom SSL/TLS, Full (strict);
+Always Use HTTPS on; Minimum TLS 1.2; Cloudflare HSTS off; Bot Fight Mode off; Rocket Loader
+off; Email Address Obfuscation off.
+
+**In progress.** `www` proxied at 2026-11-06 20:38 UTC. Within two minutes about 95% of `www`
+requests came from Cloudflare addresses, with no 5xx, the usual page latency (median 15–60 ms
+a minute), and signed-in sessions working through the edge. The remaining direct requests
+(about 3 a minute after 20:45) were crawlers that hold DNS answers longer than the TTL (Bingbot,
+Bytespider, Sogou, a few Chinese cloud headless browsers) plus AlwaysOn, which calls from inside
+the App Service. Plain HTTP gets a 301 from the edge (Always Use HTTPS), and the origin's HSTS
+header passes through.
+
+Proxy only `@` and `www`. A proxied record's TTL is fixed at Auto (5 minutes), so there's no
+TTL to set on them. The DNS-only records keep their own TTLs.
 
 1. In **DNS, Records**, switch `www` to **Proxied**. Wait 10 minutes and check:
    - `curl -sI https://www.music4dance.net/` shows `server: cloudflare` and a `cf-ray` header.
@@ -244,11 +321,18 @@ Active.
 **Rollback:** switch `@` and `www` back to **DNS only**. It takes effect within minutes (the
 proxied TTL is 5 minutes) and goes straight back to today's path, with no nameserver change.
 
-### Phase 5: Origin certificate (within two weeks of Phase 4, before managed-cert renewal)
+### Phase 5: Origin certificate (before the managed certificates renew)
 
 Azure renews a managed certificate only while the hostname resolves to App Service. Behind the
 proxy it resolves to Cloudflare, so renewals would fail silently at some point. Replace the
 managed certificates with a Cloudflare Origin CA certificate.
+
+Phases 5 and 6 don't depend on each other, so they can run in either order. Phase 5 has a
+deadline but no traffic effect. Phase 6 changes traffic, so it should run as soon as Phase 4
+looks stable. As of 2026-11-06 the managed certificates expire on 2027-03-22 (`music4dance.net`)
+and 2027-04-02 (`www`). Azure starts renewing about 45 days before expiry, so finish Phase 5 by
+the end of January 2027. The two expired certificates from 2020 and 2021 that are still listed
+can be deleted at the same time.
 
 1. Cloudflare **SSL/TLS, Origin Server, Create Certificate**: "Generate private key and CSR
    with Cloudflare", key type RSA (2048), hostnames `music4dance.net` and `*.music4dance.net`,
@@ -272,6 +356,13 @@ error, because Origin CA is trusted only by Cloudflare. That's intended. `msc4dn
 keeps Microsoft's own certificate and isn't affected.
 
 ### Phase 6: Turn on bot protection and observe
+
+Prerequisites: both `@` and `www` are proxied, and about a day of proxied traffic has been
+checked with `analyze-traffic` and `analyze-logs`. That day is the before picture for Bot Fight
+Mode. Phase 5 doesn't need to be done first. Nothing outside a browser calls the custom hostnames
+any more: the Logic Apps moved to the default host in Phase 1, the site has no Stripe webhooks,
+and AlwaysOn calls from inside App Service. That leaves only external uptime monitors and
+one-off scripts pointed at `www`, and those would start getting challenged.
 
 1. **Security, Bots: Bot Fight Mode on.** This is the "defer to Cloudflare" step. Afterwards:
    - Watch **Security, Events** daily for a week. Cloudflare logs every challenge and block
@@ -390,10 +481,16 @@ When the phases ship, fold the as-built result into the reference docs and delet
 - [plans/front-door-caching](front-door-caching.md): mark it superseded, or delete it.
 - [plans/bot-load-and-public-page-rendering](bot-load-and-public-page-rendering.md): close open
   question 3 (edge vendor) and point B3 here.
-- After a quiet month, clean up the two legacy TXT records at `@`
-  (`music4dance.azurewebsites.net` and `Value: v=spf1 include:hotmail.com ~all`), and consider
-  turning on DNSSEC in Cloudflare, then adding the DS record it gives you at Namecheap
-  (**Advanced DNS, DNSSEC**).
+- **DNS cleanup, about a month after Phase 4 (early December 2026):**
+  - Delete the legacy TXT record at `@` (`music4dance.azurewebsites.net`).
+  - **Tighten DMARC.** `_dmarc` has been `v=DMARC1; p=none` (report only) since 2026-11-05.
+    Turn on Cloudflare's **Email, DMARC Management** now so reports collect in the meantime.
+    Once a few weeks of reports show only Microsoft 365 and ACS sending as `music4dance.net`,
+    and both pass SPF or DKIM, change it to `v=DMARC1; p=quarantine`. After another quiet
+    month, consider `p=reject`. If a legitimate sender shows up failing, fix its SPF or DKIM
+    first.
+  - Consider turning on DNSSEC in Cloudflare, then adding the DS record it gives you at
+    Namecheap (**Advanced DNS, DNSSEC**).
 
 ## Related
 

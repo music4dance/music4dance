@@ -88,6 +88,7 @@ FAMILIES = [
     (r"reflectionbot", "Reflectionbot", "ai"),
     (r"exasearchbot|exabot|crawler\.exa\.ai", "Exa", "ai"),
     (r"elevenlabscrawler", "ElevenLabs", "ai"),
+    (r"shapbot", "ShapBot (Parallel)", "ai"),  # parallel.ai web search API for agents; renders pages
     (r"ahrefs", "AhrefsBot", "seo"),
     (r"semrush|siteauditbot", "SemrushBot", "seo"),
     (r"mj12bot", "MJ12bot", "seo"),

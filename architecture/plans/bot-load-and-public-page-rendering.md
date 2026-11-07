@@ -126,6 +126,31 @@ figures below leave out the Chrome/153 wave described next, so they compare like
   those hits are the wave retrying the same details pages during a burst, so for everyone else
   the hit rate is nearer 13%.
 
+#### After the Cloudflare DNS move (2026-11-05/06)
+
+22 hours, 2026-11-05 21:00 to 2026-11-06 19:00 UTC, starting at the
+[nameserver switch](cloudflare-migration.md) (Phase 3, nothing proxied yet). 188,000 requests,
+37,500 pages, **0.5 hours of server time** (about 1–2 minutes an hour, the same as on 11-04).
+
+- **The DNS move changed nothing visible.** No requests came through Cloudflare (6 of 188,000
+  from Cloudflare addresses, WARP clients). Host shares, the default host's trickle (54 anonymous
+  requests, mostly `/` and probes) and the AlwaysOn 499 rate (about 1 an hour) match the 11-04
+  baseline.
+- **The Chrome/153 wave is quiet.** The headless group is now mostly one `/24` that also sends
+  `ExaSearchBot`, so it is Exa's renderer, running JS on `/song/album`, `/song/artist` and
+  details pages at about 1,500 requests an hour. It was in the 11-04 sample too.
+- **ShapBot** (Parallel Web Systems, `parallel.ai`, a web search API for AI agents; Google
+  Cloud addresses) went from about 400 requests a day to about 17,000 an hour from before
+  12:00 UTC on 11-05 until 01:00 on 11-06, then stopped. About 1,350 pages an hour; the rest
+  were the page's bundles, icons and `/api/health/status`, because it renders. `IsSpider`
+  recognizes it, so the throttle answered with about 200 429s an hour, and it cost only 6 server
+  minutes. The skill now names it as an AI crawler.
+- Search engines (Applebot, PetalBot, Googlebot, Bingbot) are about 28% of pages and 30% of the
+  small server time.
+- **One 500:** a WordPress batch-API probe sent `POST /dances/tango-vals/?rest_route=/batch/v1`.
+  A POST to a dance page should be a 4xx; the exception is in the App Service logs
+  (`analyze-logs`).
+
 ### 1.2 What a public page costs
 
 The sizes below were measured with `curl` against production.
