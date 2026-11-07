@@ -1,7 +1,7 @@
 # Cloudflare Migration (DNS and Edge Proxy)
 
 **Type:** Plan
-**Status:** In progress. The owner has chosen Cloudflare over Front Door for attack-mitigation step 2.2 and is starting on the Free plan (2026-11-04). Phases 1 to 3 are done: the zone is Active on Cloudflare's nameservers with every record DNS only, the edge certificate is Active, and mail and verification checks pass (2026-11-05). SSL/TLS is Full (strict) with Always Use HTTPS on, and the dangling `awverify` CNAMEs are deleted (2026-11-06). #385 (client IP from `CF-Connecting-IP`) is in production since 2026-11-06 04:22 UTC (build 20261105.3). Phase 4 is done: `www` and `@` have been proxied since 2026-11-06, and the first day was clean (2026-11-07). Phase 6 (Bot Fight Mode) is next; Phase 5 is due by the end of January 2027.
+**Status:** In progress. The owner has chosen Cloudflare over Front Door for attack-mitigation step 2.2 and is starting on the Free plan (2026-11-04). Phases 1 to 3 are done: the zone is Active on Cloudflare's nameservers with every record DNS only, the edge certificate is Active, and mail and verification checks pass (2026-11-05). SSL/TLS is Full (strict) with Always Use HTTPS on, and the dangling `awverify` CNAMEs are deleted (2026-11-06). #385 (client IP from `CF-Connecting-IP`) is in production since 2026-11-06 04:22 UTC (build 20261105.3). Phase 4 is done: `www` and `@` have been proxied since 2026-11-06, and the first day was clean (2026-11-07). Phase 6 is in progress: Bot Fight Mode has been on since 2026-11-07, and Precursor is a later step that depends on what Bot Fight Mode leaves. Phase 5 is due by the end of January 2027.
 **Last verified:** 2026-11-05 (every section 2 name queried against Namecheap and both Cloudflare nameservers: no differences)
 **Code:** `m4d/Configuration/M4dApplicationExtensions.cs` (`UseForwardedHeaders`), `m4d/Middleware/RateLimitingMiddleware.cs` (`GetClientIdentifier`), `m4d/Areas/Identity/Pages/Account/Login.cshtml.cs`, `Register.cshtml.cs`, `LoginModelBase.cs`, `m4d/Controllers/PaymentController.cs`, `azure-pipelines.yml` (readiness check)
 
@@ -382,20 +382,46 @@ any more: the Logic Apps moved to the default host in Phase 1, the site has no S
 and AlwaysOn calls from inside App Service. That leaves only external uptime monitors and
 one-off scripts pointed at `www`, and those would start getting challenged.
 
-1. **Security, Bots: Bot Fight Mode on.** This is the "defer to Cloudflare" step. Afterwards:
+1. **Security, Bots: Bot Fight Mode on** (done 2026-11-07). This is the "defer to Cloudflare"
+   step. Afterwards:
    - Watch **Security, Events** daily for a week. Cloudflare logs every challenge and block
      there.
    - Check Search Console **Crawl stats** for a drop in Googlebot requests or a rise in errors.
    - Confirm the Logic Apps still succeed. They should, since Phase 1 moved them off `www`.
    - Rerun `analyze-traffic` and compare server time with the 2026-10-31 numbers in the bot-load
-     plan.
-2. **One custom WAF rule** for scanner noise: block the probe paths that the 4xx triage keeps
+     plan. Also compare with `local/http-logs/traffic-2026-11-07.md`, the last full day before
+     Bot Fight Mode, especially the "Browser UA, headless pattern" group: 46k requests that day.
+2. **Precursor, only if headless browsers still get through** (Security, Settings, Precursor).
+   Leave it **Off** while Bot Fight Mode settles, so the two effects can be told apart.
+   - **What it does.** It adds a script to every page that scores the whole browser session, not
+     single requests. It's aimed at automation that runs JavaScript and looks normal one request
+     at a time, which is what the headless farms do and what Bot Fight Mode may miss.
+   - **Modes.** **Monitor** collects signals and changes nothing. **Armed** lets the signals lower
+     bot scores and withdraw challenge clearance, and it replaces Cloudflare's JavaScript
+     detections.
+   - **Keep Show Interstitial off everywhere.** With it on, every visitor without a verified
+     session gets a challenge page first. That would hit social link previews, the smaller search
+     engines and every new visitor. The site has no checkout of its own that needs a gate
+     (Stripe checkout is on Stripe's domain).
+   - **API calls are fine.** Same-origin `fetch` sends cookies by default, and `api` is DNS only,
+     so Precursor never sees it.
+   - **Order.**
+     1. After a few days of Bot Fight Mode, rerun `analyze-traffic`. If the headless group
+        hasn't dropped, go on.
+     2. Set Precursor to **Monitor** for about a week. Check whether **Security, Analytics,
+        Bot analysis** shows anything on Free. As of 2026-11 a Cloudflare Community thread
+        reports no Precursor-specific breakdown there.
+     3. Set it to **Armed**, still with the interstitial off, and compare the headless group
+        again.
+     4. If Armed doesn't help either, that's a reason to move to Pro (section 1).
+   - **Rollback.** Set the mode back to **Off**.
+3. **One custom WAF rule** for scanner noise: block the probe paths that the 4xx triage keeps
    seeing (for example URI path ends with `.php`, or starts with `/wp-`, `/.env` or `/.git`).
    Take the list from [runbooks/triage-4xx](../runbooks/triage-4xx.md). This keeps them off the
    origin and out of the 4xx tracker.
-3. **Keep the Free plan's one rate-limiting rule spare.** The app's own identity rate limits and
+4. **Keep the Free plan's one rate-limiting rule spare.** The app's own identity rate limits and
    `CrawlerThrottle` already cover login and crawlers.
-4. **Update [runbooks/respond-to-attack](../runbooks/respond-to-attack.md)** with the edge
+5. **Update [runbooks/respond-to-attack](../runbooks/respond-to-attack.md)** with the edge
    controls: Security level **I'm Under Attack** (a challenge for every visitor, one switch), a
    temporary custom rule to challenge a country, ASN or user agent, and **Development Mode**
    (bypasses the cache for 3 hours) for troubleshooting.
