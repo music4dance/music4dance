@@ -1,7 +1,7 @@
 # Cloudflare Migration (DNS and Edge Proxy)
 
 **Type:** Plan
-**Status:** In progress. The owner has chosen Cloudflare over Front Door for attack-mitigation step 2.2 and is starting on the Free plan (2026-11-04). Phases 1 to 3 are done: the zone is Active on Cloudflare's nameservers with every record DNS only, the edge certificate is Active, and mail and verification checks pass (2026-11-05). SSL/TLS is Full (strict) with Always Use HTTPS on, and the dangling `awverify` CNAMEs are deleted (2026-11-06). #385 (client IP from `CF-Connecting-IP`) is in production since 2026-11-06 04:22 UTC (build 20261105.3). Phase 4 (proxy on) is next; every prerequisite is met.
+**Status:** In progress. The owner has chosen Cloudflare over Front Door for attack-mitigation step 2.2 and is starting on the Free plan (2026-11-04). Phases 1 to 3 are done: the zone is Active on Cloudflare's nameservers with every record DNS only, the edge certificate is Active, and mail and verification checks pass (2026-11-05). SSL/TLS is Full (strict) with Always Use HTTPS on, and the dangling `awverify` CNAMEs are deleted (2026-11-06). #385 (client IP from `CF-Connecting-IP`) is in production since 2026-11-06 04:22 UTC (build 20261105.3). Phase 4 is done: `www` and `@` have been proxied since 2026-11-06, and the first day was clean (2026-11-07). Phase 6 (Bot Fight Mode) is next; Phase 5 is due by the end of January 2027.
 **Last verified:** 2026-11-05 (every section 2 name queried against Namecheap and both Cloudflare nameservers: no differences)
 **Code:** `m4d/Configuration/M4dApplicationExtensions.cs` (`UseForwardedHeaders`), `m4d/Middleware/RateLimitingMiddleware.cs` (`GetClientIdentifier`), `m4d/Areas/Identity/Pages/Account/Login.cshtml.cs`, `Register.cshtml.cs`, `LoginModelBase.cs`, `m4d/Controllers/PaymentController.cs`, `azure-pipelines.yml` (readiness check)
 
@@ -295,7 +295,25 @@ Active. All of Phase 2 step 4 is set (confirmed 2026-11-06): Custom SSL/TLS, Ful
 Always Use HTTPS on; Minimum TLS 1.2; Cloudflare HSTS off; Bot Fight Mode off; Rocket Loader
 off; Email Address Obfuscation off.
 
-**In progress.** `www` proxied at 2026-11-06 20:38 UTC. Within two minutes about 95% of `www`
+**Done.** `www` was proxied at 2026-11-06 20:38 UTC and `@` at about 21:14 UTC.
+
+First day (2026-11-06 21:00 to 11-07 18:30 UTC, 137k requests):
+- 98.3% of custom-domain requests came through Cloudflare. The apex was 99.3%: 20.5k requests
+  answered with the 308 to `www`, almost all from Moz DotBot.
+- Direct-to-origin requests fell from about 150 an hour to about 10, all crawlers and Chinese
+  cloud headless browsers with stale DNS. A one-hour burst of 700 at 04:00 came from the same
+  kind of client.
+- No 5xx caused by the proxy. The only two 500s were spam `POST /` requests: `Index` takes any
+  verb and throws on a POST. This is the same class of bug as the earlier `POST
+  /dances/tango-vals/` 500.
+- `CrawlerThrottle` still matches crawlers by user agent and sent 626 429s, mostly to DotBot and
+  Exa.
+- The Logic Apps ran on the default host, and the daily 08:00 playlist batch logged the same
+  Spotify 404s as the days before (playlists deleted on Spotify).
+- `/Admin/Diagnostics` shows no Cloudflare addresses.
+
+The first-day notes, as of 2026-11-06 20:40 UTC:
+`www` proxied at 2026-11-06 20:38 UTC. Within two minutes about 95% of `www`
 requests came from Cloudflare addresses, with no 5xx, the usual page latency (median 15–60 ms
 a minute), and signed-in sessions working through the edge. The remaining direct requests
 (about 3 a minute after 20:45) were crawlers that hold DNS answers longer than the TTL (Bingbot,
