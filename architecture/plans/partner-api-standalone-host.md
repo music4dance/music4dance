@@ -1,8 +1,8 @@
 # Partner API: Standalone Host Independent of the Web App
 
 **Type:** Plan
-**Status:** In progress. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided and PR 1 (skeleton + test environment) deployed 2026-11-01; PR 2 (resolve) deployed to test 2026-11-01; PR 3 (API keys and limits) deployed to test and PR 4 (key issuing pages) checked end to end against it 2026-11-04.
-**Last verified:** 2026-11-04
+**Status:** In progress. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided and PR 1 (skeleton + test environment) deployed 2026-11-01; PR 2 (resolve) deployed to test 2026-11-01; PR 3 (API keys and limits) deployed to test and PR 4 (key issuing pages) checked end to end against it 2026-11-04 (#389, with the `partnerDeveloper` role created on first use in #391). PRs 1 to 4 are done; PR 5 (unmatched queue) and PR 6 (production) remain.
+**Last verified:** 2026-11-06 (DNS for the custom domain now lives at Cloudflare; see [Operations](#operations))
 **Code:** `m4d-api/` (Azure Functions project: `/v1/health`, and `/v1/songs/resolve` behind partner API keys, a per-client rate limit and a daily cap), with infrastructure and the deploy script in `m4d-api/infra/` and unit tests in `m4d-api.Tests/`. Reads the index built by `m4dModels/SongIndex.cs`, guarded by `m4dModels.Tests/PartnerApiIndexContractTests.cs`; the existing in-app API foundation is under `m4d/PublicApi/`.
 
 **Context:** The likely first integration is a third-party app that sells its own subscription,
@@ -317,8 +317,13 @@ renewals carry larger charges, but this design uses none of them.
       ▼
  Partner's backend  ── caches results ──┐
       │ HTTPS, Authorization: Bearer m4d_live_…
+      │
+      │   Cloudflare DNS (music4dance.net zone)
+      │   • api → CNAME to the function, DNS only (grey cloud):
+      │     no proxy, no Bot Fight Mode, Azure managed certificate
+      │   • www, @ → proxied through Cloudflare's edge to the web app
       ▼
- api.music4dance.net  (custom domain, DNS straight to the function; not via the web app)
+ api.music4dance.net  (custom domain, DNS straight to the function; not via the web app or Cloudflare's proxy)
  ┌─────────────────────────────────────────────────────────┐
  │ m4d-api  (Azure Functions, Flex Consumption, .NET 10)    │
  │  • key check → per-client limiter → resolve             │
@@ -337,10 +342,16 @@ renewals carry larger charges, but this design uses none of them.
                                   ▼ drained when up       │ issue and revoke only
                            music4dance.net ───────────────┘
                             admin review, partner API keys page
+                            (msc4dnc, behind Cloudflare's proxy;
+                             developers reach it through www)
 ```
 
 The web app appears only at the bottom: as an optional consumer of the unmatched queue, and as
-the place keys are issued and revoked. Nothing on the request path touches it.
+the place keys are issued and revoked. Nothing on the request path touches it, and neither does
+Cloudflare's proxy: Cloudflare hosts the zone's DNS, but `api` is a DNS-only record, so a
+Cloudflare edge problem or a Bot Fight Mode challenge reaches the web app's visitors, not the
+partner. The song links the resolve response builds (`www.music4dance.net/song/details?id=…`)
+do go through Cloudflare, but those are for people, not the partner's backend.
 
 ### Endpoints
 
@@ -762,8 +773,20 @@ minutes however it's hosted. Two notes for expectations rather than action:
   so API deploys and web app deploys stay independent (that independence is the point).
   `azure-pipelines.yml` today targets the web apps only.
 - **Custom domain.** `api.music4dance.net` with a Flex site-scoped managed certificate. DNS
-  points straight at the function, not through Front Door or the web app, so a Front Door
+  points straight at the function, not through the web app or an edge proxy, so an edge
   misconfiguration can't take it down either. A versioned path (`/v1`) is the contract.
+  - The zone's DNS moved to Cloudflare on 2026-11-05 (see
+    [cloudflare-migration](cloudflare-migration.md)). Create the records **in Cloudflare**; any
+    record added at Namecheap is ignored. They are a CNAME `api` to the function app's default
+    hostname and a TXT `asuid.api` with the function app's domain verification ID, which Azure
+    shows when the custom domain is added and is likely different from the web app's.
+  - Keep `api` **DNS only** (grey cloud), never proxied. A proxied name resolves to
+    Cloudflare, so the managed certificate couldn't be issued or renewed. Bot Fight Mode can't
+    be skipped per host and could challenge server-to-server calls. And the API stays
+    independent of Cloudflare's edge.
+  - The function's rate limit and daily cap are per API key, not per IP, so they don't need
+    the web app's `CF-Connecting-IP` handling. That would change only if `api` were ever
+    proxied.
 - **Monitoring.** Application Insights on the function, with an availability test against
   `/v1/health` from a couple of regions and alerts on 5xx rate, on p95 latency, and on a
   client reaching its daily cap (logged as a warning: `Client {Client} reached its daily cap`).
@@ -793,12 +816,12 @@ minutes however it's hosted. Two notes for expectations rather than action:
 
 | PR | Scope |
 | --- | --- |
-| **1. Skeleton + infra** | `m4d-api` Functions project (isolated, .NET 10), Bicep, `/v1/health`, test environment deployed, search alias for test |
-| **2. Resolve** | Single-track id resolution, title/artist fallback with candidates and `evidence` (length delta, match quality, suggested confidence), projection from index fields, dance names from `DanceLib`, the index contract test in `m4dModels.Tests`, unit tests with a faked `SearchClient` |
-| **3. Auth + limits** (done) | Key validation with the vault-backed cache, per-client config from the vault, rate limit, daily cap, usage table, `new-key.ps1` for issuing keys by hand |
-| **4. Key issuance** (done) | In `m4d`: `partnerDeveloper` role, client and key metadata tables (EF migration), API keys page (generate once, list, revoke), admin view of clients and keys, vault writes from the web app's identity |
+| **1. Skeleton + infra** (done) | `m4d-api` Functions project (isolated, .NET 10), Bicep, `/v1/health`, test environment deployed, search alias for test |
+| **2. Resolve** (done, #374) | Single-track id resolution, title/artist fallback with candidates and `evidence` (length delta, match quality, suggested confidence), projection from index fields, dance names from `DanceLib`, the index contract test in `m4dModels.Tests`, unit tests with a faked `SearchClient` |
+| **3. Auth + limits** (done, #389) | Key validation with the vault-backed cache, per-client config from the vault, rate limit, daily cap, usage table, `new-key.ps1` for issuing keys by hand |
+| **4. Key issuance** (done, #389 and #391) | In `m4d`: `partnerDeveloper` role, client and key metadata tables (EF migration), API keys page (generate once, list, revoke), admin view of clients and keys, vault writes from the web app's identity |
 | **5. Unmatched queue** | Queue writes (misses, ambiguous and fuzzy-only results) in the function; admin drain in `m4d` that sends `ambiguous` pairs to the shared-id queue and the rest to a new unmatched-track table with its review page (can trail; see [Reviewing unmatched ids](#reviewing-unmatched-ids-reuse-the-shared-id-queue-where-it-fits-pr-5)) |
-| **6. Production** | Prod alias, custom domain and certificate, alerts, runbook step added to search-index-versioning.md, production key issued to the first partner |
+| **6. Production** | Prod alias, custom domain (DNS-only `api` and `asuid.api` records in Cloudflare) and certificate, alerts, runbook step added to search-index-versioning.md, production key issued to the first partner |
 
 The spike below came before PR 1. Its `m4d-api/` project is the starting point for PRs 1 and 2.
 
