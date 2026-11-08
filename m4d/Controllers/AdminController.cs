@@ -1,6 +1,4 @@
-﻿using CsvHelper;
-
-using m4d.Areas.Identity;
+﻿using m4d.Areas.Identity;
 using m4d.Configuration;
 using m4d.Security;
 using m4d.Services;
@@ -843,22 +841,8 @@ public class AdminController(
 
         using var memoryStream = new MemoryStream();
         using (var writer = new StreamWriter(memoryStream, Encoding.UTF8, leaveOpen: true))
-        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
         {
-            csv.WriteField("Url");
-            csv.WriteField("Status");
-            csv.WriteField("Count");
-            csv.WriteField("LastSeen");
-            csv.NextRecord();
-
-            foreach (var url in stats.TopUrls)
-            {
-                csv.WriteField(url.Url);
-                csv.WriteField(url.StatusCode);
-                csv.WriteField(url.Count);
-                csv.WriteField(url.LastSeen.ToString("O"));
-                csv.NextRecord();
-            }
+            Http4xxCsv.Write(writer, stats.TopUrls);
         }
 
         var dt = DateTime.Now;
@@ -1603,17 +1587,10 @@ public class AdminController(
             StartAdminTask("UploadUsage");
             AdminMonitor.UpdateTask("UploadFile");
 
-            var config = new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)
-            {
-                Delimiter = "\t",
-                Mode = CsvMode.NoEscape
-            };
-
             await using var stream = fileUpload.OpenReadStream();
             using var tr = new StreamReader(stream);
-            using var csv = new CsvReader(tr, config);
 
-            var count = await LoadUsageRecordsAsync(csv, validBatchSize);
+            var count = await LoadUsageRecordsAsync(UsageLogTsv.Read(tr), validBatchSize);
 
             return CompleteAdminTask(true, $"Usage Loaded (incremental): {count} records");
         }
@@ -1674,12 +1651,6 @@ public class AdminController(
                 _ = await Database.Context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE UsageLog");
             }
 
-            var config = new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)
-            {
-                Delimiter = "\t",
-                Mode = CsvMode.NoEscape
-            };
-
             AdminMonitor.UpdateTask("Streaming file");
 
             // Use large buffer for efficient streaming of large files
@@ -1692,9 +1663,8 @@ public class AdminController(
                 useAsync: true);
 
             using var tr = new StreamReader(stream, bufferSize: 65536);
-            using var csv = new CsvReader(tr, config);
 
-            var count = await LoadUsageRecordsAsync(csv, validBatchSize);
+            var count = await LoadUsageRecordsAsync(UsageLogTsv.Read(tr), validBatchSize);
 
             return CompleteAdminTask(true, $"Usage Loaded from AppData: {count:N0} records");
         }
@@ -1705,11 +1675,10 @@ public class AdminController(
     }
 
     /// <summary>
-    /// Shared helper to load UsageLog records from a CsvReader in batches.
+    /// Shared helper to load UsageLog records (from <see cref="UsageLogTsv.Read"/>) in batches.
     /// </summary>
-    private async Task<int> LoadUsageRecordsAsync(CsvReader csv, int batchSize)
+    private async Task<int> LoadUsageRecordsAsync(IEnumerable<UsageLog> records, int batchSize)
     {
-        var records = csv.GetRecords<UsageLog>();
         var count = 0;
         var batch = new List<UsageLog>(batchSize);
 

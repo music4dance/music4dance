@@ -40,8 +40,11 @@ Whatever tool is used, the output must match the file format below.
   `Query`, `Filter`, `Referrer`, `UserAgent`
 - `Id` values in the file are ignored — the loader resets each to 0 so the local table assigns
   fresh identity values
-- Read by CsvHelper with `Delimiter = "	"` and `CsvMode.NoEscape` — fields are **not** quoted or
-  escaped, so a tab or newline inside a value will break the row
+- Read by [UsageLogTsv.cs](../../m4d/Utilities/UsageLogTsv.cs) (CsvHelper, tab separator,
+  `CsvMode.NoEscape`) — fields are **not** quoted or escaped, so a tab or newline inside a value
+  will break the row. Columns are matched by header name, so order doesn't matter and extra
+  columns are ignored; a missing column or an unparseable `Id`/`Date` fails the load. Covered by
+  `m4d.Tests/Utilities/UsageLogTsvTests.cs`
 
 ### Loading (import into a local database)
 
