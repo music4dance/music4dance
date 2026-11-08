@@ -31,7 +31,9 @@ export default defineConfig({
   workers: 1,
 
   retries: process.env.CI ? 1 : 0,
-  reporter: process.env.CI ? "html" : "list",
+  // CI also writes results.json so e2e.yaml can fail a run where every test was skipped -
+  // Playwright itself only fails when it finds no tests at all.
+  reporter: process.env.CI ? [["html"], ["json", { outputFile: "results.json" }]] : "list",
 
   use: {
     // Plain HTTP, not HTTPS: m4d.Sandbox/appsettings.json already sets

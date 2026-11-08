@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-03
+**Last verified:** 2026-11-07
 **Code:** `.github/workflows/ci-server.yaml`, `.github/workflows/ci-client.yaml`,
 `.github/workflows/dco.yml`, `.github/workflows/e2e.yaml`, `azure-pipelines.yml`,
 `scripts/verify-line-endings.ps1`
@@ -75,11 +75,25 @@ message lacks a line matching `^Signed-off-by: .+ <.+>$`. The failure message po
 
 ### E2E
 
-A `check-activity` job looks for commits in the last 24 hours; the `playwright` job runs only if
-there were some, or if the run was started manually. It builds the client, builds
-`m4d.Sandbox` in **Debug** (because Playwright's `webServer` runs `dotnet run` with no
-configuration flag), installs Chromium, runs `yarn test` in `e2e/`, and uploads
-`e2e/playwright-report/` for 14 days. It is deliberately not a PR check yet. See
+A `check-activity` job asks the Actions API whether an earlier E2E run already passed
+Playwright on the same commit. On a nightly run, the `playwright` job is skipped if one did, and
+runs otherwise; a manual run always runs it. A failed run doesn't count as tested, so a broken
+commit keeps failing nightly until it's fixed. Comparing commits replaced an older "any commits
+in the last 24 hours" check, which could miss a commit when two scheduled runs started more than
+24 hours apart (GitHub starts them anywhere from about 13:30 to 20:00 UTC, not at the 10:00 in
+the cron line).
+
+`playwright` builds the client, builds `m4d.Sandbox` in **Debug** (because Playwright's
+`webServer` runs `dotnet run` with no configuration flag), installs Chromium, runs `yarn test` in
+`e2e/`, and uploads `e2e/playwright-report/` for 14 days. In CI the suite also writes
+`e2e/results.json`, and the job fails if no test actually ran (everything skipped), since
+Playwright itself only fails when it finds no tests at all.
+
+A job skipped by `if:` shows as green, so a skipped Playwright job looks like a pass. Two things
+keep that from hiding a broken run: `check-activity` writes the reason for its decision to the run
+summary (with a link to the run that already tested the commit), and a final `verify` job fails
+the run if `check-activity` errored, or said to run and `playwright` didn't succeed. It is
+deliberately not a PR check yet. See
 [playwright-e2e-testing](../dev-testing/playwright-e2e-testing.md) for the suite and the
 promotion plan.
 
