@@ -7,29 +7,53 @@ on:
   # Promote to `pull_request` once the suite has proven stable for a couple of weeks.
   # See architecture/dev-testing/playwright-e2e-testing.md for the full write-up.
 
+permissions:
+  contents: read
+  actions: read # check-activity reads earlier runs of this workflow
+
 jobs:
+  # Decides whether the nightly run has anything new to test. A job skipped by `if:` shows as
+  # green, so this job always writes a summary saying why, and the `verify` job below fails the
+  # run if the gate and what actually ran disagree.
   check-activity:
     runs-on: ubuntu-latest
     outputs:
       should_run: ${{ steps.check.outputs.should_run }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check for commits in the last 24 hours
+      # Skip only when this exact commit already passed Playwright in an earlier run. An earlier
+      # version looked for commits in the last 24 hours, which left gaps: scheduled runs start
+      # anywhere from 13:30 to 20:00 UTC, so two runs can be more than 24 hours apart and a
+      # commit in between was never tested. A failed or cancelled run doesn't count, so a broken
+      # commit keeps failing every night until it's fixed. If the API call fails the step fails,
+      # and so does the run - never a silent skip.
+      - name: Check whether this commit was already tested
         id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if [ -n "$(git log --since='24 hours ago' --oneline)" ]; then
+          set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
             echo "should_run=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            echo "Manual run: Playwright runs on \`$GITHUB_SHA\`." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
           fi
+          runs=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/e2e.yaml/runs?head_sha=$GITHUB_SHA&status=completed&per_page=100" --jq '.workflow_runs[] | "\(.id) \(.run_number) \(.html_url)"')
+          while read -r id number url; do
+            [ -n "$id" ] || continue
+            conclusion=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$id/jobs" --jq '.jobs[] | select(.name == "playwright") | .conclusion')
+            if [ "$conclusion" = "success" ]; then
+              echo "should_run=false" >> "$GITHUB_OUTPUT"
+              echo "Playwright skipped: \`$GITHUB_SHA\` already passed in [run #$number]($url)." >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+          done <<< "$runs"
+          echo "should_run=true" >> "$GITHUB_OUTPUT"
+          echo "Playwright runs: \`$GITHUB_SHA\` hasn't passed in an earlier run." >> "$GITHUB_STEP_SUMMARY"
 
   playwright:
     runs-on: ubuntu-latest
     needs: check-activity
-    # Manual runs always go through; the nightly schedule skips when nothing landed in the last 24h.
-    if: github.event_name == 'workflow_dispatch' || needs.check-activity.outputs.should_run == 'true'
+    if: needs.check-activity.outputs.should_run == 'true'
 
     steps:
       - name: Checkout repository
@@ -74,6 +98,21 @@ jobs:
         env:
           CI: true
 
+      # Playwright fails on its own when it finds no tests, but not when every test it found was
+      # skipped (test.skip, a stray .only elsewhere, a project filter). Either way nothing was
+      # tested, so fail the run.
+      - name: Check that tests actually ran
+        working-directory: e2e
+        run: |
+          set -euo pipefail
+          ran=$(jq '.stats.expected + .stats.unexpected + .stats.flaky' results.json)
+          skipped=$(jq '.stats.skipped' results.json)
+          echo "Playwright: $ran tests ran, $skipped skipped." >> "$GITHUB_STEP_SUMMARY"
+          if [ "$ran" -eq 0 ]; then
+            echo "::error::Playwright ran 0 tests ($skipped skipped)."
+            exit 1
+          fi
+
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         if: (!cancelled())
@@ -81,3 +120,33 @@ jobs:
           name: playwright-report
           path: e2e/playwright-report/
           retention-days: 14
+
+  # Fails the run when the gate errored, gave an unexpected answer, or said to run Playwright and
+  # it didn't succeed - so a skipped Playwright job can never leave the run green by accident.
+  verify:
+    runs-on: ubuntu-latest
+    needs: [check-activity, playwright]
+    if: ${{ !cancelled() }}
+    steps:
+      - name: Check that Playwright ran when it should have
+        env:
+          GATE_RESULT: ${{ needs.check-activity.result }}
+          SHOULD_RUN: ${{ needs.check-activity.outputs.should_run }}
+          PLAYWRIGHT_RESULT: ${{ needs.playwright.result }}
+        run: |
+          echo "check-activity: $GATE_RESULT (should_run=$SHOULD_RUN), playwright: $PLAYWRIGHT_RESULT"
+          if [ "$GATE_RESULT" != "success" ]; then
+            echo "::error::check-activity did not succeed ($GATE_RESULT), so Playwright never ran."
+            exit 1
+          fi
+          case "$SHOULD_RUN" in
+            true)
+              if [ "$PLAYWRIGHT_RESULT" != "success" ]; then
+                echo "::error::Playwright should have run but its result is '$PLAYWRIGHT_RESULT'."
+                exit 1
+              fi ;;
+            false) ;;
+            *)
+              echo "::error::check-activity returned should_run='$SHOULD_RUN'; expected true or false."
+              exit 1 ;;
+          esac

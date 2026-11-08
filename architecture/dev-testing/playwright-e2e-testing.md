@@ -283,6 +283,11 @@ already are. Nightly gives fast feedback on regressions without being a merge ga
 `workflow_dispatch` lets it be run on demand against a specific PR/branch while stabilizing.
 Revisit `pull_request` triggering once it's been green for a couple of weeks.
 
+The workflow as shipped has grown since this proposal: a `check-activity` gate that skips the
+nightly run when the commit already passed, a check that some tests actually ran, and a `verify`
+job that fails the run if Playwright was skipped when it shouldn't have been. See the E2E section
+of [ci-cd-and-release](../infrastructure/ci-cd-and-release.md#e2e) for how they fit together.
+
 ---
 
 ## Coverage Plan

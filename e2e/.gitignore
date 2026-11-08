@@ -2,6 +2,7 @@ node_modules/
 test-results/
 playwright-report/
 blob-report/
+results.json
 .cache/
 
 # Yarn Berry: keep the lockfile, drop the local install-state cache (matches m4d/ClientApp/.gitignore)
