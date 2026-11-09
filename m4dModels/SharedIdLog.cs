@@ -26,6 +26,19 @@ public class SharedIdCluster
 }
 
 /// <summary>
+/// What SharedIdLog.MergeMatching does with one cluster: merges it when SkipReason is null.
+/// </summary>
+public record SharedIdMergePlan(SharedIdCluster Cluster, string SkipReason)
+{
+    public const string Rejected = "A pair in it was marked not the same";
+    public const string NoMerge = "A song is marked .NoMerge";
+    public const string NoArtist = "A song has no artist";
+    public const string Different = "The titles or artists differ";
+
+    public bool WillMerge => SkipReason == null;
+}
+
+/// <summary>
 /// The review queue for songs that share a Spotify, iTunes or ISRC id. Enrichment of a catalog
 /// song checks each id it's about to attach (CheckIds) and, when another song already holds it,
 /// skips the id and records the pair here instead of creating a second holder. Seed adds the
@@ -357,28 +370,68 @@ public class SharedIdLog(DanceMusicCoreService dms)
     public async Task<int> MergeMatching(ApplicationUser user, Action<string, int> progress = null)
     {
         var merged = 0;
-        var checkedCount = 0;
-        foreach (var cluster in await PendingClusters())
+        foreach (var plan in (await PlanMergeMatching(progress)).Where(p => p.WillMerge))
         {
-            if (++checkedCount % 100 == 0)
+            if (await Merge(user, plan.Cluster.SongIds) != null && ++merged % 100 == 0)
             {
-                progress?.Invoke($"Checked {checkedCount}, merged", merged);
-            }
-
-            if (!await LoadSongs(cluster) || cluster.HasRejectedPair || !cluster.TitleArtistMatch ||
-                cluster.Songs.Any(s => s.SongProperties.Any(p => p.Name == Song.NoMergeCommand)))
-            {
-                continue;
-            }
-
-            if (await Merge(user, cluster.SongIds) != null)
-            {
-                merged += 1;
+                progress?.Invoke("Merged", merged);
             }
         }
 
         return merged;
     }
+
+    /// <summary>
+    /// What MergeMatching would do with each pending cluster: merge it, or skip it and why. The
+    /// clusters' songs are loaded. Changes nothing but the bookkeeping LoadSongs does for songs
+    /// merged or deleted since they were queued.
+    /// </summary>
+    public async Task<IReadOnlyList<SharedIdMergePlan>> PlanMergeMatching(
+        Action<string, int> progress = null)
+    {
+        var plans = new List<SharedIdMergePlan>();
+        var planned = new HashSet<string>();
+        // A stale cluster re-points its rows, which changes the clusters; plan the new ones on
+        // the next pass
+        for (var pass = 0; pass < 3; pass++)
+        {
+            var stale = false;
+            foreach (var cluster in await PendingClusters())
+            {
+                if (!planned.Add(string.Join(",", cluster.SongIds.Order())))
+                {
+                    continue;
+                }
+
+                if (!await LoadSongs(cluster))
+                {
+                    stale = true;
+                    continue;
+                }
+
+                plans.Add(new SharedIdMergePlan(cluster, SkipReason(cluster)));
+                if (plans.Count % 100 == 0)
+                {
+                    progress?.Invoke("Checked", plans.Count);
+                }
+            }
+
+            if (!stale)
+            {
+                break;
+            }
+        }
+
+        return plans;
+    }
+
+    private static string SkipReason(SharedIdCluster cluster) =>
+        cluster.HasRejectedPair ? SharedIdMergePlan.Rejected
+        : cluster.Songs.Any(s => s.SongProperties.Any(p => p.Name == Song.NoMergeCommand))
+            ? SharedIdMergePlan.NoMerge
+        : cluster.Songs.Any(s => string.IsNullOrWhiteSpace(s.Artist)) ? SharedIdMergePlan.NoArtist
+        : !cluster.TitleArtistMatch ? SharedIdMergePlan.Different
+        : null;
 
     /// <summary>
     /// Every song has the same title and the same (non-empty) artist, compared the way the title

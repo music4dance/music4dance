@@ -46,6 +46,12 @@
             Merge all with matching title and artist
         </button>
     }
+    @using (Html.BeginForm("PreviewMergeMatchingSharedIds", "Admin", FormMethod.Post, new { style = "display:inline" }))
+    {
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-outline-secondary">Preview merge all</button>
+    }
+    @Html.ActionLink("Last preview", "SharedIdsPreview", null, null, new { @class = "btn btn-link" })
 </div>
 
 @{

@@ -1,0 +1,46 @@
+@using m4d.ViewModels
+@using m4dModels
+@model SharedIdsPreviewModel
+
+@{
+    ViewBag.Title = "Merge Preview";
+    ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
+}
+
+<h1>@ViewBag.Title</h1>
+
+<p>
+    What <strong>Merge all with matching title and artist</strong> on
+    @Html.ActionLink("Shared Song Ids", "SharedIds") would do with each pending cluster. Nothing
+    was merged. Merges and reviews made since the preview ran aren't reflected here.
+</p>
+
+@if (Model == null)
+{
+    <p>No preview has run since the server started.</p>
+}
+else
+{
+    var merges = Model.Merges.ToList();
+    var skips = Model.Skips.ToList();
+    <p>
+        Run @Model.Created.ToLocalTime().ToString("yyyy-MM-dd HH:mm"):
+        @Model.Plans.Count.ToString("N0") clusters, @merges.Count.ToString("N0") would merge.
+    </p>
+    <ul>
+        <li><a href="#merge">Would merge</a>: @merges.Count.ToString("N0")</li>
+        @for (var i = 0; i < skips.Count; i++)
+        {
+            <li><a href="#skip-@i">@skips[i].Key</a>: @skips[i].Count().ToString("N0")</li>
+        }
+    </ul>
+
+    <h2 id="merge">Would merge</h2>
+    @await Html.PartialAsync("_SharedIdPlans", merges)
+
+    @for (var i = 0; i < skips.Count; i++)
+    {
+        <h2 id="skip-@i">Skipped: @skips[i].Key</h2>
+        @await Html.PartialAsync("_SharedIdPlans", skips[i].ToList())
+    }
+}

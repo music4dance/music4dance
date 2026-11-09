@@ -254,6 +254,44 @@ public class SharedIdLogTests
     }
 
     [TestMethod]
+    public async Task PlanMergeMatching_GivesEachClusterItsReasonAndMergesNothing()
+    {
+        var (dms, _) = await CreateService("SharedIds_PlanMergeMatching");
+        _ = await SaveSong(dms, "Purchase:00:IS=111");
+        _ = await SaveSong(dms, "Purchase:00:IS=111", title: "shared song!");
+        _ = await SaveSong(dms, "Purchase:00:IS=222", title: "First Title");
+        _ = await SaveSong(dms, "Purchase:00:IS=222", title: "Second Title");
+        _ = await SaveSong(dms, "Purchase:00:IS=333", artist: "");
+        _ = await SaveSong(dms, "Purchase:00:IS=333", artist: "");
+        _ = await dms.SharedIds.Seed();
+
+        var plans = await dms.SharedIds.PlanMergeMatching();
+
+        var reasons = plans.ToDictionary(p => p.Cluster.ServiceIds.Single(), p => p.SkipReason);
+        Assert.IsNull(reasons["I:111"]);
+        Assert.AreEqual(SharedIdMergePlan.Different, reasons["I:222"]);
+        Assert.AreEqual(SharedIdMergePlan.NoArtist, reasons["I:333"]);
+        Assert.IsTrue((await Rows(dms)).All(r => r.Status == SharedIdStatus.Pending));
+    }
+
+    [TestMethod]
+    public async Task PlanMergeMatching_FollowsASongMergedSinceItWasQueued()
+    {
+        var (dms, user) = await CreateService("SharedIds_PlanMergeMatchingStale");
+        var a = await SaveSong(dms, "Purchase:00:IS=111");
+        var b = await SaveSong(dms, "Purchase:00:IS=111\tPurchase:00:SS=sp1");
+        var c = await SaveSong(dms, "Purchase:00:SS=sp1");
+        _ = await dms.SharedIds.Seed();
+        // Merged elsewhere: b's rows now point at a song the queue doesn't know yet
+        var merged = await dms.SongIndex.SimpleMergeSongs(user, [b, c]);
+
+        var plan = (await dms.SharedIds.PlanMergeMatching()).Single();
+
+        CollectionAssert.AreEquivalent(new[] { a.SongId, merged.SongId }, plan.Cluster.SongIds.ToList());
+        Assert.IsTrue(plan.WillMerge);
+    }
+
+    [TestMethod]
     public void TitleArtistMatch_RequiresAnArtist()
     {
         var songs = new[]

@@ -3,7 +3,7 @@
 **Type:** Reference
 **Status:** Current
 **Last verified:** 2026-11-04 (written with the code)
-**Code:** `m4dModels/SharedIdLog.cs`, `m4dModels/SharedIdCandidate.cs`, `m4d/Utilities/MusicServiceManager.cs` (`UpdateFromTracks`, `GetISRCData`), `m4d/Controllers/AdminController.cs` (`SharedIds` actions), `m4d/Views/Admin/SharedIds.cshtml`
+**Code:** `m4dModels/SharedIdLog.cs`, `m4dModels/SharedIdCandidate.cs`, `m4d/Utilities/MusicServiceManager.cs` (`UpdateFromTracks`, `GetISRCData`), `m4d/Controllers/AdminController.cs` (`SharedIds` actions), `m4d/Views/Admin/SharedIds.cshtml`, `m4d/Views/Admin/SharedIdsPreview.cshtml`
 
 ## Overview
 
@@ -75,6 +75,7 @@ title-based tools or **Merge and edit** resolve themselves.
 | **Not the same** (`POST /Admin/RejectSharedIds`) | Marks every pending row in the cluster `Rejected`. |
 | **Merge and edit** | Posts the songs to `/Song/BulkEdit` (`action=Merge`) in a new tab, which merges them as **Merge checked** does and opens the merged song in the editor to pick its title, artist, tempo and length. |
 | **Merge all with matching title and artist** (`POST /Admin/MergeMatchingSharedIds`) | A background task (watch `/Admin/AdminStatus`). It merges every pending cluster whose songs all share the same title and the same non-empty artist (`Song.CreateTitleHash`, as the title-based merge candidates compare them). Every cluster shares an id by construction. It skips clusters with a rejected pair inside them, or with a `.NoMerge` song. |
+| **Preview merge all** (`POST /Admin/PreviewMergeMatchingSharedIds`) | A background task that works out what **Merge all with matching title and artist** would do, without merging (`SharedIdLog.PlanMergeMatching`, which the merge itself runs first). **Last preview** (`/Admin/SharedIdsPreview`) lists the clusters it would merge, then the skipped ones grouped by reason: a rejected pair, a `.NoMerge` song, a song with no artist, or titles or artists that differ. The result lives in memory until the next preview or a restart. |
 | **Queue existing shared ids** (`POST /Admin/SeedSharedIds`) | Runs the seed as a background task. |
 
 ## Future improvements
@@ -87,6 +88,7 @@ title-based tools or **Merge and edit** resolve themselves.
 ## History
 
 - 2026-11: Enrichment guard, `SharedIdCandidates` table, seed, and the `/Admin/SharedIds` review page.
+- 2026-11: Merge-all preview. Merge all now also re-plans clusters that changed while it ran, instead of leaving them for the next run.
 
 ## Related
 

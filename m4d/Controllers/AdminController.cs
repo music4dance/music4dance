@@ -342,6 +342,65 @@ public class AdminController(
         }
     }
 
+    // The last merge preview, kept until the next one replaces it
+    private static SharedIdsPreviewModel _sharedIdsPreview;
+
+    //
+    // POST: /Admin/PreviewMergeMatchingSharedIds
+    // Works out what MergeMatchingSharedIds would merge and skip, without merging anything
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult PreviewMergeMatchingSharedIds()
+    {
+        try
+        {
+            StartAdminTask("PreviewMergeMatchingSharedIds");
+            AdminMonitor.UpdateTask("PreviewMergeMatchingSharedIds");
+
+            var dms = Database.GetTransientService();
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var plans = await dms.SharedIds.PlanMergeMatching(AdminMonitor.UpdateTask);
+                    _sharedIdsPreview = new SharedIdsPreviewModel
+                    {
+                        Created = DateTimeOffset.UtcNow,
+                        Plans = plans
+                    };
+                    AdminMonitor.CompleteTask(true,
+                        $"PreviewMergeMatchingSharedIds: WouldMerge={plans.Count(p => p.WillMerge)}, " +
+                        $"Skipped={plans.Count(p => !p.WillMerge)} (see /Admin/SharedIdsPreview)");
+                }
+                catch (Exception e)
+                {
+                    AdminMonitor.CompleteTask(false, $"PreviewMergeMatchingSharedIds: Failed={e.Message}");
+                }
+                finally
+                {
+                    dms.Dispose();
+                }
+            });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"PreviewMergeMatchingSharedIds: {e.Message}", e);
+        }
+    }
+
+    //
+    // GET: /Admin/SharedIdsPreview
+    // The result of the last PreviewMergeMatchingSharedIds
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult SharedIdsPreview()
+    {
+        return View(_sharedIdsPreview);
+    }
+
     //
     // GET: /Admin/ConnectSpotifyServiceAccount
     // Runs the normal Spotify OAuth handshake, but returns to SpotifyServiceAccountCallback
