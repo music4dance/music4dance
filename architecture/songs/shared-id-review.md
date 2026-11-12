@@ -63,7 +63,10 @@ query found 3,748 songs in 1,754 clusters.
 `/Admin/SharedIds` (dbAdmin; linked from the admin index). `SharedIdLog.PendingClusters` groups
 pending rows into clusters of connected songs (union-find), oldest first, 20 a page. Each cluster
 shows its songs side by side: title, artist, length, tempo, dances, albums with their song-level
-ids (shared ones highlighted), and created date, plus each row's source and detail. A last
+ids (shared ones highlighted), and created date, plus each row's source and detail. Spotify and
+iTunes ids link to the track on the service (`MusicService.GetPurchaseLink`; an iTunes link needs
+the album's iTunes id), to check by hand which song an id belongs to. ISRCs have no page; the
+Spotify and iTunes ids beside one on the same album are the tracks that reported it. A last
 **If merged** column shows the song merging all of them would make
 (`SharedIdLog.PreviewMerge` → `SongIndex.BuildSimpleMerge`, the build half of
 `SimpleMergeSongs`, which saves nothing). Use it to choose between **Merge groups** and

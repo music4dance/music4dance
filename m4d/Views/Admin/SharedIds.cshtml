@@ -98,6 +98,30 @@
 </form>
 
 @{
+    // The service's page for a track id on this album ("S:…" or "I:…"), to check by hand which
+    // song an id belongs to. ISRCs have no page; the Spotify and iTunes ids beside one on the same
+    // album are the tracks that reported it.
+    static string TrackLink(AlbumDetails album, string id)
+    {
+        var service = MusicService.GetService(id[0]);
+        return service == null || id.Length < 3 ? null
+            : service.GetPurchaseLink(PurchaseType.Song,
+                album.GetPurchaseIdentifier(service.Id, PurchaseType.Album), id[2..])?.Link;
+    }
+
+    void IdText(AlbumDetails album, string id)
+    {
+        var link = TrackLink(album, id);
+        if (link == null)
+        {
+            <text>@id</text>
+        }
+        else
+        {
+            <a href="@link" target="_blank" rel="noopener noreferrer">@id</a>
+        }
+    }
+
     void AlbumList(Song song, HashSet<string> shared)
     {
         foreach (var album in song.Albums)
@@ -108,11 +132,11 @@
                 {
                     if (shared.Contains(id))
                     {
-                        <mark class="small">@id</mark>
+                        <mark class="small">@{ IdText(album, id); }</mark>
                     }
                     else
                     {
-                        <span class="small text-muted">@id</span>
+                        <span class="small text-muted">@{ IdText(album, id); }</span>
                     }
                 }
             </div>
