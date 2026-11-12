@@ -198,10 +198,26 @@ public class AdminController(
 
         // Loading a page follows songs merged or deleted since they were queued, which can change
         // the clusters, so compute them again until a page loads cleanly
+        // The last merge preview classified every cluster; review the ones that differ only by
+        // feat., then the close matches, before the rest
+        var preview = _sharedIdsPreview;
+        var ranks = preview?.Plans.ToDictionary(
+            p => ClusterKey(p.Cluster),
+            p => p.Match switch
+            {
+                SharedIdMatch.WithoutFeaturing => 0,
+                SharedIdMatch.Close => 1,
+                _ => 2
+            });
         for (var attempt = 0; attempt < 3; attempt++)
         {
             clusters = await log.PendingClusters();
-            shown = [.. clusters.Skip((page - 1) * SharedIdsModel.PageSize).Take(SharedIdsModel.PageSize)];
+            if (ranks != null)
+            {
+                clusters = [.. clusters.OrderBy(c => ranks.GetValueOrDefault(ClusterKey(c), 2))];
+            }
+
+            shown =[.. clusters.Skip((page - 1) * SharedIdsModel.PageSize).Take(SharedIdsModel.PageSize)];
             var current = true;
             foreach (var cluster in shown)
             {
@@ -214,50 +230,65 @@ public class AdminController(
             }
         }
 
+        // What each cluster would become if all its songs were merged
+        var user = await Database.FindUser(UserName);
+        var previews = new List<Song>();
+        foreach (var cluster in shown)
+        {
+            try
+            {
+                previews.Add(await log.PreviewMerge(user, cluster));
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning(e, "SharedIds: couldn't preview the merge of {SongIds}",
+                    string.Join(",", cluster.SongIds));
+                previews.Add(null);
+            }
+        }
+
+        var rankCounts = ranks == null ? [] : ranks.Values.GroupBy(r => r).ToDictionary(g => g.Key, g => g.Count());
         return View(new SharedIdsModel
         {
             PendingCandidates = await log.PendingCount(),
             ClusterCount = clusters.Count,
             Page = page,
             Clusters = shown,
+            Previews = previews,
+            Proposals = [.. previews.Select((p, i) => p == null ? null : FeaturedCleanup.Propose(p, shown[i].Songs))],
+            SortedBy = preview?.Created,
+            WithoutFeaturingCount = rankCounts.GetValueOrDefault(0),
+            CloseCount = rankCounts.GetValueOrDefault(1),
             Message = message
         });
     }
 
+    private static string ClusterKey(SharedIdCluster cluster) => string.Join(",", cluster.SongIds.Order());
+
     //
-    // POST: /Admin/MergeSharedIds
+    // POST: /Admin/ApplySharedIds
+    // Applies the choice made for each cluster on a page of the queue: merge the checked songs,
+    // not the same, or leave for later
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "dbAdmin")]
-    public async Task<ActionResult> MergeSharedIds(Guid[] songIds, int page = 1)
+    public async Task<ActionResult> ApplySharedIds(List<SharedIdChoiceForm> items, int page = 1)
     {
         var user = await Database.FindUser(UserName);
-        var merged = await Database.SharedIds.Merge(user, songIds ?? []);
-        if (merged != null)
+        var result = await Database.SharedIds.Apply(user, (items ?? []).Select(i => i.ToChoice()).ToList());
+        if (result.Merged > 0)
         {
             await DanceStatsManager.ClearCache(Database, false);
         }
 
-        return RedirectToAction(nameof(SharedIds), new
+        var message = $"Merged {result.Merged}, marked {result.Rejected} not the same, left {result.Left}.";
+        if (result.Stale > 0)
         {
-            page,
-            message = merged == null
-                ? "Choose at least two songs that are still in the catalog to merge."
-                : $"Merged {songIds.Length} songs into \"{merged.Title}\" ({merged.SongId})."
-        });
-    }
+            message += $" {result.Stale} weren't merged: fewer than two of their checked songs " +
+                "are still in the catalog (unchecked, or already merged with Merge and edit).";
+        }
 
-    //
-    // POST: /Admin/RejectSharedIds
-    // The songs are different: the shared id stays where it is and the pairs aren't queued again
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "dbAdmin")]
-    public async Task<ActionResult> RejectSharedIds(int[] candidateIds, int page = 1)
-    {
-        var user = await Database.FindUser(UserName);
-        await Database.SharedIds.Reject(user, candidateIds ?? []);
-        return RedirectToAction(nameof(SharedIds), new { page, message = "Marked as different songs." });
+        return RedirectToAction(nameof(SharedIds), new { page, message });
     }
 
     //

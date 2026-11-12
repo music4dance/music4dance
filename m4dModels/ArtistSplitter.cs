@@ -343,6 +343,52 @@ public static class ArtistSplitter
             ? []
             : [.. value.Split(Delimiter).Select(CleanName).Where(a => a.Length > 0)];
 
+    /// <summary>
+    /// The title without its featured-artist clause: "Song (feat. X)" and "Song [ft. X]" become
+    /// "Song", and "Song feat. X - Remix" becomes "Song - Remix". The names removed are the ones
+    /// <see cref="Split"/> takes from the title. A title without a clause comes back unchanged.
+    /// </summary>
+    public static string RemoveTitleFeaturing(string title)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            return title;
+        }
+
+        var stripped = TitleBracketFeaturing.Replace(title, " ");
+        if (stripped == title)
+        {
+            var bare = TitleBareFeaturing.Match(title);
+            if (!bare.Success)
+            {
+                return title;
+            }
+
+            var names = bare.Groups["names"];
+            stripped = title[..bare.Index] + title[(names.Index + names.Length)..];
+        }
+
+        stripped = Whitespace.Replace(stripped, " ").Trim();
+        return stripped.Length == 0 ? title : stripped;
+    }
+
+    /// <summary>
+    /// The credit without its featured artists: "Y feat. X" and "Y (ft. X)" become "Y". A
+    /// protected act ("Little Feat") or a credit without a featuring clause comes back unchanged.
+    /// </summary>
+    public static string RemoveArtistFeaturing(string artist)
+    {
+        var credit = CleanName(artist);
+        if (credit.Length == 0 || IsProtectedAct(credit))
+        {
+            return artist;
+        }
+
+        var context = new SplitContext(null);
+        var featuring = ArtistFeaturing.Match(context.Mask(credit));
+        return featuring.Success ? CleanName(context.Unmask(featuring.Groups["primary"].Value)) : artist;
+    }
+
     private static bool IsProtectedAct(string name) =>
         ProtectedActs.Any(a => string.Equals(a, name, StringComparison.OrdinalIgnoreCase));
 

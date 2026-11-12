@@ -292,6 +292,124 @@ public class SharedIdLogTests
     }
 
     [TestMethod]
+    public async Task PreviewMerge_ShowsTheMergedSongAndSavesNothing()
+    {
+        var (dms, user) = await CreateService("SharedIds_PreviewMerge");
+        var a = await SaveSong(dms, "Purchase:00:IS=111");
+        var b = await SaveSong(dms, "Purchase:00:IS=111\tPurchase:00:SS=sp1");
+        _ = await dms.SharedIds.Seed();
+        var cluster = (await dms.SharedIds.PendingClusters()).Single();
+        Assert.IsTrue(await dms.SharedIds.LoadSongs(cluster));
+
+        var preview = await dms.SharedIds.PreviewMerge(user, cluster);
+
+        Assert.AreEqual("Shared Song", preview.Title);
+        CollectionAssert.IsSubsetOf(new[] { "I:111", "S:sp1" }, preview.GetExtendedPurchaseIds().ToList());
+        Assert.IsNull(await dms.SongIndex.FindSong(preview.SongId));
+        Assert.IsFalse((await dms.SongIndex.FindSong(a.SongId)).IsNull);
+        Assert.IsFalse((await dms.SongIndex.FindSong(b.SongId)).IsNull);
+        Assert.AreEqual(SharedIdStatus.Pending, (await Rows(dms)).Single().Status);
+    }
+
+    [TestMethod]
+    public async Task Apply_MergesRejectsAndLeavesEachCluster()
+    {
+        var (dms, user) = await CreateService("SharedIds_Apply");
+        var a = await SaveSong(dms, "Purchase:00:IS=111");
+        var b = await SaveSong(dms, "Purchase:00:IS=111");
+        _ = await SaveSong(dms, "Purchase:00:IS=222");
+        _ = await SaveSong(dms, "Purchase:00:IS=222", title: "Other Song");
+        _ = await SaveSong(dms, "Purchase:00:IS=333");
+        _ = await SaveSong(dms, "Purchase:00:IS=333");
+        _ = await dms.SharedIds.Seed();
+        var clusters = (await dms.SharedIds.PendingClusters())
+            .ToDictionary(c => c.ServiceIds.Single());
+        SharedIdChoice Choose(string id, SharedIdAction action) =>
+            new(action, clusters[id].SongIds, [.. clusters[id].Candidates.Select(c => c.Id)]);
+
+        var result = await dms.SharedIds.Apply(user,
+        [
+            Choose("I:111", SharedIdAction.Merge),
+            Choose("I:222", SharedIdAction.Reject),
+            Choose("I:333", SharedIdAction.Leave)
+        ]);
+
+        Assert.AreEqual((1, 1, 1, 0), (result.Merged, result.Rejected, result.Left, result.Stale));
+        Assert.IsTrue((await dms.SongIndex.FindSong(a.SongId)).IsNull);
+        Assert.IsTrue((await dms.SongIndex.FindSong(b.SongId)).IsNull);
+        var status = (await Rows(dms)).ToDictionary(r => r.ServiceIds, r => r.Status);
+        Assert.AreEqual(SharedIdStatus.Merged, status["I:111"]);
+        Assert.AreEqual(SharedIdStatus.Rejected, status["I:222"]);
+        Assert.AreEqual(SharedIdStatus.Pending, status["I:333"]);
+    }
+
+    [TestMethod]
+    public async Task Apply_MergeOfSongsAlreadyMerged_CountsAsStale()
+    {
+        var (dms, user) = await CreateService("SharedIds_ApplyStale");
+        var a = await SaveSong(dms, "Purchase:00:IS=111");
+        var b = await SaveSong(dms, "Purchase:00:IS=111");
+        _ = await dms.SharedIds.Seed();
+        var cluster = (await dms.SharedIds.PendingClusters()).Single();
+        // Merged in another tab (Merge and edit) after the page loaded
+        _ = await dms.SharedIds.Merge(user, [a.SongId, b.SongId]);
+
+        var result = await dms.SharedIds.Apply(user,
+            [new SharedIdChoice(SharedIdAction.Merge, cluster.SongIds, [])]);
+
+        Assert.AreEqual((0, 1), (result.Merged, result.Stale));
+    }
+
+    [TestMethod]
+    public async Task Merge_WithNames_AppendsAMusic4danceEditForWhatTheMergeDoesNotGive()
+    {
+        var (dms, user) = await CreateService("SharedIds_MergeNames");
+        var a = await SaveSong(dms, "Purchase:00:IS=111", title: "Shared Song (feat. Crazy Man)");
+        var b = await SaveSong(dms, "Purchase:00:IS=111");
+
+        var merged = await dms.SharedIds.Merge(user, [a.SongId, b.SongId],
+            new SongNames("Shared Song", "The Artist", ["The Artist", "Crazy Man"]));
+
+        Assert.AreEqual("Shared Song", merged.Title);
+        CollectionAssert.AreEqual(new[] { "The Artist", "Crazy Man" }, merged.EffectiveArtists.ToList());
+        var last = merged.SongProperties.FindLastIndex(p => p.Name == Song.EditCommand);
+        Assert.IsTrue(last > merged.SongProperties.FindLastIndex(p => p.Name == Song.MergeCommand));
+        Assert.AreEqual(Song.M4dUser, merged.SongProperties[last + 1].Value.Split('|')[0]);
+        Assert.AreEqual("Shared Song", (await dms.SongIndex.FindSong(merged.SongId)).Title);
+    }
+
+    [TestMethod]
+    public async Task Merge_WithNamesTheMergeAlreadyGives_AddsNoEdit()
+    {
+        var (dms, user) = await CreateService("SharedIds_MergeSameNames");
+        var a = await SaveSong(dms, "Purchase:00:IS=111");
+        var b = await SaveSong(dms, "Purchase:00:IS=111");
+
+        var merged = await dms.SharedIds.Merge(user, [a.SongId, b.SongId],
+            new SongNames("Shared Song", "The Artist", ["The Artist"]));
+
+        Assert.AreEqual(Song.MergeCommand,
+            merged.SongProperties.Last(p => p.IsAction).Name);
+    }
+
+    [TestMethod]
+    public void Match_ClassifiesTheTiers()
+    {
+        static Song S(string title, string artist) => new() { Title = title, Artist = artist };
+
+        Assert.AreEqual(SharedIdMatch.Exact,
+            SharedIdLog.Match([S("Shape of You", "Ed Sheeran"), S("Shape Of You (Remastered)", "ed sheeran")]));
+        Assert.AreEqual(SharedIdMatch.WithoutFeaturing,
+            SharedIdLog.Match([S("Shape of You", "Ed Sheeran feat. Khalid"), S("Shape of You", "Ed Sheeran")]));
+        Assert.AreEqual(SharedIdMatch.WithoutFeaturing,
+            SharedIdLog.Match([S("Shape of You feat. Khalid", "Ed Sheeran"), S("Shape of You", "Ed Sheeran")]));
+        Assert.AreEqual(SharedIdMatch.Close,
+            SharedIdLog.Match([S("Shape of You - 2017 Remaster", "Ed Sheeran"), S("Shape of You", "Ed Sheeran")]));
+        Assert.AreEqual(SharedIdMatch.Different,
+            SharedIdLog.Match([S("Perfect", "Ed Sheeran"), S("Shape of You", "Ed Sheeran")]));
+    }
+
+    [TestMethod]
     public void TitleArtistMatch_RequiresAnArtist()
     {
         var songs = new[]
