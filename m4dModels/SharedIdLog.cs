@@ -52,11 +52,36 @@ public enum SharedIdMatch
 }
 
 /// <summary>
-/// What to do with one cluster on the review page. Names, when given, are what a merge should
-/// land on; an edit by the music4dance account sets any the merge doesn't produce on its own.
+/// What to do with one cluster on the review page. For a merge, Groups (parallel to SongIds)
+/// says which songs are the same: each group of two or more is merged, and the pairs between
+/// groups are marked not the same. A song with an empty group is left out. Groups null puts every
+/// song in one group. Names, when given, says where the merged songs' names come from; an edit by
+/// the music4dance account sets any a merge doesn't produce on its own.
 /// </summary>
-public record SharedIdChoice(SharedIdAction Action, IReadOnlyCollection<Guid> SongIds,
-    IReadOnlyCollection<int> CandidateIds, SongNames Names = null);
+public record SharedIdChoice(SharedIdAction Action, IReadOnlyList<Guid> SongIds,
+    IReadOnlyCollection<int> CandidateIds, IReadOnlyList<string> Groups = null,
+    SharedIdNamePicks Names = null)
+{
+    /// <summary>The songs of each group, in order of first appearance.</summary>
+    public IReadOnlyList<IReadOnlyList<Guid>> MergeGroups =>
+        [.. SongIds
+            .Select((id, i) => (Id: id, Group: Groups == null ? "A" : i < Groups.Count ? Groups[i] : null))
+            .Where(s => !string.IsNullOrWhiteSpace(s.Group))
+            .GroupBy(s => s.Group.Trim())
+            .Select(g => (IReadOnlyList<Guid>)[.. g.Select(s => s.Id).Distinct()])];
+}
+
+/// <summary>
+/// Where a merged song's title, artist and individual artists come from: the index (in
+/// SharedIdChoice.SongIds) of the song to take each from, or Proposed for the feat. cleanup of
+/// the merge (FeaturedCleanup.Propose). A song that isn't in the group being merged counts as
+/// Proposed.
+/// </summary>
+public record SharedIdNamePicks(int Title = SharedIdNamePicks.Proposed,
+    int Artist = SharedIdNamePicks.Proposed, int Artists = SharedIdNamePicks.Proposed)
+{
+    public const int Proposed = -1;
+}
 
 public class SharedIdBatchResult
 {
@@ -64,6 +89,9 @@ public class SharedIdBatchResult
     public int Rejected { get; set; }
     public int Left { get; set; }
     public int Stale { get; set; }
+
+    // Each merge made: the songs merged and the song they became
+    public List<(IReadOnlyList<Guid> From, Guid Into)> Merges { get; } = [];
 }
 
 public record SharedIdMergePlan(SharedIdCluster Cluster, string SkipReason)
@@ -370,8 +398,13 @@ public class SharedIdLog(DanceMusicCoreService dms)
     /// if fewer than two of the songs are still in the catalog. When <paramref name="names"/> is
     /// given, an edit by the music4dance account sets any of them the merge didn't produce.
     /// </summary>
-    public async Task<Song> Merge(ApplicationUser user, IReadOnlyCollection<Guid> songIds,
-        SongNames names = null)
+    public Task<Song> Merge(ApplicationUser user, IReadOnlyCollection<Guid> songIds,
+        SongNames names = null) =>
+        Merge(user, songIds, names == null ? null : (_, _) => names);
+
+    // As above, with the names worked out from the songs being merged and the merged song
+    private async Task<Song> Merge(ApplicationUser user, IReadOnlyCollection<Guid> songIds,
+        Func<IReadOnlyList<Song>, Song, SongNames> names)
     {
         var songs = new List<Song>();
         foreach (var id in songIds.Distinct())
@@ -388,9 +421,11 @@ public class SharedIdLog(DanceMusicCoreService dms)
             return null;
         }
 
-        var namesUser = names == null ? null
-            : await dms.FindUser(Song.M4dUser) ?? new ApplicationUser(Song.M4dUser, pseudo: true);
-        var merged = await SongIndex.SimpleMergeSongs(user, songs, names, namesUser);
+        // Not a pseudo user: a pseudo user's title or artist doesn't override one a real user
+        // set (Song.LoadProperties), and nearly every title and artist was set by a real user
+        var namesUser = names == null ? null : new ApplicationUser(Song.M4dUser);
+        var merged = await SongIndex.SimpleMergeSongs(user, songs,
+            names == null ? null : m => names(songs, m), namesUser);
         await Repoint(songs.ToDictionary(s => s.SongId, _ => (Guid?)merged.SongId), user.UserName);
         return merged;
     }
@@ -415,14 +450,7 @@ public class SharedIdLog(DanceMusicCoreService dms)
             switch (choice.Action)
             {
                 case SharedIdAction.Merge:
-                    if (await Merge(user, choice.SongIds, choice.Names) != null)
-                    {
-                        result.Merged += 1;
-                    }
-                    else
-                    {
-                        result.Stale += 1;
-                    }
+                    await ApplyMerge(user, choice, result);
                     break;
                 case SharedIdAction.Reject:
                     await Reject(user, choice.CandidateIds);
@@ -435,6 +463,66 @@ public class SharedIdLog(DanceMusicCoreService dms)
         }
 
         return result;
+    }
+
+    // Merges each group of the choice, then marks the pairs between groups not the same. When a
+    // group's merge is stale, nothing is rejected: its songs changed elsewhere
+    private async Task ApplyMerge(ApplicationUser user, SharedIdChoice choice, SharedIdBatchResult result)
+    {
+        var groups = choice.MergeGroups;
+        var becameIds = new List<Guid>();
+        var stale = false;
+        foreach (var group in groups)
+        {
+            if (group.Count < 2)
+            {
+                becameIds.AddRange(group);
+                continue;
+            }
+
+            var merged = await Merge(user, group,
+                choice.Names == null ? null : (songs, m) => PickNames(choice, songs, m));
+            if (merged == null)
+            {
+                stale = true;
+                result.Stale += 1;
+                continue;
+            }
+
+            result.Merged += 1;
+            result.Merges.Add((group, merged.SongId));
+            becameIds.Add(merged.SongId);
+        }
+
+        if (!stale && groups.Count > 1)
+        {
+            var rows = await Context.SharedIdCandidates
+                .Where(c => c.Status == SharedIdStatus.Pending && becameIds.Contains(c.SongA) && becameIds.Contains(c.SongB))
+                .ToListAsync();
+            foreach (var row in rows)
+            {
+                Resolve(row, SharedIdStatus.Rejected, user.UserName);
+            }
+
+            _ = await Context.SaveChangesAsync();
+            result.Rejected += rows.Count > 0 ? 1 : 0;
+        }
+    }
+
+    // The names a group's merge lands on: each from the song picked for it when that song is in
+    // the group, otherwise from the feat. cleanup of the merge
+    private static SongNames PickNames(SharedIdChoice choice, IReadOnlyList<Song> songs, Song merged)
+    {
+        var proposal = FeaturedCleanup.Propose(merged, songs);
+        Song From(int column) => column >= 0 && column < choice.SongIds.Count
+            ? songs.FirstOrDefault(s => s.SongId == choice.SongIds[column])
+            : null;
+
+        var names = choice.Names;
+        return new SongNames(
+            From(names.Title)?.Title ?? proposal.Title,
+            From(names.Artist)?.Artist ?? proposal.Artist,
+            From(names.Artists)?.EffectiveArtists ?? proposal.Artists);
     }
 
     public async Task Reject(ApplicationUser user, IEnumerable<int> candidateIds)

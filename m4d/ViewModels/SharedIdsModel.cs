@@ -6,6 +6,9 @@ public class SharedIdsModel
 {
     public const int PageSize = 20;
 
+    // The groups a cluster's songs can be merged in
+    public static readonly string[] GroupNames = ["A", "B", "C", "D"];
+
     public int PendingCandidates { get; init; }
     public int ClusterCount { get; init; }
     public int Page { get; init; }
@@ -37,17 +40,18 @@ public class SharedIdsModel
 public class SharedIdChoiceForm
 {
     public SharedIdAction Action { get; set; }
+
+    // Every song in the cluster, and the group each is merged in (parallel; empty leaves it out)
     public Guid[] SongIds { get; set; }
+    public string[] Groups { get; set; }
     public int[] CandidateIds { get; set; }
 
-    // The title and artist chosen for the merged song, and the individual artists proposed for
-    // it (ArtistSplitter.Serialize)
-    public string Title { get; set; }
-    public string Artist { get; set; }
-    public string Artists { get; set; }
+    // The column each name of a merged song comes from: a song's index in SongIds, or
+    // SharedIdNamePicks.Proposed for the If merged column
+    public int Title { get; set; } = SharedIdNamePicks.Proposed;
+    public int Artist { get; set; } = SharedIdNamePicks.Proposed;
+    public int Artists { get; set; } = SharedIdNamePicks.Proposed;
 
     public SharedIdChoice ToChoice() => new(Action, SongIds ?? [], CandidateIds ?? [],
-        string.IsNullOrWhiteSpace(Title) && string.IsNullOrWhiteSpace(Artist) && string.IsNullOrWhiteSpace(Artists)
-            ? null
-            : new SongNames(Title, Artist, ArtistSplitter.Deserialize(Artists)));
+        Groups, new SharedIdNamePicks(Title, Artist, Artists));
 }

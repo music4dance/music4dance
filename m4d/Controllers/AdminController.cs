@@ -201,20 +201,12 @@ public class AdminController(
         // The last merge preview classified every cluster; review the ones that differ only by
         // feat., then the close matches, before the rest
         var preview = _sharedIdsPreview;
-        var ranks = preview?.Plans.ToDictionary(
-            p => ClusterKey(p.Cluster),
-            p => p.Match switch
-            {
-                SharedIdMatch.WithoutFeaturing => 0,
-                SharedIdMatch.Close => 1,
-                _ => 2
-            });
         for (var attempt = 0; attempt < 3; attempt++)
         {
             clusters = await log.PendingClusters();
-            if (ranks != null)
+            if (preview != null)
             {
-                clusters = [.. clusters.OrderBy(c => ranks.GetValueOrDefault(ClusterKey(c), 2))];
+                clusters = [.. clusters.OrderBy(preview.RankOf)];
             }
 
             shown =[.. clusters.Skip((page - 1) * SharedIdsModel.PageSize).Take(SharedIdsModel.PageSize)];
@@ -247,7 +239,8 @@ public class AdminController(
             }
         }
 
-        var rankCounts = ranks == null ? [] : ranks.Values.GroupBy(r => r).ToDictionary(g => g.Key, g => g.Count());
+        var rankCounts = preview == null ? []
+            : clusters.GroupBy(preview.RankOf).ToDictionary(g => g.Key, g => g.Count());
         return View(new SharedIdsModel
         {
             PendingCandidates = await log.PendingCount(),
@@ -257,17 +250,15 @@ public class AdminController(
             Previews = previews,
             Proposals = [.. previews.Select((p, i) => p == null ? null : FeaturedCleanup.Propose(p, shown[i].Songs))],
             SortedBy = preview?.Created,
-            WithoutFeaturingCount = rankCounts.GetValueOrDefault(0),
-            CloseCount = rankCounts.GetValueOrDefault(1),
+            WithoutFeaturingCount = rankCounts.GetValueOrDefault(SharedIdsPreviewModel.WithoutFeaturingRank),
+            CloseCount = rankCounts.GetValueOrDefault(SharedIdsPreviewModel.CloseRank),
             Message = message
         });
     }
 
-    private static string ClusterKey(SharedIdCluster cluster) => string.Join(",", cluster.SongIds.Order());
-
     //
     // POST: /Admin/ApplySharedIds
-    // Applies the choice made for each cluster on a page of the queue: merge the checked songs,
+    // Applies the choice made for each cluster on a page of the queue: merge its groups of songs,
     // not the same, or leave for later
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -276,6 +267,10 @@ public class AdminController(
     {
         var user = await Database.FindUser(UserName);
         var result = await Database.SharedIds.Apply(user, (items ?? []).Select(i => i.ToChoice()).ToList());
+        foreach (var (from, into) in result.Merges)
+        {
+            _sharedIdsPreview?.Merged(from, into);
+        }
         if (result.Merged > 0)
         {
             await DanceStatsManager.ClearCache(Database, false);
@@ -284,8 +279,8 @@ public class AdminController(
         var message = $"Merged {result.Merged}, marked {result.Rejected} not the same, left {result.Left}.";
         if (result.Stale > 0)
         {
-            message += $" {result.Stale} weren't merged: fewer than two of their checked songs " +
-                "are still in the catalog (unchecked, or already merged with Merge and edit).";
+            message += $" {result.Stale} weren't merged: fewer than two of their grouped songs " +
+                "are still in the catalog (already merged with Merge and edit, for example).";
         }
 
         return RedirectToAction(nameof(SharedIds), new { page, message });

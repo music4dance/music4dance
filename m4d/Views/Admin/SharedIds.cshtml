@@ -16,7 +16,7 @@
 
     var choices = new[]
     {
-        (Action: SharedIdAction.Merge, Label: "Merge checked"),
+        (Action: SharedIdAction.Merge, Label: "Merge groups"),
         (Action: SharedIdAction.Reject, Label: "Not the same"),
         (Action: SharedIdAction.Leave, Label: "Leave for later")
     };
@@ -28,18 +28,22 @@
     Songs that hold the same Spotify, iTunes or ISRC id. When enrichment is about to give a song an
     id another song already holds, it leaves the id off and queues the pair here.
     Choose what to do with each cluster on the page, then <strong>Apply this page</strong>.
-    <strong>Merge checked</strong> folds the checked songs into one, keeping all of their history;
-    the <em>If merged</em> column shows what merging all of them would give.
+    <strong>Merge groups</strong> folds the songs of each group (A, B, …) into one, keeping all of
+    their history, and marks the songs of different groups not the same; a song left out stays in
+    the queue. Every song starts in group A, and the <em>If merged</em> column shows what merging
+    all of them would give.
     <strong>Not the same</strong> leaves the ids where they are and stops the pairs from being
     queued again. <strong>Leave for later</strong> changes nothing. Clusters with a rejected pair
-    or a .NoMerge song start as Leave for later; the rest start as Merge checked.
+    or a .NoMerge song start as Leave for later; the rest start as Merge groups.
     <strong>Merge and edit</strong> merges a cluster straight away and opens it for editing.
 </p>
 <p>
     The <em>Title</em>, <em>Artist</em> and <em>Individual artists</em> rows choose what the merged
     song is called. They start on the <em>If merged</em> column, which takes any feat. clause out of
     the title and adds the featured artists to the individual artists. When a choice isn't what the
-    merge gives on its own, an edit by the music4dance account sets it after the merge.
+    merge gives on its own, an edit by the music4dance account sets it after the merge. When the
+    songs are split into groups, a group takes a choice only from one of its own songs; otherwise
+    it gets the same cleanup of its own merge.
 </p>
 
 @if (!string.IsNullOrEmpty(Model.Message))
@@ -53,8 +57,8 @@
     {
         <text>
             Sorted by the preview run @Model.SortedBy.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm"):
-            the @Model.WithoutFeaturingCount.ToString("N0") clusters that differed only by feat. come
-            first, then the @Model.CloseCount.ToString("N0") close matches.
+            the @Model.WithoutFeaturingCount.ToString("N0") clusters still pending that differed only
+            by feat. come first, then the @Model.CloseCount.ToString("N0") close matches.
         </text>
     }
     else
@@ -115,13 +119,14 @@
         }
     }
 
-    // One radio of a cluster's title, artist or individual artists choice
-    void NameChoice(int i, string field, int column, string value, bool isChecked, string label = null)
+    // One radio of a cluster's title, artist or individual artists choice: the song column it
+    // comes from, or SharedIdNamePicks.Proposed for the If merged column
+    void NameChoice(int i, string field, int column, string label, bool isChecked)
     {
         <div class="form-check m-0">
             <input class="form-check-input" type="radio" id="@($"{field}-{i}-{column}")" name="items[@i].@field"
-                   value="@value" form="apply" checked="@isChecked" />
-            <label class="form-check-label" for="@($"{field}-{i}-{column}")">@(label ?? value)</label>
+                   value="@column" form="apply" checked="@isChecked" />
+            <label class="form-check-label" for="@($"{field}-{i}-{column}")">@label</label>
         </div>
     }
 }
@@ -191,11 +196,25 @@
                             {
                                 var song = cluster.Songs[k];
                                 <th>
-                                    <input type="checkbox" name="items[@i].SongIds" value="@song.SongId" form="apply" checked />
+                                    <input type="hidden" name="items[@i].SongIds" value="@song.SongId" form="apply" />
+                                    <select class="form-select form-select-sm d-inline-block w-auto shared-id-group"
+                                            name="items[@i].Groups" form="apply" data-cluster="@i"
+                                            aria-label="Group for song @(k + 1)">
+                                        @foreach (var group in SharedIdsModel.GroupNames.Take(cluster.Songs.Count))
+                                        {
+                                            <option value="@group" selected="@(group == SharedIdsModel.GroupNames[0])">@group</option>
+                                        }
+                                        <option value="">Leave out</option>
+                                    </select>
                                     <a href="/song/details/@song.SongId" target="_blank" rel="noopener noreferrer">Song @(k + 1)</a>
                                 </th>
                             }
-                            <th class="table-info">If merged</th>
+                            <th class="table-info">
+                                If merged
+                                <div class="small fw-normal text-muted d-none" id="split-note-@i">
+                                    Split: each group gets its own cleanup instead.
+                                </div>
+                            </th>
                         </tr>
                         <tr>
                             <th>Title</th>
@@ -206,7 +225,7 @@
                             <td class="table-info">
                                 @if (proposal != null)
                                 {
-                                    NameChoice(i, "Title", cluster.Songs.Count, proposal.Title, true);
+                                    NameChoice(i, "Title", SharedIdNamePicks.Proposed, proposal.Title, true);
                                     if (proposal.Title != merged.Title)
                                     {
                                         <div class="small text-muted">The merge alone gives: @merged.Title</div>
@@ -223,7 +242,7 @@
                             <td class="table-info">
                                 @if (proposal != null)
                                 {
-                                    NameChoice(i, "Artist", cluster.Songs.Count, proposal.Artist, true);
+                                    NameChoice(i, "Artist", SharedIdNamePicks.Proposed, proposal.Artist, true);
                                 }
                             </td>
                         </tr>
@@ -232,12 +251,12 @@
                             @for (var k = 0; k < cluster.Songs.Count; k++)
                             {
                                 var artists = cluster.Songs[k].EffectiveArtists;
-                                <td>@{ NameChoice(i, "Artists", k, ArtistSplitter.Serialize(artists), proposal == null && k == 0, FormatArtists(artists)); }</td>
+                                <td>@{ NameChoice(i, "Artists", k, FormatArtists(artists), proposal == null && k == 0); }</td>
                             }
                             <td class="table-info">
                                 @if (proposal != null)
                                 {
-                                    NameChoice(i, "Artists", cluster.Songs.Count, ArtistSplitter.Serialize(proposal.Artists), true, FormatArtists(proposal.Artists));
+                                    NameChoice(i, "Artists", SharedIdNamePicks.Proposed, FormatArtists(proposal.Artists), true);
                                 }
                             </td>
                         </tr>
@@ -362,3 +381,15 @@
         </ul>
     </nav>
 }
+
+<script>
+    // The If merged column shows a merge of every song; say so when they're split into groups
+    document.querySelectorAll(".shared-id-group").forEach((select) => {
+        select.addEventListener("change", () => {
+            const cluster = select.dataset.cluster;
+            const selects = document.querySelectorAll(`.shared-id-group[data-cluster="${cluster}"]`);
+            const groups = new Set([...selects].map((s) => s.value));
+            document.getElementById(`split-note-${cluster}`)?.classList.toggle("d-none", groups.size < 2);
+        });
+    });
+</script>

@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-11 (written with the code)
+**Last verified:** 2026-11-12 (written with the code)
 **Code:** `m4dModels/SharedIdLog.cs`, `m4dModels/SharedIdCandidate.cs`, `m4d/Utilities/MusicServiceManager.cs` (`UpdateFromTracks`, `GetISRCData`), `m4d/Controllers/AdminController.cs` (`SharedIds` actions), `m4d/Views/Admin/SharedIds.cshtml`, `m4d/Views/Admin/SharedIdsPreview.cshtml`, `m4dModels/FeaturedCleanup.cs`
 
 ## Overview
@@ -66,14 +66,23 @@ shows its songs side by side: title, artist, length, tempo, dances, albums with 
 ids (shared ones highlighted), and created date, plus each row's source and detail. A last
 **If merged** column shows the song merging all of them would make
 (`SharedIdLog.PreviewMerge` → `SongIndex.BuildSimpleMerge`, the build half of
-`SimpleMergeSongs`, which saves nothing). Use it to choose between **Merge checked** and
+`SimpleMergeSongs`, which saves nothing). Use it to choose between **Merge groups** and
 **Merge and edit**.
 
-The page is one form. Each cluster has a choice: **Merge checked**, **Not the same** or
+The page is one form. Each cluster has a choice: **Merge groups**, **Not the same** or
 **Leave for later**. **Apply this page** (`POST /Admin/ApplySharedIds` → `SharedIdLog.Apply`)
 carries out all of them. Clusters with a rejected pair or a `.NoMerge` song start as Leave for
-later, and the rest start as Merge checked. So a page is reviewed by fixing the clusters that
+later, and the rest start as Merge groups. So a page is reviewed by fixing the clusters that
 aren't straight merges and pressing Apply once. Clusters left for later stay at the top of page 1.
+
+**Groups.** Each song column has a group, **A** to **D** (no more than the cluster has songs),
+or **Leave out**. Every song starts in A, which merges them all. A cluster that is really two
+songs (1 and 2 are one, 3 and 4 the other, linked by an id that 2 and 3 share) is split by
+putting 3 and 4 in B. Merge groups then merges each group of two or more songs (`SharedIdChoice.MergeGroups`),
+and marks the pending pairs between the groups' songs, after the merges, `Rejected`. A
+one-song group is just rejected against the others. A song left out keeps its pairs pending, now
+with the song its group-mates were merged into. If any group's merge is stale, nothing is
+rejected.
 
 **Match tiers.** Each cluster's header says how closely its titles and artists agree
 (`SharedIdLog.Match`, closest first):
@@ -86,19 +95,26 @@ aren't straight merges and pressing Apply once. Clusters left for later stay at 
 | `Different` | none | Anything else. |
 
 **Preview merge all** records each cluster's tier. Until the next restart, the review page sorts
-by it: clusters that differ only by feat. first, then close matches, then the rest. Only `Exact`
+by it: clusters that differ only by feat. first, then close matches, then the rest. The tier is
+kept for each song (`SharedIdsPreviewModel.RankOf`), and a song merged on the review page takes
+the best tier of the songs it was merged from, so a cluster keeps its place when part of it is
+merged and the rest stays queued. The counts on the page are of the clusters still pending. Only `Exact`
 clusters are merged by **Merge all**; the other tiers are reviewed by hand while the cleanup is
 refined.
 
 **Choosing the names.** The **Title**, **Artist** and **Individual artists** rows have a radio in
 every column. They start on the **If merged** column, which shows `FeaturedCleanup.Propose`: the
 merged title without its feat. clause, the merged artist credit, and its individual artists
-followed by any artists the other songs feature (in their titles or credits). When the chosen
-title, artist or individual artists aren't what the merge gives on its own (choosing a single
+followed by any artists the other songs feature (in their titles or credits). The form posts the
+column each name comes from (`SharedIdNamePicks`), and the proposal is worked out again from
+each group's own merge when it's applied. A group takes a name from a song column only when that
+song is in the group; otherwise it gets the proposal for its own merge. When the chosen title,
+artist or individual artists aren't what the merge gives on its own (choosing a single
 individual artist clears the list back to the credit), `SimpleMergeSongs` appends an edit by
-the `music4dance` account (`Song.M4dUser`, via `Song.AppendNameEdit`) setting them. When they
-match, it's a plain simple merge. An `Artists` value written this way isn't overridden by
-artist-bot.
+`music4dance` (`Song.M4dUser`, via `Song.AppendNameEdit`) setting them. When they match, it's a
+plain simple merge. The edit is by a non-pseudo user, because `Song.LoadProperties` doesn't let a
+pseudo user's title or artist override a real user's. So an `Artists` value written this way also
+isn't overridden by artist-bot.
 
 Loading a page follows any song that was merged or deleted since it was queued
 (`LoadSongs` → `SongIndex.FindMergedSong`) and re-points its rows, so merges made through the
@@ -106,7 +122,7 @@ title-based tools or **Merge and edit** resolve themselves.
 
 | Action | What it does |
 | --- | --- |
-| **Merge checked** (a choice, applied by **Apply this page**) | `SongIndex.SimpleMergeSongs` on the checked songs, which keeps all their history, then the music4dance edit for the chosen names if one is needed. Rows between them become `Merged`; their rows with other songs, pending or rejected, move to the merged song. Unchecking a song leaves it in the queue paired with the merged song. If fewer than two checked songs are still in the catalog, it's counted as stale and skipped. This happens, for example, after **Merge and edit**. |
+| **Merge groups** (a choice, applied by **Apply this page**) | For each group, `SongIndex.SimpleMergeSongs` on its songs, which keeps all their history, then the music4dance edit for the chosen names if one is needed. Rows between them become `Merged`; their rows with other songs, pending or rejected, move to the merged song. Then the pairs between groups are rejected. A song left out stays in the queue paired with the merged song. A group with fewer than two songs still in the catalog is counted as stale and skipped. This happens, for example, after **Merge and edit**. |
 | **Not the same** (a choice) | Marks every pending row in the cluster `Rejected`. |
 | **Leave for later** (a choice) | Changes nothing. |
 | **Merge and edit** | Takes effect right away. It posts the songs to `/Song/BulkEdit` (`action=Merge`) in a new tab, which merges them as **Merge checked** does and opens the merged song in the editor to pick its title, artist, tempo and length. |
@@ -119,8 +135,6 @@ title-based tools or **Merge and edit** resolve themselves.
 - Once the feat. cleanup and the close-match tier have been refined on this queue, use
   `FeaturedCleanup` in **Merge all** and in the add-time merge ([song-merge-algorithm](song-merge-algorithm.md)).
 
-- "Not the same" rejects the whole cluster. To split a cluster, merge the songs that belong
-  together first, then reject what's left.
 - Moving a wrong id to the right song (e.g. an ISRC attached to a different recording) needs the
   song editor.
 
@@ -130,6 +144,7 @@ title-based tools or **Merge and edit** resolve themselves.
 - 2026-11: Merge-all preview. Merge all now also re-plans clusters that changed while it ran, instead of leaving them for the next run.
 - 2026-11: **If merged** column and page-at-a-time review (**Apply this page**), which replace the per-cluster Merge checked and Not the same buttons.
 - 2026-11: Match tiers (differ only by feat., close match), sorted first after a preview; per-song title and artist choices; the feat. cleanup proposal, applied by a music4dance edit.
+- 2026-11: Merge groups, which split a cluster in one Apply. The music4dance edit is no longer by a pseudo user, whose title and artist were ignored. The sort keeps a cluster's place after part of it is merged.
 
 ## Related
 

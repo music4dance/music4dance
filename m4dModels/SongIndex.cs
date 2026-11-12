@@ -516,17 +516,18 @@ public class SongIndex
     /// and sorts by timestamp. Preserves all information for potential unmerging.
     /// </summary>
     /// <remarks>
-    /// When <paramref name="names"/> is given and the merged song doesn't already have those
-    /// names, an edit by <paramref name="namesUser"/> setting them is appended after the merge.
+    /// When <paramref name="names"/> is given, it's called with the merged song, and when the
+    /// merged song doesn't already have the names it returns, an edit by
+    /// <paramref name="namesUser"/> setting them is appended after the merge.
     /// </remarks>
     public async Task<Song> SimpleMergeSongs(ApplicationUser user, List<Song> songs,
-        SongNames names = null, ApplicationUser namesUser = null)
+        Func<Song, SongNames> names = null, ApplicationUser namesUser = null)
     {
         // Always reload by ID to ensure full song properties are available
         songs = [.. (await DanceMusicService.SongIndex.FindSongs(songs.Select(s => s.SongId).ToList()))];
 
         var mergedSong = await BuildSimpleMerge(user, songs);
-        if (names != null && mergedSong.AppendNameEdit(namesUser ?? user, names))
+        if (names != null && mergedSong.AppendNameEdit(namesUser ?? user, names(mergedSong)))
         {
             mergedSong = await Song.Create(mergedSong.SongId, [.. mergedSong.SongProperties], DanceMusicService);
         }
