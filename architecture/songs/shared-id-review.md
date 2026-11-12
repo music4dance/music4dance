@@ -3,7 +3,7 @@
 **Type:** Reference
 **Status:** Current
 **Last verified:** 2026-11-12 (written with the code)
-**Code:** `m4dModels/SharedIdLog.cs`, `m4dModels/SharedIdCandidate.cs`, `m4d/Utilities/MusicServiceManager.cs` (`UpdateFromTracks`, `GetISRCData`), `m4d/Controllers/AdminController.cs` (`SharedIds` actions), `m4d/Views/Admin/SharedIds.cshtml`, `m4d/Views/Admin/SharedIdsPreview.cshtml`, `m4dModels/FeaturedCleanup.cs`
+**Code:** `m4dModels/SharedIdLog.cs`, `m4dModels/SharedIdCandidate.cs`, `m4d/Utilities/MusicServiceManager.cs` (`UpdateFromTracks`, `GetISRCData`), `m4d/Controllers/AdminController.cs` (`SharedIds` actions), `m4d/Views/Admin/SharedIds.cshtml`, `m4d/Views/Admin/SharedIdsPreview.cshtml`, `m4d/ViewModels/SharedIdsPreviewModel.cs` (review sort), `m4dModels/FeaturedCleanup.cs`
 
 ## Overview
 
