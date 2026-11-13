@@ -167,6 +167,26 @@ still off. 137,000 requests, 0.4 server-hours.
 
 This day is the before picture for Bot Fight Mode, which went on 2026-11-07.
 
+#### Five days with Bot Fight Mode (2026-11-08 to 2026-11-12)
+
+120 hours, 2026-11-08 00:00 to 2026-11-13 00:00 UTC. 1.78M requests (333,000 pages), 9.9
+server-hours. 99.9% came through Cloudflare, and only 75 requests reached the custom domains
+directly. No 5xx bursts (8 in total). Googlebot, Bingbot and Applebot kept crawling.
+
+- **A 24-hour asset wave, 2026-11-10 16:00 to 2026-11-11 16:00.** Requests went from about
+  6,000 an hour to about 50,000. Nearly all of it was `304` revalidations of the hashed Vite
+  bundles under `/vclient/assets` (about 45,000 per bundle), with no cookies and bundle-to-bundle
+  referrers: a JS-running farm loading each page's full chunk graph. Pages rose to about 1,100 a
+  minute; the analyzer counted most of them as people, because each Cloudflare edge IP pools many
+  clients. It stopped abruptly, and Bot Fight Mode didn't visibly change it.
+- **Why assets cost so much:** `MapStaticAssets` sent `Cache-Control: no-cache` for Vite's
+  hashed files, so Cloudflare revalidated every one with the origin (cf-cache-status
+  REVALIDATED). That was 1.31M of the 1.78M requests and about half the server time.
+  `StaticAssetCacheMiddleware` (2026-11-12) makes them immutable for a year, so the edge answers
+  them; see [hosting-and-identity](../infrastructure/hosting-and-identity.md).
+- Moz DotBot is the biggest page crawler (96,000, mostly apex redirects and throttled 429s).
+  ElevenLabs and Exa are the AI crawlers that cost the most.
+
 ### 1.2 What a public page costs
 
 The sizes below were measured with `curl` against production.
