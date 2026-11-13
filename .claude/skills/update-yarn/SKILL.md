@@ -75,6 +75,12 @@ always require explicit confirmation regardless of argument.
      `package.json`) — these are pinned overrides, likely for compatibility
      with a transitive dependency. Don't bump them without checking why
      they're pinned; ask the user if a bump seems warranted.
+     `minimatch` (`^11.0.5`) and `glob` (`^14.0.3`) are different: they are
+     security overrides (Dependabot alerts 194/196, 2026-11-12) that force
+     eslint, `@typescript-eslint/typescript-estree`, editorconfig and
+     js-beautify past their `^10`/`^13` ranges. Once `yarn why minimatch` and
+     `yarn why glob` show every dependent asking for 11+/14+ on its own,
+     drop the override.
 
 3. **Apply updates per the scope argument** with `yarn up` (Yarn Berry's
    upgrade command), one package (or a related group) at a time so failures

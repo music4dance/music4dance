@@ -300,6 +300,8 @@ also fills `window.danceDatabaseJson` and `window.tagDatabaseJson` from the chec
 
 ## Future improvements
 
+- Replace `vue-showdown`/showdown (unmaintained, with open advisories) with `marked` + `DOMPurify`.
+  See [plans/markdown-renderer-replacement](../plans/markdown-renderer-replacement.md).
 - `PageFrame.vue` has `// INT-TODO: Rethink dance/tag environmnet loading`, and its `loaded`
   computed always returns `true`, so `PageLoader` never shows a loading state.
 - `UseVue` still has a `V2` value, left over from removing Vue 2 (#8). Nothing sets it.
