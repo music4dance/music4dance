@@ -49,7 +49,12 @@ defineExpose({
 
 <template>
   <div>
-    <MarkDownEditor ref="markdownEditor" v-model="model" :editing="editing" />
+    <MarkDownEditor
+      ref="markdownEditor"
+      v-model="model"
+      :editing="editing"
+      :dance-name="danceName"
+    />
     <div v-if="!isGroup && numerator != 1" id="tempo-info">
       <h2>Tempo Information</h2>
       <p>
