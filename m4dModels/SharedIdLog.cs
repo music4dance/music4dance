@@ -23,6 +23,90 @@ public class SharedIdCluster
         [.. Candidates.SelectMany(c => SharedIdLog.SplitIds(c.ServiceIds)).Distinct().Order()];
 
     public bool TitleArtistMatch => SharedIdLog.TitleArtistMatch(Songs);
+
+    public SharedIdMatch Match => SharedIdLog.Match(Songs);
+
+    public bool HasNoMergeSong => Songs.Any(s => s.SongProperties.Any(p => p.Name == Song.NoMergeCommand));
+}
+
+/// <summary>
+/// What SharedIdLog.MergeMatching does with one cluster: merges it when SkipReason is null.
+/// </summary>
+public enum SharedIdAction
+{
+    Leave,
+    Merge,
+    Reject
+}
+
+/// <summary>How closely a cluster's titles and artists agree, closest first.</summary>
+public enum SharedIdMatch
+{
+    // Same normal form (Song.CreateTitleHash)
+    Exact,
+    // The same once feat. clauses come out of the titles and artist credits
+    WithoutFeaturing,
+    // Every pair passes the fuzzy match used for service tracks (Song.TitleArtistMatch)
+    Close,
+    Different
+}
+
+/// <summary>
+/// What to do with one cluster on the review page. For a merge, Groups (parallel to SongIds)
+/// says which songs are the same: each group of two or more is merged, and the pairs between
+/// groups are marked not the same. A song with an empty group is left out. Groups null puts every
+/// song in one group. Names, when given, says where the merged songs' names come from; an edit by
+/// the music4dance account sets any a merge doesn't produce on its own.
+/// </summary>
+public record SharedIdChoice(SharedIdAction Action, IReadOnlyList<Guid> SongIds,
+    IReadOnlyCollection<int> CandidateIds, IReadOnlyList<string> Groups = null,
+    SharedIdNamePicks Names = null)
+{
+    /// <summary>The songs of each group, in order of first appearance.</summary>
+    public IReadOnlyList<IReadOnlyList<Guid>> MergeGroups =>
+        [.. SongIds
+            .Select((id, i) => (Id: id, Group: Groups == null ? "A" : i < Groups.Count ? Groups[i] : null))
+            .Where(s => !string.IsNullOrWhiteSpace(s.Group))
+            .GroupBy(s => s.Group.Trim())
+            .Select(g => (IReadOnlyList<Guid>)[.. g.Select(s => s.Id).Distinct()])];
+}
+
+/// <summary>
+/// Where a merged song's title, artist and individual artists come from: the index (in
+/// SharedIdChoice.SongIds) of the song to take each from, or Proposed for the feat. cleanup of
+/// the merge (FeaturedCleanup.Propose). A song that isn't in the group being merged counts as
+/// Proposed.
+/// </summary>
+public record SharedIdNamePicks(int Title = SharedIdNamePicks.Proposed,
+    int Artist = SharedIdNamePicks.Proposed, int Artists = SharedIdNamePicks.Proposed)
+{
+    public const int Proposed = -1;
+}
+
+public class SharedIdBatchResult
+{
+    public int Merged { get; set; }
+    public int Rejected { get; set; }
+    public int Left { get; set; }
+    public int Stale { get; set; }
+
+    // Each merge made: the songs merged and the song they became
+    public List<(IReadOnlyList<Guid> From, Guid Into)> Merges { get; } = [];
+}
+
+public record SharedIdMergePlan(SharedIdCluster Cluster, string SkipReason)
+{
+    public const string Rejected = "A pair in it was marked not the same";
+    public const string NoMerge = "A song is marked .NoMerge";
+    public const string NoArtist = "A song has no artist";
+    public const string WithoutFeaturing = "The titles or artists differ only by feat.";
+    public const string Close = "The titles and artists are close but not the same";
+    public const string Different = "The titles or artists differ";
+
+    public bool WillMerge => SkipReason == null;
+
+    // Worked out once, when the plan is made
+    public SharedIdMatch Match { get; } = Cluster.Match;
 }
 
 /// <summary>
@@ -311,9 +395,16 @@ public class SharedIdLog(DanceMusicCoreService dms)
     /// <summary>
     /// Merges the songs (SimpleMergeSongs keeps all their history), marks the pairs among them
     /// merged, and moves their other pairs to the merged song. Returns the merged song, or null
-    /// if fewer than two of the songs are still in the catalog.
+    /// if fewer than two of the songs are still in the catalog. When <paramref name="names"/> is
+    /// given, an edit by the music4dance account sets any of them the merge didn't produce.
     /// </summary>
-    public async Task<Song> Merge(ApplicationUser user, IReadOnlyCollection<Guid> songIds)
+    public Task<Song> Merge(ApplicationUser user, IReadOnlyCollection<Guid> songIds,
+        SongNames names = null) =>
+        Merge(user, songIds, names == null ? null : (_, _) => names);
+
+    // As above, with the names worked out from the songs being merged and the merged song
+    private async Task<Song> Merge(ApplicationUser user, IReadOnlyCollection<Guid> songIds,
+        Func<IReadOnlyList<Song>, Song, SongNames> names)
     {
         var songs = new List<Song>();
         foreach (var id in songIds.Distinct())
@@ -330,9 +421,108 @@ public class SharedIdLog(DanceMusicCoreService dms)
             return null;
         }
 
-        var merged = await SongIndex.SimpleMergeSongs(user, songs);
+        // Not a pseudo user: a pseudo user's title or artist doesn't override one a real user
+        // set (Song.LoadProperties), and nearly every title and artist was set by a real user
+        var namesUser = names == null ? null : new ApplicationUser(Song.M4dUser);
+        var merged = await SongIndex.SimpleMergeSongs(user, songs,
+            names == null ? null : m => names(songs, m), namesUser);
         await Repoint(songs.ToDictionary(s => s.SongId, _ => (Guid?)merged.SongId), user.UserName);
         return merged;
+    }
+
+    /// <summary>
+    /// The song Merge would make from the cluster's loaded songs, without saving anything; null
+    /// if fewer than two songs would be merged.
+    /// </summary>
+    public async Task<Song> PreviewMerge(ApplicationUser user, SharedIdCluster cluster) =>
+        cluster.Songs.Count < 2 ? null : await SongIndex.BuildSimpleMerge(user, cluster.Songs);
+
+    /// <summary>
+    /// Applies a page of review choices: merges, not-the-same, and clusters left for later.
+    /// A merge whose songs changed since the page loaded (fewer than two are still in the
+    /// catalog) is counted as stale and left alone.
+    /// </summary>
+    public async Task<SharedIdBatchResult> Apply(ApplicationUser user, IEnumerable<SharedIdChoice> choices)
+    {
+        var result = new SharedIdBatchResult();
+        foreach (var choice in choices)
+        {
+            switch (choice.Action)
+            {
+                case SharedIdAction.Merge:
+                    await ApplyMerge(user, choice, result);
+                    break;
+                case SharedIdAction.Reject:
+                    await Reject(user, choice.CandidateIds);
+                    result.Rejected += 1;
+                    break;
+                default:
+                    result.Left += 1;
+                    break;
+            }
+        }
+
+        return result;
+    }
+
+    // Merges each group of the choice, then marks the pairs between groups not the same. When a
+    // group's merge is stale, nothing is rejected: its songs changed elsewhere
+    private async Task ApplyMerge(ApplicationUser user, SharedIdChoice choice, SharedIdBatchResult result)
+    {
+        var groups = choice.MergeGroups;
+        var becameIds = new List<Guid>();
+        var stale = false;
+        foreach (var group in groups)
+        {
+            if (group.Count < 2)
+            {
+                becameIds.AddRange(group);
+                continue;
+            }
+
+            var merged = await Merge(user, group,
+                choice.Names == null ? null : (songs, m) => PickNames(choice, songs, m));
+            if (merged == null)
+            {
+                stale = true;
+                result.Stale += 1;
+                continue;
+            }
+
+            result.Merged += 1;
+            result.Merges.Add((group, merged.SongId));
+            becameIds.Add(merged.SongId);
+        }
+
+        if (!stale && groups.Count > 1)
+        {
+            var rows = await Context.SharedIdCandidates
+                .Where(c => c.Status == SharedIdStatus.Pending && becameIds.Contains(c.SongA) && becameIds.Contains(c.SongB))
+                .ToListAsync();
+            foreach (var row in rows)
+            {
+                Resolve(row, SharedIdStatus.Rejected, user.UserName);
+            }
+
+            _ = await Context.SaveChangesAsync();
+            result.Rejected += rows.Count > 0 ? 1 : 0;
+        }
+    }
+
+    // The names a group's merge lands on: each from the song picked for it when that song is in
+    // the group, otherwise from the feat. cleanup of the merge
+    private static SongNames PickNames(SharedIdChoice choice, IReadOnlyList<Song> songs, Song merged)
+    {
+        var proposal = FeaturedCleanup.Propose(merged, songs);
+        Song From(int column) => column >= 0 && column < choice.SongIds.Count
+            ? songs.FirstOrDefault(s => s.SongId == choice.SongIds[column])
+            : null;
+
+        var names = choice.Names;
+        return new SongNames(
+            From(names.Title)?.Title ?? proposal.Title,
+            From(names.Artist)?.Artist ?? proposal.Artist,
+            From(names.Artists)?.EffectiveArtists ?? proposal.Artists);
     }
 
     public async Task Reject(ApplicationUser user, IEnumerable<int> candidateIds)
@@ -357,27 +547,110 @@ public class SharedIdLog(DanceMusicCoreService dms)
     public async Task<int> MergeMatching(ApplicationUser user, Action<string, int> progress = null)
     {
         var merged = 0;
-        var checkedCount = 0;
-        foreach (var cluster in await PendingClusters())
+        foreach (var plan in (await PlanMergeMatching(progress)).Where(p => p.WillMerge))
         {
-            if (++checkedCount % 100 == 0)
+            if (await Merge(user, plan.Cluster.SongIds) != null && ++merged % 100 == 0)
             {
-                progress?.Invoke($"Checked {checkedCount}, merged", merged);
-            }
-
-            if (!await LoadSongs(cluster) || cluster.HasRejectedPair || !cluster.TitleArtistMatch ||
-                cluster.Songs.Any(s => s.SongProperties.Any(p => p.Name == Song.NoMergeCommand)))
-            {
-                continue;
-            }
-
-            if (await Merge(user, cluster.SongIds) != null)
-            {
-                merged += 1;
+                progress?.Invoke("Merged", merged);
             }
         }
 
         return merged;
+    }
+
+    /// <summary>
+    /// What MergeMatching would do with each pending cluster: merge it, or skip it and why. The
+    /// clusters' songs are loaded. Changes nothing but the bookkeeping LoadSongs does for songs
+    /// merged or deleted since they were queued.
+    /// </summary>
+    public async Task<IReadOnlyList<SharedIdMergePlan>> PlanMergeMatching(
+        Action<string, int> progress = null)
+    {
+        var plans = new List<SharedIdMergePlan>();
+        var planned = new HashSet<string>();
+        // A stale cluster re-points its rows, which changes the clusters; plan the new ones on
+        // the next pass
+        for (var pass = 0; pass < 3; pass++)
+        {
+            var stale = false;
+            foreach (var cluster in await PendingClusters())
+            {
+                if (!planned.Add(string.Join(",", cluster.SongIds.Order())))
+                {
+                    continue;
+                }
+
+                if (!await LoadSongs(cluster))
+                {
+                    stale = true;
+                    continue;
+                }
+
+                plans.Add(new SharedIdMergePlan(cluster, SkipReason(cluster)));
+                if (plans.Count % 100 == 0)
+                {
+                    progress?.Invoke("Checked", plans.Count);
+                }
+            }
+
+            if (!stale)
+            {
+                break;
+            }
+        }
+
+        return plans;
+    }
+
+    private static string SkipReason(SharedIdCluster cluster) =>
+        cluster.HasRejectedPair ? SharedIdMergePlan.Rejected
+        : cluster.HasNoMergeSong ? SharedIdMergePlan.NoMerge
+        : cluster.Songs.Any(s => string.IsNullOrWhiteSpace(s.Artist)) ? SharedIdMergePlan.NoArtist
+        : cluster.Match switch
+        {
+            SharedIdMatch.Exact => null,
+            SharedIdMatch.WithoutFeaturing => SharedIdMergePlan.WithoutFeaturing,
+            SharedIdMatch.Close => SharedIdMergePlan.Close,
+            _ => SharedIdMergePlan.Different
+        };
+
+    public static SharedIdMatch Match(IReadOnlyList<Song> songs) =>
+        TitleArtistMatch(songs) ? SharedIdMatch.Exact
+        : FeaturedCleanup.MatchWithoutFeaturing(songs) ? SharedIdMatch.WithoutFeaturing
+        : CloseMatch(songs) ? SharedIdMatch.Close
+        : SharedIdMatch.Different;
+
+    /// <summary>
+    /// Every pair of songs passes Song.TitleArtistMatch (the fuzzy match that filters service
+    /// tracks), as given or with their feat. clauses removed.
+    /// </summary>
+    public static bool CloseMatch(IReadOnlyList<Song> songs)
+    {
+        if (songs.Count < 2 || songs.Any(s => s == null || s.IsNull || string.IsNullOrWhiteSpace(s.Artist)))
+        {
+            return false;
+        }
+
+        static Song WithoutFeaturing(Song s) => new()
+        {
+            Title = ArtistSplitter.RemoveTitleFeaturing(s.Title),
+            Artist = ArtistSplitter.RemoveArtistFeaturing(s.Artist)
+        };
+
+        for (var i = 0; i < songs.Count; i++)
+        {
+            for (var j = i + 1; j < songs.Count; j++)
+            {
+                var (a, b) = (songs[i], songs[j]);
+                var (sa, sb) = (WithoutFeaturing(a), WithoutFeaturing(b));
+                if (!a.TitleArtistMatch(b.Title, b.Artist) && !sa.TitleArtistMatch(sb.Title, sb.Artist))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /// <summary>

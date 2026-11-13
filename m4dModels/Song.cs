@@ -269,6 +269,9 @@ public class Song : TaggableObject
     // Algorithmic users
     public const string ArtistBotUser = "artist-bot";
 
+    // The site's own account, for corrections made on its behalf (e.g. AppendNameEdit)
+    public const string M4dUser = "music4dance";
+
     // Curator Fields
     public const string DeleteTagLabel = "DeleteTag";
 
@@ -1936,6 +1939,44 @@ public class Song : TaggableObject
         SongProperties.Add(new SongProperty(ArtistsField, desired == null ? string.Empty : ArtistSplitter.Serialize(desired)));
         Artists = desired;
         ArtistsSource = desired == null ? ArtistsSource.None : ArtistsSource.Heuristic;
+        return true;
+    }
+
+    /// <summary>
+    /// Appends an edit block by <paramref name="user"/> setting whichever of the title, artist
+    /// credit and individual artists differ from <paramref name="names"/> (blank or null names
+    /// are left alone). A single individual artist is written as an empty list, which means the
+    /// credit itself. Only the log changes: reload the song (Song.Create) to see the new values.
+    /// Returns false, adding nothing, when everything already matches.
+    /// </summary>
+    public bool AppendNameEdit(ApplicationUser user, SongNames names, DateTime? time = null)
+    {
+        var title = !string.IsNullOrWhiteSpace(names.Title) && names.Title != Title;
+        var artist = !string.IsNullOrWhiteSpace(names.Artist) && names.Artist != Artist;
+        var artists = names.Artists is { Count: > 0 } && !names.Artists.Select(ArtistSplitter.ArtistKey)
+            .SequenceEqual(EffectiveArtists.Select(ArtistSplitter.ArtistKey));
+        if (!title && !artist && !artists)
+        {
+            return false;
+        }
+
+        CreateEditProperties(user, EditCommand, time);
+        if (title)
+        {
+            SongProperties.Add(new SongProperty(TitleField, names.Title));
+        }
+
+        if (artist)
+        {
+            SongProperties.Add(new SongProperty(ArtistField, names.Artist));
+        }
+
+        if (artists)
+        {
+            SongProperties.Add(new SongProperty(ArtistsField,
+                names.Artists.Count > 1 ? ArtistSplitter.Serialize(names.Artists) : string.Empty));
+        }
+
         return true;
     }
 

@@ -1,0 +1,33 @@
+@using m4dModels
+@model List<SharedIdMergePlan>
+
+@if (Model.Count == 0)
+{
+    <p class="text-muted">None.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-sm table-striped">
+            <tr>
+                <th>Shared ids</th>
+                <th>Songs</th>
+            </tr>
+            @foreach (var plan in Model)
+            {
+                <tr>
+                    <td class="small">@string.Join(", ", plan.Cluster.ServiceIds)</td>
+                    <td>
+                        @foreach (var song in plan.Cluster.Songs)
+                        {
+                            <div>
+                                <a href="/song/details/@song.SongId" target="_blank" rel="noopener noreferrer">@song.Title</a>
+                                <span class="text-muted">by @song.Artist</span>
+                            </div>
+                        }
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+}

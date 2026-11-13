@@ -8,6 +8,18 @@
 
     static string FormatLength(int? seconds) =>
         seconds.HasValue ? $"{seconds.Value / 60}:{seconds.Value % 60:00}" : "";
+
+    static string FormatDances(Song song) =>
+        string.Join(", ", song.DanceRatings.OrderByDescending(r => r.Weight).Select(r => $"{r.DanceId}{r.Weight:+#;-#;0}"));
+
+    static string FormatArtists(IEnumerable<string> artists) => string.Join(" | ", artists ?? []);
+
+    var choices = new[]
+    {
+        (Action: SharedIdAction.Merge, Label: "Merge groups"),
+        (Action: SharedIdAction.Reject, Label: "Not the same"),
+        (Action: SharedIdAction.Leave, Label: "Leave for later")
+    };
 }
 
 <h1>@ViewBag.Title</h1>
@@ -15,9 +27,23 @@
 <p>
     Songs that hold the same Spotify, iTunes or ISRC id. When enrichment is about to give a song an
     id another song already holds, it leaves the id off and queues the pair here.
-    <strong>Merge</strong> folds the checked songs into one, keeping all of their history.
+    Choose what to do with each cluster on the page, then <strong>Apply this page</strong>.
+    <strong>Merge groups</strong> folds the songs of each group (A, B, …) into one, keeping all of
+    their history, and marks the songs of different groups not the same; a song left out stays in
+    the queue. Every song starts in group A, and the <em>If merged</em> column shows what merging
+    all of them would give.
     <strong>Not the same</strong> leaves the ids where they are and stops the pairs from being
-    queued again.
+    queued again. <strong>Leave for later</strong> changes nothing. Clusters with a rejected pair
+    or a .NoMerge song start as Leave for later; the rest start as Merge groups.
+    <strong>Merge and edit</strong> merges a cluster straight away and opens it for editing.
+</p>
+<p>
+    The <em>Title</em>, <em>Artist</em> and <em>Individual artists</em> rows choose what the merged
+    song is called. They start on the <em>If merged</em> column, which takes any feat. clause out of
+    the title and adds the featured artists to the individual artists. When a choice isn't what the
+    merge gives on its own, an edit by the music4dance account sets it after the merge. When the
+    songs are split into groups, a group takes a choice only from one of its own songs; otherwise
+    it gets the same cleanup of its own merge.
 </p>
 
 @if (!string.IsNullOrEmpty(Model.Message))
@@ -27,6 +53,18 @@
 
 <p>
     @Model.PendingCandidates.ToString("N0") pending pairs in @Model.ClusterCount.ToString("N0") clusters.
+    @if (Model.SortedBy.HasValue)
+    {
+        <text>
+            Sorted by the preview run @Model.SortedBy.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm"):
+            the @Model.WithoutFeaturingCount.ToString("N0") clusters still pending that differed only
+            by feat. come first, then the @Model.CloseCount.ToString("N0") close matches.
+        </text>
+    }
+    else
+    {
+        <text>Run <strong>Preview merge all</strong> to sort the clusters that differ only by feat. and the close matches first.</text>
+    }
 </p>
 
 <div class="mb-3">
@@ -46,26 +84,121 @@
             Merge all with matching title and artist
         </button>
     }
+    @using (Html.BeginForm("PreviewMergeMatchingSharedIds", "Admin", FormMethod.Post, new { style = "display:inline" }))
+    {
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-outline-secondary">Preview merge all</button>
+    }
+    @Html.ActionLink("Last preview", "SharedIdsPreview", null, null, new { @class = "btn btn-link" })
 </div>
 
+<form id="apply" method="post" action="@Url.Action("ApplySharedIds")">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="page" value="@Model.Page" />
+</form>
+
 @{
-    var index = 0;
+    // The service's page for a track id on this album ("S:…" or "I:…"), to check by hand which
+    // song an id belongs to. ISRCs have no page; the Spotify and iTunes ids beside one on the same
+    // album are the tracks that reported it.
+    static string TrackLink(AlbumDetails album, string id)
+    {
+        var service = MusicService.GetService(id[0]);
+        return service == null || id.Length < 3 ? null
+            : service.GetPurchaseLink(PurchaseType.Song,
+                album.GetPurchaseIdentifier(service.Id, PurchaseType.Album), id[2..])?.Link;
+    }
+
+    void IdText(AlbumDetails album, string id)
+    {
+        var link = TrackLink(album, id);
+        if (link == null)
+        {
+            <text>@id</text>
+        }
+        else
+        {
+            <a href="@link" target="_blank" rel="noopener noreferrer">@id</a>
+        }
+    }
+
+    void AlbumList(Song song, HashSet<string> shared)
+    {
+        foreach (var album in song.Albums)
+        {
+            <div>
+                @album.Name @(album.Track.HasValue ? $"#{album.Track}" : "")
+                @foreach (var id in album.GetExtendedPurchaseIds(PurchaseType.Song))
+                {
+                    if (shared.Contains(id))
+                    {
+                        <mark class="small">@{ IdText(album, id); }</mark>
+                    }
+                    else
+                    {
+                        <span class="small text-muted">@{ IdText(album, id); }</span>
+                    }
+                }
+            </div>
+        }
+    }
+
+    // One radio of a cluster's title, artist or individual artists choice: the song column it
+    // comes from, or SharedIdNamePicks.Proposed for the If merged column
+    void NameChoice(int i, string field, int column, string label, bool isChecked)
+    {
+        <div class="form-check m-0">
+            <input class="form-check-input" type="radio" id="@($"{field}-{i}-{column}")" name="items[@i].@field"
+                   value="@column" form="apply" checked="@isChecked" />
+            <label class="form-check-label" for="@($"{field}-{i}-{column}")">@label</label>
+        </div>
+    }
 }
-@foreach (var cluster in Model.Clusters)
+
+@if (Model.Clusters.Count > 0)
 {
-    index += 1;
-    var mergeForm = $"merge-{index}";
+    <div class="mb-3">
+        <button type="submit" form="apply" class="btn btn-primary">Apply this page</button>
+    </div>
+}
+
+@for (var i = 0; i < Model.Clusters.Count; i++)
+{
+    var cluster = Model.Clusters[i];
+    var merged = i < Model.Previews.Count ? Model.Previews[i] : null;
+    var proposal = i < Model.Proposals.Count ? Model.Proposals[i] : null;
+    var cleansFeaturing = merged != null && proposal != null &&
+        (proposal.Title != merged.Title || proposal.Artists.Count > 1 &&
+            !proposal.Artists.Select(ArtistSplitter.ArtistKey).SequenceEqual(merged.EffectiveArtists.Select(ArtistSplitter.ArtistKey)));
     var shared = cluster.ServiceIds.ToHashSet();
+    var defaultAction = SharedIdsModel.DefaultAction(cluster);
+    var match = cluster.Songs.Count > 0 ? cluster.Match : SharedIdMatch.Different;
     <div class="card mb-4">
         <div class="card-header">
             <strong>@string.Join(", ", cluster.ServiceIds)</strong>
-            @if (cluster.TitleArtistMatch)
+            @switch (match)
             {
-                <span class="badge bg-success ms-2">Title and artist match</span>
+                case SharedIdMatch.Exact:
+                    <span class="badge bg-success ms-2">Title and artist match</span>
+                    break;
+                case SharedIdMatch.WithoutFeaturing:
+                    <span class="badge bg-info text-dark ms-2">Differ only by feat.</span>
+                    break;
+                case SharedIdMatch.Close:
+                    <span class="badge bg-secondary ms-2">Close match</span>
+                    break;
+            }
+            @if (cleansFeaturing)
+            {
+                <span class="badge bg-primary ms-2">Cleans up feat.</span>
             }
             @if (cluster.HasRejectedPair)
             {
                 <span class="badge bg-warning text-dark ms-2">Has a rejected pair</span>
+            }
+            @if (cluster.HasNoMergeSong)
+            {
+                <span class="badge bg-warning text-dark ms-2">.NoMerge</span>
             }
         </div>
         <div class="card-body">
@@ -75,24 +208,81 @@
             }
             else
             {
+                @foreach (var candidate in cluster.Candidates)
+                {
+                    <input type="hidden" name="items[@i].CandidateIds" value="@candidate.Id" form="apply" />
+                }
                 <div class="table-responsive">
                     <table class="table table-sm table-bordered">
                         <tr>
                             <th></th>
-                            @foreach (var song in cluster.Songs)
+                            @for (var k = 0; k < cluster.Songs.Count; k++)
                             {
+                                var song = cluster.Songs[k];
                                 <th>
-                                    <input type="checkbox" name="songIds" value="@song.SongId" form="@mergeForm" checked />
-                                    <a href="/song/details/@song.SongId" target="_blank" rel="noopener noreferrer">@song.Title</a>
+                                    <input type="hidden" name="items[@i].SongIds" value="@song.SongId" form="apply" />
+                                    <select class="form-select form-select-sm d-inline-block w-auto shared-id-group"
+                                            name="items[@i].Groups" form="apply" data-cluster="@i"
+                                            aria-label="Group for song @(k + 1)">
+                                        @foreach (var group in SharedIdsModel.GroupNames.Take(cluster.Songs.Count))
+                                        {
+                                            <option value="@group" selected="@(group == SharedIdsModel.GroupNames[0])">@group</option>
+                                        }
+                                        <option value="">Leave out</option>
+                                    </select>
+                                    <a href="/song/details/@song.SongId" target="_blank" rel="noopener noreferrer">Song @(k + 1)</a>
                                 </th>
                             }
+                            <th class="table-info">
+                                If merged
+                                <div class="small fw-normal text-muted d-none" id="split-note-@i">
+                                    Split: each group gets its own cleanup instead.
+                                </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>Title</th>
+                            @for (var k = 0; k < cluster.Songs.Count; k++)
+                            {
+                                <td>@{ NameChoice(i, "Title", k, cluster.Songs[k].Title, proposal == null && k == 0); }</td>
+                            }
+                            <td class="table-info">
+                                @if (proposal != null)
+                                {
+                                    NameChoice(i, "Title", SharedIdNamePicks.Proposed, proposal.Title, true);
+                                    if (proposal.Title != merged.Title)
+                                    {
+                                        <div class="small text-muted">The merge alone gives: @merged.Title</div>
+                                    }
+                                }
+                            </td>
                         </tr>
                         <tr>
                             <th>Artist</th>
-                            @foreach (var song in cluster.Songs)
+                            @for (var k = 0; k < cluster.Songs.Count; k++)
                             {
-                                <td>@song.Artist</td>
+                                <td>@{ NameChoice(i, "Artist", k, cluster.Songs[k].Artist, proposal == null && k == 0); }</td>
                             }
+                            <td class="table-info">
+                                @if (proposal != null)
+                                {
+                                    NameChoice(i, "Artist", SharedIdNamePicks.Proposed, proposal.Artist, true);
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Individual artists</th>
+                            @for (var k = 0; k < cluster.Songs.Count; k++)
+                            {
+                                var artists = cluster.Songs[k].EffectiveArtists;
+                                <td>@{ NameChoice(i, "Artists", k, FormatArtists(artists), proposal == null && k == 0); }</td>
+                            }
+                            <td class="table-info">
+                                @if (proposal != null)
+                                {
+                                    NameChoice(i, "Artists", SharedIdNamePicks.Proposed, FormatArtists(proposal.Artists), true);
+                                }
+                            </td>
                         </tr>
                         <tr>
                             <th>Length</th>
@@ -100,6 +290,7 @@
                             {
                                 <td>@FormatLength(song.Length)</td>
                             }
+                            <td class="table-info">@FormatLength(merged?.Length)</td>
                         </tr>
                         <tr>
                             <th>Tempo</th>
@@ -107,38 +298,30 @@
                             {
                                 <td>@song.Tempo</td>
                             }
+                            <td class="table-info">@merged?.Tempo</td>
                         </tr>
                         <tr>
                             <th>Dances</th>
                             @foreach (var song in cluster.Songs)
                             {
-                                <td>@string.Join(", ", song.DanceRatings.OrderByDescending(r => r.Weight).Select(r => $"{r.DanceId}{r.Weight:+#;-#;0}"))</td>
+                                <td>@FormatDances(song)</td>
                             }
+                            <td class="table-info">@(merged == null ? "" : FormatDances(merged))</td>
                         </tr>
                         <tr>
                             <th>Albums</th>
                             @foreach (var song in cluster.Songs)
                             {
                                 <td>
-                                    @foreach (var album in song.Albums)
-                                    {
-                                        <div>
-                                            @album.Name @(album.Track.HasValue ? $"#{album.Track}" : "")
-                                            @foreach (var id in album.GetExtendedPurchaseIds(PurchaseType.Song))
-                                            {
-                                                if (shared.Contains(id))
-                                                {
-                                                    <mark class="small">@id</mark>
-                                                }
-                                                else
-                                                {
-                                                    <span class="small text-muted">@id</span>
-                                                }
-                                            }
-                                        </div>
-                                    }
+                                    @{ AlbumList(song, shared); }
                                 </td>
                             }
+                            <td class="table-info">
+                                @if (merged != null)
+                                {
+                                    AlbumList(merged, shared);
+                                }
+                            </td>
                         </tr>
                         <tr>
                             <th>Created</th>
@@ -146,9 +329,14 @@
                             {
                                 <td>@song.Created.ToString("yyyy-MM-dd")</td>
                             }
+                            <td class="table-info">@merged?.Created.ToString("yyyy-MM-dd")</td>
                         </tr>
                     </table>
                 </div>
+                @if (merged == null)
+                {
+                    <p class="small text-muted">The merge couldn't be previewed.</p>
+                }
 
                 <ul class="small">
                     @foreach (var candidate in cluster.Candidates)
@@ -163,31 +351,35 @@
                     }
                 </ul>
 
-                <form id="@mergeForm" method="post" action="@Url.Action("MergeSharedIds")" style="display:inline">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="page" value="@Model.Page" />
-                    <button type="submit" class="btn btn-sm btn-primary">Merge checked</button>
-                </form>
-                <form method="post" action="@Url.Action("RejectSharedIds")" style="display:inline">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="page" value="@Model.Page" />
-                    @foreach (var candidate in cluster.Candidates)
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    @foreach (var choice in choices)
                     {
-                        <input type="hidden" name="candidateIds" value="@candidate.Id" />
+                        var id = $"choice-{i}-{choice.Action}";
+                        <div class="form-check form-check-inline m-0">
+                            <input class="form-check-input" type="radio" id="@id" name="items[@i].Action"
+                                   value="@choice.Action" form="apply" checked="@(choice.Action == defaultAction)" />
+                            <label class="form-check-label" for="@id">@choice.Label</label>
+                        </div>
                     }
-                    <button type="submit" class="btn btn-sm btn-outline-secondary">Not the same</button>
-                </form>
-                <form method="post" action="@Url.Action("BulkEdit", "Song")" target="_blank" style="display:inline">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="action" value="Merge" />
-                    @foreach (var song in cluster.Songs)
-                    {
-                        <input type="hidden" name="selectedSongs" value="@song.SongId" />
-                    }
-                    <button type="submit" class="btn btn-sm btn-outline-secondary">Merge and edit</button>
-                </form>
+                    <form method="post" action="@Url.Action("BulkEdit", "Song")" target="_blank" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="action" value="Merge" />
+                        @foreach (var song in cluster.Songs)
+                        {
+                            <input type="hidden" name="selectedSongs" value="@song.SongId" />
+                        }
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">Merge and edit</button>
+                    </form>
+                </div>
             }
         </div>
+    </div>
+}
+
+@if (Model.Clusters.Count > 0)
+{
+    <div class="mb-3">
+        <button type="submit" form="apply" class="btn btn-primary">Apply this page</button>
     </div>
 }
 
@@ -213,3 +405,15 @@
         </ul>
     </nav>
 }
+
+<script>
+    // The If merged column shows a merge of every song; say so when they're split into groups
+    document.querySelectorAll(".shared-id-group").forEach((select) => {
+        select.addEventListener("change", () => {
+            const cluster = select.dataset.cluster;
+            const selects = document.querySelectorAll(`.shared-id-group[data-cluster="${cluster}"]`);
+            const groups = new Set([...selects].map((s) => s.value));
+            document.getElementById(`split-note-${cluster}`)?.classList.toggle("d-none", groups.size < 2);
+        });
+    });
+</script>
