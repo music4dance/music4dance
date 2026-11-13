@@ -773,6 +773,10 @@ public static class M4dApplicationExtensions
         // M4D_DATA_ROOT is unset (see AppDataPaths); never serve it as static content.
         app.UseMiddleware<m4d.Middleware.BlockAppDataMiddleware>();
 
+        // Long-lived Cache-Control for static files (hashed Vite bundles immutable, the rest a
+        // day). Without it they go out no-cache and Cloudflare revalidates every one.
+        app.UseMiddleware<m4d.Middleware.StaticAssetCacheMiddleware>();
+
         // MapStaticAssets() requires a manifest file that doesn't get properly included
         // in single-file (PublishSingleFile=true) self-contained deployments.
         // Use UseStaticFiles() instead for self-contained mode.

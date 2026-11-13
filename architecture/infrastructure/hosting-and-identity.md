@@ -269,7 +269,14 @@ The only automatic remedy is a forced worker replacement after an hour of contin
   because of BREACH (a secret plus reflected input, compressed over TLS). Precompressed static
   assets already carry `Content-Encoding` and pass through untouched. Anonymous HTML shrinks by
   about 80–90%; `/dances/waltz` goes from 56 KB to 11 KB.
-- **Cache-control middleware** runs after authentication and rate limiting:
+- **Static file caching.** `StaticAssetCacheMiddleware`, ahead of the static-file middleware,
+  overrides the `no-cache` that `MapStaticAssets` sends for files it didn't fingerprint itself.
+  Vite's content-hashed bundles under `/vclient/assets` get `public, max-age=31536000, immutable`;
+  `/images`, `/css`, `/vendor` and `/favicon.ico` get `public, max-age=86400`. Only 200 and 304
+  responses change, so a missing bundle isn't pinned at the edge. Before this (2026-11-12), every
+  bundle load behind Cloudflare was an origin revalidation: 1.3M 304s over five days, about half
+  the server time.
+- **Cache-control middleware** (HTML) runs after authentication and rate limiting:
   - Anonymous `GET 200` HTML responses that don't set cookies get `Cache-Control: no-cache`:
     browsers may keep them but revalidate every time, and `UseResponseCaching` won't store
     them, because it isn't `public`. Until 2026-10-29 this branch never ran. Every page minted
