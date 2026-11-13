@@ -35,7 +35,10 @@ piece is about and whether it's a blog post or a help page.)
 3. **Check with David before drafting only if something is truly ambiguous.** Examples: which of two
    angles to take, or whether a half-finished feature should be mentioned. Ask everything in one short
    batch. Otherwise make a sensible choice and record it under "Open questions" in notes.md.
-4. **Plan the images.** Decide what screenshots would help (usually 1–3 for a post, one per major UI
+4. **Choose the AI disclosure label.** Every post and help page carries a small AI-disclosure notice at the
+   bottom (see "AI disclosure" below). Decide which one applies and record it in notes.md. Do not put the
+   notice in post.md; Cowork appends it.
+5. **Plan the images.** Decide what screenshots would help (usually 1–3 for a post, one per major UI
    area for a help page; annotated for help pages, clean for posts). Then capture them (see Screenshots).
 
 ## Phase 2: write, then package
@@ -88,6 +91,21 @@ Cowork converts this with a small script, so stick to this subset:
 Do not use nested lists, blockquotes, raw HTML, code blocks, footnotes, or relative links.
 If a piece needs one of these, say so in notes.md under "Needs manual formatting".
 
+## AI disclosure
+
+Every post and help page gets a notice at the bottom, in addition to (for posts) an AI tag. Cowork adds it
+from a synced pattern; you only choose the label and record it.
+
+- **drafted** (default): AI wrote the first draft of post.md from David's description or notes, and David
+  edits it. This is almost always the right label for this skill's output.
+- **assisted**: David wrote the text himself and AID only helped with research, outlining, checking
+  or light editing. Use it only when David says so, or when he supplied the text.
+- If David substantially rewrites a "drafted" piece before publishing, he may switch it to "assisted" in
+  WordPress. Do not make that call for him.
+
+Never describe a piece as fully automated or "AI-generated": David reviews and edits everything before it
+is published.
+
 ## House conventions
 
 - Blog posts usually end with a `## Step of the Month` section. The phrase "Step of the Month" in its
@@ -96,6 +114,8 @@ If a piece needs one of these, say so in notes.md under "Needs manual formatting
 - Link music4dance features to the live site (`https://www.music4dance.net/...`) and related help
   pages to `https://music4dance.blog/music4dance-help/<page>/`.
 - Feedback link: `https://music4dance.blog/feedback/`.
+- AI disclosure: a notice sits at the very end of the content, above any related-posts block. It is added by
+  Cowork (not written in post.md), and pages also get a "Last reviewed" line just above it.
 - Write in David's voice: conversational, candid about limitations, and incremental in framing
   ("this is the incremental version").
 - Person depends on the type of piece. Blog posts use first person singular ("I added…", "in my
@@ -108,35 +128,44 @@ If a piece needs one of these, say so in notes.md under "Needs manual formatting
 # Handoff notes: <title>
 
 ## Metadata
+
 - **Type:** post | page
 - **Title:** ...
 - **Slug:** ... (optional for posts)
-- **Category:** About music4dance   (posts only; name it exactly as on the site)
-- **Tags:** Tag One, Tag Two, ...   (posts only; reuse existing tag names where possible)
+- **Category:** About music4dance (posts only; name it exactly as on the site)
+- **Tags:** Tag One, Tag Two, ..., AI-drafted | AI-assisted (posts only; reuse existing tag names where possible; the last tag always matches the AI disclosure line below)
 - **Parent page:** music4dance-help (pages only; give the parent's slug)
 - **Menu order:** ... (pages only, optional)
 - **Excerpt:** ... (optional)
 - **Featured image:** <file>.png or none
 - **Related posts block:** none | list of post URLs to feature at the end
+- **AI disclosure:** drafted | assisted (default: drafted; see "AI disclosure")
+- **Last reviewed:** <Month D, YYYY> (pages only; today's date unless David says otherwise)
 
 ## Images
-| File | Placement | Caption | Alt text |
-| ---- | --------- | ------- | -------- |
-| artist-index.png | Under "Browsing" | ... | ... |
+
+| File             | Placement        | Caption | Alt text |
+| ---------------- | ---------------- | ------- | -------- |
+| artist-index.png | Under "Browsing" | ...     | ...      |
 
 ## Links
+
 | Anchor text | URL |
 | ----------- | --- |
+
 (All checked; state the date and that each returned 200.)
 
 ## Numbers to re-check before publishing
+
 | Claim | Value | Source |
 | ----- | ----- | ------ |
 
 ## Needs manual formatting
+
 (anything Cowork can't do with the Markdown subset, or "none")
 
 ## Open questions for David
+
 (or "none")
 ```
 
@@ -157,8 +186,10 @@ visible, for someone who can't see it. The caption says why the image is there.
 2. Every link in post.md is in the link table and was checked live (HTTP 200).
 3. Numbers pulled from production have a source and a timestamp.
 4. Nothing in post.md is outside the allowed Markdown subset.
-5. Report: the folder path, word count, a two-sentence summary of the angle you took, and any open
-   questions.
+5. notes.md has the AI disclosure line (and "Last reviewed" for pages), and for posts the matching
+   AI tag is in Tags.
+6. Report: the folder path, word count, a two-sentence summary of the angle you took, which AI disclosure
+   label you chose, and any open questions.
 
 ## Example invocations
 
