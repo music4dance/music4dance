@@ -8,10 +8,11 @@ interface Link {
 export class DanceText {
   constructor(private description: string) {}
 
-  public expanded(): string {
+  public expanded(danceName?: string): string {
     let description = this.description;
     if (!description) {
-      return "<p>We're busy doing research and pulling together a general description for @Model.DanceName dance.  Please check back later for more info.</p>";
+      const subject = danceName ? `the ${danceName}` : "this dance";
+      return `We're busy doing research and pulling together a general description for ${subject}. Please check back later for more info.`;
     }
     description = description.replace("&lt;", "<");
     description = description.replace("&gt;", ">");

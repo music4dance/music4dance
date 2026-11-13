@@ -151,7 +151,6 @@ into `runbooks/` as its area is consolidated.
 
 | Plan | Status | Where |
 | --- | --- | --- |
-| Replace showdown (unmaintained, 3 unfixable Dependabot alerts) with `marked` + `DOMPurify` for dance descriptions; remove unused MarkdownDeep | Proposed | [plans/markdown-renderer-replacement](plans/markdown-renderer-replacement.md) |
 | Public API & third-party authorization (DanzQ) | Foundation (PR 1) merged behind a disabled flag; PR 2 on hold after Apple denied the business plan, alternatives being explored | [plans/public-api-authorization](plans/public-api-authorization.md) |
 | Partner API on a standalone host (Azure Functions over the search index, independent of the web app) | In progress: PRs 1–4 done (test environment serving resolve behind partner API keys and limits; key issuing pages in the web app); unmatched queue and production next | [plans/partner-api-standalone-host](plans/partner-api-standalone-host.md) |
 | Apple Music API migration: replace the iTunes Search/Lookup API (ISRC backfill, reverse ISRC enrichment, search), plus link switch, customer export and curated playlists | Proposed; Apple Developer membership confirmed, so stage 0 (token + ISRC backfill) is unblocked | [plans/apple-music-api-migration](plans/apple-music-api-migration.md) |

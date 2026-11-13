@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-29
+**Last verified:** 2026-11-13
 **Code:** `m4d/ClientApp/vite.config.ts`, `m4d/ClientApp/src/pages/`, `m4d/Controllers/DMController.cs` (`Vue3()`),
 `m4d/Views/Shared/Vue3.cshtml`, `m4d/Views/Shared/_vue-Layout.cshtml`, `m4d/Views/Shared/_head.cshtml`,
 `m4d/ClientApp/src/components/PageFrame.vue`, `m4d/ClientApp/src/helpers/GetMenuContext.ts`
@@ -189,8 +189,9 @@ per-page wiring:
 - Those `main.ts` files **don't exist on disk**. The plugin's `resolveId` / `load` hooks generate
   each one from a template: import `@/scss/styles.scss` and the bootstrap-vue-next CSS, wrap the
   page's `App.vue` in bootstrap-vue-next's `BApp`, `createApp(...)`, and `app.mount('#app')`.
-- Per-page Vue plugins are configured in the plugin's argument. Today only `dance-details` has
-  one (`VueShowdownPlugin` from `vue-showdown`, flavor `vanilla`).
+- Per-page Vue plugins can be configured in the plugin's argument, a map from page name to
+  `{ name, library, config }` entries that the template turns into `import` + `app.use(...)`
+  lines. No page uses one today, so the map is empty.
 
 So a folder under `src/pages/` with an `App.vue` is a page entry, with no other registration.
 There are 34 today, one of which (`header`) is the menu-only app used by `_bs5-Layout.cshtml`.
@@ -203,7 +204,7 @@ Other build settings that matter:
 | `build.outDir` | `../wwwroot/vclient` | Output goes straight into the ASP.NET web root. |
 | `build.manifest` | `true` | `IViteManifest` needs it to map entries to hashed files. |
 | `build.cssCodeSplit` | `false` | All CSS goes into one stylesheet that both layouts link. |
-| `manualChunks` | `bsvn`, `showdown`, `vue` | Splits the big `node_modules` dependencies into shared chunks the browser can cache across pages. |
+| `manualChunks` | `bsvn`, `vue` | Splits the big `node_modules` dependencies into shared chunks the browser can cache across pages. |
 | `resolve.alias` | `@` → `./src` | Used by every import in the client. |
 
 `unplugin-vue-components` (`Components(...)`) auto-registers every `.vue` file under any
@@ -300,8 +301,11 @@ also fills `window.danceDatabaseJson` and `window.tagDatabaseJson` from the chec
 
 ## Future improvements
 
-- Replace `vue-showdown`/showdown (unmaintained, with open advisories) with `marked` + `DOMPurify`.
-  See [plans/markdown-renderer-replacement](../plans/markdown-renderer-replacement.md).
+- The legacy MarkdownDeep pieces look unused (no `.cs`, `.cshtml`, `.ts`, `.js` or `.vue`
+  reference as of 2026-11-12): the `markdowndeep` npm dependency in `m4d/ClientApp/package.json`,
+  the `MarkdownDeepVendor` copy to `wwwroot/vendor/markdowndeep` in `m4d/m4d.csproj`, and
+  `MarkdownDeep.NET.Core` in `Directory.Packages.props` and `m4d/m4d.csproj`. Confirm with a
+  production log check (no requests for `/vendor/markdowndeep/`) and remove all three.
 - `PageFrame.vue` has `// INT-TODO: Rethink dance/tag environmnet loading`, and its `loaded`
   computed always returns `true`, so `PageLoader` never shows a loading state.
 - `UseVue` still has a `V2` value, left over from removing Vue 2 (#8). Nothing sets it.
@@ -334,6 +338,11 @@ also fills `window.danceDatabaseJson` and `window.tagDatabaseJson` from the chec
 - 2026-10-29: `_head.cshtml` loads the cookie-consent script with `defer` and the Google Fonts
   stylesheet with `display=swap` plus preconnects, so neither holds up first paint (A5 of the
   same plan).
+- 2026-11-13: dance descriptions render with `marked` + `DOMPurify` (`MarkdownView.vue`) instead
+  of `vue-showdown`/showdown, which was unmaintained with three unfixable Dependabot alerts
+  (79, 125, 126). A diff of all 58 fallback dance and group descriptions showed no rendering
+  change beyond `&` being written as `&amp;` in one href. The empty-description placeholder no
+  longer shows the literal `@Model.DanceName`.
 
 ## Related
 

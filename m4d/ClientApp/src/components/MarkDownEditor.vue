@@ -2,8 +2,9 @@
 import { DanceText } from "@/models/DanceText";
 import { computed, ref } from "vue";
 
-defineProps<{
+const props = defineProps<{
   editing: boolean;
+  danceName?: string;
 }>();
 const model = defineModel<string>({ required: true });
 
@@ -19,12 +20,12 @@ defineExpose({
   isModified,
 });
 
-const descriptionExpanded = computed(() => new DanceText(model.value).expanded());
+const descriptionExpanded = computed(() => new DanceText(model.value).expanded(props.danceName));
 </script>
 
 <template>
   <div>
     <BFormTextarea v-if="editing" v-model="model" rows="5" max-rows="10" debounce="100" />
-    <VueShowdown id="description" :markdown="descriptionExpanded" />
+    <MarkdownView id="description" :markdown="descriptionExpanded" />
   </div>
 </template>
