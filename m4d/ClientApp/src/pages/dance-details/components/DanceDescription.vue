@@ -16,24 +16,31 @@ const props = defineProps<{
 const model = defineModel<string>({ required: true });
 const markdownEditor = ref<InstanceType<typeof MarkDownEditor> | null>(null);
 
-const dance = danceDB.fromId(props.danceId)!;
-const isGroup = DanceGroup.isGroup(dance);
-const danceType = isGroup ? undefined : (dance as DanceType);
-const danceName = dance.name;
-const tempoRange = danceType?.tempoRange;
-const rangeText = tempoRange && tempoRange.min === tempoRange.max ? "at" : "between";
-const tempoFilter = (() => {
+const dance = computed(() => danceDB.fromId(props.danceId)!);
+const isGroup = computed(() => DanceGroup.isGroup(dance.value));
+const danceType = computed(() => (isGroup.value ? undefined : (dance.value as DanceType)));
+const danceName = computed(() => dance.value.name);
+const tempoRange = computed(() => danceType.value?.tempoRange);
+const rangeText = computed(() =>
+  tempoRange.value && tempoRange.value.min === tempoRange.value.max ? "at" : "between",
+);
+const tempoFilter = computed(() => {
   const filter = new SongFilter();
   filter.action = "advanced";
-  filter.tempoMin = tempoRange?.min;
-  filter.tempoMax = tempoRange?.max;
+  filter.tempoMin = tempoRange.value?.min;
+  filter.tempoMax = tempoRange.value?.max;
   filter.dances = props.danceId;
   return filter;
-})();
-const meter = danceType?.meter;
-const numerator = meter?.numerator;
-const bpmText = `${tempoRange ? tempoRange.toString(" and ") : ""} beats per minute`;
-const mpmText = `${tempoRange ? tempoRange.mpm(danceType.meter.numerator, " and ") : ""} measures per minute`;
+});
+const meter = computed(() => danceType.value?.meter);
+const numerator = computed(() => meter.value?.numerator);
+const bpmText = computed(
+  () => `${tempoRange.value ? tempoRange.value.toString(" and ") : ""} beats per minute`,
+);
+const mpmText = computed(
+  () =>
+    `${tempoRange.value && danceType.value ? tempoRange.value.mpm(danceType.value.meter.numerator, " and ") : ""} measures per minute`,
+);
 
 const commit = (): void => {
   markdownEditor.value?.commit();

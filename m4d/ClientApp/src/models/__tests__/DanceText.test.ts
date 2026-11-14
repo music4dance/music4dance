@@ -36,6 +36,18 @@ describe("DanceText", () => {
     );
   });
 
+  it("links a dance reference at the end of the description", () => {
+    expect(new DanceText("Related to the [Slow Waltz]").expanded()).toBe(
+      "Related to the [Slow Waltz](/dances/slow-waltz)",
+    );
+  });
+
+  it("links adjacent dance references", () => {
+    expect(new DanceText("[Slow Waltz][American Smooth]").expanded()).toBe(
+      "[Slow Waltz](/dances/slow-waltz)[American Smooth](/dances/american-smooth)",
+    );
+  });
+
   it("leaves an existing link alone", () => {
     const description = "See [Slow Waltz](/somewhere).";
     expect(new DanceText(description).expanded()).toBe(description);

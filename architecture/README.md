@@ -151,6 +151,7 @@ into `runbooks/` as its area is consolidated.
 
 | Plan | Status | Where |
 | --- | --- | --- |
+| Remove the unused MarkdownDeep pieces (`markdowndeep` npm package, `MarkdownDeepVendor` copy in `m4d.csproj`, `MarkdownDeep.NET.Core`), left over after showdown was replaced with `marked` + `DOMPurify` | Not started; confirm in production logs that nothing requests `/vendor/markdowndeep/` first | [pages/frontend-architecture § Future improvements](pages/frontend-architecture.md#future-improvements) |
 | Public API & third-party authorization (DanzQ) | Foundation (PR 1) merged behind a disabled flag; PR 2 on hold after Apple denied the business plan, alternatives being explored | [plans/public-api-authorization](plans/public-api-authorization.md) |
 | Partner API on a standalone host (Azure Functions over the search index, independent of the web app) | In progress: PRs 1–4 done (test environment serving resolve behind partner API keys and limits; key issuing pages in the web app); unmatched queue and production next | [plans/partner-api-standalone-host](plans/partner-api-standalone-host.md) |
 | Apple Music API migration: replace the iTunes Search/Lookup API (ISRC backfill, reverse ISRC enrichment, search), plus link switch, customer export and curated playlists | Proposed; Apple Developer membership confirmed, so stage 0 (token + ISRC backfill) is unblocked | [plans/apple-music-api-migration](plans/apple-music-api-migration.md) |

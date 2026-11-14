@@ -17,13 +17,10 @@ export class DanceText {
     description = description.replace("&lt;", "<");
     description = description.replace("&gt;", ">");
 
-    const result = description.replaceAll(
-      /\[(?<dance>[^\]]*)\](?<trailing>[^(])/g,
-      (match, dance, trailing) => {
-        const link = DanceText.FindLink(dance);
-        return link ? `[${dance}](${link})${trailing}` : match;
-      },
-    );
+    const result = description.replaceAll(/\[(?<dance>[^\]]*)\](?!\()/g, (match, dance) => {
+      const link = DanceText.FindLink(dance);
+      return link ? `[${dance}](${link})` : match;
+    });
     return result;
   }
 
