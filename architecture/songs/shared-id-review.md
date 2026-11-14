@@ -52,6 +52,12 @@ first song holding its ISRC. When two songs share an ISRC, that pair is already 
 Only a pending row picks up new ids. A rejected pair stays rejected, so enrichment keeps leaving
 the id where it is and doesn't queue the pair again.
 
+**Unmerge.** Splitting a merged song apart ([song-merge-algorithm](song-merge-algorithm.md)
+§ Unmerging) can leave the songs sharing the id they were merged for. `SharedIdLog.RejectSharedIds`
+records each such pair as `Rejected` by the admin (source `unmerge`), adding a row if there
+isn't one, so the queue doesn't merge them back. The unmerge result page lists the ids, so the
+admin can remove the one that belongs to the other song.
+
 **Seeding.** `SharedIdLog.Seed` streams every song's `ServiceIds` (`SongIndex.StreamSongServiceIdsAsync`),
 and adds a row for each pair of songs that share one. Running it again adds only new pairs. It
 covers the same ground as `scripts/song_snapshot.py duplicate-ids --qualifiers SS,IS,RS`.
@@ -152,6 +158,7 @@ title-based tools or **Merge and edit** resolve themselves.
 - 2026-11: Match tiers (differ only by feat., close match), sorted first after a preview; per-song title and artist choices; the feat. cleanup proposal, applied by a music4dance edit.
 - 2026-11: Merge groups, which split a cluster in one Apply. The music4dance edit is no longer by a pseudo user, whose title and artist were ignored. The sort keeps a cluster's place after part of it is merged.
 - 2026-11: Removing albums and ids from a cluster's songs on the review page; pairs that no longer share an id are marked not the same.
+- 2026-11-14: An unmerge marks the split songs that still share an id as not the same (`RejectSharedIds`).
 
 ## Related
 

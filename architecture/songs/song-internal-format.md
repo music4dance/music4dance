@@ -349,13 +349,20 @@ with an empty value.
 
 | Name            | Value                     | Meaning                                                                       |
 | --------------- | ------------------------- | ----------------------------------------------------------------------------- |
-| `.Create`       | empty                     | First creation of the song                                                    |
-| `.Edit`         | empty                     | A subsequent edit                                                             |
+| `.Create`       | empty, or a source GUID   | First creation of the song (a merge stamps it with the source song's GUID)    |
+| `.Edit`         | empty, or a source GUID   | A subsequent edit (a merge stamps it with the source song's GUID)             |
 | `.Delete`       | `true` or empty           | Marks the song as deleted; causes title and all scalars to be cleared on load |
 | `.Undo`         | empty                     | Undo the most recent edit                                                     |
 | `.Merge`        | semicolon-delimited GUIDs | Records that this song was merged from the listed source song IDs             |
 | `.NoMerge`      | —                         | Prevents this song from being merged with others                              |
+| `.Unmerge`      | semicolon-delimited GUIDs | Records that the listed sources were split back out of this merged song       |
 | `.FailedLookup` | service char code(s)      | Records that a music-service lookup failed for the given service(s)           |
+
+A merge can't stamp blocks whose value means something else (`.Merge`, `.NoMerge`,
+`.FailedLookup`), so it adds `MergeSource={GUID}` after their `User`/`Time` instead. Loading
+ignores it; unmerge uses it to give the block back to its source. `Song.GetAltids()` applies
+`.Merge` and `.Unmerge` in log order. See [song-merge-algorithm](song-merge-algorithm.md)
+§ Unmerging.
 
 Pseudo-commands used only during serialization (never persisted in the primary log):
 
@@ -611,6 +618,9 @@ They map to the same string values:
 | `editCommand`             | `EditCommand`              | `".Edit"`          |
 | `deleteCommand`           | `DeleteCommand`            | `".Delete"`        |
 | `mergeCommand`            | `MergeCommand`             | `".Merge"`         |
+| `noMergeCommand`          | `NoMergeCommand`           | `".NoMerge"`       |
+| `unmergeCommand`          | `UnmergeCommand`           | `".Unmerge"`       |
+| —                         | `MergeSourceField`         | `"MergeSource"`    |
 | `addCommentField`         | `AddCommentField`          | `"Comment+"`       |
 | `removeCommentField`      | `RemoveCommentField`       | `"Comment-"`       |
 | —                         | `AddChoreographerField`    | `"Choreographer+"` |

@@ -266,6 +266,10 @@ public class Song : TaggableObject
     // Proxy Fields
     public const string UserProxy = "UserProxy";
 
+    // Merge bookkeeping: the source song a merged block came from, on blocks whose action value
+    // can't carry the stamp (.Merge, .NoMerge, .FailedLookup, ...). Changes no field on load.
+    public const string MergeSourceField = "MergeSource";
+
     // Algorithmic users
     public const string ArtistBotUser = "artist-bot";
 
@@ -300,6 +304,7 @@ public class Song : TaggableObject
     public const string UndoCommand = ".Undo";
     public const string MergeCommand = ".Merge";
     public const string NoMergeCommand = ".NoMerge";
+    public const string UnmergeCommand = ".Unmerge";
     public const string FailedLookup = ".FailedLookup";
     public const string NoSongId = ".NoSongId"; // Pseudo action for serialization
 
@@ -1806,6 +1811,8 @@ public class Song : TaggableObject
                     }
 
                     break;
+                case MergeSourceField:
+                    break;
                 default:
                     // All of the simple properties we can just set except
                     //  for the ones that are bots overriding user values
@@ -2151,14 +2158,64 @@ public class Song : TaggableObject
     public bool HasSample => Sample is not null and not ".";
     public bool HasEchoNest => Danceability != null && !float.IsNaN(Danceability.Value);
 
+    /// <summary>
+    /// The ids of the songs merged into this one and not split back out: each .Merge adds its
+    /// ids and each later .Unmerge removes its ids, in log order (a song unmerged and later
+    /// merged back is an alternate id again).
+    /// </summary>
     public IEnumerable<string> GetAltids()
     {
-        var merges = FilteredProperties(MergeCommand).ToList();
-        return merges.Any()
-            ? merges.SelectMany(
-                m =>
-                    m.Value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-            : [];
+        var ids = new List<string>();
+        foreach (var prop in SongProperties.Where(p => p.BaseName is MergeCommand or UnmergeCommand))
+        {
+            var values = SplitIds(prop.Value);
+            if (prop.BaseName == MergeCommand)
+            {
+                ids.AddRange(values.Where(v => !ids.Contains(v)));
+            }
+            else
+            {
+                _ = ids.RemoveAll(values.Contains);
+            }
+        }
+
+        return ids;
+    }
+
+    private static string[] SplitIds(string value) =>
+        (value ?? string.Empty).Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+    /// <summary>
+    /// The sources of this song's most recent .Merge that can still be split back out: the ids it
+    /// lists, less any a later .Unmerge removed, each owning at least one stamped .Create or .Edit
+    /// block. Empty unless at least two qualify (a merge from before the blocks were stamped has
+    /// none), since one source always has to stay.
+    /// </summary>
+    public IReadOnlyList<Guid> GetUnmergeableSources()
+    {
+        var mergeIndex = SongProperties.FindLastIndex(p => p.BaseName == MergeCommand);
+        if (mergeIndex < 0)
+        {
+            return [];
+        }
+
+        var unmerged = SongProperties.Skip(mergeIndex + 1)
+            .Where(p => p.BaseName == UnmergeCommand)
+            .SelectMany(p => SplitIds(p.Value))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var stamped = SongProperties.Take(mergeIndex)
+            .Where(p => p.IsEdit)
+            .Select(p => p.Value)
+            .Where(v => !string.IsNullOrEmpty(v))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var sources = SplitIds(SongProperties[mergeIndex].Value)
+            .Where(id => !unmerged.Contains(id) && stamped.Contains(id))
+            .Select(id => Guid.TryParse(id, out var guid) ? guid : Guid.Empty)
+            .Where(g => g != Guid.Empty)
+            .Distinct()
+            .ToList();
+        return sources.Count >= 2 ? sources : [];
     }
 
     public bool BatchProcessed { get; set; }

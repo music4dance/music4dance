@@ -475,6 +475,33 @@ public class MergeTests
         Assert.AreEqual("D", merged.Albums[0].Name);
     }
 
+    [TestMethod]
+    public async Task SimpleMerge_BlockWithoutTime_StaysAfterItsSongsPreviousBlock()
+    {
+        // .FailedLookup is written inside an edit, after its User/Time, so it parses as a block
+        // with no time of its own. Sorted as the earliest block it would start the merged log,
+        // which SongPropertyCompression would then take for Base64.
+        var (dms, user) = await AlbumService("TestDb_SimpleMerge_NoTimeBlock");
+        var song1 = await SaveSong(dms,
+            ".Create=\tUser=dwgray\tTime=01/01/2020 10:00:00 AM\tTitle=Song\tArtist=Artist" +
+            "\t.Edit=\tUser=dwgray\tTime=01/03/2020 10:00:00 AM\t.FailedLookup=S");
+        var song2 = await SaveSong(dms, ".Create=\tUser=dwgray\tTime=01/02/2020 10:00:00 AM\tTitle=Song\tArtist=Artist");
+
+        var merged = await dms.SongIndex.SimpleMergeSongs(user, [song1, song2]);
+
+        var actions = merged.SongProperties.Where(p => p.IsAction).Select(p => (p.Name, p.Value)).ToList();
+        CollectionAssert.AreEqual(
+            new[]
+            {
+                (Song.CreateCommand, song1.SongId.ToString()),
+                (Song.CreateCommand, song2.SongId.ToString()),
+                (Song.EditCommand, song1.SongId.ToString()),
+                (Song.FailedLookup, "S"),
+                (Song.MergeCommand, $"{song1.SongId};{song2.SongId}")
+            },
+            actions);
+    }
+
     // NOTE: .NoMerge filtering is implemented in SongController.AutoMerge after full song reload.
     // Songs with .NoMerge in their history are excluded from AutoMerge execution.
     // To test manually: Add ".NoMerge=  User=admin  Time=MM/dd/yyyy hh:mm:ss tt" to a song's history,
