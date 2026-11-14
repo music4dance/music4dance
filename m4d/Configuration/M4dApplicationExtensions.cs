@@ -559,6 +559,9 @@ public static class M4dApplicationExtensions
                 : null,
             GlobalState.StartTime));
 
+        // The shared-id review's last merge-all preview, which orders the review page
+        services.AddSingleton<m4d.Services.SharedIdPreviewStore>();
+
         services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
         services.AddHostedService<BackgroundQueueHostedService>();
 

@@ -1,7 +1,7 @@
 # Shared-Id Review: Client App, Own Controller, and Tests
 
 **Type:** Plan
-**Status:** Proposed
+**Status:** Partially implemented: PR 1 (server refactor and tests) done on branch `shared-id-review-refactor`; PRs 2–4 not started
 **Last verified:** 2026-11-14
 **Code:** `m4d/Controllers/AdminController.cs` (`SharedIds` actions), `m4d/Views/Admin/SharedIds.cshtml`,
 `m4d/ViewModels/SharedIdsModel.cs`, `m4d/ViewModels/SharedIdsPreviewModel.cs`, `m4dModels/SharedIdLog.cs`,
@@ -23,6 +23,37 @@ here changes what the review does. It changes where the code lives and what can 
 
 Suggested order: server refactor and tests first with no visible change (PR 1), then the Vue app
 (PR 2), then the optional group-aware preview (PR 3) and the end-to-end test (PR 4).
+
+## PR 1 as built
+
+What shipped is in the [reference doc](../songs/shared-id-review.md). Where it differs from §2–§4
+below:
+
+- **Only the MVC controller so far.** `SharedIdsController` carries the page, the form-post
+  **Apply**, the preview and the three background tasks. The API controller arrives with the JSON
+  apply in PR 2.
+- **The stale-retry loops stay separate.** `LoadPage` re-reads the page until it loads cleanly and
+  throws away the stale attempt; `PlanMergeMatching` keeps the clusters it already planned and
+  only plans the new ones. A shared helper would have to do both, so it wasn't worth it.
+- **`SharedIdRemoval.Parse` and `Format` stay** while the Razor form posts `"song|album|id"`
+  (now with the song's id). They go with the form in PR 2.
+- **`SharedIdBatchResult.Unshared` became `UnsharedPairs`**, and its comments say which counts are
+  clusters and which are pairs. `SharedIdMergePlan.Match` is an init property, set from the
+  cluster when the plan is made.
+- **Tests added:** `SharedIdMatcherTests`, `SharedIdTypesTests` (clustering, groups, the removal
+  value, the summary), `SongReviewEditTests` (`AppendIdRemoval`, `AppendNameEdit`), more
+  `FeaturedCleanupTests`, and in `SharedIdLogTests` the `Repoint` paths (deleted song, folded rows,
+  rejection winning), a split with a stale group, removals with Not the same and across three
+  songs, the remaining skip reasons and `LoadPage`. On the web side:
+  `SharedIdsControllerAuthorizationTests`, `SharedIdPreviewStoreTests` and
+  `SharedIdChoiceFormTests`. Still untested: a preview that throws while a page loads, since
+  nothing in the test index can make `BuildSimpleMerge` fail on demand.
+- **Checked in `m4d.Sandbox`:** page, seed, preview, merge all, and an Apply that merged a pair
+  with a title picked from one song and an id removed from the other. Songs that share an id can
+  be made there by creating two songs with `POST /api/song` and then giving one the other's ISRC
+  with `PATCH /api/song/{id}`, which doesn't pass through the enrichment guard. That's the setup
+  PR 4's Playwright test needs. `POST /api/song` assigns its own song id and merges songs whose
+  titles match, so the test needs distinct titles and has to look the songs up afterwards.
 
 ## Where it stands
 
@@ -53,7 +84,7 @@ Suggested order: server refactor and tests first with no visible change (PR 1), 
 
 ## 1. The review page as a Vue app
 
-### Options
+### Page options
 
 | Option | What it is | For | Against |
 | --- | --- | --- | --- |
@@ -145,7 +176,7 @@ and is fine as it is.
 
 ## 2. A controller of its own
 
-### Options
+### Controller options
 
 | Option | For | Against |
 | --- | --- | --- |
@@ -279,7 +310,7 @@ and that a seed on the sandbox's index is quick enough for a test.
 
 | PR | Contents | Visible change |
 | --- | --- | --- |
-| 1 | New controllers with the Razor page moved as is; `LoadPage`, `SharedIdPreviewStore`, ids instead of indexes, matcher and clustering split out, background-task helper; the domain and web tests above. | URLs move from `/Admin/…` to `/SharedIds…` |
+| 1 (done) | New controller with the Razor page moved as is; `LoadPage`, `SharedIdPreviewStore`, ids instead of indexes, matcher and clustering split out, background-task helper; the domain and web tests above. | URLs move from `/Admin/…` to `/SharedIds…` |
 | 2 | Page model DTO, apply endpoint, the Vue app and its tests; delete `SharedIds.cshtml` and `SharedIdChoiceForm`. Update the reference doc. | Same page, plus disabled-when-irrelevant controls |
 | 3 (optional) | Group-aware preview endpoint and **If merged** per group. | **If merged** follows groups and removals |
 | 4 | Playwright spec. | None |

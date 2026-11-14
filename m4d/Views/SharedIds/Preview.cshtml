@@ -1,6 +1,7 @@
+@using m4d.Services
 @using m4d.ViewModels
 @using m4dModels
-@model SharedIdsPreviewModel
+@model SharedIdPreview
 
 @{
     ViewBag.Title = "Merge Preview";
@@ -11,7 +12,7 @@
 
 <p>
     What <strong>Merge all with matching title and artist</strong> on
-    @Html.ActionLink("Shared Song Ids", "SharedIds") would do with each pending cluster. Nothing
+    @Html.ActionLink("Shared Song Ids", "Index") would do with each pending cluster. Nothing
     was merged. Merges and reviews made since the preview ran aren't reflected here.
 </p>
 

@@ -2,8 +2,8 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-12 (written with the code)
-**Code:** `m4dModels/SharedIdLog.cs`, `m4dModels/SharedIdCandidate.cs`, `m4d/Utilities/MusicServiceManager.cs` (`UpdateFromTracks`, `GetISRCData`), `m4d/Controllers/AdminController.cs` (`SharedIds` actions), `m4d/Views/Admin/SharedIds.cshtml`, `m4d/Views/Admin/SharedIdsPreview.cshtml`, `m4d/ViewModels/SharedIdsPreviewModel.cs` (review sort), `m4dModels/FeaturedCleanup.cs`
+**Last verified:** 2026-11-14
+**Code:** `m4dModels/SharedIdLog.cs`, `m4dModels/SharedIdCandidate.cs`, `m4d/Utilities/MusicServiceManager.cs` (`UpdateFromTracks`, `GetISRCData`), `m4dModels/SharedIdTypes.cs` (clusters, choices, page), `m4dModels/SharedIdMatcher.cs` (match tiers), `m4dModels/FeaturedCleanup.cs`, `m4d/Controllers/SharedIdsController.cs`, `m4d/Services/SharedIdPreviewStore.cs` (last preview and review sort), `m4d/Views/SharedIds/`
 
 ## Overview
 
@@ -60,8 +60,10 @@ query found 3,748 songs in 1,754 clusters.
 
 ## The review page
 
-`/Admin/SharedIds` (dbAdmin; linked from the admin index). `SharedIdLog.PendingClusters` groups
-pending rows into clusters of connected songs (union-find), oldest first, 20 a page. Each cluster
+`/SharedIds` (`SharedIdsController`, dbAdmin for every action; linked from the admin index).
+`SharedIdLog.PendingClusters` groups pending rows into clusters of connected songs
+(`SharedIdCluster.Group`, union-find), oldest first, and `SharedIdLog.LoadPage` loads 20 of them a
+page, with each cluster's preview and proposed names. Each cluster
 shows its songs side by side: title, artist, length, tempo, dances, albums with their song-level
 ids (shared ones highlighted), and created date, plus each row's source and detail. Spotify and
 iTunes ids link to the track on the service (`MusicService.GetPurchaseLink`; an iTunes link needs
@@ -75,7 +77,7 @@ song columns, each album and each id has a box that removes it from that song (s
 **Merge and edit**.
 
 The page is one form. Each cluster has a choice: **Merge groups**, **Not the same** or
-**Leave for later**. **Apply this page** (`POST /Admin/ApplySharedIds` → `SharedIdLog.Apply`)
+**Leave for later**. **Apply this page** (`POST /SharedIds/Apply` → `SharedIdLog.Apply`)
 carries out all of them. Clusters with a rejected pair or a `.NoMerge` song start as Leave for
 later, and the rest start as Merge groups. So a page is reviewed by fixing the clusters that
 aren't straight merges and pressing Apply once. Clusters left for later stay at the top of page 1.
@@ -90,7 +92,7 @@ with the song its group-mates were merged into. If any group's merge is stale, n
 rejected.
 
 **Match tiers.** Each cluster's header says how closely its titles and artists agree
-(`SharedIdLog.Match`, closest first):
+(`SharedIdMatcher.Match`, worked out once when a cluster's songs load; closest first):
 
 | Tier | Badge | Test |
 | --- | --- | --- |
@@ -101,7 +103,7 @@ rejected.
 
 **Preview merge all** records each cluster's tier. Until the next restart, the review page sorts
 by it: clusters that differ only by feat. first, then close matches, then the rest. The tier is
-kept for each song (`SharedIdsPreviewModel.RankOf`), and a song merged on the review page takes
+kept for each song (`SharedIdPreviewStore`, a singleton), and a song merged on the review page takes
 the best tier of the songs it was merged from, so a cluster keeps its place when part of it is
 merged and the rest stays queued. The counts on the page are of the clusters still pending. Only `Exact`
 clusters are merged by **Merge all**; the other tiers are reviewed by hand while the cleanup is
@@ -132,14 +134,14 @@ title-based tools or **Merge and edit** resolve themselves.
 | **Leave for later** (a choice) | Changes nothing. |
 | **Removals** (boxes on albums and ids, applied by **Apply this page** before the cluster's choice, whatever it is) | For each song with something checked, one edit by the reviewer (`Song.AppendIdRemoval`): `Album:NN=` (empty) for an album, `Purchase-:NN:SS=<id>` (or `IS`, `RS`) for one id. Removals of albums or ids the song no longer has are skipped. An edited song that is then merged goes into the merge as saved (`SimpleMergeSongs` with `reload: false`), since the index may not have caught up. Afterwards, the pending rows of the edited songs (or the songs they were merged into) whose songs no longer share any id are marked `Rejected`. So two different songs are kept apart by removing the id from the one it doesn't belong to, even with **Leave for later**. If enrichment later tries to put the id back, the guard skips it, because the other song holds it, and the rejected pair stays resolved. The **If merged** column doesn't show removals. |
 | **Merge and edit** | Takes effect right away. It posts the songs to `/Song/BulkEdit` (`action=Merge`) in a new tab, which merges them as **Merge groups** does with one group and opens the merged song in the editor to pick its title, artist, tempo and length. |
-| **Merge all with matching title and artist** (`POST /Admin/MergeMatchingSharedIds`) | A background task (watch `/Admin/AdminStatus`). It merges every pending cluster whose songs all share the same title and the same non-empty artist (`Song.CreateTitleHash`, as the title-based merge candidates compare them). Every cluster shares an id by construction. It skips clusters with a rejected pair inside them, or with a `.NoMerge` song. |
-| **Preview merge all** (`POST /Admin/PreviewMergeMatchingSharedIds`) | A background task that works out what **Merge all with matching title and artist** would do, without merging (`SharedIdLog.PlanMergeMatching`, which the merge itself runs first). **Last preview** (`/Admin/SharedIdsPreview`) lists the clusters it would merge, then the skipped ones grouped by reason: a rejected pair, a `.NoMerge` song, a song with no artist, or titles or artists that differ only by feat., are close, or differ. The result lives in memory until the next preview or a restart. |
-| **Queue existing shared ids** (`POST /Admin/SeedSharedIds`) | Runs the seed as a background task. |
+| **Merge all with matching title and artist** (`POST /SharedIds/MergeMatching`) | A background task (watch `/Admin/AdminStatus`). It merges every pending cluster whose songs all share the same title and the same non-empty artist (`Song.CreateTitleHash`, as the title-based merge candidates compare them). Every cluster shares an id by construction. It skips clusters with a rejected pair inside them, or with a `.NoMerge` song. |
+| **Preview merge all** (`POST /SharedIds/PreviewMergeMatching`) | A background task that works out what **Merge all with matching title and artist** would do, without merging (`SharedIdLog.PlanMergeMatching`, which the merge itself runs first). **Last preview** (`/SharedIds/Preview`) lists the clusters it would merge, then the skipped ones grouped by reason: a rejected pair, a `.NoMerge` song, a song with no artist, or titles or artists that differ only by feat., are close, or differ. The result lives in memory until the next preview or a restart. |
+| **Queue existing shared ids** (`POST /SharedIds/Seed`) | Runs the seed as a background task. |
 
 ## Future improvements
 
-- Restructure the review page as a Vue app with its own controller, move the page logic out of
-  the controller, and fill the test gaps: [shared-id-review-refactor](../plans/shared-id-review-refactor.md).
+- Rebuild the review page as a Vue app with a JSON apply, and the rest of
+  [shared-id-review-refactor](../plans/shared-id-review-refactor.md).
 
 - Once the feat. cleanup and the close-match tier have been refined on this queue, use
   `FeaturedCleanup` in **Merge all** and in the add-time merge ([song-merge-algorithm](song-merge-algorithm.md)).
@@ -155,6 +157,7 @@ title-based tools or **Merge and edit** resolve themselves.
 - 2026-11: Match tiers (differ only by feat., close match), sorted first after a preview; per-song title and artist choices; the feat. cleanup proposal, applied by a music4dance edit.
 - 2026-11: Merge groups, which split a cluster in one Apply. The music4dance edit is no longer by a pseudo user, whose title and artist were ignored. The sort keeps a cluster's place after part of it is merged.
 - 2026-11: Removing albums and ids from a cluster's songs on the review page; pairs that no longer share an id are marked not the same.
+- 2026-11: Moved out of `AdminController` into `SharedIdsController` (`/Admin/SharedIds…` became `/SharedIds…`). Page loading moved into `SharedIdLog.LoadPage`, the last preview into the `SharedIdPreviewStore` singleton, and the match tiers into `SharedIdMatcher`. Name picks and removals name their song by id instead of column index.
 
 ## Related
 

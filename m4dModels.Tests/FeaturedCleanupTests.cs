@@ -60,6 +60,40 @@ public class FeaturedCleanupTests
     }
 
     [TestMethod]
+    public void Propose_FeatInTitleAndCredit_AddsBothAndKeepsTheCredit()
+    {
+        var merged = new Song { Title = "Song Title feat. Crazy Man", Artist = "The Artist feat. Friend" };
+
+        var names = FeaturedCleanup.Propose(merged, [merged]);
+
+        Assert.AreEqual("Song Title", names.Title);
+        Assert.AreEqual("The Artist feat. Friend", names.Artist);
+        CollectionAssert.AreEquivalent(new[] { "The Artist", "Friend", "Crazy Man" }, names.Artists.ToList());
+        Assert.AreEqual("The Artist", names.Artists[0]);
+    }
+
+    [TestMethod]
+    public void Propose_AnArtistFeaturedTwiceInDifferentSpellings_IsListedOnce()
+    {
+        var merged = new Song { Title = "Song Title", Artist = "The Artist" };
+        var first = new Song { Title = "Song Title (feat. Crazy Man)", Artist = "The Artist" };
+        var second = new Song { Title = "Song Title", Artist = "The Artist ft. crazy man" };
+
+        var names = FeaturedCleanup.Propose(merged, [first, second]);
+
+        CollectionAssert.AreEqual(new[] { "The Artist", "Crazy Man" }, names.Artists.ToList());
+    }
+
+    [TestMethod]
+    public void MatchWithoutFeaturing_NeedsEverySongToHaveAnArtist()
+    {
+        Assert.IsTrue(FeaturedCleanup.MatchWithoutFeaturing(
+            [new Song { Title = "Song feat. X", Artist = "A" }, new Song { Title = "Song", Artist = "A feat. X" }]));
+        Assert.IsFalse(FeaturedCleanup.MatchWithoutFeaturing(
+            [new Song { Title = "Song feat. X", Artist = "" }, new Song { Title = "Song", Artist = "" }]));
+    }
+
+    [TestMethod]
     public void Propose_NothingFeatured_ChangesNothing()
     {
         var merged = new Song { Title = "Song Title", Artist = "The Artist" };

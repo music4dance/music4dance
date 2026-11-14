@@ -4,6 +4,7 @@
 
 @{
     ViewBag.Title = "Shared Song Ids";
+    var queue = Model.Page;
     ViewBag.BreadCrumbs = BreadCrumbItem.BuildAdminTrail(ViewBag.Title);
 
     static string FormatLength(int? seconds) =>
@@ -60,7 +61,7 @@
 }
 
 <p>
-    @Model.PendingCandidates.ToString("N0") pending pairs in @Model.ClusterCount.ToString("N0") clusters.
+    @queue.PendingCandidates.ToString("N0") pending pairs in @queue.ClusterCount.ToString("N0") clusters.
     @if (Model.SortedBy.HasValue)
     {
         <text>
@@ -76,7 +77,7 @@
 </p>
 
 <div class="mb-3">
-    @using (Html.BeginForm("SeedSharedIds", "Admin", FormMethod.Post, new { style = "display:inline" }))
+    @using (Html.BeginForm("Seed", "SharedIds", FormMethod.Post, new { style = "display:inline" }))
     {
         @Html.AntiForgeryToken()
         <button type="submit" class="btn btn-outline-secondary"
@@ -84,7 +85,7 @@
             Queue existing shared ids
         </button>
     }
-    @using (Html.BeginForm("MergeMatchingSharedIds", "Admin", FormMethod.Post, new { style = "display:inline" }))
+    @using (Html.BeginForm("MergeMatching", "SharedIds", FormMethod.Post, new { style = "display:inline" }))
     {
         @Html.AntiForgeryToken()
         <button type="submit" class="btn btn-outline-danger"
@@ -92,17 +93,17 @@
             Merge all with matching title and artist
         </button>
     }
-    @using (Html.BeginForm("PreviewMergeMatchingSharedIds", "Admin", FormMethod.Post, new { style = "display:inline" }))
+    @using (Html.BeginForm("PreviewMergeMatching", "SharedIds", FormMethod.Post, new { style = "display:inline" }))
     {
         @Html.AntiForgeryToken()
         <button type="submit" class="btn btn-outline-secondary">Preview merge all</button>
     }
-    @Html.ActionLink("Last preview", "SharedIdsPreview", null, null, new { @class = "btn btn-link" })
+    @Html.ActionLink("Last preview", "Preview", null, null, new { @class = "btn btn-link" })
 </div>
 
-<form id="apply" method="post" action="@Url.Action("ApplySharedIds")">
+<form id="apply" method="post" action="@Url.Action("Apply")">
     @Html.AntiForgeryToken()
-    <input type="hidden" name="page" value="@Model.Page" />
+    <input type="hidden" name="page" value="@queue.Page" />
 </form>
 
 @{
@@ -130,8 +131,8 @@
         }
     }
 
-    // A box that checks the album or id for removal (cluster i, song column k)
-    void RemoveBox(int i, int k, SharedIdRemoval removal, string label)
+    // A box that checks the album or id for removal (cluster i)
+    void RemoveBox(int i, SharedIdRemoval removal, string label)
     {
         <input class="form-check-input shared-id-remove me-1" type="checkbox" name="items[@i].Removals"
                value="@removal.Format()" form="apply" title="@label" aria-label="@label" />
@@ -147,7 +148,7 @@
                 <span class="shared-id-removable">
                     @if (k >= 0)
                     {
-                        RemoveBox(i, k, new SharedIdRemoval(k, album.Index), $"Remove {album.Name} from song {k + 1}");
+                        RemoveBox(i, new SharedIdRemoval(song.SongId, album.Index), $"Remove {album.Name} from song {k + 1}");
                     }
                     @album.Name @(album.Track.HasValue ? $"#{album.Track}" : "")
                 </span>
@@ -156,7 +157,7 @@
                     <span class="text-nowrap shared-id-removable">
                         @if (k >= 0)
                         {
-                            RemoveBox(i, k, new SharedIdRemoval(k, album.Index, id), $"Remove {id} from song {k + 1}");
+                            RemoveBox(i, new SharedIdRemoval(song.SongId, album.Index, id), $"Remove {id} from song {k + 1}");
                         }
                         @if (shared.Contains(id))
                         {
@@ -172,36 +173,34 @@
         }
     }
 
-    // One radio of a cluster's title, artist or individual artists choice: the song column it
-    // comes from, or SharedIdNamePicks.Proposed for the If merged column
-    void NameChoice(int i, string field, int column, string label, bool isChecked)
+    // One radio of a cluster's title, artist or individual artists choice: the song it comes
+    // from (column k), or null for the If merged column's proposal
+    void NameChoice(int i, string field, int k, Song song, string label, bool isChecked)
     {
+        var id = $"{field}-{i}-{(song == null ? "merged" : k)}";
         <div class="form-check m-0">
-            <input class="form-check-input" type="radio" id="@($"{field}-{i}-{column}")" name="items[@i].@field"
-                   value="@column" form="apply" checked="@isChecked" />
-            <label class="form-check-label" for="@($"{field}-{i}-{column}")">@label</label>
+            <input class="form-check-input" type="radio" id="@id" name="items[@i].@field"
+                   value="@(song?.SongId.ToString() ?? "")" form="apply" checked="@isChecked" />
+            <label class="form-check-label" for="@id">@label</label>
         </div>
     }
 }
 
-@if (Model.Clusters.Count > 0)
+@if (queue.Clusters.Count > 0)
 {
     <div class="mb-3">
         <button type="submit" form="apply" class="btn btn-primary">Apply this page</button>
     </div>
 }
 
-@for (var i = 0; i < Model.Clusters.Count; i++)
+@for (var i = 0; i < queue.Clusters.Count; i++)
 {
-    var cluster = Model.Clusters[i];
-    var merged = i < Model.Previews.Count ? Model.Previews[i] : null;
-    var proposal = i < Model.Proposals.Count ? Model.Proposals[i] : null;
-    var cleansFeaturing = merged != null && proposal != null &&
-        (proposal.Title != merged.Title || proposal.Artists.Count > 1 &&
-            !proposal.Artists.Select(ArtistSplitter.ArtistKey).SequenceEqual(merged.EffectiveArtists.Select(ArtistSplitter.ArtistKey)));
+    var entry = queue.Clusters[i];
+    var cluster = entry.Cluster;
+    var merged = entry.Preview;
+    var proposal = entry.Proposal;
     var shared = cluster.ServiceIds.ToHashSet();
-    var defaultAction = SharedIdsModel.DefaultAction(cluster);
-    var match = cluster.Songs.Count > 0 ? cluster.Match : SharedIdMatch.Different;
+    var match = cluster.Match;
     <div class="card mb-4">
         <div class="card-header">
             <strong>@string.Join(", ", cluster.ServiceIds)</strong>
@@ -217,7 +216,7 @@
                     <span class="badge bg-secondary ms-2">Close match</span>
                     break;
             }
-            @if (cleansFeaturing)
+            @if (entry.CleansFeaturing)
             {
                 <span class="badge bg-primary ms-2">Cleans up feat.</span>
             }
@@ -273,12 +272,12 @@
                             <th>Title</th>
                             @for (var k = 0; k < cluster.Songs.Count; k++)
                             {
-                                <td>@{ NameChoice(i, "Title", k, cluster.Songs[k].Title, proposal == null && k == 0); }</td>
+                                <td>@{ NameChoice(i, "Title", k, cluster.Songs[k], cluster.Songs[k].Title, proposal == null && k == 0); }</td>
                             }
                             <td class="table-info">
                                 @if (proposal != null)
                                 {
-                                    NameChoice(i, "Title", SharedIdNamePicks.Proposed, proposal.Title, true);
+                                    NameChoice(i, "Title", -1, null, proposal.Title, true);
                                     if (proposal.Title != merged.Title)
                                     {
                                         <div class="small text-muted">The merge alone gives: @merged.Title</div>
@@ -290,12 +289,12 @@
                             <th>Artist</th>
                             @for (var k = 0; k < cluster.Songs.Count; k++)
                             {
-                                <td>@{ NameChoice(i, "Artist", k, cluster.Songs[k].Artist, proposal == null && k == 0); }</td>
+                                <td>@{ NameChoice(i, "Artist", k, cluster.Songs[k], cluster.Songs[k].Artist, proposal == null && k == 0); }</td>
                             }
                             <td class="table-info">
                                 @if (proposal != null)
                                 {
-                                    NameChoice(i, "Artist", SharedIdNamePicks.Proposed, proposal.Artist, true);
+                                    NameChoice(i, "Artist", -1, null, proposal.Artist, true);
                                 }
                             </td>
                         </tr>
@@ -304,12 +303,12 @@
                             @for (var k = 0; k < cluster.Songs.Count; k++)
                             {
                                 var artists = cluster.Songs[k].EffectiveArtists;
-                                <td>@{ NameChoice(i, "Artists", k, FormatArtists(artists), proposal == null && k == 0); }</td>
+                                <td>@{ NameChoice(i, "Artists", k, cluster.Songs[k], FormatArtists(artists), proposal == null && k == 0); }</td>
                             }
                             <td class="table-info">
                                 @if (proposal != null)
                                 {
-                                    NameChoice(i, "Artists", SharedIdNamePicks.Proposed, FormatArtists(proposal.Artists), true);
+                                    NameChoice(i, "Artists", -1, null, FormatArtists(proposal.Artists), true);
                                 }
                             </td>
                         </tr>
@@ -386,7 +385,7 @@
                         var id = $"choice-{i}-{choice.Action}";
                         <div class="form-check form-check-inline m-0">
                             <input class="form-check-input" type="radio" id="@id" name="items[@i].Action"
-                                   value="@choice.Action" form="apply" checked="@(choice.Action == defaultAction)" />
+                                   value="@choice.Action" form="apply" checked="@(choice.Action == entry.DefaultAction)" />
                             <label class="form-check-label" for="@id">@choice.Label</label>
                         </div>
                     }
@@ -405,28 +404,28 @@
     </div>
 }
 
-@if (Model.Clusters.Count > 0)
+@if (queue.Clusters.Count > 0)
 {
     <div class="mb-3">
         <button type="submit" form="apply" class="btn btn-primary">Apply this page</button>
     </div>
 }
 
-@if (Model.PageCount > 1)
+@if (queue.PageCount > 1)
 {
     <nav>
         <ul class="pagination">
-            @for (var p = 1; p <= Model.PageCount; p++)
+            @for (var p = 1; p <= queue.PageCount; p++)
             {
-                if (p == Model.Page)
+                if (p == queue.Page)
                 {
                     <li class="page-item active"><span class="page-link">@p</span></li>
                 }
-                else if (p <= 3 || p > Model.PageCount - 3 || Math.Abs(p - Model.Page) <= 2)
+                else if (p <= 3 || p > queue.PageCount - 3 || Math.Abs(p - queue.Page) <= 2)
                 {
-                    <li class="page-item"><a class="page-link" href="@Url.Action("SharedIds", new { page = p })">@p</a></li>
+                    <li class="page-item"><a class="page-link" href="@Url.Action("Index", new { page = p })">@p</a></li>
                 }
-                else if (p == 4 || p == Model.PageCount - 3)
+                else if (p == 4 || p == queue.PageCount - 3)
                 {
                     <li class="page-item disabled"><span class="page-link">…</span></li>
                 }
