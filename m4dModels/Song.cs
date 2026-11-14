@@ -266,6 +266,10 @@ public class Song : TaggableObject
     // Proxy Fields
     public const string UserProxy = "UserProxy";
 
+    // Merge bookkeeping: the source song a merged block came from, on blocks whose action value
+    // can't carry the stamp (.Merge, .NoMerge, .FailedLookup, ...). Changes no field on load.
+    public const string MergeSourceField = "MergeSource";
+
     // Algorithmic users
     public const string ArtistBotUser = "artist-bot";
 
@@ -1806,6 +1810,8 @@ public class Song : TaggableObject
                         currentModified.Like = prop.ObjectValue as bool?;
                     }
 
+                    break;
+                case MergeSourceField:
                     break;
                 default:
                     // All of the simple properties we can just set except

@@ -248,4 +248,57 @@ public class UnmergeTests
 
         CollectionAssert.AreEquivalent(new[] { "a", "x", "c" }, song.GetAltids().ToList());
     }
+
+    [TestMethod]
+    public async Task SimpleMerge_UnstampedBlocks_CarryTheirSourceInMergeSource()
+    {
+        var (dms, user) = await CreateService("Unmerge_MergeSource");
+        var songA = await SaveSong(dms,
+            $".Create=\t{Header}\tTitle=Song\tArtist=Artist\t.NoMerge=\tUser=dwgray\tTime=01/01/2020 11:00:00 AM");
+        var songB = await SaveSong(dms, ".Create=\tUser=dwgray\tTime=01/02/2020 10:00:00 AM\tTitle=Song\tArtist=Artist");
+        var songC = await SaveSong(dms, ".Create=\tUser=dwgray\tTime=01/03/2020 10:00:00 AM\tTitle=Song\tArtist=Artist");
+
+        var inner = await dms.SongIndex.SimpleMergeSongs(user, [songA, songB]);
+        var block = SongPropertyBlockParser.ParseBlocks(inner.SongProperties)
+            .Single(b => b.ActionCommand == Song.NoMergeCommand);
+        CollectionAssert.AreEqual(
+            new[] { Song.UserField, Song.TimeField, Song.MergeSourceField },
+            block.Properties.Select(p => p.Name).ToList());
+        Assert.AreEqual(songA.SongId.ToString(), block.Properties[2].Value);
+
+        // A later merge overwrites the source, as it restamps .Create and .Edit
+        var outer = await dms.SongIndex.SimpleMergeSongs(user, [inner, songC]);
+        var blocks = SongPropertyBlockParser.ParseBlocks(outer.SongProperties);
+        Assert.AreEqual(inner.SongId.ToString(),
+            blocks.Single(b => b.ActionCommand == Song.NoMergeCommand)
+                .Properties.Single(p => p.Name == Song.MergeSourceField).Value);
+        Assert.AreEqual(inner.SongId.ToString(),
+            blocks.First(b => b.ActionCommand == Song.MergeCommand)
+                .Properties.Single(p => p.Name == Song.MergeSourceField).Value);
+        // The outer merge's own block has no source
+        Assert.IsFalse(blocks.Last().Properties.Any(p => p.Name == Song.MergeSourceField));
+    }
+
+    [TestMethod]
+    public async Task Unmerge_NestedMerge_GivesTheInnerMergeBackToItsSource()
+    {
+        var (dms, user) = await CreateService("Unmerge_NestedInner");
+        var songA = await SaveSong(dms, $".Create=\t{Header}\tTitle=Song\tArtist=Artist");
+        var songB = await SaveSong(dms, ".Create=\tUser=dwgray\tTime=01/02/2020 10:00:00 AM\tTitle=Song\tArtist=Artist");
+        var songC = await SaveSong(dms, ".Create=\tUser=dwgray\tTime=01/03/2020 10:00:00 AM\tTitle=Song\tArtist=Artist C");
+
+        var inner = await dms.SongIndex.SimpleMergeSongs(user, [songA, songB]);
+        var outer = await dms.SongIndex.SimpleMergeSongs(user, [inner, songC]);
+
+        var result = await dms.SongIndex.UnmergeSong(user, outer.SongId, [inner.SongId], false);
+
+        var restored = result.Restored.Single();
+        Assert.AreEqual(inner.SongId, restored.SongId);
+        CollectionAssert.AreEquivalent(
+            new[] { songA.SongId, songB.SongId }.Select(g => g.ToString()).ToList(),
+            restored.GetAltids().ToList());
+        Assert.IsFalse(restored.SongProperties.Any(p => p.Name == Song.MergeSourceField));
+        CollectionAssert.AreEquivalent(new[] { songC.SongId.ToString() }, result.Remainder.GetAltids().ToList());
+        Assert.AreEqual("Artist C", result.Remainder.Artist);
+    }
 }

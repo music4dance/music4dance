@@ -567,11 +567,23 @@ public class SongIndex
 
             foreach (var block in blocks)
             {
-                // Only stamp .Create and .Edit blocks with the source GUID; other action types
-                // (e.g. .Merge, .Delete, .NoMerge) keep their original value.
+                // Stamp .Create and .Edit blocks with the source GUID. Other action types
+                // (e.g. .Merge, .NoMerge, .FailedLookup) keep their value, which means something
+                // else, and carry the source in a MergeSource property instead, so an unmerge can
+                // give them back. Either way a later merge overwrites the earlier source.
                 if (block.ActionCommand == Song.CreateCommand || block.ActionCommand == Song.EditCommand)
                 {
                     block.ActionValue = song.SongId.ToString();
+                }
+                else
+                {
+                    var header = block.Properties.TakeWhile(IsHeader).ToList();
+                    block.Properties =
+                    [
+                        .. header,
+                        new SongProperty(Song.MergeSourceField, song.SongId.ToString()),
+                        .. block.Properties.Skip(header.Count).Where(p => p.Name != Song.MergeSourceField)
+                    ];
                 }
                 allBlocks.Add(block);
             }
@@ -811,11 +823,13 @@ public class SongIndex
         prop.Name is Song.UserField or Song.TimeField;
 
     /// <summary>The source a block came from in a simple merge, or null if no source owns it.</summary>
-    private static Guid? BlockOwner(SongPropertyBlock block) =>
-        block.ActionCommand is Song.CreateCommand or Song.EditCommand &&
-        Guid.TryParse(block.ActionValue, out var id)
-            ? id
-            : null;
+    private static Guid? BlockOwner(SongPropertyBlock block)
+    {
+        var stamp = block.ActionCommand is Song.CreateCommand or Song.EditCommand
+            ? block.ActionValue
+            : block.Properties.FirstOrDefault(p => p.Name == Song.MergeSourceField)?.Value;
+        return Guid.TryParse(stamp, out var id) ? id : null;
+    }
 
     /// <summary>A copy of a block as it was before the merge stamped it.</summary>
     private static SongPropertyBlock RestoreBlock(SongPropertyBlock block) => new()
@@ -826,7 +840,7 @@ public class SongIndex
             : block.ActionValue,
         User = block.User,
         Timestamp = block.Timestamp,
-        Properties = [.. block.Properties]
+        Properties = [.. block.Properties.Where(p => p.Name != Song.MergeSourceField)]
     };
 
     /// <summary>
