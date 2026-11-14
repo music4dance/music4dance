@@ -128,22 +128,7 @@ public record SharedIdNamePicks(Guid? Title = null, Guid? Artist = null, Guid? A
 /// AlbumDetails.Index, and Id the extended id ("S:…", as AlbumDetails.GetExtendedPurchaseIds
 /// spells it), or null for the whole album.
 /// </summary>
-public record SharedIdRemoval(Guid SongId, int Album, string Id = null)
-{
-    /// <summary>
-    /// Parses the review form's value: "song|album" for an album, "song|album|id" for an id;
-    /// null if it's malformed.
-    /// </summary>
-    public static SharedIdRemoval Parse(string value)
-    {
-        var parts = (value ?? "").Split('|', 3);
-        return parts.Length >= 2 && Guid.TryParse(parts[0], out var song) && int.TryParse(parts[1], out var album)
-            ? new SharedIdRemoval(song, album, parts.Length == 3 && parts[2].Length > 0 ? parts[2] : null)
-            : null;
-    }
-
-    public string Format() => Id == null ? $"{SongId}|{Album}" : $"{SongId}|{Album}|{Id}";
-}
+public record SharedIdRemoval(Guid SongId, int Album, string Id = null);
 
 public class SharedIdBatchResult
 {

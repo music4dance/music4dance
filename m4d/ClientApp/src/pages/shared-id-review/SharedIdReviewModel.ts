@@ -1,0 +1,128 @@
+import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
+
+// Mirrors m4d/ViewModels/SharedIdReviewModel.cs. The server leaves nulls out, so anything that
+// can be null there is optional here.
+
+export type SharedIdAction = "Leave" | "Merge" | "Reject";
+export type SharedIdMatch = "Exact" | "WithoutFeaturing" | "Close" | "Different";
+
+@jsonObject
+export class SharedIdReviewTrackId {
+  // As AlbumDetails.GetExtendedPurchaseIds spells it: "S:…", "I:…", "R:…"
+  @jsonMember(String) public id!: string;
+  // The service's page for the track; ISRCs have none
+  @jsonMember(String) public link?: string;
+  // One of the ids the cluster's songs share
+  @jsonMember(Boolean) public shared!: boolean;
+}
+
+@jsonObject
+export class SharedIdReviewAlbum {
+  // AlbumDetails.Index: what a removal names
+  @jsonMember(Number) public index!: number;
+  @jsonMember(String) public name?: string;
+  @jsonMember(Number) public track?: number;
+  @jsonArrayMember(SharedIdReviewTrackId) public ids!: SharedIdReviewTrackId[];
+}
+
+@jsonObject
+export class SharedIdReviewDance {
+  @jsonMember(String) public danceId!: string;
+  @jsonMember(Number) public weight!: number;
+}
+
+@jsonObject
+export class SharedIdReviewSong {
+  @jsonMember(String) public songId!: string;
+  @jsonMember(String) public title?: string;
+  @jsonMember(String) public artist?: string;
+  // The individual artists (Song.EffectiveArtists)
+  @jsonArrayMember(String) public artists!: string[];
+  @jsonMember(Number) public length?: number;
+  @jsonMember(Number) public tempo?: number;
+  @jsonArrayMember(SharedIdReviewDance) public dances!: SharedIdReviewDance[];
+  @jsonMember(String) public created!: string;
+  @jsonArrayMember(SharedIdReviewAlbum) public albums!: SharedIdReviewAlbum[];
+}
+
+@jsonObject
+export class SharedIdReviewNames {
+  @jsonMember(String) public title?: string;
+  @jsonMember(String) public artist?: string;
+  @jsonArrayMember(String) public artists!: string[];
+}
+
+@jsonObject
+export class SharedIdReviewCandidate {
+  @jsonMember(Number) public id!: number;
+  @jsonMember(String) public source?: string;
+  @jsonMember(String) public created!: string;
+  @jsonMember(String) public serviceIds?: string;
+  @jsonMember(String) public detail?: string;
+}
+
+@jsonObject
+export class SharedIdReviewCluster {
+  // The cluster's song ids, sorted
+  @jsonMember(String) public key!: string;
+  @jsonArrayMember(String) public serviceIds!: string[];
+  @jsonMember(String) public match!: SharedIdMatch;
+  @jsonMember(Boolean) public hasRejectedPair!: boolean;
+  @jsonMember(Boolean) public hasNoMergeSong!: boolean;
+  @jsonMember(Boolean) public cleansFeaturing!: boolean;
+  @jsonMember(String) public defaultAction!: SharedIdAction;
+  @jsonArrayMember(SharedIdReviewCandidate) public candidates!: SharedIdReviewCandidate[];
+  // Empty when the songs changed while the page loaded
+  @jsonArrayMember(SharedIdReviewSong) public songs!: SharedIdReviewSong[];
+  // What merging every song would make; missing when the merge couldn't be previewed
+  @jsonMember(SharedIdReviewSong) public merged?: SharedIdReviewSong;
+  // The feat. cleanup of that merge
+  @jsonMember(SharedIdReviewNames) public proposal?: SharedIdReviewNames;
+}
+
+@jsonObject
+export class SharedIdReviewModel {
+  @jsonMember(Number) public page!: number;
+  @jsonMember(Number) public pageCount!: number;
+  @jsonMember(Number) public pendingCandidates!: number;
+  @jsonMember(Number) public clusterCount!: number;
+  // When the page is sorted by the last merge-all preview: when it ran
+  @jsonMember(String) public sortedBy?: string;
+  @jsonMember(Number) public withoutFeaturingCount!: number;
+  @jsonMember(Number) public closeCount!: number;
+  @jsonMember(String) public message?: string;
+  @jsonArrayMember(SharedIdReviewCluster) public clusters!: SharedIdReviewCluster[];
+}
+
+// POST /api/sharedids/apply (SharedIdApplyRequest)
+export interface SharedIdRemovalRequest {
+  songId: string;
+  album: number;
+  id?: string;
+}
+
+export interface SharedIdChoiceRequest {
+  action: SharedIdAction;
+  candidateIds: number[];
+  songs: { songId: string; group: string }[];
+  titleFrom: string | null;
+  artistFrom: string | null;
+  artistsFrom: string | null;
+  removals: SharedIdRemovalRequest[];
+}
+
+export interface SharedIdApplyRequest {
+  page: number;
+  choices: SharedIdChoiceRequest[];
+}
+
+// SharedIdApplyResponse
+export interface SharedIdApplyResponse {
+  message: string;
+  merged: number;
+  rejected: number;
+  left: number;
+  edited: number;
+  unsharedPairs: number;
+  stale: number;
+}

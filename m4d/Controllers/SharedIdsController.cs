@@ -37,34 +37,9 @@ public class SharedIdsController(
         }
 
         var user = await Database.FindUser(UserName);
-        return View(new SharedIdsModel
-        {
-            Page = await Database.SharedIds.LoadPage(user, page, previews.Ranker()),
-            SortedBy = previews.Preview?.Created,
-            Message = message
-        });
-    }
-
-    //
-    // POST: /SharedIds/Apply
-    // Applies the choice made for each cluster on a page of the queue: merge its groups of songs,
-    // not the same, or leave for later, after any removals
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<ActionResult> Apply(List<SharedIdChoiceForm> items, int page = 1)
-    {
-        var user = await Database.FindUser(UserName);
-        var result = await Database.SharedIds.Apply(user, [.. (items ?? []).Select(i => i.ToChoice())]);
-        foreach (var (from, into) in result.Merges)
-        {
-            previews.Merged(from, into);
-        }
-        if (result.Merged > 0 || result.Edited > 0)
-        {
-            await DanceStatsManager.ClearCache(Database, false);
-        }
-
-        return RedirectToAction(nameof(Index), new { page, message = result.Summary() });
+        var queue = await Database.SharedIds.LoadPage(user, page, previews.Ranker());
+        return Vue3("Shared Song Ids", "Admin: songs that share a service id", "shared-id-review",
+            SharedIdReviewModel.Build(queue, previews.Preview?.Created, message));
     }
 
     //

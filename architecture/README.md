@@ -34,7 +34,7 @@ procedural, to become a runbook.
 | [song-upload-format](songs/song-upload-format.md) | Ref | `UploadCatalog` file format: header fields, tags, upload form parameters |
 | [add-augment-song](songs/add-augment-song.md) | Ref | `/song/augment`: locating a track, server-side lookup/dedup, saving user edits |
 | [service-track-lookup](songs/service-track-lookup.md) | Ref | Backend resolution of a Spotify/Apple track ID to a catalog song |
-| [shared-id-review](songs/shared-id-review.md) | Ref | Enrichment guard against giving a second song a held Spotify/iTunes/ISRC id, and the `/Admin/SharedIds` merge queue |
+| [shared-id-review](songs/shared-id-review.md) | Ref | Enrichment guard against giving a second song a held Spotify/iTunes/ISRC id, and the `/SharedIds` merge queue (Vue page app) |
 | [drop-target-lookup](songs/drop-target-lookup.md) | Ref | `useDropTarget`: pasted service IDs/URLs in ordinary search boxes |
 | [dance-family-voting](songs/dance-family-voting.md) | Ref | Voting with style families (International, American, …): auto-selection, family choice modal, vote/tag encoding |
 | [unconfirmed-dance-votes](songs/unconfirmed-dance-votes.md) | Ref | Excluding bulk-imported, unconfirmed dance ratings from default search |
@@ -167,7 +167,6 @@ into `runbooks/` as its area is consolidated.
 | Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
 | Visitor engagement next steps (post-launch priorities, enhancements) | Proposed | [plans/visitor-engagement-next](plans/visitor-engagement-next.md) |
 | Dance family voting next steps | Proposed | [plans/dance-family-voting-next](plans/dance-family-voting-next.md) |
-| Shared-id review restructure: Vue page app with JSON apply, its own controller, page logic out of the controller, test gaps | Partially implemented: PR 1 (own controller, page logic and preview state out of the controller, tests) done; Vue app next | [plans/shared-id-review-refactor](plans/shared-id-review-refactor.md) |
 | Update message beyond one App Service plan (App Config / Blob) | Partially implemented: persisted, shared file within a plan shipped 2026-10-25 | [plans/persistent-update-message](plans/persistent-update-message.md) |
 
 ## Coverage gaps

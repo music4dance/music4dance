@@ -1,0 +1,402 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`shared-id-review page > renders the review page 1`] = `
+"<div><span context="[object Object]">MainMenu</span>
+  <!--v-if-->
+  <nav aria-label="breadcrumb">
+    <nav aria-label="breadcrumb" style="padding: 0.25rem 0.5rem;">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a class="" href="/" to="" replace="false">music4dance</a></li>
+        <li class="breadcrumb-item"><a class="" href="/Admin" to="" replace="false">Admin</a></li>
+        <li class="breadcrumb-item active"><span aria-current="location">Shared Song Ids</span></li>
+      </ol>
+    </nav>
+  </nav>
+  <div id="body-content" class="container-fluid body-content">
+    <h1>Shared Song Ids</h1>
+    <div>
+      <p> Songs that hold the same Spotify, iTunes or ISRC id. When enrichment is about to give a song an id another song already holds, it leaves the id off and queues the pair here. Choose what to do with each cluster on the page, then <strong>Apply this page</strong>. <strong>Merge groups</strong> folds the songs of each group (A, B, …) into one, keeping all of their history, and marks the songs of different groups not the same; a song left out stays in the queue. Every song starts in group A, and the <em>If merged</em> column shows what merging all of them would give. <strong>Not the same</strong> leaves the ids where they are and stops the pairs from being queued again. <strong>Leave for later</strong> changes nothing. Clusters with a rejected pair or a .NoMerge song start as Leave for later; the rest start as Merge groups. <strong>Merge and edit</strong> merges a cluster straight away and opens it for editing. </p>
+      <p> The <em>Title</em>, <em>Artist</em> and <em>Individual artists</em> rows choose what the merged song is called. They start on the <em>If merged</em> column, which takes any feat. clause out of the title and adds the featured artists to the individual artists. When a choice isn't what the merge gives on its own, an edit by the music4dance account sets it after the merge. A song left out can't name the merge. When the songs are split into groups, each song's choice is marked with the group it names; a group without a choice of its own gets the same cleanup of its own merge. </p>
+      <p> In the song columns, the box before an album removes the album from that song, and the box before an id removes just that id. Removals are made first, by an edit of yours, whatever the cluster's choice, and pairs whose songs no longer share an id afterwards are marked not the same. So to keep two different songs apart, remove the shared id from the one it doesn't belong to; <em>Leave for later</em> is enough. The <em>If merged</em> column doesn't show removals. </p>
+      <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="true" persisted="false" css="true">
+        <div class="alert alert-info show" tabindex="0" role="alert" aria-live="assertive" aria-atomic="true">
+          <!---->
+          <div class="d-flex gap-2">
+            <div class="alert-body">Merged 1, marked 0 not the same, left 2.</div>
+            <!---->
+          </div>
+          <!---->
+        </div>
+      </transition-stub>
+      <!--v-if-->
+      <p id="queue-summary">51 pending pairs in 45 clusters. Sorted by the preview run 2026-11-10 01:30: the 4 clusters still pending that differed only by feat. come first, then the 7 close matches. </p>
+      <div class="mb-3 d-flex flex-wrap gap-2">
+        <form method="post" action="/SharedIds/Seed"><input type="hidden" name="__RequestVerificationToken" value="token"><button class="btn btn-outline-secondary" type="submit">Queue existing shared ids</button></form>
+        <form method="post" action="/SharedIds/MergeMatching"><input type="hidden" name="__RequestVerificationToken" value="token"><button class="btn btn-outline-danger" type="submit">Merge all with matching title and artist</button></form>
+        <form method="post" action="/SharedIds/PreviewMergeMatching"><input type="hidden" name="__RequestVerificationToken" value="token"><button class="btn btn-outline-secondary" type="submit">Preview merge all</button></form><a class="btn btn-link" href="/SharedIds/Preview" role="button">Last preview</a>
+      </div>
+      <div class="mb-3"><button class="btn btn-primary apply-button" type="button">Apply this page</button>
+        <!--v-if-->
+      </div>
+      <div class="card mb-4">
+        <!---->
+        <!---->
+        <div class="card-header"><strong>R:USRC1</strong><span class="badge text-bg-info ms-2">Differ only by feat.</span><span class="badge text-bg-primary ms-2">Cleans up feat.</span>
+          <!--v-if-->
+          <!--v-if-->
+          <!--v-if-->
+        </div>
+        <div class="card-body">
+          <!---->
+          <!---->
+          <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+              <tbody>
+                <tr>
+                  <th></th>
+                  <th><select id="BootstrapVueNext__ID__v-1__input___" class="form-select form-select-sm d-inline-block w-auto me-1" aria-label="Group for song 1">
+                      <option selected="" value="A">A</option>
+                      <option value="B">B</option>
+                      <option value="">Leave out</option>
+                    </select><a href="/song/details/00000000-0000-0000-0000-00000000000a" target="_blank" rel="noopener noreferrer">Song 1</a></th>
+                  <th><select id="BootstrapVueNext__ID__v-2__input___" class="form-select form-select-sm d-inline-block w-auto me-1" aria-label="Group for song 2">
+                      <option selected="" value="A">A</option>
+                      <option value="B">B</option>
+                      <option value="">Leave out</option>
+                    </select><a href="/song/details/00000000-0000-0000-0000-00000000000b" target="_blank" rel="noopener noreferrer">Song 2</a></th>
+                  <th class="table-info"> If merged
+                    <!--v-if-->
+                  </th>
+                </tr>
+                <tr>
+                  <th>Title</th>
+                  <td>
+                    <div class="form-check"><input id="cluster-0-title-00000000-0000-0000-0000-00000000000a" class="form-check-input" type="radio" name="cluster-0-title" value="00000000-0000-0000-0000-00000000000a"><label for="cluster-0-title-00000000-0000-0000-0000-00000000000a" class="form-check-label">Probe feat. Crazy Man
+                        <!--v-if-->
+                      </label></div>
+                  </td>
+                  <td>
+                    <div class="form-check"><input id="cluster-0-title-00000000-0000-0000-0000-00000000000b" class="form-check-input" type="radio" name="cluster-0-title" value="00000000-0000-0000-0000-00000000000b"><label for="cluster-0-title-00000000-0000-0000-0000-00000000000b" class="form-check-label">Probe
+                        <!--v-if-->
+                      </label></div>
+                  </td>
+                  <td class="table-info">
+                    <div class="form-check"><input id="cluster-0-title-merged" class="form-check-input" type="radio" name="cluster-0-title" value="merged"><label for="cluster-0-title-merged" class="form-check-label">Probe</label></div>
+                    <div class="small text-muted"> The merge alone gives: Probe feat. Crazy Man</div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Artist</th>
+                  <td>
+                    <div class="form-check"><input id="cluster-0-artist-00000000-0000-0000-0000-00000000000a" class="form-check-input" type="radio" name="cluster-0-artist" value="00000000-0000-0000-0000-00000000000a"><label for="cluster-0-artist-00000000-0000-0000-0000-00000000000a" class="form-check-label">Probe Artist
+                        <!--v-if-->
+                      </label></div>
+                  </td>
+                  <td>
+                    <div class="form-check"><input id="cluster-0-artist-00000000-0000-0000-0000-00000000000b" class="form-check-input" type="radio" name="cluster-0-artist" value="00000000-0000-0000-0000-00000000000b"><label for="cluster-0-artist-00000000-0000-0000-0000-00000000000b" class="form-check-label">Probe Artist
+                        <!--v-if-->
+                      </label></div>
+                  </td>
+                  <td class="table-info">
+                    <div class="form-check"><input id="cluster-0-artist-merged" class="form-check-input" type="radio" name="cluster-0-artist" value="merged"><label for="cluster-0-artist-merged" class="form-check-label">Probe Artist</label></div>
+                    <!--v-if-->
+                  </td>
+                </tr>
+                <tr>
+                  <th>Individual artists</th>
+                  <td>
+                    <div class="form-check"><input id="cluster-0-artists-00000000-0000-0000-0000-00000000000a" class="form-check-input" type="radio" name="cluster-0-artists" value="00000000-0000-0000-0000-00000000000a"><label for="cluster-0-artists-00000000-0000-0000-0000-00000000000a" class="form-check-label">Probe Artist
+                        <!--v-if-->
+                      </label></div>
+                  </td>
+                  <td>
+                    <div class="form-check"><input id="cluster-0-artists-00000000-0000-0000-0000-00000000000b" class="form-check-input" type="radio" name="cluster-0-artists" value="00000000-0000-0000-0000-00000000000b"><label for="cluster-0-artists-00000000-0000-0000-0000-00000000000b" class="form-check-label">Probe Artist
+                        <!--v-if-->
+                      </label></div>
+                  </td>
+                  <td class="table-info">
+                    <div class="form-check"><input id="cluster-0-artists-merged" class="form-check-input" type="radio" name="cluster-0-artists" value="merged"><label for="cluster-0-artists-merged" class="form-check-label">Probe Artist | Crazy Man</label></div>
+                    <!--v-if-->
+                  </td>
+                </tr>
+                <tr>
+                  <th>Length</th>
+                  <td>3:05</td>
+                  <td>3:05</td>
+                  <td class="table-info">3:05</td>
+                </tr>
+                <tr>
+                  <th>Tempo</th>
+                  <td>120</td>
+                  <td>120</td>
+                  <td class="table-info">120</td>
+                </tr>
+                <tr>
+                  <th>Dances</th>
+                  <td>SLS+3, CHA+1</td>
+                  <td>SLS+3, CHA+1</td>
+                  <td class="table-info">SLS+3, CHA+1</td>
+                </tr>
+                <tr>
+                  <th>Albums</th>
+                  <td>
+                    <div class="shared-id-album">
+                      <div class="form-check form-check-inline me-1"><input id="BootstrapVueNext__ID__v-12__form-check___" class="form-check-input" type="checkbox" aria-label="Remove First Album from song 1" true-value="true" title="Remove First Album from song 1" value="true"><label for="BootstrapVueNext__ID__v-12__form-check___" class="form-check-label">First Album
+                          <!--v-if-->
+                        </label></div><span class="text-nowrap shared-id-track me-2"><div class="form-check-inline me-0"><input id="BootstrapVueNext__ID__v-13__form-check___" class="form-check-input" type="checkbox" aria-label="Remove S:sp1 from song 1" true-value="true" title="Remove S:sp1 from song 1" value="true"><label for="BootstrapVueNext__ID__v-13__form-check___" class="form-check-label"></label></div><span class="small text-muted"><a href="https://open.spotify.com/track/sp1" target="_blank" rel="noopener noreferrer">S:sp1</a></span></span><span class="text-nowrap shared-id-track me-2"><div class="form-check-inline me-0"><input id="BootstrapVueNext__ID__v-14__form-check___" class="form-check-input" type="checkbox" aria-label="Remove R:USRC1 from song 1" true-value="true" title="Remove R:USRC1 from song 1" value="true"><label for="BootstrapVueNext__ID__v-14__form-check___" class="form-check-label"></label></div><mark class="small">R:USRC1</mark></span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="shared-id-album">
+                      <div class="form-check form-check-inline me-1"><input id="BootstrapVueNext__ID__v-15__form-check___" class="form-check-input" type="checkbox" aria-label="Remove Second Album from song 2" true-value="true" title="Remove Second Album from song 2" value="true"><label for="BootstrapVueNext__ID__v-15__form-check___" class="form-check-label">Second Album
+                          <!--v-if-->
+                        </label></div><span class="text-nowrap shared-id-track me-2"><div class="form-check-inline me-0"><input id="BootstrapVueNext__ID__v-16__form-check___" class="form-check-input" type="checkbox" aria-label="Remove R:USRC1 from song 2" true-value="true" title="Remove R:USRC1 from song 2" value="true"><label for="BootstrapVueNext__ID__v-16__form-check___" class="form-check-label"></label></div><mark class="small">R:USRC1</mark></span>
+                    </div>
+                    <div class="shared-id-album">
+                      <div class="form-check form-check-inline me-1"><input id="BootstrapVueNext__ID__v-17__form-check___" class="form-check-input" type="checkbox" aria-label="Remove Third Album from song 2" true-value="true" title="Remove Third Album from song 2" value="true"><label for="BootstrapVueNext__ID__v-17__form-check___" class="form-check-label">Third Album
+                          <!--v-if-->
+                        </label></div><span class="text-nowrap shared-id-track me-2"><div class="form-check-inline me-0"><input id="BootstrapVueNext__ID__v-18__form-check___" class="form-check-input" type="checkbox" aria-label="Remove I:111 from song 2" true-value="true" title="Remove I:111 from song 2" value="true"><label for="BootstrapVueNext__ID__v-18__form-check___" class="form-check-label"></label></div><span class="small text-muted">I:111</span></span>
+                    </div>
+                  </td>
+                  <td class="table-info">
+                    <div class="shared-id-album"><span>First Album<!--v-if--></span><span class="text-nowrap shared-id-track me-2"><!--v-if--><mark class="small">R:USRC1</mark></span></div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Created</th>
+                  <td>2020-01-02</td>
+                  <td>2020-01-02</td>
+                  <td class="table-info">2020-01-02</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!--v-if-->
+          <ul class="small">
+            <li>Seed, 2026-11-01: R:USRC1 <span class="text-muted">(Spotify)</span></li>
+          </ul>
+          <div class="d-flex flex-wrap align-items-center gap-3">
+            <div class="form-check form-check-inline"><input id="cluster-0-action-Merge" class="form-check-input" type="radio" name="cluster-0-action" value="Merge"><label for="cluster-0-action-Merge" class="form-check-label">Merge groups</label></div>
+            <div class="form-check form-check-inline"><input id="cluster-0-action-Reject" class="form-check-input" type="radio" name="cluster-0-action" value="Reject"><label for="cluster-0-action-Reject" class="form-check-label">Not the same</label></div>
+            <div class="form-check form-check-inline"><input id="cluster-0-action-Leave" class="form-check-input" type="radio" name="cluster-0-action" value="Leave"><label for="cluster-0-action-Leave" class="form-check-label">Leave for later</label></div>
+            <form method="post" action="/Song/BulkEdit" target="_blank" class="d-inline"><input type="hidden" name="__RequestVerificationToken" value="token"><input type="hidden" name="action" value="Merge"><input type="hidden" name="selectedSongs" value="00000000-0000-0000-0000-00000000000a"><input type="hidden" name="selectedSongs" value="00000000-0000-0000-0000-00000000000b"><button class="btn btn-sm btn-outline-secondary" type="submit">Merge and edit</button></form>
+          </div>
+        </div>
+        <!---->
+        <!---->
+      </div>
+      <div class="card mb-4">
+        <!---->
+        <!---->
+        <div class="card-header"><strong>S:sp9</strong>
+          <!--v-if-->
+          <!--v-if--><span class="badge text-bg-warning ms-2">Has a rejected pair</span>
+          <!--v-if-->
+          <!--v-if-->
+        </div>
+        <div class="card-body">
+          <!---->
+          <!---->
+          <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+              <tbody>
+                <tr>
+                  <th></th>
+                  <th><select id="BootstrapVueNext__ID__v-22__input___" class="form-select form-select-sm d-inline-block w-auto me-1" aria-label="Group for song 1">
+                      <option selected="" value="A">A</option>
+                      <option value="B">B</option>
+                      <option value="C">C</option>
+                      <option value="">Leave out</option>
+                    </select><a href="/song/details/00000000-0000-0000-0000-00000000000c" target="_blank" rel="noopener noreferrer">Song 1</a></th>
+                  <th><select id="BootstrapVueNext__ID__v-23__input___" class="form-select form-select-sm d-inline-block w-auto me-1" aria-label="Group for song 2">
+                      <option selected="" value="A">A</option>
+                      <option value="B">B</option>
+                      <option value="C">C</option>
+                      <option value="">Leave out</option>
+                    </select><a href="/song/details/00000000-0000-0000-0000-00000000000d" target="_blank" rel="noopener noreferrer">Song 2</a></th>
+                  <th><select id="BootstrapVueNext__ID__v-24__input___" class="form-select form-select-sm d-inline-block w-auto me-1" aria-label="Group for song 3">
+                      <option selected="" value="A">A</option>
+                      <option value="B">B</option>
+                      <option value="C">C</option>
+                      <option value="">Leave out</option>
+                    </select><a href="/song/details/00000000-0000-0000-0000-00000000000e" target="_blank" rel="noopener noreferrer">Song 3</a></th>
+                  <th class="table-info"> If merged
+                    <!--v-if-->
+                  </th>
+                </tr>
+                <tr>
+                  <th>Title</th>
+                  <td>
+                    <div class="form-check"><input id="cluster-1-title-00000000-0000-0000-0000-00000000000c" class="form-check-input" type="radio" disabled="" name="cluster-1-title" value="00000000-0000-0000-0000-00000000000c"><label for="cluster-1-title-00000000-0000-0000-0000-00000000000c" class="form-check-label">Alpha
+                        <!--v-if-->
+                      </label></div>
+                  </td>
+                  <td>
+                    <div class="form-check"><input id="cluster-1-title-00000000-0000-0000-0000-00000000000d" class="form-check-input" type="radio" disabled="" name="cluster-1-title" value="00000000-0000-0000-0000-00000000000d"><label for="cluster-1-title-00000000-0000-0000-0000-00000000000d" class="form-check-label">Beta
+                        <!--v-if-->
+                      </label></div>
+                  </td>
+                  <td>
+                    <div class="form-check"><input id="cluster-1-title-00000000-0000-0000-0000-00000000000e" class="form-check-input" type="radio" disabled="" name="cluster-1-title" value="00000000-0000-0000-0000-00000000000e"><label for="cluster-1-title-00000000-0000-0000-0000-00000000000e" class="form-check-label">Gamma
+                        <!--v-if-->
+                      </label></div>
+                  </td>
+                  <td class="table-info">
+                    <!--v-if-->
+                  </td>
+                </tr>
+                <tr>
+                  <th>Artist</th>
+                  <td>
+                    <div class="form-check"><input id="cluster-1-artist-00000000-0000-0000-0000-00000000000c" class="form-check-input" type="radio" disabled="" name="cluster-1-artist" value="00000000-0000-0000-0000-00000000000c"><label for="cluster-1-artist-00000000-0000-0000-0000-00000000000c" class="form-check-label">One
+                        <!--v-if-->
+                      </label></div>
+                  </td>
+                  <td>
+                    <div class="form-check"><input id="cluster-1-artist-00000000-0000-0000-0000-00000000000d" class="form-check-input" type="radio" disabled="" name="cluster-1-artist" value="00000000-0000-0000-0000-00000000000d"><label for="cluster-1-artist-00000000-0000-0000-0000-00000000000d" class="form-check-label">Two
+                        <!--v-if-->
+                      </label></div>
+                  </td>
+                  <td>
+                    <div class="form-check"><input id="cluster-1-artist-00000000-0000-0000-0000-00000000000e" class="form-check-input" type="radio" disabled="" name="cluster-1-artist" value="00000000-0000-0000-0000-00000000000e"><label for="cluster-1-artist-00000000-0000-0000-0000-00000000000e" class="form-check-label">Three
+                        <!--v-if-->
+                      </label></div>
+                  </td>
+                  <td class="table-info">
+                    <!--v-if-->
+                  </td>
+                </tr>
+                <tr>
+                  <th>Individual artists</th>
+                  <td>
+                    <div class="form-check"><input id="cluster-1-artists-00000000-0000-0000-0000-00000000000c" class="form-check-input" type="radio" disabled="" name="cluster-1-artists" value="00000000-0000-0000-0000-00000000000c"><label for="cluster-1-artists-00000000-0000-0000-0000-00000000000c" class="form-check-label">One
+                        <!--v-if-->
+                      </label></div>
+                  </td>
+                  <td>
+                    <div class="form-check"><input id="cluster-1-artists-00000000-0000-0000-0000-00000000000d" class="form-check-input" type="radio" disabled="" name="cluster-1-artists" value="00000000-0000-0000-0000-00000000000d"><label for="cluster-1-artists-00000000-0000-0000-0000-00000000000d" class="form-check-label">Two
+                        <!--v-if-->
+                      </label></div>
+                  </td>
+                  <td>
+                    <div class="form-check"><input id="cluster-1-artists-00000000-0000-0000-0000-00000000000e" class="form-check-input" type="radio" disabled="" name="cluster-1-artists" value="00000000-0000-0000-0000-00000000000e"><label for="cluster-1-artists-00000000-0000-0000-0000-00000000000e" class="form-check-label">Three
+                        <!--v-if-->
+                      </label></div>
+                  </td>
+                  <td class="table-info">
+                    <!--v-if-->
+                  </td>
+                </tr>
+                <tr>
+                  <th>Length</th>
+                  <td>3:05</td>
+                  <td>3:05</td>
+                  <td>3:05</td>
+                  <td class="table-info"></td>
+                </tr>
+                <tr>
+                  <th>Tempo</th>
+                  <td>120</td>
+                  <td>120</td>
+                  <td>120</td>
+                  <td class="table-info"></td>
+                </tr>
+                <tr>
+                  <th>Dances</th>
+                  <td>SLS+3, CHA+1</td>
+                  <td>SLS+3, CHA+1</td>
+                  <td>SLS+3, CHA+1</td>
+                  <td class="table-info"></td>
+                </tr>
+                <tr>
+                  <th>Albums</th>
+                  <td>
+                    <div class="shared-id-album">
+                      <div class="form-check form-check-inline me-1"><input id="BootstrapVueNext__ID__v-34__form-check___" class="form-check-input" type="checkbox" aria-label="Remove A1 from song 1" true-value="true" title="Remove A1 from song 1" value="true"><label for="BootstrapVueNext__ID__v-34__form-check___" class="form-check-label">A1
+                          <!--v-if-->
+                        </label></div><span class="text-nowrap shared-id-track me-2"><div class="form-check-inline me-0"><input id="BootstrapVueNext__ID__v-35__form-check___" class="form-check-input" type="checkbox" aria-label="Remove S:sp9 from song 1" true-value="true" title="Remove S:sp9 from song 1" value="true"><label for="BootstrapVueNext__ID__v-35__form-check___" class="form-check-label"></label></div><mark class="small">S:sp9</mark></span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="shared-id-album">
+                      <div class="form-check form-check-inline me-1"><input id="BootstrapVueNext__ID__v-36__form-check___" class="form-check-input" type="checkbox" aria-label="Remove B1 from song 2" true-value="true" title="Remove B1 from song 2" value="true"><label for="BootstrapVueNext__ID__v-36__form-check___" class="form-check-label">B1
+                          <!--v-if-->
+                        </label></div><span class="text-nowrap shared-id-track me-2"><div class="form-check-inline me-0"><input id="BootstrapVueNext__ID__v-37__form-check___" class="form-check-input" type="checkbox" aria-label="Remove S:sp9 from song 2" true-value="true" title="Remove S:sp9 from song 2" value="true"><label for="BootstrapVueNext__ID__v-37__form-check___" class="form-check-label"></label></div><mark class="small">S:sp9</mark></span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="shared-id-album">
+                      <div class="form-check form-check-inline me-1"><input id="BootstrapVueNext__ID__v-38__form-check___" class="form-check-input" type="checkbox" aria-label="Remove C1 from song 3" true-value="true" title="Remove C1 from song 3" value="true"><label for="BootstrapVueNext__ID__v-38__form-check___" class="form-check-label">C1
+                          <!--v-if-->
+                        </label></div><span class="text-nowrap shared-id-track me-2"><div class="form-check-inline me-0"><input id="BootstrapVueNext__ID__v-39__form-check___" class="form-check-input" type="checkbox" aria-label="Remove S:sp9 from song 3" true-value="true" title="Remove S:sp9 from song 3" value="true"><label for="BootstrapVueNext__ID__v-39__form-check___" class="form-check-label"></label></div><mark class="small">S:sp9</mark></span>
+                    </div>
+                  </td>
+                  <td class="table-info">
+                    <!--v-if-->
+                  </td>
+                </tr>
+                <tr>
+                  <th>Created</th>
+                  <td>2020-01-02</td>
+                  <td>2020-01-02</td>
+                  <td>2020-01-02</td>
+                  <td class="table-info"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="small text-muted">The merge couldn't be previewed.</p>
+          <ul class="small">
+            <li>Enrich, 2026-11-02: S:sp9
+              <!--v-if-->
+            </li>
+            <li>Enrich, 2026-11-02: S:sp9
+              <!--v-if-->
+            </li>
+          </ul>
+          <div class="d-flex flex-wrap align-items-center gap-3">
+            <div class="form-check form-check-inline"><input id="cluster-1-action-Merge" class="form-check-input" type="radio" name="cluster-1-action" value="Merge"><label for="cluster-1-action-Merge" class="form-check-label">Merge groups</label></div>
+            <div class="form-check form-check-inline"><input id="cluster-1-action-Reject" class="form-check-input" type="radio" name="cluster-1-action" value="Reject"><label for="cluster-1-action-Reject" class="form-check-label">Not the same</label></div>
+            <div class="form-check form-check-inline"><input id="cluster-1-action-Leave" class="form-check-input" type="radio" name="cluster-1-action" value="Leave"><label for="cluster-1-action-Leave" class="form-check-label">Leave for later</label></div>
+            <form method="post" action="/Song/BulkEdit" target="_blank" class="d-inline"><input type="hidden" name="__RequestVerificationToken" value="token"><input type="hidden" name="action" value="Merge"><input type="hidden" name="selectedSongs" value="00000000-0000-0000-0000-00000000000c"><input type="hidden" name="selectedSongs" value="00000000-0000-0000-0000-00000000000d"><input type="hidden" name="selectedSongs" value="00000000-0000-0000-0000-00000000000e"><button class="btn btn-sm btn-outline-secondary" type="submit">Merge and edit</button></form>
+          </div>
+        </div>
+        <!---->
+        <!---->
+      </div>
+      <div class="card mb-4">
+        <!---->
+        <!---->
+        <div class="card-header"><strong>I:999</strong>
+          <!--v-if-->
+          <!--v-if-->
+          <!--v-if-->
+          <!--v-if-->
+          <!--v-if-->
+        </div>
+        <div class="card-body">
+          <!---->
+          <!---->
+          <p class="text-muted"> These songs changed while the page loaded. Reload to see them. </p>
+        </div>
+        <!---->
+        <!---->
+      </div>
+      <div class="mb-3"><button class="btn btn-primary apply-button" type="button">Apply this page</button></div>
+      <ul class="pagination justify-content-start" role="menubar" aria-disabled="false" aria-label="Review queue pages">
+        <li class="page-item" role="presentation" data-display-name="0"><button is="button" class="page-link text-center" aria-label="Go to previous page" role="menuitem" type="button" tabindex="-1">‹</button></li>
+        <li class="page-item" role="presentation" data-display-name="1"><button is="button" class="page-link text-center" aria-label="Go to page 1" aria-posinset="1" aria-setsize="3" role="menuitem" type="button" tabindex="-1">1</button></li>
+        <li class="page-item active" role="presentation" data-display-name="2"><button is="button" class="page-link text-center" aria-label="Go to page 2" aria-posinset="2" aria-setsize="3" role="menuitem" type="button" tabindex="0">2</button></li>
+        <li class="page-item" role="presentation" data-display-name="3"><button is="button" class="page-link text-center" aria-label="Go to page 3" aria-posinset="3" aria-setsize="3" role="menuitem" type="button" tabindex="-1">3</button></li>
+        <li class="page-item" role="presentation" data-display-name="4"><button is="button" class="page-link text-center" aria-label="Go to next page" role="menuitem" type="button" tabindex="-1">›</button></li>
+      </ul>
+    </div>
+  </div>
+  <div id="footer-content">
+    <hr>
+    <footer>
+      <p> © 2026 - <a href="https://www.music4dance.net">Music4Dance.net</a> - <a href="https://www.music4dance.net/home/sitemap">Site Map</a> - <a href="https://www.music4dance.net/home/termsofservice">Terms of Service</a> - <a href="https://www.music4dance.net/home/privacypolicy">Privacy Policy</a> - <a href="https://www.music4dance.net/home/credits">Credits</a> - <a href="https://github.com/music4dance/music4dance" target="_blank">Code</a> - <a>Help</a></p>
+    </footer>
+  </div>
+</div>"
+`;

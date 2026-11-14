@@ -1,0 +1,55 @@
+using m4d.Services;
+using m4d.Services.ServiceHealth;
+using m4d.ViewModels;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+
+namespace m4d.APIControllers;
+
+/// <summary>
+/// The shared-id review's JSON actions, posted by the shared-id-review page app. The page itself
+/// and the background tasks are on m4d.Controllers.SharedIdsController. See
+/// architecture/songs/shared-id-review.md.
+/// </summary>
+[ApiController]
+[Authorize(Roles = "dbAdmin")]
+[ValidateAntiForgeryToken]
+[Route("api/sharedids")]
+public class SharedIdsController(
+    DanceMusicContext context, UserManager<ApplicationUser> userManager,
+    ISearchServiceManager searchService, IDanceStatsManager danceStatsManager,
+    IConfiguration configuration, ILogger<SharedIdsController> logger,
+    ServiceHealthManager serviceHealth, SharedIdPreviewStore previews)
+    : DanceMusicApiController(context, userManager, searchService, danceStatsManager, configuration,
+        logger, serviceHealth: serviceHealth)
+{
+    //
+    // POST: /api/sharedids/apply
+    // Applies the choice made for each cluster on a page of the queue: merge its groups of songs,
+    // not the same, or leave for later, after any removals
+    [HttpPost("apply")]
+    public async Task<IActionResult> Apply([FromBody] SharedIdApplyRequest request)
+    {
+        var user = await Database.FindUser(User.Identity?.Name);
+        if (user == null)
+        {
+            return Forbid();
+        }
+
+        var choices = (request?.Choices ?? []).Where(c => c != null).Select(c => c.ToChoice()).ToList();
+        var result = await Database.SharedIds.Apply(user, choices);
+        foreach (var (from, into) in result.Merges)
+        {
+            previews.Merged(from, into);
+        }
+        if (result.Merged > 0 || result.Edited > 0)
+        {
+            await DanceStatsManager.ClearCache(Database, false);
+        }
+
+        Logger.LogInformation("Shared-id apply by {User}: {Summary}", user.UserName, result.Summary());
+        return JsonCamelCase(SharedIdApplyResponse.Build(result));
+    }
+}

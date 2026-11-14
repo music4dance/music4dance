@@ -91,33 +91,6 @@ public class SharedIdTypesTests
     }
 
     [TestMethod]
-    public void SharedIdRemoval_ParsesWhatItFormats()
-    {
-        foreach (var removal in new[] { new SharedIdRemoval(A, 2), new SharedIdRemoval(B, 3, "S:a|b") })
-        {
-            Assert.AreEqual(removal, SharedIdRemoval.Parse(removal.Format()));
-        }
-    }
-
-    [TestMethod]
-    [DataRow("x|1")]
-    [DataRow("1|1")]
-    [DataRow("00000000-0000-0000-0000-00000000000a")]
-    [DataRow("00000000-0000-0000-0000-00000000000a|x")]
-    [DataRow("")]
-    [DataRow(null)]
-    public void SharedIdRemoval_Malformed_IsNull(string value)
-    {
-        Assert.IsNull(SharedIdRemoval.Parse(value));
-    }
-
-    [TestMethod]
-    public void SharedIdRemoval_EmptyId_IsTheWholeAlbum()
-    {
-        Assert.AreEqual(new SharedIdRemoval(A, 1), SharedIdRemoval.Parse($"{A}|1|"));
-    }
-
-    [TestMethod]
     public void Summary_OnlyMentionsRemovalsAndStaleMergesWhenThereAreSome()
     {
         var plain = new SharedIdBatchResult { Merged = 2, Rejected = 1, Left = 3 }.Summary();

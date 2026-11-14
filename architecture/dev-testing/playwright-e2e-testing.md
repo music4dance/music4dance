@@ -1,7 +1,7 @@
 # Playwright End-to-End Testing
 
 **Type:** Reference
-**Status:** Current. Implemented; `e2e/tests/` has 11 spec files as of 2026-11-04 (8 when first written).
+**Status:** Current. Implemented; `e2e/tests/` has 12 spec files as of 2026-11-14 (8 when first written).
 **Last verified:** 2026-10-01 (file references checked)
 **Code:** `e2e/`, `.github/workflows/e2e.yaml`
 
@@ -93,6 +93,7 @@ e2e/
     playlist.spec.ts    # create a playlist from search results
     custom-search.spec.ts      # build a filter via UI, assert the URL round-trips
     merge.spec.ts       # merge two songs from a list, pick fields from either in the editor
+    shared-ids.spec.ts  # shared-id review: Not the same, and Merge groups with a picked title
   .gitignore            # test-results/, playwright-report/, blob-report/
 ```
 
@@ -336,6 +337,21 @@ Two things these tests had to be written around, both of which will bite the nex
   Use `exact: true`.
 - **Re-splitting happens server-side**, in the save hook. After saving an artist edit the client
   shows its own state, so anything asserting what was *stored* has to `page.reload()` first.
+
+### Added since: shared-id review
+
+`shared-ids.spec.ts` drives the [shared-id review](../songs/shared-id-review.md) as admin. Each
+test makes its own pair of songs that share an ISRC, because nothing in the seed set does:
+`POST /api/song` twice with different Spotify ids, then `PATCH /api/song/{id}` giving the second
+the first's ISRC, which doesn't pass through the enrichment guard. Then **Queue existing shared
+ids** queues the pair. Three things to know:
+
+- `POST /api/song` assigns its own song id, whatever the body says, so the test finds the song
+  through the search afterwards. The two songs also need distinct titles.
+- The seed runs in the background, so the test reloads `/SharedIds` until the cluster shows up,
+  looking on every page of the queue.
+- The later song's title wins a merge, and the **If merged** proposal shows it. To prove a picked
+  title is applied, pick the earlier song's.
 
 ### Sandbox prerequisites for these
 
