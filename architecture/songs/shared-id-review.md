@@ -138,6 +138,9 @@ title-based tools or **Merge and edit** resolve themselves.
 
 ## Future improvements
 
+- Restructure the review page as a Vue app with its own controller, move the page logic out of
+  the controller, and fill the test gaps: [shared-id-review-refactor](../plans/shared-id-review-refactor.md).
+
 - Once the feat. cleanup and the close-match tier have been refined on this queue, use
   `FeaturedCleanup` in **Merge all** and in the add-time merge ([song-merge-algorithm](song-merge-algorithm.md)).
 

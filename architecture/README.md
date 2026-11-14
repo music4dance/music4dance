@@ -167,6 +167,7 @@ into `runbooks/` as its area is consolidated.
 | Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
 | Visitor engagement next steps (post-launch priorities, enhancements) | Proposed | [plans/visitor-engagement-next](plans/visitor-engagement-next.md) |
 | Dance family voting next steps | Proposed | [plans/dance-family-voting-next](plans/dance-family-voting-next.md) |
+| Shared-id review restructure: Vue page app with JSON apply, its own controller, page logic out of the controller, test gaps | Proposed | [plans/shared-id-review-refactor](plans/shared-id-review-refactor.md) |
 | Update message beyond one App Service plan (App Config / Blob) | Partially implemented: persisted, shared file within a plan shipped 2026-10-25 | [plans/persistent-update-message](plans/persistent-update-message.md) |
 
 ## Coverage gaps
