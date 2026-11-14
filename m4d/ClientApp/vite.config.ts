@@ -27,15 +27,7 @@ export default defineConfig({
     Inspect({ build: true, outputDir: ".vite-inspect" }),
     vue(),
     mkcert(),
-    AutoEndpoints({
-      "dance-details": [
-        {
-          name: "VueShowdownPlugin",
-          library: "vue-showdown",
-          config: { flavor: "vanilla" },
-        },
-      ],
-    }),
+    AutoEndpoints({}),
     Components({
       globs: ["src/**/components/**/*.vue"],
       resolvers: [BootstrapVueNextResolver(), IconsResolver()],
@@ -62,7 +54,6 @@ export default defineConfig({
           const normalizedId = normalizePath(id);
           if (normalizedId.includes("node_modules")) {
             if (normalizedId.includes("bootstrap-vue-next")) return "bsvn";
-            if (normalizedId.includes("vue-showdown") || normalizedId.includes("showdown")) return "showdown";
             if (normalizedId.includes("/vue/") || normalizedId.includes("/vue-demi/") || normalizedId.includes("/@vue/")) return "vue";
           }
         },

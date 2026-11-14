@@ -42,9 +42,11 @@ exports[`Dance Details > Renders dance-details Page 1`] = `
           <div>
             <div>
               <!--v-if-->
-              <vueshowdown id="description" markdown="*Bolero* is unique among competitive American Rhythm dances in that it requires not only cuban motion, but contra body movement as found in the smooth dances and rise and fall as is found in the [waltz].   For the purpose of music4dance categorization Bolero is the slowest of the three competition dances that are danced to *Rumba* style music, the other two being the Rumbas from the [International Latin](/dances/international-latin) and [American Rhythm](/dances/american-rhythm) categories.
-
-The Bolero is generally danced as the fourth dance of [American Rhythm](/dances/american-rhythm) five dance competitions.  "></vueshowdown>
+              <!-- eslint-disable-next-line vue/no-v-html -- output is sanitized by DOMPurify -->
+              <div id="description">
+                <p><em>Bolero</em> is unique among competitive American Rhythm dances in that it requires not only cuban motion, but contra body movement as found in the smooth dances and rise and fall as is found in the [waltz]. For the purpose of music4dance categorization Bolero is the slowest of the three competition dances that are danced to <em>Rumba</em> style music, the other two being the Rumbas from the <a href="/dances/international-latin">International Latin</a> and <a href="/dances/american-rhythm">American Rhythm</a> categories.</p>
+                <p>The Bolero is generally danced as the fourth dance of <a href="/dances/american-rhythm">American Rhythm</a> five dance competitions. </p>
+              </div>
             </div>
             <div id="tempo-info">
               <h2>Tempo Information</h2>
