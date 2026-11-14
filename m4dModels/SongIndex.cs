@@ -565,6 +565,17 @@ public class SongIndex
         {
             var blocks = SongPropertyBlockParser.ParseBlocks(properties[song.SongId]);
 
+            // A block with no time of its own (.FailedLookup is written inside an edit, after
+            // that edit's User and Time) sorts with the block before it. Sorted as the earliest
+            // block, it would start the merged log, and SongPropertyCompression only reads a log
+            // as plain text when it starts with .Create, .Edit or .Merge.
+            DateTime? previous = null;
+            foreach (var block in blocks)
+            {
+                block.Timestamp ??= previous;
+                previous = block.Timestamp;
+            }
+
             foreach (var block in blocks)
             {
                 // Stamp .Create and .Edit blocks with the source GUID. Other action types
