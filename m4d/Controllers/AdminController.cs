@@ -271,12 +271,17 @@ public class AdminController(
         {
             _sharedIdsPreview?.Merged(from, into);
         }
-        if (result.Merged > 0)
+        if (result.Merged > 0 || result.Edited > 0)
         {
             await DanceStatsManager.ClearCache(Database, false);
         }
 
         var message = $"Merged {result.Merged}, marked {result.Rejected} not the same, left {result.Left}.";
+        if (result.Edited > 0)
+        {
+            message += $" Removed albums or ids from {result.Edited} songs; {result.Unshared} pairs " +
+                "no longer shared an id and were marked not the same.";
+        }
         if (result.Stale > 0)
         {
             message += $" {result.Stale} weren't merged: fewer than two of their grouped songs " +

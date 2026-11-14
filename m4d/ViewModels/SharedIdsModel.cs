@@ -52,6 +52,10 @@ public class SharedIdChoiceForm
     public int Artist { get; set; } = SharedIdNamePicks.Proposed;
     public int Artists { get; set; } = SharedIdNamePicks.Proposed;
 
+    // The albums and ids checked for removal, as SharedIdRemoval.Format writes them
+    public string[] Removals { get; set; }
+
     public SharedIdChoice ToChoice() => new(Action, SongIds ?? [], CandidateIds ?? [],
-        Groups, new SharedIdNamePicks(Title, Artist, Artists));
+        Groups, new SharedIdNamePicks(Title, Artist, Artists),
+        [.. (Removals ?? []).Select(SharedIdRemoval.Parse).Where(r => r != null)]);
 }

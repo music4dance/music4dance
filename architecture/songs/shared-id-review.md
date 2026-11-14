@@ -66,7 +66,9 @@ shows its songs side by side: title, artist, length, tempo, dances, albums with 
 ids (shared ones highlighted), and created date, plus each row's source and detail. Spotify and
 iTunes ids link to the track on the service (`MusicService.GetPurchaseLink`; an iTunes link needs
 the album's iTunes id), to check by hand which song an id belongs to. ISRCs have no page; the
-Spotify and iTunes ids beside one on the same album are the tracks that reported it. A last
+Spotify and iTunes ids beside one on the same album are the tracks that reported it. In the
+song columns, each album and each id has a box that removes it from that song (see
+**Removals** below). A last
 **If merged** column shows the song merging all of them would make
 (`SharedIdLog.PreviewMerge` → `SongIndex.BuildSimpleMerge`, the build half of
 `SimpleMergeSongs`, which saves nothing). Use it to choose between **Merge groups** and
@@ -128,7 +130,8 @@ title-based tools or **Merge and edit** resolve themselves.
 | **Merge groups** (a choice, applied by **Apply this page**) | For each group, `SongIndex.SimpleMergeSongs` on its songs, which keeps all their history, then the music4dance edit for the chosen names if one is needed. Rows between them become `Merged`; their rows with other songs, pending or rejected, move to the merged song. Then the pairs between groups are rejected. A song left out stays in the queue paired with the merged song. A group with fewer than two songs still in the catalog is counted as stale and skipped. This happens, for example, after **Merge and edit**. |
 | **Not the same** (a choice) | Marks every pending row in the cluster `Rejected`. |
 | **Leave for later** (a choice) | Changes nothing. |
-| **Merge and edit** | Takes effect right away. It posts the songs to `/Song/BulkEdit` (`action=Merge`) in a new tab, which merges them as **Merge checked** does and opens the merged song in the editor to pick its title, artist, tempo and length. |
+| **Removals** (boxes on albums and ids, applied by **Apply this page** before the cluster's choice, whatever it is) | For each song with something checked, one edit by the reviewer (`Song.AppendIdRemoval`): `Album:NN=` (empty) for an album, `Purchase-:NN:SS=<id>` (or `IS`, `RS`) for one id. Removals of albums or ids the song no longer has are skipped. An edited song that is then merged goes into the merge as saved (`SimpleMergeSongs` with `reload: false`), since the index may not have caught up. Afterwards, the pending rows of the edited songs (or the songs they were merged into) whose songs no longer share any id are marked `Rejected`. So two different songs are kept apart by removing the id from the one it doesn't belong to, even with **Leave for later**. If enrichment later tries to put the id back, the guard skips it, because the other song holds it, and the rejected pair stays resolved. The **If merged** column doesn't show removals. |
+| **Merge and edit** | Takes effect right away. It posts the songs to `/Song/BulkEdit` (`action=Merge`) in a new tab, which merges them as **Merge groups** does with one group and opens the merged song in the editor to pick its title, artist, tempo and length. |
 | **Merge all with matching title and artist** (`POST /Admin/MergeMatchingSharedIds`) | A background task (watch `/Admin/AdminStatus`). It merges every pending cluster whose songs all share the same title and the same non-empty artist (`Song.CreateTitleHash`, as the title-based merge candidates compare them). Every cluster shares an id by construction. It skips clusters with a rejected pair inside them, or with a `.NoMerge` song. |
 | **Preview merge all** (`POST /Admin/PreviewMergeMatchingSharedIds`) | A background task that works out what **Merge all with matching title and artist** would do, without merging (`SharedIdLog.PlanMergeMatching`, which the merge itself runs first). **Last preview** (`/Admin/SharedIdsPreview`) lists the clusters it would merge, then the skipped ones grouped by reason: a rejected pair, a `.NoMerge` song, a song with no artist, or titles or artists that differ only by feat., are close, or differ. The result lives in memory until the next preview or a restart. |
 | **Queue existing shared ids** (`POST /Admin/SeedSharedIds`) | Runs the seed as a background task. |
@@ -138,8 +141,8 @@ title-based tools or **Merge and edit** resolve themselves.
 - Once the feat. cleanup and the close-match tier have been refined on this queue, use
   `FeaturedCleanup` in **Merge all** and in the add-time merge ([song-merge-algorithm](song-merge-algorithm.md)).
 
-- Moving a wrong id to the right song (e.g. an ISRC attached to a different recording) needs the
-  song editor.
+- Moving a wrong id to the song it belongs to (rather than only removing it) needs the song
+  editor.
 
 ## History
 
@@ -148,6 +151,7 @@ title-based tools or **Merge and edit** resolve themselves.
 - 2026-11: **If merged** column and page-at-a-time review (**Apply this page**), which replace the per-cluster Merge checked and Not the same buttons.
 - 2026-11: Match tiers (differ only by feat., close match), sorted first after a preview; per-song title and artist choices; the feat. cleanup proposal, applied by a music4dance edit.
 - 2026-11: Merge groups, which split a cluster in one Apply. The music4dance edit is no longer by a pseudo user, whose title and artist were ignored. The sort keeps a cluster's place after part of it is merged.
+- 2026-11: Removing albums and ids from a cluster's songs on the review page; pairs that no longer share an id are marked not the same.
 
 ## Related
 
