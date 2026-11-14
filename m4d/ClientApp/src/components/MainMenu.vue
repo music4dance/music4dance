@@ -284,7 +284,7 @@ function search(s?: string): void {
             <BDropdownItem href="/admin/spotifyserviceaccount"
               >Spotify Service Account</BDropdownItem
             >
-            <BDropdownItem href="/admin/sharedids">Shared Song Ids</BDropdownItem>
+            <BDropdownItem href="/sharedids">Shared Song Ids</BDropdownItem>
             <BDropdownItem href="/partnerkeys/clients">Partner API Clients</BDropdownItem>
           </BNavItemDropdown>
         </BNavbarNav>
