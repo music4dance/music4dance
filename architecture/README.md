@@ -30,7 +30,7 @@ procedural, to become a runbook.
 | --- | --- | --- |
 | [song-internal-format](songs/song-internal-format.md) | Ref | The append-only `SongProperty` log: wire format, field reference, edit blocks, user types, index compression |
 | [song-details-viewing-editing](songs/song-details-viewing-editing.md) | Ref | Song details page, `SongCore.vue`, editing flow, permissions, pseudo-users, per-dance tempo |
-| [song-merge-algorithm](songs/song-merge-algorithm.md) | Ref | Service id matching, duplicate detection levels, title normalization, the history-weaving merge and the post-merge editor |
+| [song-merge-algorithm](songs/song-merge-algorithm.md) | Ref | Service id matching, duplicate detection levels, title normalization, the history-weaving merge, the post-merge editor and unmerge |
 | [song-upload-format](songs/song-upload-format.md) | Ref | `UploadCatalog` file format: header fields, tags, upload form parameters |
 | [add-augment-song](songs/add-augment-song.md) | Ref | `/song/augment`: locating a track, server-side lookup/dedup, saving user edits |
 | [service-track-lookup](songs/service-track-lookup.md) | Ref | Backend resolution of a Spotify/Apple track ID to a catalog song |
@@ -166,7 +166,6 @@ into `runbooks/` as its area is consolidated.
 | Durable log storage (Blob / Log Analytics / tuned App Insights) | Proposed | [plans/log-persistence-options](plans/log-persistence-options.md) |
 | Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
 | Visitor engagement next steps (post-launch priorities, enhancements) | Proposed | [plans/visitor-engagement-next](plans/visitor-engagement-next.md) |
-| Song unmerge: split sources back out of a simple merge from the song page | In progress (branch `song-unmerge`) | [plans/song-unmerge](plans/song-unmerge.md) |
 | Dance family voting next steps | Proposed | [plans/dance-family-voting-next](plans/dance-family-voting-next.md) |
 | Update message beyond one App Service plan (App Config / Blob) | Partially implemented: persisted, shared file within a plan shipped 2026-10-25 | [plans/persistent-update-message](plans/persistent-update-message.md) |
 

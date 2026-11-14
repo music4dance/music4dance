@@ -692,7 +692,8 @@ public class SongIndex
     /// Splits <paramref name="extract"/> (some, not all, of
     /// <see cref="Song.GetUnmergeableSources"/>) back out of a simple merge, saves the restored
     /// songs and the remainder, and marks each pair of them that still shares a service id as
-    /// not the same song in the shared-id queue. See architecture/plans/song-unmerge.md.
+    /// not the same song in the shared-id queue. See architecture/songs/song-merge-algorithm.md
+    /// § Unmerging.
     /// </summary>
     public async Task<UnmergeResult> UnmergeSong(ApplicationUser user, Guid songId,
         IReadOnlyCollection<Guid> extract, bool noMerge)

@@ -5,8 +5,8 @@ import { useModal } from "bootstrap-vue-next";
 import { computed, ref, watch } from "vue";
 
 // Admin-only: split one or more of a simple merge's sources back out as songs of their own
-// (POST /song/unmerge, see architecture/plans/song-unmerge.md). It commits immediately, so it is
-// disabled while the song has unsaved edits.
+// (POST /song/unmerge, see architecture/songs/song-merge-algorithm.md § Unmerging). It commits
+// immediately, so it is disabled while the song has unsaved edits.
 
 const props = defineProps<{
   history: SongHistory;

@@ -107,7 +107,7 @@ test("merges two songs and picks the merged song's fields from either one", asyn
 
 // Unmerge (UnmergeSection on the song page → POST /song/unmerge → SongIndex.UnmergeSong): the
 // split-out song comes back under its own id with its own album, and the merged song keeps the
-// other. See architecture/plans/song-unmerge.md.
+// other. See architecture/songs/song-merge-algorithm.md § Unmerging.
 test("splits a merged song back out", async ({ page }) => {
   await login(page, "admin");
 
