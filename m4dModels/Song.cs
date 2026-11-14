@@ -1980,6 +1980,54 @@ public class Song : TaggableObject
         return true;
     }
 
+    /// <summary>
+    /// Appends an edit block by <paramref name="user"/> removing albums and song-level purchase
+    /// ids: for each removal, the album at Album (an AlbumDetails.Index) when Id is null,
+    /// otherwise the id (extended, "S:…", as GetExtendedPurchaseIds spells it) from that album.
+    /// Removals of albums or ids the song doesn't have are skipped. Only the log changes: reload
+    /// the song (Song.Create) to see the result. Returns false, adding nothing, when nothing is
+    /// removed.
+    /// </summary>
+    public bool AppendIdRemoval(ApplicationUser user, IEnumerable<(int Album, string Id)> removals)
+    {
+        var properties = new List<SongProperty>();
+        var removed = new HashSet<int>();
+        foreach (var (index, id) in removals.Distinct().OrderBy(r => r.Id != null))
+        {
+            var album = Albums.FirstOrDefault(a => a.Index == index);
+            if (album == null || removed.Contains(index))
+            {
+                continue;
+            }
+
+            if (id == null)
+            {
+                properties.Add(new SongProperty(SongProperty.FormatName(AlbumField, index, null), string.Empty));
+                _ = removed.Add(index);
+                continue;
+            }
+
+            var service = id.Length > 2 && id[1] == ':' ? MusicService.GetService(id[0]) : null;
+            if (service == null || !album.GetExtendedPurchaseIds(PurchaseType.Song).Contains(id))
+            {
+                continue;
+            }
+
+            properties.Add(new SongProperty(
+                SongProperty.FormatName(RemovedPurchaseField, index, service.BuildPurchaseKey(PurchaseType.Song)),
+                id[2..]));
+        }
+
+        if (properties.Count == 0)
+        {
+            return false;
+        }
+
+        CreateEditProperties(user, EditCommand);
+        SongProperties.AddRange(properties);
+        return true;
+    }
+
     public SongHistory GetHistory(IMapper mapper)
     {
         return new SongHistory

@@ -56,11 +56,12 @@ public enum SharedIdMatch
 /// says which songs are the same: each group of two or more is merged, and the pairs between
 /// groups are marked not the same. A song with an empty group is left out. Groups null puts every
 /// song in one group. Names, when given, says where the merged songs' names come from; an edit by
-/// the music4dance account sets any a merge doesn't produce on its own.
+/// the music4dance account sets any a merge doesn't produce on its own. Removals, which are
+/// made first whatever the action, take albums or ids off the cluster's songs.
 /// </summary>
 public record SharedIdChoice(SharedIdAction Action, IReadOnlyList<Guid> SongIds,
     IReadOnlyCollection<int> CandidateIds, IReadOnlyList<string> Groups = null,
-    SharedIdNamePicks Names = null)
+    SharedIdNamePicks Names = null, IReadOnlyList<SharedIdRemoval> Removals = null)
 {
     /// <summary>The songs of each group, in order of first appearance.</summary>
     public IReadOnlyList<IReadOnlyList<Guid>> MergeGroups =>
@@ -83,8 +84,35 @@ public record SharedIdNamePicks(int Title = SharedIdNamePicks.Proposed,
     public const int Proposed = -1;
 }
 
+/// <summary>
+/// An album, or one song-level id on it, to take off a song of a cluster: Song is the song's
+/// index in SharedIdChoice.SongIds, Album an AlbumDetails.Index, and Id the extended id ("S:…",
+/// as AlbumDetails.GetExtendedPurchaseIds spells it), or null for the whole album.
+/// </summary>
+public record SharedIdRemoval(int Song, int Album, string Id = null)
+{
+    /// <summary>
+    /// Parses the review form's value: "song|album" for an album, "song|album|id" for an id;
+    /// null if it's malformed.
+    /// </summary>
+    public static SharedIdRemoval Parse(string value)
+    {
+        var parts = (value ?? "").Split('|', 3);
+        return parts.Length >= 2 && int.TryParse(parts[0], out var song) && int.TryParse(parts[1], out var album)
+            ? new SharedIdRemoval(song, album, parts.Length == 3 && parts[2].Length > 0 ? parts[2] : null)
+            : null;
+    }
+
+    public string Format() => Id == null ? $"{Song}|{Album}" : $"{Song}|{Album}|{Id}";
+}
+
 public class SharedIdBatchResult
 {
+    // Songs that had albums or ids removed, and pairs rejected because their songs no longer
+    // share an id afterwards
+    public int Edited { get; set; }
+    public int Unshared { get; set; }
+
     public int Merged { get; set; }
     public int Rejected { get; set; }
     public int Left { get; set; }
@@ -402,14 +430,15 @@ public class SharedIdLog(DanceMusicCoreService dms)
         SongNames names = null) =>
         Merge(user, songIds, names == null ? null : (_, _) => names);
 
-    // As above, with the names worked out from the songs being merged and the merged song
+    // As above, with the names worked out from the songs being merged and the merged song. Songs
+    // just saved come from saved, since the index may not have caught up with them
     private async Task<Song> Merge(ApplicationUser user, IReadOnlyCollection<Guid> songIds,
-        Func<IReadOnlyList<Song>, Song, SongNames> names)
+        Func<IReadOnlyList<Song>, Song, SongNames> names, IReadOnlyDictionary<Guid, Song> saved = null)
     {
         var songs = new List<Song>();
         foreach (var id in songIds.Distinct())
         {
-            var song = await SongIndex.FindSong(id);
+            var song = saved?.GetValueOrDefault(id) ?? await SongIndex.FindSong(id);
             if (song != null && !song.IsNull)
             {
                 songs.Add(song);
@@ -425,7 +454,7 @@ public class SharedIdLog(DanceMusicCoreService dms)
         // set (Song.LoadProperties), and nearly every title and artist was set by a real user
         var namesUser = names == null ? null : new ApplicationUser(Song.M4dUser);
         var merged = await SongIndex.SimpleMergeSongs(user, songs,
-            names == null ? null : m => names(songs, m), namesUser);
+            names == null ? null : m => names(songs, m), namesUser, reload: false);
         await Repoint(songs.ToDictionary(s => s.SongId, _ => (Guid?)merged.SongId), user.UserName);
         return merged;
     }
@@ -447,10 +476,12 @@ public class SharedIdLog(DanceMusicCoreService dms)
         var result = new SharedIdBatchResult();
         foreach (var choice in choices)
         {
+            var edited = await ApplyRemovals(user, choice, result);
+            var merges = result.Merges.Count;
             switch (choice.Action)
             {
                 case SharedIdAction.Merge:
-                    await ApplyMerge(user, choice, result);
+                    await ApplyMerge(user, choice, edited, result);
                     break;
                 case SharedIdAction.Reject:
                     await Reject(user, choice.CandidateIds);
@@ -460,14 +491,81 @@ public class SharedIdLog(DanceMusicCoreService dms)
                     result.Left += 1;
                     break;
             }
+
+            if (edited.Count > 0)
+            {
+                // The edited songs, or the songs they were merged into
+                var songIds = edited.Keys.ToHashSet();
+                foreach (var (from, into) in result.Merges.Skip(merges))
+                {
+                    if (from.Any(songIds.Contains))
+                    {
+                        _ = songIds.Add(into);
+                    }
+                }
+
+                await RejectUnshared(user, songIds, edited, result);
+            }
         }
 
         return result;
     }
 
+    // Takes the choice's albums and ids off its songs, one edit by the reviewer per song.
+    // Returns the songs edited, as saved
+    private async Task<Dictionary<Guid, Song>> ApplyRemovals(ApplicationUser user, SharedIdChoice choice,
+        SharedIdBatchResult result)
+    {
+        var edited = new Dictionary<Guid, Song>();
+        foreach (var bySong in (choice.Removals ?? []).Where(r => r != null && r.Song >= 0 && r.Song < choice.SongIds.Count)
+                     .GroupBy(r => r.Song))
+        {
+            var song = await SongIndex.FindSong(choice.SongIds[bySong.Key]);
+            if (song == null || song.IsNull ||
+                !song.AppendIdRemoval(user, bySong.Select(r => (r.Album, r.Id))))
+            {
+                continue;
+            }
+
+            var saved = await Song.Create(song.SongId, [.. song.SongProperties], dms);
+            await SongIndex.SaveSong(saved);
+            edited[saved.SongId] = saved;
+            result.Edited += 1;
+        }
+
+        return edited;
+    }
+
+    // Marks not the same the pending pairs of these songs that no longer share an id: removing
+    // the shared id from one of them says they're different songs. Songs just saved come from
+    // <paramref name="saved"/>, since the index may not have caught up with them
+    private async Task RejectUnshared(ApplicationUser user, IReadOnlyCollection<Guid> songIds,
+        IReadOnlyDictionary<Guid, Song> saved, SharedIdBatchResult result)
+    {
+        var rows = await Context.SharedIdCandidates
+            .Where(c => c.Status == SharedIdStatus.Pending && (songIds.Contains(c.SongA) || songIds.Contains(c.SongB)))
+            .ToListAsync();
+        foreach (var row in rows)
+        {
+            var a = saved.GetValueOrDefault(row.SongA) ?? await SongIndex.FindSong(row.SongA);
+            var b = saved.GetValueOrDefault(row.SongB) ?? await SongIndex.FindSong(row.SongB);
+            if (a == null || a.IsNull || b == null || b.IsNull ||
+                a.GetExtendedPurchaseIds().Intersect(b.GetExtendedPurchaseIds()).Any())
+            {
+                continue;
+            }
+
+            Resolve(row, SharedIdStatus.Rejected, user.UserName);
+            result.Unshared += 1;
+        }
+
+        _ = await Context.SaveChangesAsync();
+    }
+
     // Merges each group of the choice, then marks the pairs between groups not the same. When a
     // group's merge is stale, nothing is rejected: its songs changed elsewhere
-    private async Task ApplyMerge(ApplicationUser user, SharedIdChoice choice, SharedIdBatchResult result)
+    private async Task ApplyMerge(ApplicationUser user, SharedIdChoice choice,
+        IReadOnlyDictionary<Guid, Song> saved, SharedIdBatchResult result)
     {
         var groups = choice.MergeGroups;
         var becameIds = new List<Guid>();
@@ -481,7 +579,7 @@ public class SharedIdLog(DanceMusicCoreService dms)
             }
 
             var merged = await Merge(user, group,
-                choice.Names == null ? null : (songs, m) => PickNames(choice, songs, m));
+                choice.Names == null ? null : (songs, m) => PickNames(choice, songs, m), saved);
             if (merged == null)
             {
                 stale = true;

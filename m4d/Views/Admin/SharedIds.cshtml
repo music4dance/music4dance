@@ -45,6 +45,14 @@
     songs are split into groups, a group takes a choice only from one of its own songs; otherwise
     it gets the same cleanup of its own merge.
 </p>
+<p>
+    In the song columns, the box before an album removes the album from that song, and the box
+    before an id removes just that id. Removals are made first, by an edit of yours, whatever the
+    cluster's choice, and pairs whose songs no longer share an id afterwards are marked not the
+    same. So to keep two different songs apart, remove the shared id from the one it doesn't
+    belong to; <em>Leave for later</em> is enough. The <em>If merged</em> column doesn't show
+    removals.
+</p>
 
 @if (!string.IsNullOrEmpty(Model.Message))
 {
@@ -122,22 +130,43 @@
         }
     }
 
-    void AlbumList(Song song, HashSet<string> shared)
+    // A box that checks the album or id for removal (cluster i, song column k)
+    void RemoveBox(int i, int k, SharedIdRemoval removal, string label)
+    {
+        <input class="form-check-input shared-id-remove me-1" type="checkbox" name="items[@i].Removals"
+               value="@removal.Format()" form="apply" title="@label" aria-label="@label" />
+    }
+
+    // The song's albums with their song-level ids. In a song column (k >= 0), each album and id
+    // has a box to remove it
+    void AlbumList(Song song, HashSet<string> shared, int i = -1, int k = -1)
     {
         foreach (var album in song.Albums)
         {
-            <div>
-                @album.Name @(album.Track.HasValue ? $"#{album.Track}" : "")
+            <div class="shared-id-album">
+                <span class="shared-id-removable">
+                    @if (k >= 0)
+                    {
+                        RemoveBox(i, k, new SharedIdRemoval(k, album.Index), $"Remove {album.Name} from song {k + 1}");
+                    }
+                    @album.Name @(album.Track.HasValue ? $"#{album.Track}" : "")
+                </span>
                 @foreach (var id in album.GetExtendedPurchaseIds(PurchaseType.Song))
                 {
-                    if (shared.Contains(id))
-                    {
-                        <mark class="small">@{ IdText(album, id); }</mark>
-                    }
-                    else
-                    {
-                        <span class="small text-muted">@{ IdText(album, id); }</span>
-                    }
+                    <span class="text-nowrap shared-id-removable">
+                        @if (k >= 0)
+                        {
+                            RemoveBox(i, k, new SharedIdRemoval(k, album.Index, id), $"Remove {id} from song {k + 1}");
+                        }
+                        @if (shared.Contains(id))
+                        {
+                            <mark class="small">@{ IdText(album, id); }</mark>
+                        }
+                        else
+                        {
+                            <span class="small text-muted">@{ IdText(album, id); }</span>
+                        }
+                    </span>
                 }
             </div>
         }
@@ -310,10 +339,10 @@
                         </tr>
                         <tr>
                             <th>Albums</th>
-                            @foreach (var song in cluster.Songs)
+                            @for (var k = 0; k < cluster.Songs.Count; k++)
                             {
                                 <td>
-                                    @{ AlbumList(song, shared); }
+                                    @{ AlbumList(cluster.Songs[k], shared, i, k); }
                                 </td>
                             }
                             <td class="table-info">
@@ -414,6 +443,16 @@
             const selects = document.querySelectorAll(`.shared-id-group[data-cluster="${cluster}"]`);
             const groups = new Set([...selects].map((s) => s.value));
             document.getElementById(`split-note-${cluster}`)?.classList.toggle("d-none", groups.size < 2);
+        });
+    });
+
+    // Strike out what's checked for removal; an album's box strikes out its ids too
+    document.querySelectorAll(".shared-id-remove").forEach((box) => {
+        box.addEventListener("change", () => {
+            // An album's value is "song|album", an id's "song|album|id"
+            const isAlbum = box.value.split("|").length === 2;
+            const struck = box.closest(isAlbum ? ".shared-id-album" : ".shared-id-removable");
+            struck.classList.toggle("text-decoration-line-through", box.checked);
         });
     });
 </script>

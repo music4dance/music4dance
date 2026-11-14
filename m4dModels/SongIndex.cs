@@ -521,10 +521,14 @@ public class SongIndex
     /// <paramref name="namesUser"/> setting them is appended after the merge.
     /// </remarks>
     public async Task<Song> SimpleMergeSongs(ApplicationUser user, List<Song> songs,
-        Func<Song, SongNames> names = null, ApplicationUser namesUser = null)
+        Func<Song, SongNames> names = null, ApplicationUser namesUser = null, bool reload = true)
     {
-        // Always reload by ID to ensure full song properties are available
-        songs = [.. (await DanceMusicService.SongIndex.FindSongs(songs.Select(s => s.SongId).ToList()))];
+        // Reload by ID to ensure full song properties are available, unless the caller has just
+        // loaded (or saved) them
+        if (reload)
+        {
+            songs = [.. (await DanceMusicService.SongIndex.FindSongs(songs.Select(s => s.SongId).ToList()))];
+        }
 
         var mergedSong = await BuildSimpleMerge(user, songs);
         if (names != null && mergedSong.AppendNameEdit(namesUser ?? user, names(mergedSong)))
