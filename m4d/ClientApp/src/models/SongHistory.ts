@@ -15,6 +15,22 @@ export interface DanceVoters {
   down: string[];
 }
 
+/** One of the songs a simple merge combined, as its stamped blocks describe it. */
+export interface MergeSource {
+  id: string;
+  title?: string;
+  artist?: string;
+  user?: string;
+  created?: Date;
+  edits: number;
+}
+
+const splitIds = (value?: string): string[] =>
+  (value ?? "")
+    .split(";")
+    .map((id) => id.trim().toLowerCase())
+    .filter((id) => !!id);
+
 @jsonObject
 export class SongHistory {
   public static fromTrack(
@@ -71,6 +87,68 @@ export class SongHistory {
         this.properties.filter((p) => p.name === name && !!p.value?.trim()).map((p) => p.value),
       ),
     ];
+  }
+
+  /**
+   * The sources of the most recent .Merge that can still be split back out (Song.cs
+   * GetUnmergeableSources): listed in the .Merge, not removed by a later .Unmerge, and owning at
+   * least one stamped .Create/.Edit block. Empty unless at least two qualify, since one has to stay.
+   */
+  public get mergeSources(): MergeSource[] {
+    const props = this.properties;
+    const mergeIndex = props.findLastIndex((p) => p.baseName === PropertyType.mergeCommand);
+    if (mergeIndex === -1) {
+      return [];
+    }
+
+    const unmerged = new Set(
+      props
+        .slice(mergeIndex + 1)
+        .filter((p) => p.baseName === PropertyType.unmergeCommand)
+        .flatMap((p) => splitIds(p.value)),
+    );
+
+    const sources = new Map<string, MergeSource>();
+    let owner: MergeSource | undefined;
+    props.slice(0, mergeIndex).forEach((prop) => {
+      if (prop.isAction) {
+        const stamped =
+          prop.baseName === PropertyType.createCommand || prop.baseName === PropertyType.editCommand
+            ? splitIds(prop.value)[0]
+            : undefined;
+        owner = stamped
+          ? (sources.get(stamped) ?? sources.set(stamped, { id: stamped, edits: 0 }).get(stamped))
+          : undefined;
+        if (owner) {
+          owner.edits += 1;
+        }
+        return;
+      }
+      if (!owner) {
+        return;
+      }
+      switch (prop.baseName) {
+        case PropertyType.userField:
+        case PropertyType.userProxy:
+          owner.user = owner.user ?? prop.value;
+          break;
+        case PropertyType.timeField:
+          owner.created = owner.created ?? (prop.valueTyped as Date);
+          break;
+        case PropertyType.titleField:
+          owner.title = prop.value;
+          break;
+        case PropertyType.artistField:
+          owner.artist = prop.value;
+          break;
+      }
+    });
+
+    const result = splitIds(props[mergeIndex]!.value)
+      .filter((id) => !unmerged.has(id))
+      .map((id) => sources.get(id))
+      .filter((s): s is MergeSource => !!s);
+    return result.length >= 2 ? result : [];
   }
 
   private get changes(): SongChange[] {

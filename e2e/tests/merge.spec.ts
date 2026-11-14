@@ -104,3 +104,66 @@ test("merges two songs and picks the merged song's fields from either one", asyn
   await page.goto(`/song/advancedsearch?searchString=${encodeURIComponent(title)}`);
   await expect(page.getByRole("row").filter({ hasText: title })).toHaveCount(0);
 });
+
+// Unmerge (UnmergeSection on the song page → POST /song/unmerge → SongIndex.UnmergeSong): the
+// split-out song comes back under its own id with its own album, and the merged song keeps the
+// other. See architecture/plans/song-unmerge.md.
+test("splits a merged song back out", async ({ page }) => {
+  await login(page, "admin");
+
+  const run = Date.now().toString(36);
+  const title = `Unmerge Test ${run}`;
+  const kept: TestSong = {
+    artist: "Kept Artist",
+    tempo: 117,
+    album: "Kept Album",
+    time: "01/01/2020 10:00:00 AM",
+  };
+  const split: TestSong = {
+    artist: "Split Artist",
+    tempo: 123,
+    album: "Split Album",
+    time: "01/02/2020 10:00:00 AM",
+  };
+  await createSong(page, title, kept, `e2e${run}k`);
+  await createSong(page, title, split, `e2e${run}s`);
+
+  await page.goto(`/song/advancedsearch?searchString=${encodeURIComponent(title)}`);
+  for (const song of [kept, split]) {
+    await page.getByRole("row").filter({ hasText: song.artist }).getByRole("checkbox").check();
+  }
+  await page.getByRole("button", { name: "Multi-Edit" }).click();
+  await page.getByRole("menuitem", { name: "Merge", exact: true }).click();
+  await page.waitForURL(/\/song\/details\/[^?]+\?edit=true/i);
+
+  // Unmerge isn't offered while editing, so open the song without ?edit
+  const mergedPath = new URL(page.url()).pathname;
+  await page.goto(mergedPath);
+  const section = page.locator("[data-test=unmerge-section]");
+  await section.getByRole("checkbox", { name: new RegExp(split.artist) }).check();
+  await section.getByRole("button", { name: "Unmerge selected" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Unmerge" }).click();
+
+  // The result page links to both songs
+  await expect(page.getByRole("heading", { name: "Unmerge:" })).toBeVisible();
+  await page.getByRole("link", { name: `${title} by ${split.artist}` }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(split.artist);
+  await expect(page.getByText(split.album, { exact: true })).toBeVisible();
+  await expect(page.getByText(kept.album, { exact: true })).toHaveCount(0);
+  const splitPath = new URL(page.url()).pathname;
+
+  await page.goto(mergedPath);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(kept.artist);
+  await expect(page.getByText(kept.album, { exact: true })).toBeVisible();
+  await expect(page.getByText(split.album, { exact: true })).toHaveCount(0);
+  await expect(page.locator("[data-test=unmerge-section]")).toHaveCount(0);
+
+  // Leave the shared sandbox as it was
+  for (const path of [mergedPath, splitPath]) {
+    const id = path.split("/").pop();
+    await page.goto(`/song/delete?id=${id}`);
+    await page.getByRole("button", { name: "Delete" }).click();
+  }
+  await page.goto(`/song/advancedsearch?searchString=${encodeURIComponent(title)}`);
+  await expect(page.getByRole("row").filter({ hasText: title })).toHaveCount(0);
+});
