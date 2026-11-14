@@ -166,6 +166,7 @@ into `runbooks/` as its area is consolidated.
 | Durable log storage (Blob / Log Analytics / tuned App Insights) | Proposed | [plans/log-persistence-options](plans/log-persistence-options.md) |
 | Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
 | Visitor engagement next steps (post-launch priorities, enhancements) | Proposed | [plans/visitor-engagement-next](plans/visitor-engagement-next.md) |
+| Song unmerge: split sources back out of a simple merge from the song page | In progress (branch `song-unmerge`) | [plans/song-unmerge](plans/song-unmerge.md) |
 | Dance family voting next steps | Proposed | [plans/dance-family-voting-next](plans/dance-family-voting-next.md) |
 | Update message beyond one App Service plan (App Config / Blob) | Partially implemented: persisted, shared file within a plan shipped 2026-10-25 | [plans/persistent-update-message](plans/persistent-update-message.md) |
 
