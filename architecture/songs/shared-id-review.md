@@ -86,7 +86,11 @@ this page** sends them all as JSON (`POST /api/sharedids/apply`, `APIControllers
 summary. A cluster whose songs changed while the page loaded has no choice and isn't sent. The
 page warns before leaving with choices that differ from the defaults, and says how many do. Clusters with a rejected pair or a `.NoMerge` song start as Leave for
 later, and the rest start as Merge groups. So a page is reviewed by fixing the clusters that
-aren't straight merges and pressing Apply once. Clusters left for later stay at the top of page 1.
+aren't straight merges and pressing Apply once. Until the next restart, a cluster left for
+later goes after every other cluster (`SharedIdPreviewStore.Defer`, kept per song and across
+previews), so reloading the page brings up new clusters instead of the same ones. A cluster that
+gains a song since has something new and takes its place again. The summary counts the clusters
+left for later, and the tier counts leave them out.
 
 **Groups.** Each song column has a group, one letter per song (**A**, **B**, …), or **Leave
 out**. Every song starts in A, which merges them all. A cluster that is really two
@@ -141,7 +145,7 @@ title-based tools or **Merge and edit** resolve themselves.
 | --- | --- |
 | **Merge groups** (a choice, applied by **Apply this page**) | For each group, `SongIndex.SimpleMergeSongs` on its songs, which keeps all their history, then the music4dance edit for the chosen names if one is needed. Rows between them become `Merged`; their rows with other songs, pending or rejected, move to the merged song. Then the pairs between groups are rejected. A song left out stays in the queue paired with the merged song. A group with fewer than two songs still in the catalog is counted as stale and skipped. This happens, for example, after **Merge and edit**. |
 | **Not the same** (a choice) | Marks every pending row in the cluster `Rejected`. |
-| **Leave for later** (a choice) | Changes nothing. |
+| **Leave for later** (a choice) | Changes nothing in the database; the cluster goes to the end of the queue until a restart. |
 | **Removals** (boxes on albums and ids, applied by **Apply this page** before the cluster's choice, whatever it is) | For each song with something checked, one edit by the reviewer (`Song.AppendIdRemoval`): `Album:NN=` (empty) for an album, `Purchase-:NN:SS=<id>` (or `IS`, `RS`) for one id. Removals of albums or ids the song no longer has are skipped. An edited song that is then merged goes into the merge as saved (`SimpleMergeSongs` with `reload: false`), since the index may not have caught up. Afterwards, the pending rows of the edited songs (or the songs they were merged into) whose songs no longer share any id are marked `Rejected`. So two different songs are kept apart by removing the id from the one it doesn't belong to, even with **Leave for later**. If enrichment later tries to put the id back, the guard skips it, because the other song holds it, and the rejected pair stays resolved. Checking an album covers its ids, so their boxes are disabled and they aren't sent on their own. The **If merged** column doesn't show removals. |
 | **Merge and edit** | Takes effect right away. It posts the songs to `/Song/BulkEdit` (`action=Merge`) in a new tab, which merges them as **Merge groups** does with one group and opens the merged song in the editor to pick its title, artist, tempo and length. |
 | **Merge all with matching title and artist** (`POST /SharedIds/MergeMatching`) | A background task (watch `/Admin/AdminStatus`). It merges every pending cluster whose songs all share the same title and the same non-empty artist (`Song.CreateTitleHash`, as the title-based merge candidates compare them). Every cluster shares an id by construction. It skips clusters with a rejected pair inside them, or with a `.NoMerge` song. |
@@ -186,6 +190,7 @@ the cluster's entry in the apply request (`toRequest()`). `ClusterCard`, `NameCh
 - 2026-11: Removing albums and ids from a cluster's songs on the review page; pairs that no longer share an id are marked not the same.
 - 2026-11: Moved out of `AdminController` into `SharedIdsController` (`/Admin/SharedIds…` became `/SharedIds…`). Page loading moved into `SharedIdLog.LoadPage`, the last preview into the `SharedIdPreviewStore` singleton, and the match tiers into `SharedIdMatcher`. Name picks and removals name their song by id instead of column index.
 - 2026-11: The review page became the `shared-id-review` Vue page app, applying through `POST /api/sharedids/apply`. Left-out songs' name radios and removed albums' id boxes are disabled, split radios name their group, and a cluster can have as many groups as songs. Client tests and an end-to-end test added.
+- 2026-11: Clusters left for later go to the end of the queue until a restart.
 
 ## Related
 

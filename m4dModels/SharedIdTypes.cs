@@ -208,8 +208,12 @@ public class SharedIdPage
     public int ClusterCount { get; init; }
     public IReadOnlyList<SharedIdPageCluster> Clusters { get; init; } = [];
 
-    // How many of the pending clusters have each rank, when the page is sorted by rank
+    // How many of the pending clusters (not counting those left for later) have each rank, when
+    // the page is sorted by rank
     public IReadOnlyDictionary<int, int> RankCounts { get; init; } = new Dictionary<int, int>();
+
+    // How many of the pending clusters were left for later, and so come last
+    public int DeferredCount { get; init; }
 
     public int PageCount => Math.Max(1, (ClusterCount + PageSize - 1) / PageSize);
 }

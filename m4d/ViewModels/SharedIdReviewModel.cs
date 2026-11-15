@@ -26,6 +26,9 @@ public class SharedIdReviewModel
     public int WithoutFeaturingCount { get; init; }
     public int CloseCount { get; init; }
 
+    // Clusters left for later, which come after the rest
+    public int DeferredCount { get; init; }
+
     public string Message { get; init; }
 
     public IReadOnlyList<SharedIdReviewCluster> Clusters { get; init; } = [];
@@ -41,6 +44,7 @@ public class SharedIdReviewModel
             SortedBy = sortedBy,
             WithoutFeaturingCount = page.RankCounts.GetValueOrDefault(SharedIdPreviewStore.WithoutFeaturingRank),
             CloseCount = page.RankCounts.GetValueOrDefault(SharedIdPreviewStore.CloseRank),
+            DeferredCount = page.DeferredCount,
             Message = message,
             Clusters = [.. page.Clusters.Select(SharedIdReviewCluster.Build)]
         };

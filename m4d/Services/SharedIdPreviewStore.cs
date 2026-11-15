@@ -9,7 +9,9 @@ namespace m4d.Services;
 /// memory until the next preview or a restart, and the order it gives the review page: clusters
 /// that differ only by feat., then close matches, then the rest. The order is kept per song, so a
 /// cluster keeps its place when some of its songs are merged on the review page and the rest stay
-/// in the queue. See architecture/songs/shared-id-review.md.
+/// in the queue. It also keeps, until a restart, the songs of the clusters left for later on the
+/// review page, which then come after every other cluster so they don't fill the first page. See
+/// architecture/songs/shared-id-review.md.
 /// </summary>
 public class SharedIdPreviewStore
 {
@@ -20,6 +22,9 @@ public class SharedIdPreviewStore
     private sealed record Snapshot(SharedIdPreview Preview, ConcurrentDictionary<Guid, int> SongRanks);
 
     private volatile Snapshot _current;
+
+    // Songs of the clusters left for later; kept across previews
+    private readonly ConcurrentDictionary<Guid, bool> _deferred = new();
 
     public SharedIdPreview Preview => _current?.Preview;
 
@@ -62,6 +67,22 @@ public class SharedIdPreviewStore
         var rank = from.Select(id => SongRank(current, id)).DefaultIfEmpty(OtherRank).Min();
         _ = current.SongRanks.AddOrUpdate(into, rank, (_, old) => Math.Min(old, rank));
     }
+
+    /// <summary>The songs of a cluster left for later on the review page.</summary>
+    public void Defer(IEnumerable<Guid> songIds)
+    {
+        foreach (var id in songIds)
+        {
+            _deferred[id] = true;
+        }
+    }
+
+    /// <summary>
+    /// Whether the cluster was left for later: every one of its songs was. A cluster that gains a
+    /// song since then has something new to review, so it isn't.
+    /// </summary>
+    public bool IsDeferred(SharedIdCluster cluster) =>
+        cluster.SongIds.Count > 0 && cluster.SongIds.All(_deferred.ContainsKey);
 
     private static int SongRank(Snapshot current, Guid id) =>
         current.SongRanks.TryGetValue(id, out var rank) ? rank : OtherRank;

@@ -225,13 +225,16 @@ public class SharedIdLog(DanceMusicCoreService dms)
     /// <summary>
     /// A page of the queue, with each cluster's songs loaded and what merging all of them would
     /// make. When <paramref name="rank"/> is given, clusters are sorted by it (lowest first,
-    /// oldest first within a rank) and the page counts how many have each rank. Loading follows
+    /// oldest first within a rank) and the page counts how many have each rank. Clusters that
+    /// <paramref name="deferred"/> picks out (the ones left for later) go after all the rest, in
+    /// the same order, and aren't in the rank counts. Loading follows
     /// songs merged or deleted since they were queued, which changes the clusters, so they're
     /// worked out again (up to three times) until the page loads cleanly; a cluster still stale
     /// after that is shown with no songs.
     /// </summary>
     public async Task<SharedIdPage> LoadPage(ApplicationUser user, int page,
-        Func<SharedIdCluster, int> rank = null, int pageSize = SharedIdPage.DefaultPageSize)
+        Func<SharedIdCluster, int> rank = null, Func<SharedIdCluster, bool> deferred = null,
+        int pageSize = SharedIdPage.DefaultPageSize)
     {
         page = Math.Max(1, page);
         IReadOnlyList<SharedIdCluster> clusters = [];
@@ -242,6 +245,10 @@ public class SharedIdLog(DanceMusicCoreService dms)
             if (rank != null)
             {
                 clusters = [.. clusters.OrderBy(rank)];
+            }
+            if (deferred != null)
+            {
+                clusters = [.. clusters.OrderBy(deferred)];
             }
 
             shown = [.. clusters.Skip((page - 1) * pageSize).Take(pageSize)];
@@ -282,8 +289,10 @@ public class SharedIdLog(DanceMusicCoreService dms)
             PendingCandidates = await PendingCount(),
             ClusterCount = clusters.Count,
             Clusters = entries,
+            DeferredCount = deferred == null ? 0 : clusters.Count(deferred),
             RankCounts = rank == null ? new Dictionary<int, int>()
-                : clusters.GroupBy(rank).ToDictionary(g => g.Key, g => g.Count())
+                : clusters.Where(c => deferred == null || !deferred(c))
+                    .GroupBy(rank).ToDictionary(g => g.Key, g => g.Count())
         };
     }
 

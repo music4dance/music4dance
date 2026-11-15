@@ -2,6 +2,8 @@ using m4d.Services;
 using m4d.Services.ServiceHealth;
 using m4d.ViewModels;
 
+using m4dModels;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -44,6 +46,8 @@ public class SharedIdsController(
         {
             previews.Merged(from, into);
         }
+        // Left for later goes to the end of the queue, so the next load of the page is new clusters
+        previews.Defer(choices.Where(c => c.Action == SharedIdAction.Leave).SelectMany(c => c.SongIds));
         if (result.Merged > 0 || result.Edited > 0)
         {
             await DanceStatsManager.ClearCache(Database, false);

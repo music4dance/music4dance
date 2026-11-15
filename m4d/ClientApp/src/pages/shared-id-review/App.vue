@@ -130,6 +130,9 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
         Run <strong>Preview merge all</strong> to sort the clusters that differ only by feat. and
         the close matches first.
       </template>
+      <template v-if="model.deferredCount">
+        The {{ model.deferredCount.toLocaleString() }} clusters left for later come last.
+      </template>
     </p>
 
     <div class="mb-3 d-flex flex-wrap gap-2">

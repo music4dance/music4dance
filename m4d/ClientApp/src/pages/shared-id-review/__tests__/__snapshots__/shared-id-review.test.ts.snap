@@ -29,7 +29,7 @@ exports[`shared-id-review page > renders the review page 1`] = `
         </div>
       </transition-stub>
       <!--v-if-->
-      <p id="queue-summary">51 pending pairs in 45 clusters. Sorted by the preview run 2026-11-10 01:30: the 4 clusters still pending that differed only by feat. come first, then the 7 close matches. </p>
+      <p id="queue-summary">51 pending pairs in 45 clusters. Sorted by the preview run 2026-11-10 01:30: the 4 clusters still pending that differed only by feat. come first, then the 7 close matches. The 3 clusters left for later come last. </p>
       <div class="mb-3 d-flex flex-wrap gap-2">
         <form method="post" action="/SharedIds/Seed"><input type="hidden" name="__RequestVerificationToken" value="token"><button class="btn btn-outline-secondary" type="submit">Queue existing shared ids</button></form>
         <form method="post" action="/SharedIds/MergeMatching"><input type="hidden" name="__RequestVerificationToken" value="token"><button class="btn btn-outline-danger" type="submit">Merge all with matching title and artist</button></form>

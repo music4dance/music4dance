@@ -47,6 +47,7 @@ describe("shared-id-review page", () => {
 
     expect(wrapper.text()).toContain("0 pending pairs in 0 clusters.");
     expect(wrapper.text()).toContain("Run Preview merge all");
+    expect(wrapper.text()).not.toContain("left for later come last");
     expect(wrapper.find(".apply-button").exists()).toBe(false);
   });
 
@@ -56,6 +57,9 @@ describe("shared-id-review page", () => {
 
       expect(wrapper.find("#queue-summary").text()).toContain("51 pending pairs in 45 clusters.");
       expect(wrapper.find("#queue-summary").text()).toContain("the 4 clusters still pending");
+      expect(wrapper.find("#queue-summary").text()).toContain(
+        "The 3 clusters left for later come last.",
+      );
       expect(wrapper.text()).toContain("Merged 1, marked 0 not the same, left 2.");
     });
 

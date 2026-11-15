@@ -815,6 +815,31 @@ public class SharedIdLogTests
             page.Clusters.Skip(1).Select(c => c.Cluster.Key).ToList());
         Assert.AreEqual(1, page.RankCounts[0]);
         Assert.AreEqual(2, page.RankCounts[2]);
+        Assert.AreEqual(0, page.DeferredCount);
+    }
+
+    [TestMethod]
+    public async Task LoadPage_PutsTheDeferredClustersLastAndLeavesThemOutOfTheRankCounts()
+    {
+        var (dms, user) = await CreateService("SharedIds_LoadPageDeferred");
+        await ThreeClusters(dms);
+        var clusters = await dms.SharedIds.PendingClusters();
+        var (first, second, third) = (clusters[0].Key, clusters[1].Key, clusters[2].Key);
+
+        // The third ranks first, but it and the first were left for later
+        var page = await dms.SharedIds.LoadPage(user, 1, c => c.Key == third ? 0 : 2,
+            c => c.Key == first || c.Key == third);
+
+        CollectionAssert.AreEqual(new[] { second, third, first },
+            page.Clusters.Select(c => c.Cluster.Key).ToList());
+        Assert.AreEqual(2, page.DeferredCount);
+        Assert.AreEqual(3, page.ClusterCount);
+        Assert.IsFalse(page.RankCounts.ContainsKey(0));
+        Assert.AreEqual(1, page.RankCounts[2]);
+
+        var unranked = await dms.SharedIds.LoadPage(user, 1, deferred: c => c.Key == first);
+        CollectionAssert.AreEqual(new[] { second, third, first },
+            unranked.Clusters.Select(c => c.Cluster.Key).ToList());
     }
 
     [TestMethod]

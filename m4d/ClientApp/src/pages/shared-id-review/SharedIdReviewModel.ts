@@ -90,6 +90,8 @@ export class SharedIdReviewModel {
   @jsonMember(String) public sortedBy?: string;
   @jsonMember(Number) public withoutFeaturingCount!: number;
   @jsonMember(Number) public closeCount!: number;
+  // Clusters left for later, which come after the rest
+  @jsonMember(Number) public deferredCount?: number;
   @jsonMember(String) public message?: string;
   @jsonArrayMember(SharedIdReviewCluster) public clusters!: SharedIdReviewCluster[];
 }

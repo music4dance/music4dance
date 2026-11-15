@@ -5,8 +5,8 @@ using m4dModels;
 namespace m4d.Tests.Services;
 
 /// <summary>
-/// The order the last merge-all preview gives the shared-id review page, and how a song merged
-/// on the page keeps its cluster's place.
+/// The order the last merge-all preview gives the shared-id review page, how a song merged on the
+/// page keeps its cluster's place, and the clusters left for later.
 /// </summary>
 [TestClass]
 public class SharedIdPreviewStoreTests
@@ -84,6 +84,31 @@ public class SharedIdPreviewStoreTests
         Assert.AreEqual(SharedIdPreviewStore.OtherRank, store.Ranker()(Cluster(A, B)));
         Assert.AreEqual(SharedIdPreviewStore.OtherRank, store.Ranker()(Cluster(M)));
         Assert.IsEmpty(store.Preview.Plans);
+    }
+
+    [TestMethod]
+    public void Defer_AClusterIsDeferredWhenAllItsSongsAre()
+    {
+        var store = new SharedIdPreviewStore();
+        Assert.IsFalse(store.IsDeferred(Cluster(A, B)));
+
+        store.Defer([A, B]);
+
+        Assert.IsTrue(store.IsDeferred(Cluster(A, B)));
+        Assert.IsTrue(store.IsDeferred(Cluster(B)), "Part of it, after the rest were merged elsewhere");
+        Assert.IsFalse(store.IsDeferred(Cluster(A, B, C)), "A song joined it since");
+        Assert.IsFalse(store.IsDeferred(Cluster()));
+    }
+
+    [TestMethod]
+    public void Defer_IsKeptAcrossPreviews()
+    {
+        var store = Store(new Plan(SharedIdMatch.Close, A, B));
+        store.Defer([A, B]);
+
+        store.Set([], DateTimeOffset.UnixEpoch.AddDays(1));
+
+        Assert.IsTrue(store.IsDeferred(Cluster(A, B)));
     }
 
     [TestMethod]

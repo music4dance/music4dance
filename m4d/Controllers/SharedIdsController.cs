@@ -28,7 +28,8 @@ public class SharedIdsController(
 {
     //
     // GET: /SharedIds
-    // A page of the queue, sorted by the last merge-all preview when there is one
+    // A page of the queue, sorted by the last merge-all preview when there is one, with the
+    // clusters left for later at the end
     public async Task<ActionResult> Index(int page = 1, string message = null)
     {
         if (ServiceHealth?.IsServiceHealthy("SearchService") == false)
@@ -37,7 +38,7 @@ public class SharedIdsController(
         }
 
         var user = await Database.FindUser(UserName);
-        var queue = await Database.SharedIds.LoadPage(user, page, previews.Ranker());
+        var queue = await Database.SharedIds.LoadPage(user, page, previews.Ranker(), previews.IsDeferred);
         return Vue3("Shared Song Ids", "Admin: songs that share a service id", "shared-id-review",
             SharedIdReviewModel.Build(queue, previews.Preview?.Created, message));
     }
