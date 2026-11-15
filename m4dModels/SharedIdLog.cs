@@ -576,15 +576,28 @@ public class SharedIdLog(DanceMusicCoreService dms)
 
     /// <summary>
     /// Merges every pending cluster whose songs all have the same title and the same artist
-    /// (they share an id by construction), skipping clusters with a rejected pair or a song marked
-    /// .NoMerge. Returns the number of clusters merged.
+    /// (they share an id by construction), skipping clusters with a rejected pair, a song marked
+    /// .NoMerge or a song with no artist. Each merge gets the feat. cleanup, as on the review
+    /// page. Returns the number of clusters merged.
     /// </summary>
-    public async Task<int> MergeMatching(ApplicationUser user, Action<string, int> progress = null)
+    public Task<int> MergeMatching(ApplicationUser user, Action<string, int> progress = null) =>
+        MergePlanned(user, p => p.WillMerge, progress);
+
+    /// <summary>
+    /// Merges every pending cluster whose titles and artists are the same once their feat.
+    /// clauses come out, with the feat. cleanup (the featured artists move into the individual
+    /// artists), skipping the same clusters MergeMatching does. Returns the number merged.
+    /// </summary>
+    public Task<int> MergeFeaturing(ApplicationUser user, Action<string, int> progress = null) =>
+        MergePlanned(user, p => p.WillMergeFeaturing, progress);
+
+    private async Task<int> MergePlanned(ApplicationUser user, Func<SharedIdMergePlan, bool> which,
+        Action<string, int> progress)
     {
         var merged = 0;
-        foreach (var plan in (await PlanMergeMatching(progress)).Where(p => p.WillMerge))
+        foreach (var plan in (await PlanMergeMatching(progress)).Where(which))
         {
-            if (await Merge(user, plan.Cluster.SongIds) != null && ++merged % 100 == 0)
+            if (await Merge(user, plan.Cluster.SongIds, CleanUp) != null && ++merged % 100 == 0)
             {
                 progress?.Invoke("Merged", merged);
             }
@@ -593,13 +606,17 @@ public class SharedIdLog(DanceMusicCoreService dms)
         return merged;
     }
 
+    private static SongNames CleanUp(IReadOnlyList<Song> songs, Song merged) =>
+        FeaturedCleanup.Propose(merged, songs);
+
     /// <summary>
-    /// What MergeMatching would do with each pending cluster: merge it, or skip it and why. The
-    /// clusters' songs are loaded. Changes nothing but the bookkeeping LoadSongs does for songs
-    /// merged or deleted since they were queued.
+    /// What the Merge all tasks would do with each pending cluster: merge it, or skip it and why.
+    /// The clusters' songs are loaded. With <paramref name="previewAs"/>, each cluster one of them
+    /// would merge also gets the names its merge would land on. Changes nothing but the
+    /// bookkeeping LoadSongs does for songs merged or deleted since they were queued.
     /// </summary>
     public async Task<IReadOnlyList<SharedIdMergePlan>> PlanMergeMatching(
-        Action<string, int> progress = null)
+        Action<string, int> progress = null, ApplicationUser previewAs = null)
     {
         var plans = new List<SharedIdMergePlan>();
         var planned = new HashSet<string>();
@@ -621,7 +638,13 @@ public class SharedIdLog(DanceMusicCoreService dms)
                     continue;
                 }
 
-                plans.Add(new SharedIdMergePlan(cluster, SkipReason(cluster)));
+                var plan = new SharedIdMergePlan(cluster, SkipReason(cluster));
+                if (previewAs != null && (plan.WillMerge || plan.WillMergeFeaturing))
+                {
+                    plan = plan with { Names = await PreviewNames(previewAs, cluster) };
+                }
+
+                plans.Add(plan);
                 if (plans.Count % 100 == 0)
                 {
                     progress?.Invoke("Checked", plans.Count);
@@ -635,6 +658,22 @@ public class SharedIdLog(DanceMusicCoreService dms)
         }
 
         return plans;
+    }
+
+    // The names the cluster's merge would land on, or null when it can't be previewed
+    private async Task<SongNames> PreviewNames(ApplicationUser user, SharedIdCluster cluster)
+    {
+        try
+        {
+            var preview = await PreviewMerge(user, cluster);
+            return preview == null ? null : FeaturedCleanup.Propose(preview, cluster.Songs);
+        }
+        catch (Exception e)
+        {
+            Trace.WriteLineIf(TraceLevels.General.TraceError,
+                $"SharedIdLog: couldn't preview the merge of {string.Join(",", cluster.SongIds)}: {e.Message}");
+            return null;
+        }
     }
 
     private static string SkipReason(SharedIdCluster cluster) =>

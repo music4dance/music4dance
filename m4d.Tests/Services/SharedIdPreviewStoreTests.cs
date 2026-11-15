@@ -112,17 +112,20 @@ public class SharedIdPreviewStoreTests
     }
 
     [TestMethod]
-    public void Preview_GroupsTheSkipsByReasonMostFirst()
+    public void Preview_SplitsTheMergesByTaskAndGroupsTheSkipsByReasonMostFirst()
     {
+        var featuring = Guid.NewGuid();
         var preview = new SharedIdPreview(DateTimeOffset.UnixEpoch,
         [
             new SharedIdMergePlan(Cluster(A), null),
+            new SharedIdMergePlan(Cluster(featuring), SharedIdMergePlan.WithoutFeaturing),
             new SharedIdMergePlan(Cluster(B), SharedIdMergePlan.NoArtist),
             new SharedIdMergePlan(Cluster(C), SharedIdMergePlan.Different),
             new SharedIdMergePlan(Cluster(D), SharedIdMergePlan.Different)
         ]);
 
         Assert.AreEqual(A, preview.Merges.Single().Cluster.SongIds.Single());
+        Assert.AreEqual(featuring, preview.FeaturingMerges.Single().Cluster.SongIds.Single());
         CollectionAssert.AreEqual(new[] { SharedIdMergePlan.Different, SharedIdMergePlan.NoArtist },
             preview.Skips.Select(g => g.Key).ToList());
     }

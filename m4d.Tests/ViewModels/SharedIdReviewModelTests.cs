@@ -1,3 +1,4 @@
+using m4d.Services;
 using m4d.Utilities;
 using m4d.ViewModels;
 
@@ -122,15 +123,26 @@ public class SharedIdReviewModelTests
                 SongIds = [song.SongId, B]
             }, song, new SongNames("Probe", "X", ["X", "Y"]));
 
+        var preview = new SharedIdPreview(DateTimeOffset.UnixEpoch,
+        [
+            new SharedIdMergePlan(new SharedIdCluster { SongIds = [A] }, null),
+            new SharedIdMergePlan(new SharedIdCluster { SongIds = [B] }, SharedIdMergePlan.WithoutFeaturing),
+            new SharedIdMergePlan(new SharedIdCluster { SongIds = [A, B] }, SharedIdMergePlan.WithoutFeaturing),
+            new SharedIdMergePlan(new SharedIdCluster { SongIds = [B, A] }, SharedIdMergePlan.Close)
+        ]);
+
         var model = SharedIdReviewModel.Build(
             new SharedIdPage { Page = 2, ClusterCount = 45, PendingCandidates = 50, Clusters = [cluster] },
-            message: "Done");
+            preview, "Done");
         var entry = model.Clusters.Single();
         var merged = entry.Merged;
 
         Assert.AreEqual(2, model.Page);
         Assert.AreEqual(3, model.PageCount);
         Assert.AreEqual("Done", model.Message);
+        Assert.AreEqual(DateTimeOffset.UnixEpoch, model.SortedBy);
+        Assert.AreEqual(1, model.WouldMergeCount);
+        Assert.AreEqual(2, model.WouldMergeFeaturingCount);
         Assert.AreEqual(SharedIdAction.Merge, entry.DefaultAction);
         Assert.IsTrue(entry.CleansFeaturing);
         CollectionAssert.AreEqual(new[] { "R:US111" }, entry.ServiceIds.ToList());

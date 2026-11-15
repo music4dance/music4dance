@@ -90,6 +90,9 @@ export class SharedIdReviewModel {
   @jsonMember(String) public sortedBy?: string;
   @jsonMember(Number) public withoutFeaturingCount!: number;
   @jsonMember(Number) public closeCount!: number;
+  // What that preview found the Merge all tasks would merge, as of when it ran
+  @jsonMember(Number) public wouldMergeCount?: number;
+  @jsonMember(Number) public wouldMergeFeaturingCount?: number;
   // Clusters left for later, which come after the rest
   @jsonMember(Number) public deferredCount?: number;
   @jsonMember(String) public message?: string;

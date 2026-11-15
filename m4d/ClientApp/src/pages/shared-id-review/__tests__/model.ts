@@ -113,6 +113,8 @@ export const model = {
   clusterCount: 45,
   withoutFeaturingCount: 4,
   closeCount: 7,
+  wouldMergeCount: 812,
+  wouldMergeFeaturingCount: 140,
   deferredCount: 3,
   sortedBy: "2026-11-10T09:30:00+00:00",
   message: "Merged 1, marked 0 not the same, left 2.",

@@ -46,7 +46,7 @@ describe("shared-id-review page", () => {
     const wrapper = loadTestPage(App, emptyModel);
 
     expect(wrapper.text()).toContain("0 pending pairs in 0 clusters.");
-    expect(wrapper.text()).toContain("Run Preview merge all");
+    expect(wrapper.text()).toContain("Run Preview merges");
     expect(wrapper.text()).not.toContain("left for later come last");
     expect(wrapper.find(".apply-button").exists()).toBe(false);
   });
@@ -63,6 +63,16 @@ describe("shared-id-review page", () => {
       expect(wrapper.text()).toContain("Merged 1, marked 0 not the same, left 2.");
     });
 
+    test("says what the last preview found to merge, and links to it", () => {
+      const wrapper = loadTestPage(App, model);
+      const summary = wrapper.find("#queue-summary");
+
+      expect(summary.text()).toContain(
+        "812 clusters with matching titles and artists and 140 that differ only by feat.",
+      );
+      expect(summary.find('a[href="/SharedIds/Preview"]').exists()).toBe(true);
+    });
+
     test("the background tasks post to the SharedIds routes with the antiforgery token", () => {
       const wrapper = loadTestPage(App, model);
       const actions = wrapper.findAll("form").map((f) => f.attributes("action"));
@@ -71,6 +81,7 @@ describe("shared-id-review page", () => {
         expect.arrayContaining([
           "/SharedIds/Seed",
           "/SharedIds/MergeMatching",
+          "/SharedIds/MergeFeaturing",
           "/SharedIds/PreviewMergeMatching",
           "/Song/BulkEdit",
         ]),

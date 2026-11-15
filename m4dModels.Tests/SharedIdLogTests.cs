@@ -810,6 +810,67 @@ public class SharedIdLogTests
         Assert.AreEqual(SharedIdMatch.WithoutFeaturing, plans["I:222"].Match);
         Assert.AreEqual(SharedIdMergePlan.Close, plans["I:333"].SkipReason);
         Assert.AreEqual(SharedIdMatch.Close, plans["I:333"].Match);
+        Assert.IsFalse(plans["I:111"].WillMergeFeaturing, "A .NoMerge song is skipped by both");
+        Assert.IsTrue(plans["I:222"].WillMergeFeaturing);
+        Assert.IsFalse(plans["I:333"].WillMergeFeaturing);
+    }
+
+    [TestMethod]
+    public async Task MergeFeaturing_MergesOnlyClustersThatDifferByFeat_WithTheCleanup()
+    {
+        var (dms, user) = await CreateService("SharedIds_MergeFeaturing");
+        var titled = await SaveSong(dms, "Purchase:00:IS=111", title: "Feat Song (feat. Crazy Man)");
+        _ = await SaveSong(dms, "Purchase:00:IS=111", title: "Feat Song", artist: "The Artist feat. Crazy Man");
+        var exact = await SaveSong(dms, "Purchase:00:IS=222");
+        _ = await SaveSong(dms, "Purchase:00:IS=222");
+        _ = await dms.SharedIds.Seed();
+
+        Assert.AreEqual(1, await dms.SharedIds.MergeFeaturing(user));
+
+        var merged = await dms.SongIndex.FindMergedSong(titled.SongId);
+        Assert.AreEqual("Feat Song", merged.Title);
+        Assert.AreEqual("The Artist feat. Crazy Man", merged.Artist,
+            "The credit that names both artists");
+        CollectionAssert.AreEqual(new[] { "The Artist", "Crazy Man" }, merged.EffectiveArtists.ToList());
+        Assert.IsFalse((await dms.SongIndex.FindSong(exact.SongId)).IsNull, "Left to MergeMatching");
+    }
+
+    [TestMethod]
+    public async Task MergeMatching_CleansUpAFeatInTheTitles()
+    {
+        var (dms, user) = await CreateService("SharedIds_MergeMatchingCleanup");
+        var a = await SaveSong(dms, "Purchase:00:IS=111", title: "Feat Song (feat. Crazy Man)");
+        _ = await SaveSong(dms, "Purchase:00:IS=111", title: "Feat Song (feat. Crazy Man)");
+        _ = await dms.SharedIds.Seed();
+
+        Assert.AreEqual(1, await dms.SharedIds.MergeMatching(user));
+
+        var merged = await dms.SongIndex.FindMergedSong(a.SongId);
+        Assert.AreEqual("Feat Song", merged.Title);
+        CollectionAssert.AreEqual(new[] { "The Artist", "Crazy Man" }, merged.EffectiveArtists.ToList());
+    }
+
+    [TestMethod]
+    public async Task PlanMergeMatching_ForAPreview_GivesTheNamesOfEachMerge()
+    {
+        var (dms, user) = await CreateService("SharedIds_PlanNames");
+        _ = await SaveSong(dms, "Purchase:00:IS=111", title: "Feat Song (feat. Crazy Man)");
+        _ = await SaveSong(dms, "Purchase:00:IS=111", title: "Feat Song", artist: "The Artist feat. Crazy Man");
+        _ = await SaveSong(dms, "Purchase:00:IS=222", title: "First Title");
+        _ = await SaveSong(dms, "Purchase:00:IS=222", title: "Second Title");
+        _ = await dms.SharedIds.Seed();
+
+        Assert.IsTrue((await dms.SharedIds.PlanMergeMatching()).All(p => p.Names == null),
+            "Only a preview works out the names");
+        var plans = (await dms.SharedIds.PlanMergeMatching(previewAs: user))
+            .ToDictionary(p => p.Cluster.ServiceIds.Single());
+
+        var names = plans["I:111"].Names;
+        Assert.AreEqual("Feat Song", names.Title);
+        Assert.AreEqual("The Artist feat. Crazy Man", names.Artist);
+        CollectionAssert.AreEqual(new[] { "The Artist", "Crazy Man" }, names.Artists.ToList());
+        Assert.IsNull(plans["I:222"].Names, "Neither task merges it");
+        Assert.IsTrue((await Rows(dms)).All(r => r.Status == SharedIdStatus.Pending));
     }
 
     #endregion

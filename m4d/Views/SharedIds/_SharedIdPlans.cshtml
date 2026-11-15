@@ -7,11 +7,17 @@
 }
 else
 {
+    // Plans of clusters a Merge all would merge carry the names the merge lands on
+    var named = Model.Any(p => p.WillMerge || p.WillMergeFeaturing);
     <div class="table-responsive">
         <table class="table table-sm table-striped">
             <tr>
                 <th>Shared ids</th>
                 <th>Songs</th>
+                @if (named)
+                {
+                    <th>Becomes <span class="fw-normal text-muted small">(bold: not what any of the songs has)</span></th>
+                }
             </tr>
             @foreach (var plan in Model)
             {
@@ -26,6 +32,29 @@ else
                             </div>
                         }
                     </td>
+                    @if (named)
+                    {
+                        <td>
+                            @if (plan.Names == null)
+                            {
+                                <span class="text-muted">Couldn't be previewed</span>
+                            }
+                            else
+                            {
+                                var newTitle = plan.Cluster.Songs.All(s => s.Title != plan.Names.Title);
+                                var newArtist = plan.Cluster.Songs.All(s => s.Artist != plan.Names.Artist);
+                                <div>
+                                    <span class="@(newTitle ? "fw-bold" : "")">@plan.Names.Title</span>
+                                    <span class="text-muted">by</span>
+                                    <span class="@(newArtist ? "fw-bold" : "")">@plan.Names.Artist</span>
+                                </div>
+                                @if (plan.Names.Artists is { Count: > 1 })
+                                {
+                                    <div class="small text-muted">Artists: @string.Join(" | ", plan.Names.Artists)</div>
+                                }
+                            }
+                        </td>
+                    }
                 </tr>
             }
         </table>

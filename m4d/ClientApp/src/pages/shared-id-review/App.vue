@@ -79,6 +79,10 @@ const seedPrompt = "Scan the index and queue every pair of songs that already sh
 const mergeAllPrompt =
   "Merge every pending cluster whose songs share an id and also have the same title and " +
   "artist? Clusters with a rejected pair or a .NoMerge song are skipped.";
+const mergeFeaturingPrompt =
+  "Merge every pending cluster whose titles and artists are the same once their feat. clauses " +
+  "come out, moving the featured artists into the individual artists? Clusters with a rejected " +
+  "pair or a .NoMerge song are skipped.";
 
 function leaveWarning(event: BeforeUnloadEvent): void {
   if (changedCount.value > 0 && !applying.value) {
@@ -124,6 +128,15 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
       choice; it's left out of the groups. <strong>Look up on Spotify and iTunes</strong> puts what
       each service says the cluster's ids are in their tooltips; an id it doesn't know turns red.
     </p>
+    <p>
+      The <strong>Merge all</strong> buttons merge in bulk, with the same feat. cleanup:
+      <em>with matching title and artist</em> merges the clusters whose songs have the same title
+      and artist, and <em>that differ only by feat.</em> the ones that are the same once their feat.
+      clauses come out. Both skip clusters with a rejected pair, a .NoMerge song or a song with no
+      artist. <strong>Preview merges</strong> works out what each would merge and what the merged
+      songs would be called, without merging anything, and sorts this page by it;
+      <strong>Show preview</strong> lists the result.
+    </p>
 
     <BAlert v-if="model.message" :model-value="true" variant="info">{{ model.message }}</BAlert>
     <BAlert v-if="error" :model-value="true" variant="danger">{{ error }}</BAlert>
@@ -134,11 +147,14 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
       <template v-if="model.sortedBy">
         Sorted by the preview run {{ formatDateTime(model.sortedBy) }}: the
         {{ model.withoutFeaturingCount.toLocaleString() }} clusters still pending that differed only
-        by feat. come first, then the {{ model.closeCount.toLocaleString() }} close matches.
+        by feat. come first, then the {{ model.closeCount.toLocaleString() }} close matches. That
+        preview found {{ (model.wouldMergeCount ?? 0).toLocaleString() }} clusters with matching
+        titles and artists and {{ (model.wouldMergeFeaturingCount ?? 0).toLocaleString() }} that
+        differ only by feat. to merge (<a href="/SharedIds/Preview">show preview</a>).
       </template>
       <template v-else>
-        Run <strong>Preview merge all</strong> to sort the clusters that differ only by feat. and
-        the close matches first.
+        Run <strong>Preview merges</strong> to see what the Merge all buttons would merge, and to
+        sort the clusters that differ only by feat. and the close matches first.
       </template>
       <template v-if="model.deferredCount">
         The {{ model.deferredCount.toLocaleString() }} clusters left for later come last.
@@ -160,11 +176,21 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
           >Merge all with matching title and artist</BButton
         >
       </form>
+      <form
+        method="post"
+        action="/SharedIds/MergeFeaturing"
+        @submit="confirmSubmit($event, mergeFeaturingPrompt)"
+      >
+        <input type="hidden" name="__RequestVerificationToken" :value="context.xsrfToken" />
+        <BButton type="submit" variant="outline-danger"
+          >Merge all that differ only by feat.</BButton
+        >
+      </form>
       <form method="post" action="/SharedIds/PreviewMergeMatching">
         <input type="hidden" name="__RequestVerificationToken" :value="context.xsrfToken" />
-        <BButton type="submit" variant="outline-secondary">Preview merge all</BButton>
+        <BButton type="submit" variant="outline-secondary">Preview merges</BButton>
       </form>
-      <BButton variant="link" href="/SharedIds/Preview">Last preview</BButton>
+      <BButton variant="link" href="/SharedIds/Preview">Show preview</BButton>
     </div>
 
     <template v-if="choices.length > 0">

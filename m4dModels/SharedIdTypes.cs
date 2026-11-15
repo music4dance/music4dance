@@ -187,7 +187,9 @@ public class SharedIdBatchResult
 }
 
 /// <summary>
-/// What SharedIdLog.MergeMatching does with one cluster: merges it when SkipReason is null.
+/// What the Merge all tasks do with one cluster. SharedIdLog.MergeMatching merges it when
+/// SkipReason is null; SharedIdLog.MergeFeaturing when the only reason is that its titles or
+/// artists differ by feat. (the other reasons come first).
 /// </summary>
 public record SharedIdMergePlan(SharedIdCluster Cluster, string SkipReason)
 {
@@ -199,9 +201,14 @@ public record SharedIdMergePlan(SharedIdCluster Cluster, string SkipReason)
     public const string Different = "The titles or artists differ";
 
     public bool WillMerge => SkipReason == null;
+    public bool WillMergeFeaturing => SkipReason == WithoutFeaturing;
 
     // The cluster's, as it was when the plan was made
     public SharedIdMatch Match { get; init; } = Cluster.Match;
+
+    // For a preview of a cluster that one of the tasks would merge: the names the merge would
+    // land on (the feat. cleanup of the merge); null when it couldn't be previewed
+    public SongNames Names { get; init; }
 }
 
 /// <summary>One cluster of a review page, with what merging all of its songs would make.</summary>
@@ -211,9 +218,10 @@ public record SharedIdPageCluster(SharedIdCluster Cluster, Song Preview, SongNam
     public SharedIdAction DefaultAction =>
         Cluster.HasRejectedPair || Cluster.HasNoMergeSong ? SharedIdAction.Leave : SharedIdAction.Merge;
 
-    // The proposal changes the merged title, or adds featured artists to the individual artists
+    // The proposal changes the merged title or credit, or adds featured artists to the individual
+    // artists
     public bool CleansFeaturing => Preview != null && Proposal != null &&
-        (Proposal.Title != Preview.Title || Proposal.Artists is { Count: > 1 } &&
+        (Proposal.Title != Preview.Title || Proposal.Artist != Preview.Artist || Proposal.Artists is { Count: > 1 } &&
             !Proposal.Artists.Select(ArtistSplitter.ArtistKey)
                 .SequenceEqual(Preview.EffectiveArtists.Select(ArtistSplitter.ArtistKey)));
 }

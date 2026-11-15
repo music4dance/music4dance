@@ -112,18 +112,22 @@ what Apply makes.
 | `Close` | Close match | Every pair passes `Song.TitleArtistMatch`, the fuzzy match that filters service tracks (artist word overlap, `CleanAlbum` trimming of " - 2011 Remaster" suffixes), as given or with feat. removed. |
 | `Different` | none | Anything else. |
 
-**Preview merge all** records each cluster's tier. Until the next restart, the review page sorts
+**Preview merges** records each cluster's tier. Until the next restart, the review page sorts
 by it: clusters that differ only by feat. first, then close matches, then the rest. The tier is
 kept for each song (`SharedIdPreviewStore`, a singleton), and a song merged on the review page takes
 the best tier of the songs it was merged from, so a cluster keeps its place when part of it is
-merged and the rest stays queued. The counts on the page are of the clusters still pending. Only `Exact`
-clusters are merged by **Merge all**; the other tiers are reviewed by hand while the cleanup is
-refined.
+merged and the rest stays queued. The counts on the page are of the clusters still pending.
+`Exact` clusters are merged by **Merge all with matching title and artist** and `WithoutFeaturing`
+ones by **Merge all that differ only by feat.**; close and different clusters are reviewed by
+hand.
 
 **Choosing the names.** The **Title**, **Artist** and **Individual artists** rows have a radio in
 every column. They start on the **If merged** column, which shows `FeaturedCleanup.Propose`: the
-merged title without its feat. clause, the merged artist credit, and its individual artists
-followed by any artists the other songs feature (in their titles or credits). The page sends the
+merged title without its feat. clause, an artist credit, and the merged song's individual
+artists followed by any artists the other songs feature (in their titles or credits). The credit
+is the merged song's unless it leaves some of those artists out and one of the songs credits
+them all: "Song (feat. Y)" by X merged with "Song" by "X feat. Y" lands on "Song" by "X feat. Y",
+with artists X and Y. The page sends the
 song each name comes from, or null for the proposal (`SharedIdNamePicks`), and the proposal is worked out again from
 each group's own merge when it's applied. A group takes a name from a song column only when that
 song is in the group; otherwise it gets the proposal for its own merge. So the page disables a song's radios while the
@@ -150,8 +154,9 @@ title-based tools or **Merge and edit** resolve themselves.
 | **Look up on Spotify and iTunes** (a button on each cluster) | `POST /api/sharedids/tracks` with the cluster's Spotify and iTunes ids (`SharedIdServiceTrack.Lookup`, one at a time through `MusicServiceManager.GetMusicServiceTrack` and its cache, at most 50). Each Spotify and iTunes id in the Albums row (the If merged column's too) then gets a tooltip with what the service says it is: title, artist, album, length, release date and ISRC; an id the service doesn't know turns red and says "Not found". Saves nothing; it's there to tell the songs apart before splitting them or removing an id. |
 | **Removals** (boxes on albums and ids, applied by **Apply this page** before the cluster's choice, whatever it is) | For each song with something checked, one edit by the reviewer (`Song.AppendIdRemoval`): `Album:NN=` (empty) for an album, `Purchase-:NN:SS=<id>` (or `IS`, `RS`) for one id. Removals of albums or ids the song no longer has are skipped. An edited song that is then merged goes into the merge as saved (`SimpleMergeSongs` with `reload: false`), since the index may not have caught up. Afterwards, the pending rows of the edited songs (or the songs they were merged into) whose songs no longer share any id are marked `Rejected`. So two different songs are kept apart by removing the id from the one it doesn't belong to, even with **Leave for later**. If enrichment later tries to put the id back, the guard skips it, because the other song holds it, and the rejected pair stays resolved. Checking an album covers its ids, so their boxes are disabled and they aren't sent on their own. The **If merged** column doesn't show removals. |
 | **Merge and edit** | Takes effect right away. It posts the songs to `/Song/BulkEdit` (`action=Merge`) in a new tab, which merges them as **Merge groups** does with one group and opens the merged song in the editor to pick its title, artist, tempo and length. |
-| **Merge all with matching title and artist** (`POST /SharedIds/MergeMatching`) | A background task (watch `/Admin/AdminStatus`). It merges every pending cluster whose songs all share the same title and the same non-empty artist (`Song.CreateTitleHash`, as the title-based merge candidates compare them). Every cluster shares an id by construction. It skips clusters with a rejected pair inside them, or with a `.NoMerge` song. |
-| **Preview merge all** (`POST /SharedIds/PreviewMergeMatching`) | A background task that works out what **Merge all with matching title and artist** would do, without merging (`SharedIdLog.PlanMergeMatching`, which the merge itself runs first). **Last preview** (`/SharedIds/Preview`) lists the clusters it would merge, then the skipped ones grouped by reason: a rejected pair, a `.NoMerge` song, a song with no artist, or titles or artists that differ only by feat., are close, or differ. The result lives in memory until the next preview or a restart. |
+| **Merge all with matching title and artist** (`POST /SharedIds/MergeMatching`) | A background task (watch `/Admin/AdminStatus`). It merges every pending `Exact` cluster: its songs all share the same title and the same non-empty artist (`Song.CreateTitleHash`, as the title-based merge candidates compare them). Every cluster shares an id by construction. It skips clusters with a rejected pair inside them, a `.NoMerge` song or a song with no artist. Each merge gets the feat. cleanup (`FeaturedCleanup.Propose`, applied by the music4dance edit when it changes anything), so a feat. clause both titles carry still moves into the individual artists. |
+| **Merge all that differ only by feat.** (`POST /SharedIds/MergeFeaturing`) | The same for the `WithoutFeaturing` clusters (`SharedIdLog.MergeFeaturing`): it merges each with the feat. cleanup, which takes the clause out of the title, adds the featured artists to the individual artists and picks a credit that names them all. It skips the same clusters. |
+| **Preview merges** (`POST /SharedIds/PreviewMergeMatching`) | A background task that works out what both Merge all tasks would do, without merging (`SharedIdLog.PlanMergeMatching`, which the merges themselves run first; given a user, it also previews each merge, `BuildSimpleMerge` then `FeaturedCleanup.Propose`, for the names it would land on). It also sorts the review page by tier. **Show preview** (`/SharedIds/Preview`) lists the clusters each task would merge, with what each merge would be called (bold where that isn't any of the songs' title or artist) and a button for the task, then the skipped ones grouped by reason: a rejected pair, a `.NoMerge` song, a song with no artist, or titles or artists that are close or differ. After a preview the review page says how many each task would merge and links to it. The result lives in memory until the next preview or a restart. |
 | **Queue existing shared ids** (`POST /SharedIds/Seed`) | Runs the seed as a background task. |
 
 ## The client and its tests
@@ -177,8 +182,9 @@ tooltips).
   the removals to in-memory copies, saving nothing), so the column shows what Apply will make.
   Worth doing if splits and removals keep coming up in review.
 
-- Once the feat. cleanup and the close-match tier have been refined on this queue, use
-  `FeaturedCleanup` in **Merge all** and in the add-time merge ([song-merge-algorithm](song-merge-algorithm.md)).
+- More automatic tiers, once a pattern in the close and different clusters is clear enough to
+  merge without review, and `FeaturedCleanup` in the add-time merge
+  ([song-merge-algorithm](song-merge-algorithm.md)).
 
 - Moving a wrong id to the song it belongs to (rather than only removing it) needs the song
   editor.
@@ -195,6 +201,7 @@ tooltips).
 - 2026-11: The review page became the `shared-id-review` Vue page app, applying through `POST /api/sharedids/apply`. Left-out songs' name radios and removed albums' id boxes are disabled, split radios name their group, and a cluster can have as many groups as songs. Client tests and an end-to-end test added.
 - 2026-11: Clusters left for later go to the end of the queue until a restart.
 - 2026-11: **Delete** on a song, and **Look up on Spotify and iTunes** (`POST /api/sharedids/tracks`).
+- 2026-11: **Merge all that differ only by feat.**; both Merge all tasks apply the feat. cleanup, which now picks a credit naming every artist. The preview (renamed **Preview merges** and **Show preview**) shows what each merge would be called, and the review page summarizes it.
 
 ## Related
 

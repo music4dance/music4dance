@@ -26,6 +26,11 @@ public class SharedIdReviewModel
     public int WithoutFeaturingCount { get; init; }
     public int CloseCount { get; init; }
 
+    // What that preview found the Merge all tasks would merge (as of when it ran): clusters with
+    // matching titles and artists, and clusters that differ only by feat.
+    public int WouldMergeCount { get; init; }
+    public int WouldMergeFeaturingCount { get; init; }
+
     // Clusters left for later, which come after the rest
     public int DeferredCount { get; init; }
 
@@ -33,7 +38,7 @@ public class SharedIdReviewModel
 
     public IReadOnlyList<SharedIdReviewCluster> Clusters { get; init; } = [];
 
-    public static SharedIdReviewModel Build(SharedIdPage page, DateTimeOffset? sortedBy = null,
+    public static SharedIdReviewModel Build(SharedIdPage page, SharedIdPreview preview = null,
         string message = null) =>
         new()
         {
@@ -41,7 +46,9 @@ public class SharedIdReviewModel
             PageCount = page.PageCount,
             PendingCandidates = page.PendingCandidates,
             ClusterCount = page.ClusterCount,
-            SortedBy = sortedBy,
+            SortedBy = preview?.Created,
+            WouldMergeCount = preview?.Merges.Count() ?? 0,
+            WouldMergeFeaturingCount = preview?.FeaturingMerges.Count() ?? 0,
             WithoutFeaturingCount = page.RankCounts.GetValueOrDefault(SharedIdPreviewStore.WithoutFeaturingRank),
             CloseCount = page.RankCounts.GetValueOrDefault(SharedIdPreviewStore.CloseRank),
             DeferredCount = page.DeferredCount,

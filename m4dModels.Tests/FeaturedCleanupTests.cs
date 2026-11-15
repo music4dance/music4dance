@@ -101,6 +101,44 @@ public class FeaturedCleanupTests
         var names = FeaturedCleanup.Propose(merged, [merged]);
 
         Assert.AreEqual("Song Title", names.Title);
+        Assert.AreEqual("The Artist", names.Artist);
         CollectionAssert.AreEqual(new[] { "The Artist" }, names.Artists.ToList());
+    }
+
+    [TestMethod]
+    public void Propose_ACreditLeavingAnArtistOut_TakesASongsCreditThatNamesThemAll()
+    {
+        var merged = new Song { Title = "Song Title (feat. Crazy Man)", Artist = "The Artist" };
+        var plain = new Song { Title = "Song Title", Artist = "The Artist" };
+        var credited = new Song { Title = "Song Title", Artist = "The Artist feat. Crazy Man" };
+
+        var names = FeaturedCleanup.Propose(merged, [plain, merged, credited]);
+
+        Assert.AreEqual("Song Title", names.Title);
+        Assert.AreEqual("The Artist feat. Crazy Man", names.Artist);
+        CollectionAssert.AreEqual(new[] { "The Artist", "Crazy Man" }, names.Artists.ToList());
+    }
+
+    [TestMethod]
+    public void Propose_ACreditThatNamesEveryArtist_IsKept()
+    {
+        var merged = new Song { Title = "Song Title", Artist = "The Artist & Crazy Man" };
+        var credited = new Song { Title = "Song Title", Artist = "The Artist feat. Crazy Man" };
+
+        var names = FeaturedCleanup.Propose(merged, [merged, credited]);
+
+        Assert.AreEqual("The Artist & Crazy Man", names.Artist);
+    }
+
+    [TestMethod]
+    public void Propose_NoSongCreditsEveryArtist_KeepsTheMergedCredit()
+    {
+        var merged = new Song { Title = "Song Title (feat. Crazy Man)", Artist = "The Artist" };
+        var other = new Song { Title = "Song Title", Artist = "The Artist feat. Friend" };
+
+        var names = FeaturedCleanup.Propose(merged, [merged, other]);
+
+        Assert.AreEqual("The Artist", names.Artist);
+        CollectionAssert.AreEquivalent(new[] { "The Artist", "Crazy Man", "Friend" }, names.Artists.ToList());
     }
 }

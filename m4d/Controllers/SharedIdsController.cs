@@ -40,7 +40,7 @@ public class SharedIdsController(
         var user = await Database.FindUser(UserName);
         var queue = await Database.SharedIds.LoadPage(user, page, previews.Ranker(), previews.IsDeferred);
         return Vue3("Shared Song Ids", "Admin: songs that share a service id", "shared-id-review",
-            SharedIdReviewModel.Build(queue, previews.Preview?.Created, message));
+            SharedIdReviewModel.Build(queue, previews.Preview, message));
     }
 
     //
@@ -68,18 +68,40 @@ public class SharedIdsController(
     }
 
     //
-    // POST: /SharedIds/PreviewMergeMatching
-    // Works out what MergeMatching would merge and skip, without merging anything
+    // POST: /SharedIds/MergeFeaturing
+    // Merges every pending cluster whose titles and artists differ only by feat., moving the
+    // featured artists into the merged song's individual artists
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public ActionResult PreviewMergeMatching() =>
-        RunAdminTask("PreviewMergeMatchingSharedIds", async dms =>
+    public async Task<ActionResult> MergeFeaturing()
+    {
+        var user = await Database.FindUser(UserName);
+        return RunAdminTask("MergeFeaturingSharedIds", async dms =>
         {
-            var plans = await dms.SharedIds.PlanMergeMatching(AdminMonitor.UpdateTask);
-            previews.Set(plans, DateTimeOffset.UtcNow);
-            return $"WouldMerge={plans.Count(p => p.WillMerge)}, Skipped={plans.Count(p => !p.WillMerge)} " +
-                "(see /SharedIds/Preview)";
+            var merged = await dms.SharedIds.MergeFeaturing(user, AdminMonitor.UpdateTask);
+            await DanceStatsManager.ClearCache(dms, false);
+            return $"Merged={merged}";
         });
+    }
+
+    //
+    // POST: /SharedIds/PreviewMergeMatching
+    // Works out what MergeMatching and MergeFeaturing would merge and skip, and the names each
+    // merge would land on, without merging anything. Also sorts the review page.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<ActionResult> PreviewMergeMatching()
+    {
+        var user = await Database.FindUser(UserName);
+        return RunAdminTask("PreviewMergeMatchingSharedIds", async dms =>
+        {
+            var plans = await dms.SharedIds.PlanMergeMatching(AdminMonitor.UpdateTask, user);
+            previews.Set(plans, DateTimeOffset.UtcNow);
+            return $"WouldMerge={plans.Count(p => p.WillMerge)}, " +
+                $"WouldMergeFeat={plans.Count(p => p.WillMergeFeaturing)}, " +
+                $"Skipped={plans.Count(p => !p.WillMerge && !p.WillMergeFeaturing)} (see /SharedIds/Preview)";
+        });
+    }
 
     //
     // GET: /SharedIds/Preview

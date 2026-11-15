@@ -88,11 +88,18 @@ public class SharedIdPreviewStore
         current.SongRanks.TryGetValue(id, out var rank) ? rank : OtherRank;
 }
 
-/// <summary>What Merge all would do with each pending cluster, as of when the preview ran.</summary>
+/// <summary>
+/// What the Merge all tasks would do with each pending cluster, as of when the preview ran:
+/// Merges (matching title and artist), FeaturingMerges (differ only by feat.) and the rest,
+/// skipped by both, grouped by why.
+/// </summary>
 public record SharedIdPreview(DateTimeOffset Created, IReadOnlyList<SharedIdMergePlan> Plans)
 {
     public IEnumerable<SharedIdMergePlan> Merges => Plans.Where(p => p.WillMerge);
 
+    public IEnumerable<SharedIdMergePlan> FeaturingMerges => Plans.Where(p => p.WillMergeFeaturing);
+
     public IEnumerable<IGrouping<string, SharedIdMergePlan>> Skips =>
-        Plans.Where(p => !p.WillMerge).GroupBy(p => p.SkipReason).OrderByDescending(g => g.Count());
+        Plans.Where(p => !p.WillMerge && !p.WillMergeFeaturing).GroupBy(p => p.SkipReason)
+            .OrderByDescending(g => g.Count());
 }
