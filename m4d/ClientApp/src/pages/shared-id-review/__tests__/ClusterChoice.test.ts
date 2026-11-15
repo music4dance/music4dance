@@ -53,6 +53,18 @@ describe("ClusterChoice", () => {
       expect(choice.isSplit).toBe(true);
     });
 
+    test("choosing a group makes a cluster that started as Leave a merge, so its names apply", () => {
+      const choice = choiceFor(rejectedCluster);
+      expect(choice.action).toBe("Leave");
+      expect(choice.canName(songC)).toBe(false);
+
+      choice.setGroup(songE, leaveOut);
+
+      expect(choice.action).toBe("Merge");
+      expect(choice.canName(songC)).toBe(true);
+      expect(choice.canName(songE)).toBe(false);
+    });
+
     test("leaving out the song a name came from puts the name back on its default", () => {
       const choice = choiceFor(featCluster);
       choice.pickName("title", songB);

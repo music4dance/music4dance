@@ -79,8 +79,14 @@ export class ClusterChoice {
     return this.isDeleted(songId) ? leaveOut : (this.groups.get(songId) ?? leaveOut);
   }
 
+  /**
+   * Puts the song in a group, or leaves it out. Grouping the songs is choosing what to merge, so
+   * the action becomes Merge groups: leaving out the one song of a cluster that started as Leave
+   * for later (its length is off, say) merges the rest and lets them name the merge.
+   */
   public setGroup(songId: string, group: string): void {
     this.groups.set(songId, group);
+    this.action = "Merge";
     if (group === leaveOut) {
       this.resetNamesFrom(songId);
     }
