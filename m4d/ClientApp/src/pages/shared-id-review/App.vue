@@ -121,8 +121,8 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
       same. So to keep two different songs apart, remove the shared id from the one it doesn't
       belong to; <em>Leave for later</em> is enough. The <em>If merged</em> column doesn't show
       removals. <strong>Delete</strong> on a song deletes it on Apply, whatever the cluster's
-      choice; it's left out of the groups. <strong>Look up on Spotify and iTunes</strong> shows what
-      each service says the cluster's ids are.
+      choice; it's left out of the groups. <strong>Look up on Spotify and iTunes</strong> puts what
+      each service says the cluster's ids are in their tooltips; an id it doesn't know turns red.
     </p>
 
     <BAlert v-if="model.message" :model-value="true" variant="info">{{ model.message }}</BAlert>

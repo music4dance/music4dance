@@ -241,7 +241,7 @@ describe("shared-id-review page", () => {
   });
 
   describe("Look up on Spotify and iTunes", () => {
-    test("posts the cluster's ids and shows what each service says", async () => {
+    test("posts the cluster's ids and puts what each service says in their tooltips", async () => {
       post.mockResolvedValueOnce({
         data: [
           {
@@ -258,7 +258,13 @@ describe("shared-id-review page", () => {
       });
       const wrapper = loadTestPage(App, model);
       const card = cards(wrapper)[0]!;
-      expect(card.text()).not.toContain("Services");
+      const tips = (id: string) =>
+        card
+          .findAll(".shared-id-track")
+          .filter((t) => t.text() === id)
+          .map((t) => t.find(".track-id"))
+          .map((t) => t.attributes("title"));
+      expect(tips("S:sp1")[0]).toBeUndefined();
 
       await card.find(".look-up-button").trigger("click");
       await flushPromises();
@@ -267,12 +273,10 @@ describe("shared-id-review page", () => {
         url: "/api/sharedids/tracks",
         body: { ids: ["S:sp1", "I:111"] },
       });
-      const [first, second] = card
-        .findAll("tr")
-        .filter((r) => r.text().startsWith("Services"))[0]!
-        .findAll("td");
-      expect(first!.text()).toBe("S:sp1 Probe — Probe Artist · Spotify Album · 3:05 · R:USRC1");
-      expect(second!.text()).toContain("I:111 not found");
+      expect(tips("S:sp1")).toEqual(["Probe — Probe Artist\nSpotify Album\n3:05 · R:USRC1"]);
+      expect(tips("I:111")).toEqual(["Not found"]);
+      const missing = card.findAll(".shared-id-track").find((t) => t.text() === "I:111")!;
+      expect(missing.find(".text-danger").exists()).toBe(true);
       expect(card.find(".look-up-button").text()).toBe("Look up again");
     });
 

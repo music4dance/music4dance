@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { ClusterChoice } from "../ClusterChoice";
-import type { SharedIdReviewSong } from "../SharedIdReviewModel";
+import type { SharedIdReviewSong, SharedIdServiceTrack } from "../SharedIdReviewModel";
+import { describeTrack } from "../format";
 
 // A song's albums with their song-level ids. Given a choice (a song column), each album and id
 // has a box that removes it; without one (the If merged column) it's read-only. Nothing is
-// removed from a song to delete, so its boxes are disabled.
+// removed from a song to delete, so its boxes are disabled. Once the cluster's ids have been
+// looked up, each Spotify and iTunes id's tooltip says what the service has under it.
 const props = defineProps<{
   song: SharedIdReviewSong;
   choice?: ClusterChoice;
   // Names the song in the boxes' labels: "song 2"
   label?: string;
+  tracks?: Map<string, SharedIdServiceTrack>;
 }>();
 
 const songId = computed(() => props.song.songId);
@@ -23,6 +26,15 @@ function albumRemoved(album: number): boolean {
 
 function idRemoved(album: number, id: string): boolean {
   return props.choice?.isIdRemoved(songId.value, album, id) ?? false;
+}
+
+function trackOf(id: string): SharedIdServiceTrack | undefined {
+  return props.tracks?.get(id);
+}
+
+function tipOf(id: string): string | undefined {
+  const track = trackOf(id);
+  return track ? describeTrack(track) : undefined;
 }
 
 function onAlbum(album: number, value: unknown): void {
@@ -74,7 +86,15 @@ function onId(album: number, id: string, value: unknown): void {
       />
       <component
         :is="trackId.shared ? 'mark' : 'span'"
-        :class="['small', { 'text-muted': !trackId.shared }]"
+        :class="[
+          'small track-id',
+          {
+            'text-muted': !trackId.shared && !trackOf(trackId.id),
+            'looked-up': trackOf(trackId.id)?.found,
+            'text-danger': trackOf(trackId.id)?.found === false,
+          },
+        ]"
+        :title="tipOf(trackId.id)"
       >
         <a v-if="trackId.link" :href="trackId.link" target="_blank" rel="noopener noreferrer">{{
           trackId.id
@@ -84,3 +104,10 @@ function onId(album: number, id: string, value: unknown): void {
     </span>
   </div>
 </template>
+
+<style scoped>
+.looked-up {
+  cursor: help;
+  border-bottom: 1px dotted currentcolor;
+}
+</style>

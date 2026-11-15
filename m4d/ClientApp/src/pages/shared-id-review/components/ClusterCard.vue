@@ -10,11 +10,10 @@ import type {
 import { formatArtists, formatDances, formatDate, formatLength } from "../format";
 import AlbumIds from "./AlbumIds.vue";
 import NameChoiceRow from "./NameChoiceRow.vue";
-import ServiceTracks from "./ServiceTracks.vue";
 
 // One cluster of the review page: its songs side by side with what merging them all would
 // make, the choice for it, Merge and edit, and a lookup of what Spotify and iTunes say its ids
-// are.
+// are (shown in the ids' tooltips).
 const props = defineProps<{
   choice: ClusterChoice;
   // Unique on the page, for the controls' names and ids
@@ -194,18 +193,16 @@ async function lookUp(): Promise<void> {
               <tr>
                 <th>Albums</th>
                 <td v-for="(song, k) in songs" :key="song.songId">
-                  <AlbumIds :song="song" :choice="choice" :label="`song ${k + 1}`" />
+                  <AlbumIds
+                    :song="song"
+                    :choice="choice"
+                    :label="`song ${k + 1}`"
+                    :tracks="tracks"
+                  />
                 </td>
                 <td class="table-info">
-                  <AlbumIds v-if="merged" :song="merged" />
+                  <AlbumIds v-if="merged" :song="merged" :tracks="tracks" />
                 </td>
-              </tr>
-              <tr v-if="tracks">
-                <th>Services</th>
-                <td v-for="song in songs" :key="song.songId">
-                  <ServiceTracks :song="song" :tracks="tracks" />
-                </td>
-                <td class="table-info" />
               </tr>
               <tr>
                 <th>Created</th>
