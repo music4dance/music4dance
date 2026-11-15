@@ -577,7 +577,8 @@ public class SharedIdLog(DanceMusicCoreService dms)
     /// <summary>
     /// Merges every pending cluster whose songs all have the same title and the same artist
     /// (they share an id by construction), skipping clusters with a rejected pair, a song marked
-    /// .NoMerge or a song with no artist. Each merge gets the feat. cleanup, as on the review
+    /// .NoMerge, a song with no artist, or lengths more than SharedIdMatcher.LengthTolerance
+    /// apart. Each merge gets the feat. cleanup, as on the review
     /// page. Returns the number of clusters merged.
     /// </summary>
     public Task<int> MergeMatching(ApplicationUser user, Action<string, int> progress = null) =>
@@ -680,6 +681,7 @@ public class SharedIdLog(DanceMusicCoreService dms)
         cluster.HasRejectedPair ? SharedIdMergePlan.Rejected
         : cluster.HasNoMergeSong ? SharedIdMergePlan.NoMerge
         : cluster.Songs.Any(s => string.IsNullOrWhiteSpace(s.Artist)) ? SharedIdMergePlan.NoArtist
+        : cluster.LengthsDiffer ? SharedIdMergePlan.LengthsDiffer
         : cluster.Match switch
         {
             SharedIdMatch.Exact => null,

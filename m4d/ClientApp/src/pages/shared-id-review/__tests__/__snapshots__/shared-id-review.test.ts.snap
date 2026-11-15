@@ -15,10 +15,10 @@ exports[`shared-id-review page > renders the review page 1`] = `
   <div id="body-content" class="container-fluid body-content">
     <h1>Shared Song Ids</h1>
     <div>
-      <p> Songs that hold the same Spotify, iTunes or ISRC id. When enrichment is about to give a song an id another song already holds, it leaves the id off and queues the pair here. Choose what to do with each cluster on the page, then <strong>Apply this page</strong>. <strong>Merge groups</strong> folds the songs of each group (A, B, …) into one, keeping all of their history, and marks the songs of different groups not the same; a song left out stays in the queue. Every song starts in group A, and the <em>If merged</em> column shows what merging all of them would give. <strong>Not the same</strong> leaves the ids where they are and stops the pairs from being queued again. <strong>Leave for later</strong> changes nothing, and moves the cluster to the end of the queue until the server restarts. Clusters with a rejected pair or a .NoMerge song start as Leave for later; the rest start as Merge groups. <strong>Merge and edit</strong> merges a cluster straight away and opens it for editing. </p>
+      <p> Songs that hold the same Spotify, iTunes or ISRC id. When enrichment is about to give a song an id another song already holds, it leaves the id off and queues the pair here. Choose what to do with each cluster on the page, then <strong>Apply this page</strong>. <strong>Merge groups</strong> folds the songs of each group (A, B, …) into one, keeping all of their history, and marks the songs of different groups not the same; a song left out stays in the queue. Every song starts in group A, and the <em>If merged</em> column shows what merging all of them would give. <strong>Not the same</strong> leaves the ids where they are and stops the pairs from being queued again. <strong>Leave for later</strong> changes nothing, and moves the cluster to the end of the queue until the server restarts. Clusters with a rejected pair, a .NoMerge song or lengths more than 15 seconds apart (probably different recordings) start as Leave for later; the rest start as Merge groups. <strong>Merge and edit</strong> merges a cluster straight away and opens it for editing. </p>
       <p> The <em>Title</em>, <em>Artist</em> and <em>Individual artists</em> rows choose what the merged song is called. They start on the <em>If merged</em> column, which takes any feat. clause out of the title and adds the featured artists to the individual artists. When a choice isn't what the merge gives on its own, an edit by the music4dance account sets it after the merge. A song left out can't name the merge. When the songs are split into groups, each song's choice is marked with the group it names; a group without a choice of its own gets the same cleanup of its own merge. </p>
       <p> In the song columns, the box before an album removes the album from that song, and the box before an id removes just that id. Removals are made first, by an edit of yours, whatever the cluster's choice, and pairs whose songs no longer share an id afterwards are marked not the same. So to keep two different songs apart, remove the shared id from the one it doesn't belong to; <em>Leave for later</em> is enough. The <em>If merged</em> column doesn't show removals. <strong>Delete</strong> on a song deletes it on Apply, whatever the cluster's choice; it's left out of the groups. <strong>Look up on Spotify and iTunes</strong> puts what each service says the cluster's ids are in their tooltips; an id it doesn't know turns red. </p>
-      <p> The <strong>Merge all</strong> buttons merge in bulk, with the same feat. cleanup: <em>with matching title and artist</em> merges the clusters whose songs have the same title and artist, and <em>that differ only by feat.</em> the ones that are the same once their feat. clauses come out. Both skip clusters with a rejected pair, a .NoMerge song or a song with no artist. <strong>Preview merges</strong> works out what each would merge and what the merged songs would be called, without merging anything, and sorts this page by it; <strong>Show preview</strong> lists the result. </p>
+      <p> The <strong>Merge all</strong> buttons merge in bulk, with the same feat. cleanup: <em>with matching title and artist</em> merges the clusters whose songs have the same title and artist, and <em>that differ only by feat.</em> the ones that are the same once their feat. clauses come out. Both skip clusters with a rejected pair, a .NoMerge song, a song with no artist, or lengths more than 15 seconds apart. <strong>Preview merges</strong> works out what each would merge and what the merged songs would be called, without merging anything, and sorts this page by it; <strong>Show preview</strong> lists the result. </p>
       <transition-stub name="fade" enteractiveclass="" enterfromclass="showing" entertoclass="" leaveactiveclass="" leavefromclass="" leavetoclass="showing" appear="true" persisted="false" css="true">
         <div class="alert alert-info show" tabindex="0" role="alert" aria-live="assertive" aria-atomic="true">
           <!---->
@@ -44,6 +44,7 @@ exports[`shared-id-review page > renders the review page 1`] = `
         <!---->
         <!---->
         <div class="card-header"><strong>R:USRC1</strong><span class="badge text-bg-info ms-2">Differ only by feat.</span><span class="badge text-bg-primary ms-2">Cleans up feat.</span>
+          <!--v-if-->
           <!--v-if-->
           <!--v-if-->
           <!--v-if-->
@@ -198,7 +199,7 @@ exports[`shared-id-review page > renders the review page 1`] = `
         <div class="card-header"><strong>S:sp9</strong>
           <!--v-if-->
           <!--v-if--><span class="badge text-bg-warning ms-2">Has a rejected pair</span>
-          <!--v-if-->
+          <!--v-if--><span class="badge text-bg-warning ms-2">Lengths 0:42 apart</span>
           <!--v-if-->
         </div>
         <div class="card-body">
@@ -382,6 +383,7 @@ exports[`shared-id-review page > renders the review page 1`] = `
         <!---->
         <!---->
         <div class="card-header"><strong>I:999</strong>
+          <!--v-if-->
           <!--v-if-->
           <!--v-if-->
           <!--v-if-->

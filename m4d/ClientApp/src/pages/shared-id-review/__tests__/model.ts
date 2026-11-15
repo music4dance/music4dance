@@ -73,7 +73,8 @@ export const featCluster = {
   proposal: { title: "Probe", artist: "Probe Artist", artists: ["Probe Artist", "Crazy Man"] },
 };
 
-// Three songs with a rejected pair, so it starts as Leave; the merge couldn't be previewed
+// Three songs with a rejected pair and lengths too far apart, so it starts as Leave; the merge
+// couldn't be previewed
 export const rejectedCluster = {
   key: `${songC},${songD},${songE}`,
   serviceIds: ["S:sp9"],
@@ -81,6 +82,8 @@ export const rejectedCluster = {
   hasRejectedPair: true,
   hasNoMergeSong: false,
   cleansFeaturing: false,
+  lengthSpread: 42,
+  lengthsDiffer: true,
   defaultAction: "Leave",
   candidates: [
     { id: 21, source: "Enrich", created: "2026-11-02T08:00:00+00:00", serviceIds: "S:sp9" },

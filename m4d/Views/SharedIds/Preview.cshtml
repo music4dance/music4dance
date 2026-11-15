@@ -15,7 +15,8 @@
     each pending cluster, and the title, artist and individual artists each merge would land on.
     Nothing was merged. Merges and reviews made since the preview ran aren't reflected here: run
     <strong>Preview merges</strong> again to see them. A cluster with a rejected pair, a .NoMerge
-    song or a song with no artist is skipped by both.
+    song, a song with no artist, or lengths more than @SharedIdMatcher.LengthTolerance seconds
+    apart (probably different recordings) is skipped by both.
 </p>
 
 @if (Model == null)

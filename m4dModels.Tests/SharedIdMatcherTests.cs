@@ -48,4 +48,14 @@ public class SharedIdMatcherTests
         Assert.IsFalse(SharedIdMatcher.TitleArtistMatch([S("Shared Song", ""), S("Shared Song", "")]));
         Assert.IsFalse(SharedIdMatcher.CloseMatch([S("Shared Song", ""), S("Shared Song", "")]));
     }
+
+    private static Song L(int? length) => new() { Title = "Song", Artist = "Artist", Length = length };
+
+    [TestMethod]
+    public void LengthSpread_IsTheLongestMinusTheShortest_IgnoringSongsWithoutALength()
+    {
+        Assert.AreEqual(42, SharedIdMatcher.LengthSpread([L(200), L(null), L(242), L(210)]));
+        Assert.AreEqual(0, SharedIdMatcher.LengthSpread([L(200), L(null)]));
+        Assert.AreEqual(0, SharedIdMatcher.LengthSpread([L(null), L(null)]));
+    }
 }

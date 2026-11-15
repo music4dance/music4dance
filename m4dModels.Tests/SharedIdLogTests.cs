@@ -816,6 +816,45 @@ public class SharedIdLogTests
     }
 
     [TestMethod]
+    public async Task PlanMergeMatching_SkipsLengthsTooFarApart_ForBothTasks()
+    {
+        var (dms, user) = await CreateService("SharedIds_PlanLengths");
+        _ = await SaveSong(dms, "Purchase:00:IS=111	Length=200");
+        _ = await SaveSong(dms, "Purchase:00:IS=111	Length=215");
+        _ = await SaveSong(dms, "Purchase:00:IS=222	Length=200");
+        _ = await SaveSong(dms, "Purchase:00:IS=222	Length=216");
+        _ = await SaveSong(dms, "Purchase:00:IS=333	Length=200", title: "Feat Song feat. Crazy Man");
+        _ = await SaveSong(dms, "Purchase:00:IS=333	Length=260", title: "Feat Song");
+        _ = await SaveSong(dms, "Purchase:00:IS=444	Length=200");
+        _ = await SaveSong(dms, "Purchase:00:IS=444");
+        _ = await dms.SharedIds.Seed();
+
+        var plans = (await dms.SharedIds.PlanMergeMatching()).ToDictionary(p => p.Cluster.ServiceIds.Single());
+
+        Assert.IsTrue(plans["I:111"].WillMerge, "15 seconds apart is close enough");
+        Assert.AreEqual(SharedIdMergePlan.LengthsDiffer, plans["I:222"].SkipReason);
+        Assert.AreEqual(SharedIdMergePlan.LengthsDiffer, plans["I:333"].SkipReason);
+        Assert.IsFalse(plans["I:333"].WillMergeFeaturing);
+        Assert.IsTrue(plans["I:444"].WillMerge, "A song without a length doesn't count");
+        Assert.AreEqual(0, await dms.SharedIds.MergeFeaturing(user));
+    }
+
+    [TestMethod]
+    public async Task LoadPage_LengthsTooFarApart_StartAsLeave()
+    {
+        var (dms, user) = await CreateService("SharedIds_PageLengths");
+        _ = await SaveSong(dms, "Purchase:00:IS=111	Length=200");
+        _ = await SaveSong(dms, "Purchase:00:IS=111	Length=260");
+        _ = await dms.SharedIds.Seed();
+
+        var entry = (await dms.SharedIds.LoadPage(user, 1)).Clusters.Single();
+
+        Assert.AreEqual(60, entry.Cluster.LengthSpread);
+        Assert.IsTrue(entry.Cluster.LengthsDiffer);
+        Assert.AreEqual(SharedIdAction.Leave, entry.DefaultAction);
+    }
+
+    [TestMethod]
     public async Task MergeFeaturing_MergesOnlyClustersThatDifferByFeat_WithTheCleanup()
     {
         var (dms, user) = await CreateService("SharedIds_MergeFeaturing");

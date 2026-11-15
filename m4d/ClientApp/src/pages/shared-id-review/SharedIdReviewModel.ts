@@ -70,6 +70,10 @@ export class SharedIdReviewCluster {
   @jsonMember(Boolean) public hasRejectedPair!: boolean;
   @jsonMember(Boolean) public hasNoMergeSong!: boolean;
   @jsonMember(Boolean) public cleansFeaturing!: boolean;
+  // The longest song minus the shortest, in seconds, and whether that's beyond the server's
+  // tolerance (SharedIdMatcher.LengthTolerance)
+  @jsonMember(Number) public lengthSpread?: number;
+  @jsonMember(Boolean) public lengthsDiffer?: boolean;
   @jsonMember(String) public defaultAction!: SharedIdAction;
   @jsonArrayMember(SharedIdReviewCandidate) public candidates!: SharedIdReviewCandidate[];
   // Empty when the songs changed while the page loaded

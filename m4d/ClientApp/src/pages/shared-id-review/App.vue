@@ -78,11 +78,13 @@ function confirmSubmit(event: Event, message: string): void {
 const seedPrompt = "Scan the index and queue every pair of songs that already share an id?";
 const mergeAllPrompt =
   "Merge every pending cluster whose songs share an id and also have the same title and " +
-  "artist? Clusters with a rejected pair or a .NoMerge song are skipped.";
+  "artist? Clusters with a rejected pair, a .NoMerge song, a song with no artist, or lengths " +
+  "more than 15 seconds apart are skipped.";
 const mergeFeaturingPrompt =
   "Merge every pending cluster whose titles and artists are the same once their feat. clauses " +
   "come out, moving the featured artists into the individual artists? Clusters with a rejected " +
-  "pair or a .NoMerge song are skipped.";
+  "pair, a .NoMerge song, a song with no artist, or lengths more than 15 seconds apart are " +
+  "skipped.";
 
 function leaveWarning(event: BeforeUnloadEvent): void {
   if (changedCount.value > 0 && !applying.value) {
@@ -105,9 +107,10 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
       the queue. Every song starts in group A, and the <em>If merged</em> column shows what merging
       all of them would give. <strong>Not the same</strong> leaves the ids where they are and stops
       the pairs from being queued again. <strong>Leave for later</strong> changes nothing, and moves
-      the cluster to the end of the queue until the server restarts. Clusters with a rejected pair
-      or a .NoMerge song start as Leave for later; the rest start as Merge groups.
-      <strong>Merge and edit</strong> merges a cluster straight away and opens it for editing.
+      the cluster to the end of the queue until the server restarts. Clusters with a rejected pair,
+      a .NoMerge song or lengths more than 15 seconds apart (probably different recordings) start as
+      Leave for later; the rest start as Merge groups. <strong>Merge and edit</strong> merges a
+      cluster straight away and opens it for editing.
     </p>
     <p>
       The <em>Title</em>, <em>Artist</em> and <em>Individual artists</em> rows choose what the
@@ -132,10 +135,10 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
       The <strong>Merge all</strong> buttons merge in bulk, with the same feat. cleanup:
       <em>with matching title and artist</em> merges the clusters whose songs have the same title
       and artist, and <em>that differ only by feat.</em> the ones that are the same once their feat.
-      clauses come out. Both skip clusters with a rejected pair, a .NoMerge song or a song with no
-      artist. <strong>Preview merges</strong> works out what each would merge and what the merged
-      songs would be called, without merging anything, and sorts this page by it;
-      <strong>Show preview</strong> lists the result.
+      clauses come out. Both skip clusters with a rejected pair, a .NoMerge song, a song with no
+      artist, or lengths more than 15 seconds apart. <strong>Preview merges</strong> works out what
+      each would merge and what the merged songs would be called, without merging anything, and
+      sorts this page by it; <strong>Show preview</strong> lists the result.
     </p>
 
     <BAlert v-if="model.message" :model-value="true" variant="info">{{ model.message }}</BAlert>

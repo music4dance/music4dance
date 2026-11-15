@@ -121,6 +121,8 @@ describe("shared-id-review page", () => {
       expect(feat!.find(".card-header").text()).toContain("Cleans up feat.");
       expect(rejected!.find(".card-header").text()).toContain("Has a rejected pair");
       expect(rejected!.find(".card-header").text()).not.toContain("Close match");
+      expect(rejected!.find(".card-header").text()).toContain("Lengths 0:42 apart");
+      expect(feat!.find(".card-header").text()).not.toContain("apart");
     });
 
     test("starts on its default action", () => {

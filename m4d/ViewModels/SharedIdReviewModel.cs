@@ -70,6 +70,10 @@ public class SharedIdReviewCluster
     public bool HasNoMergeSong { get; init; }
     public bool CleansFeaturing { get; init; }
 
+    // The longest song minus the shortest, in seconds, and whether that's beyond the tolerance
+    public int LengthSpread { get; init; }
+    public bool LengthsDiffer { get; init; }
+
     [JsonConverter(typeof(StringEnumConverter))]
     public SharedIdAction DefaultAction { get; init; }
 
@@ -95,6 +99,8 @@ public class SharedIdReviewCluster
             HasRejectedPair = cluster.HasRejectedPair,
             HasNoMergeSong = cluster.HasNoMergeSong,
             CleansFeaturing = entry.CleansFeaturing,
+            LengthSpread = cluster.LengthSpread,
+            LengthsDiffer = cluster.LengthsDiffer,
             DefaultAction = entry.DefaultAction,
             Candidates = [.. cluster.Candidates.Select(c =>
                 new SharedIdReviewCandidate(c.Id, c.Source, c.Created, c.ServiceIds, c.Detail))],

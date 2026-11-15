@@ -20,6 +20,12 @@ public class SharedIdCluster
 
     public SharedIdMatch Match { get; private set; } = SharedIdMatch.Different;
 
+    // The longest song minus the shortest, in seconds (SharedIdMatcher.LengthSpread)
+    public int LengthSpread { get; private set; }
+
+    // Further apart than SharedIdMatcher.LengthTolerance: probably different recordings
+    public bool LengthsDiffer => LengthSpread > SharedIdMatcher.LengthTolerance;
+
     // Identifies the cluster by its songs, whatever order they're listed in
     public string Key => string.Join(",", SongIds.Order());
 
@@ -32,6 +38,7 @@ public class SharedIdCluster
         HasRejectedPair = hasRejectedPair;
         HasNoMergeSong = songs.Any(s => s.SongProperties.Any(p => p.Name == Song.NoMergeCommand));
         Match = SharedIdMatcher.Match(songs);
+        LengthSpread = SharedIdMatcher.LengthSpread(songs);
     }
 
     /// <summary>
@@ -196,6 +203,8 @@ public record SharedIdMergePlan(SharedIdCluster Cluster, string SkipReason)
     public const string Rejected = "A pair in it was marked not the same";
     public const string NoMerge = "A song is marked .NoMerge";
     public const string NoArtist = "A song has no artist";
+    public static readonly string LengthsDiffer =
+        $"The lengths are more than {SharedIdMatcher.LengthTolerance} seconds apart";
     public const string WithoutFeaturing = "The titles or artists differ only by feat.";
     public const string Close = "The titles and artists are close but not the same";
     public const string Different = "The titles or artists differ";
@@ -214,9 +223,11 @@ public record SharedIdMergePlan(SharedIdCluster Cluster, string SkipReason)
 /// <summary>One cluster of a review page, with what merging all of its songs would make.</summary>
 public record SharedIdPageCluster(SharedIdCluster Cluster, Song Preview, SongNames Proposal)
 {
-    // A cluster with a rejected pair or a .NoMerge song needs a closer look, so it starts as Leave
+    // A cluster with a rejected pair, a .NoMerge song or lengths too far apart needs a closer
+    // look, so it starts as Leave
     public SharedIdAction DefaultAction =>
-        Cluster.HasRejectedPair || Cluster.HasNoMergeSong ? SharedIdAction.Leave : SharedIdAction.Merge;
+        Cluster.HasRejectedPair || Cluster.HasNoMergeSong || Cluster.LengthsDiffer
+            ? SharedIdAction.Leave : SharedIdAction.Merge;
 
     // The proposal changes the merged title or credit, or adds featured artists to the individual
     // artists

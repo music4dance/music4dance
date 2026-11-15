@@ -100,6 +100,9 @@ async function lookUp(): Promise<void> {
         >Has a rejected pair</BBadge
       >
       <BBadge v-if="cluster.hasNoMergeSong" variant="warning" class="ms-2">.NoMerge</BBadge>
+      <BBadge v-if="cluster.lengthsDiffer" variant="warning" class="ms-2"
+        >Lengths {{ formatLength(cluster.lengthSpread) }} apart</BBadge
+      >
       <BBadge v-if="choice.isDirty" variant="dark" class="ms-2">Changed</BBadge>
     </BCardHeader>
     <BCardBody>

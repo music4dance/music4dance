@@ -6,6 +6,24 @@ namespace m4dModels;
 /// </summary>
 public static class SharedIdMatcher
 {
+    /// <summary>
+    /// Songs whose lengths are further apart than this, in seconds, are almost certainly
+    /// different recordings (a live take, an extended mix), so they aren't merged without review.
+    /// The title-based merge candidates use a looser 20 seconds from the median
+    /// (MergeManager.FilterLength).
+    /// </summary>
+    public const int LengthTolerance = 15;
+
+    /// <summary>
+    /// The longest of the songs' lengths minus the shortest, in seconds; 0 when fewer than two of
+    /// them have a length.
+    /// </summary>
+    public static int LengthSpread(IReadOnlyList<Song> songs)
+    {
+        var lengths = songs.Where(s => s?.Length is > 0).Select(s => s.Length.Value).ToList();
+        return lengths.Count < 2 ? 0 : lengths.Max() - lengths.Min();
+    }
+
     public static SharedIdMatch Match(IReadOnlyList<Song> songs) =>
         TitleArtistMatch(songs) ? SharedIdMatch.Exact
         : FeaturedCleanup.MatchWithoutFeaturing(songs) ? SharedIdMatch.WithoutFeaturing
