@@ -17,31 +17,74 @@ public static class FeaturedCleanup
     /// <summary>
     /// The names <paramref name="merged"/> should land on: its title without a feat. clause, an
     /// artist credit, and its individual artists followed by the artists the songs it was merged
-    /// from feature (in their titles or credits), each artist listed once. The credit is the
-    /// merged song's unless it leaves some of those artists out and one of the songs it was
-    /// merged from credits them all: "X" becomes "X feat. Y" when one song has that credit and
-    /// another features Y in its title.
+    /// from feature (in their titles or credits), each artist listed once; when the songs'
+    /// credits only leave artists out of the fullest one ("X" and "X &amp; Y"), the fullest one's
+    /// artists come after the merged song's. The credit is the merged song's unless it leaves
+    /// some of those artists out and one of the songs it was merged from credits them all: "X"
+    /// becomes "X feat. Y" when one song has that credit and another features Y in its title.
+    /// <paramref name="knowledge"/> is evidence for splitting credits like "X &amp; Y", which
+    /// otherwise stay one artist (a music service's list of the track's artists, say).
     /// </summary>
-    public static SongNames Propose(Song merged, IEnumerable<Song> sources)
+    public static SongNames Propose(Song merged, IEnumerable<Song> sources, IArtistKnowledge knowledge = null)
     {
         var songs = sources?.ToList() ?? [];
         var artists = new List<string>();
         void Add(IEnumerable<string> names) =>
             artists.AddRange(names.Where(n => !artists.Any(a => SameArtist(a, n))));
 
-        Add(merged.Artists ?? ArtistSplitter.Split(merged.Artist, merged.Title).Artists);
+        Add(merged.Artists ?? ArtistSplitter.Split(merged.Artist, merged.Title, knowledge).Artists);
+        // When the songs' credits only leave artists out ("X" and "X & Y"), all of them
+        if (songs.Count > 0)
+        {
+            var sets = songs.Select(s => IndividualArtists(s, knowledge)).ToList();
+            var fullest = sets.MaxBy(a => a.Count);
+            if (sets.All(set => set.All(n => fullest.Any(f => SameArtist(f, n)))))
+            {
+                Add(fullest);
+            }
+        }
+
         foreach (var song in songs)
         {
-            Add(FeaturedArtists(song));
+            Add(FeaturedArtists(song, knowledge));
         }
 
         return new SongNames(ArtistSplitter.RemoveTitleFeaturing(merged.Title),
-            Credit(merged.Artist, songs, artists), artists);
+            Credit(merged.Artist, songs, artists, knowledge), artists);
+    }
+
+    /// <summary>
+    /// The song's individual artists: those recorded in its log (Song.Artists, by a person, a
+    /// music service or artist-bot) and the ones its feat. clauses add, else its credit split
+    /// with any feat. clause in its title.
+    /// </summary>
+    public static IReadOnlyList<string> IndividualArtists(Song song, IArtistKnowledge knowledge = null)
+    {
+        if (song.Artists is not { Count: > 0 })
+        {
+            return ArtistSplitter.Split(song.Artist, song.Title, knowledge).Artists;
+        }
+
+        var featured = FeaturedArtists(song, knowledge).Where(f => !song.Artists.Any(a => SameArtist(a, f)));
+        return [.. song.Artists, .. featured];
+    }
+
+    /// <summary>Evidence that each of the names is an artist, for ArtistSplitter.Split.</summary>
+    public static ArtistKnowledge Knowing(IEnumerable<string> names)
+    {
+        var knowledge = new ArtistKnowledge();
+        foreach (var name in names ?? [])
+        {
+            knowledge.Add(name);
+        }
+
+        return knowledge;
     }
 
     // The credit when it names every one of the artists, otherwise the first of the songs'
     // credits that does, otherwise the credit
-    private static string Credit(string credit, IEnumerable<Song> songs, IReadOnlyList<string> artists)
+    private static string Credit(string credit, IEnumerable<Song> songs, IReadOnlyList<string> artists,
+        IArtistKnowledge knowledge)
     {
         bool NamesAll(string c)
         {
@@ -50,7 +93,7 @@ public static class FeaturedCleanup
                 return false;
             }
 
-            var named = ArtistSplitter.Split(c).Artists;
+            var named = ArtistSplitter.Split(c, null, knowledge).Artists;
             return artists.All(a => named.Any(n => SameArtist(n, a)));
         }
 
@@ -61,10 +104,10 @@ public static class FeaturedCleanup
     /// The artists a song features in a feat. clause of its title or artist credit, without its
     /// primary artists.
     /// </summary>
-    public static IReadOnlyList<string> FeaturedArtists(Song song)
+    public static IReadOnlyList<string> FeaturedArtists(Song song, IArtistKnowledge knowledge = null)
     {
-        var primary = ArtistSplitter.Split(ArtistSplitter.RemoveArtistFeaturing(song.Artist)).Artists;
-        return [.. ArtistSplitter.Split(song.Artist, song.Title).Artists
+        var primary = ArtistSplitter.Split(ArtistSplitter.RemoveArtistFeaturing(song.Artist), null, knowledge).Artists;
+        return [.. ArtistSplitter.Split(song.Artist, song.Title, knowledge).Artists
             .Where(n => !primary.Any(p => SameArtist(p, n)))];
     }
 

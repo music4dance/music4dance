@@ -8,7 +8,7 @@
 else
 {
     // Plans of clusters a Merge all would merge carry the names the merge lands on
-    var named = Model.Any(p => p.WillMerge || p.WillMergeFeaturing);
+    var named = Model.Any(p => p.WouldMerge);
     <div class="table-responsive">
         <table class="table table-sm table-striped">
             <tr>
@@ -51,6 +51,10 @@ else
                                 @if (plan.Names.Artists is { Count: > 1 })
                                 {
                                     <div class="small text-muted">Artists: @string.Join(" | ", plan.Names.Artists)</div>
+                                }
+                                @if (plan.ConfirmedBy != null)
+                                {
+                                    <div class="small text-muted">Every artist listed by @plan.ConfirmedBy</div>
                                 }
                             }
                         </td>

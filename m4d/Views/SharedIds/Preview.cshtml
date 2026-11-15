@@ -11,12 +11,12 @@
 <h1>@ViewBag.Title</h1>
 
 <p>
-    What the two Merge all tasks on @Html.ActionLink("Shared Song Ids", "Index") would do with
+    What the three Merge all tasks on @Html.ActionLink("Shared Song Ids", "Index") would do with
     each pending cluster, and the title, artist and individual artists each merge would land on.
     Nothing was merged. Merges and reviews made since the preview ran aren't reflected here: run
     <strong>Preview merges</strong> again to see them. A cluster with a rejected pair, a .NoMerge
     song, a song with no artist, or lengths more than @SharedIdMatcher.LengthTolerance seconds
-    apart (probably different recordings) is skipped by both.
+    apart (probably different recordings) is skipped by all of them.
 </p>
 
 @if (Model == null)
@@ -27,6 +27,7 @@ else
 {
     var merges = Model.Merges.ToList();
     var featuring = Model.FeaturingMerges.ToList();
+    var credits = Model.CreditMerges.ToList();
     var skips = Model.Skips.ToList();
     <p>
         Run @Model.Created.ToLocalTime().ToString("yyyy-MM-dd HH:mm"):
@@ -35,6 +36,7 @@ else
     <ul>
         <li><a href="#merge">Matching title and artist</a>: @merges.Count.ToString("N0")</li>
         <li><a href="#merge-feat">Differ only by feat.</a>: @featuring.Count.ToString("N0")</li>
+        <li><a href="#merge-credits">Artists credited differently</a>: @credits.Count.ToString("N0")</li>
         @for (var i = 0; i < skips.Count; i++)
         {
             <li><a href="#skip-@i">Skipped: @skips[i].Key</a>: @skips[i].Count().ToString("N0")</li>
@@ -68,6 +70,22 @@ else
         <button type="submit" class="btn btn-outline-danger">Merge all that differ only by feat.</button>
     }
     @await Html.PartialAsync("_SharedIdPlans", featuring)
+
+    <h2 id="merge-credits">Artists credited differently</h2>
+    <p>
+        What <strong>Merge all with artists credited differently</strong> would merge: the titles
+        are the same without feat., and either every song names the same artists however they're
+        credited ("X and His Orchestra" and "X", "X &amp; Y" and "Y and X"), or some credits leave
+        artists out ("X" and "X &amp; Y") and the shared Spotify or iTunes track lists them all.
+        The merged song keeps every artist.
+    </p>
+    @using (Html.BeginForm("MergeCredits", "SharedIds", FormMethod.Post,
+        new { @class = "mb-3", onsubmit = "return confirm('Merge every cluster whose artists are only credited differently?')" }))
+    {
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-outline-danger">Merge all with artists credited differently</button>
+    }
+    @await Html.PartialAsync("_SharedIdPlans", credits)
 
     @for (var i = 0; i < skips.Count; i++)
     {

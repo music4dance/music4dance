@@ -85,21 +85,41 @@ public class SharedIdsController(
     }
 
     //
+    // POST: /SharedIds/MergeCredits
+    // Merges every pending cluster whose songs name the same artists however they're credited,
+    // or whose credits leave artists out that the shared Spotify or iTunes track lists
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<ActionResult> MergeCredits()
+    {
+        var user = await Database.FindUser(UserName);
+        var lookup = TrackLookup();
+        return RunAdminTask("MergeCreditsSharedIds", async dms =>
+        {
+            var merged = await dms.SharedIds.MergeCredits(user, lookup, AdminMonitor.UpdateTask);
+            await DanceStatsManager.ClearCache(dms, false);
+            return $"Merged={merged}";
+        });
+    }
+
+    //
     // POST: /SharedIds/PreviewMergeMatching
-    // Works out what MergeMatching and MergeFeaturing would merge and skip, and the names each
-    // merge would land on, without merging anything. Also sorts the review page.
+    // Works out what MergeMatching, MergeFeaturing and MergeCredits would merge and skip, and the
+    // names each merge would land on, without merging anything. Also sorts the review page.
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<ActionResult> PreviewMergeMatching()
     {
         var user = await Database.FindUser(UserName);
+        var lookup = TrackLookup();
         return RunAdminTask("PreviewMergeMatchingSharedIds", async dms =>
         {
-            var plans = await dms.SharedIds.PlanMergeMatching(AdminMonitor.UpdateTask, user);
+            var plans = await dms.SharedIds.PlanMergeMatching(AdminMonitor.UpdateTask, user, lookup);
             previews.Set(plans, DateTimeOffset.UtcNow);
             return $"WouldMerge={plans.Count(p => p.WillMerge)}, " +
                 $"WouldMergeFeat={plans.Count(p => p.WillMergeFeaturing)}, " +
-                $"Skipped={plans.Count(p => !p.WillMerge && !p.WillMergeFeaturing)} (see /SharedIds/Preview)";
+                $"WouldMergeCredits={plans.Count(p => p.WillMergeCredits)}, " +
+                $"Skipped={plans.Count(p => !p.WouldMerge)} (see /SharedIds/Preview)";
         });
     }
 
@@ -107,4 +127,14 @@ public class SharedIdsController(
     // GET: /SharedIds/Preview
     // The result of the last PreviewMergeMatching
     public ActionResult Preview() => View(previews.Preview);
+
+    // An extended id ("S:…", "I:…") to its track, through MusicServiceManager's track cache. The
+    // background tasks call it one id at a time: that cache isn't thread safe
+    private Func<string, Task<ServiceTrack>> TrackLookup()
+    {
+        var manager = MusicServiceManager;
+        return id => id is { Length: > 2 } && id[1] == ':' && MusicService.GetService(id[0]) is { } service
+            ? manager.GetMusicServiceTrack(id[2..], service)
+            : Task.FromResult<ServiceTrack>(null);
+    }
 }

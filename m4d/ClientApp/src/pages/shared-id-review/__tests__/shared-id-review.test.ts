@@ -68,7 +68,8 @@ describe("shared-id-review page", () => {
       const summary = wrapper.find("#queue-summary");
 
       expect(summary.text()).toContain(
-        "812 clusters with matching titles and artists and 140 that differ only by feat.",
+        "812 clusters with matching titles and artists, 140 that differ only by feat. and 25 " +
+          "with artists credited differently",
       );
       expect(summary.find('a[href="/SharedIds/Preview"]').exists()).toBe(true);
     });
@@ -82,6 +83,7 @@ describe("shared-id-review page", () => {
           "/SharedIds/Seed",
           "/SharedIds/MergeMatching",
           "/SharedIds/MergeFeaturing",
+          "/SharedIds/MergeCredits",
           "/SharedIds/PreviewMergeMatching",
           "/Song/BulkEdit",
         ]),

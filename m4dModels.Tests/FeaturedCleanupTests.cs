@@ -120,6 +120,21 @@ public class FeaturedCleanupTests
     }
 
     [TestMethod]
+    public void Propose_ACreditLeavingArtistsOut_WithEvidence_KeepsEveryArtistAndTheFullCredit()
+    {
+        var merged = new Song { Title = "Song Title", Artist = "Tony Bennett" };
+        var full = new Song { Title = "Song Title", Artist = "Tony Bennett & Lady Gaga" };
+
+        var without = FeaturedCleanup.Propose(merged, [merged, full]);
+        var names = FeaturedCleanup.Propose(merged, [merged, full],
+            FeaturedCleanup.Knowing(["Tony Bennett", "Lady Gaga"]));
+
+        Assert.AreEqual("Tony Bennett", without.Artist, "Without evidence \"&\" could be a duo's name");
+        Assert.AreEqual("Tony Bennett & Lady Gaga", names.Artist);
+        CollectionAssert.AreEqual(new[] { "Tony Bennett", "Lady Gaga" }, names.Artists.ToList());
+    }
+
+    [TestMethod]
     public void Propose_ACreditThatNamesEveryArtist_IsKept()
     {
         var merged = new Song { Title = "Song Title", Artist = "The Artist & Crazy Man" };

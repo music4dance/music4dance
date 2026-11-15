@@ -30,7 +30,8 @@ public class SharedIdPreviewStore
 
     public static int Rank(SharedIdMatch match) => match switch
     {
-        SharedIdMatch.WithoutFeaturing => WithoutFeaturingRank,
+        SharedIdMatch.WithoutFeaturing or SharedIdMatch.SameArtists or SharedIdMatch.FewerArtists =>
+            WithoutFeaturingRank,
         SharedIdMatch.Close => CloseRank,
         _ => OtherRank
     };
@@ -90,8 +91,9 @@ public class SharedIdPreviewStore
 
 /// <summary>
 /// What the Merge all tasks would do with each pending cluster, as of when the preview ran:
-/// Merges (matching title and artist), FeaturingMerges (differ only by feat.) and the rest,
-/// skipped by both, grouped by why.
+/// Merges (matching title and artist), FeaturingMerges (differ only by feat.), CreditMerges (the
+/// same artists credited differently, or confirmed by a music service) and the rest, skipped by
+/// all of them, grouped by why.
 /// </summary>
 public record SharedIdPreview(DateTimeOffset Created, IReadOnlyList<SharedIdMergePlan> Plans)
 {
@@ -99,7 +101,8 @@ public record SharedIdPreview(DateTimeOffset Created, IReadOnlyList<SharedIdMerg
 
     public IEnumerable<SharedIdMergePlan> FeaturingMerges => Plans.Where(p => p.WillMergeFeaturing);
 
+    public IEnumerable<SharedIdMergePlan> CreditMerges => Plans.Where(p => p.WillMergeCredits);
+
     public IEnumerable<IGrouping<string, SharedIdMergePlan>> Skips =>
-        Plans.Where(p => !p.WillMerge && !p.WillMergeFeaturing).GroupBy(p => p.SkipReason)
-            .OrderByDescending(g => g.Count());
+        Plans.Where(p => !p.WouldMerge).GroupBy(p => p.SkipReason).OrderByDescending(g => g.Count());
 }

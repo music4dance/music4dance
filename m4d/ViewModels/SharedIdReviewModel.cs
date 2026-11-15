@@ -27,9 +27,11 @@ public class SharedIdReviewModel
     public int CloseCount { get; init; }
 
     // What that preview found the Merge all tasks would merge (as of when it ran): clusters with
-    // matching titles and artists, and clusters that differ only by feat.
+    // matching titles and artists, clusters that differ only by feat., and clusters whose
+    // artists are credited differently
     public int WouldMergeCount { get; init; }
     public int WouldMergeFeaturingCount { get; init; }
+    public int WouldMergeCreditsCount { get; init; }
 
     // Clusters left for later, which come after the rest
     public int DeferredCount { get; init; }
@@ -49,6 +51,7 @@ public class SharedIdReviewModel
             SortedBy = preview?.Created,
             WouldMergeCount = preview?.Merges.Count() ?? 0,
             WouldMergeFeaturingCount = preview?.FeaturingMerges.Count() ?? 0,
+            WouldMergeCreditsCount = preview?.CreditMerges.Count() ?? 0,
             WithoutFeaturingCount = page.RankCounts.GetValueOrDefault(SharedIdPreviewStore.WithoutFeaturingRank),
             CloseCount = page.RankCounts.GetValueOrDefault(SharedIdPreviewStore.CloseRank),
             DeferredCount = page.DeferredCount,
@@ -268,7 +271,8 @@ public record SharedIdServiceTrack(string Id, bool Found, string Title = null, s
             }
 
             tracks.Add(track == null ? new SharedIdServiceTrack(id, false)
-                : new SharedIdServiceTrack(id, true, track.Name, track.Artist, track.Album,
+                : new SharedIdServiceTrack(id, true, track.Name,
+                    track.Artists is { Length: > 1 } ? string.Join(", ", track.Artists) : track.Artist, track.Album,
                     track.Duration, track.ISRC, track.ReleaseDate));
         }
 

@@ -4,7 +4,8 @@ import { jsonArrayMember, jsonMember, jsonObject } from "typedjson";
 // can be null there is optional here.
 
 export type SharedIdAction = "Leave" | "Merge" | "Reject";
-export type SharedIdMatch = "Exact" | "WithoutFeaturing" | "Close" | "Different";
+export type SharedIdMatch =
+  "Exact" | "WithoutFeaturing" | "SameArtists" | "FewerArtists" | "Close" | "Different";
 
 @jsonObject
 export class SharedIdReviewTrackId {
@@ -97,6 +98,7 @@ export class SharedIdReviewModel {
   // What that preview found the Merge all tasks would merge, as of when it ran
   @jsonMember(Number) public wouldMergeCount?: number;
   @jsonMember(Number) public wouldMergeFeaturingCount?: number;
+  @jsonMember(Number) public wouldMergeCreditsCount?: number;
   // Clusters left for later, which come after the rest
   @jsonMember(Number) public deferredCount?: number;
   @jsonMember(String) public message?: string;

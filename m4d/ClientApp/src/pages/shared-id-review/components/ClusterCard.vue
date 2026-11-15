@@ -92,6 +92,12 @@ async function lookUp(): Promise<void> {
       <BBadge v-else-if="cluster.match === 'WithoutFeaturing'" variant="info" class="ms-2"
         >Differ only by feat.</BBadge
       >
+      <BBadge v-else-if="cluster.match === 'SameArtists'" variant="info" class="ms-2"
+        >Same artists, credited differently</BBadge
+      >
+      <BBadge v-else-if="cluster.match === 'FewerArtists'" variant="info" class="ms-2"
+        >Same lead artist</BBadge
+      >
       <BBadge v-else-if="cluster.match === 'Close'" variant="secondary" class="ms-2"
         >Close match</BBadge
       >

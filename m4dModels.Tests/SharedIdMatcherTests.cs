@@ -17,7 +17,7 @@ public class SharedIdMatcherTests
     [DataRow("Shape of You", "Ed Sheeran feat. Khalid", "Shape of You", "Ed Sheeran", SharedIdMatch.WithoutFeaturing)]
     [DataRow("Shape of You feat. Khalid", "Ed Sheeran", "Shape of You", "Ed Sheeran", SharedIdMatch.WithoutFeaturing)]
     [DataRow("Shape of You - 2017 Remaster", "Ed Sheeran", "Shape of You", "Ed Sheeran", SharedIdMatch.Close)]
-    [DataRow("Shape of You", "Ed Sheeran", "Shape of You", "Ed Sheeran & Khalid", SharedIdMatch.Close)]
+    [DataRow("Shape of You", "Ed Sheeran", "Shape of You", "Ed Sheeran & Khalid", SharedIdMatch.FewerArtists)]
     [DataRow("Perfect", "Ed Sheeran", "Shape of You", "Ed Sheeran", SharedIdMatch.Different)]
     [DataRow("Shape of You", "Ed Sheeran", "Shape of You", "Taylor Swift", SharedIdMatch.Different)]
     [DataRow("Shape of You", "", "Shape of You", "", SharedIdMatch.Different)]
@@ -57,5 +57,30 @@ public class SharedIdMatcherTests
         Assert.AreEqual(42, SharedIdMatcher.LengthSpread([L(200), L(null), L(242), L(210)]));
         Assert.AreEqual(0, SharedIdMatcher.LengthSpread([L(200), L(null)]));
         Assert.AreEqual(0, SharedIdMatcher.LengthSpread([L(null), L(null)]));
+    }
+
+    [TestMethod]
+    [DataRow("Benny Goodman and His Orchestra", "Benny Goodman")]
+    [DataRow("Benny Goodman & His Orchestra", "Benny Goodman")]
+    public void Match_TheSameArtistsCreditedDifferently_IsSameArtists(string first, string second)
+    {
+        Assert.AreEqual(SharedIdMatch.SameArtists, SharedIdMatcher.Match([S("Song", first), S("Song", second)]));
+    }
+
+    [TestMethod]
+    public void Match_ACreditThatLeavesAnArtistOut_IsFewerArtists()
+    {
+        Assert.AreEqual(SharedIdMatch.FewerArtists,
+            SharedIdMatcher.Match([S("Song", "Tony Bennett"), S("Song (Remastered)", "Tony Bennett & Lady Gaga")]));
+        Assert.AreEqual(SharedIdMatch.FewerArtists,
+            SharedIdMatcher.Match([S("Song", "Tony Bennett"), S("Song (feat. Lady Gaga)", "Tony Bennett & Diana Krall")]),
+            "Featured artists count");
+    }
+
+    [TestMethod]
+    public void Match_DifferentLeadArtists_OrDifferentTitles_AreNotArtistMatches()
+    {
+        Assert.IsNull(SharedIdMatcher.ArtistsMatch([S("Song", "Lady Gaga & Tony Bennett"), S("Song", "Tony Bennett & Diana Krall")]));
+        Assert.IsNull(SharedIdMatcher.ArtistsMatch([S("Song", "Tony Bennett"), S("Other Song", "Tony Bennett & Lady Gaga")]));
     }
 }

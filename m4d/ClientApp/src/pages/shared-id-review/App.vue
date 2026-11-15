@@ -85,6 +85,11 @@ const mergeFeaturingPrompt =
   "come out, moving the featured artists into the individual artists? Clusters with a rejected " +
   "pair, a .NoMerge song, a song with no artist, or lengths more than 15 seconds apart are " +
   "skipped.";
+const mergeCreditsPrompt =
+  "Merge every pending cluster whose titles match and whose songs name the same artists, " +
+  "however they're credited, or whose credits leave out artists the shared Spotify or iTunes " +
+  "track lists? This looks the tracks up. The same clusters are skipped as for the other " +
+  "Merge all buttons.";
 
 function leaveWarning(event: BeforeUnloadEvent): void {
   if (changedCount.value > 0 && !applying.value) {
@@ -134,11 +139,14 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
     <p>
       The <strong>Merge all</strong> buttons merge in bulk, with the same feat. cleanup:
       <em>with matching title and artist</em> merges the clusters whose songs have the same title
-      and artist, and <em>that differ only by feat.</em> the ones that are the same once their feat.
-      clauses come out. Both skip clusters with a rejected pair, a .NoMerge song, a song with no
-      artist, or lengths more than 15 seconds apart. <strong>Preview merges</strong> works out what
-      each would merge and what the merged songs would be called, without merging anything, and
-      sorts this page by it; <strong>Show preview</strong> lists the result.
+      and artist, <em>that differ only by feat.</em> the ones that are the same once their feat.
+      clauses come out, and <em>with artists credited differently</em> the ones whose titles match
+      and whose songs name the same artists however they're credited ("X and His Orchestra" and
+      "X"), or leave out artists the shared Spotify or iTunes track lists ("X" and "X &amp; Y"). All
+      of them skip clusters with a rejected pair, a .NoMerge song, a song with no artist, or lengths
+      more than 15 seconds apart. <strong>Preview merges</strong> works out what each would merge
+      and what the merged songs would be called, without merging anything, and sorts this page by
+      it; <strong>Show preview</strong> lists the result.
     </p>
 
     <BAlert v-if="model.message" :model-value="true" variant="info">{{ model.message }}</BAlert>
@@ -150,14 +158,16 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
       <template v-if="model.sortedBy">
         Sorted by the preview run {{ formatDateTime(model.sortedBy) }}: the
         {{ model.withoutFeaturingCount.toLocaleString() }} clusters still pending that differed only
-        by feat. come first, then the {{ model.closeCount.toLocaleString() }} close matches. That
-        preview found {{ (model.wouldMergeCount ?? 0).toLocaleString() }} clusters with matching
-        titles and artists and {{ (model.wouldMergeFeaturingCount ?? 0).toLocaleString() }} that
-        differ only by feat. to merge (<a href="/SharedIds/Preview">show preview</a>).
+        in their artist credits (feat. included) come first, then the
+        {{ model.closeCount.toLocaleString() }} close matches. That preview found
+        {{ (model.wouldMergeCount ?? 0).toLocaleString() }} clusters with matching titles and
+        artists, {{ (model.wouldMergeFeaturingCount ?? 0).toLocaleString() }} that differ only by
+        feat. and {{ (model.wouldMergeCreditsCount ?? 0).toLocaleString() }} with artists credited
+        differently to merge (<a href="/SharedIds/Preview">show preview</a>).
       </template>
       <template v-else>
         Run <strong>Preview merges</strong> to see what the Merge all buttons would merge, and to
-        sort the clusters that differ only by feat. and the close matches first.
+        sort the clusters that differ only in their artist credits and the close matches first.
       </template>
       <template v-if="model.deferredCount">
         The {{ model.deferredCount.toLocaleString() }} clusters left for later come last.
@@ -187,6 +197,16 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
         <input type="hidden" name="__RequestVerificationToken" :value="context.xsrfToken" />
         <BButton type="submit" variant="outline-danger"
           >Merge all that differ only by feat.</BButton
+        >
+      </form>
+      <form
+        method="post"
+        action="/SharedIds/MergeCredits"
+        @submit="confirmSubmit($event, mergeCreditsPrompt)"
+      >
+        <input type="hidden" name="__RequestVerificationToken" :value="context.xsrfToken" />
+        <BButton type="submit" variant="outline-danger"
+          >Merge all with artists credited differently</BButton
         >
       </form>
       <form method="post" action="/SharedIds/PreviewMergeMatching">

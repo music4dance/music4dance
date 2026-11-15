@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace m4dModels;
 
 /// <summary>
@@ -27,8 +29,66 @@ public static class SharedIdMatcher
     public static SharedIdMatch Match(IReadOnlyList<Song> songs) =>
         TitleArtistMatch(songs) ? SharedIdMatch.Exact
         : FeaturedCleanup.MatchWithoutFeaturing(songs) ? SharedIdMatch.WithoutFeaturing
+        : ArtistsMatch(songs) is { } artists ? artists
         : CloseMatch(songs) ? SharedIdMatch.Close
         : SharedIdMatch.Different;
+
+    /// <summary>
+    /// For songs whose titles match once their feat. clauses come out: SameArtists when every
+    /// song names the same individual artists (FeaturedCleanup.IndividualArtists; the splitter
+    /// drops backing groups, so "X and His Orchestra" is X), FewerArtists when they only share
+    /// their lead artist ("X" and "X &amp; Y": without evidence the splitter can't tell "X &amp; Y"
+    /// from a duo's name, so a music service has to confirm it); otherwise null.
+    /// </summary>
+    public static SharedIdMatch? ArtistsMatch(IReadOnlyList<Song> songs)
+    {
+        if (!AllHaveArtists(songs) || !TitlesMatchWithoutFeaturing(songs))
+        {
+            return null;
+        }
+
+        var sets = songs.Select(s => ArtistKeys(s)).ToList();
+        if (sets.All(s => s.SetEquals(sets[0])))
+        {
+            return SharedIdMatch.SameArtists;
+        }
+
+        var lead = LeadKey(songs[0]);
+        return songs.All(s => LeadKey(s) == lead) ? SharedIdMatch.FewerArtists : null;
+    }
+
+    /// <summary>
+    /// The song's individual artists (FeaturedCleanup.IndividualArtists) by
+    /// ArtistSplitter.ArtistKey.
+    /// </summary>
+    public static HashSet<string> ArtistKeys(Song song, IArtistKnowledge knowledge = null) =>
+        [.. FeaturedCleanup.IndividualArtists(song, knowledge).Select(ArtistSplitter.ArtistKey)];
+
+    // Anything that can join two artists in a credit
+    private static readonly Regex LeadSeparator = new(
+        @"\s*[,;/]\s*|\s+(?:&|\+|and|y|e|et|und|x|vs\.?|with)\s+",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    /// <summary>
+    /// The song's first individual artist, or the start of its credit up to anything that could
+    /// join another artist to it, by ArtistSplitter.ArtistKey.
+    /// </summary>
+    public static string LeadKey(Song song) => ArtistSplitter.ArtistKey(
+        song.Artists is { Count: > 0 } ? song.Artists[0]
+            : LeadSeparator.Split(ArtistSplitter.RemoveArtistFeaturing(song.Artist ?? ""))[0]);
+
+    /// <summary>
+    /// The title without its feat. clause, as the title merge candidates compare titles
+    /// (Song.CreateTitleHash).
+    /// </summary>
+    public static int TitleKey(string title) =>
+        Song.CreateTitleHash(ArtistSplitter.RemoveTitleFeaturing(title));
+
+    private static bool TitlesMatchWithoutFeaturing(IReadOnlyList<Song> songs)
+    {
+        var title = TitleKey(songs[0].Title);
+        return songs.All(s => TitleKey(s.Title) == title);
+    }
 
     /// <summary>
     /// Every song has the same title and the same (non-empty) artist, compared the way the title
