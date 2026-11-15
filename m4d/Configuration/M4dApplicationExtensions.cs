@@ -2,10 +2,12 @@ using Azure.Core;
 using Azure.Identity;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
+using Azure.Storage.Blobs;
 
 using m4d.Areas.Identity;
 using m4d.PublicApi;
 using m4d.Services;
+using m4d.Services.RequestLog;
 using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 using m4d.ViewModels;
@@ -170,6 +172,20 @@ public static class M4dApplicationExtensions
                 serviceHealth.MarkUnavailable("AppConfiguration", "Endpoint not configured");
                 Console.WriteLine("[AppConfig] Not configured - using local configuration only");
             }
+        }
+
+        // App request log: one record per request with the visitor's IP (App Service's own HTTP
+        // log only sees Cloudflare's), appended to hourly blobs. Off unless RequestLog:Enabled.
+        var requestLogOptions = RequestLogOptions.FromConfiguration(configuration);
+        if (requestLogOptions.Enabled)
+        {
+            var containerUri = new Uri($"{requestLogOptions.ServiceUri.TrimEnd('/')}/{requestLogOptions.Container}");
+            services.AddSingleton(requestLogOptions);
+            services.AddSingleton(new RequestLogQueue(requestLogOptions.MaxQueuedRecords));
+            services.AddSingleton<IRequestLogSink>(
+                new BlobRequestLogSink(new BlobContainerClient(containerUri, azureCredential)));
+            services.AddHostedService<RequestLogFlushService>();
+            Console.WriteLine($"[RequestLog] Enabled: {containerUri}/{requestLogOptions.EffectivePrefix}");
         }
 
         // Manual-testing escape hatch: write the Azure Search Properties field uncompressed.
@@ -650,6 +666,13 @@ public static class M4dApplicationExtensions
                 timestamp = DateTime.UtcNow
             }, statusCode: isReady ? StatusCodes.Status200OK : StatusCodes.Status503ServiceUnavailable);
         }).AllowAnonymous();
+
+        // First, so it sees every request (static files included), the final status, and the
+        // bytes sent after compression. Registered only when RequestLog:Enabled.
+        if (app.Services.GetService<RequestLogQueue>() != null)
+        {
+            app.UseMiddleware<m4d.Middleware.RequestLogMiddleware>();
+        }
 
         if (!isDevelopment)
         {

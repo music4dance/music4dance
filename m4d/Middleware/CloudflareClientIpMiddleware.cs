@@ -80,15 +80,26 @@ public class CloudflareClientIpMiddleware
             return null;
         }
 
-        var relay = Normalize(remoteIp);
-        if (IsPrivate(relay))
-        {
-            relay = LastForwardedFor(forwardedFor);
-        }
-
+        var relay = RelayAddress(remoteIp, forwardedFor);
         return relay != null && cloudflareNetworks.Any(n => n.Contains(relay))
             ? Normalize(visitor)
             : null;
+    }
+
+    /// <summary>
+    /// The address that handed the request to App Service: <paramref name="remoteIp"/>, or
+    /// the front end's appended (last) X-Forwarded-For entry when remoteIp is the front end's
+    /// own private address. Null if neither is usable.
+    /// </summary>
+    public static IPAddress RelayAddress(IPAddress remoteIp, string forwardedFor)
+    {
+        if (remoteIp == null)
+        {
+            return null;
+        }
+
+        var relay = Normalize(remoteIp);
+        return IsPrivate(relay) ? LastForwardedFor(forwardedFor) : relay;
     }
 
     private static IPAddress LastForwardedFor(string forwardedFor)

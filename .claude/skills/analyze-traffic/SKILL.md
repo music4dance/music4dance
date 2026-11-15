@@ -47,6 +47,23 @@ permissions error, the one-time grant is in
 python -I .claude/skills/analyze-traffic/fetch_http_logs.py --hours 24
 ```
 
+**Which source.** Since the Cloudflare cutover (2026-11-06), the App Service log above
+(`--source platform`, the default) records Cloudflare's edge server as the client IP, so
+per-client grouping (IP + user agent), Top IPs and subnets lump visitors together. When
+the app request log is on (`RequestLog:Enabled`; check with `az storage blob list
+--account-name m4dlogs --auth-mode login -c app-request-logs --num-results 1`), fetch it
+too and analyze it instead:
+
+```bash
+python -I .claude/skills/analyze-traffic/fetch_http_logs.py --source app --hours 24
+```
+
+That goes to `local/app-request-logs/`, a separate directory, because the analyzer
+reads every `PT1H.json` under the one it's given and the two sources would double
+count. Its `CIp` is the visitor and `RelayIp` the edge. Use the platform log as the
+cross-check: it also records requests that never reached the app. Say in the report
+which source you used.
+
 It downloads only the hours that are missing or still growing, so reruns take a few
 seconds. Use a larger `--hours` for a longer window; blobs are kept 30 days. Paths
 and times are UTC. Records land a few minutes after the request, so the newest hour

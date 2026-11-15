@@ -60,6 +60,10 @@ URLs, status, response time), read the hourly blobs in storage account `m4dlogs`
 and privacy notes are in
 [logging-and-diagnostics § HTTP request logs](../observability/logging-and-diagnostics.md#http-request-logs).
 The download in step 2 doesn't include them, and there's no `http` folder in Kudu on Linux.
+Behind Cloudflare these records show the edge server as the client; the app request log in
+container `app-request-logs` has the visitor's IP
+([logging-and-diagnostics § App request log](../observability/logging-and-diagnostics.md#app-request-log)).
+The same steps work for it with `-s app-request-logs`.
 
 1. **Access, once:** grant yourself `Storage Blob Data Reader` on `m4dlogs`. The account is a
    guest in the `music4dance` tenant, so `--assignee <email>` fails with "Cannot find user or

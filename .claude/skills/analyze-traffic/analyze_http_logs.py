@@ -5,9 +5,15 @@ Usage: python -I analyze_http_logs.py <log-dir> [--top N] [--since T] [--until T
                                       [--bot-fragments "spider;bot"]
                                       [--bot-tokens "alwayson;mediapartners-google"]
 
-<log-dir> holds the hourly PT1H.json blobs downloaded from storage account m4dlogs
-(container insights-logs-appservicehttplogs), at any depth. Each line is a JSON
-record whose "properties" field is itself a JSON-encoded string.
+<log-dir> holds the hourly PT1H.json blobs downloaded from storage account m4dlogs,
+at any depth, from one of two sources (don't mix them in one directory):
+
+- the App Service HTTP log (container insights-logs-appservicehttplogs): each line is
+  a JSON record whose "properties" field is itself a JSON-encoded string. Behind
+  Cloudflare its CIp is the edge server, not the visitor.
+- the app's own request log (container app-request-logs): flat JSON records with the
+  same field names, where CIp is the visitor (from CF-Connecting-IP) and RelayIp is
+  the edge server. Cookie holds cookie names only.
 
 Every request is put in a group (search engine, AI crawler, SEO tool, social preview,
 monitor, other bot, scripted tool, browser, ...) and a family (Googlebot, GPTBot,
@@ -283,8 +289,8 @@ def load(log_dir, since, until):
                     continue
                 try:
                     rec = json.loads(line)
-                    p = json.loads(rec["properties"])
-                except (ValueError, KeyError):
+                    p = json.loads(rec["properties"]) if "properties" in rec else rec
+                except (ValueError, KeyError, TypeError):
                     continue
                 t = rec.get("time", "")[:19]
                 if (since and t < since) or (until and t >= until):
@@ -307,12 +313,15 @@ def load(log_dir, since, until):
                     any(c in cookie for c in JS_COOKIES),
                     bool(AUTH_COOKIE.search(cookie)),
                     intern.setdefault(host, host),
+                    p.get("RelayIp") or p.get("CIp") or "",
                 ))
     rows.sort(key=lambda r: r[0])
     return files, rows
 
 
-T, IP, UA, METHOD, STEM, QUERY, STATUS, TAKEN, BYTES, REFERER, JSCOOKIE, AUTH, HOST = range(13)
+# IP is the client; RELAY is the address that handed the request to App Service (the
+# Cloudflare edge when proxied). They're the same in the App Service HTTP log.
+T, IP, UA, METHOD, STEM, QUERY, STATUS, TAKEN, BYTES, REFERER, JSCOOKIE, AUTH, HOST, RELAY = range(14)
 
 
 def pct(n, d):
@@ -581,7 +590,7 @@ def host_report(rows, kinds, groups):
         h_grp[h][g] += 1
         h_page[h] += k == "page"
         h_err[h] += r[STATUS] >= "400"
-        h_cf[h] += via_cloudflare(r[IP])
+        h_cf[h] += via_cloudflare(r[RELAY])
     table(["Host", "Kind", "Requests", "Pages", "Server min", "IPs", "Via Cloudflare", "4xx/5xx", "Top groups"],
           [[h, host_kind(h), f"{n:,}", f"{h_page[h]:,}", f"{h_ms[h] / 6e4:,.1f}", f"{len(h_ips[h]):,}",
             pct(h_cf[h], n).strip(), f"{h_err[h]:,}",
@@ -625,7 +634,7 @@ def host_report(rows, kinds, groups):
         detail("Bare IP or unknown host", other)
 
     custom = [x for x in sel_all if host_kind(x[0][HOST]) == "custom"]
-    cf = sum(1 for r, _, _ in custom if via_cloudflare(r[IP]))
+    cf = sum(1 for r, _, _ in custom if via_cloudflare(r[RELAY]))
     print(f"\nCustom domains via Cloudflare: {cf:,} of {len(custom):,} ({pct(cf, len(custom)).strip()}).")
     # A few requests come from Cloudflare addresses even before the cutover (WARP users and
     # Workers egress from the same ranges), so look for a majority, not any at all.
@@ -635,7 +644,7 @@ def host_report(rows, kinds, groups):
     else:
         detail("Custom domains reached directly, not through Cloudflare (without platform callers "
                "or signed-in requests)",
-               [x for x in custom if not via_cloudflare(x[0][IP]) and unexpected(x[0], x[2][1])])
+               [x for x in custom if not via_cloudflare(x[0][RELAY]) and unexpected(x[0], x[2][1])])
 
 
 def throttle_replay(rows, groups, args):

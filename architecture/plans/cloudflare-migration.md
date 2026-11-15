@@ -32,8 +32,10 @@ Next session, after a day or two of data:
 3. Leaked credentials: turn on the header transform, test whether Cloudflare recognizes the login
    form, then decide on the app-side follow-up (Phase 6 step 3).
 4. Add the scanner WAF rule (step 4) and update the respond-to-attack runbook (step 6).
-5. Build the app-side request log that records the real client IP, so `analyze-traffic` keeps its
-   per-IP view (section 4).
+5. The app-side request log that records the real client IP is built (2026-11-15) but off.
+   Turn it on with the one-time setup in
+   [logging-and-diagnostics § App request log](../observability/logging-and-diagnostics.md#app-request-log),
+   then point `analyze-traffic` at it (`--source app`).
 6. A small fix: `HomeController.Index` and other GET-only actions throw a 500 on a POST. They
    should answer only GET.
 7. Turn on Cloudflare Fonts and remove the Google Fonts preconnect links (Phase 2 notes).
@@ -574,14 +576,17 @@ When the phases ship, fold the as-built result into the reference docs and delet
   Fight Mode, the scanner WAF rule.
 - `analyze-traffic` skill: after Phase 4, the App Service HTTP logs record Cloudflare's IP as
   `c-ip`, so the per-client grouping (IP + user agent) degrades. That log can't record
-  `CF-Connecting-IP`, because it has no header fields. The chosen fix is an app-side request log:
-  - A middleware after `CloudflareClientIpMiddleware` writes one record per request, with the
-    same fields as the platform log plus the real client IP.
-  - Records are batched about once a minute into hourly blobs in `m4dlogs`, with the same layout
-    and the same 30-day delete rule.
-  - `analyze-traffic` reads them and keeps the platform log as a cross-check.
+  `CF-Connecting-IP`, because it has no header fields. The fix is the app request log
+  (built 2026-11-15, see
+  [logging-and-diagnostics § App request log](../observability/logging-and-diagnostics.md#app-request-log)):
+  - `RequestLogMiddleware`, first in the pipeline so static files are included, writes one record
+    per request with the platform log's fields, the visitor's IP as `CIp`, and the edge as `RelayIp`.
+  - Records are batched once a minute into hourly blobs in `m4dlogs` (container
+    `app-request-logs`), with the same layout and a 30-day delete rule.
+  - `analyze-traffic` reads either source (`fetch_http_logs.py --source app`) and keeps the
+    platform log as a cross-check.
 
-  Until it ships, use `/Admin/Diagnostics` and Cloudflare's Security Events for per-IP views. The skill's per-host section (Phase 7 baseline) doesn't
+  Until it's turned on, use `/Admin/Diagnostics` and Cloudflare's Security Events for per-IP views. The skill's per-host section (Phase 7 baseline) doesn't
   depend on this: it needs only the edge IP, which is what tells proxied and direct requests
   apart.
 - [plans/front-door-caching](front-door-caching.md): mark it superseded, or delete it.

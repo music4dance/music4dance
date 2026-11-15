@@ -2,10 +2,11 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-29
+**Last verified:** 2026-11-15
 **Code:** `m4d/Configuration/M4dApplicationExtensions.cs` (logging setup),
 `m4d/Services/Diagnostics/` (`GcDiagnostics`, `GcSnapshot`, `DumpResult`),
-`m4d/Controllers/AdminController.cs`, `m4d/Views/Admin/Diagnostics.cshtml`
+`m4d/Controllers/AdminController.cs`, `m4d/Views/Admin/Diagnostics.cshtml`,
+`m4d/Middleware/RequestLogMiddleware.cs`, `m4d/Services/RequestLog/` (app request log)
 
 Where music4dance's application logs go, and what runtime memory diagnostics the app exposes.
 Security and traffic diagnostics on the same admin page are covered in
@@ -103,6 +104,81 @@ The legacy `httpLogs.fileSystem` switch is still on (3 days / 100 MB) but writes
 off with `az webapp log config -n msc4dnc -g m4d-Web --web-server-logging off` when convenient.
 Reading the logs is in [runbooks/read-production-logs](../runbooks/read-production-logs.md#http-request-logs).
 
+**Behind Cloudflare,** `CIp` in these records is Cloudflare's edge server, not the visitor: the
+platform log has no header fields, so it can't record `CF-Connecting-IP`. For per-visitor
+analysis use the app request log below. This log is still the cross-check, and it records requests
+that never reach the app (front-end 502s, platform timeouts).
+
+## App request log
+
+The app's own per-request record, written by `RequestLogMiddleware` (first in the pipeline,
+so it covers static files too). It has the same fields as the HTTP request log, but `CIp` is the
+visitor's address, resolved from `CF-Connecting-IP` with the same trust rule as
+`CloudflareClientIpMiddleware` (the header counts only when the request was relayed from
+Cloudflare's ranges).
+
+**How it works.** The middleware queues one record per request in memory (`RequestLogQueue`,
+bounded at `MaxQueuedRecords`; past that, requests are dropped and counted). Every
+`FlushIntervalSeconds`, `RequestLogFlushService` appends the queued records to their hourly
+append blob, and it flushes once more on shutdown. A failed write drops that batch rather than
+retrying, and a Warning reports the dropped count at most every 15 minutes. Several instances can
+share an hour's blob, because each append block is atomic.
+
+**Setup:**
+
+| Piece | Value |
+| --- | --- |
+| Switch | `RequestLog:Enabled` (default `false`), read at startup, so restart after changing it. Other keys: `ServiceUri` (`https://m4dlogs.blob.core.windows.net`), `Container` (`app-request-logs`), `Prefix` (default: the site name from `WEBSITE_SITE_NAME`), `FlushIntervalSeconds` (60), `MaxQueuedRecords` (50,000) |
+| Container | `app-request-logs` in `m4dlogs`. The app doesn't create it |
+| Write access | The app's system-assigned identity has `Storage Blob Data Contributor`, scoped to the container |
+| Retention | Lifecycle rule `delete-app-request-logs-after-30-days`, prefix `app-request-logs/`, append blobs, 30 days after last modification |
+
+One-time setup (PowerShell):
+
+```powershell
+az storage container create -n app-request-logs --account-name m4dlogs --auth-mode login
+$account = az storage account show -n m4dlogs -g m4d-Web --query id -o tsv
+az role assignment create `
+  --assignee-object-id (az webapp identity show -n msc4dnc -g m4d-Web --query principalId -o tsv) `
+  --assignee-principal-type ServicePrincipal --role "Storage Blob Data Contributor" `
+  --scope "$account/blobServices/default/containers/app-request-logs"
+# Add the rule to the existing policy rather than replacing it:
+az storage account management-policy show --account-name m4dlogs -g m4d-Web > local/policy.json
+#   ...append a rule like the HTTP-log one, with prefixMatch ["app-request-logs/"], then:
+az storage account management-policy create --account-name m4dlogs -g m4d-Web --policy "@local/policy.json"
+az appconfig kv set -n music4dance --key RequestLog:Enabled --value true --yes
+az webapp restart -n msc4dnc -g m4d-Web
+```
+
+The startup console shows `[RequestLog] Enabled: ...`, and blobs show up within a couple of
+minutes. A missing role shows up as the dropped-requests Warning in the app log.
+
+**Format.** One append blob per hour at
+`app-request-logs/<prefix>/y=YYYY/m=MM/d=DD/h=HH/m=00/PT1H.json` (UTC, the same layout as the
+HTTP request log), with one flat JSON record per line (no nested `properties` string):
+
+| Field | Meaning |
+| --- | --- |
+| `time` | Request start, UTC |
+| `CIp` | The visitor: `CF-Connecting-IP` when relayed by Cloudflare, else the connecting address |
+| `RelayIp` | The address that handed the request to App Service: the Cloudflare edge when proxied |
+| `CsHost`, `CsMethod`, `CsUriStem`, `CsUriQuery` | As in the HTTP request log (query without the `?`) |
+| `ScStatus`, `TimeTaken` | Final status after the exception handler, and time in the app (ms; the platform's figure also includes the front end) |
+| `ScBytes`, `CsBytes` | Response bytes as sent (after compression), and the request's `Content-Length` |
+| `UserAgent`, `Referer`, `Protocol` | As sent |
+| `Cookie` | Cookie **names only** (`_ga=; music4dance=`), never values |
+
+**Cost.** A few MB of blob writes an hour at current traffic, in about 60 appends: pennies a month
+at 30 days' retention. In memory it holds at most one flush interval's worth of records.
+
+**Privacy.** The same rules as the HTTP request log: full client IPs and query strings, private
+account, Entra ID reads only, logs kept under `local/`. Cookie values are left out, so no
+session tickets are stored.
+
+Reading: `python -I .claude/skills/analyze-traffic/fetch_http_logs.py --source app` downloads to
+`local/app-request-logs/`, and `analyze_http_logs.py` reads either format. Keep the two sources
+in separate directories.
+
 ## Memory and GC diagnostics
 
 **Memory & GC Diagnostics** section on `/Admin/Diagnostics`. Every admin diagnostics page captures
@@ -142,6 +218,9 @@ recent dumps. Heap and full dumps are large; delete them after downloading. The 
 - 2026-10-29: HTTP request logs added: diagnostic setting `http-logs` to storage account
   `m4dlogs`, with 30-day retention. The filesystem HTTP-log switch, turned on during the OOM
   investigation, turned out to do nothing on Linux.
+- 2026-11-15: App request log added (`RequestLogMiddleware`, container `app-request-logs`), off
+  until `RequestLog:Enabled`. Behind Cloudflare the HTTP request log's `CIp` is the edge server;
+  this log records the visitor.
 
 ## Related
 

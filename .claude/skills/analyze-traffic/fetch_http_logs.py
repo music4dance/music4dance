@@ -1,11 +1,18 @@
-"""Download the App Service HTTP request logs for msc4dnc from storage account m4dlogs.
+"""Download the msc4dnc request logs from storage account m4dlogs.
 
-Usage: python -I fetch_http_logs.py [--hours 24] [--dest local/http-logs]
+Usage: python -I fetch_http_logs.py [--source platform|app] [--hours 24] [--dest DIR]
 
-Lists the hourly PT1H.json blobs in container insights-logs-appservicehttplogs and
-downloads the ones from the last --hours hours that are missing locally or whose size
-changed (the current hour's blob is still being appended to). Reads with your Entra ID
-sign-in (--auth-mode login), which needs Storage Blob Data Reader on the account.
+--source platform (default): the App Service HTTP log, container
+insights-logs-appservicehttplogs, into local/http-logs. Behind Cloudflare its client IP
+is the edge server.
+--source app: the app's own request log (RequestLogMiddleware), container
+app-request-logs, into local/app-request-logs. Its client IP is the visitor's.
+
+Lists the hourly PT1H.json blobs and downloads the ones from the last --hours hours
+that are missing locally or whose size changed (the current hour's blob is still being
+appended to). Reads with your Entra ID sign-in (--auth-mode login), which needs Storage
+Blob Data Reader on the account. Keep the two sources in separate directories: the
+analyzer reads every PT1H.json under the one it's given.
 """
 
 import argparse
@@ -19,7 +26,10 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ACCOUNT = "m4dlogs"
-CONTAINER = "insights-logs-appservicehttplogs"
+SOURCES = {
+    "platform": ("insights-logs-appservicehttplogs", "local/http-logs"),
+    "app": ("app-request-logs", "local/app-request-logs"),
+}
 HOUR = re.compile(r"/y=(\d{4})/m=(\d{2})/d=(\d{2})/h=(\d{2})/")
 
 
@@ -36,11 +46,14 @@ def az(*args):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--source", choices=SOURCES, default="platform")
     ap.add_argument("--hours", type=int, default=24, help="how far back to fetch (default 24)")
-    ap.add_argument("--dest", default="local/http-logs")
+    ap.add_argument("--dest", help="default local/http-logs (platform) or local/app-request-logs (app)")
     args = ap.parse_args()
+    container, default_dest = SOURCES[args.source]
+    args.dest = args.dest or default_dest
 
-    blobs = json.loads(az("storage", "blob", "list", "-c", CONTAINER, "--num-results", "*",
+    blobs = json.loads(az("storage", "blob", "list", "-c", container, "--num-results", "*",
                           "--query", "[].{name:name,size:properties.contentLength}", "-o", "json"))
     cutoff = datetime.now(timezone.utc) - timedelta(hours=args.hours + 1)
     wanted = []
@@ -56,7 +69,7 @@ def main():
     def fetch(item):
         name, local = item
         local.parent.mkdir(parents=True, exist_ok=True)
-        az("storage", "blob", "download", "-c", CONTAINER, "-n", name, "-f", str(local),
+        az("storage", "blob", "download", "-c", container, "-n", name, "-f", str(local),
            "--overwrite", "true", "-o", "none")
         return name
 
