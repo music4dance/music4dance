@@ -33,7 +33,8 @@ public class SharedIdReviewModelTests
             CandidateIds = [7],
             Songs = [new SharedIdSongGroup { SongId = A, Group = "A" }, new SharedIdSongGroup { SongId = B, Group = "B" }],
             TitleFrom = B,
-            Removals = [new SharedIdRemoval(A, 0), new SharedIdRemoval(B, 1, "S:sp1")]
+            Removals = [new SharedIdRemoval(A, 0), new SharedIdRemoval(B, 1, "S:sp1")],
+            Deletions = [B]
         };
 
         var choice = request.ToChoice();
@@ -45,17 +46,20 @@ public class SharedIdReviewModelTests
         Assert.AreEqual(new SharedIdNamePicks(Title: B), choice.Names);
         CollectionAssert.AreEqual(new[] { new SharedIdRemoval(A, 0), new SharedIdRemoval(B, 1, "S:sp1") },
             choice.Removals.ToList());
+        CollectionAssert.AreEqual(new[] { B }, choice.Deletions.ToList());
     }
 
     [TestMethod]
     public void ToChoice_MissingArrays_IsAnEmptyChoiceWithTheProposedNames()
     {
-        var choice = new SharedIdChoiceRequest { Songs = null, CandidateIds = null, Removals = null }.ToChoice();
+        var choice = new SharedIdChoiceRequest
+            { Songs = null, CandidateIds = null, Removals = null, Deletions = null }.ToChoice();
 
         Assert.AreEqual(SharedIdAction.Leave, choice.Action);
         Assert.IsEmpty(choice.SongIds);
         Assert.IsEmpty(choice.CandidateIds);
         Assert.IsEmpty(choice.Removals);
+        Assert.IsEmpty(choice.Deletions);
         Assert.AreEqual(new SharedIdNamePicks(), choice.Names);
         Assert.IsEmpty(choice.MergeGroups);
     }
@@ -159,5 +163,44 @@ public class SharedIdReviewModelTests
         Assert.AreEqual("WithoutFeaturing", cluster["match"]!.ToString());
         Assert.AreEqual("Leave", cluster["defaultAction"]!.ToString());
         Assert.IsNull(cluster["merged"], "Nulls are left out, so the client's optional members are undefined");
+    }
+
+    [TestMethod]
+    public async Task LookupTracks_LooksUpEachSpotifyAndITunesIdOnce()
+    {
+        var calls = new List<(string Id, ServiceType Service)>();
+        Task<ServiceTrack> Fetch(string id, MusicService service)
+        {
+            calls.Add((id, service.Id));
+            return Task.FromResult(id switch
+            {
+                "sp1" => new ServiceTrack
+                {
+                    Name = "Probe", Artist = "Probe Artist", Album = "First Album", Duration = 185,
+                    ISRC = "USRC1", ReleaseDate = "2020-01-02"
+                },
+                "boom" => throw new InvalidOperationException("Service down"),
+                _ => null!
+            });
+        }
+
+        var tracks = await SharedIdServiceTrack.Lookup(
+            ["S:sp1", "R:USRC1", "I:111", "S:sp1", "A:amz", "I:boom", "X", null], Fetch);
+
+        CollectionAssert.AreEqual(
+            new[] { ("sp1", ServiceType.Spotify), ("111", ServiceType.ITunes), ("boom", ServiceType.ITunes) },
+            calls);
+        Assert.AreEqual(
+            new SharedIdServiceTrack("S:sp1", true, "Probe", "Probe Artist", "First Album", 185, "USRC1", "2020-01-02"),
+            tracks[0]);
+        Assert.AreEqual(new SharedIdServiceTrack("I:111", false), tracks[1]);
+        Assert.AreEqual(new SharedIdServiceTrack("I:boom", false), tracks[2]);
+        Assert.HasCount(3, tracks);
+    }
+
+    [TestMethod]
+    public async Task LookupTracks_NoIds_LooksUpNothing()
+    {
+        Assert.IsEmpty(await SharedIdServiceTrack.Lookup(null!, (_, _) => Task.FromResult<ServiceTrack>(null!)));
     }
 }

@@ -191,6 +191,104 @@ describe("shared-id-review page", () => {
     });
   });
 
+  describe("deleting a song", () => {
+    test("marks its column and disables its group and boxes", async () => {
+      const wrapper = loadTestPage(App, model);
+      const card = cards(wrapper)[0]!;
+
+      await card.find('input[aria-label="Delete song 2"]').setValue(true);
+
+      const header = card.find('input[aria-label="Delete song 2"]').element.closest("th")!;
+      expect(header.classList).toContain("table-danger");
+      expect(
+        card.find('select[aria-label="Group for song 2"]').attributes("disabled"),
+      ).toBeDefined();
+      const album = card.find('input[aria-label="Remove Second Album from song 2"]')
+        .element as HTMLInputElement;
+      expect(album.disabled).toBe(true);
+      expect((card.find(`#cluster-0-title-${songB}`).element as HTMLInputElement).disabled).toBe(
+        true,
+      );
+    });
+
+    test("asks first on Apply, and doesn't post when cancelled", async () => {
+      const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+      const wrapper = loadTestPage(App, model);
+      await cards(wrapper)[0]!.find('input[aria-label="Delete song 2"]').setValue(true);
+
+      await wrapper.find(".apply-button").trigger("click");
+      await flushPromises();
+
+      expect(confirm).toHaveBeenCalledWith("Apply will delete 1 songs. Delete them?");
+      expect(post).not.toHaveBeenCalled();
+    });
+
+    test("is sent with the cluster's choice once confirmed", async () => {
+      vi.spyOn(window, "confirm").mockReturnValue(true);
+      const wrapper = loadTestPage(App, model);
+      await cards(wrapper)[0]!.find('input[aria-label="Delete song 2"]').setValue(true);
+
+      await wrapper.find(".apply-button").trigger("click");
+      await flushPromises();
+
+      const [feat] = lastRequest().body.choices;
+      expect(feat.deletions).toEqual([songB]);
+      expect(feat.songs).toEqual([
+        { songId: songA, group: "A" },
+        { songId: songB, group: "" },
+      ]);
+    });
+  });
+
+  describe("Look up on Spotify and iTunes", () => {
+    test("posts the cluster's ids and shows what each service says", async () => {
+      post.mockResolvedValueOnce({
+        data: [
+          {
+            id: "S:sp1",
+            found: true,
+            title: "Probe",
+            artist: "Probe Artist",
+            album: "Spotify Album",
+            length: 185,
+            isrc: "USRC1",
+          },
+          { id: "I:111", found: false },
+        ],
+      });
+      const wrapper = loadTestPage(App, model);
+      const card = cards(wrapper)[0]!;
+      expect(card.text()).not.toContain("Services");
+
+      await card.find(".look-up-button").trigger("click");
+      await flushPromises();
+
+      expect(lastRequest()).toEqual({
+        url: "/api/sharedids/tracks",
+        body: { ids: ["S:sp1", "I:111"] },
+      });
+      const [first, second] = card
+        .findAll("tr")
+        .filter((r) => r.text().startsWith("Services"))[0]!
+        .findAll("td");
+      expect(first!.text()).toBe("S:sp1 Probe — Probe Artist · Spotify Album · 3:05 · R:USRC1");
+      expect(second!.text()).toContain("I:111 not found");
+      expect(card.find(".look-up-button").text()).toBe("Look up again");
+    });
+
+    test("a failure is shown on the card", async () => {
+      post.mockRejectedValueOnce(new Error("Request failed with status code 500"));
+      const wrapper = loadTestPage(App, model);
+      const card = cards(wrapper)[0]!;
+
+      await card.find(".look-up-button").trigger("click");
+      await flushPromises();
+
+      expect(card.text()).toContain("Lookup failed: Request failed with status code 500");
+      expect(card.find(".look-up-button").attributes("disabled")).toBeUndefined();
+    });
+  });
+
   describe("Apply", () => {
     test("posts every cluster with songs, then reloads the page with the result", async () => {
       const wrapper = loadTestPage(App, model);

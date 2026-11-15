@@ -111,6 +111,7 @@ export interface SharedIdChoiceRequest {
   artistFrom: string | null;
   artistsFrom: string | null;
   removals: SharedIdRemovalRequest[];
+  deletions: string[];
 }
 
 export interface SharedIdApplyRequest {
@@ -127,4 +128,17 @@ export interface SharedIdApplyResponse {
   edited: number;
   unsharedPairs: number;
   stale: number;
+  deleted: number;
+}
+
+// POST /api/sharedids/tracks: what a music service says one of the ids is (SharedIdServiceTrack)
+export interface SharedIdServiceTrack {
+  id: string;
+  found: boolean;
+  title?: string;
+  artist?: string;
+  album?: string;
+  length?: number;
+  isrc?: string;
+  releaseDate?: string;
 }

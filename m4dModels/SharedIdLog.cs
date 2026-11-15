@@ -377,15 +377,16 @@ public class SharedIdLog(DanceMusicCoreService dms)
         cluster.Songs.Count < 2 ? null : await SongIndex.BuildSimpleMerge(user, cluster.Songs);
 
     /// <summary>
-    /// Applies a page of review choices: merges, not-the-same, and clusters left for later.
-    /// A merge whose songs changed since the page loaded (fewer than two are still in the
+    /// Applies a page of review choices: deletions, merges, not-the-same, and clusters left for
+    /// later. A merge whose songs changed since the page loaded (fewer than two are still in the
     /// catalog) is counted as stale and left alone.
     /// </summary>
     public async Task<SharedIdBatchResult> Apply(ApplicationUser user, IEnumerable<SharedIdChoice> choices)
     {
         var result = new SharedIdBatchResult();
-        foreach (var choice in choices)
+        foreach (var asChosen in choices)
         {
+            var choice = asChosen.Without(await ApplyDeletions(user, asChosen, result));
             var edited = await ApplyRemovals(user, choice, result);
             var merges = result.Merges.Count;
             switch (choice.Action)
@@ -419,6 +420,33 @@ public class SharedIdLog(DanceMusicCoreService dms)
         }
 
         return result;
+    }
+
+    // Deletes the choice's songs to delete (only the cluster's own), and marks their pending rows
+    // deleted. Returns the songs deleted
+    private async Task<IReadOnlyCollection<Guid>> ApplyDeletions(ApplicationUser user, SharedIdChoice choice,
+        SharedIdBatchResult result)
+    {
+        var deleted = new List<Guid>();
+        foreach (var id in (choice.Deletions ?? []).Where(choice.SongIds.Contains).Distinct())
+        {
+            var song = await SongIndex.FindSong(id);
+            if (song == null || song.IsNull)
+            {
+                continue;
+            }
+
+            await SongIndex.DeleteSong(user, song);
+            deleted.Add(id);
+            result.Deleted += 1;
+        }
+
+        if (deleted.Count > 0)
+        {
+            await Repoint(deleted.ToDictionary(id => id, _ => (Guid?)null), user.UserName);
+        }
+
+        return deleted;
     }
 
     // Takes the choice's albums and ids off its songs, one edit by the reviewer per song.

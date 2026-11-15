@@ -3,6 +3,7 @@ import type {
   SharedIdChoiceRequest,
   SharedIdRemovalRequest,
   SharedIdReviewCluster,
+  SharedIdReviewSong,
 } from "./SharedIdReviewModel";
 
 // The names a merged song takes, each from one of the cluster's songs or, as null, from the
@@ -19,6 +20,12 @@ export function groupNames(songCount: number): string[] {
   return Array.from({ length: songCount }, (_, i) => String.fromCharCode(65 + i));
 }
 
+/** The songs' Spotify and iTunes ids, once each: the ones POST /api/sharedids/tracks looks up. */
+export function lookupIds(songs: SharedIdReviewSong[]): string[] {
+  const ids = songs.flatMap((s) => s.albums.flatMap((a) => a.ids.map((i) => i.id)));
+  return [...new Set(ids.filter((id) => id.startsWith("S:") || id.startsWith("I:")))];
+}
+
 function albumKey(songId: string, album: number): string {
   return `${songId}|${album}`;
 }
@@ -30,7 +37,7 @@ function idKey(songId: string, album: number, id: string): string {
 /**
  * What the reviewer has chosen for one cluster of the shared-id review page. Starts from the
  * cluster's defaults: its default action, every song in group A, every name from the proposal
- * (or the first song when there's none) and nothing removed. The server re-checks everything on
+ * (or the first song when there's none), nothing deleted and nothing removed. The server re-checks everything on
  * Apply (SharedIdLog.Apply); this only collects the choice and says which controls apply.
  *
  * Wrap an instance in reactive() to use it in a component: its state is plain fields, a Map and
@@ -42,6 +49,7 @@ export class ClusterChoice {
   public readonly names: Record<NameField, string | null>;
   public readonly albumRemovals = new Set<string>();
   public readonly idRemovals = new Set<string>();
+  public readonly deletions = new Set<string>();
 
   public constructor(public readonly cluster: SharedIdReviewCluster) {
     this.action = cluster.defaultAction;
@@ -66,17 +74,39 @@ export class ClusterChoice {
     return groupNames(this.cluster.songs.length);
   }
 
+  /** The song's group; a song to delete is left out, whatever group it was in. */
   public groupOf(songId: string): string {
-    return this.groups.get(songId) ?? leaveOut;
+    return this.isDeleted(songId) ? leaveOut : (this.groups.get(songId) ?? leaveOut);
   }
 
   public setGroup(songId: string, group: string): void {
     this.groups.set(songId, group);
-    // A song left out of every group can't name a merged song
     if (group === leaveOut) {
-      nameFields
-        .filter((f) => this.names[f] === songId)
-        .forEach((f) => (this.names[f] = ClusterChoice.defaultNames(this.cluster)[f]));
+      this.resetNamesFrom(songId);
+    }
+  }
+
+  // A song left out of every group can't name a merged song
+  private resetNamesFrom(songId: string): void {
+    nameFields
+      .filter((f) => this.names[f] === songId)
+      .forEach((f) => (this.names[f] = ClusterChoice.defaultNames(this.cluster)[f]));
+  }
+
+  public isDeleted(songId: string): boolean {
+    return this.deletions.has(songId);
+  }
+
+  /**
+   * Deletes the song on Apply, whatever the action. It's left out of every group while it's to
+   * be deleted, and gets its group back if it isn't any more.
+   */
+  public setDeleted(songId: string, deleted: boolean): void {
+    if (deleted) {
+      this.deletions.add(songId);
+      this.resetNamesFrom(songId);
+    } else {
+      this.deletions.delete(songId);
     }
   }
 
@@ -135,13 +165,17 @@ export class ClusterChoice {
       this.cluster.songs.some((s) => this.groupOf(s.songId) !== "A") ||
       nameFields.some((f) => this.names[f] !== defaults[f]) ||
       this.albumRemovals.size > 0 ||
-      this.idRemovals.size > 0
+      this.idRemovals.size > 0 ||
+      this.deletions.size > 0
     );
   }
 
-  /** Removals, made whatever the action. An id on an album that's removed goes with the album. */
+  /**
+   * Removals, made whatever the action. An id on an album that's removed goes with the album, and
+   * nothing is removed from a song to delete.
+   */
   public get removals(): SharedIdRemovalRequest[] {
-    const songs = this.cluster.songs;
+    const songs = this.cluster.songs.filter((s) => !this.isDeleted(s.songId));
     const albums = songs.flatMap((s) =>
       s.albums
         .filter((a) => this.isAlbumRemoved(s.songId, a.index))
@@ -174,6 +208,7 @@ export class ClusterChoice {
       artistFrom: from("artist"),
       artistsFrom: from("artists"),
       removals: this.removals,
+      deletions: this.cluster.songs.map((s) => s.songId).filter((id) => this.isDeleted(id)),
     };
   }
 }

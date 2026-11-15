@@ -4,7 +4,8 @@ import type { ClusterChoice } from "../ClusterChoice";
 import type { SharedIdReviewSong } from "../SharedIdReviewModel";
 
 // A song's albums with their song-level ids. Given a choice (a song column), each album and id
-// has a box that removes it; without one (the If merged column) it's read-only.
+// has a box that removes it; without one (the If merged column) it's read-only. Nothing is
+// removed from a song to delete, so its boxes are disabled.
 const props = defineProps<{
   song: SharedIdReviewSong;
   choice?: ClusterChoice;
@@ -14,6 +15,7 @@ const props = defineProps<{
 
 const songId = computed(() => props.song.songId);
 const albums = computed(() => props.song.albums);
+const deleted = computed(() => props.choice?.isDeleted(songId.value) ?? false);
 
 function albumRemoved(album: number): boolean {
   return props.choice?.isAlbumRemoved(songId.value, album) ?? false;
@@ -44,6 +46,7 @@ function onId(album: number, id: string, value: unknown): void {
       inline
       class="me-1"
       :model-value="albumRemoved(album.index)"
+      :disabled="deleted"
       :aria-label="`Remove ${album.name} from ${label}`"
       :title="`Remove ${album.name} from ${label}`"
       @update:model-value="onAlbum(album.index, $event)"
@@ -64,7 +67,7 @@ function onId(album: number, id: string, value: unknown): void {
         inline
         class="me-0"
         :model-value="idRemoved(album.index, trackId.id)"
-        :disabled="albumRemoved(album.index)"
+        :disabled="deleted || albumRemoved(album.index)"
         :aria-label="`Remove ${trackId.id} from ${label}`"
         :title="`Remove ${trackId.id} from ${label}`"
         @update:model-value="onId(album.index, trackId.id, $event)"

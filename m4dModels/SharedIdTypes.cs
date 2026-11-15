@@ -100,13 +100,27 @@ public enum SharedIdMatch
 /// says which songs are the same: each group of two or more is merged, and the pairs between
 /// groups are marked not the same. A song with an empty group is left out. Groups null puts every
 /// song in one group. Names, when given, says where the merged songs' names come from; an edit by
-/// the music4dance account sets any a merge doesn't produce on its own. Removals, which are
-/// made first whatever the action, take albums or ids off the cluster's songs.
+/// the music4dance account sets any a merge doesn't produce on its own. Deletions, made first
+/// whatever the action, delete some of the cluster's songs, which are then left out of the rest.
+/// Removals, made next whatever the action, take albums or ids off the cluster's songs.
 /// </summary>
 public record SharedIdChoice(SharedIdAction Action, IReadOnlyList<Guid> SongIds,
     IReadOnlyCollection<int> CandidateIds, IReadOnlyList<string> Groups = null,
-    SharedIdNamePicks Names = null, IReadOnlyList<SharedIdRemoval> Removals = null)
+    SharedIdNamePicks Names = null, IReadOnlyList<SharedIdRemoval> Removals = null,
+    IReadOnlyCollection<Guid> Deletions = null)
 {
+    /// <summary>
+    /// The choice without these songs: they're in no group and have nothing removed. Used once
+    /// they've been deleted.
+    /// </summary>
+    public SharedIdChoice Without(IReadOnlyCollection<Guid> songIds) =>
+        songIds.Count == 0 ? this : this with
+        {
+            Groups = [.. SongIds.Select((id, i) => songIds.Contains(id) ? ""
+                : Groups == null ? "A" : i < Groups.Count ? Groups[i] : null)],
+            Removals = Removals == null ? null : [.. Removals.Where(r => r != null && !songIds.Contains(r.SongId))]
+        };
+
     /// <summary>The songs of each group, in order of first appearance.</summary>
     public IReadOnlyList<IReadOnlyList<Guid>> MergeGroups =>
         [.. SongIds
@@ -137,6 +151,9 @@ public class SharedIdBatchResult
     public int Edited { get; set; }
     public int UnsharedPairs { get; set; }
 
+    // Songs deleted
+    public int Deleted { get; set; }
+
     // Clusters: merged (one per group merged), marked not the same (Not the same, or a split into
     // groups), left for later, and merges skipped because their songs changed elsewhere
     public int Merged { get; set; }
@@ -150,6 +167,10 @@ public class SharedIdBatchResult
     public string Summary()
     {
         var message = $"Merged {Merged}, marked {Rejected} not the same, left {Left}.";
+        if (Deleted > 0)
+        {
+            message += $" Deleted {Deleted} songs.";
+        }
         if (Edited > 0)
         {
             message += $" Removed albums or ids from {Edited} songs; {UnsharedPairs} pairs " +

@@ -3,7 +3,7 @@
 **Type:** Reference
 **Status:** Current
 **Last verified:** 2026-11-14
-**Code:** `m4dModels/SharedIdLog.cs`, `m4dModels/SharedIdCandidate.cs`, `m4d/Utilities/MusicServiceManager.cs` (`UpdateFromTracks`, `GetISRCData`), `m4dModels/SharedIdTypes.cs` (clusters, choices, page), `m4dModels/SharedIdMatcher.cs` (match tiers), `m4dModels/FeaturedCleanup.cs`, `m4d/Controllers/SharedIdsController.cs` (page, background tasks), `m4d/APIControllers/SharedIdsController.cs` (apply), `m4d/ViewModels/SharedIdReviewModel.cs` (page model, apply request), `m4d/ClientApp/src/pages/shared-id-review/` (page app), `m4d/Services/SharedIdPreviewStore.cs` (last preview and review sort), `m4d/Views/SharedIds/` (last preview), `e2e/tests/shared-ids.spec.ts`
+**Code:** `m4dModels/SharedIdLog.cs`, `m4dModels/SharedIdCandidate.cs`, `m4d/Utilities/MusicServiceManager.cs` (`UpdateFromTracks`, `GetISRCData`), `m4dModels/SharedIdTypes.cs` (clusters, choices, page), `m4dModels/SharedIdMatcher.cs` (match tiers), `m4dModels/FeaturedCleanup.cs`, `m4d/Controllers/SharedIdsController.cs` (page, background tasks), `m4d/APIControllers/SharedIdsController.cs` (apply, track lookup), `m4d/ViewModels/SharedIdReviewModel.cs` (page model, apply request), `m4d/ClientApp/src/pages/shared-id-review/` (page app), `m4d/Services/SharedIdPreviewStore.cs` (last preview and review sort), `m4d/Views/SharedIds/` (last preview), `e2e/tests/shared-ids.spec.ts`
 
 ## Overview
 
@@ -146,6 +146,8 @@ title-based tools or **Merge and edit** resolve themselves.
 | **Merge groups** (a choice, applied by **Apply this page**) | For each group, `SongIndex.SimpleMergeSongs` on its songs, which keeps all their history, then the music4dance edit for the chosen names if one is needed. Rows between them become `Merged`; their rows with other songs, pending or rejected, move to the merged song. Then the pairs between groups are rejected. A song left out stays in the queue paired with the merged song. A group with fewer than two songs still in the catalog is counted as stale and skipped. This happens, for example, after **Merge and edit**. |
 | **Not the same** (a choice) | Marks every pending row in the cluster `Rejected`. |
 | **Leave for later** (a choice) | Changes nothing in the database; the cluster goes to the end of the queue until a restart. |
+| **Delete** (a box on each song, applied by **Apply this page** first, whatever the cluster's choice) | `SongIndex.DeleteSong` (a `.Delete` edit by the reviewer, so the history stays), then the song's pending rows are marked `Deleted`. The deleted song is left out of the groups and has nothing removed (`SharedIdChoice.Without`); only the cluster's own songs can be deleted. For songs from some other source that have no dances and only bring their album history, where merging them in isn't wanted. Apply asks first. |
+| **Look up on Spotify and iTunes** (a button on each cluster) | `POST /api/sharedids/tracks` with the cluster's Spotify and iTunes ids (`SharedIdServiceTrack.Lookup`, one at a time through `MusicServiceManager.GetMusicServiceTrack` and its cache, at most 50). A **Services** row then shows, under each song, what each service says its ids are: title, artist, album, length, release date and ISRC, or "not found". Saves nothing; it's there to tell the songs apart before splitting them or removing an id. |
 | **Removals** (boxes on albums and ids, applied by **Apply this page** before the cluster's choice, whatever it is) | For each song with something checked, one edit by the reviewer (`Song.AppendIdRemoval`): `Album:NN=` (empty) for an album, `Purchase-:NN:SS=<id>` (or `IS`, `RS`) for one id. Removals of albums or ids the song no longer has are skipped. An edited song that is then merged goes into the merge as saved (`SimpleMergeSongs` with `reload: false`), since the index may not have caught up. Afterwards, the pending rows of the edited songs (or the songs they were merged into) whose songs no longer share any id are marked `Rejected`. So two different songs are kept apart by removing the id from the one it doesn't belong to, even with **Leave for later**. If enrichment later tries to put the id back, the guard skips it, because the other song holds it, and the rejected pair stays resolved. Checking an album covers its ids, so their boxes are disabled and they aren't sent on their own. The **If merged** column doesn't show removals. |
 | **Merge and edit** | Takes effect right away. It posts the songs to `/Song/BulkEdit` (`action=Merge`) in a new tab, which merges them as **Merge groups** does with one group and opens the merged song in the editor to pick its title, artist, tempo and length. |
 | **Merge all with matching title and artist** (`POST /SharedIds/MergeMatching`) | A background task (watch `/Admin/AdminStatus`). It merges every pending cluster whose songs all share the same title and the same non-empty artist (`Song.CreateTitleHash`, as the title-based merge candidates compare them). Every cluster shares an id by construction. It skips clusters with a rejected pair inside them, or with a `.NoMerge` song. |
@@ -158,13 +160,14 @@ The page app is `m4d/ClientApp/src/pages/shared-id-review/`. A cluster's choice 
 `ClusterChoice` (no Vue in it, wrapped in `reactive()` by the page): built from the cluster's
 defaults, it sets groups, picks names and toggles removals, says which controls apply, and builds
 the cluster's entry in the apply request (`toRequest()`). `ClusterCard`, `NameChoiceRow` and
-`AlbumIds` render a cluster, a name row and a song's albums.
+`AlbumIds` render a cluster, a name row and a song's albums; `ServiceTracks` renders a song's
+lookup results.
 
 | Layer | Tests |
 | --- | --- |
 | Domain | `SharedIdLogTests`, `SharedIdGuardTests`, `SharedIdMatcherTests`, `SharedIdTypesTests`, `SongReviewEditTests`, `FeaturedCleanupTests` (`m4dModels.Tests`) |
-| Web | `SharedIdsControllerAuthorizationTests` (both controllers dbAdmin, changes are antiforgery POSTs), `SharedIdPreviewStoreTests`, `SharedIdReviewModelTests` (the request's mapping, the JSON the client sends, the page model) (`m4d.Tests`) |
-| Client | `ClusterChoice.test.ts` (defaults, groups, names, removals, requests) and `shared-id-review.test.ts` (the page with a fixture model: badges, split note, disabled controls, what Apply posts) |
+| Web | `SharedIdsControllerAuthorizationTests` (both controllers dbAdmin, changes are antiforgery POSTs), `SharedIdPreviewStoreTests`, `SharedIdReviewModelTests` (the request's mapping, the JSON the client sends, the page model, the track lookup with a fake service) (`m4d.Tests`) |
+| Client | `ClusterChoice.test.ts` (defaults, groups, names, removals, deletions, requests) and `shared-id-review.test.ts` (the page with a fixture model: badges, split note, disabled controls, deleting and its confirmation, the lookup, what Apply posts) |
 | End to end | `e2e/tests/shared-ids.spec.ts` against `m4d.Sandbox`: makes two songs sharing an ISRC (`POST /api/song`, then `PATCH /api/song` to add the ISRC, which doesn't pass through the guard), seeds, and checks that **Not the same** stays resolved after another seed and that **Merge groups** merges under a picked title. |
 
 ## Future improvements
@@ -191,6 +194,7 @@ the cluster's entry in the apply request (`toRequest()`). `ClusterCard`, `NameCh
 - 2026-11: Moved out of `AdminController` into `SharedIdsController` (`/Admin/SharedIds…` became `/SharedIds…`). Page loading moved into `SharedIdLog.LoadPage`, the last preview into the `SharedIdPreviewStore` singleton, and the match tiers into `SharedIdMatcher`. Name picks and removals name their song by id instead of column index.
 - 2026-11: The review page became the `shared-id-review` Vue page app, applying through `POST /api/sharedids/apply`. Left-out songs' name radios and removed albums' id boxes are disabled, split radios name their group, and a cluster can have as many groups as songs. Client tests and an end-to-end test added.
 - 2026-11: Clusters left for later go to the end of the queue until a restart.
+- 2026-11: **Delete** on a song, and **Look up on Spotify and iTunes** (`POST /api/sharedids/tracks`).
 
 ## Related
 

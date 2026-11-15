@@ -703,6 +703,59 @@ public class SharedIdLogTests
     }
 
     [TestMethod]
+    public async Task Apply_DeleteASong_DeletesItAndMergesTheRest()
+    {
+        var (dms, user) = await CreateService("SharedIds_ApplyDelete");
+        var (cluster, songs) = await FourSongCluster(dms);
+        var choice = Groups(cluster, songs, ["A", "A", "A", "A"]) with { Deletions = [songs[3].SongId] };
+
+        var result = await dms.SharedIds.Apply(user, [choice]);
+
+        Assert.AreEqual((1, 1, 0), (result.Deleted, result.Merged, result.Stale));
+        CollectionAssert.AreEquivalent(songs.Take(3).Select(s => s.SongId).ToList(),
+            result.Merges.Single().From.ToList());
+        Assert.IsTrue((await dms.SongIndex.FindSong(songs[3].SongId)).IsNull);
+        Assert.IsFalse((await dms.SongIndex.FindSong(result.Merges.Single().Into)).IsNull);
+        var deleted = (await Rows(dms)).Single(r => r.SongA == songs[3].SongId || r.SongB == songs[3].SongId);
+        Assert.AreEqual(SharedIdStatus.Deleted, deleted.Status);
+        Assert.IsEmpty(await dms.SharedIds.PendingClusters());
+    }
+
+    [TestMethod]
+    public async Task Apply_DeleteWithLeaveForLater_TakesThePairOutOfTheQueue()
+    {
+        var (dms, user) = await CreateService("SharedIds_ApplyDeleteLeave");
+        var (cluster, songs) = await TwoSongCluster(dms);
+        var choice = new SharedIdChoice(SharedIdAction.Leave, [.. songs.Select(s => s.SongId)],
+            [.. cluster.Candidates.Select(c => c.Id)], Deletions: [songs[1].SongId],
+            Removals: [new SharedIdRemoval(songs[1].SongId, 0, "I:111")]);
+
+        var result = await dms.SharedIds.Apply(user, [choice]);
+
+        Assert.AreEqual((1, 1, 0), (result.Deleted, result.Left, result.Edited), "No removal from a deleted song");
+        Assert.IsTrue((await dms.SongIndex.FindSong(songs[1].SongId)).IsNull);
+        Assert.IsFalse((await dms.SongIndex.FindSong(songs[0].SongId)).IsNull);
+        Assert.AreEqual(SharedIdStatus.Deleted, (await Rows(dms)).Single().Status);
+        Assert.IsEmpty(await dms.SharedIds.PendingClusters());
+    }
+
+    [TestMethod]
+    public async Task Apply_DeletionOfASongOutsideTheCluster_IsIgnored()
+    {
+        var (dms, user) = await CreateService("SharedIds_DeleteOutside");
+        var (cluster, songs) = await TwoSongCluster(dms);
+        var outsider = await SaveSong(dms, "Purchase:00:IS=999", title: "Outsider");
+        var choice = new SharedIdChoice(SharedIdAction.Leave, [.. songs.Select(s => s.SongId)],
+            [.. cluster.Candidates.Select(c => c.Id)], Deletions: [outsider.SongId]);
+
+        var result = await dms.SharedIds.Apply(user, [choice]);
+
+        Assert.AreEqual(0, result.Deleted);
+        Assert.IsFalse((await dms.SongIndex.FindSong(outsider.SongId)).IsNull);
+        Assert.AreEqual(SharedIdStatus.Pending, (await Rows(dms)).Single().Status);
+    }
+
+    [TestMethod]
     public async Task Apply_RemovalFromASongOutsideTheCluster_IsIgnored()
     {
         var (dms, user) = await CreateService("SharedIds_RemoveOutside");

@@ -34,7 +34,15 @@ const changedCount = computed(() => choices.filter((c) => c.isDirty).length);
 const applying = ref(false);
 const error = ref("");
 
+const deleteCount = computed(() => choices.reduce((n, c) => n + c.deletions.size, 0));
+
 async function apply(): Promise<void> {
+  if (
+    deleteCount.value > 0 &&
+    !window.confirm(`Apply will delete ${deleteCount.value} songs. Delete them?`)
+  ) {
+    return;
+  }
   applying.value = true;
   error.value = "";
   const request: SharedIdApplyRequest = {
@@ -92,10 +100,10 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
       their history, and marks the songs of different groups not the same; a song left out stays in
       the queue. Every song starts in group A, and the <em>If merged</em> column shows what merging
       all of them would give. <strong>Not the same</strong> leaves the ids where they are and stops
-      the pairs from being queued again. <strong>Leave for later</strong> changes nothing. Clusters
-      with a rejected pair or a .NoMerge song start as Leave for later; the rest start as Merge
-      groups. <strong>Merge and edit</strong> merges a cluster straight away and opens it for
-      editing.
+      the pairs from being queued again. <strong>Leave for later</strong> changes nothing, and moves
+      the cluster to the end of the queue until the server restarts. Clusters with a rejected pair
+      or a .NoMerge song start as Leave for later; the rest start as Merge groups.
+      <strong>Merge and edit</strong> merges a cluster straight away and opens it for editing.
     </p>
     <p>
       The <em>Title</em>, <em>Artist</em> and <em>Individual artists</em> rows choose what the
@@ -112,7 +120,9 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
       cluster's choice, and pairs whose songs no longer share an id afterwards are marked not the
       same. So to keep two different songs apart, remove the shared id from the one it doesn't
       belong to; <em>Leave for later</em> is enough. The <em>If merged</em> column doesn't show
-      removals.
+      removals. <strong>Delete</strong> on a song deletes it on Apply, whatever the cluster's
+      choice; it's left out of the groups. <strong>Look up on Spotify and iTunes</strong> shows what
+      each service says the cluster's ids are.
     </p>
 
     <BAlert v-if="model.message" :model-value="true" variant="info">{{ model.message }}</BAlert>

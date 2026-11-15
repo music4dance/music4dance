@@ -48,7 +48,7 @@ public class SharedIdsController(
         }
         // Left for later goes to the end of the queue, so the next load of the page is new clusters
         previews.Defer(choices.Where(c => c.Action == SharedIdAction.Leave).SelectMany(c => c.SongIds));
-        if (result.Merged > 0 || result.Edited > 0)
+        if (result.Merged > 0 || result.Edited > 0 || result.Deleted > 0)
         {
             await DanceStatsManager.ClearCache(Database, false);
         }
@@ -56,4 +56,11 @@ public class SharedIdsController(
         Logger.LogInformation("Shared-id apply by {User}: {Summary}", user.UserName, result.Summary());
         return JsonCamelCase(SharedIdApplyResponse.Build(result));
     }
+
+    //
+    // POST: /api/sharedids/tracks
+    // What Spotify and iTunes say each of the ids is, for telling a cluster's songs apart
+    [HttpPost("tracks")]
+    public async Task<IActionResult> Tracks([FromBody] SharedIdTracksRequest request) =>
+        JsonCamelCase(await SharedIdServiceTrack.Lookup(request?.Ids, MusicServiceManager.GetMusicServiceTrack));
 }

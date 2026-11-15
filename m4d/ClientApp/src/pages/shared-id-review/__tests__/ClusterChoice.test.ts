@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { TypedJSON } from "typedjson";
-import { ClusterChoice, groupNames, leaveOut } from "../ClusterChoice";
+import { ClusterChoice, groupNames, leaveOut, lookupIds } from "../ClusterChoice";
 import { SharedIdReviewCluster } from "../SharedIdReviewModel";
 import { featCluster, rejectedCluster, songA, songB, songC, songD, songE } from "./model";
 
@@ -133,6 +133,55 @@ describe("ClusterChoice", () => {
     });
   });
 
+  describe("deletions", () => {
+    test("a song to delete is left out, can't name the merge, and has nothing removed", () => {
+      const choice = choiceFor(featCluster);
+      choice.pickName("title", songB);
+      choice.setIdRemoved(songB, 2, "I:111", true);
+      choice.setIdRemoved(songA, 0, "S:sp1", true);
+
+      choice.setDeleted(songB, true);
+
+      expect(choice.isDeleted(songB)).toBe(true);
+      expect(choice.groupOf(songB)).toBe(leaveOut);
+      expect(choice.canName(songB)).toBe(false);
+      expect(choice.names.title).toBeNull();
+      expect(choice.removals).toEqual([{ songId: songA, album: 0, id: "S:sp1" }]);
+      expect(choice.isDirty).toBe(true);
+    });
+
+    test("not deleting it after all gives it its group back", () => {
+      const choice = choiceFor(rejectedCluster);
+      choice.setGroup(songD, "B");
+      choice.setDeleted(songD, true);
+
+      choice.setDeleted(songD, false);
+
+      expect(choice.groupOf(songD)).toBe("B");
+    });
+
+    test("are sent whatever the action, with the song out of every group", () => {
+      const choice = choiceFor(rejectedCluster);
+      choice.setDeleted(songE, true);
+
+      const request = choice.toRequest();
+
+      expect(request.action).toBe("Leave");
+      expect(request.deletions).toEqual([songE]);
+      expect(request.songs.at(-1)).toEqual({ songId: songE, group: "" });
+    });
+  });
+
+  describe("lookupIds", () => {
+    test("are the songs' Spotify and iTunes ids, once each", () => {
+      const cluster = new ClusterChoice(TypedJSON.parse(featCluster, SharedIdReviewCluster)!)
+        .cluster;
+
+      expect(lookupIds(cluster.songs)).toEqual(["S:sp1", "I:111"]);
+      expect(lookupIds([])).toEqual([]);
+    });
+  });
+
   describe("toRequest", () => {
     test("a default merge sends every song in A and the proposal's names", () => {
       expect(choiceFor(featCluster).toRequest()).toEqual({
@@ -146,6 +195,7 @@ describe("ClusterChoice", () => {
         artistFrom: null,
         artistsFrom: null,
         removals: [],
+        deletions: [],
       });
     });
 

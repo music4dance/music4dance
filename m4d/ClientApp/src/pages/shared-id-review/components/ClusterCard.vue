@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { getMenuContext } from "@/helpers/GetMenuContext";
-import { type ClusterChoice, leaveOut } from "../ClusterChoice";
-import type { SharedIdAction, SharedIdReviewSong } from "../SharedIdReviewModel";
+import { type ClusterChoice, leaveOut, lookupIds } from "../ClusterChoice";
+import type {
+  SharedIdAction,
+  SharedIdReviewSong,
+  SharedIdServiceTrack,
+} from "../SharedIdReviewModel";
 import { formatArtists, formatDances, formatDate, formatLength } from "../format";
 import AlbumIds from "./AlbumIds.vue";
 import NameChoiceRow from "./NameChoiceRow.vue";
+import ServiceTracks from "./ServiceTracks.vue";
 
 // One cluster of the review page: its songs side by side with what merging them all would
-// make, the choice for it, and Merge and edit.
+// make, the choice for it, Merge and edit, and a lookup of what Spotify and iTunes say its ids
+// are.
 const props = defineProps<{
   choice: ClusterChoice;
   // Unique on the page, for the controls' names and ids
@@ -50,6 +56,31 @@ function setAction(value: unknown): void {
 function setGroup(songId: string, value: unknown): void {
   props.choice.setGroup(songId, String(value ?? leaveOut));
 }
+
+function setDeleted(songId: string, value: unknown): void {
+  props.choice.setDeleted(songId, !!value);
+}
+
+// The service lookup, kept with the card until the page reloads
+const tracks = ref<Map<string, SharedIdServiceTrack>>();
+const lookingUp = ref(false);
+const lookupError = ref("");
+const canLookUp = computed(() => lookupIds(songs.value).length > 0);
+
+async function lookUp(): Promise<void> {
+  lookingUp.value = true;
+  lookupError.value = "";
+  try {
+    const response = await context.axiosXsrf.post<SharedIdServiceTrack[]>("/api/sharedids/tracks", {
+      ids: lookupIds(songs.value),
+    });
+    tracks.value = new Map(response.data.map((t) => [t.id, t]));
+  } catch (e: unknown) {
+    lookupError.value = `Lookup failed: ${e instanceof Error ? e.message : String(e)}`;
+  } finally {
+    lookingUp.value = false;
+  }
+}
 </script>
 
 <template>
@@ -82,10 +113,15 @@ function setGroup(songId: string, value: unknown): void {
             <tbody>
               <tr>
                 <th />
-                <th v-for="(song, k) in songs" :key="song.songId">
+                <th
+                  v-for="(song, k) in songs"
+                  :key="song.songId"
+                  :class="{ 'table-danger': choice.isDeleted(song.songId) }"
+                >
                   <BFormSelect
                     :model-value="choice.groupOf(song.songId)"
                     :options="groupOptions"
+                    :disabled="choice.isDeleted(song.songId)"
                     size="sm"
                     class="d-inline-block w-auto me-1"
                     :aria-label="`Group for song ${k + 1}`"
@@ -95,8 +131,18 @@ function setGroup(songId: string, value: unknown): void {
                     :href="`/song/details/${song.songId}`"
                     target="_blank"
                     rel="noopener noreferrer"
+                    :class="{ 'text-decoration-line-through': choice.isDeleted(song.songId) }"
                     >Song {{ k + 1 }}</a
                   >
+                  <BFormCheckbox
+                    inline
+                    class="ms-2 me-0 fw-normal"
+                    :model-value="choice.isDeleted(song.songId)"
+                    :aria-label="`Delete song ${k + 1}`"
+                    @update:model-value="setDeleted(song.songId, $event)"
+                  >
+                    Delete
+                  </BFormCheckbox>
                 </th>
                 <th class="table-info">
                   If merged
@@ -154,6 +200,13 @@ function setGroup(songId: string, value: unknown): void {
                   <AlbumIds v-if="merged" :song="merged" />
                 </td>
               </tr>
+              <tr v-if="tracks">
+                <th>Services</th>
+                <td v-for="song in songs" :key="song.songId">
+                  <ServiceTracks :song="song" :tracks="tracks" />
+                </td>
+                <td class="table-info" />
+              </tr>
               <tr>
                 <th>Created</th>
                 <td v-for="song in songs" :key="song.songId">{{ formatDate(song.created) }}</td>
@@ -196,7 +249,20 @@ function setGroup(songId: string, value: unknown): void {
             />
             <BButton type="submit" size="sm" variant="outline-secondary">Merge and edit</BButton>
           </form>
+          <BButton
+            v-if="canLookUp"
+            size="sm"
+            variant="outline-secondary"
+            class="look-up-button"
+            :disabled="lookingUp"
+            @click="lookUp"
+          >
+            {{ tracks ? "Look up again" : "Look up on Spotify and iTunes" }}
+          </BButton>
         </div>
+        <BAlert v-if="lookupError" :model-value="true" variant="danger" class="mt-2 mb-0">
+          {{ lookupError }}
+        </BAlert>
       </template>
     </BCardBody>
   </BCard>

@@ -91,14 +91,38 @@ public class SharedIdTypesTests
     }
 
     [TestMethod]
+    public void Without_LeavesTheSongsOutOfEveryGroupAndDropsTheirRemovals()
+    {
+        var choice = new SharedIdChoice(SharedIdAction.Merge, [A, B, C], [], ["A", "B", "B"],
+            Removals: [new SharedIdRemoval(B, 0), new SharedIdRemoval(C, 1, "S:x")]);
+
+        var without = choice.Without([B]);
+
+        CollectionAssert.AreEqual(new[] { "A", "", "B" }, without.Groups.ToList());
+        Assert.AreEqual(C, without.Removals.Single().SongId);
+        CollectionAssert.AreEqual(new[] { C }, without.MergeGroups[1].ToList());
+        Assert.AreSame(choice, choice.Without([]));
+    }
+
+    [TestMethod]
+    public void Without_NoGroups_PutsTheRestInOne()
+    {
+        var choice = new SharedIdChoice(SharedIdAction.Merge, [A, B, C], []);
+
+        CollectionAssert.AreEqual(new[] { A, C }, choice.Without([B]).MergeGroups.Single().ToList());
+    }
+
+    [TestMethod]
     public void Summary_OnlyMentionsRemovalsAndStaleMergesWhenThereAreSome()
     {
         var plain = new SharedIdBatchResult { Merged = 2, Rejected = 1, Left = 3 }.Summary();
-        var full = new SharedIdBatchResult { Merged = 1, Edited = 2, UnsharedPairs = 1, Stale = 1 }.Summary();
+        var full = new SharedIdBatchResult { Merged = 1, Edited = 2, UnsharedPairs = 1, Stale = 1, Deleted = 2 }.Summary();
 
         Assert.AreEqual("Merged 2, marked 1 not the same, left 3.", plain);
         StringAssert.StartsWith(full, "Merged 1, marked 0 not the same, left 0.");
         StringAssert.Contains(full, "Removed albums or ids from 2 songs; 1 pairs no longer shared an id");
         StringAssert.Contains(full, "1 weren't merged");
+        StringAssert.Contains(full, "Deleted 2 songs.");
+        Assert.DoesNotContain("Deleted", plain);
     }
 }

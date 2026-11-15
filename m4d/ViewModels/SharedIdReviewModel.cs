@@ -186,13 +186,17 @@ public class SharedIdChoiceRequest
 
     public List<SharedIdRemoval> Removals { get; set; } = [];
 
+    // Songs to delete, whatever the action
+    public List<Guid> Deletions { get; set; } = [];
+
     public SharedIdChoice ToChoice()
     {
         var songs = (Songs ?? []).Where(s => s != null).ToList();
         return new SharedIdChoice(Action, [.. songs.Select(s => s.SongId)], CandidateIds ?? [],
             [.. songs.Select(s => s.Group ?? "")],
             new SharedIdNamePicks(TitleFrom, ArtistFrom, ArtistsFrom),
-            [.. (Removals ?? []).Where(r => r != null)]);
+            [.. (Removals ?? []).Where(r => r != null)],
+            [.. Deletions ?? []]);
     }
 }
 
@@ -204,9 +208,61 @@ public class SharedIdSongGroup
 
 /// <summary>What an Apply did: the SharedIdBatchResult counts and its summary.</summary>
 public record SharedIdApplyResponse(string Message, int Merged, int Rejected, int Left, int Edited,
-    int UnsharedPairs, int Stale)
+    int UnsharedPairs, int Stale, int Deleted)
 {
     public static SharedIdApplyResponse Build(SharedIdBatchResult result) =>
         new(result.Summary(), result.Merged, result.Rejected, result.Left, result.Edited,
-            result.UnsharedPairs, result.Stale);
+            result.UnsharedPairs, result.Stale, result.Deleted);
+}
+
+/// <summary>POST /api/sharedids/tracks: extended ids ("S:…", "I:…") to look up.</summary>
+public class SharedIdTracksRequest
+{
+    public List<string> Ids { get; set; } = [];
+}
+
+/// <summary>
+/// What a music service says one of a cluster's ids is, for telling apart songs that share an id.
+/// Found is false when the service didn't return the track.
+/// </summary>
+public record SharedIdServiceTrack(string Id, bool Found, string Title = null, string Artist = null,
+    string Album = null, int? Length = null, string Isrc = null, string ReleaseDate = null)
+{
+    // The services with a track lookup
+    public static readonly ServiceType[] Services = [ServiceType.Spotify, ServiceType.ITunes];
+
+    // Enough for any cluster, and a bound on the calls one request makes
+    public const int MaxIds = 50;
+
+    /// <summary>
+    /// Looks up each Spotify and iTunes id, once each, in order; other ids are skipped. The
+    /// lookups run one at a time: MusicServiceManager's track cache isn't thread safe.
+    /// </summary>
+    public static async Task<IReadOnlyList<SharedIdServiceTrack>> Lookup(IEnumerable<string> ids,
+        Func<string, MusicService, Task<ServiceTrack>> fetch)
+    {
+        var tracks = new List<SharedIdServiceTrack>();
+        foreach (var id in (ids ?? []).Where(Lookable).Distinct().Take(MaxIds))
+        {
+            ServiceTrack track = null;
+            try
+            {
+                track = await fetch(id[2..], MusicService.GetService(id[0]));
+            }
+            catch (Exception)
+            {
+                // Reported as not found
+            }
+
+            tracks.Add(track == null ? new SharedIdServiceTrack(id, false)
+                : new SharedIdServiceTrack(id, true, track.Name, track.Artist, track.Album,
+                    track.Duration, track.ISRC, track.ReleaseDate));
+        }
+
+        return tracks;
+    }
+
+    private static bool Lookable(string id) =>
+        id is { Length: > 2 } && id[1] == ':' && MusicService.GetService(id[0]) is { } service &&
+        Services.Contains(service.Id);
 }
