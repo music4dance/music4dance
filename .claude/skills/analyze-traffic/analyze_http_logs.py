@@ -1,13 +1,19 @@
-"""Summarize who is sending traffic to music4dance from the App Service HTTP logs.
+"""Summarize who is sending traffic to music4dance from its request logs.
 
 Usage: python -I analyze_http_logs.py <log-dir> [--top N] [--since T] [--until T]
                                       [--settings m4d/appsettings.json]
                                       [--bot-fragments "spider;bot"]
                                       [--bot-tokens "alwayson;mediapartners-google"]
 
-<log-dir> holds the hourly PT1H.json blobs downloaded from storage account m4dlogs
-(container insights-logs-appservicehttplogs), at any depth. Each line is a JSON
-record whose "properties" field is itself a JSON-encoded string.
+<log-dir> holds one of two sources, at any depth (don't mix them in one directory):
+
+- the App Service HTTP log: hourly PT1H.json blobs from storage account m4dlogs
+  (container insights-logs-appservicehttplogs). Each line is a JSON record whose
+  "properties" field is itself a JSON-encoded string. Behind Cloudflare its client IP
+  is the edge server, not the visitor.
+- the app request log: daily requests-*.txt files from the W3C logger (Azure Files
+  share request-logs in m4dlogs). The client is the visitor (from CF-Connecting-IP),
+  the relay is the edge, cookies are names only, and response bytes aren't recorded.
 
 Every request is put in a group (search engine, AI crawler, SEO tool, social preview,
 monitor, other bot, scripted tool, browser, ...) and a family (Googlebot, GPTBot,
@@ -269,50 +275,92 @@ def subnet(ip):
     return str(ipaddress.ip_network(f"{ip}/{bits}", strict=False))
 
 
+def platform_records(path):
+    """App Service HTTP log: one JSON record per line, "properties" a JSON string."""
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+                p = json.loads(rec["properties"])
+            except (ValueError, KeyError, TypeError):
+                continue
+            ip = p.get("CIp") or ""
+            yield (rec.get("time", "")[:19], ip, p.get("UserAgent") or "", p.get("CsMethod") or "",
+                   p.get("CsUriStem") or "", p.get("CsUriQuery") or "", str(p.get("ScStatus") or ""),
+                   int(p.get("TimeTaken") or 0), int(p.get("ScBytes") or 0), p.get("Referer") or "",
+                   p.get("Cookie") or "", p.get("CsHost") or "", ip)
+
+
+def w3c_records(path):
+    """App request log (the built-in W3C logger): space-separated values named by the
+    latest #Fields line, "-" for empty, whitespace written as "+"."""
+    names = []
+    with open(path, encoding="utf-8", errors="replace") as fh:
+        for line in fh:
+            line = line.rstrip("\r\n")
+            if line.startswith("#Fields:"):
+                names = line[len("#Fields:"):].split()
+                continue
+            if not line or line.startswith("#") or not names:
+                continue
+            values = line.split(" ")
+            if len(values) != len(names):
+                continue
+            f = {n: ("" if v == "-" else v) for n, v in zip(names, values)}
+            try:
+                taken = int(float(f.get("time-taken") or 0))
+            except ValueError:
+                taken = 0
+            yield (f"{f.get('date', '')}T{f.get('time', '')}", f.get("cs(X-M4d-Log-Client)", ""),
+                   f.get("cs(User-Agent)", "").replace("+", " "), f.get("cs-method", ""),
+                   f.get("cs-uri-stem", ""), f.get("cs-uri-query", "").removeprefix("?"),
+                   f.get("sc-status", ""), taken, 0, f.get("cs(Referer)", ""),
+                   f.get("cs(X-M4d-Log-Cookies)", ""), f.get("cs-host", ""),
+                   f.get("cs(X-M4d-Log-Relay)", ""))
+
+
 def load(log_dir, since, until):
+    """Rows from whichever source <log_dir> holds; has_bytes is False for the app request
+    log, which doesn't record response sizes."""
     rows = []
     files = sorted(Path(log_dir).rglob("PT1H.json"))
+    reader, has_bytes = platform_records, True
     if not files:
-        sys.exit(f"No PT1H.json files under {log_dir}")
+        files = sorted(Path(log_dir).rglob("requests-*.txt"))
+        reader, has_bytes = w3c_records, False
+    if not files:
+        sys.exit(f"No PT1H.json or requests-*.txt files under {log_dir}")
     intern = {}
     for path in files:
-        with open(path, encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    rec = json.loads(line)
-                    p = json.loads(rec["properties"])
-                except (ValueError, KeyError):
-                    continue
-                t = rec.get("time", "")[:19]
-                if (since and t < since) or (until and t >= until):
-                    continue
-                ua = p.get("UserAgent") or ""
-                ua = intern.setdefault(ua, ua)
-                cookie = p.get("Cookie") or ""
-                host = HOST_PORT.sub("", (p.get("CsHost") or "").lower())
-                rows.append((
-                    t,
-                    p.get("CIp") or "",
-                    ua,
-                    p.get("CsMethod") or "",
-                    p.get("CsUriStem") or "",
-                    p.get("CsUriQuery") or "",
-                    str(p.get("ScStatus") or ""),
-                    int(p.get("TimeTaken") or 0),
-                    int(p.get("ScBytes") or 0),
-                    p.get("Referer") or "",
-                    any(c in cookie for c in JS_COOKIES),
-                    bool(AUTH_COOKIE.search(cookie)),
-                    intern.setdefault(host, host),
-                ))
+        for (t, ip, ua, method, stem, query, status, taken, nbytes, referer, cookie, host,
+             relay) in reader(path):
+            if (since and t < since) or (until and t >= until):
+                continue
+            host = HOST_PORT.sub("", host.lower())
+            rows.append((
+                t, ip, intern.setdefault(ua, ua), method, stem, query, status, taken, nbytes,
+                referer,
+                any(c in cookie for c in JS_COOKIES),
+                bool(AUTH_COOKIE.search(cookie)),
+                intern.setdefault(host, host),
+                relay,
+            ))
     rows.sort(key=lambda r: r[0])
-    return files, rows
+    return files, rows, has_bytes
 
 
-T, IP, UA, METHOD, STEM, QUERY, STATUS, TAKEN, BYTES, REFERER, JSCOOKIE, AUTH, HOST = range(13)
+# IP is the client; RELAY is the address that handed the request to App Service (the
+# Cloudflare edge when proxied). They're the same in the App Service HTTP log.
+T, IP, UA, METHOD, STEM, QUERY, STATUS, TAKEN, BYTES, REFERER, JSCOOKIE, AUTH, HOST, RELAY = range(14)
+
+HAS_BYTES = True  # set by main() from load()
+
+
+def mb(n, places):
+    return f"{n / 1e6:,.{places}f}" if HAS_BYTES else "-"
 
 
 def pct(n, d):
@@ -346,7 +394,8 @@ def main():
                     help="Configuration:BotFilter:ExcludeTokens from App Configuration")
     args = ap.parse_args()
 
-    files, rows = load(args.log_dir, args.since, args.until)
+    global HAS_BYTES
+    files, rows, HAS_BYTES = load(args.log_dir, args.since, args.until)
     if not rows:
         sys.exit("No records in range")
 
@@ -388,11 +437,12 @@ def main():
     pages = sum(1 for k in kinds if k == "page")
 
     print("# music4dance traffic summary\n")
-    print(f"- Window (UTC): {rows[0][T]} to {rows[-1][T]}, {len(hours)} hours, {len(files)} hourly files")
+    print(f"- Window (UTC): {rows[0][T]} to {rows[-1][T]}, {len(hours)} hours, {len(files)} files")
     print(f"- Requests: {total:,} ({total / max(len(hours), 1):,.0f}/hour); pages {pages:,}, "
           f"API {kinds.count('api'):,}, assets {kinds.count('asset'):,}")
-    print(f"- Bytes out: {sum(r[BYTES] for r in rows) / 1e9:.2f} GB; "
-          f"server time: {sum(r[TAKEN] for r in rows) / 3.6e6:.1f} hours (sum of TimeTaken)")
+    print((f"- Bytes out: {sum(r[BYTES] for r in rows) / 1e9:.2f} GB; " if HAS_BYTES
+           else "- Bytes out: not in the app request log (see the platform log); ")
+          + f"server time: {sum(r[TAKEN] for r in rows) / 3.6e6:.1f} hours (sum of TimeTaken)")
     print(f"- Distinct client IPs: {len({r[IP] for r in rows}):,}; signed-in requests: "
           f"{sum(1 for r in rows if r[AUTH]):,}")
 
@@ -409,7 +459,7 @@ def main():
     tb, tm = sum(g_bytes.values()), sum(g_ms.values())
     table(["Group", "Requests", "Pages", "% pages", "MB out", "% bytes", "Server h", "% server", "IPs"],
           [[GROUP_LABELS[g], f"{g_req[g]:,}", f"{g_page[g]:,}", pct(g_page[g], pages),
-            f"{g_bytes[g] / 1e6:,.0f}", pct(g_bytes[g], tb), f"{g_ms[g] / 3.6e6:.2f}", pct(g_ms[g], tm),
+            mb(g_bytes[g], 0), pct(g_bytes[g], tb) if HAS_BYTES else "-", f"{g_ms[g] / 3.6e6:.2f}", pct(g_ms[g], tm),
             f"{len(g_ips[g]):,}"]
            for g in GROUP_ORDER if g_req[g]])
 
@@ -431,7 +481,7 @@ def main():
     ranked = sorted(f_req, key=lambda k: -f_ms[k])[: args.top]
     table(["Agent", "Group", "Requests", "Pages", "MB out", "Server min", "% server", "IPs", "4xx/5xx"],
           [[fam, GROUP_LABELS[g], f"{f_req[(fam, g)]:,}", f"{f_page[(fam, g)]:,}",
-            f"{f_bytes[(fam, g)] / 1e6:,.1f}", f"{f_ms[(fam, g)] / 6e4:,.1f}", pct(f_ms[(fam, g)], tm),
+            mb(f_bytes[(fam, g)], 1), f"{f_ms[(fam, g)] / 6e4:,.1f}", pct(f_ms[(fam, g)], tm),
             f"{len(f_ips[(fam, g)]):,}", f"{f_err[(fam, g)]:,}"]
            for fam, g in ranked])
 
@@ -581,7 +631,7 @@ def host_report(rows, kinds, groups):
         h_grp[h][g] += 1
         h_page[h] += k == "page"
         h_err[h] += r[STATUS] >= "400"
-        h_cf[h] += via_cloudflare(r[IP])
+        h_cf[h] += via_cloudflare(r[RELAY])
     table(["Host", "Kind", "Requests", "Pages", "Server min", "IPs", "Via Cloudflare", "4xx/5xx", "Top groups"],
           [[h, host_kind(h), f"{n:,}", f"{h_page[h]:,}", f"{h_ms[h] / 6e4:,.1f}", f"{len(h_ips[h]):,}",
             pct(h_cf[h], n).strip(), f"{h_err[h]:,}",
@@ -625,7 +675,7 @@ def host_report(rows, kinds, groups):
         detail("Bare IP or unknown host", other)
 
     custom = [x for x in sel_all if host_kind(x[0][HOST]) == "custom"]
-    cf = sum(1 for r, _, _ in custom if via_cloudflare(r[IP]))
+    cf = sum(1 for r, _, _ in custom if via_cloudflare(r[RELAY]))
     print(f"\nCustom domains via Cloudflare: {cf:,} of {len(custom):,} ({pct(cf, len(custom)).strip()}).")
     # A few requests come from Cloudflare addresses even before the cutover (WARP users and
     # Workers egress from the same ranges), so look for a majority, not any at all.
@@ -635,7 +685,7 @@ def host_report(rows, kinds, groups):
     else:
         detail("Custom domains reached directly, not through Cloudflare (without platform callers "
                "or signed-in requests)",
-               [x for x in custom if not via_cloudflare(x[0][IP]) and unexpected(x[0], x[2][1])])
+               [x for x in custom if not via_cloudflare(x[0][RELAY]) and unexpected(x[0], x[2][1])])
 
 
 def throttle_replay(rows, groups, args):
