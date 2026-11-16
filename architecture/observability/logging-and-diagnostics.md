@@ -187,8 +187,8 @@ A bad value turns the log off with a `[RequestLog] WARNING: disabled, ...` line 
 instead of failing startup. When it's on, startup shows `[RequestLog] Enabled: <directory>, ...`,
 ending in where it's copied.
 
-**One-time setup** (PowerShell, as an Owner of `m4d-Web`). Nothing here restarts the app until the
-last line:
+**One-time setup** (PowerShell, as an Owner of `m4d-Web`). Nothing here restarts the app, and nothing
+takes effect until code that reads `RequestLog:*` is running; the next deploy or restart turns it on:
 
 ```powershell
 # The container, and write access to it (only it) for the app's managed identity
@@ -201,13 +201,27 @@ az role assignment create --assignee-object-id $app --assignee-principal-type Se
 # Keep 30 days, with the same lifecycle rule as the HTTP log
 az storage account management-policy update --account-name m4dlogs -g m4d-Web `
   --add policy.rules[0].definition.filters.prefixMatch app-request-logs/
-# Turn it on
-az appconfig kv set -n music4dance --key RequestLog:Directory --value /home/LogFiles/requests --yes
-az appconfig kv set -n music4dance --key RequestLog:UploadContainer `
+# Turn it on, for production only (see Environments below)
+az appconfig kv set -n music4dance --label Production --key RequestLog:Directory `
+  --value /home/LogFiles/requests --yes
+az appconfig kv set -n music4dance --label Production --key RequestLog:UploadContainer `
   --value https://m4dlogs.blob.core.windows.net/app-request-logs --yes
-az appconfig kv set -n music4dance --key RequestLog:Enabled --value true --yes
-az webapp restart -n msc4dnc -g m4d-Web
+az appconfig kv set -n music4dance --label Production --key RequestLog:Enabled --value true --yes
 ```
+
+**Environments.** The keys carry the `Production` label, which only `msc4dnc` loads
+(`AppConfigurationStartup` selects unlabeled keys, then the environment's label). So:
+
+- **`m4d-test`** (`Staging`) shares the store but doesn't see them, so the log is off there. Don't
+  make the keys unlabeled: test would then copy its own `requests-*.txt` files into the same
+  container under the same names, mixing its lines into production's blobs. To turn it on in test,
+  add `Staging`-labeled keys with a separate container and a role for `m4d-test`'s identity. Its F1
+  plan has a 1 GB `/home` and no Always On, so keep `RetainedFileCountLimit` low, and expect uploads
+  only while the app is awake.
+- **Local development and contributor environments** run as `Development`, which doesn't load App
+  Configuration, and `appsettings*.json` doesn't set `RequestLog:Enabled`, so it's off. Set
+  `RequestLog:Enabled` and `RequestLog:Directory` in user secrets to try it; leave
+  `UploadContainer` unset.
 
 A new role assignment can take a few minutes to apply; the first pass is 5 minutes after start,
 and a pass that fails is simply retried an hour later. To check, look for `[RequestLog] Uploaded`
