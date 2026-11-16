@@ -6,7 +6,11 @@ namespace m4d.Services.RequestLog;
 /// <summary>Where flushed request-log blocks go.</summary>
 public interface IRequestLogSink
 {
-    Task AppendAsync(string blobName, IReadOnlyList<byte[]> blocks, CancellationToken cancellationToken);
+    /// <summary>
+    /// Appends the first <paramref name="count"/> bytes of <paramref name="buffer"/> to the blob.
+    /// The caller reuses the buffer once this returns.
+    /// </summary>
+    Task AppendAsync(string blobName, byte[] buffer, int count, CancellationToken cancellationToken);
 }
 
 /// <summary>
@@ -19,7 +23,7 @@ public sealed class BlobRequestLogSink(BlobContainerClient container) : IRequest
     // The flush service is the only caller, one flush at a time.
     private string _createdBlob;
 
-    public async Task AppendAsync(string blobName, IReadOnlyList<byte[]> blocks,
+    public async Task AppendAsync(string blobName, byte[] buffer, int count,
         CancellationToken cancellationToken)
     {
         var blob = container.GetAppendBlobClient(blobName);
@@ -29,10 +33,7 @@ public sealed class BlobRequestLogSink(BlobContainerClient container) : IRequest
             _createdBlob = blobName;
         }
 
-        foreach (var block in blocks)
-        {
-            using var content = new MemoryStream(block, writable: false);
-            await blob.AppendBlockAsync(content, cancellationToken: cancellationToken);
-        }
+        using var content = new MemoryStream(buffer, 0, count, writable: false);
+        await blob.AppendBlockAsync(content, cancellationToken: cancellationToken);
     }
 }

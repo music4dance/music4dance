@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Text.Json;
 
 namespace m4d.Services.RequestLog;
@@ -24,8 +25,11 @@ public sealed record RequestLogEntry(
     string CookieNames,
     string Protocol)
 {
-    /// <summary>Append blobs take at most 4 MiB per block.</summary>
-    public const int MaxBlockBytes = 4 * 1024 * 1024;
+    /// <summary>
+    /// Bytes per append. Append blobs take up to 4 MiB a block; 1 MiB keeps the reused flush
+    /// buffer small and still covers a typical minute (about 250 requests, 100 KB) in one append.
+    /// </summary>
+    public const int MaxBlockBytes = 1024 * 1024;
 
     /// <summary>
     /// The hourly blob for <paramref name="time"/>, in the same y=/m=/d=/h= layout as the App
@@ -59,37 +63,47 @@ public sealed record RequestLogEntry(
     }
 
     /// <summary>
-    /// The entries as JSON lines, cut at line boundaries into chunks of at most
-    /// <paramref name="maxBlockBytes"/>.
+    /// Writes the entries as JSON lines into <paramref name="buffer"/>, calling
+    /// <paramref name="appendAsync"/> with each full block (cut at a line boundary) and with the
+    /// remainder. The caller owns and reuses the buffer, so a flush allocates one small line
+    /// buffer rather than a copy of the whole batch. A line longer than the buffer is skipped.
+    /// Returns the number of entries written.
     /// </summary>
-    public static List<byte[]> ToBlocks(IEnumerable<RequestLogEntry> entries,
-        int maxBlockBytes = MaxBlockBytes)
+    public static async Task<int> WriteBlocksAsync(IEnumerable<RequestLogEntry> entries,
+        byte[] buffer, Func<byte[], int, Task> appendAsync)
     {
-        var blocks = new List<byte[]>();
-        var block = new MemoryStream();
-        var line = new MemoryStream();
+        var line = new ArrayBufferWriter<byte>(1024);
         using var writer = new Utf8JsonWriter(line);
+        var used = 0;
+        var written = 0;
 
         foreach (var entry in entries)
         {
-            line.SetLength(0);
+            line.ResetWrittenCount();
             writer.Reset(line);
             entry.WriteJson(writer);
             writer.Flush();
-            line.WriteByte((byte)'\n');
+            line.Write("\n"u8);
 
-            if (block.Length > 0 && block.Length + line.Length > maxBlockBytes)
+            var length = line.WrittenCount;
+            if (length > buffer.Length)
             {
-                blocks.Add(block.ToArray());
-                block.SetLength(0);
+                continue;
             }
-            line.WriteTo(block);
+            if (used + length > buffer.Length)
+            {
+                await appendAsync(buffer, used);
+                used = 0;
+            }
+            line.WrittenMemory.CopyTo(buffer.AsMemory(used));
+            used += length;
+            written++;
         }
 
-        if (block.Length > 0)
+        if (used > 0)
         {
-            blocks.Add(block.ToArray());
+            await appendAsync(buffer, used);
         }
-        return blocks;
+        return written;
     }
 }

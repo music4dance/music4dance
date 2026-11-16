@@ -4,6 +4,10 @@ namespace m4d.Services.RequestLog;
 /// Every FlushIntervalSeconds, writes the queued requests to their hourly blobs, and once more
 /// on shutdown. A batch that fails to write is dropped, not retried, so an outage costs log
 /// lines rather than memory. Failures are logged at most every 15 minutes.
+///
+/// Writes aren't tied to the host's stopping token: a shutdown that lands mid-append lets the
+/// append finish (each flush has its own timeout) instead of cancelling it and dropping that
+/// batch, and the final flush then picks up whatever arrived since.
 /// </summary>
 public class RequestLogFlushService(
     RequestLogQueue queue,
@@ -12,11 +16,18 @@ public class RequestLogFlushService(
     ILogger<RequestLogFlushService> logger) : BackgroundService
 {
     private static readonly TimeSpan WarningInterval = TimeSpan.FromMinutes(15);
+    private static readonly TimeSpan FlushTimeout = TimeSpan.FromSeconds(20);
+    private static readonly TimeSpan ShutdownFlushTimeout = TimeSpan.FromSeconds(10);
 
     private readonly string _prefix = options.EffectivePrefix;
     private DateTime _lastWarning = DateTime.MinValue;
     private long _unreportedDropped;
     private Exception _unreportedFailure;
+
+    // Reused by every flush, so batches don't allocate block copies. The gate keeps the final
+    // flush from overlapping a periodic one that outlived the host's stop timeout.
+    private readonly SemaphoreSlim _flushGate = new(1, 1);
+    private byte[] _block;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -28,34 +39,71 @@ public class RequestLogFlushService(
         {
             while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                await FlushAsync(stoppingToken);
+                using var timeout = new CancellationTokenSource(FlushTimeout);
+                await FlushAsync(timeout.Token);
             }
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
         }
+    }
 
-        using var shutdown = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+    /// <summary>
+    /// Stops the periodic loop (letting an in-flight flush finish), then flushes once more. Done
+    /// here rather than at the end of ExecuteAsync, which never runs if the host stops before
+    /// the loop has been scheduled.
+    /// </summary>
+    public override async Task StopAsync(CancellationToken cancellationToken)
+    {
+        await base.StopAsync(cancellationToken);
+        using var shutdown = new CancellationTokenSource(ShutdownFlushTimeout);
         await FlushAsync(shutdown.Token);
     }
 
     /// <summary>Writes what's queued. Returns the number of requests written.</summary>
     internal async Task<int> FlushAsync(CancellationToken cancellationToken)
     {
+        try
+        {
+            await _flushGate.WaitAsync(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            return 0;
+        }
+
+        try
+        {
+            return await FlushLockedAsync(cancellationToken);
+        }
+        finally
+        {
+            _flushGate.Release();
+        }
+    }
+
+    private async Task<int> FlushLockedAsync(CancellationToken cancellationToken)
+    {
         var dropped = queue.TakeDropped();
         var entries = queue.Drain();
         var written = 0;
+
+        if (entries.Count > 0)
+        {
+            _block ??= new byte[RequestLogEntry.MaxBlockBytes];
+        }
 
         foreach (var hour in entries.GroupBy(e => RequestLogEntry.BlobName(_prefix, e.Time)))
         {
             var batch = hour.ToList();
             try
             {
-                await sink.AppendAsync(hour.Key, RequestLogEntry.ToBlocks(batch), cancellationToken);
-                written += batch.Count;
+                written += await RequestLogEntry.WriteBlocksAsync(batch, _block,
+                    (buffer, count) => sink.AppendAsync(hour.Key, buffer, count, cancellationToken));
             }
             catch (Exception ex)
             {
+                // Some of the batch may already be in the blob; count it all as dropped.
                 _unreportedFailure = ex;
                 dropped += batch.Count;
             }

@@ -135,8 +135,8 @@ to `a.b.c.xxx` and user agents truncated to 256 characters.
 The client IP is `HttpContext.Connection.RemoteIpAddress`, after the forwarded-headers middleware
 and `CloudflareClientIpMiddleware` have run. Raw `X-Forwarded-For` is never trusted directly.
 
-**Behind Cloudflare.** `CloudflareClientIpMiddleware` (right after `UseForwardedHeaders`, before
-authentication) replaces a Cloudflare edge server's address with the visitor's, taken from
+**Behind Cloudflare.** `CloudflareClientIpMiddleware` (first in the pipeline, ahead of the
+request log, `UseForwardedHeaders` and authentication) replaces a Cloudflare edge server's address with the visitor's, taken from
 `CF-Connecting-IP`. Without it, every visitor routed through one edge server would share a rate
 limit and a lockout. It trusts the header only when the address that handed the request to App
 Service is in `CloudflareClientIp:IpRanges` (Cloudflare's published ranges; check
@@ -145,7 +145,9 @@ Service is in `CloudflareClientIp:IpRanges` (Cloudflare's published ranges; chec
 `RemoteIpAddress` is the front end's private address, and the last `X-Forwarded-For` entry
 (the one the front end appends) is used instead. Requests that skip Cloudflare
 (`msc4dnc.azurewebsites.net`, local dev) are left alone, so sending the header yourself does
-nothing. It's inert until DNS is proxied; see
+nothing. It also stores the resolved client and relay addresses as a `ClientAddresses` request
+feature, which the app request log reads, so the log and the rate limits agree. It's inert until
+DNS is proxied; see
 [plans/cloudflare-migration](../plans/cloudflare-migration.md).
 
 **CAPTCHA.** `GlobalState.RequireCaptcha` is a timed flag: setting it lasts 5 minutes, and setting

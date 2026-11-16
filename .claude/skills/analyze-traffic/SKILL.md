@@ -58,7 +58,8 @@ too and analyze it instead:
 python -I .claude/skills/analyze-traffic/fetch_http_logs.py --source app --hours 24
 ```
 
-That goes to `local/app-request-logs/`, a separate directory, because the analyzer
+That fetches only the `msc4dnc/` blobs (`--site` for another prefix) into
+`local/app-request-logs/msc4dnc/`; pass that directory to the analyzer. It's separate because the analyzer
 reads every `PT1H.json` under the one it's given and the two sources would double
 count. Its `CIp` is the visitor and `RelayIp` the edge. Use the platform log as the
 cross-check: it also records requests that never reached the app. Say in the report

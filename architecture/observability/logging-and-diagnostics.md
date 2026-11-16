@@ -111,24 +111,28 @@ that never reach the app (front-end 502s, platform timeouts).
 
 ## App request log
 
-The app's own per-request record, written by `RequestLogMiddleware` (first in the pipeline,
-so it covers static files too). It has the same fields as the HTTP request log, but `CIp` is the
-visitor's address, resolved from `CF-Connecting-IP` with the same trust rule as
-`CloudflareClientIpMiddleware` (the header counts only when the request was relayed from
-Cloudflare's ranges).
+The app's own per-request record, written by `RequestLogMiddleware` (second in the pipeline,
+right after `CloudflareClientIpMiddleware`, so it covers static files too). It has the same fields as the HTTP request log, but `CIp` is the
+visitor's address as `CloudflareClientIpMiddleware` resolved it (its `ClientAddresses` feature:
+`CF-Connecting-IP`, trusted only when the request was relayed from Cloudflare's ranges). Bytes
+are counted by a thin decorator over the response body feature: it adds no buffering and never
+starts or completes the response, so Kestrel's choice of `Content-Length` or chunked encoding
+is unchanged.
 
 **How it works.** The middleware queues one record per request in memory (`RequestLogQueue`,
 bounded at `MaxQueuedRecords`; past that, requests are dropped and counted). Every
 `FlushIntervalSeconds`, `RequestLogFlushService` appends the queued records to their hourly
-append blob, and it flushes once more on shutdown. A failed write drops that batch rather than
-retrying, and a Warning reports the dropped count at most every 15 minutes. Several instances can
+append blob in blocks of up to 1 MiB, written from one reused buffer, and it flushes once more
+on shutdown. Each flush has its own 20-second timeout instead of the host's stopping token, so a
+restart lets an in-flight append finish rather than cancelling it. A failed write drops that
+batch rather than retrying, and a Warning reports the dropped count at most every 15 minutes. Several instances can
 share an hour's blob, because each append block is atomic.
 
 **Setup:**
 
 | Piece | Value |
 | --- | --- |
-| Switch | `RequestLog:Enabled` (default `false`), read at startup, so restart after changing it. Other keys: `ServiceUri` (`https://m4dlogs.blob.core.windows.net`), `Container` (`app-request-logs`), `Prefix` (default: the site name from `WEBSITE_SITE_NAME`), `FlushIntervalSeconds` (60), `MaxQueuedRecords` (50,000) |
+| Switch | `RequestLog:Enabled` (default `false`), read at startup, so restart after changing it. Other keys: `ServiceUri` (`https://m4dlogs.blob.core.windows.net`), `Container` (`app-request-logs`), `Prefix` (default: the site name from `WEBSITE_SITE_NAME`), `FlushIntervalSeconds` (60), `MaxQueuedRecords` (20,000, about 20 MB at most). An invalid `ServiceUri` or empty `Container` turns the log off with a `[RequestLog] WARNING` line at startup, instead of failing startup |
 | Container | `app-request-logs` in `m4dlogs`. The app doesn't create it |
 | Write access | The app's system-assigned identity has `Storage Blob Data Contributor`, scoped to the container |
 | Retention | Lifecycle rule `delete-app-request-logs-after-30-days`, prefix `app-request-logs/`, append blobs, 30 days after last modification |
@@ -163,8 +167,8 @@ HTTP request log), with one flat JSON record per line (no nested `properties` st
 | `CIp` | The visitor: `CF-Connecting-IP` when relayed by Cloudflare, else the connecting address |
 | `RelayIp` | The address that handed the request to App Service: the Cloudflare edge when proxied |
 | `CsHost`, `CsMethod`, `CsUriStem`, `CsUriQuery` | As in the HTTP request log (query without the `?`) |
-| `ScStatus`, `TimeTaken` | Final status after the exception handler, and time in the app (ms; the platform's figure also includes the front end) |
-| `ScBytes`, `CsBytes` | Response bytes as sent (after compression), and the request's `Content-Length` |
+| `ScStatus`, `TimeTaken` | Status after the exception handler; `500` for an unhandled exception even if the response had started (the connection is aborted); `499` when the client gave up. Time in the app (ms; the platform's figure also includes the front end) |
+| `ScBytes`, `CsBytes` | Response body bytes written (after compression; `0` for HEAD, whose body Kestrel discards), and the request's `Content-Length` |
 | `UserAgent`, `Referer`, `Protocol` | As sent |
 | `Cookie` | Cookie **names only** (`_ga=; music4dance=`), never values |
 
@@ -175,8 +179,9 @@ at 30 days' retention. In memory it holds at most one flush interval's worth of 
 account, Entra ID reads only, logs kept under `local/`. Cookie values are left out, so no
 session tickets are stored.
 
-Reading: `python -I .claude/skills/analyze-traffic/fetch_http_logs.py --source app` downloads to
-`local/app-request-logs/`, and `analyze_http_logs.py` reads either format. Keep the two sources
+Reading: `python -I .claude/skills/analyze-traffic/fetch_http_logs.py --source app` downloads
+only the `msc4dnc/` blobs (`--site` picks another prefix, so local-dev `local/` blobs never mix
+in) to `local/app-request-logs/msc4dnc/`, and `analyze_http_logs.py` reads either format. Keep the two sources
 in separate directories.
 
 ## Memory and GC diagnostics

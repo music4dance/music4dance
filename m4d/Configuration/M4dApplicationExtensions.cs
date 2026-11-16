@@ -176,10 +176,19 @@ public static class M4dApplicationExtensions
 
         // App request log: one record per request with the visitor's IP (App Service's own HTTP
         // log only sees Cloudflare's), appended to hourly blobs. Off unless RequestLog:Enabled.
+        // A bad setting turns the log off rather than stopping the site.
         var requestLogOptions = RequestLogOptions.FromConfiguration(configuration);
+        Uri containerUri = null;
         if (requestLogOptions.Enabled)
         {
-            var containerUri = new Uri($"{requestLogOptions.ServiceUri.TrimEnd('/')}/{requestLogOptions.Container}");
+            containerUri = requestLogOptions.ContainerUri(out var requestLogError);
+            if (containerUri == null)
+            {
+                Console.WriteLine($"[RequestLog] WARNING: disabled, {requestLogError}");
+            }
+        }
+        if (containerUri != null)
+        {
             services.AddSingleton(requestLogOptions);
             services.AddSingleton(new RequestLogQueue(requestLogOptions.MaxQueuedRecords));
             services.AddSingleton<IRequestLogSink>(
@@ -667,7 +676,13 @@ public static class M4dApplicationExtensions
             }, statusCode: isReady ? StatusCodes.Status200OK : StatusCodes.Status503ServiceUnavailable);
         }).AllowAnonymous();
 
-        // First, so it sees every request (static files included), the final status, and the
+        // Behind Cloudflare: replace the edge server's address with CF-Connecting-IP, but only
+        // for requests relayed from Cloudflare's published ranges. First in the pipeline, so
+        // everything after it (the request log, authentication, rate limiting) sees the
+        // visitor; it also records the resolved addresses as the ClientAddresses feature.
+        app.UseMiddleware<m4d.Middleware.CloudflareClientIpMiddleware>();
+
+        // Next, so it sees every request (static files included), the final status, and the
         // bytes sent after compression. Registered only when RequestLog:Enabled.
         if (app.Services.GetService<RequestLogQueue>() != null)
         {
@@ -836,15 +851,13 @@ public static class M4dApplicationExtensions
         // RemoteIpAddress is the visitor's. With default KnownProxies (loopback only) this call
         // applies X-Forwarded-For only for a local proxy. On App Service, the front end's
         // X-Forwarded-For is applied before this (when ASPNETCORE_FORWARDEDHEADERS_ENABLED is
-        // set) or not at all; CloudflareClientIpMiddleware below copes with either.
+        // set) or not at all; CloudflareClientIpMiddleware (first in the pipeline) copes with
+        // either, and by the time this runs it has already replaced a Cloudflare edge address
+        // with the visitor's, which isn't loopback, so this call leaves it alone.
         app.UseForwardedHeaders(new ForwardedHeadersOptions
         {
             ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
         });
-
-        // Behind Cloudflare: replace the edge server's address with CF-Connecting-IP, but only
-        // for requests relayed from Cloudflare's published ranges.
-        app.UseMiddleware<m4d.Middleware.CloudflareClientIpMiddleware>();
 
         // Authentication middleware: Populates context.User from authentication cookies
         // This MUST come before any middleware that checks context.User.Identity.IsAuthenticated

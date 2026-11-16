@@ -579,7 +579,8 @@ When the phases ship, fold the as-built result into the reference docs and delet
   `CF-Connecting-IP`, because it has no header fields. The fix is the app request log
   (built 2026-11-15, see
   [logging-and-diagnostics § App request log](../observability/logging-and-diagnostics.md#app-request-log)):
-  - `RequestLogMiddleware`, first in the pipeline so static files are included, writes one record
+  - `RequestLogMiddleware`, right after `CloudflareClientIpMiddleware` at the top of the pipeline
+    so static files are included, writes one record
     per request with the platform log's fields, the visitor's IP as `CIp`, and the edge as `RelayIp`.
   - Records are batched once a minute into hourly blobs in `m4dlogs` (container
     `app-request-logs`), with the same layout and a 30-day delete rule.

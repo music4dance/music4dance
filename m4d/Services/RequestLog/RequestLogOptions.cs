@@ -24,8 +24,40 @@ public class RequestLogOptions
 
     public int FlushIntervalSeconds { get; set; } = 60;
 
-    /// <summary>Requests held between flushes; past this, new requests aren't logged.</summary>
-    public int MaxQueuedRecords { get; set; } = 50_000;
+    /// <summary>
+    /// Requests held between flushes; past this, new requests aren't logged. A typical minute is
+    /// a few hundred; at about 1 KB a record this caps the queue near 20 MB.
+    /// </summary>
+    public int MaxQueuedRecords { get; set; } = 20_000;
+
+    /// <summary>
+    /// The container's URI, or null with <paramref name="error"/> set when ServiceUri isn't an
+    /// absolute http(s) URI or Container is empty. A bad value turns the log off rather than
+    /// failing startup.
+    /// </summary>
+    public Uri ContainerUri(out string error)
+    {
+        var container = (Container ?? "").Trim().Trim('/');
+        if (container.Length == 0)
+        {
+            error = "RequestLog:Container is empty";
+            return null;
+        }
+        if (!Uri.TryCreate((ServiceUri ?? "").Trim(), UriKind.Absolute, out var service)
+            || (service.Scheme != Uri.UriSchemeHttps && service.Scheme != Uri.UriSchemeHttp))
+        {
+            error = $"RequestLog:ServiceUri '{ServiceUri}' isn't an absolute http(s) URI";
+            return null;
+        }
+        if (!Uri.TryCreate($"{service.AbsoluteUri.TrimEnd('/')}/{container}", UriKind.Absolute, out var uri))
+        {
+            error = $"RequestLog:Container '{Container}' doesn't make a valid URI";
+            return null;
+        }
+
+        error = null;
+        return uri;
+    }
 
     public string EffectivePrefix =>
         !string.IsNullOrWhiteSpace(Prefix)

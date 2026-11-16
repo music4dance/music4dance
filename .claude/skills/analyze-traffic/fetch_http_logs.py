@@ -6,7 +6,9 @@ Usage: python -I fetch_http_logs.py [--source platform|app] [--hours 24] [--dest
 insights-logs-appservicehttplogs, into local/http-logs. Behind Cloudflare its client IP
 is the edge server.
 --source app: the app's own request log (RequestLogMiddleware), container
-app-request-logs, into local/app-request-logs. Its client IP is the visitor's.
+app-request-logs, into local/app-request-logs/<site>. Its client IP is the visitor's.
+Only blobs under --site (default msc4dnc) are fetched, so local-dev ("local/...") or
+other sites' blobs never mix into production's. Analyze local/app-request-logs/<site>.
 
 Lists the hourly PT1H.json blobs and downloads the ones from the last --hours hours
 that are missing locally or whose size changed (the current hour's blob is still being
@@ -48,12 +50,20 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--source", choices=SOURCES, default="platform")
     ap.add_argument("--hours", type=int, default=24, help="how far back to fetch (default 24)")
+    ap.add_argument("--site", default="msc4dnc",
+                    help="app source only: the blob prefix (RequestLog:Prefix) to fetch (default msc4dnc)")
     ap.add_argument("--dest", help="default local/http-logs (platform) or local/app-request-logs (app)")
     args = ap.parse_args()
     container, default_dest = SOURCES[args.source]
     args.dest = args.dest or default_dest
+    prefix = []
+    if args.source == "app":
+        site = args.site.strip("/")
+        if not site:
+            sys.exit("--site can't be empty")
+        prefix = ["--prefix", f"{site}/"]
 
-    blobs = json.loads(az("storage", "blob", "list", "-c", container, "--num-results", "*",
+    blobs = json.loads(az("storage", "blob", "list", "-c", container, *prefix, "--num-results", "*",
                           "--query", "[].{name:name,size:properties.contentLength}", "-o", "json"))
     cutoff = datetime.now(timezone.utc) - timedelta(hours=args.hours + 1)
     wanted = []
