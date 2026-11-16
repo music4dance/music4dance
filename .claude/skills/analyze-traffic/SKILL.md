@@ -50,9 +50,11 @@ python -I .claude/skills/analyze-traffic/fetch_http_logs.py --hours 24
 **Which source.** Since the Cloudflare cutover (2026-11-06), the App Service log above
 (`--source platform`, the default) records Cloudflare's edge server as the client IP, so
 per-client grouping (IP + user agent), Top IPs and subnets lump visitors together. When
-the app request log is on (`az appconfig kv show -n music4dance --key RequestLog:Enabled`),
-fetch it too and analyze it instead. The app copies it to container `app-request-logs` every
-hour and it's kept 30 days; `--from home` reads the newest hour or so from `/home` instead:
+the app request log is on (`az appconfig kv show -n music4dance --key RequestLog:Enabled
+--label Production`), fetch it too and analyze it instead. The app copies it to container
+`app-request-logs` every hour and it's kept 30 days; `--from home` reads the newest hour or
+so from `/home` instead. Reruns fetch only the bytes added since. There's one set of files
+per App Service instance (`requests-<instance>-YYYYMMDD.NNNN.txt`); the analyzer merges them:
 
 ```bash
 python -I .claude/skills/analyze-traffic/fetch_http_logs.py --source app --hours 24

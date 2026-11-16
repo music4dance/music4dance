@@ -10,8 +10,8 @@ namespace m4d.Tests.Services;
 [TestClass]
 public class RequestLogUploaderTests
 {
-    private const string Today = "requests-20261116.0000.txt";
-    private const string Yesterday = "requests-20261115.0000.txt";
+    private const string Today = "requests-1a2b3c4d-20261116.0000.txt";
+    private const string Yesterday = "requests-1a2b3c4d-20261115.0000.txt";
 
     private string _directory = "";
     private FakeStore _store = new();
@@ -33,11 +33,23 @@ public class RequestLogUploaderTests
         public Dictionary<string, List<byte>> Blobs { get; } = [];
         public List<(string Name, int Length)> Appends { get; } = [];
         public string FailOn { get; set; } = "";
+        public List<Exception> ListFailures { get; } = [];
+        public int Listings { get; private set; }
 
         public string Text(string name) => Encoding.UTF8.GetString(Blobs[name].ToArray());
 
-        public Task<long> GetLengthAsync(string name, CancellationToken cancellationToken) =>
-            Task.FromResult(Blobs.TryGetValue(name, out var blob) ? (long)blob.Count : 0);
+        public Task<IReadOnlyDictionary<string, long>> GetLengthsAsync(string prefix, CancellationToken cancellationToken)
+        {
+            Listings += 1;
+            if (ListFailures.Count > 0)
+            {
+                throw ListFailures[0];
+            }
+            IReadOnlyDictionary<string, long> lengths = Blobs
+                .Where(b => b.Key.StartsWith(prefix, StringComparison.Ordinal))
+                .ToDictionary(b => b.Key, b => (long)b.Value.Count);
+            return Task.FromResult(lengths);
+        }
 
         public Task AppendAsync(string name, long offset, ReadOnlyMemory<byte> content, CancellationToken cancellationToken)
         {
@@ -57,7 +69,8 @@ public class RequestLogUploaderTests
     }
 
     private RequestLogUploader Uploader(int chunkBytes = 1024 * 1024) => new(
-        new RequestLogSetup.Settings(_directory, 7, 200, new Uri("https://m4dlogs.blob.core.windows.net/c")),
+        new RequestLogSetup.Settings(_directory, "requests-1a2b3c4d-", 30, 100,
+            new Uri("https://m4dlogs.blob.core.windows.net/c")),
         _store, NullLogger<RequestLogUploader>.Instance)
     { ChunkBytes = chunkBytes };
 
@@ -173,6 +186,89 @@ public class RequestLogUploaderTests
         }
 
         Assert.AreEqual("line 1\n", _store.Text(Today));
+    }
+
+    [TestMethod]
+    public async Task Upload_ListsTheBlobsOncePerPass()
+    {
+        Write(Yesterday, "old\n");
+        Write(Today, "new\n");
+
+        await Uploader().UploadAsync(CancellationToken.None);
+
+        Assert.AreEqual(1, _store.Listings);
+    }
+
+    [TestMethod]
+    public async Task Upload_CopiesFilesAPreviousInstanceLeftBehind()
+    {
+        const string other = "requests-99887766-20261114.0000.txt";
+        Write(other, "from another instance\n");
+
+        await Uploader().UploadAsync(CancellationToken.None);
+
+        Assert.AreEqual("from another instance\n", _store.Text(other));
+    }
+
+    [TestMethod]
+    public async Task Upload_DeletesCopiedFilesOnceTheyAreOld()
+    {
+        Write(Yesterday, "old\n");
+        Write(Today, "new\n");
+        var uploader = Uploader();
+        await uploader.UploadAsync(CancellationToken.None);
+        File.SetLastWriteTimeUtc(Path.Combine(_directory, Yesterday),
+            DateTime.UtcNow - RequestLogUploader.KeepAfterUpload - TimeSpan.FromHours(1));
+
+        await uploader.UploadAsync(CancellationToken.None);
+
+        Assert.IsFalse(File.Exists(Path.Combine(_directory, Yesterday)));
+        Assert.IsTrue(File.Exists(Path.Combine(_directory, Today)), "a recent file stays");
+        Assert.AreEqual("old\n", _store.Text(Yesterday));
+    }
+
+    [TestMethod]
+    public async Task Upload_KeepsOldFilesThatWereNotCopied()
+    {
+        Write(Yesterday, "old\n");
+        File.SetLastWriteTimeUtc(Path.Combine(_directory, Yesterday), DateTime.UtcNow - TimeSpan.FromDays(10));
+        _store.FailOn = Yesterday;
+
+        await Uploader().UploadAsync(CancellationToken.None);
+
+        Assert.IsTrue(File.Exists(Path.Combine(_directory, Yesterday)));
+    }
+
+    [TestMethod]
+    public async Task TryUpload_AFailedPass_DoesNotThrow()
+    {
+        Write(Today, "line 1\n");
+        _store.ListFailures.Add(new IOException("network share hiccup"));
+
+        // Before the fix this escaped ExecuteAsync, which stops the host by default.
+        await Uploader().TryUploadAsync(CancellationToken.None);
+    }
+
+    [TestMethod]
+    public async Task TryUpload_ATimeoutThatIsNotShutdown_DoesNotThrow()
+    {
+        // An SDK or HttpClient timeout surfaces as a TaskCanceledException.
+        Write(Today, "line 1\n");
+        _store.ListFailures.Add(new TaskCanceledException("timed out"));
+
+        // Before the fix this escaped ExecuteAsync, which stops the host by default.
+        await Uploader().TryUploadAsync(CancellationToken.None);
+    }
+
+    [TestMethod]
+    public async Task TryUpload_Shutdown_StillCancels()
+    {
+        Write(Today, "line 1\n");
+        using var shutdown = new CancellationTokenSource();
+        await shutdown.CancelAsync();
+        _store.ListFailures.Add(new OperationCanceledException(shutdown.Token));
+
+        await Assert.ThrowsExactlyAsync<OperationCanceledException>(() => Uploader().TryUploadAsync(shutdown.Token));
     }
 
     [TestMethod]

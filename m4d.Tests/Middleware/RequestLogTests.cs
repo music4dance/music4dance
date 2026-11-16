@@ -69,6 +69,56 @@ public class RequestLogTests
     }
 
     [TestMethod]
+    public void Read_EnabledFalse_IsOffWithoutError()
+    {
+        var values = Enabled();
+        values["RequestLog:Enabled"] = "false";
+
+        Assert.IsNull(RequestLogSetup.Read(Config(values), out var error));
+        Assert.IsNull(error);
+    }
+
+    [TestMethod]
+    public void Read_FileNameCarriesTheInstance()
+    {
+        var values = Enabled();
+        values["WEBSITE_INSTANCE_ID"] = "1A2B3C4D5E6F7A8B9C0D";
+
+        var settings = RequestLogSetup.Read(Config(values), out _);
+
+        Assert.AreEqual("requests-1a2b3c4d-", settings!.FileName);
+    }
+
+    [TestMethod]
+    public void InstanceTag_WithoutAppService_UsesTheMachineName()
+    {
+        var tag = RequestLogSetup.InstanceTag(Config(new()));
+
+        Assert.IsTrue(tag.Length is > 0 and <= 8);
+        Assert.IsTrue(tag.All(c => char.IsAsciiLetterLower(c) || char.IsAsciiDigit(c)), tag);
+    }
+
+    [TestMethod]
+    public void Add_Disabled_RegistersNothing()
+    {
+        var services = new ServiceCollection();
+
+        services.AddM4dRequestLog(Config(new()), new DefaultAzureCredential());
+
+        Assert.IsFalse(IsRegistered(services));
+    }
+
+    [TestMethod]
+    public void RestartNote_OnlyWhenTheLogIsOn()
+    {
+        Assert.IsNotNull(RequestLogSetup.RestartNote(Config(Enabled())));
+        Assert.IsNull(RequestLogSetup.RestartNote(Config(new())));
+    }
+
+    private static bool IsRegistered(IServiceCollection services) =>
+        services.Any(d => d.ServiceType == typeof(RequestLogSetup.Settings));
+
+    [TestMethod]
     public void Read_Valid_UsesDefaults()
     {
         var settings = RequestLogSetup.Read(Config(Enabled()), out var error);
@@ -76,6 +126,7 @@ public class RequestLogTests
         Assert.IsNull(error);
         Assert.IsNotNull(settings);
         Assert.AreEqual(_directory, settings.Directory);
+        StringAssert.StartsWith(settings.FileName, RequestLogSetup.FileNamePrefix);
         Assert.AreEqual(RequestLogSetup.DefaultRetainedFileCountLimit, settings.RetainedFileCountLimit);
         Assert.AreEqual(RequestLogSetup.DefaultFileSizeLimitMB, settings.FileSizeLimitMB);
         Assert.IsNull(settings.UploadContainer);
@@ -131,7 +182,10 @@ public class RequestLogTests
     [TestMethod]
     [DataRow("RequestLog:RetainedFileCountLimit", "0")]
     [DataRow("RequestLog:FileSizeLimitMB", "5000")]
-    public void Read_LimitOutOfRange_IsOffWithError(string key, string value)
+    [DataRow("RequestLog:Enabled", "yes")]
+    [DataRow("RequestLog:RetainedFileCountLimit", "7 days")]
+    [DataRow("RequestLog:FileSizeLimitMB", "200MB")]
+    public void Read_BadValue_IsOffWithError(string key, string value)
     {
         var values = Enabled();
         values[key] = value;
@@ -147,7 +201,7 @@ public class RequestLogTests
     {
         var options = new W3CLoggerOptions();
 
-        RequestLogSetup.Configure(options, new RequestLogSetup.Settings(_directory, 7, 100, new Uri(Container)));
+        RequestLogSetup.Configure(options, new RequestLogSetup.Settings(_directory, "requests-test-", 7, 100, new Uri(Container)));
 
         Assert.IsFalse(options.LoggingFields.HasFlag(W3CLoggingFields.Cookie));
         Assert.IsFalse(options.AdditionalRequestHeaders.Contains("Cookie"));
@@ -162,7 +216,9 @@ public class RequestLogTests
         values["RequestLog:UploadContainer"] = Container;
         var services = new ServiceCollection();
 
-        Assert.IsTrue(services.AddM4dRequestLog(Config(values), new DefaultAzureCredential()));
+        services.AddM4dRequestLog(Config(values), new DefaultAzureCredential());
+
+        Assert.IsTrue(IsRegistered(services));
 
         Assert.IsTrue(services.Any(d => d.ImplementationType == typeof(RequestLogUploader)));
         Assert.IsTrue(services.Any(d => d.ServiceType == typeof(IRequestLogStore)));
@@ -173,7 +229,9 @@ public class RequestLogTests
     {
         var services = new ServiceCollection();
 
-        Assert.IsTrue(services.AddM4dRequestLog(Config(Enabled()), new DefaultAzureCredential()));
+        services.AddM4dRequestLog(Config(Enabled()), new DefaultAzureCredential());
+
+        Assert.IsTrue(IsRegistered(services));
 
         Assert.IsFalse(services.Any(d => d.ImplementationType == typeof(RequestLogUploader)));
     }
@@ -236,7 +294,8 @@ public class RequestLogTests
         }!);
         builder.Logging.ClearProviders();
         builder.WebHost.UseTestServer();
-        Assert.IsTrue(builder.Services.AddM4dRequestLog(builder.Configuration, new DefaultAzureCredential()));
+        builder.Services.AddM4dRequestLog(builder.Configuration, new DefaultAzureCredential());
+        Assert.IsTrue(IsRegistered(builder.Services));
 
         await using var app = builder.Build();
         app.UseMiddleware<CloudflareClientIpMiddleware>();

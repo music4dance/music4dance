@@ -11,15 +11,17 @@ is still being appended to), into local/http-logs. Reads with your Entra ID sign
 Cloudflare its client IP is the edge server.
 
 --source app: the app request log (the built-in W3C logger, RequestLog:Enabled). Lists
-the daily requests-YYYYMMDD.NNNN.txt files and downloads the ones from the last --hours
-hours that are missing or whose size changed, into local/app-request-logs. Its client
-IP is the visitor's. Where from:
+the daily requests-<instance>-YYYYMMDD.NNNN.txt files (one set per App Service instance;
+the analyzer merges them) and downloads the ones from the last --hours hours that are
+missing or whose size changed, into local/app-request-logs. Its client IP is the
+visitor's. Where from:
   --from blob (default): container app-request-logs in m4dlogs, where the app copies the
     files every hour (RequestLog:UploadContainer) and keeps them 30 days. Same sign-in and
-    role as the platform log.
+    role as the platform log. The blobs only grow, so a file that's already partly
+    downloaded gets just its new bytes.
   --from home: /home/LogFiles/requests on the app itself, through Kudu's file API with
-    your Entra ID sign-in. Up to the minute, but only the last RetainedFileCountLimit
-    files (about a week).
+    your Entra ID sign-in. Up to the minute, but only about the last 2 days once they've
+    been copied to blob storage. Downloads whole files.
 
 Keep the two sources in separate directories; the analyzer reads one kind per directory.
 """
@@ -43,7 +45,7 @@ CONTAINER = "insights-logs-appservicehttplogs"
 APP_CONTAINER = "app-request-logs"
 KUDU_DIR = "https://msc4dnc.scm.azurewebsites.net/api/vfs/LogFiles/requests/"
 HOUR = re.compile(r"/y=(\d{4})/m=(\d{2})/d=(\d{2})/h=(\d{2})/")
-DAY_FILE = re.compile(r"^requests-(\d{4})(\d{2})(\d{2})\.\d{4}\.txt$")
+DAY_FILE = re.compile(r"^requests-(?:[a-z0-9]+-)?(\d{4})(\d{2})(\d{2})\.\d{4}\.txt$")
 
 
 def run_az(args):
@@ -92,8 +94,8 @@ def fetch_platform(args):
 
 
 def wanted_day_files(files, dest, hours, now):
-    """(name, local path) for the day files that cover the last `hours` hours and
-    are missing locally or a different size. The logger names files by its local date,
+    """(name, local path, remote size) for the day files that cover the last `hours` hours
+    and are missing locally or a different size. The logger names files by its local date,
     which is UTC on App Service."""
     first_day = (now - timedelta(hours=hours)).date()
     wanted = []
@@ -104,18 +106,29 @@ def wanted_day_files(files, dest, hours, now):
         day = datetime(*map(int, m.groups())).date()
         local = dest / f["name"]
         if day >= first_day and (not local.exists() or local.stat().st_size != f["size"]):
-            wanted.append((f["name"], local))
+            wanted.append((f["name"], local, f["size"]))
     return wanted
 
 
 def blob_source():
-    """List and download from the app-request-logs container."""
+    """List and download from the app-request-logs container. The blobs are append-only, so
+    when the local copy is shorter, only the new byte range is downloaded and appended."""
     files = json.loads(az("storage", "blob", "list", "-c", APP_CONTAINER, "--num-results", "*",
                           "--query", "[].{name:name,size:properties.contentLength}", "-o", "json"))
 
-    def download(name, local):
-        az("storage", "blob", "download", "-c", APP_CONTAINER, "-n", name, "-f", str(local),
-           "--overwrite", "true", "-o", "none")
+    def download(name, local, size):
+        have = local.stat().st_size if local.exists() else 0
+        if not 0 < have < size:
+            az("storage", "blob", "download", "-c", APP_CONTAINER, "-n", name, "-f", str(local),
+               "--overwrite", "true", "-o", "none")
+            return
+        part = local.with_name(local.name + ".part")
+        az("storage", "blob", "download", "-c", APP_CONTAINER, "-n", name, "-f", str(part),
+           "--start-range", str(have), "--end-range", str(size - 1), "--overwrite", "true",
+           "-o", "none")
+        with open(local, "ab") as out:
+            out.write(part.read_bytes())
+        part.unlink()
     return files, download
 
 
@@ -138,7 +151,7 @@ def home_source():
     files = [{"name": f["name"], "size": f["size"]} for f in listing
              if f.get("mime") != "inode/directory"]
 
-    def download(name, local):
+    def download(name, local, size):
         local.write_bytes(get(KUDU_DIR + urllib.parse.quote(name)))
     return files, download
 
@@ -150,8 +163,8 @@ def fetch_app(args):
     dest.mkdir(parents=True, exist_ok=True)
 
     def fetch(item):
-        name, local = item
-        download(name, local)
+        name, local, size = item
+        download(name, local, size)
         return name
 
     with ThreadPoolExecutor(max_workers=4) as pool:

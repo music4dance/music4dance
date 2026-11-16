@@ -129,8 +129,10 @@ whatever a client sent:
 | `X-M4d-Log-Relay` | The address that handed the request to App Service: the Cloudflare edge when proxied |
 | `X-M4d-Log-Cookies` | Cookie **names** only (`_ga=;music4dance=;`). The logger's own `Cookie` field would record values, session tickets included, so it's off |
 
-**Format.** Daily files `requests-YYYYMMDD.NNNN.txt` (UTC; a new `NNNN` at each restart or at
-`FileSizeLimitMB`). A `#Fields:` header names the space-separated columns: `date time cs-method
+**Format.** Daily files `requests-<instance>-YYYYMMDD.NNNN.txt`: UTC dates, a new `NNNN` at each
+restart and at `FileSizeLimitMB`, and `<instance>` the first 8 characters of App Service's
+`WEBSITE_INSTANCE_ID` (else the machine name). The logger restarts numbering at `.0000` each day in
+every process, so without the instance tag two instances sharing `/home` would write the same file. A `#Fields:` header names the space-separated columns: `date time cs-method
 cs-uri-stem cs-uri-query sc-status time-taken cs-version cs-host cs(User-Agent) cs(Referer)` and
 the three above. Empty values are `-`, whitespace inside a value is written as `+` (so a literal
 `+` in a user agent can't be told from a space), `cs-uri-query` keeps its `?`, and `time-taken`
@@ -150,7 +152,8 @@ with a probe, 2026-11-16):
   14.7 seconds. So `FlushInterval` stays at its 1-second default (it can't be raised safely),
   and the log directory has to be storage that doesn't stall for long.
 - On shutdown it stops without draining, so up to about a second of lines can be lost.
-- It deletes the oldest files past `RetainedFileCountLimit`.
+- It deletes the oldest of its own files (its instance's prefix) past `RetainedFileCountLimit`. That
+  counts files, not days: every restart and size rollover adds one.
 
 **Where the files go.** The logger writes to `/home/LogFiles/requests`, and `RequestLogUploader`
 copies them to container `app-request-logs` in `m4dlogs` every hour:
@@ -161,15 +164,24 @@ copies them to container `app-request-logs` in `m4dlogs` every hour:
   dependency that can stall the site. `/home` costs nothing and adds no new stall risk: the site
   already runs from it.
 - **The upload** runs 5 minutes after start, then hourly, in the app (a `BackgroundService`, not in
-  the request pipeline). Each pass appends to each file's append blob the whole lines the file has
-  gained since, in chunks of up to 1 MB, conditioned on the blob's current length so a retry can't
-  duplicate lines. It keeps no state: after a restart it resumes from the blobs' lengths. A failure
-  (say, a missing role) is a `[RequestLog] Couldn't upload` warning, retried next pass. At about
-  100 MB a day that's around a hundred appends a day: pennies.
-- **What can be lost:** nothing while uploads work. If they fail for longer than
-  `RetainedFileCountLimit` days, the logger deletes the oldest files before they're copied.
-- **Space on `/home`:** about 100 MB a day, so the default 7 files use about 700 MB of the plan's
-  11 GB (2 GB used, 2026-11-16).
+  the request pipeline). Each pass lists the container once, then appends to each file's append
+  blob the whole lines the file has gained since, in chunks of up to 1 MB, conditioned on the blob's
+  current length so a retry can't duplicate lines. It keeps no state: after a restart it resumes
+  from the blobs' lengths. It takes every `requests-*.txt` in the directory, so files a previous
+  instance left behind (after a move to another VM) are copied too; two uploaders on one file are
+  harmless, since the bytes are the same and a stale append is refused. At about 100 MB a day
+  that's around a hundred appends a day: pennies.
+- **Failures** never escape the pass (an exception out of a `BackgroundService` would stop the
+  site): a failed file is a `[RequestLog] Couldn't upload` warning, a failed pass (say, a missing
+  role or container) an `Upload pass failed` warning, and both are retried next pass.
+- **Cleanup:** once a file is fully copied and hasn't been written for 2 days, the uploader deletes
+  it, so `/home` normally holds about 2 days (about 200 MB). A file that isn't copied is never
+  deleted by the uploader.
+- **What can be lost:** nothing while uploads work. While they fail, files pile up until the
+  logger's `RetainedFileCountLimit` (30 files) deletes the oldest. That's 30 restarts or size
+  rollovers, so a buffer of anywhere from a few days of frequent deploys to about a month.
+- **Space on `/home`:** the cap is 30 files of up to 100 MB, at most 3 GB of the plan's 11 GB (2 GB
+  used, 2026-11-16), reached only after a long upload outage.
 - **Retention in storage:** the account's lifecycle rule `delete-http-logs-after-30-days` also
   matches the `app-request-logs/` prefix.
 
@@ -180,12 +192,16 @@ copies them to container `app-request-logs` in `m4dlogs` every hour:
 | `RequestLog:Enabled` | `false` | Read at startup, so restart after changing it |
 | `RequestLog:Directory` | none | An absolute path; the logger creates it. `/home/LogFiles/requests` in production |
 | `RequestLog:UploadContainer` | none | The container URL, `https://m4dlogs.blob.core.windows.net/app-request-logs`. Unset, the files stay only in the directory |
-| `RequestLog:RetainedFileCountLimit` | `7` | 1–1000. The buffer on `/home` if uploads fail |
-| `RequestLog:FileSizeLimitMB` | `200` | 1–2000. Large enough that a day is normally one file, so the count above is about that many days |
+| `RequestLog:RetainedFileCountLimit` | `30` | 1–1000. Files, not days (each restart and size rollover starts one). With uploads working the uploader cleans up first, so this is the buffer while uploads fail |
+| `RequestLog:FileSizeLimitMB` | `100` | 1–2000. About a day's traffic, so a busy day rolls into a second file. This times the count above is the most `/home` can hold |
 
-A bad value turns the log off with a `[RequestLog] WARNING: disabled, ...` line at startup
-instead of failing startup. When it's on, startup shows `[RequestLog] Enabled: <directory>, ...`,
-ending in where it's copied.
+The settings are read once, at startup. A bad value, including one that isn't a number or a
+boolean, turns the log off with a `[RequestLog] WARNING: disabled, ...` line instead of failing
+startup. When it's on, startup shows `[RequestLog] Enabled: <directory>/<file prefix>*, ...`, ending
+in where it's copied. If App Configuration didn't load at startup, the log can't know it should be
+on: startup prints `[RequestLog] WARNING: off, because App Configuration didn't load at startup`,
+and if `AppConfigurationRecoveryService` later loads it with the log enabled, its recovery warning
+and email say to restart.
 
 **One-time setup** (PowerShell, as an Owner of `m4d-Web`). Nothing here restarts the app, and nothing
 takes effect until code that reads `RequestLog:*` is running; the next deploy or restart turns it on:
@@ -216,8 +232,8 @@ az appconfig kv set -n music4dance --label Production --key RequestLog:Enabled -
   make the keys unlabeled: test would then copy its own `requests-*.txt` files into the same
   container under the same names, mixing its lines into production's blobs. To turn it on in test,
   add `Staging`-labeled keys with a separate container and a role for `m4d-test`'s identity. Its F1
-  plan has a 1 GB `/home` and no Always On, so keep `RetainedFileCountLimit` low, and expect uploads
-  only while the app is awake.
+  plan has a 1 GB `/home` and no Always On, so keep `RetainedFileCountLimit` and `FileSizeLimitMB`
+  low, and expect uploads only while the app is awake.
 - **Local development and contributor environments** run as `Development`, which doesn't load App
   Configuration, and `appsettings*.json` doesn't set `RequestLog:Enabled`, so it's off. Set
   `RequestLog:Enabled` and `RequestLog:Directory` in user secrets to try it; leave
@@ -232,8 +248,8 @@ by the site's owner, and kept under `local/` once downloaded. Cookie values are 
 
 **Reading:** `python -I .claude/skills/analyze-traffic/fetch_http_logs.py --source app` downloads
 from the container (same `Storage Blob Data Reader` role as the HTTP request log) to
-`local/app-request-logs/`; `--from home` reads `/home` through Kudu instead, for the last hour or
-so that hasn't been copied yet, and `analyze_http_logs.py` reads either source (one per
+`local/app-request-logs/`, fetching only the new bytes of a file it already has; `--from home`
+reads `/home` through Kudu instead, for the last hour or so that hasn't been copied yet, and `analyze_http_logs.py` reads either source (one per
 directory). See the `analyze-traffic` skill.
 
 ## Memory and GC diagnostics

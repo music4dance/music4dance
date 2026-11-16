@@ -73,12 +73,8 @@ public class CloudflareClientIpMiddleware
 
     /// <summary>
     /// The visitor's address from <paramref name="connectingIp"/> when the request was relayed
-    /// by Cloudflare, otherwise null (keep RemoteIpAddress as it is).
+    /// (<paramref name="relay"/>) by Cloudflare, otherwise null (keep RemoteIpAddress as it is).
     /// </summary>
-    public static IPAddress ResolveClientIp(IPAddress remoteIp, string forwardedFor,
-        string connectingIp, IReadOnlyList<IPNetwork> cloudflareNetworks) =>
-        TrustedVisitor(RelayAddress(remoteIp, forwardedFor), connectingIp, cloudflareNetworks);
-
     private static IPAddress TrustedVisitor(IPAddress relay, string connectingIp,
         IReadOnlyList<IPNetwork> cloudflareNetworks)
     {

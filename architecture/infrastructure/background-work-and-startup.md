@@ -119,11 +119,14 @@ how long recovery took, and emails the admins. It never restarts the app.
 
 Copies the app request log from `RequestLog:Directory` on `/home` to the blob container in
 `RequestLog:UploadContainer`, signing in with the app's managed identity. The first pass runs 5
-minutes after start, to stay out of startup, then one runs every hour. Each pass appends to each
-file's append blob only the whole lines the file has gained since the last pass, reading where to
-resume from the blob's length, so it keeps no state and a restart just picks up. A failure is a
-warning and is retried next pass; the files stay on `/home` meanwhile. On shutdown it stops without
-a final pass, and the next process uploads the rest. See
+minutes after start, to stay out of startup, then one runs every hour. Each pass lists the
+container once and appends to each file's append blob only the whole lines the file has gained,
+reading where to resume from the blob's length, so it keeps no state and a restart just picks up.
+It deletes a file once it's copied and 2 days old. Nothing a pass throws escapes `ExecuteAsync`
+(other than shutdown's cancellation): an exception out of a `BackgroundService` stops the host by
+default (`BackgroundServiceExceptionBehavior.StopHost`, not overridden here), which would take the
+site down. A failure is a warning and is retried next pass; the files stay on `/home` meanwhile. On
+shutdown it stops without a final pass, and the next process uploads the rest. See
 [logging-and-diagnostics § App request log](../observability/logging-and-diagnostics.md#app-request-log).
 
 ### `DanzQClientInitializer`
