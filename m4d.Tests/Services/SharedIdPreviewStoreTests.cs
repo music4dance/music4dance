@@ -119,6 +119,8 @@ public class SharedIdPreviewStoreTests
         [
             new SharedIdMergePlan(Cluster(A), null),
             new SharedIdMergePlan(Cluster(featuring), SharedIdMergePlan.WithoutFeaturing),
+            new SharedIdMergePlan(Cluster(Guid.NewGuid()), SharedIdMergePlan.FewerArtists),
+            new SharedIdMergePlan(Cluster(Guid.NewGuid()), SharedIdMergePlan.ServiceListsFewer),
             new SharedIdMergePlan(Cluster(B), SharedIdMergePlan.NoArtist),
             new SharedIdMergePlan(Cluster(C), SharedIdMergePlan.Different),
             new SharedIdMergePlan(Cluster(D), SharedIdMergePlan.Different)
@@ -126,6 +128,8 @@ public class SharedIdPreviewStoreTests
 
         Assert.AreEqual(A, preview.Merges.Single().Cluster.SongIds.Single());
         Assert.AreEqual(featuring, preview.FeaturingMerges.Single().Cluster.SongIds.Single());
+        Assert.AreEqual(1, preview.UncheckedMerges.Count());
+        Assert.AreEqual(1, preview.ListsFewerMerges.Count());
         CollectionAssert.AreEqual(new[] { SharedIdMergePlan.Different, SharedIdMergePlan.NoArtist },
             preview.Skips.Select(g => g.Key).ToList());
     }

@@ -92,8 +92,9 @@ public class SharedIdPreviewStore
 /// <summary>
 /// What the Merge all tasks would do with each pending cluster, as of when the preview ran:
 /// Merges (matching title and artist), FeaturingMerges (differ only by feat.), CreditMerges (the
-/// same artists credited differently, or confirmed by a music service) and the rest, skipped by
-/// all of them, grouped by why.
+/// same artists credited differently, or confirmed by a music service), the clusters whose songs
+/// share their lead artist that only MergeLeadArtist merges (UncheckedMerges, ListsFewerMerges),
+/// and the rest, skipped by all of them, grouped by why.
 /// </summary>
 public record SharedIdPreview(DateTimeOffset Created, IReadOnlyList<SharedIdMergePlan> Plans)
 {
@@ -102,6 +103,10 @@ public record SharedIdPreview(DateTimeOffset Created, IReadOnlyList<SharedIdMerg
     public IEnumerable<SharedIdMergePlan> FeaturingMerges => Plans.Where(p => p.WillMergeFeaturing);
 
     public IEnumerable<SharedIdMergePlan> CreditMerges => Plans.Where(p => p.WillMergeCredits);
+
+    public IEnumerable<SharedIdMergePlan> UncheckedMerges => Plans.Where(p => p.WillMergeUnchecked);
+
+    public IEnumerable<SharedIdMergePlan> ListsFewerMerges => Plans.Where(p => p.WillMergeListsFewer);
 
     public IEnumerable<IGrouping<string, SharedIdMergePlan>> Skips =>
         Plans.Where(p => !p.WouldMerge).GroupBy(p => p.SkipReason).OrderByDescending(g => g.Count());

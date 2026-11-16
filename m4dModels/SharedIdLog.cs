@@ -605,6 +605,21 @@ public class SharedIdLog(DanceMusicCoreService dms)
         Action<string, int> progress = null) =>
         MergePlanned(user, p => p.WillMergeCredits, progress, lookup);
 
+    /// <summary>
+    /// Merges the pending clusters whose songs share their lead artist that MergeCredits leaves,
+    /// on an admin's request: the ones where a song credited to the lead artist alone has no
+    /// track of its own to check, or, with <paramref name="listsFewer"/>, the ones where that
+    /// track leaves artists out. Each merge gets the feat. cleanup with the lead artists as
+    /// evidence, so "X" and "X &amp; Y" land on "X &amp; Y". Needs <paramref name="lookup"/> to
+    /// tell the two apart. Returns the number merged.
+    /// </summary>
+    public Task<int> MergeLeadArtist(ApplicationUser user, bool listsFewer,
+        Func<string, Task<ServiceTrack>> lookup, Action<string, int> progress = null)
+    {
+        ArgumentNullException.ThrowIfNull(lookup);
+        return MergePlanned(user, p => listsFewer ? p.WillMergeListsFewer : p.WillMergeUnchecked, progress, lookup);
+    }
+
     private async Task<int> MergePlanned(ApplicationUser user, Func<SharedIdMergePlan, bool> which,
         Action<string, int> progress, Func<string, Task<ServiceTrack>> lookup = null)
     {
@@ -705,7 +720,7 @@ public class SharedIdLog(DanceMusicCoreService dms)
         var songs = cluster.Songs;
         var title = SharedIdMatcher.TitleKey(songs[0].Title);
         // The lead artists, the evidence for splitting an iTunes credit
-        var leads = FeaturedCleanup.Knowing(songs.Select(s => FeaturedCleanup.IndividualArtists(s)[0]));
+        var leads = FeaturedCleanup.Knowing(songs.Select(SharedIdMatcher.Lead));
         var leadOnly = songs.Where(s => SharedIdMatcher.ArtistKeys(s).SetEquals([SharedIdMatcher.LeadKey(s)])).ToList();
 
         var ids = new List<string>();

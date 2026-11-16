@@ -915,7 +915,8 @@ public class SharedIdLogTests
         CollectionAssert.AreEqual(new[] { "Tony Bennett", "Lady Gaga" }, plans["S:sp2"].Names.Artists.ToList());
         Assert.AreEqual(SharedIdMergePlan.FewerArtists, plans["S:sp3"].SkipReason,
             "The shared track doesn't count, and the song has no id of its own");
-        Assert.IsFalse(plans["S:sp3"].WouldMerge);
+        Assert.IsFalse(plans["S:sp3"].WillMergeCredits);
+        Assert.IsTrue(plans["S:sp3"].WillMergeUnchecked);
     }
 
     [TestMethod]
@@ -935,7 +936,8 @@ public class SharedIdLogTests
         var plan = (await dms.SharedIds.PlanMergeMatching(lookup: lookup)).Single();
 
         Assert.AreEqual(SharedIdMergePlan.ServiceListsFewer, plan.SkipReason);
-        Assert.IsFalse(plan.WouldMerge);
+        Assert.IsFalse(plan.WillMergeCredits);
+        Assert.IsTrue(plan.WillMergeListsFewer);
         CollectionAssert.AreEqual(new[] { "I:a2" }, plan.CheckedBy.ToList());
         CollectionAssert.AreEqual(new[] { "Tony Bennett" }, plan.ServiceArtists.ToList());
         Assert.AreEqual(0, await dms.SharedIds.MergeCredits(user, lookup));
@@ -958,6 +960,31 @@ public class SharedIdLogTests
         Assert.AreEqual("Tony Bennett & Lady Gaga", merged.Artist);
         CollectionAssert.AreEqual(new[] { "Tony Bennett", "Lady Gaga" }, merged.EffectiveArtists.ToList());
         Assert.IsFalse((await dms.SongIndex.FindSong(exact.SongId)).IsNull, "Left to MergeMatching");
+    }
+
+    [TestMethod]
+    public async Task MergeLeadArtist_MergesTheUncheckedOrTheListsFewer_KeepingEveryArtist()
+    {
+        var (dms, user) = await CreateService("SharedIds_MergeLeadArtist");
+        var noCheck = await SaveSong(dms, "Purchase:00:SS=sp2", artist: "Tony Bennett");
+        _ = await SaveSong(dms, "Purchase:00:SS=sp2", artist: "Tony Bennett & Lady Gaga");
+        var fewer = await SaveSong(dms, $"Purchase:00:SS=sp3\t{Own("Purchase:01:SS=a3")}",
+            title: "Other Song", artist: "Tony Bennett");
+        _ = await SaveSong(dms, "Purchase:00:SS=sp3", title: "Other Song", artist: "Tony Bennett & Diana Krall");
+        _ = await dms.SharedIds.Seed();
+        var lookup = Tracks(("S:a3", "Other Song", ["Tony Bennett"]));
+
+        Assert.AreEqual(0, await dms.SharedIds.MergeCredits(user, lookup));
+        Assert.AreEqual(1, await dms.SharedIds.MergeLeadArtist(user, false, lookup));
+
+        var merged = await dms.SongIndex.FindMergedSong(noCheck.SongId);
+        Assert.AreEqual("Tony Bennett & Lady Gaga", merged.Artist);
+        CollectionAssert.AreEqual(new[] { "Tony Bennett", "Lady Gaga" }, merged.EffectiveArtists.ToList());
+        Assert.IsFalse((await dms.SongIndex.FindSong(fewer.SongId)).IsNull, "Its own track leaves artists out");
+
+        Assert.AreEqual(1, await dms.SharedIds.MergeLeadArtist(user, true, lookup));
+        var other = await dms.SongIndex.FindMergedSong(fewer.SongId);
+        Assert.AreEqual("Tony Bennett & Diana Krall", other.Artist);
     }
 
     [TestMethod]

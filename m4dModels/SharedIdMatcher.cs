@@ -71,11 +71,14 @@ public static class SharedIdMatcher
 
     /// <summary>
     /// The song's first individual artist, or the start of its credit up to anything that could
-    /// join another artist to it, by ArtistSplitter.ArtistKey.
+    /// join another artist to it.
     /// </summary>
-    public static string LeadKey(Song song) => ArtistSplitter.ArtistKey(
+    public static string Lead(Song song) =>
         song.Artists is { Count: > 0 } ? song.Artists[0]
-            : LeadSeparator.Split(ArtistSplitter.RemoveArtistFeaturing(song.Artist ?? ""))[0]);
+            : LeadSeparator.Split(ArtistSplitter.RemoveArtistFeaturing(song.Artist ?? ""))[0].Trim();
+
+    /// <summary>The song's Lead, by ArtistSplitter.ArtistKey.</summary>
+    public static string LeadKey(Song song) => ArtistSplitter.ArtistKey(Lead(song));
 
     /// <summary>
     /// The title without its feat. clause, as the title merge candidates compare titles

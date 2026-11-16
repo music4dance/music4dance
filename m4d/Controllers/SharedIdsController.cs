@@ -87,7 +87,7 @@ public class SharedIdsController(
     //
     // POST: /SharedIds/MergeCredits
     // Merges every pending cluster whose songs name the same artists however they're credited,
-    // or whose credits leave artists out that the shared Spotify or iTunes track lists
+    // or whose credits leave artists out that the songs' own Spotify or iTunes tracks list
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<ActionResult> MergeCredits()
@@ -97,6 +97,25 @@ public class SharedIdsController(
         return RunAdminTask("MergeCreditsSharedIds", async dms =>
         {
             var merged = await dms.SharedIds.MergeCredits(user, lookup, AdminMonitor.UpdateTask);
+            await DanceStatsManager.ClearCache(dms, false);
+            return $"Merged={merged}";
+        });
+    }
+
+    //
+    // POST: /SharedIds/MergeLeadArtist
+    // Merges the clusters whose songs share their lead artist that MergeCredits skips: those with
+    // no track of their own to check the other artists against, or with listsFewer, those whose
+    // own track leaves artists out
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<ActionResult> MergeLeadArtist(bool listsFewer = false)
+    {
+        var user = await Database.FindUser(UserName);
+        var lookup = TrackLookup();
+        return RunAdminTask("MergeLeadArtistSharedIds", async dms =>
+        {
+            var merged = await dms.SharedIds.MergeLeadArtist(user, listsFewer, lookup, AdminMonitor.UpdateTask);
             await DanceStatsManager.ClearCache(dms, false);
             return $"Merged={merged}";
         });
@@ -119,6 +138,8 @@ public class SharedIdsController(
             return $"WouldMerge={plans.Count(p => p.WillMerge)}, " +
                 $"WouldMergeFeat={plans.Count(p => p.WillMergeFeaturing)}, " +
                 $"WouldMergeCredits={plans.Count(p => p.WillMergeCredits)}, " +
+                $"LeadArtistUnchecked={plans.Count(p => p.WillMergeUnchecked)}, " +
+                $"LeadArtistListsFewer={plans.Count(p => p.WillMergeListsFewer)}, " +
                 $"Skipped={plans.Count(p => !p.WouldMerge)} (see /SharedIds/Preview)";
         });
     }

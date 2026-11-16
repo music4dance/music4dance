@@ -28,6 +28,8 @@ else
     var merges = Model.Merges.ToList();
     var featuring = Model.FeaturingMerges.ToList();
     var credits = Model.CreditMerges.ToList();
+    var noCheck = Model.UncheckedMerges.ToList();
+    var listsFewer = Model.ListsFewerMerges.ToList();
     var skips = Model.Skips.ToList();
     <p>
         Run @Model.Created.ToLocalTime().ToString("yyyy-MM-dd HH:mm"):
@@ -37,6 +39,8 @@ else
         <li><a href="#merge">Matching title and artist</a>: @merges.Count.ToString("N0")</li>
         <li><a href="#merge-feat">Differ only by feat.</a>: @featuring.Count.ToString("N0")</li>
         <li><a href="#merge-credits">Artists credited differently</a>: @credits.Count.ToString("N0")</li>
+        <li><a href="#merge-unchecked">Same lead artist, nothing to check against</a>: @noCheck.Count.ToString("N0")</li>
+        <li><a href="#merge-lists-fewer">Same lead artist, own track leaves artists out</a>: @listsFewer.Count.ToString("N0")</li>
         @for (var i = 0; i < skips.Count; i++)
         {
             <li><a href="#skip-@i">Skipped: @skips[i].Key</a>: @skips[i].Count().ToString("N0")</li>
@@ -89,6 +93,37 @@ else
         <button type="submit" class="btn btn-outline-danger">Merge all with artists credited differently</button>
     }
     @await Html.PartialAsync("_SharedIdPlans", credits)
+
+    <h2 id="merge-unchecked">Same lead artist, nothing to check against</h2>
+    <p>
+        Some credits leave artists out ("X" and "X &amp; Y"), but a song credited to the lead
+        artist alone has no Spotify or iTunes track of its own with the title to check them
+        against. <strong>Merge all with artists credited differently</strong> skips these; this
+        button merges them, keeping every artist.
+    </p>
+    @using (Html.BeginForm("MergeLeadArtist", "SharedIds", FormMethod.Post,
+        new { @class = "mb-3", onsubmit = "return confirm('Merge every same-lead-artist cluster with nothing to check against?')" }))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="listsFewer" value="false" />
+        <button type="submit" class="btn btn-outline-danger">Merge all with nothing to check against</button>
+    }
+    @await Html.PartialAsync("_SharedIdPlans", noCheck)
+
+    <h2 id="merge-lists-fewer">Same lead artist, own track leaves artists out</h2>
+    <p>
+        A song credited to the lead artist alone has a Spotify or iTunes track of its own that
+        leaves the other artists out, so it may be a different recording (a classic and a later
+        version with a collaborator). This button merges them anyway, keeping every artist.
+    </p>
+    @using (Html.BeginForm("MergeLeadArtist", "SharedIds", FormMethod.Post,
+        new { @class = "mb-3", onsubmit = "return confirm('Merge every same-lead-artist cluster whose own track leaves artists out?')" }))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="listsFewer" value="true" />
+        <button type="submit" class="btn btn-outline-danger">Merge all whose own track leaves artists out</button>
+    }
+    @await Html.PartialAsync("_SharedIdPlans", listsFewer)
 
     @for (var i = 0; i < skips.Count; i++)
     {

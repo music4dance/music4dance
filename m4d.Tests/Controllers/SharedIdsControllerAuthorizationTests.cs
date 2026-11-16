@@ -50,6 +50,7 @@ public class SharedIdsControllerAuthorizationTests
     [DataRow(nameof(SharedIdsController.MergeMatching))]
     [DataRow(nameof(SharedIdsController.MergeFeaturing))]
     [DataRow(nameof(SharedIdsController.MergeCredits))]
+    [DataRow(nameof(SharedIdsController.MergeLeadArtist))]
     [DataRow(nameof(SharedIdsController.PreviewMergeMatching))]
     public void ChangesArePostWithAntiforgery(string name)
     {

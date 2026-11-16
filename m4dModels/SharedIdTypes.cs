@@ -205,7 +205,10 @@ public class SharedIdBatchResult
 /// SkipReason is null; SharedIdLog.MergeFeaturing when the only reason is that its titles or
 /// artists differ by feat.; SharedIdLog.MergeCredits when it's that the same artists are
 /// credited differently, or that some credits leave artists out and the music service tracks of
-/// the songs that leave them out list them all. The reasons that keep every task from merging a cluster come first.
+/// the songs that leave them out list them all. SharedIdLog.MergeLeadArtist, only on request,
+/// merges the rest of the clusters whose songs share their lead artist: the ones with no track
+/// of their own to check, or whose own track leaves artists out. The reasons that keep every
+/// task from merging a cluster come first.
 /// </summary>
 public record SharedIdMergePlan(SharedIdCluster Cluster, string SkipReason)
 {
@@ -229,9 +232,12 @@ public record SharedIdMergePlan(SharedIdCluster Cluster, string SkipReason)
     public bool WillMerge => SkipReason == null;
     public bool WillMergeFeaturing => SkipReason == WithoutFeaturing;
     public bool WillMergeCredits => SkipReason is SameArtists or ConfirmedArtists;
+    public bool WillMergeUnchecked => SkipReason == FewerArtists;
+    public bool WillMergeListsFewer => SkipReason == ServiceListsFewer;
 
     // One of the Merge all tasks would merge it
-    public bool WouldMerge => WillMerge || WillMergeFeaturing || WillMergeCredits;
+    public bool WouldMerge =>
+        WillMerge || WillMergeFeaturing || WillMergeCredits || WillMergeUnchecked || WillMergeListsFewer;
 
     // For ConfirmedArtists and ServiceListsFewer: the ids ("S:…", "I:…") checked, each one only
     // on the song it was checked for, and the artists their tracks list, the evidence for
@@ -239,7 +245,11 @@ public record SharedIdMergePlan(SharedIdCluster Cluster, string SkipReason)
     public IReadOnlyList<string> CheckedBy { get; init; }
     public IReadOnlyList<string> ServiceArtists { get; init; }
 
-    public IArtistKnowledge Knowledge => ServiceArtists == null ? null : FeaturedCleanup.Knowing(ServiceArtists);
+    // The evidence for splitting the songs' credits: for songs that share their lead artist, the
+    // lead artists and the artists the songs' own tracks list ("X & Y" is X and Y next to "X")
+    public IArtistKnowledge Knowledge => Match == SharedIdMatch.FewerArtists
+        ? FeaturedCleanup.Knowing([.. ServiceArtists ?? [], .. Cluster.Songs.Select(SharedIdMatcher.Lead)])
+        : null;
 
     // The cluster's, as it was when the plan was made
     public SharedIdMatch Match { get; init; } = Cluster.Match;
