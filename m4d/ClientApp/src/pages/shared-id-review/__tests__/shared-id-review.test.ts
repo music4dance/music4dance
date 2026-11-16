@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { flushPromises, type VueWrapper } from "@vue/test-utils";
 import { loadTestPage, testPageSnapshot } from "@/helpers/TestPageSnapshot";
 import App from "../App.vue";
-import { emptyModel, model, songA, songB } from "./model";
+import { emptyModel, model, songA, songB, songC, songD, songE } from "./model";
 
 const { post, navigateTo } = vi.hoisted(() => ({ post: vi.fn(), navigateTo: vi.fn() }));
 
@@ -305,6 +305,82 @@ describe("shared-id-review page", () => {
 
       expect(card.text()).toContain("Lookup failed: Request failed with status code 500");
       expect(card.find(".look-up-button").attributes("disabled")).toBeUndefined();
+    });
+  });
+
+  describe("Sort out ids", () => {
+    const owners = {
+      ids: [
+        { id: "S:sp9", status: "Owned", reason: 'The song is "Alpha" by One (3:05)', song: songC },
+      ],
+      removals: [
+        { songId: songD, album: 0 },
+        { songId: songE, album: 1 },
+      ],
+      tracks: [{ id: "S:sp9", found: true, title: "Alpha", artist: "One", length: 185 }],
+    };
+
+    test("on a card, posts its songs and checks the proposed removals", async () => {
+      post.mockResolvedValueOnce({ data: owners });
+      const wrapper = loadTestPage(App, model);
+      const card = cards(wrapper)[1]!;
+      expect(cards(wrapper)[0]!.find(".sort-out-button").exists()).toBe(false);
+
+      await card.find(".sort-out-button").trigger("click");
+      await flushPromises();
+
+      expect(lastRequest()).toEqual({
+        url: "/api/sharedids/owners",
+        body: { songIds: [songC, songD, songE] },
+      });
+      expect(card.find(".owners").text()).toContain("S:sp9 belongs to song 1");
+      expect(card.find('input[aria-label="Remove B1 from song 2"]').element).toHaveProperty(
+        "checked",
+        true,
+      );
+      expect(card.find('input[aria-label="Remove A1 from song 1"]').element).toHaveProperty(
+        "checked",
+        false,
+      );
+      expect(card.find("#cluster-1-action-Leave").element).toHaveProperty("checked", true);
+    });
+
+    test("on the page, sorts out each cluster that's probably different songs", async () => {
+      post.mockResolvedValueOnce({ data: owners });
+      const wrapper = loadTestPage(App, model);
+      const button = wrapper.find(".sort-out-page-button");
+      expect(button.text()).toBe("Sort out ids on this page (1)");
+
+      await button.trigger("click");
+      await flushPromises();
+
+      expect(post).toHaveBeenCalledTimes(1);
+      expect(lastRequest().url).toBe("/api/sharedids/owners");
+      expect(wrapper.find(".sorting-progress").text()).toBe(
+        "Sorted out the ids of 1 clusters. Check the proposals, then Apply.",
+      );
+      expect(cards(wrapper)[1]!.find(".owners").exists()).toBe(true);
+    });
+
+    test("a failure on the page is counted", async () => {
+      post.mockRejectedValueOnce(new Error("Request failed with status code 500"));
+      const wrapper = loadTestPage(App, model);
+
+      await wrapper.find(".sort-out-page-button").trigger("click");
+      await flushPromises();
+
+      expect(wrapper.find(".sorting-progress").text()).toContain("1 failed");
+    });
+
+    test("a failure on a card is shown on it", async () => {
+      post.mockRejectedValueOnce(new Error("Request failed with status code 500"));
+      const wrapper = loadTestPage(App, model);
+      const card = cards(wrapper)[1]!;
+
+      await card.find(".sort-out-button").trigger("click");
+      await flushPromises();
+
+      expect(card.text()).toContain("Sort out ids failed: Request failed with status code 500");
     });
   });
 

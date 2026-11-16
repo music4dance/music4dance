@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { TypedJSON } from "typedjson";
-import { ClusterChoice, groupNames, leaveOut, lookupIds } from "../ClusterChoice";
+import { ClusterChoice, groupNames, leaveOut, lookupIds, sharedLookupIds } from "../ClusterChoice";
 import { SharedIdReviewCluster } from "../SharedIdReviewModel";
 import { featCluster, rejectedCluster, songA, songB, songC, songD, songE } from "./model";
 
@@ -248,6 +248,60 @@ describe("ClusterChoice", () => {
 
     test("Leave for later is sent as is", () => {
       expect(choiceFor(rejectedCluster).toRequest().action).toBe("Leave");
+    });
+  });
+
+  describe("Sort out ids", () => {
+    test("runs on the page for clusters that are probably different songs with an id to look up", () => {
+      expect(choiceFor(rejectedCluster).needsSorting).toBe(true);
+      // Its songs only share an ISRC, which can't be looked up
+      expect(sharedLookupIds(choiceFor(featCluster).cluster.songs)).toEqual([]);
+      expect(choiceFor({ ...featCluster, match: "Different" }).needsSorting).toBe(false);
+    });
+
+    test("checks the proposed removals, fills the tooltips and leaves the cluster for later", () => {
+      const choice = choiceFor({ ...featCluster, defaultAction: "Merge" });
+
+      choice.applyOwners({
+        ids: [
+          {
+            id: "R:USRC1",
+            status: "Owned",
+            reason: "The ISRC of S:sp1",
+            song: songA,
+            via: "S:sp1",
+          },
+        ],
+        removals: [
+          { songId: songB, album: 0 },
+          { songId: songB, album: 2, id: "I:111" },
+        ],
+        tracks: [{ id: "S:sp1", found: true, title: "Probe" }],
+      });
+
+      expect(choice.isAlbumRemoved(songB, 0)).toBe(true);
+      expect(choice.isIdRemoved(songB, 2, "I:111")).toBe(true);
+      expect(choice.action).toBe("Leave");
+      expect(choice.tracks?.get("S:sp1")?.title).toBe("Probe");
+      expect(choice.owners?.[0]?.status).toBe("Owned");
+      expect(choice.songLabel(songA)).toBe("song 1");
+      expect(choice.toRequest().removals).toEqual([
+        { songId: songB, album: 0 },
+        { songId: songB, album: 2, id: "I:111" },
+      ]);
+    });
+
+    test("a proposal with nothing to remove leaves the action alone", () => {
+      const choice = choiceFor(featCluster);
+
+      choice.applyOwners({
+        ids: [{ id: "S:sp1", status: "Unsure", reason: "More than one song is it" }],
+        removals: [],
+        tracks: [],
+      });
+
+      expect(choice.action).toBe("Merge");
+      expect(choice.isDirty).toBe(false);
     });
   });
 });

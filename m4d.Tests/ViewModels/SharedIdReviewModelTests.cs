@@ -3,6 +3,7 @@ using m4d.Utilities;
 using m4d.ViewModels;
 
 using m4dModels;
+using m4dModels.Utilities;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -214,5 +215,25 @@ public class SharedIdReviewModelTests
     public async Task LookupTracks_NoIds_LooksUpNothing()
     {
         Assert.IsEmpty(await SharedIdServiceTrack.Lookup(null!, (_, _) => Task.FromResult<ServiceTrack>(null!)));
+    }
+
+    [TestMethod]
+    public void OwnersResponse_SpellsOutTheStatus_AndGivesTheTracksAsTheLookupDoes()
+    {
+        var song = Guid.NewGuid();
+        var ownership = new SharedIdOwnership(
+            [new SharedIdOwnerProposal("S:sp1", SharedIdOwnerStatus.Owned, "The song is it", song)],
+            [new SharedIdRemoval(Guid.NewGuid(), 0)],
+            new Dictionary<string, ServiceTrack> { ["S:sp1"] = new() { Name = "Probe", Artist = "Probe Artist" }, ["I:1"] = null! });
+
+        var json = JObject.Parse(JsonConvert.SerializeObject(SharedIdOwnersResponse.Build(ownership),
+            JsonHelpers.CamelCaseSerializer));
+
+        Assert.AreEqual("Owned", (string)json["ids"]![0]!["status"]!);
+        Assert.AreEqual(song.ToString(), (string)json["ids"]![0]!["song"]!);
+        Assert.AreEqual(0, (int)json["removals"]![0]!["album"]!);
+        Assert.IsTrue((bool)json["tracks"]![0]!["found"]!);
+        Assert.IsFalse((bool)json["tracks"]![1]!["found"]!);
+        Assert.IsEmpty(SharedIdOwnersResponse.Build(null!).Ids);
     }
 }

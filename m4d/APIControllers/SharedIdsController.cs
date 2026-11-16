@@ -63,4 +63,20 @@ public class SharedIdsController(
     [HttpPost("tracks")]
     public async Task<IActionResult> Tracks([FromBody] SharedIdTracksRequest request) =>
         JsonCamelCase(await SharedIdServiceTrack.Lookup(request?.Ids, MusicServiceManager.GetMusicServiceTrack));
+
+    //
+    // POST: /api/sharedids/owners
+    // Which of a cluster's songs each id they share belongs to, looked up on Spotify and iTunes,
+    // and the removals that would give each id to its song
+    [HttpPost("owners")]
+    public async Task<IActionResult> Owners([FromBody] SharedIdOwnersRequest request)
+    {
+        var songIds = (request?.SongIds ?? []).Take(SharedIdOwnersRequest.MaxSongs).ToList();
+        var manager = MusicServiceManager;
+        var ownership = await Database.SharedIds.ProposeOwners(songIds,
+            id => id is { Length: > 2 } && id[1] == ':' && MusicService.GetService(id[0]) is { } service
+                ? manager.GetMusicServiceTrack(id[2..], service)
+                : Task.FromResult<ServiceTrack>(null));
+        return JsonCamelCase(SharedIdOwnersResponse.Build(ownership));
+    }
 }

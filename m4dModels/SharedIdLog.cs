@@ -331,6 +331,27 @@ public class SharedIdLog(DanceMusicCoreService dms)
     }
 
     /// <summary>
+    /// Which of the songs each id they share belongs to (SharedIdOwners.Propose), for the review
+    /// page's Sort out ids. Songs merged or deleted since the page loaded are left out; null when
+    /// fewer than two are left.
+    /// </summary>
+    public async Task<SharedIdOwnership> ProposeOwners(IEnumerable<Guid> songIds,
+        Func<string, Task<ServiceTrack>> lookup)
+    {
+        var songs = new List<Song>();
+        foreach (var id in (songIds ?? []).Distinct())
+        {
+            var song = await SongIndex.FindSong(id);
+            if (song is { IsNull: false })
+            {
+                songs.Add(song);
+            }
+        }
+
+        return songs.Count < 2 ? null : await SharedIdOwners.Propose(songs, lookup);
+    }
+
+    /// <summary>
     /// Merges the songs (SimpleMergeSongs keeps all their history), marks the pairs among them
     /// merged, and moves their other pairs to the merged song. Returns the merged song, or null
     /// if fewer than two of the songs are still in the catalog. When <paramref name="names"/> is

@@ -140,6 +140,27 @@ export interface SharedIdApplyResponse {
   deleted: number;
 }
 
+// POST /api/sharedids/owners (SharedIdOwnersResponse): which of a cluster's songs each id they
+// share belongs to. Owned: song owns it, and it comes off the others; Bad: no song is the track,
+// and it comes off every song; Unsure: nothing is proposed. Via is, for an ISRC, the id whose
+// track reported it.
+export type SharedIdOwnerStatus = "Owned" | "Bad" | "Unsure";
+
+export interface SharedIdOwnerProposal {
+  id: string;
+  status: SharedIdOwnerStatus;
+  reason?: string;
+  song?: string;
+  via?: string;
+}
+
+export interface SharedIdOwnersResponse {
+  ids: SharedIdOwnerProposal[];
+  // The removals that carry the proposal out: an album, when they'd take every id off it
+  removals: SharedIdRemovalRequest[];
+  tracks: SharedIdServiceTrack[];
+}
+
 // POST /api/sharedids/tracks: what a music service says one of the ids is (SharedIdServiceTrack)
 export interface SharedIdServiceTrack {
   id: string;

@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { getMenuContext } from "@/helpers/GetMenuContext";
-import { type ClusterChoice, leaveOut, lookupIds } from "../ClusterChoice";
+import { type ClusterChoice, leaveOut, lookupIds, sharedLookupIds } from "../ClusterChoice";
 import type {
   SharedIdAction,
   SharedIdReviewSong,
   SharedIdServiceTrack,
 } from "../SharedIdReviewModel";
 import { formatArtists, formatDances, formatDate, formatLength } from "../format";
+import { sortOutIds } from "../sortOut";
 import AlbumIds from "./AlbumIds.vue";
 import NameChoiceRow from "./NameChoiceRow.vue";
 
@@ -60,8 +61,8 @@ function setDeleted(songId: string, value: unknown): void {
   props.choice.setDeleted(songId, !!value);
 }
 
-// The service lookup, kept with the card until the page reloads
-const tracks = ref<Map<string, SharedIdServiceTrack>>();
+// The service lookup, kept with the choice until the page reloads
+const tracks = computed(() => props.choice.tracks);
 const lookingUp = ref(false);
 const lookupError = ref("");
 const canLookUp = computed(() => lookupIds(songs.value).length > 0);
@@ -73,13 +74,35 @@ async function lookUp(): Promise<void> {
     const response = await context.axiosXsrf.post<SharedIdServiceTrack[]>("/api/sharedids/tracks", {
       ids: lookupIds(songs.value),
     });
-    tracks.value = new Map(response.data.map((t) => [t.id, t]));
+    props.choice.setTracks(response.data);
   } catch (e: unknown) {
     lookupError.value = `Lookup failed: ${e instanceof Error ? e.message : String(e)}`;
   } finally {
     lookingUp.value = false;
   }
 }
+
+const canSortOut = computed(() => sharedLookupIds(songs.value).length > 0);
+const sortingOut = ref(false);
+const sortOutError = ref("");
+
+async function sortOut(): Promise<void> {
+  sortingOut.value = true;
+  sortOutError.value = "";
+  try {
+    await sortOutIds(props.choice);
+  } catch (e: unknown) {
+    sortOutError.value = `Sort out ids failed: ${e instanceof Error ? e.message : String(e)}`;
+  } finally {
+    sortingOut.value = false;
+  }
+}
+
+const ownerText: Record<string, string> = {
+  Owned: "belongs to",
+  Bad: "is no song here: off every song",
+  Unsure: "unsure",
+};
 </script>
 
 <template>
@@ -223,6 +246,15 @@ async function lookUp(): Promise<void> {
         </div>
         <p v-if="!merged" class="small text-muted">The merge couldn't be previewed.</p>
 
+        <ul v-if="choice.owners" class="small owners">
+          <li v-for="owner in choice.owners" :key="owner.id">
+            <strong>{{ owner.id }}</strong> {{ ownerText[owner.status] }}
+            <template v-if="owner.status === 'Owned'">{{ choice.songLabel(owner.song) }}</template
+            ><span v-if="owner.reason" class="text-muted">: {{ owner.reason }}</span>
+          </li>
+          <li v-if="choice.owners.length === 0" class="text-muted">The songs changed: reload.</li>
+        </ul>
+
         <ul class="small">
           <li v-for="candidate in cluster.candidates" :key="candidate.id">
             {{ candidate.source }}, {{ formatDate(candidate.created) }}: {{ candidate.serviceIds }}
@@ -265,9 +297,22 @@ async function lookUp(): Promise<void> {
           >
             {{ tracks ? "Look up again" : "Look up on Spotify and iTunes" }}
           </BButton>
+          <BButton
+            v-if="canSortOut"
+            size="sm"
+            variant="outline-secondary"
+            class="sort-out-button"
+            :disabled="sortingOut"
+            @click="sortOut"
+          >
+            Sort out ids
+          </BButton>
         </div>
         <BAlert v-if="lookupError" :model-value="true" variant="danger" class="mt-2 mb-0">
           {{ lookupError }}
+        </BAlert>
+        <BAlert v-if="sortOutError" :model-value="true" variant="danger" class="mt-2 mb-0">
+          {{ sortOutError }}
         </BAlert>
       </template>
     </BCardBody>

@@ -1,9 +1,12 @@
 import type {
   SharedIdAction,
   SharedIdChoiceRequest,
+  SharedIdOwnerProposal,
+  SharedIdOwnersResponse,
   SharedIdRemovalRequest,
   SharedIdReviewCluster,
   SharedIdReviewSong,
+  SharedIdServiceTrack,
 } from "./SharedIdReviewModel";
 
 // The names a merged song takes, each from one of the cluster's songs or, as null, from the
@@ -24,6 +27,14 @@ export function groupNames(songCount: number): string[] {
 export function lookupIds(songs: SharedIdReviewSong[]): string[] {
   const ids = songs.flatMap((s) => s.albums.flatMap((a) => a.ids.map((i) => i.id)));
   return [...new Set(ids.filter((id) => id.startsWith("S:") || id.startsWith("I:")))];
+}
+
+/** The ids the songs share that a service can look up: what Sort out ids gives an owner. */
+export function sharedLookupIds(songs: SharedIdReviewSong[]): string[] {
+  const shared = songs.flatMap((s) =>
+    s.albums.flatMap((a) => a.ids.filter((i) => i.shared).map((i) => i.id)),
+  );
+  return lookupIds(songs).filter((id) => shared.includes(id));
 }
 
 function albumKey(songId: string, album: number): string {
@@ -50,6 +61,10 @@ export class ClusterChoice {
   public readonly albumRemovals = new Set<string>();
   public readonly idRemovals = new Set<string>();
   public readonly deletions = new Set<string>();
+  // What Spotify and iTunes say the ids are, once looked up
+  public tracks?: Map<string, SharedIdServiceTrack>;
+  // Which song each shared id belongs to, once Sort out ids has run
+  public owners?: SharedIdOwnerProposal[];
 
   public constructor(public readonly cluster: SharedIdReviewCluster) {
     this.action = cluster.defaultAction;
@@ -160,6 +175,51 @@ export class ClusterChoice {
       this.idRemovals.add(key);
     } else {
       this.idRemovals.delete(key);
+    }
+  }
+
+  public setTracks(tracks: SharedIdServiceTrack[]): void {
+    this.tracks = new Map(tracks.map((t) => [t.id, t]));
+  }
+
+  /** "song 2" for the cluster's second song. */
+  public songLabel(songId?: string): string {
+    const index = this.cluster.songs.findIndex((s) => s.songId === songId);
+    return index < 0 ? "a song" : `song ${index + 1}`;
+  }
+
+  /**
+   * Probably different songs: lengths too far apart, titles or artists that are only close or
+   * differ, a rejected pair or a .NoMerge song. Sort out ids on this page runs for these.
+   */
+  public get needsSorting(): boolean {
+    const c = this.cluster;
+    return (
+      this.hasSongs &&
+      sharedLookupIds(c.songs).length > 0 &&
+      (!!c.lengthsDiffer ||
+        c.match === "Close" ||
+        c.match === "Different" ||
+        c.hasRejectedPair ||
+        c.hasNoMergeSong)
+    );
+  }
+
+  /**
+   * Takes in what Sort out ids proposes: checks the removals that give each shared id to its
+   * song, and fills the ids' tooltips. When something is removed the cluster becomes Leave for
+   * later, so Apply doesn't merge the songs it has just separated.
+   */
+  public applyOwners(response: SharedIdOwnersResponse): void {
+    this.owners = response.ids;
+    this.setTracks(response.tracks);
+    response.removals.forEach((r) =>
+      r.id === undefined || r.id === null
+        ? this.setAlbumRemoved(r.songId, r.album, true)
+        : this.setIdRemoved(r.songId, r.album, r.id, true),
+    );
+    if (response.removals.length > 0) {
+      this.action = "Leave";
     }
   }
 

@@ -12,6 +12,7 @@ import {
 } from "./SharedIdReviewModel";
 import { formatDateTime } from "./format";
 import { navigateTo, reviewPageUrl } from "./navigate";
+import { sortOutIds } from "./sortOut";
 import ClusterCard from "./components/ClusterCard.vue";
 
 declare const model_: string;
@@ -62,6 +63,38 @@ async function apply(): Promise<void> {
     error.value = `Apply failed: ${e instanceof Error ? e.message : String(e)}`;
   }
 }
+
+// Sort out ids on this page: one cluster at a time, so the lookups stay sequential and the
+// progress shows
+const toSort = computed(() => choices.filter((c) => c.needsSorting));
+const sorting = ref<{ done: number; total: number; failed: number }>();
+
+async function sortOutPage(): Promise<void> {
+  const clusters = toSort.value;
+  const progress = { done: 0, total: clusters.length, failed: 0 };
+  sorting.value = progress;
+  for (const choice of clusters) {
+    try {
+      await sortOutIds(choice);
+    } catch {
+      progress.failed += 1;
+    }
+    progress.done += 1;
+    sorting.value = { ...progress };
+  }
+}
+
+const sortingText = computed(() => {
+  const s = sorting.value;
+  if (!s) {
+    return "";
+  }
+  const failed = s.failed > 0 ? `, ${s.failed} failed` : "";
+  return s.done < s.total
+    ? `Sorting out ids: ${s.done} of ${s.total} clusters${failed}`
+    : `Sorted out the ids of ${s.total} clusters${failed}. Check the proposals, then Apply.`;
+});
+const sortingBusy = computed(() => !!sorting.value && sorting.value.done < sorting.value.total);
 
 function onPageClick(event: BvEvent, page: number): void {
   event.preventDefault();
@@ -135,6 +168,17 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
       removals. <strong>Delete</strong> on a song deletes it on Apply, whatever the cluster's
       choice; it's left out of the groups. <strong>Look up on Spotify and iTunes</strong> puts what
       each service says the cluster's ids are in their tooltips; an id it doesn't know turns red.
+    </p>
+    <p>
+      <strong>Sort out ids</strong> works out which song each shared Spotify or iTunes id belongs
+      to, by looking it up and comparing the track's title, artist and length with each song's. It
+      checks the boxes that take the id off the other songs, or off every song when no song is the
+      track, and an album whose ids would all go. An ISRC goes with the Spotify or iTunes id whose
+      track reports it. Under the albums it lists each shared id's owner, or why there's none. A
+      cluster it changes becomes Leave for later, so Apply separates the songs instead of merging
+      them; change any box before you apply. <strong>Sort out ids on this page</strong> does this
+      for every cluster that's probably different songs: lengths too far apart, titles or artists
+      that are only close or differ, a rejected pair or a .NoMerge song.
     </p>
     <p>
       The <strong>Merge all</strong> buttons merge in bulk, with the same feat. cleanup:
@@ -222,9 +266,18 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
         <BButton class="apply-button" variant="primary" :disabled="applying" @click="apply"
           >Apply this page</BButton
         >
+        <BButton
+          v-if="toSort.length > 0"
+          class="ms-2 sort-out-page-button"
+          variant="outline-secondary"
+          :disabled="applying || sortingBusy"
+          @click="sortOutPage"
+          >Sort out ids on this page ({{ toSort.length }})</BButton
+        >
         <span v-if="changedCount > 0" class="ms-2 text-muted changed-count"
           >{{ changedCount }} changed from their defaults</span
         >
+        <div v-if="sortingText" class="mt-2 small sorting-progress">{{ sortingText }}</div>
       </div>
 
       <ClusterCard

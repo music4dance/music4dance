@@ -231,6 +231,36 @@ public record SharedIdApplyResponse(string Message, int Merged, int Rejected, in
             result.UnsharedPairs, result.Stale, result.Deleted);
 }
 
+/// <summary>POST /api/sharedids/owners: a cluster's songs.</summary>
+public class SharedIdOwnersRequest
+{
+    // A bound on the songs, and so on the lookups, one request makes
+    public const int MaxSongs = 20;
+
+    public List<Guid> SongIds { get; set; } = [];
+}
+
+/// <summary>
+/// What POST /api/sharedids/owners proposes for a cluster (SharedIdOwnership): each shared id's
+/// owner or why there's none, the removals that carry it out, and the tracks looked up, as
+/// /api/sharedids/tracks gives them. Empty when the songs changed so that fewer than two are left.
+/// </summary>
+public record SharedIdOwnersResponse(IReadOnlyList<SharedIdOwnerView> Ids, IReadOnlyList<SharedIdRemoval> Removals,
+    IReadOnlyList<SharedIdServiceTrack> Tracks)
+{
+    public static SharedIdOwnersResponse Build(SharedIdOwnership ownership) =>
+        ownership == null ? new SharedIdOwnersResponse([], [], [])
+            : new SharedIdOwnersResponse(
+                [.. ownership.Ids.Select(p => new SharedIdOwnerView(p.Id, p.Status, p.Reason, p.Song, p.Via))],
+                ownership.Removals,
+                [.. ownership.Tracks.Select(t => SharedIdServiceTrack.From(t.Key, t.Value))]);
+}
+
+// A SharedIdOwnerProposal, with its status spelled out
+public record SharedIdOwnerView(string Id,
+    [property: JsonConverter(typeof(StringEnumConverter))] SharedIdOwnerStatus Status,
+    string Reason, Guid? Song, string Via);
+
 /// <summary>POST /api/sharedids/tracks: extended ids ("S:…", "I:…") to look up.</summary>
 public class SharedIdTracksRequest
 {
@@ -270,14 +300,17 @@ public record SharedIdServiceTrack(string Id, bool Found, string Title = null, s
                 // Reported as not found
             }
 
-            tracks.Add(track == null ? new SharedIdServiceTrack(id, false)
-                : new SharedIdServiceTrack(id, true, track.Name,
-                    track.Artists is { Length: > 1 } ? string.Join(", ", track.Artists) : track.Artist, track.Album,
-                    track.Duration, track.ISRC, track.ReleaseDate));
+            tracks.Add(From(id, track));
         }
 
         return tracks;
     }
+
+    public static SharedIdServiceTrack From(string id, ServiceTrack track) =>
+        track == null ? new SharedIdServiceTrack(id, false)
+            : new SharedIdServiceTrack(id, true, track.Name,
+                track.Artists is { Length: > 1 } ? string.Join(", ", track.Artists) : track.Artist, track.Album,
+                track.Duration, track.ISRC, track.ReleaseDate);
 
     private static bool Lookable(string id) =>
         id is { Length: > 2 } && id[1] == ':' && MusicService.GetService(id[0]) is { } service &&
