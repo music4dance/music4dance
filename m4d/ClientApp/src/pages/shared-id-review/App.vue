@@ -87,9 +87,9 @@ const mergeFeaturingPrompt =
   "skipped.";
 const mergeCreditsPrompt =
   "Merge every pending cluster whose titles match and whose songs name the same artists, " +
-  "however they're credited, or whose credits leave out artists the shared Spotify or iTunes " +
-  "track lists? This looks the tracks up. The same clusters are skipped as for the other " +
-  "Merge all buttons.";
+  "however they're credited, or whose credits leave out artists that the songs' own Spotify " +
+  "or iTunes tracks list? This looks the tracks up. The same clusters are skipped as for the " +
+  "other Merge all buttons.";
 
 function leaveWarning(event: BeforeUnloadEvent): void {
   if (changedCount.value > 0 && !applying.value) {
@@ -142,11 +142,12 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
       and artist, <em>that differ only by feat.</em> the ones that are the same once their feat.
       clauses come out, and <em>with artists credited differently</em> the ones whose titles match
       and whose songs name the same artists however they're credited ("X and His Orchestra" and
-      "X"), or leave out artists the shared Spotify or iTunes track lists ("X" and "X &amp; Y"). All
-      of them skip clusters with a rejected pair, a .NoMerge song, a song with no artist, or lengths
-      more than 15 seconds apart. <strong>Preview merges</strong> works out what each would merge
-      and what the merged songs would be called, without merging anything, and sorts this page by
-      it; <strong>Show preview</strong> lists the result.
+      "X"), or leave out artists ("X" and "X &amp; Y") when the song credited to X alone has a
+      Spotify or iTunes track of its own that lists them all. All of them skip clusters with a
+      rejected pair, a .NoMerge song, a song with no artist, or lengths more than 15 seconds apart.
+      <strong>Preview merges</strong> works out what each would merge and what the merged songs
+      would be called, without merging anything, and sorts this page by it;
+      <strong>Show preview</strong> lists the result.
     </p>
 
     <BAlert v-if="model.message" :model-value="true" variant="info">{{ model.message }}</BAlert>

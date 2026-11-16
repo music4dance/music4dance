@@ -204,8 +204,8 @@ public class SharedIdBatchResult
 /// What the Merge all tasks do with one cluster. SharedIdLog.MergeMatching merges it when
 /// SkipReason is null; SharedIdLog.MergeFeaturing when the only reason is that its titles or
 /// artists differ by feat.; SharedIdLog.MergeCredits when it's that the same artists are
-/// credited differently, or that some credits leave artists out and a music service lists them
-/// all. The reasons that keep every task from merging a cluster come first.
+/// credited differently, or that some credits leave artists out and the music service tracks of
+/// the songs that leave them out list them all. The reasons that keep every task from merging a cluster come first.
 /// </summary>
 public record SharedIdMergePlan(SharedIdCluster Cluster, string SkipReason)
 {
@@ -216,8 +216,13 @@ public record SharedIdMergePlan(SharedIdCluster Cluster, string SkipReason)
         $"The lengths are more than {SharedIdMatcher.LengthTolerance} seconds apart";
     public const string WithoutFeaturing = "The titles or artists differ only by feat.";
     public const string SameArtists = "The same artists, credited differently";
-    public const string ConfirmedArtists = "The same lead artist, and a music service lists every artist the songs name";
-    public const string FewerArtists = "The same lead artist, but no music service lists every artist the songs name";
+    public const string ConfirmedArtists =
+        "The same lead artist, and each song credited to it alone has a track of its own that lists every artist";
+    public const string FewerArtists =
+        "The same lead artist, but a song credited to it alone has no track of its own to check the other artists against";
+    public const string ServiceListsFewer =
+        "The same lead artist, but a song credited to it alone has a track of its own that leaves artists out: " +
+        "probably a different recording";
     public const string Close = "The titles and artists are close but not the same";
     public const string Different = "The titles or artists differ";
 
@@ -228,9 +233,10 @@ public record SharedIdMergePlan(SharedIdCluster Cluster, string SkipReason)
     // One of the Merge all tasks would merge it
     public bool WouldMerge => WillMerge || WillMergeFeaturing || WillMergeCredits;
 
-    // For ConfirmedArtists: the shared id ("S:…", "I:…") whose track lists every artist, and
-    // the artists it lists, the evidence for splitting the songs' credits
-    public string ConfirmedBy { get; init; }
+    // For ConfirmedArtists and ServiceListsFewer: the ids ("S:…", "I:…") checked, each one only
+    // on the song it was checked for, and the artists their tracks list, the evidence for
+    // splitting the songs' credits
+    public IReadOnlyList<string> CheckedBy { get; init; }
     public IReadOnlyList<string> ServiceArtists { get; init; }
 
     public IArtistKnowledge Knowledge => ServiceArtists == null ? null : FeaturedCleanup.Knowing(ServiceArtists);

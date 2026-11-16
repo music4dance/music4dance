@@ -596,7 +596,8 @@ public class SharedIdLog(DanceMusicCoreService dms)
     /// Merges every pending cluster whose titles match without feat. and whose songs name the
     /// same individual artists, however they're credited ("X and His Orchestra" and "X"), or
     /// whose credits only leave artists out ("X" and "X &amp; Y") when <paramref name="lookup"/>
-    /// finds a shared Spotify or iTunes id whose track has the title and lists them all. Each
+    /// finds that each song credited to the lead artist alone has a Spotify or iTunes id of its
+    /// own whose track has the title and lists them all (see ConfirmArtists). Each
     /// merge gets the feat. cleanup, which keeps every artist. Skips the same clusters
     /// MergeMatching does. Returns the number merged.
     /// </summary>
@@ -625,8 +626,8 @@ public class SharedIdLog(DanceMusicCoreService dms)
     /// <summary>
     /// What the Merge all tasks would do with each pending cluster: merge it, or skip it and why.
     /// The clusters' songs are loaded. With <paramref name="lookup"/> (an extended id, "S:…" or
-    /// "I:…", to its track), a cluster whose credits leave artists out is checked against its
-    /// shared Spotify and iTunes ids; without it, it's skipped. With
+    /// "I:…", to its track), a cluster whose credits leave artists out is checked against the
+    /// songs' own Spotify and iTunes ids (ConfirmArtists); without it, it's skipped. With
     /// <paramref name="previewAs"/>, each cluster one of the tasks would merge also gets the
     /// names its merge would land on. Changes nothing but the bookkeeping LoadSongs does for
     /// songs merged or deleted since they were queued.
@@ -657,12 +658,11 @@ public class SharedIdLog(DanceMusicCoreService dms)
 
                 var plan = new SharedIdMergePlan(cluster, SkipReason(cluster));
                 if (plan.SkipReason == SharedIdMergePlan.FewerArtists && lookup != null &&
-                    await ConfirmArtists(cluster, lookup) is var (confirmedBy, artists))
+                    await ConfirmArtists(cluster, lookup) is { } check)
                 {
                     plan = plan with
                     {
-                        SkipReason = SharedIdMergePlan.ConfirmedArtists, ConfirmedBy = confirmedBy,
-                        ServiceArtists = artists
+                        SkipReason = check.Reason, CheckedBy = check.Ids, ServiceArtists = check.Artists
                     };
                 }
 
@@ -687,18 +687,61 @@ public class SharedIdLog(DanceMusicCoreService dms)
         return plans;
     }
 
-    // The first of the cluster's shared Spotify ids, then iTunes ids, whose track has the
-    // cluster's title (without feat.) and lists every artist its songs name, with the artists it
-    // lists; null when none does. The track's artists are the evidence for splitting the songs'
-    // credits ("X & Y" is X and Y when the track lists both)
-    private static async Task<(string Id, IReadOnlyList<string> Artists)?> ConfirmArtists(
-        SharedIdCluster cluster, Func<string, Task<ServiceTrack>> lookup)
+    private sealed record ArtistCheck(string Reason, IReadOnlyList<string> Ids, IReadOnlyList<string> Artists);
+
+    // Whether the songs credited to the lead artist alone ("X", against "X & Y") really are the
+    // version with every artist. The shared id can't say: it may be the very id that was
+    // attached to the wrong version, and an old classic often has a later version with a
+    // collaborator. So each such song (each song, when none is) is checked against an id of its
+    // own, one no other song in the cluster has: the first of its Spotify ids, then iTunes ids,
+    // whose track has the cluster's title (without feat.). ConfirmedArtists when each of those
+    // tracks lists every artist the songs name; ServiceListsFewer as soon as one leaves some
+    // out; null (no evidence, so the cluster stays FewerArtists) when a song has no such track.
+    // The tracks' artists are the evidence for splitting the songs' credits ("X & Y" is X and Y
+    // when the tracks list both)
+    private static async Task<ArtistCheck> ConfirmArtists(SharedIdCluster cluster,
+        Func<string, Task<ServiceTrack>> lookup)
     {
-        var title = SharedIdMatcher.TitleKey(cluster.Songs[0].Title);
+        var songs = cluster.Songs;
+        var title = SharedIdMatcher.TitleKey(songs[0].Title);
         // The lead artists, the evidence for splitting an iTunes credit
-        var leads = FeaturedCleanup.Knowing(cluster.Songs.Select(s => FeaturedCleanup.IndividualArtists(s)[0]));
-        var ids = cluster.ServiceIds.Where(i => i.StartsWith("S:"))
-            .Concat(cluster.ServiceIds.Where(i => i.StartsWith("I:")));
+        var leads = FeaturedCleanup.Knowing(songs.Select(s => FeaturedCleanup.IndividualArtists(s)[0]));
+        var leadOnly = songs.Where(s => SharedIdMatcher.ArtistKeys(s).SetEquals([SharedIdMatcher.LeadKey(s)])).ToList();
+
+        var ids = new List<string>();
+        var artists = new List<string>();
+        foreach (var song in leadOnly.Count > 0 ? leadOnly : songs)
+        {
+            var others = songs.Where(s => s.SongId != song.SongId)
+                .SelectMany(s => s.GetExtendedPurchaseIds()).ToHashSet();
+            var own = song.GetExtendedPurchaseIds().Where(i => !others.Contains(i)).Distinct().ToList();
+            var listed = await OwnTrackArtists(
+                own.Where(i => i.StartsWith("S:")).Concat(own.Where(i => i.StartsWith("I:"))),
+                title, leads, lookup);
+            if (listed == null)
+            {
+                return null;
+            }
+
+            ids.Add(listed.Value.Id);
+            artists.AddRange(listed.Value.Artists.Where(a =>
+                !artists.Any(n => ArtistSplitter.ArtistKey(n) == ArtistSplitter.ArtistKey(a))));
+            var knowledge = FeaturedCleanup.Knowing(listed.Value.Artists);
+            var named = listed.Value.Artists.Select(ArtistSplitter.ArtistKey).ToHashSet();
+            if (!songs.All(s => SharedIdMatcher.ArtistKeys(s, knowledge).IsSubsetOf(named)))
+            {
+                return new ArtistCheck(SharedIdMergePlan.ServiceListsFewer, [listed.Value.Id], listed.Value.Artists);
+            }
+        }
+
+        return new ArtistCheck(SharedIdMergePlan.ConfirmedArtists, ids, artists);
+    }
+
+    // The first of the ids whose track has the title, with the artists it lists (Spotify lists
+    // each one; an iTunes credit is split with the lead artists as evidence); null when none has
+    private static async Task<(string Id, IReadOnlyList<string> Artists)?> OwnTrackArtists(
+        IEnumerable<string> ids, int title, IArtistKnowledge leads, Func<string, Task<ServiceTrack>> lookup)
+    {
         foreach (var id in ids)
         {
             ServiceTrack track;
@@ -713,19 +756,10 @@ public class SharedIdLog(DanceMusicCoreService dms)
                 continue;
             }
 
-            if (track == null || SharedIdMatcher.TitleKey(track.Name) != title)
+            if (track != null && SharedIdMatcher.TitleKey(track.Name) == title)
             {
-                continue;
-            }
-
-            // Spotify lists each artist; iTunes gives a credit
-            IReadOnlyList<string> listed = track.Artists is { Length: > 0 } ? track.Artists
-                : ArtistSplitter.Split(track.Artist, track.Name, leads).Artists;
-            var knowledge = FeaturedCleanup.Knowing(listed);
-            var named = listed.Select(ArtistSplitter.ArtistKey).ToHashSet();
-            if (cluster.Songs.All(s => SharedIdMatcher.ArtistKeys(s, knowledge).IsSubsetOf(named)))
-            {
-                return (id, listed);
+                return (id, track.Artists is { Length: > 0 } ? track.Artists
+                    : ArtistSplitter.Split(track.Artist, track.Name, leads).Artists);
             }
         }
 

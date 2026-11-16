@@ -76,7 +76,10 @@ else
         What <strong>Merge all with artists credited differently</strong> would merge: the titles
         are the same without feat., and either every song names the same artists however they're
         credited ("X and His Orchestra" and "X", "X &amp; Y" and "Y and X"), or some credits leave
-        artists out ("X" and "X &amp; Y") and the shared Spotify or iTunes track lists them all.
+        artists out ("X" and "X &amp; Y") and each song credited to the lead artist alone has a
+        Spotify or iTunes track of its own (an id the other songs don't share) that lists them all.
+        When that track leaves artists out, the cluster is skipped as probably a different
+        recording.
         The merged song keeps every artist.
     </p>
     @using (Html.BeginForm("MergeCredits", "SharedIds", FormMethod.Post,

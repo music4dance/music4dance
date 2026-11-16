@@ -31,6 +31,13 @@ else
                                 <span class="text-muted">by @song.Artist</span>
                             </div>
                         }
+                        @if (plan.CheckedBy is { Count: > 0 })
+                        {
+                            <div class="small text-muted">
+                                Checked against @string.Join(", ", plan.CheckedBy), which list
+                                @string.Join(" | ", plan.ServiceArtists)
+                            </div>
+                        }
                     </td>
                     @if (named)
                     {
@@ -51,10 +58,6 @@ else
                                 @if (plan.Names.Artists is { Count: > 1 })
                                 {
                                     <div class="small text-muted">Artists: @string.Join(" | ", plan.Names.Artists)</div>
-                                }
-                                @if (plan.ConfirmedBy != null)
-                                {
-                                    <div class="small text-muted">Every artist listed by @plan.ConfirmedBy</div>
                                 }
                             }
                         </td>
