@@ -173,8 +173,9 @@ public static class M4dApplicationExtensions
         }
 
         // App request log: one line per request with the visitor's IP (App Service's own HTTP log
-        // only sees Cloudflare's), via the built-in W3C logger. Off unless RequestLog:Enabled.
-        services.AddM4dRequestLog(configuration);
+        // only sees Cloudflare's), via the built-in W3C logger, copied hourly to blob storage when
+        // RequestLog:UploadContainer is set. Off unless RequestLog:Enabled.
+        services.AddM4dRequestLog(configuration, azureCredential);
 
         // Manual-testing escape hatch: write the Azure Search Properties field uncompressed.
         // Reads always handle both formats (see SongPropertyCompression.IsCompressed), so this only

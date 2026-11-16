@@ -6,8 +6,8 @@
 **Code:** `m4d/Configuration/M4dApplicationExtensions.cs` (logging setup),
 `m4d/Services/Diagnostics/` (`GcDiagnostics`, `GcSnapshot`, `DumpResult`),
 `m4d/Controllers/AdminController.cs`, `m4d/Views/Admin/Diagnostics.cshtml`,
-`m4d/Configuration/RequestLogSetup.cs` and `m4d/Middleware/RequestLogFieldsMiddleware.cs`
-(app request log)
+`m4d/Configuration/RequestLogSetup.cs`, `m4d/Middleware/RequestLogFieldsMiddleware.cs` and
+`m4d/Services/RequestLogUploader.cs` (app request log)
 
 Where music4dance's application logs go, and what runtime memory diagnostics the app exposes.
 Security and traffic diagnostics on the same admin page are covered in
@@ -114,7 +114,8 @@ timeouts).
 ## App request log
 
 One line per request with the visitor's IP, written by ASP.NET Core's built-in W3C logger
-(`AddW3CLogging` / `UseW3CLogging`), set up in `RequestLogSetup`. It sits right after
+(`AddW3CLogging` / `UseW3CLogging`), set up in `RequestLogSetup`, to `/home`, and copied every hour
+to blob storage, which keeps 30 days. It sits right after
 `CloudflareClientIpMiddleware` at the top of the pipeline, so it covers static files and records
 the status the exception handler settles on (an unhandled exception is a `500`).
 
@@ -151,53 +152,74 @@ with a probe, 2026-11-16):
 - On shutdown it stops without draining, so up to about a second of lines can be lost.
 - It deletes the oldest files past `RetainedFileCountLimit`.
 
-**Where the files go** is `RequestLog:Directory`. Two choices, both supported by
-`fetch_http_logs.py --source app --from share|home`:
+**Where the files go.** The logger writes to `/home/LogFiles/requests`, and `RequestLogUploader`
+copies them to container `app-request-logs` in `m4dlogs` every hour:
 
-| | Azure Files share (`/mounts/request-logs`) | `/home/LogFiles/requests` |
-| --- | --- | --- |
-| Space | Its own quota, off the plan | Shares the plan's 11 GB (2 GB used, 2026-11-16); about 100 MB a day at current traffic |
-| Cost | Transactions: about one write and two metadata operations per request, plus a directory listing about once a second. At about 360k requests a day, roughly $20–30 a month on the transaction-optimized tier (list prices 2026-11-16: $0.015 per 10k writes and lists); about four times that on Hot | None beyond the plan |
-| Stall risk | A new dependency: an SMB stall longer than about 1,024 requests' worth blocks requests | None new: the site already runs from `/home`, so a `/home` stall takes it down anyway |
-| Auth | The mount uses the account key; rotating it breaks the mount until it's updated | n/a |
-| Retention | `RetainedFileCountLimit` (30 is fine) | `RetainedFileCountLimit` (keep it to about 14) |
+- **Why `/home` and not straight to storage.** The logger writes and flushes every line, and a slow
+  write blocks requests (above). An Azure Files share mounted into the app would cost about $20–30 a
+  month in transactions at current traffic (one write per request plus metadata calls) and add a
+  dependency that can stall the site. `/home` costs nothing and adds no new stall risk: the site
+  already runs from it.
+- **The upload** runs 5 minutes after start, then hourly, in the app (a `BackgroundService`, not in
+  the request pipeline). Each pass appends to each file's append blob the whole lines the file has
+  gained since, in chunks of up to 1 MB, conditioned on the blob's current length so a retry can't
+  duplicate lines. It keeps no state: after a restart it resumes from the blobs' lengths. A failure
+  (say, a missing role) is a `[RequestLog] Couldn't upload` warning, retried next pass. At about
+  100 MB a day that's around a hundred appends a day: pennies.
+- **What can be lost:** nothing while uploads work. If they fail for longer than
+  `RetainedFileCountLimit` days, the logger deletes the oldest files before they're copied.
+- **Space on `/home`:** about 100 MB a day, so the default 7 files use about 700 MB of the plan's
+  11 GB (2 GB used, 2026-11-16).
+- **Retention in storage:** the account's lifecycle rule `delete-http-logs-after-30-days` also
+  matches the `app-request-logs/` prefix.
 
 **Settings:**
 
 | Key | Default | Notes |
 | --- | --- | --- |
 | `RequestLog:Enabled` | `false` | Read at startup, so restart after changing it |
-| `RequestLog:Directory` | none | An absolute path that already exists. The app doesn't create it, so a missing mount can't quietly become a folder on the container's own disk |
-| `RequestLog:RetainedFileCountLimit` | `14` | 1–1000 |
+| `RequestLog:Directory` | none | An absolute path; the logger creates it. `/home/LogFiles/requests` in production |
+| `RequestLog:UploadContainer` | none | The container URL, `https://m4dlogs.blob.core.windows.net/app-request-logs`. Unset, the files stay only in the directory |
+| `RequestLog:RetainedFileCountLimit` | `7` | 1–1000. The buffer on `/home` if uploads fail |
 | `RequestLog:FileSizeLimitMB` | `200` | 1–2000. Large enough that a day is normally one file, so the count above is about that many days |
 
 A bad value turns the log off with a `[RequestLog] WARNING: disabled, ...` line at startup
-instead of failing startup. When it's on, startup shows `[RequestLog] Enabled: <directory>, ...`.
+instead of failing startup. When it's on, startup shows `[RequestLog] Enabled: <directory>, ...`,
+ending in where it's copied.
 
-**One-time setup, Azure Files share** (PowerShell). Adding the mount restarts the app:
+**One-time setup** (PowerShell, as an Owner of `m4d-Web`). Nothing here restarts the app until the
+last line:
 
 ```powershell
-az storage share-rm create --storage-account m4dlogs -g m4d-Web -n request-logs `
-  --quota 20 --access-tier TransactionOptimized
-$key = az storage account keys list -n m4dlogs -g m4d-Web --query "[0].value" -o tsv
-az webapp config storage-account add -g m4d-Web -n msc4dnc --custom-id requestlogs `
-  --storage-type AzureFiles --account-name m4dlogs --share-name request-logs `
-  --access-key $key --mount-path /mounts/request-logs
-az appconfig kv set -n music4dance --key RequestLog:Directory --value /mounts/request-logs --yes
-az appconfig kv set -n music4dance --key RequestLog:RetainedFileCountLimit --value 30 --yes
+# The container, and write access to it (only it) for the app's managed identity
+az storage container-rm create --storage-account m4dlogs -g m4d-Web -n app-request-logs
+$app = az webapp identity show -n msc4dnc -g m4d-Web --query principalId -o tsv
+$account = az storage account show -n m4dlogs -g m4d-Web --query id -o tsv
+az role assignment create --assignee-object-id $app --assignee-principal-type ServicePrincipal `
+  --role "Storage Blob Data Contributor" `
+  --scope "$account/blobServices/default/containers/app-request-logs"
+# Keep 30 days, with the same lifecycle rule as the HTTP log
+az storage account management-policy update --account-name m4dlogs -g m4d-Web `
+  --add policy.rules[0].definition.filters.prefixMatch app-request-logs/
+# Turn it on
+az appconfig kv set -n music4dance --key RequestLog:Directory --value /home/LogFiles/requests --yes
+az appconfig kv set -n music4dance --key RequestLog:UploadContainer `
+  --value https://m4dlogs.blob.core.windows.net/app-request-logs --yes
 az appconfig kv set -n music4dance --key RequestLog:Enabled --value true --yes
 az webapp restart -n msc4dnc -g m4d-Web
 ```
 
-**One-time setup, `/home`:** create the folder once (`az webapp ssh -n msc4dnc -g m4d-Web`, then
-`mkdir -p /home/LogFiles/requests`), set `RequestLog:Directory` to `/home/LogFiles/requests` and
-`RequestLog:Enabled` to `true`, and restart.
+A new role assignment can take a few minutes to apply; the first pass is 5 minutes after start,
+and a pass that fails is simply retried an hour later. To check, look for `[RequestLog] Uploaded`
+in the app log, or list the container.
 
 **Privacy.** The same rules as the HTTP request log: full client IPs and query strings, read only
 by the site's owner, and kept under `local/` once downloaded. Cookie values are never recorded.
 
-**Reading:** `python -I .claude/skills/analyze-traffic/fetch_http_logs.py --source app [--from home]`
-downloads to `local/app-request-logs/`, and `analyze_http_logs.py` reads either source (one per
+**Reading:** `python -I .claude/skills/analyze-traffic/fetch_http_logs.py --source app` downloads
+from the container (same `Storage Blob Data Reader` role as the HTTP request log) to
+`local/app-request-logs/`; `--from home` reads `/home` through Kudu instead, for the last hour or
+so that hasn't been copied yet, and `analyze_http_logs.py` reads either source (one per
 directory). See the `analyze-traffic` skill.
 
 ## Memory and GC diagnostics
@@ -242,7 +264,9 @@ recent dumps. Heap and full dumps are large; delete them after downloading. The 
 - 2026-11-16: App request log added with the built-in W3C logger, off until
   `RequestLog:Enabled`. Behind Cloudflare the HTTP request log's `CIp` is the edge server; this
   log records the visitor. It replaced a custom middleware-and-blob design (PR #406), trading
-  response bytes for much less code.
+  response bytes for much less code. It writes to `/home` and `RequestLogUploader` copies it to
+  blob storage hourly; writing to a mounted Azure Files share was considered and dropped for its
+  transaction cost and stall risk.
 
 ## Related
 

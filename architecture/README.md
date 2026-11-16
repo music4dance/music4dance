@@ -108,7 +108,7 @@ procedural, to become a runbook.
 | Doc | Kind | What it covers |
 | --- | --- | --- |
 | [usage-tracking](observability/usage-tracking.md) | Ref | Page-view `UsageLog`: server vs client-side recording, batch endpoint, admin analysis pages, the antiforgery 400 root cause |
-| [logging-and-diagnostics](observability/logging-and-diagnostics.md) | Ref | Where app logs go (filesystem Warning+), HTTP request logs (storage `m4dlogs`), the app request log with real client IPs (built-in W3C logger), orphaned App Insights, GC snapshots, forced GC, memory dumps |
+| [logging-and-diagnostics](observability/logging-and-diagnostics.md) | Ref | Where app logs go (filesystem Warning+), HTTP request logs (storage `m4dlogs`), the app request log with real client IPs (built-in W3C logger, copied hourly to `m4dlogs`), orphaned App Insights, GC snapshots, forced GC, memory dumps |
 
 ## Development and testing
 

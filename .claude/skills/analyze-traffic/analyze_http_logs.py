@@ -11,8 +11,8 @@ Usage: python -I analyze_http_logs.py <log-dir> [--top N] [--since T] [--until T
   (container insights-logs-appservicehttplogs). Each line is a JSON record whose
   "properties" field is itself a JSON-encoded string. Behind Cloudflare its client IP
   is the edge server, not the visitor.
-- the app request log: daily requests-*.txt files from the W3C logger (Azure Files
-  share request-logs in m4dlogs). The client is the visitor (from CF-Connecting-IP),
+- the app request log: daily requests-*.txt files from the W3C logger (copied hourly to
+  container app-request-logs in m4dlogs). The client is the visitor (from CF-Connecting-IP),
   the relay is the edge, cookies are names only, and response bytes aren't recorded.
 
 Every request is put in a group (search engine, AI crawler, SEO tool, social preview,

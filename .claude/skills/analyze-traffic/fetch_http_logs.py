@@ -1,6 +1,6 @@
 """Download the msc4dnc request logs.
 
-Usage: python -I fetch_http_logs.py [--source platform|app] [--from share|home]
+Usage: python -I fetch_http_logs.py [--source platform|app] [--from blob|home]
                                     [--hours 24] [--dest DIR]
 
 --source platform (default): the App Service HTTP log. Lists the hourly PT1H.json blobs
@@ -13,20 +13,19 @@ Cloudflare its client IP is the edge server.
 --source app: the app request log (the built-in W3C logger, RequestLog:Enabled). Lists
 the daily requests-YYYYMMDD.NNNN.txt files and downloads the ones from the last --hours
 hours that are missing or whose size changed, into local/app-request-logs. Its client
-IP is the visitor's. Where from depends on RequestLog:Directory:
-  --from share (default): the Azure Files share request-logs in m4dlogs, mounted at
-    /mounts/request-logs. Reads use the account key, which az fetches with your sign-in
-    (needs a role that can list keys, such as Contributor); the key goes to az through
-    the environment, not the command line.
+IP is the visitor's. Where from:
+  --from blob (default): container app-request-logs in m4dlogs, where the app copies the
+    files every hour (RequestLog:UploadContainer) and keeps them 30 days. Same sign-in and
+    role as the platform log.
   --from home: /home/LogFiles/requests on the app itself, through Kudu's file API with
-    your Entra ID sign-in.
+    your Entra ID sign-in. Up to the minute, but only the last RetainedFileCountLimit
+    files (about a week).
 
 Keep the two sources in separate directories; the analyzer reads one kind per directory.
 """
 
 import argparse
 import json
-import os
 import re
 import shutil
 import subprocess
@@ -41,17 +40,17 @@ from pathlib import Path
 ACCOUNT = "m4dlogs"
 RESOURCE_GROUP = "m4d-Web"
 CONTAINER = "insights-logs-appservicehttplogs"
-SHARE = "request-logs"
+APP_CONTAINER = "app-request-logs"
 KUDU_DIR = "https://msc4dnc.scm.azurewebsites.net/api/vfs/LogFiles/requests/"
 HOUR = re.compile(r"/y=(\d{4})/m=(\d{2})/d=(\d{2})/h=(\d{2})/")
 DAY_FILE = re.compile(r"^requests-(\d{4})(\d{2})(\d{2})\.\d{4}\.txt$")
 
 
-def run_az(args, env=None):
+def run_az(args):
     exe = shutil.which("az") or shutil.which("az.cmd")
     if not exe:
         sys.exit("Azure CLI (az) not found")
-    result = subprocess.run([exe, *args], capture_output=True, text=True, env=env)
+    result = subprocess.run([exe, *args], capture_output=True, text=True)
     if result.returncode != 0:
         sys.exit(f"az {' '.join(args[:3])} failed:\n{result.stderr.strip()}")
     return result.stdout
@@ -93,7 +92,7 @@ def fetch_platform(args):
 
 
 def wanted_day_files(files, dest, hours, now):
-    """(name, local path) for the share's day files that cover the last `hours` hours and
+    """(name, local path) for the day files that cover the last `hours` hours and
     are missing locally or a different size. The logger names files by its local date,
     which is UTC on App Service."""
     first_day = (now - timedelta(hours=hours)).date()
@@ -109,18 +108,14 @@ def wanted_day_files(files, dest, hours, now):
     return wanted
 
 
-def share_source():
-    """List and download from the Azure Files share, with the account key in az's env."""
-    key = run_az(["storage", "account", "keys", "list", "-n", ACCOUNT, "-g", RESOURCE_GROUP,
-                  "--query", "[0].value", "-o", "tsv"]).strip()
-    env = {**os.environ, "AZURE_STORAGE_ACCOUNT": ACCOUNT, "AZURE_STORAGE_KEY": key}
-    files = json.loads(run_az(["storage", "file", "list", "--share-name", SHARE, "--query",
-                               "[].{name:name,size:properties.contentLength}",
-                               "-o", "json"], env))
+def blob_source():
+    """List and download from the app-request-logs container."""
+    files = json.loads(az("storage", "blob", "list", "-c", APP_CONTAINER, "--num-results", "*",
+                          "--query", "[].{name:name,size:properties.contentLength}", "-o", "json"))
 
     def download(name, local):
-        run_az(["storage", "file", "download", "--share-name", SHARE, "-p", name,
-                "--dest", str(local), "--no-progress", "-o", "none"], env)
+        az("storage", "blob", "download", "-c", APP_CONTAINER, "-n", name, "-f", str(local),
+           "--overwrite", "true", "-o", "none")
     return files, download
 
 
@@ -150,7 +145,7 @@ def home_source():
 
 def fetch_app(args):
     dest = Path(args.dest or "local/app-request-logs")
-    files, download = home_source() if args.source_from == "home" else share_source()
+    files, download = home_source() if args.source_from == "home" else blob_source()
     wanted = wanted_day_files(files, dest, args.hours, datetime.now(timezone.utc))
     dest.mkdir(parents=True, exist_ok=True)
 
@@ -170,8 +165,8 @@ def fetch_app(args):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--source", choices=["platform", "app"], default="platform")
-    ap.add_argument("--from", dest="source_from", choices=["share", "home"], default="share",
-                    help="app source only: where RequestLog:Directory points (default share)")
+    ap.add_argument("--from", dest="source_from", choices=["blob", "home"], default="blob",
+                    help="app source only: the hourly copy in blob storage (default) or /home")
     ap.add_argument("--hours", type=int, default=24, help="how far back to fetch (default 24)")
     ap.add_argument("--dest", help="default local/http-logs (platform) or local/app-request-logs (app)")
     args = ap.parse_args()

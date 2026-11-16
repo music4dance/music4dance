@@ -1,4 +1,8 @@
+using Azure.Core;
+using Azure.Storage.Blobs;
+
 using m4d.Middleware;
+using m4d.Services;
 
 using Microsoft.AspNetCore.HttpLogging;
 
@@ -6,16 +10,20 @@ namespace m4d.Configuration;
 
 /// <summary>
 /// The app request log: one line per request, written by ASP.NET Core's built-in W3C logger,
-/// with the visitor's IP (App Service's own HTTP log only sees Cloudflare's edge). Off unless
-/// RequestLog:Enabled. See architecture/observability/logging-and-diagnostics.md (App request log).
+/// with the visitor's IP (App Service's own HTTP log only sees Cloudflare's edge), and copied to
+/// blob storage every hour by <see cref="RequestLogUploader"/>. Off unless RequestLog:Enabled.
+/// See architecture/observability/logging-and-diagnostics.md (App request log).
 /// </summary>
 public static class RequestLogSetup
 {
     public const string FileNamePrefix = "requests-";
-    public const int DefaultRetainedFileCountLimit = 14;
+    public const int DefaultRetainedFileCountLimit = 7;
     public const int DefaultFileSizeLimitMB = 200;
 
-    public sealed record Settings(string Directory, int RetainedFileCountLimit, int FileSizeLimitMB);
+    /// <param name="UploadContainer">The blob container the files are copied to, or null to
+    /// keep them only in <paramref name="Directory"/>.</param>
+    public sealed record Settings(string Directory, int RetainedFileCountLimit, int FileSizeLimitMB,
+        Uri UploadContainer);
 
     /// <summary>
     /// The request log settings, or null when it's off or misconfigured (then
@@ -34,15 +42,11 @@ public static class RequestLogSetup
         var directory = section["Directory"];
         var retained = section.GetValue("RetainedFileCountLimit", DefaultRetainedFileCountLimit);
         var sizeMB = section.GetValue("FileSizeLimitMB", DefaultFileSizeLimitMB);
+        var uploadValue = section["UploadContainer"];
+        Uri upload = null;
         if (string.IsNullOrWhiteSpace(directory) || !Path.IsPathRooted(directory))
         {
             error = "RequestLog:Directory must be an absolute path";
-        }
-        // The logger would create a missing directory, so an absent storage mount would quietly
-        // become a folder on the container's own disk. Require it to exist instead.
-        else if (!System.IO.Directory.Exists(directory))
-        {
-            error = $"RequestLog:Directory {directory} doesn't exist (is the storage mount missing?)";
         }
         else if (retained is < 1 or > 1000)
         {
@@ -52,8 +56,13 @@ public static class RequestLogSetup
         {
             error = "RequestLog:FileSizeLimitMB must be 1 to 2000";
         }
+        else if (!string.IsNullOrWhiteSpace(uploadValue)
+            && (!Uri.TryCreate(uploadValue, UriKind.Absolute, out upload) || upload.Scheme != Uri.UriSchemeHttps))
+        {
+            error = "RequestLog:UploadContainer must be an https container URL";
+        }
 
-        return error == null ? new Settings(directory, retained, sizeMB) : null;
+        return error == null ? new Settings(directory, retained, sizeMB, upload) : null;
     }
 
     /// <summary>
@@ -80,8 +89,13 @@ public static class RequestLogSetup
         options.AdditionalRequestHeaders.Add(RequestLogFieldsMiddleware.CookiesHeader);
     }
 
-    /// <summary>Registers the logger when RequestLog:Enabled and the settings are valid.</summary>
-    public static bool AddM4dRequestLog(this IServiceCollection services, IConfiguration configuration)
+    /// <summary>
+    /// Registers the logger when RequestLog:Enabled and the settings are valid, and the hourly
+    /// uploader when RequestLog:UploadContainer is set (signing in with
+    /// <paramref name="credential"/>, the app's managed identity in production).
+    /// </summary>
+    public static bool AddM4dRequestLog(this IServiceCollection services, IConfiguration configuration,
+        TokenCredential credential)
     {
         var settings = Read(configuration, out var error);
         if (settings == null)
@@ -95,8 +109,17 @@ public static class RequestLogSetup
 
         services.AddSingleton(settings);
         services.AddW3CLogging(o => Configure(o, settings));
+        if (settings.UploadContainer != null)
+        {
+            services.AddSingleton<IRequestLogStore>(
+                new BlobRequestLogStore(new BlobContainerClient(settings.UploadContainer, credential)));
+            services.AddHostedService<RequestLogUploader>();
+        }
         Console.WriteLine($"[RequestLog] Enabled: {settings.Directory}, keeping "
-            + $"{settings.RetainedFileCountLimit} files of up to {settings.FileSizeLimitMB} MB");
+            + $"{settings.RetainedFileCountLimit} files of up to {settings.FileSizeLimitMB} MB, "
+            + (settings.UploadContainer != null
+                ? $"copied hourly to {settings.UploadContainer}"
+                : "not copied to blob storage"));
         return true;
     }
 

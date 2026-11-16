@@ -32,8 +32,8 @@ Next session, after a day or two of data:
 3. Leaked credentials: turn on the header transform, test whether Cloudflare recognizes the login
    form, then decide on the app-side follow-up (Phase 6 step 3).
 4. Add the scanner WAF rule (step 4) and update the respond-to-attack runbook (step 6).
-5. The app request log that records the real client IP is built (2026-11-16) but off. Choose
-   where it writes (Azure Files share or `/home`), do the one-time setup in
+5. The app request log that records the real client IP is built (2026-11-16) but off. Do the
+   one-time setup (a container, a role for the app's identity, a lifecycle prefix, three settings) in
    [logging-and-diagnostics § App request log](../observability/logging-and-diagnostics.md#app-request-log),
    then point `analyze-traffic` at it (`--source app`).
 6. A small fix: `HomeController.Index` and other GET-only actions throw a 500 on a POST. They
@@ -582,7 +582,8 @@ When the phases ship, fold the as-built result into the reference docs and delet
   - ASP.NET Core's built-in W3C logger, right after `CloudflareClientIpMiddleware` at the top of
     the pipeline, writes one line per request with the visitor's IP, the edge as the relay, and
     cookie names. It doesn't record response bytes.
-  - Daily files go to an Azure Files share mounted into the app, or to `/home/LogFiles`.
+  - Daily files go to `/home/LogFiles/requests`, and the app copies them to blob storage hourly
+    (kept 30 days).
   - `analyze-traffic` reads either source (`fetch_http_logs.py --source app`) and keeps the
     platform log as a cross-check and for bytes.
 

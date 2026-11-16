@@ -1,7 +1,10 @@
 using System.Net;
 
+using Azure.Identity;
+
 using m4d.Configuration;
 using m4d.Middleware;
+using m4d.Services;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -9,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace m4d.Tests.Middleware;
@@ -18,6 +22,7 @@ public class RequestLogTests
 {
     private const string Visitor = "203.0.113.45";
     private const string CloudflareEdge = "172.70.1.20"; // in 172.64.0.0/13
+    private const string Container = "https://m4dlogs.blob.core.windows.net/app-request-logs";
 
     private string _directory = "";
 
@@ -69,8 +74,37 @@ public class RequestLogTests
         var settings = RequestLogSetup.Read(Config(Enabled()), out var error);
 
         Assert.IsNull(error);
-        Assert.AreEqual(new RequestLogSetup.Settings(_directory,
-            RequestLogSetup.DefaultRetainedFileCountLimit, RequestLogSetup.DefaultFileSizeLimitMB), settings);
+        Assert.IsNotNull(settings);
+        Assert.AreEqual(_directory, settings.Directory);
+        Assert.AreEqual(RequestLogSetup.DefaultRetainedFileCountLimit, settings.RetainedFileCountLimit);
+        Assert.AreEqual(RequestLogSetup.DefaultFileSizeLimitMB, settings.FileSizeLimitMB);
+        Assert.IsNull(settings.UploadContainer);
+    }
+
+    [TestMethod]
+    public void Read_UploadContainer_IsParsed()
+    {
+        var values = Enabled();
+        values["RequestLog:UploadContainer"] = Container;
+
+        var settings = RequestLogSetup.Read(Config(values), out var error);
+
+        Assert.IsNull(error);
+        Assert.AreEqual(new Uri(Container), settings!.UploadContainer);
+    }
+
+    [TestMethod]
+    [DataRow("app-request-logs")]
+    [DataRow("http://m4dlogs.blob.core.windows.net/app-request-logs")]
+    public void Read_UploadContainerNotHttps_IsOffWithError(string value)
+    {
+        var values = Enabled();
+        values["RequestLog:UploadContainer"] = value;
+
+        var settings = RequestLogSetup.Read(Config(values), out var error);
+
+        Assert.IsNull(settings);
+        StringAssert.Contains(error, "RequestLog:UploadContainer");
     }
 
     [TestMethod]
@@ -85,15 +119,13 @@ public class RequestLogTests
     }
 
     [TestMethod]
-    public void Read_MissingDirectory_IsOffWithError()
+    public void Read_MissingDirectory_IsFine()
     {
-        var missing = Path.Combine(_directory, "not-mounted");
+        // The logger creates it on the first write.
+        var settings = RequestLogSetup.Read(Config(Enabled(Path.Combine(_directory, "new"))), out var error);
 
-        var settings = RequestLogSetup.Read(Config(Enabled(missing)), out var error);
-
-        Assert.IsNull(settings);
-        StringAssert.Contains(error, "doesn't exist");
-        Assert.IsFalse(Directory.Exists(missing));
+        Assert.IsNull(error);
+        Assert.IsNotNull(settings);
     }
 
     [TestMethod]
@@ -115,12 +147,35 @@ public class RequestLogTests
     {
         var options = new W3CLoggerOptions();
 
-        RequestLogSetup.Configure(options, new RequestLogSetup.Settings(_directory, 7, 100));
+        RequestLogSetup.Configure(options, new RequestLogSetup.Settings(_directory, 7, 100, new Uri(Container)));
 
         Assert.IsFalse(options.LoggingFields.HasFlag(W3CLoggingFields.Cookie));
         Assert.IsFalse(options.AdditionalRequestHeaders.Contains("Cookie"));
         Assert.AreEqual(TimeSpan.FromSeconds(1), options.FlushInterval);
         Assert.AreEqual(100 * 1024 * 1024, options.FileSizeLimit);
+    }
+
+    [TestMethod]
+    public void Add_WithUploadContainer_RegistersUploader()
+    {
+        var values = Enabled();
+        values["RequestLog:UploadContainer"] = Container;
+        var services = new ServiceCollection();
+
+        Assert.IsTrue(services.AddM4dRequestLog(Config(values), new DefaultAzureCredential()));
+
+        Assert.IsTrue(services.Any(d => d.ImplementationType == typeof(RequestLogUploader)));
+        Assert.IsTrue(services.Any(d => d.ServiceType == typeof(IRequestLogStore)));
+    }
+
+    [TestMethod]
+    public void Add_WithoutUploadContainer_LogsOnlyToDisk()
+    {
+        var services = new ServiceCollection();
+
+        Assert.IsTrue(services.AddM4dRequestLog(Config(Enabled()), new DefaultAzureCredential()));
+
+        Assert.IsFalse(services.Any(d => d.ImplementationType == typeof(RequestLogUploader)));
     }
 
     // --- RequestLogFieldsMiddleware ---
@@ -181,7 +236,7 @@ public class RequestLogTests
         }!);
         builder.Logging.ClearProviders();
         builder.WebHost.UseTestServer();
-        Assert.IsTrue(builder.Services.AddM4dRequestLog(builder.Configuration));
+        Assert.IsTrue(builder.Services.AddM4dRequestLog(builder.Configuration, new DefaultAzureCredential()));
 
         await using var app = builder.Build();
         app.UseMiddleware<CloudflareClientIpMiddleware>();
