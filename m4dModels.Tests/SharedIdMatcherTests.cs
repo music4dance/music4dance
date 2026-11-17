@@ -16,7 +16,9 @@ public class SharedIdMatcherTests
     [DataRow("Shape of You", "Ed Sheeran", "Shape of You!", "Ed Sheeran", SharedIdMatch.Exact)]
     [DataRow("Shape of You", "Ed Sheeran feat. Khalid", "Shape of You", "Ed Sheeran", SharedIdMatch.WithoutFeaturing)]
     [DataRow("Shape of You feat. Khalid", "Ed Sheeran", "Shape of You", "Ed Sheeran", SharedIdMatch.WithoutFeaturing)]
-    [DataRow("Shape of You - 2017 Remaster", "Ed Sheeran", "Shape of You", "Ed Sheeran", SharedIdMatch.Close)]
+    [DataRow("Shape of You - 2017 Remaster", "Ed Sheeran", "Shape of You", "Ed Sheeran", SharedIdMatch.Exact)]
+    [DataRow("Shape of You - Radio Edit", "Ed Sheeran", "Shape of You", "Ed Sheeran", SharedIdMatch.Close)]
+    [DataRow("Shape of You feat. Khalid - Remastered", "Ed Sheeran", "Shape of You", "Ed Sheeran", SharedIdMatch.WithoutFeaturing)]
     [DataRow("Shape of You", "Ed Sheeran", "Shape of You", "Ed Sheeran & Khalid", SharedIdMatch.FewerArtists)]
     [DataRow("Perfect", "Ed Sheeran", "Shape of You", "Ed Sheeran", SharedIdMatch.Different)]
     [DataRow("Shape of You", "Ed Sheeran", "Shape of You", "Taylor Swift", SharedIdMatch.Different)]
@@ -32,7 +34,27 @@ public class SharedIdMatcherTests
     {
         // The first two are a close match, but the third is a different song
         Assert.AreEqual(SharedIdMatch.Different, SharedIdMatcher.Match(
-            [S("Shape of You", "Ed Sheeran"), S("Shape of You - 2017 Remaster", "Ed Sheeran"), S("Perfect", "Ed Sheeran")]));
+            [S("Shape of You", "Ed Sheeran"), S("Shape of You - Radio Edit", "Ed Sheeran"), S("Perfect", "Ed Sheeran")]));
+    }
+
+    [TestMethod]
+    [DataRow("Song - Remastered", "Song")]
+    [DataRow("Song - Remastered 2011", "Song")]
+    [DataRow("Song - 2011 Remaster", "Song")]
+    [DataRow("Song (2011 Remastered Version)", "Song")]
+    [DataRow("Song [Digitally Remastered]", "Song")]
+    [DataRow("Song - Remastered Version 2009", "Song")]
+    [DataRow("Song \u2013 Single Version", "Song")]
+    [DataRow("Song (Single Version)", "Song")]
+    [DataRow("Song: Single Version", "Song")]
+    [DataRow("Song (Single Version) - Remastered 2011", "Song")]
+    [DataRow("Song - Single", "Song - Single")]
+    [DataRow("Remastered", "Remastered")]
+    [DataRow("Remastered Love", "Remastered Love")]
+    [DataRow("Song - Remix", "Song - Remix")]
+    public void WithoutVersionNotes_DropsTheRemasterAndSingleVersionNotes(string title, string expected)
+    {
+        Assert.AreEqual(expected, SharedIdMatcher.WithoutVersionNotes(title));
     }
 
     [TestMethod]

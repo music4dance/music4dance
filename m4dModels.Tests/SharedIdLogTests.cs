@@ -836,8 +836,10 @@ public class SharedIdLogTests
         _ = await SaveSong(dms, "Purchase:00:IS=111");
         _ = await SaveSong(dms, "Purchase:00:IS=222", title: "Feat Song feat. Crazy Man");
         _ = await SaveSong(dms, "Purchase:00:IS=222", title: "Feat Song");
-        _ = await SaveSong(dms, "Purchase:00:IS=333", title: "Close Song - 2011 Remaster");
+        _ = await SaveSong(dms, "Purchase:00:IS=333", title: "Close Song - Radio Edit");
         _ = await SaveSong(dms, "Purchase:00:IS=333", title: "Close Song");
+        _ = await SaveSong(dms, "Purchase:00:IS=444", title: "Remastered Song - 2011 Remaster");
+        _ = await SaveSong(dms, "Purchase:00:IS=444", title: "Remastered Song");
         _ = await dms.SharedIds.Seed();
 
         var plans = (await dms.SharedIds.PlanMergeMatching()).ToDictionary(p => p.Cluster.ServiceIds.Single());
@@ -850,6 +852,9 @@ public class SharedIdLogTests
         Assert.IsFalse(plans["I:111"].WillMergeFeaturing, "A .NoMerge song is skipped by both");
         Assert.IsTrue(plans["I:222"].WillMergeFeaturing);
         Assert.IsFalse(plans["I:333"].WillMergeFeaturing);
+        // A remaster note doesn't make a different song
+        Assert.AreEqual(SharedIdMatch.Exact, plans["I:444"].Match);
+        Assert.IsTrue(plans["I:444"].WillMerge);
     }
 
     [TestMethod]

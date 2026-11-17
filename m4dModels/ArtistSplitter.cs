@@ -173,11 +173,11 @@ public static class ArtistSplitter
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static readonly Regex TitleBracketFeaturing = new(
-        @"[\(\[]\s*(?:feat\.?|ft\.?|featuring)\s+(?<names>[^\)\]]+?)\s*[\)\]]",
+        @"[\(\[]\s*(?<word>feat\.?|ft\.?|featuring)\s+(?<names>[^\)\]]+?)\s*[\)\]]",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static readonly Regex TitleBareFeaturing = new(
-        @"(?:\s-\s*|\s)(?:feat\.|ft\.|featuring)\s+(?<names>[^\(\)\[\]]+?)(?:\s+-\s+[^\(\)\[\]]*|\s*[\(\[].*)?$",
+        @"(?:\s-\s*|\s)(?<word>feat\.|ft\.|featuring)\s+(?<names>[^\(\)\[\]]+?)(?:\s+-\s+[^\(\)\[\]]*|\s*[\(\[].*)?$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static readonly Regex SpacedSlash = new(@"\s+/\s+", RegexOptions.Compiled);
@@ -418,6 +418,26 @@ public static class ArtistSplitter
         return Possessives.Contains(words[0]) ||
             words.Any(GenericEnsembleWords.Contains) &&
             words.All(w => GenericEnsembleWords.Contains(w) || Articles.Contains(w) || JoinWords.Contains(w));
+    }
+
+    /// <summary>
+    /// The word a title's feat. clause starts with, as written ("feat.", "Ft.", "featuring"), or
+    /// null when the title has no clause.
+    /// </summary>
+    public static string TitleFeaturingWord(string title)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            return null;
+        }
+
+        var match = TitleBracketFeaturing.Match(title);
+        if (!match.Success)
+        {
+            match = TitleBareFeaturing.Match(title);
+        }
+
+        return match.Success ? match.Groups["word"].Value : null;
     }
 
     private static IEnumerable<string> TitleFeaturedClauses(string title)

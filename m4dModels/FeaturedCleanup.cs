@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace m4dModels;
 
 /// <summary>
@@ -7,8 +9,9 @@ namespace m4dModels;
 public record SongNames(string Title, string Artist, IReadOnlyList<string> Artists = null);
 
 /// <summary>
-/// Moves featured artists out of a merged song's title and into its individual artists:
-/// "Song (feat. Crazy Man)" by "Y" becomes "Song" by "Y" with artists Y and Crazy Man. Used by
+/// Moves featured artists out of a merged song's title and into its credit and individual
+/// artists: "Song (feat. Crazy Man)" by "Y" becomes "Song" by "Y feat. Crazy Man" with artists Y
+/// and Crazy Man. Used by
 /// the shared-id review, on its page and in its Merge all tasks
 /// (architecture/songs/shared-id-review.md).
 /// </summary>
@@ -22,6 +25,9 @@ public static class FeaturedCleanup
     /// artists come after the merged song's. The credit is the merged song's unless it leaves
     /// some of those artists out and one of the songs it was merged from credits them all: "X"
     /// becomes "X feat. Y" when one song has that credit and another features Y in its title.
+    /// Artists a title features (the merged song's or a source's) that the credit still leaves
+    /// out are then added to it with the title's own word: "Song (ft. Y)" by "X" gives "X ft. Y",
+    /// and "X feat. Y" with Z featured gives "X feat. Y &amp; Z".
     /// <paramref name="knowledge"/> is evidence for splitting credits like "X &amp; Y", which
     /// otherwise stay one artist (a music service's list of the track's artists, say).
     /// </summary>
@@ -49,8 +55,53 @@ public static class FeaturedCleanup
             Add(FeaturedArtists(song, knowledge));
         }
 
+        var credit = Credit(merged.Artist, songs, artists, knowledge);
         return new SongNames(ArtistSplitter.RemoveTitleFeaturing(merged.Title),
-            Credit(merged.Artist, songs, artists, knowledge), artists);
+            WithTitleFeaturing(credit, [merged, .. songs], knowledge), artists);
+    }
+
+    // The credit with the artists the songs' titles feature that it doesn't name, after the
+    // first of those titles' feat. word
+    private static string WithTitleFeaturing(string credit, IReadOnlyList<Song> songs, IArtistKnowledge knowledge)
+    {
+        if (string.IsNullOrWhiteSpace(credit))
+        {
+            return credit;
+        }
+
+        var featuring = songs
+            .Select(s => (Song: s, Word: ArtistSplitter.TitleFeaturingWord(s.Title)))
+            .Where(s => s.Word != null)
+            .ToList();
+        if (featuring.Count == 0)
+        {
+            return credit;
+        }
+
+        var named = ArtistSplitter.Split(credit, null, knowledge).Artists;
+        var creditKey = ArtistSplitter.ArtistKey(credit);
+        // Named by the credit, split or not: the splitter keeps "X & Y" whole without evidence
+        bool Names(string name) => named.Any(n => SameArtist(n, name)) ||
+            Regex.IsMatch(creditKey, $@"(?<!\w){Regex.Escape(ArtistSplitter.ArtistKey(name))}(?!\w)");
+
+        var missing = new List<string>();
+        foreach (var name in featuring.SelectMany(s => FeaturedArtists(s.Song, knowledge)))
+        {
+            if (!Names(name) && !missing.Any(m => SameArtist(m, name)))
+            {
+                missing.Add(name);
+            }
+        }
+
+        if (missing.Count == 0)
+        {
+            return credit;
+        }
+
+        var names = missing.Count == 1 ? missing[0]
+            : $"{string.Join(", ", missing.Take(missing.Count - 1))} & {missing[^1]}";
+        var hasFeaturing = ArtistSplitter.RemoveArtistFeaturing(credit) != credit;
+        return hasFeaturing ? $"{credit} & {names}" : $"{credit} {featuring[0].Word} {names}";
     }
 
     /// <summary>
@@ -113,7 +164,8 @@ public static class FeaturedCleanup
 
     /// <summary>
     /// Whether the titles and artists all match once their feat. clauses are removed, compared
-    /// the way exact title merges compare them (Song.CreateTitleHash).
+    /// the way exact title merges compare them (Song.CreateTitleHash), the titles also without
+    /// their version notes (SharedIdMatcher.TitleKey).
     /// </summary>
     public static bool MatchWithoutFeaturing(IReadOnlyList<Song> songs)
     {
@@ -123,7 +175,7 @@ public static class FeaturedCleanup
         }
 
         var keys = songs.Select(s => (
-            Title: Song.CreateTitleHash(ArtistSplitter.RemoveTitleFeaturing(s.Title)),
+            Title: SharedIdMatcher.TitleKey(s.Title),
             Artist: Song.CreateTitleHash(ArtistSplitter.RemoveArtistFeaturing(s.Artist)))).ToList();
         return keys.All(k => k == keys[0]);
     }

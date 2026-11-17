@@ -107,7 +107,7 @@ what Apply makes.
 
 | Tier | Badge | Test |
 | --- | --- | --- |
-| `Exact` | Title and artist match | Same `Song.CreateTitleHash` normal form, which already ignores case, accents, punctuation and bracketed text such as "(feat. X)". |
+| `Exact` | Title and artist match | Same `Song.CreateTitleHash` normal form, which already ignores case, accents, punctuation and bracketed text such as "(feat. X)", once `SharedIdMatcher.WithoutVersionNotes` takes off the notes a service adds to the same recording: "- Remastered", "- Remastered 2011", "(2011 Remaster)", "[Digitally Remastered]", "- Remastered Version", "- Single Version", after a dash, a colon or in brackets. Every tier below compares titles without these notes too (`SharedIdMatcher.TitleKey`). A remix, a radio edit or a live take keeps its note. |
 | `WithoutFeaturing` | Differ only by feat. | The same once `ArtistSplitter.RemoveTitleFeaturing` and `RemoveArtistFeaturing` take the feat. clauses out ("Song feat. X", "Y feat. X"). |
 | `SameArtists` | Same artists, credited differently | The titles match without feat. and every song names the same individual artists (`FeaturedCleanup.IndividualArtists`: the song's recorded `Artists` plus any it features, else its credit split by `ArtistSplitter.Split`, which drops backing groups). "X and His Orchestra" and "X" are the same. |
 | `FewerArtists` | Same lead artist | The titles match without feat. and the songs share their lead artist (`SharedIdMatcher.LeadKey`), but the other artists differ: "X" and "X & Y". Without evidence the splitter can't tell "X & Y" from a duo's name, and "X" may be an old classic whose later version added a collaborator, so these merge only when the songs' own music service tracks confirm them (below). |
@@ -136,7 +136,10 @@ merged title without its feat. clause, an artist credit, and the merged song's i
 artists followed by any artists the other songs feature (in their titles or credits). The credit
 is the merged song's unless it leaves some of those artists out and one of the songs credits
 them all: "Song (feat. Y)" by X merged with "Song" by "X feat. Y" lands on "Song" by "X feat. Y",
-with artists X and Y. The page sends the
+with artists X and Y. Artists a title features (the merged song's or another song's) that the
+credit still doesn't name are then added to it after the title's own word, so "Song (ft. Y)" by X
+lands on "Song" by "X ft. Y", and "X feat. Z" with Y featured in a title on "X feat. Z & Y". A
+credit that already names the artist, split or not ("X & Y"), is left alone. The page sends the
 song each name comes from, or null for the proposal (`SharedIdNamePicks`), and the proposal is worked out again from
 each group's own merge when it's applied. A group takes a name from a song column only when that
 song is in the group; otherwise it gets the proposal for its own merge. So the page disables a song's radios while the
@@ -229,6 +232,7 @@ tooltips).
 - 2026-11: The preview page can merge the same-lead-artist clusters the credits merge skips (`MergeLeadArtist`).
 - 2026-11: **Sort out ids** (`POST /api/sharedids/owners`), on a card or for the page: looks up the shared ids and checks the removals that give each to the song it belongs to.
 - 2026-11: The **If merged** names can be typed over.
+- 2026-11: The feat. cleanup adds the artists a title features to the credit, and the tiers ignore remaster and single-version notes.
 
 ## Related
 

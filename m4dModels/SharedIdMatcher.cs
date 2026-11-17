@@ -81,11 +81,42 @@ public static class SharedIdMatcher
     public static string LeadKey(Song song) => ArtistSplitter.ArtistKey(Lead(song));
 
     /// <summary>
-    /// The title without its feat. clause, as the title merge candidates compare titles
-    /// (Song.CreateTitleHash).
+    /// The title without its feat. clause or version notes (WithoutVersionNotes), as the title
+    /// merge candidates compare titles (Song.CreateTitleHash).
     /// </summary>
     public static int TitleKey(string title) =>
-        Song.CreateTitleHash(ArtistSplitter.RemoveTitleFeaturing(title));
+        Song.CreateTitleHash(WithoutVersionNotes(ArtistSplitter.RemoveTitleFeaturing(title)));
+
+    // A note at the end of a title that a service adds to the same recording: "- Remastered
+    // 2011", "(2011 Remaster)", "[Digitally Remastered]", "- Remastered Version", "- Single
+    // Version", after a dash, a colon or in brackets
+    private static readonly Regex VersionNote = new(
+        @"\s*(?:[-\u2013\u2014:]\s*|[\(\[]\s*)(?:(?:19|20)\d{2}\s+)?(?:digital(?:ly)?\s+)?" +
+        @"(?:remaster(?:ed)?|single\s+version)(?:\s+(?:version|edition))?(?:\s+(?:19|20)\d{2})?" +
+        @"(?:\s+version)?\s*[\)\]]?\s*$",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    /// <summary>
+    /// The title without the remaster and single-version notes at its end (VersionNote), which
+    /// don't make a different recording; a title that is only a note comes back unchanged.
+    /// </summary>
+    public static string WithoutVersionNotes(string title)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            return title;
+        }
+
+        var stripped = title;
+        var next = VersionNote.Replace(stripped, "");
+        while (next != stripped && next.Trim().Length > 0)
+        {
+            stripped = next;
+            next = VersionNote.Replace(stripped, "");
+        }
+
+        return stripped;
+    }
 
     private static bool TitlesMatchWithoutFeaturing(IReadOnlyList<Song> songs)
     {
@@ -94,8 +125,8 @@ public static class SharedIdMatcher
     }
 
     /// <summary>
-    /// Every song has the same title and the same (non-empty) artist, compared the way the title
-    /// merge candidates are (Song.CreateTitleHash).
+    /// Every song has the same title (without version notes) and the same (non-empty) artist,
+    /// compared the way the title merge candidates are (Song.CreateTitleHash).
     /// </summary>
     public static bool TitleArtistMatch(IReadOnlyList<Song> songs)
     {
@@ -104,9 +135,10 @@ public static class SharedIdMatcher
             return false;
         }
 
-        var title = Song.CreateTitleHash(songs[0].Title);
+        var title = Song.CreateTitleHash(WithoutVersionNotes(songs[0].Title));
         var artist = Song.CreateTitleHash(songs[0].Artist);
-        return songs.All(s => Song.CreateTitleHash(s.Title) == title && Song.CreateTitleHash(s.Artist) == artist);
+        return songs.All(s =>
+            Song.CreateTitleHash(WithoutVersionNotes(s.Title)) == title && Song.CreateTitleHash(s.Artist) == artist);
     }
 
     /// <summary>
@@ -122,7 +154,7 @@ public static class SharedIdMatcher
 
         static Song WithoutFeaturing(Song s) => new()
         {
-            Title = ArtistSplitter.RemoveTitleFeaturing(s.Title),
+            Title = WithoutVersionNotes(ArtistSplitter.RemoveTitleFeaturing(s.Title)),
             Artist = ArtistSplitter.RemoveArtistFeaturing(s.Artist)
         };
 
