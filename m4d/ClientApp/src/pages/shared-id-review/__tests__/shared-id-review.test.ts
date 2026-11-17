@@ -418,6 +418,23 @@ describe("shared-id-review page", () => {
       expect(rejected.candidateIds).toEqual([21, 22]);
     });
 
+    test("sends what's typed over the If merged names", async () => {
+      const wrapper = loadTestPage(App, model);
+      const card = cards(wrapper)[0]!;
+      const box = card.find("#cluster-0-title-typed");
+      expect(box.element).toHaveProperty("value", "Probe");
+
+      await box.setValue("Typed Title");
+      expect(card.find(".typed-note").text()).toContain("Typed over: Probe");
+
+      await wrapper.find(".apply-button").trigger("click");
+      await flushPromises();
+
+      const [feat] = lastRequest().body.choices;
+      expect(feat.title).toBe("Typed Title");
+      expect(feat.artist).toBeNull();
+    });
+
     test("a failure is shown and the page stays", async () => {
       post.mockRejectedValue(new Error("Request failed with status code 500"));
       const wrapper = loadTestPage(App, model);

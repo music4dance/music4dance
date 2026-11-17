@@ -142,7 +142,13 @@ each group's own merge when it's applied. A group takes a name from a song colum
 song is in the group; otherwise it gets the proposal for its own merge. So the page disables a song's radios while the
 song is left out (putting a pick that was on it back on its default), and, when the songs are
 split, marks each radio with the group it names. Names only matter to a merge, so all the radios
-are disabled for the other choices. When the chosen title,
+are disabled for the other choices. The **If merged** radio has a box holding the proposal's
+name, which can be typed over: typing picks that radio, and the page sends the text (`title`,
+`artist`, and `artists` split on `|`, in `SharedIdNamePicks.Typed`), which wins over the proposal.
+Typing the proposal's own text back, a blank, or **Undo** returns to the proposal. A typed name
+applies only while the songs are merged in one group, since it can't fit two merged songs: the
+boxes are disabled when the songs are split, and the server ignores typed names for a choice with
+more than one group. When the chosen title,
 artist or individual artists aren't what the merge gives on its own (choosing a single
 individual artist clears the list back to the credit), `SimpleMergeSongs` appends an edit by
 `music4dance` (`Song.M4dUser`, via `Song.AppendNameEdit`) setting them. When they match, it's a
@@ -222,6 +228,7 @@ tooltips).
 - 2026-11: The `FewerArtists` check uses the songs' own (unshared) ids instead of the shared one, and skips clusters whose own track leaves artists out.
 - 2026-11: The preview page can merge the same-lead-artist clusters the credits merge skips (`MergeLeadArtist`).
 - 2026-11: **Sort out ids** (`POST /api/sharedids/owners`), on a card or for the page: looks up the shared ids and checks the removals that give each to the song it belongs to.
+- 2026-11: The **If merged** names can be typed over.
 
 ## Related
 

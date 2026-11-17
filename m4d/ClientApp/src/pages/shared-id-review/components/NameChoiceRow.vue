@@ -4,8 +4,9 @@ import type { ClusterChoice, NameField } from "../ClusterChoice";
 import type { SharedIdReviewSong } from "../SharedIdReviewModel";
 
 // One of a cluster's Title, Artist or Individual artists rows: a radio per song, and one in the
-// If merged column for the proposal. A song outside every group (or any song, when the action
-// isn't a merge) can't be picked; when the songs are split, each radio says which group it names.
+// If merged column for the proposal, with a box to type over it. A song outside every group (or
+// any song, when the action isn't a merge) can't be picked; when the songs are split, each radio
+// says which group it names, and the box can't be typed in.
 const props = defineProps<{
   choice: ClusterChoice;
   field: NameField;
@@ -28,6 +29,14 @@ const hasProposal = computed(() => props.choice.cluster.proposal !== undefined);
 
 function onPick(value: unknown): void {
   props.choice.pickName(props.field, value === proposal ? null : String(value));
+}
+
+// The proposal as typed over, or as it is
+const typedText = computed(() => props.choice.typed[props.field] ?? props.proposed ?? "");
+const isTyped = computed(() => props.choice.typed[props.field] !== null);
+
+function onType(value: unknown): void {
+  props.choice.typeName(props.field, String(value ?? ""), props.proposed);
 }
 </script>
 
@@ -55,16 +64,36 @@ function onPick(value: unknown): void {
     </td>
     <td class="table-info">
       <template v-if="hasProposal">
-        <BFormRadio
-          :id="`${name}-merged`"
-          :name="name"
-          :value="proposal"
-          :model-value="picked"
-          :disabled="!choice.isMerge"
-          @update:model-value="onPick"
-        >
-          {{ proposed }}
-        </BFormRadio>
+        <div class="d-flex align-items-center">
+          <BFormRadio
+            :id="`${name}-merged`"
+            :name="name"
+            :value="proposal"
+            :model-value="picked"
+            :disabled="!choice.isMerge"
+            :aria-label="`${heading} if merged`"
+            @update:model-value="onPick"
+          />
+          <BFormInput
+            :id="`${name}-typed`"
+            size="sm"
+            :model-value="typedText"
+            :disabled="!choice.canType"
+            :aria-label="`Type the ${heading.toLowerCase()} if merged`"
+            @update:model-value="onType"
+          />
+        </div>
+        <div v-if="isTyped" class="small text-muted typed-note">
+          Typed over: {{ proposed }}
+          <BButton
+            variant="link"
+            size="sm"
+            class="p-0 align-baseline"
+            :disabled="!choice.canType"
+            @click="onType(proposed ?? '')"
+            >Undo</BButton
+          >
+        </div>
         <div v-if="mergeAlone !== undefined" class="small text-muted">
           The merge alone gives: {{ mergeAlone }}
         </div>

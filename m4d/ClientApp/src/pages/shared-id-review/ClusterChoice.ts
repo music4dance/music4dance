@@ -15,6 +15,14 @@ export type NameField = "title" | "artist" | "artists";
 
 export const nameFields: NameField[] = ["title", "artist", "artists"];
 
+/** Individual artists as typed in the If merged box, "X | Y", to their list. */
+export function parseArtists(text: string): string[] {
+  return text
+    .split("|")
+    .map((a) => a.trim())
+    .filter((a) => a.length > 0);
+}
+
 // "Leave out" in a song's group select
 export const leaveOut = "";
 
@@ -58,6 +66,13 @@ export class ClusterChoice {
   public action: SharedIdAction;
   public readonly groups = new Map<string, string>();
   public readonly names: Record<NameField, string | null>;
+  // What the reviewer typed over the proposal's names in the If merged column, or null for the
+  // proposal as it is
+  public readonly typed: Record<NameField, string | null> = {
+    title: null,
+    artist: null,
+    artists: null,
+  };
   public readonly albumRemovals = new Set<string>();
   public readonly idRemovals = new Set<string>();
   public readonly deletions = new Set<string>();
@@ -151,6 +166,26 @@ export class ClusterChoice {
     }
   }
 
+  /**
+   * The If merged column's names can be typed over only when the songs are merged in one group:
+   * a name typed for two merged songs would fit at most one of them.
+   */
+  public get canType(): boolean {
+    return this.isMerge && !this.isSplit;
+  }
+
+  /**
+   * Types over the proposal's name, which picks it: Apply names the merged song with the text.
+   * Text the same as the proposal's (or blank) is the proposal again.
+   */
+  public typeName(field: NameField, text: string, proposed?: string): void {
+    if (!this.canType) {
+      return;
+    }
+    this.names[field] = null;
+    this.typed[field] = text.trim() === "" || text === (proposed ?? "") ? null : text;
+  }
+
   public isAlbumRemoved(songId: string, album: number): boolean {
     return this.albumRemovals.has(albumKey(songId, album));
   }
@@ -229,7 +264,7 @@ export class ClusterChoice {
     return (
       this.action !== this.cluster.defaultAction ||
       this.cluster.songs.some((s) => this.groupOf(s.songId) !== "A") ||
-      nameFields.some((f) => this.names[f] !== defaults[f]) ||
+      nameFields.some((f) => this.names[f] !== defaults[f] || this.typed[f] !== null) ||
       this.albumRemovals.size > 0 ||
       this.idRemovals.size > 0 ||
       this.deletions.size > 0
@@ -266,6 +301,10 @@ export class ClusterChoice {
       const id = this.names[field];
       return merge && id !== null && this.canName(id) ? id : null;
     };
+    // The text typed for a name, while it's the one picked
+    const typed = (field: NameField) =>
+      this.canType && this.names[field] === null ? this.typed[field] : null;
+    const artists = typed("artists");
     return {
       action: this.action,
       candidateIds: this.cluster.candidates.map((c) => c.id),
@@ -273,6 +312,9 @@ export class ClusterChoice {
       titleFrom: from("title"),
       artistFrom: from("artist"),
       artistsFrom: from("artists"),
+      title: typed("title")?.trim() ?? null,
+      artist: typed("artist")?.trim() ?? null,
+      artists: artists === null ? null : parseArtists(artists),
       removals: this.removals,
       deletions: this.cluster.songs.map((s) => s.songId).filter((id) => this.isDeleted(id)),
     };

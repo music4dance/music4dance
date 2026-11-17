@@ -567,19 +567,25 @@ public class SharedIdLog(DanceMusicCoreService dms)
         }
     }
 
-    // The names a group's merge lands on: each from the song picked for it when that song is in
-    // the group, otherwise from the feat. cleanup of the merge
+    // The names a group's merge lands on: each as typed when the choice merges one group, else
+    // from the song picked for it when that song is in the group, otherwise from the feat.
+    // cleanup of the merge
     private static SongNames PickNames(SharedIdChoice choice, IReadOnlyList<Song> songs, Song merged)
     {
         var proposal = FeaturedCleanup.Propose(merged, songs);
         Song From(Guid? id) => id == null ? null : songs.FirstOrDefault(s => s.SongId == id);
 
         var names = choice.Names;
+        var typed = choice.MergeGroups.Count == 1 ? names.Typed : null;
+        var typedArtists = typed?.Artists?.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Trim()).ToList();
         return new SongNames(
-            From(names.Title)?.Title ?? proposal.Title,
-            From(names.Artist)?.Artist ?? proposal.Artist,
-            From(names.Artists)?.EffectiveArtists ?? proposal.Artists);
+            Typed(typed?.Title) ?? From(names.Title)?.Title ?? proposal.Title,
+            Typed(typed?.Artist) ?? From(names.Artist)?.Artist ?? proposal.Artist,
+            typedArtists is { Count: > 0 } ? typedArtists
+                : From(names.Artists)?.EffectiveArtists ?? proposal.Artists);
     }
+
+    private static string Typed(string name) => string.IsNullOrWhiteSpace(name) ? null : name.Trim();
 
     public async Task Reject(ApplicationUser user, IEnumerable<int> candidateIds)
     {

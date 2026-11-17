@@ -1,6 +1,13 @@
 import { describe, expect, test } from "vitest";
 import { TypedJSON } from "typedjson";
-import { ClusterChoice, groupNames, leaveOut, lookupIds, sharedLookupIds } from "../ClusterChoice";
+import {
+  ClusterChoice,
+  groupNames,
+  leaveOut,
+  lookupIds,
+  parseArtists,
+  sharedLookupIds,
+} from "../ClusterChoice";
 import { SharedIdReviewCluster } from "../SharedIdReviewModel";
 import { featCluster, rejectedCluster, songA, songB, songC, songD, songE } from "./model";
 
@@ -206,6 +213,9 @@ describe("ClusterChoice", () => {
         titleFrom: null,
         artistFrom: null,
         artistsFrom: null,
+        title: null,
+        artist: null,
+        artists: null,
         removals: [],
         deletions: [],
       });
@@ -248,6 +258,49 @@ describe("ClusterChoice", () => {
 
     test("Leave for later is sent as is", () => {
       expect(choiceFor(rejectedCluster).toRequest().action).toBe("Leave");
+    });
+  });
+
+  describe("Typing over the proposal", () => {
+    test("picks the proposal and sends the text, artists split on |", () => {
+      const choice = choiceFor(featCluster);
+      choice.pickName("title", songB);
+
+      choice.typeName("title", " My Title ", "Probe");
+      choice.typeName("artists", "Probe Artist | | Someone", "Probe Artist | Crazy Man");
+
+      expect(choice.names.title).toBeNull();
+      expect(choice.isDirty).toBe(true);
+      const request = choice.toRequest();
+      expect([request.titleFrom, request.title, request.artist]).toEqual([null, "My Title", null]);
+      expect(request.artists).toEqual(["Probe Artist", "Someone"]);
+    });
+
+    test("the proposal's own text, or a blank, is the proposal again", () => {
+      const choice = choiceFor(featCluster);
+      choice.typeName("title", "Changed", "Probe");
+      choice.typeName("title", "Probe", "Probe");
+      choice.typeName("artist", "  ", "Probe Artist");
+
+      expect(choice.typed).toEqual({ title: null, artist: null, artists: null });
+      expect(choice.isDirty).toBe(false);
+    });
+
+    test("isn't sent once a song's name is picked, or the songs are split", () => {
+      const choice = choiceFor(featCluster);
+      choice.typeName("title", "Typed", "Probe");
+      choice.pickName("title", songB);
+      expect(choice.toRequest().title).toBeNull();
+
+      choice.pickName("title", null);
+      expect(choice.toRequest().title).toBe("Typed");
+      choice.setGroup(songB, "B");
+      expect(choice.canType).toBe(false);
+      expect(choice.toRequest().title).toBeNull();
+    });
+
+    test("parseArtists trims and drops the empty ones", () => {
+      expect(parseArtists(" X |Y|| ")).toEqual(["X", "Y"]);
     });
   });
 

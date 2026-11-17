@@ -147,9 +147,12 @@ public record SharedIdChoice(SharedIdAction Action, IReadOnlyList<Guid> SongIds,
 /// <summary>
 /// Where a merged song's title, artist and individual artists come from: the song to take each
 /// from, or null for the feat. cleanup of the merge (FeaturedCleanup.Propose). A song that isn't
-/// in the group being merged counts as null.
+/// in the group being merged counts as null. Typed holds what the reviewer typed over the
+/// cleanup's names; each one given (not blank or empty) wins over the song picked for it and the
+/// cleanup, but only when the choice merges one group, since one name can't fit two songs.
 /// </summary>
-public record SharedIdNamePicks(Guid? Title = null, Guid? Artist = null, Guid? Artists = null);
+public record SharedIdNamePicks(Guid? Title = null, Guid? Artist = null, Guid? Artists = null,
+    SongNames Typed = null);
 
 /// <summary>
 /// An album, or one song-level id on it, to take off one of a cluster's songs: Album is an

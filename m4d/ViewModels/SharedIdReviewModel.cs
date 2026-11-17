@@ -200,6 +200,12 @@ public class SharedIdChoiceRequest
     public Guid? ArtistFrom { get; set; }
     public Guid? ArtistsFrom { get; set; }
 
+    // What the reviewer typed over the proposal's names, or null to leave each alone; they win
+    // over the picks above when the songs are merged in one group
+    public string Title { get; set; }
+    public string Artist { get; set; }
+    public List<string> Artists { get; set; }
+
     public List<SharedIdRemoval> Removals { get; set; } = [];
 
     // Songs to delete, whatever the action
@@ -210,7 +216,8 @@ public class SharedIdChoiceRequest
         var songs = (Songs ?? []).Where(s => s != null).ToList();
         return new SharedIdChoice(Action, [.. songs.Select(s => s.SongId)], CandidateIds ?? [],
             [.. songs.Select(s => s.Group ?? "")],
-            new SharedIdNamePicks(TitleFrom, ArtistFrom, ArtistsFrom),
+            new SharedIdNamePicks(TitleFrom, ArtistFrom, ArtistsFrom,
+                Title == null && Artist == null && Artists == null ? null : new SongNames(Title, Artist, Artists)),
             [.. (Removals ?? []).Where(r => r != null)],
             [.. Deletions ?? []]);
     }

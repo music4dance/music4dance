@@ -67,6 +67,18 @@ public class SharedIdReviewModelTests
     }
 
     [TestMethod]
+    public void ToChoice_TypedNames_AreCarried()
+    {
+        var choice = new SharedIdChoiceRequest
+            { Title = "Typed", Artists = ["X", "Y"] }.ToChoice();
+
+        Assert.AreEqual("Typed", choice.Names.Typed.Title);
+        Assert.IsNull(choice.Names.Typed.Artist);
+        CollectionAssert.AreEqual(new[] { "X", "Y" }, choice.Names.Typed.Artists.ToList());
+        Assert.IsNull(new SharedIdChoiceRequest().ToChoice().Names.Typed);
+    }
+
+    [TestMethod]
     public void ToChoice_ASongWithNoGroup_IsLeftOut()
     {
         var choice = new SharedIdChoiceRequest

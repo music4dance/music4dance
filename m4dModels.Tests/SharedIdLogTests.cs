@@ -443,6 +443,43 @@ public class SharedIdLogTests
     }
 
     [TestMethod]
+    public async Task Apply_TypedNames_WinOverThePickedSongAndTheCleanup()
+    {
+        var (dms, user) = await CreateService("SharedIds_ApplyTypedNames");
+        var (cluster, songs) = await FourSongCluster(dms);
+
+        // A blank title falls back to the song picked for it
+        var result = await dms.SharedIds.Apply(user,
+        [
+            Groups(cluster, songs, ["A", "A", "A", "A"], new SharedIdNamePicks(Title: songs[2].SongId,
+                Typed: new SongNames(" ", " Typed Artist ", ["Typed Artist", " ", "Someone Else"])))
+        ]);
+
+        var merged = await dms.SongIndex.FindSong(result.Merges.Single().Into);
+        Assert.AreEqual("Second Song", merged.Title);
+        Assert.AreEqual("Typed Artist", merged.Artist);
+        CollectionAssert.AreEqual(new[] { "Typed Artist", "Someone Else" }, merged.EffectiveArtists.ToList());
+    }
+
+    [TestMethod]
+    public async Task Apply_TypedNames_AreIgnoredWhenTheSongsAreSplit()
+    {
+        var (dms, user) = await CreateService("SharedIds_ApplyTypedNamesSplit");
+        var (cluster, songs) = await FourSongCluster(dms);
+
+        var result = await dms.SharedIds.Apply(user,
+        [
+            Groups(cluster, songs, ["A", "A", "B", "B"],
+                new SharedIdNamePicks(Typed: new SongNames("Typed Title", null)))
+        ]);
+
+        var first = await dms.SongIndex.FindSong(result.Merges[0].Into);
+        var second = await dms.SongIndex.FindSong(result.Merges[1].Into);
+        Assert.AreEqual("First Song", first.Title);
+        Assert.AreEqual("Second Song (Radio Edit)", second.Title);
+    }
+
+    [TestMethod]
     public async Task Apply_OneGroup_MergesEverySongAsBefore()
     {
         var (dms, user) = await CreateService("SharedIds_ApplyOneGroup");
