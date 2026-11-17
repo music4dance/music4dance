@@ -2,10 +2,10 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-06
+**Last verified:** 2026-11-16
 **Code:** `m4d/Services/BackgroundTaskQueue.cs`, `m4d/Services/BackgroundQueueHostedService.cs`,
 `m4d/Services/DanceStatsHostedService.cs`, `m4d/Services/StartupInitializationService.cs`,
-`m4d/Services/AppConfigurationRecoveryService.cs`,
+`m4d/Services/AppConfigurationRecoveryService.cs`, `m4d/Services/RequestLogUploader.cs`,
 `m4d/Services/DatabaseRecoveryService.cs`, `m4d/PublicApi/DanzQClientInitializer.cs`,
 `m4d/APIControllers/RecomputeController.cs`, `m4d/Utilities/TokenRequirement.cs`,
 `m4dModels/AdminMonitor.cs`, `m4d/Configuration/M4dApplicationExtensions.cs`
@@ -25,12 +25,16 @@ what order, and what happens when it fails.
 | `BackgroundQueueHostedService` | `BackgroundService` | `AddM4dApplication`, with the `IBackgroundTaskQueue` singleton | For the life of the process |
 | `DanceStatsHostedService` | `IHostedService` | `AddM4dApplication` | Once, at host start (blocks until done) |
 | `StartupInitializationService` | `BackgroundService` | `AddM4dApplication` | Once, 2s after start |
+| `RequestLogUploader` | `BackgroundService` | `AddM4dRequestLog`, only when `RequestLog:Enabled` and `RequestLog:UploadContainer` are set | 5 minutes after start, then hourly |
 | `DatabaseRecoveryService` | Singleton, **not** a hosted service | `AddM4dApplication`; called from inline middleware | On requests, while `Database` is unavailable |
 | `RecomputeController` | API endpoint | MVC | When an Azure Logic App calls it |
 | Admin jobs (`Task.Run` + `AdminMonitor`) | Fire-and-forget | n/a | When an admin starts one |
 
-There is no scheduler inside the app (no Quartz, no timers). Anything periodic is triggered from
-outside, by a Logic App calling an HTTP endpoint.
+There is no scheduler inside the app (no Quartz). Periodic *work on the app's data* is triggered
+from outside, by a Logic App calling an HTTP endpoint. The exceptions are housekeeping loops that
+only make sense inside the process: `AppConfigurationRecoveryService` retries a failed load every
+minute, and `RequestLogUploader` copies the process's own log files every hour. Both are a
+`Task.Delay` loop in a `BackgroundService`, with no endpoint, token or external trigger.
 
 ## Startup order
 
@@ -110,6 +114,20 @@ load attempts (see
 [service-resilience § App Configuration recovery](service-resilience.md#app-configuration-recovery)).
 On success it marks `AppConfiguration` and the configured secret-backed services healthy, logs
 how long recovery took, and emails the admins. It never restarts the app.
+
+### `RequestLogUploader`
+
+Copies the app request log from `RequestLog:Directory` on `/home` to the blob container in
+`RequestLog:UploadContainer`, signing in with the app's managed identity. The first pass runs 5
+minutes after start, to stay out of startup, then one runs every hour. Each pass lists the
+container once and appends to each file's append blob only the whole lines the file has gained,
+reading where to resume from the blob's length, so it keeps no state and a restart just picks up.
+It deletes a file once it's copied and 2 days old. Nothing a pass throws escapes `ExecuteAsync`
+(other than shutdown's cancellation): an exception out of a `BackgroundService` stops the host by
+default (`BackgroundServiceExceptionBehavior.StopHost`, not overridden here), which would take the
+site down. A failure is a warning and is retried next pass; the files stay on `/home` meanwhile. On
+shutdown it stops without a final pass, and the next process uploads the rest. See
+[logging-and-diagnostics § App request log](../observability/logging-and-diagnostics.md#app-request-log).
 
 ### `DanzQClientInitializer`
 
@@ -278,6 +296,7 @@ and `ArtistIndexCache` loads and rebuilds the artist snapshot in the background
 - 2026-10-06: `AppConfigurationRecoveryService` added after a production App Configuration
   startup timeout left the app degraded until a manual restart; it completes the load in place.
 - 2026-11-05: `DatabaseRecoveryService` runs migrations that startup deferred.
+- 2026-11-16: `RequestLogUploader` added: copies the app request log to blob storage hourly.
 
 ## Related
 

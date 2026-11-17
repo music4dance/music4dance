@@ -172,6 +172,11 @@ public static class M4dApplicationExtensions
             }
         }
 
+        // App request log: one line per request with the visitor's IP (App Service's own HTTP log
+        // only sees Cloudflare's), via the built-in W3C logger, copied hourly to blob storage when
+        // RequestLog:UploadContainer is set. Off unless RequestLog:Enabled.
+        services.AddM4dRequestLog(configuration, azureCredential);
+
         // Manual-testing escape hatch: write the Azure Search Properties field uncompressed.
         // Reads always handle both formats (see SongPropertyCompression.IsCompressed), so this only
         // affects what gets written going forward. Default on; flip off via a launch profile
@@ -651,6 +656,16 @@ public static class M4dApplicationExtensions
             }, statusCode: isReady ? StatusCodes.Status200OK : StatusCodes.Status503ServiceUnavailable);
         }).AllowAnonymous();
 
+        // Behind Cloudflare: replace the edge server's address with CF-Connecting-IP, but only
+        // for requests relayed from Cloudflare's published ranges. First in the pipeline, so
+        // everything after it (the request log, authentication, rate limiting) sees the
+        // visitor; it also records the resolved addresses as the ClientAddresses feature.
+        app.UseMiddleware<m4d.Middleware.CloudflareClientIpMiddleware>();
+
+        // Next, so it sees every request (static files included) and the final status. Only
+        // when RequestLog:Enabled.
+        app.UseM4dRequestLog();
+
         if (!isDevelopment)
         {
             // Add custom exception logging middleware BEFORE UseExceptionHandler
@@ -813,15 +828,13 @@ public static class M4dApplicationExtensions
         // RemoteIpAddress is the visitor's. With default KnownProxies (loopback only) this call
         // applies X-Forwarded-For only for a local proxy. On App Service, the front end's
         // X-Forwarded-For is applied before this (when ASPNETCORE_FORWARDEDHEADERS_ENABLED is
-        // set) or not at all; CloudflareClientIpMiddleware below copes with either.
+        // set) or not at all; CloudflareClientIpMiddleware (first in the pipeline) copes with
+        // either, and by the time this runs it has already replaced a Cloudflare edge address
+        // with the visitor's, which isn't loopback, so this call leaves it alone.
         app.UseForwardedHeaders(new ForwardedHeadersOptions
         {
             ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
         });
-
-        // Behind Cloudflare: replace the edge server's address with CF-Connecting-IP, but only
-        // for requests relayed from Cloudflare's published ranges.
-        app.UseMiddleware<m4d.Middleware.CloudflareClientIpMiddleware>();
 
         // Authentication middleware: Populates context.User from authentication cookies
         // This MUST come before any middleware that checks context.User.Identity.IsAuthenticated

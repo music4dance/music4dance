@@ -32,8 +32,10 @@ Next session, after a day or two of data:
 3. Leaked credentials: turn on the header transform, test whether Cloudflare recognizes the login
    form, then decide on the app-side follow-up (Phase 6 step 3).
 4. Add the scanner WAF rule (step 4) and update the respond-to-attack runbook (step 6).
-5. Build the app-side request log that records the real client IP, so `analyze-traffic` keeps its
-   per-IP view (section 4).
+5. The app request log that records the real client IP is built (2026-11-16) but off. Do the
+   one-time setup (a container, a role for the app's identity, a lifecycle prefix, three settings) in
+   [logging-and-diagnostics § App request log](../observability/logging-and-diagnostics.md#app-request-log),
+   then point `analyze-traffic` at it (`--source app`).
 6. A small fix: `HomeController.Index` and other GET-only actions throw a 500 on a POST. They
    should answer only GET.
 7. Turn on Cloudflare Fonts and remove the Google Fonts preconnect links (Phase 2 notes).
@@ -574,14 +576,18 @@ When the phases ship, fold the as-built result into the reference docs and delet
   Fight Mode, the scanner WAF rule.
 - `analyze-traffic` skill: after Phase 4, the App Service HTTP logs record Cloudflare's IP as
   `c-ip`, so the per-client grouping (IP + user agent) degrades. That log can't record
-  `CF-Connecting-IP`, because it has no header fields. The chosen fix is an app-side request log:
-  - A middleware after `CloudflareClientIpMiddleware` writes one record per request, with the
-    same fields as the platform log plus the real client IP.
-  - Records are batched about once a minute into hourly blobs in `m4dlogs`, with the same layout
-    and the same 30-day delete rule.
-  - `analyze-traffic` reads them and keeps the platform log as a cross-check.
+  `CF-Connecting-IP`, because it has no header fields. The fix is the app request log
+  (built 2026-11-16, see
+  [logging-and-diagnostics § App request log](../observability/logging-and-diagnostics.md#app-request-log)):
+  - ASP.NET Core's built-in W3C logger, right after `CloudflareClientIpMiddleware` at the top of
+    the pipeline, writes one line per request with the visitor's IP, the edge as the relay, and
+    cookie names. It doesn't record response bytes.
+  - Daily files go to `/home/LogFiles/requests`, and the app copies them to blob storage hourly
+    (kept 30 days).
+  - `analyze-traffic` reads either source (`fetch_http_logs.py --source app`) and keeps the
+    platform log as a cross-check and for bytes.
 
-  Until it ships, use `/Admin/Diagnostics` and Cloudflare's Security Events for per-IP views. The skill's per-host section (Phase 7 baseline) doesn't
+  Until it's turned on, use `/Admin/Diagnostics` and Cloudflare's Security Events for per-IP views. The skill's per-host section (Phase 7 baseline) doesn't
   depend on this: it needs only the edge IP, which is what tells proxied and direct requests
   apart.
 - [plans/front-door-caching](front-door-caching.md): mark it superseded, or delete it.

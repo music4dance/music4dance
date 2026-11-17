@@ -47,6 +47,24 @@ permissions error, the one-time grant is in
 python -I .claude/skills/analyze-traffic/fetch_http_logs.py --hours 24
 ```
 
+**Which source.** Since the Cloudflare cutover (2026-11-06), the App Service log above
+(`--source platform`, the default) records Cloudflare's edge server as the client IP, so
+per-client grouping (IP + user agent), Top IPs and subnets lump visitors together. When
+the app request log is on (`az appconfig kv show -n music4dance --key RequestLog:Enabled
+--label Production`), fetch it too and analyze it instead. The app copies it to container
+`app-request-logs` every hour and it's kept 30 days; `--from home` reads the newest hour or
+so from `/home` instead. Reruns fetch only the bytes added since. There's one set of files
+per App Service instance (`requests-<instance>-YYYYMMDD.NNNN.txt`); the analyzer merges them:
+
+```bash
+python -I .claude/skills/analyze-traffic/fetch_http_logs.py --source app --hours 24
+```
+
+Then pass `local/app-request-logs` to the analyzer. Its client is the visitor and its relay
+the edge. It has no response bytes (the byte columns show `-`), so take bytes from the
+platform log, which is also the cross-check: it records requests that never reached the
+app. Say in the report which source you used.
+
 It downloads only the hours that are missing or still growing, so reruns take a few
 seconds. Use a larger `--hours` for a longer window; blobs are kept 30 days. Paths
 and times are UTC. Records land a few minutes after the request, so the newest hour
