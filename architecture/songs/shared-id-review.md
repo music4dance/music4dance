@@ -132,7 +132,8 @@ hand.
 
 **Choosing the names.** The **Title**, **Artist** and **Individual artists** rows have a radio in
 every column. They start on the **If merged** column, which shows `FeaturedCleanup.Propose`: the
-merged title without its feat. clause, an artist credit, and the merged song's individual
+merged title without its feat. clause or its remaster and single-version notes
+(`SharedIdMatcher.WithoutVersionNotes`, so "Song - 2011 Remaster" lands on "Song"), an artist credit, and the merged song's individual
 artists followed by any artists the other songs feature (in their titles or credits). The credit
 is the merged song's unless it leaves some of those artists out and one of the songs credits
 them all: "Song (feat. Y)" by X merged with "Song" by "X feat. Y" lands on "Song" by "X feat. Y",
@@ -232,7 +233,7 @@ tooltips).
 - 2026-11: The preview page can merge the same-lead-artist clusters the credits merge skips (`MergeLeadArtist`).
 - 2026-11: **Sort out ids** (`POST /api/sharedids/owners`), on a card or for the page: looks up the shared ids and checks the removals that give each to the song it belongs to.
 - 2026-11: The **If merged** names can be typed over.
-- 2026-11: The feat. cleanup adds the artists a title features to the credit, and the tiers ignore remaster and single-version notes.
+- 2026-11: The feat. cleanup adds the artists a title features to the credit, and the tiers ignore remaster and single-version notes, which the cleanup also drops from the title.
 
 ## Related
 

@@ -62,6 +62,18 @@ public class FeaturedCleanupTests
     }
 
     [TestMethod]
+    [DataRow("Song Title - Remastered 2011", "Song Title")]
+    [DataRow("Song Title feat. Crazy Man - 2011 Remaster", "Song Title")]
+    [DataRow("Song Title (Single Version)", "Song Title")]
+    [DataRow("Song Title - Radio Edit", "Song Title - Radio Edit")]
+    public void Propose_DropsTheVersionNotesFromTheTitle(string title, string expected)
+    {
+        var merged = new Song { Title = title, Artist = "The Artist" };
+
+        Assert.AreEqual(expected, FeaturedCleanup.Propose(merged, [merged]).Title);
+    }
+
+    [TestMethod]
     public void Propose_ASourceTitlesFeaturedArtist_JoinsTheMergedCredit()
     {
         // GOOD PUSS: the merged song keeps the plain title, but the other song features an artist

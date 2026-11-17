@@ -18,7 +18,8 @@ public record SongNames(string Title, string Artist, IReadOnlyList<string> Artis
 public static class FeaturedCleanup
 {
     /// <summary>
-    /// The names <paramref name="merged"/> should land on: its title without a feat. clause, an
+    /// The names <paramref name="merged"/> should land on: its title without a feat. clause or
+    /// the remaster and single-version notes at its end (SharedIdMatcher.WithoutVersionNotes), an
     /// artist credit, and its individual artists followed by the artists the songs it was merged
     /// from feature (in their titles or credits), each artist listed once; when the songs'
     /// credits only leave artists out of the fullest one ("X" and "X &amp; Y"), the fullest one's
@@ -56,7 +57,7 @@ public static class FeaturedCleanup
         }
 
         var credit = Credit(merged.Artist, songs, artists, knowledge);
-        return new SongNames(ArtistSplitter.RemoveTitleFeaturing(merged.Title),
+        return new SongNames(SharedIdMatcher.WithoutVersionNotes(ArtistSplitter.RemoveTitleFeaturing(merged.Title)),
             WithTitleFeaturing(credit, [merged, .. songs], knowledge), artists);
     }
 
