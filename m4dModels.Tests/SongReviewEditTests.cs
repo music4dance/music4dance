@@ -102,6 +102,20 @@ public class SongReviewEditTests
     }
 
     [TestMethod]
+    public async Task AppendNameEdit_SetsTheTempo_OverOneARealUserSet()
+    {
+        var song = await TwoAlbums("\tTempo=120.0");
+
+        Assert.IsTrue(song.AppendNameEdit(_user, new SongNames(null, null, null, 124.5m)));
+
+        Assert.AreEqual(124.5m, (await Reload(song)).Tempo);
+        Assert.IsFalse((await Reload(song)).AppendNameEdit(_user, new SongNames(null, null, null, 124.5m)),
+            "It already has the tempo");
+        Assert.IsFalse((await TwoAlbums()).AppendNameEdit(_user, new SongNames(null, null, null, 0m)),
+            "Zero is left alone");
+    }
+
+    [TestMethod]
     public async Task AppendNameEdit_NamesItAlreadyHasOrBlank_AddsNothing()
     {
         var song = await TwoAlbums();

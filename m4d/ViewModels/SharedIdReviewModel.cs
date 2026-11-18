@@ -195,16 +195,18 @@ public class SharedIdChoiceRequest
     // Every song in the cluster and the group it's merged in (empty leaves it out)
     public List<SharedIdSongGroup> Songs { get; set; } = [];
 
-    // The song each name of a merged song comes from, or null for the proposal
+    // The song each name (and the tempo) of a merged song comes from, or null for the proposal
     public Guid? TitleFrom { get; set; }
     public Guid? ArtistFrom { get; set; }
     public Guid? ArtistsFrom { get; set; }
+    public Guid? TempoFrom { get; set; }
 
-    // What the reviewer typed over the proposal's names, or null to leave each alone; they win
-    // over the picks above when the songs are merged in one group
+    // What the reviewer typed over the proposal's names and tempo, or null to leave each alone;
+    // they win over the picks above when the songs are merged in one group
     public string Title { get; set; }
     public string Artist { get; set; }
     public List<string> Artists { get; set; }
+    public decimal? Tempo { get; set; }
 
     public List<SharedIdRemoval> Removals { get; set; } = [];
 
@@ -217,7 +219,9 @@ public class SharedIdChoiceRequest
         return new SharedIdChoice(Action, [.. songs.Select(s => s.SongId)], CandidateIds ?? [],
             [.. songs.Select(s => s.Group ?? "")],
             new SharedIdNamePicks(TitleFrom, ArtistFrom, ArtistsFrom,
-                Title == null && Artist == null && Artists == null ? null : new SongNames(Title, Artist, Artists)),
+                Title == null && Artist == null && Artists == null && Tempo == null ? null
+                    : new SongNames(Title, Artist, Artists, Tempo),
+                TempoFrom),
             [.. (Removals ?? []).Where(r => r != null)],
             [.. Deletions ?? []]);
     }

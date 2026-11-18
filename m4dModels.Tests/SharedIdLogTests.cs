@@ -463,6 +463,30 @@ public class SharedIdLogTests
     }
 
     [TestMethod]
+    [DataRow(true, 130.0, DisplayName = "Typed")]
+    [DataRow(false, 110.0, DisplayName = "Picked")]
+    public async Task Apply_TheTempo_IsTypedOrPicked(bool type, double expected)
+    {
+        var (dms, user) = await CreateService($"SharedIds_ApplyTempo_{type}");
+        var songs = new[]
+        {
+            await SaveSong(dms, "Tempo=110.0\tPurchase:00:IS=111"),
+            await SaveSong(dms, "Tempo=120.0\tPurchase:00:IS=111")
+        };
+        _ = await dms.SharedIds.Seed();
+        var cluster = (await dms.SharedIds.PendingClusters()).Single();
+
+        var result = await dms.SharedIds.Apply(user,
+        [
+            Groups(cluster, songs, ["A", "A"], type
+                ? new SharedIdNamePicks(Tempo: songs[0].SongId, Typed: new SongNames(null, null, null, 130m))
+                : new SharedIdNamePicks(Tempo: songs[0].SongId))
+        ]);
+
+        Assert.AreEqual((decimal)expected, (await dms.SongIndex.FindSong(result.Merges.Single().Into)).Tempo);
+    }
+
+    [TestMethod]
     public async Task Apply_TypedNames_AreIgnoredWhenTheSongsAreSplit()
     {
         var (dms, user) = await CreateService("SharedIds_ApplyTypedNamesSplit");
@@ -934,8 +958,12 @@ public class SharedIdLogTests
     public async Task PlanMergeMatching_SameArtistsMerge_FewerArtistsOnlyWhenTheSongsOwnTrackListsThemAll()
     {
         var (dms, user) = await CreateService("SharedIds_PlanCredits");
-        _ = await SaveSong(dms, "Purchase:00:IS=111", artist: "Benny Goodman and His Orchestra");
-        _ = await SaveSong(dms, "Purchase:00:IS=111", artist: "Benny Goodman");
+        _ = await SaveSong(dms, "Purchase:00:IS=111", artist: "Teddy Wilson And His Orchestra With Billie Holliday");
+        _ = await SaveSong(dms, "Purchase:00:IS=111", artist: "Teddy Wilson; Billie Holliday");
+        _ = await SaveSong(dms, "Purchase:00:IS=112", title: "Swing Song", artist: "Benny Goodman and His Orchestra");
+        _ = await SaveSong(dms, "Purchase:00:IS=112", title: "Swing Song", artist: "Benny Goodman");
+        _ = await SaveSong(dms, "Purchase:00:IS=113", title: "Bird Song", artist: "Charlie Parker");
+        _ = await SaveSong(dms, "Purchase:00:IS=113", title: "Bird Song", artist: "Charlie Parker Quartet");
         _ = await SaveSong(dms, $"Purchase:00:SS=sp2	{Own("Purchase:01:SS=a2")}", artist: "Tony Bennett");
         _ = await SaveSong(dms, "Purchase:00:SS=sp2", artist: "Tony Bennett & Lady Gaga");
         _ = await SaveSong(dms, "Purchase:00:SS=sp3", title: "Other Song", artist: "Tony Bennett");
@@ -951,6 +979,17 @@ public class SharedIdLogTests
 
         Assert.AreEqual(SharedIdMergePlan.SameArtists, plans["I:111"].SkipReason);
         Assert.IsTrue(plans["I:111"].WillMergeCredits);
+        // A leader and their group are the same artist: the merge keeps the group in the credit
+        foreach (var (id, credit, leader) in new[]
+                 {
+                     ("I:112", "Benny Goodman and His Orchestra", "Benny Goodman"),
+                     ("I:113", "Charlie Parker Quartet", "Charlie Parker")
+                 })
+        {
+            Assert.IsTrue(plans[id].WillMerge, id);
+            Assert.AreEqual(credit, plans[id].Names.Artist, id);
+            CollectionAssert.AreEqual(new[] { leader }, plans[id].Names.Artists.ToList(), id);
+        }
         Assert.AreEqual(SharedIdMergePlan.FewerArtists, offline["S:sp2"].SkipReason, "Not looked up");
         Assert.AreEqual(SharedIdMergePlan.ConfirmedArtists, plans["S:sp2"].SkipReason);
         CollectionAssert.AreEqual(new[] { "S:a2" }, plans["S:sp2"].CheckedBy.ToList());

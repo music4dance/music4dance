@@ -567,9 +567,9 @@ public class SharedIdLog(DanceMusicCoreService dms)
         }
     }
 
-    // The names a group's merge lands on: each as typed when the choice merges one group, else
-    // from the song picked for it when that song is in the group, otherwise from the feat.
-    // cleanup of the merge
+    // The names and tempo a group's merge lands on: each as typed when the choice merges one
+    // group, else from the song picked for it when that song is in the group, otherwise from the
+    // feat. cleanup of the merge (for the tempo, what the merge gives)
     private static SongNames PickNames(SharedIdChoice choice, IReadOnlyList<Song> songs, Song merged)
     {
         var proposal = FeaturedCleanup.Propose(merged, songs);
@@ -582,7 +582,8 @@ public class SharedIdLog(DanceMusicCoreService dms)
             Typed(typed?.Title) ?? From(names.Title)?.Title ?? proposal.Title,
             Typed(typed?.Artist) ?? From(names.Artist)?.Artist ?? proposal.Artist,
             typedArtists is { Count: > 0 } ? typedArtists
-                : From(names.Artists)?.EffectiveArtists ?? proposal.Artists);
+                : From(names.Artists)?.EffectiveArtists ?? proposal.Artists,
+            typed?.Tempo is > 0 ? typed.Tempo : From(names.Tempo)?.Tempo);
     }
 
     private static string Typed(string name) => string.IsNullOrWhiteSpace(name) ? null : name.Trim();

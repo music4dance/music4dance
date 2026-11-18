@@ -3,8 +3,8 @@ import { computed } from "vue";
 import type { ClusterChoice, NameField } from "../ClusterChoice";
 import type { SharedIdReviewSong } from "../SharedIdReviewModel";
 
-// One of a cluster's Title, Artist or Individual artists rows: a radio per song, and one in the
-// If merged column for the proposal, with a box to type over it. A song outside every group (or
+// One of a cluster's Title, Artist, Individual artists or Tempo rows: a radio per song, and one
+// in the If merged column for the proposal, with a box to type over it. A song outside every group (or
 // any song, when the action isn't a merge) can't be picked; when the songs are split, each radio
 // says which group it names, and the box can't be typed in.
 const props = defineProps<{
@@ -17,6 +17,8 @@ const props = defineProps<{
   proposed?: string;
   // What the merge gives on its own, when the proposal changes it
   mergeAlone?: string;
+  // The box's input type: "number" for the tempo
+  inputType?: "text" | "number";
 }>();
 
 // The proposal's radio value; null in the choice
@@ -77,6 +79,7 @@ function onType(value: unknown): void {
           <BFormInput
             :id="`${name}-typed`"
             size="sm"
+            :type="inputType ?? 'text'"
             :model-value="typedText"
             :disabled="!choice.canType"
             :aria-label="`Type the ${heading.toLowerCase()} if merged`"

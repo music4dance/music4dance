@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-17
+**Last verified:** 2026-11-18
 **Code:** `m4dModels/SharedIdLog.cs`, `m4dModels/SharedIdCandidate.cs`, `m4d/Utilities/MusicServiceManager.cs` (`UpdateFromTracks`, `GetISRCData`), `m4dModels/SharedIdTypes.cs` (clusters, choices, page), `m4dModels/SharedIdMatcher.cs` (match tiers), `m4dModels/FeaturedCleanup.cs`, `m4dModels/SharedIdOwnership.cs` (Sort out ids), `m4d/Controllers/SharedIdsController.cs` (page, background tasks), `m4d/APIControllers/SharedIdsController.cs` (apply, track lookup, owners), `m4d/ViewModels/SharedIdReviewModel.cs` (page model, apply request), `m4d/ClientApp/src/pages/shared-id-review/` (page app), `m4d/Services/SharedIdPreviewStore.cs` (last preview and review sort), `m4d/Views/SharedIds/` (last preview), `e2e/tests/shared-ids.spec.ts`
 
 ## Overview
@@ -107,9 +107,9 @@ what Apply makes.
 
 | Tier | Badge | Test |
 | --- | --- | --- |
-| `Exact` | Title and artist match | Same `Song.CreateTitleHash` normal form, which already ignores case, accents, punctuation and bracketed text such as "(feat. X)", once `SharedIdMatcher.WithoutVersionNotes` takes off the notes a service adds to the same recording: "- Remastered", "- Remastered 2011", "(2011 Remaster)", "[Digitally Remastered]", "- Remastered Version", "- Single Version", after a dash, a colon or in brackets. Every tier below compares titles without these notes too (`SharedIdMatcher.TitleKey`). A remix, a radio edit or a live take keeps its note. |
+| `Exact` | Title and artist match | Same `Song.CreateTitleHash` normal form, which already ignores case, accents, punctuation and bracketed text such as "(feat. X)", with each credit compared without its leader's backing group (`ArtistSplitter.RemoveBackingGroup`: "Benny Goodman and His Orchestra" is "Benny Goodman", and so is "Benny Goodman Sextet" when another song's credit names Benny Goodman, `FeaturedCleanup.WithGroupLeaders`; `WithoutFeaturing` compares credits the same way), and the titles compared once `SharedIdMatcher.WithoutVersionNotes` takes off the notes a service adds to the same recording: "- Remastered", "- Remastered 2011", "(2011 Remaster)", "[Digitally Remastered]", "- Remastered Version", "- Single Version", after a dash, a colon or in brackets. Every tier below compares titles without these notes too (`SharedIdMatcher.TitleKey`). A remix, a radio edit or a live take keeps its note. |
 | `WithoutFeaturing` | Differ only by feat. | The same once `ArtistSplitter.RemoveTitleFeaturing` and `RemoveArtistFeaturing` take the feat. clauses out ("Song feat. X", "Y feat. X"). |
-| `SameArtists` | Same artists, credited differently | The titles match without feat. and every song names the same individual artists (`FeaturedCleanup.IndividualArtists`: the song's recorded `Artists` plus any it features, else its credit split by `ArtistSplitter.Split`, which drops backing groups). "X and His Orchestra" and "X" are the same. |
+| `SameArtists` | Same artists, credited differently | The titles match without feat. and every song names the same individual artists (`FeaturedCleanup.IndividualArtists`: the song's recorded `Artists` plus any it features, else its credit split by `ArtistSplitter.Split`, which drops backing groups). "Teddy Wilson And His Orchestra With Billie Holliday" and "Teddy Wilson; Billie Holliday" are the same. |
 | `FewerArtists` | Same lead artist | The titles match without feat. and the songs share their lead artist (`SharedIdMatcher.LeadKey`), but the other artists differ: "X" and "X & Y". Without evidence the splitter can't tell "X & Y" from a duo's name, and "X" may be an old classic whose later version added a collaborator, so these merge only when the songs' own music service tracks confirm them (below). |
 | `Close` | Close match | Every pair passes `Song.TitleArtistMatch`, the fuzzy match that filters service tracks (artist word overlap, `CleanAlbum` trimming of " - 2011 Remaster" suffixes), as given or with feat. removed. |
 | `Different` | none | Anything else. |
@@ -143,7 +143,11 @@ them all: "Song (feat. Y)" by X merged with "Song" by "X feat. Y" lands on "Song
 with artists X and Y. Artists a title features (the merged song's or another song's) that the
 credit still doesn't name are then added to it after the title's own word, so "Song (ft. Y)" by X
 lands on "Song" by "X ft. Y", and "X feat. Z" with Y featured in a title on "X feat. Z & Y". A
-credit that already names the artist, split or not ("X & Y"), is left alone. A title's feat.
+credit that already names the artist, split or not ("X & Y"), is left alone. A leader's backing
+group isn't an artist of its own: "Benny Goodman and His Orchestra" merged with "Benny Goodman"
+lands on the credit "Benny Goodman and His Orchestra" with the individual artist Benny Goodman,
+and "Charlie Parker Quartet" with "Charlie Parker" on "Charlie Parker Quartet" with Charlie
+Parker. A title's feat.
 clause starts with feat., ft., featuring or with; "with" counts in brackets or after a dash ("Song
 (with Y)", "Song - with Y", landing on "X with Y") but not bare ("Stay With Me") or before a
 pronoun or common word ("(With You)", "(With Somebody)", "(with Intro)"). The page sends the
@@ -158,9 +162,12 @@ name, which can be typed over: typing picks that radio, and the page sends the t
 Typing the proposal's own text back, a blank, or **Undo** returns to the proposal. A typed name
 applies only while the songs are merged in one group, since it can't fit two merged songs: the
 boxes are disabled when the songs are split, and the server ignores typed names for a choice with
-more than one group. When the chosen title,
-artist or individual artists aren't what the merge gives on its own (choosing a single
-individual artist clears the list back to the credit), `SimpleMergeSongs` appends an edit by
+more than one group. The **Tempo** row works the same way: its **If merged** column is the tempo
+the merge gives on its own, and a pick (`tempoFrom`) or a typed positive number (`tempo`, in
+`SongNames.Tempo`) sets the merged song's tempo; a picked song with no tempo leaves the merge's.
+When the chosen title, artist, individual artists or tempo aren't what the merge gives on its own
+(choosing a single individual artist clears the list back to the credit), `SimpleMergeSongs`
+appends an edit by
 `music4dance` (`Song.M4dUser`, via `Song.AppendNameEdit`) setting them. When they match, it's a
 plain simple merge. The edit is by a non-pseudo user, because `Song.LoadProperties` doesn't let a
 pseudo user's title or artist override a real user's. So an `Artists` value written this way also
@@ -241,6 +248,7 @@ tooltips).
 - 2026-11: The **If merged** names can be typed over.
 - 2026-11: The feat. cleanup adds the artists a title features to the credit, and the tiers ignore remaster and single-version notes, which the cleanup also drops from the title.
 - 2026-11: "with" starts a title's feat. clause; the cleanup's title is cut back to the shortest title the merged one starts with; Sort out ids prefers the song with the track's exact title and takes an album's ISRC off with its Spotify or iTunes id.
+- 2026-11: A Tempo row picks or types the merged song's tempo. A leader with or without their backing group (an orchestra, a band or a small group: "Charlie Parker Quartet") is the same artist in the `Exact` and `WithoutFeaturing` tiers, and the cleanup credits the group with the leader as the individual artist.
 
 ## Related
 

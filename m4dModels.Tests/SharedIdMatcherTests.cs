@@ -84,9 +84,38 @@ public class SharedIdMatcherTests
     [TestMethod]
     [DataRow("Benny Goodman and His Orchestra", "Benny Goodman")]
     [DataRow("Benny Goodman & His Orchestra", "Benny Goodman")]
-    public void Match_TheSameArtistsCreditedDifferently_IsSameArtists(string first, string second)
+    [DataRow("Benny Goodman Orchestra", "Benny Goodman and His Orchestra")]
+    [DataRow("Charlie Parker Quartet", "Charlie Parker")]
+    [DataRow("The Oscar Peterson Trio", "Oscar Peterson")]
+    [DataRow("Benny Goodman Sextet", "Benny Goodman")]
+    [DataRow("Stan Getz Duo", "Stan Getz")]
+    [DataRow("Count Basie Big Band", "Count Basie")]
+    public void Match_ALeaderWithOrWithoutTheirGroup_IsExact(string first, string second)
     {
-        Assert.AreEqual(SharedIdMatch.SameArtists, SharedIdMatcher.Match([S("Song", first), S("Song", second)]));
+        Assert.AreEqual(SharedIdMatch.Exact, SharedIdMatcher.Match([S("Song", first), S("Song", second)]));
+    }
+
+    [TestMethod]
+    public void Match_ALeadersGroup_DiffersOnlyByFeat()
+    {
+        Assert.AreEqual(SharedIdMatch.WithoutFeaturing,
+            SharedIdMatcher.Match([S("Song feat. Chet Baker", "Charlie Parker Quartet"), S("Song", "Charlie Parker")]));
+    }
+
+    [TestMethod]
+    public void Match_TheSameArtistsCreditedDifferently_IsSameArtists()
+    {
+        Assert.AreEqual(SharedIdMatch.SameArtists, SharedIdMatcher.Match(
+            [S("Song", "Teddy Wilson And His Orchestra With Billie Holliday"), S("Song", "Teddy Wilson; Billie Holliday")]));
+    }
+
+    [TestMethod]
+    [DataRow("Modern Jazz Quartet", "Modern Jazz Five")]
+    [DataRow("Kingston Trio", "Kingston Quartet")]
+    public void Match_ActsNamedForTheirGroups_AreNotTheSameArtist(string first, string second)
+    {
+        // Neither credit is a leader another song credits on their own
+        Assert.AreNotEqual(SharedIdMatch.Exact, SharedIdMatcher.Match([S("Song", first), S("Song", second)]));
     }
 
     [TestMethod]

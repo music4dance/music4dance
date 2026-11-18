@@ -9,11 +9,12 @@ import type {
   SharedIdServiceTrack,
 } from "./SharedIdReviewModel";
 
-// The names a merged song takes, each from one of the cluster's songs or, as null, from the
-// If merged column's proposal (the feat. cleanup of the merge)
-export type NameField = "title" | "artist" | "artists";
+// The names (and tempo) a merged song takes, each from one of the cluster's songs or, as null,
+// from the If merged column's proposal (the feat. cleanup of the merge; for the tempo, what the
+// merge gives)
+export type NameField = "title" | "artist" | "artists" | "tempo";
 
-export const nameFields: NameField[] = ["title", "artist", "artists"];
+export const nameFields: NameField[] = ["title", "artist", "artists", "tempo"];
 
 /** Individual artists as typed in the If merged box, "X | Y", to their list. */
 export function parseArtists(text: string): string[] {
@@ -21,6 +22,12 @@ export function parseArtists(text: string): string[] {
     .split("|")
     .map((a) => a.trim())
     .filter((a) => a.length > 0);
+}
+
+/** A tempo as typed in the If merged box, or null when it isn't a positive number. */
+export function parseTempo(text: string): number | null {
+  const tempo = Number(text.trim());
+  return text.trim() !== "" && Number.isFinite(tempo) && tempo > 0 ? tempo : null;
 }
 
 // "Leave out" in a song's group select
@@ -72,6 +79,7 @@ export class ClusterChoice {
     title: null,
     artist: null,
     artists: null,
+    tempo: null,
   };
   public readonly albumRemovals = new Set<string>();
   public readonly idRemovals = new Set<string>();
@@ -89,7 +97,7 @@ export class ClusterChoice {
 
   private static defaultNames(cluster: SharedIdReviewCluster): Record<NameField, string | null> {
     const from = cluster.proposal ? null : (cluster.songs[0]?.songId ?? null);
-    return { title: from, artist: from, artists: from };
+    return { title: from, artist: from, artists: from, tempo: from };
   }
 
   public setAction(action: SharedIdAction): void {
@@ -305,6 +313,7 @@ export class ClusterChoice {
     const typed = (field: NameField) =>
       this.canType && this.names[field] === null ? this.typed[field] : null;
     const artists = typed("artists");
+    const tempo = typed("tempo");
     return {
       action: this.action,
       candidateIds: this.cluster.candidates.map((c) => c.id),
@@ -312,9 +321,11 @@ export class ClusterChoice {
       titleFrom: from("title"),
       artistFrom: from("artist"),
       artistsFrom: from("artists"),
+      tempoFrom: from("tempo"),
       title: typed("title")?.trim() ?? null,
       artist: typed("artist")?.trim() ?? null,
       artists: artists === null ? null : parseArtists(artists),
+      tempo: tempo === null ? null : parseTempo(tempo),
       removals: this.removals,
       deletions: this.cluster.songs.map((s) => s.songId).filter((id) => this.isDeleted(id)),
     };

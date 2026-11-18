@@ -47,7 +47,8 @@ public static class SharedIdMatcher
             return null;
         }
 
-        var sets = songs.Select(s => ArtistKeys(s)).ToList();
+        var knowledge = FeaturedCleanup.WithGroupLeaders(null, songs);
+        var sets = songs.Select(s => ArtistKeys(s, knowledge)).ToList();
         if (sets.All(s => s.SetEquals(sets[0])))
         {
             return SharedIdMatch.SameArtists;
@@ -126,7 +127,10 @@ public static class SharedIdMatcher
 
     /// <summary>
     /// Every song has the same title (without version notes) and the same (non-empty) artist,
-    /// compared the way the title merge candidates are (Song.CreateTitleHash).
+    /// compared the way the title merge candidates are (Song.CreateTitleHash). A leader's backing
+    /// group doesn't make a different artist: "Benny Goodman and His Orchestra" is Benny Goodman,
+    /// and so is "Benny Goodman Sextet" when another song is credited to Benny Goodman
+    /// (ArtistSplitter.RemoveBackingGroup).
     /// </summary>
     public static bool TitleArtistMatch(IReadOnlyList<Song> songs)
     {
@@ -135,10 +139,11 @@ public static class SharedIdMatcher
             return false;
         }
 
+        var knowledge = FeaturedCleanup.WithGroupLeaders(null, songs);
+        int Artist(Song s) => Song.CreateTitleHash(ArtistSplitter.RemoveBackingGroup(s.Artist, knowledge));
         var title = Song.CreateTitleHash(WithoutVersionNotes(songs[0].Title));
-        var artist = Song.CreateTitleHash(songs[0].Artist);
-        return songs.All(s =>
-            Song.CreateTitleHash(WithoutVersionNotes(s.Title)) == title && Song.CreateTitleHash(s.Artist) == artist);
+        var artist = Artist(songs[0]);
+        return songs.All(s => Song.CreateTitleHash(WithoutVersionNotes(s.Title)) == title && Artist(s) == artist);
     }
 
     /// <summary>

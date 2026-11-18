@@ -43,6 +43,51 @@ public class FeaturedCleanupTests
     }
 
     [TestMethod]
+    [DataRow("Benny Goodman and His Orchestra", null, "Benny Goodman")]
+    [DataRow("Benny Goodman & The Orchestra", null, "Benny Goodman")]
+    [DataRow("Benny Goodman and His Quartet", null, "Benny Goodman")]
+    [DataRow("Charlie Parker Quartet", null, "Charlie Parker Quartet")]
+    [DataRow("Charlie Parker Quartet", "Charlie Parker", "Charlie Parker")]
+    [DataRow("The Oscar Peterson Trio", "Oscar Peterson", "Oscar Peterson")]
+    [DataRow("Woody Herman's Big Band", "Woody Herman", "Woody Herman")]
+    [DataRow("Modern Jazz Quartet", "Charlie Parker", "Modern Jazz Quartet")]
+    [DataRow("Teddy Wilson And His Orchestra With Billie Holliday", null,
+        "Teddy Wilson And His Orchestra With Billie Holliday")]
+    [DataRow("Earth, Wind & Fire", null, "Earth, Wind & Fire")]
+    public void RemoveBackingGroup(string artist, string known, string expected)
+    {
+        Assert.AreEqual(expected,
+            ArtistSplitter.RemoveBackingGroup(artist, known == null ? null : FeaturedCleanup.Knowing([known])));
+    }
+
+    [TestMethod]
+    public void Split_ALeadersGroupWithoutAJoin_IsTheLeaderOnlyWhenKnown()
+    {
+        CollectionAssert.AreEqual(new[] { "Charlie Parker" },
+            ArtistSplitter.Split("Charlie Parker Quartet", null, FeaturedCleanup.Knowing(["Charlie Parker"]))
+                .Artists.ToList());
+        CollectionAssert.AreEqual(new[] { "Charlie Parker Quartet" },
+            ArtistSplitter.Split("Charlie Parker Quartet").Artists.ToList());
+    }
+
+    [TestMethod]
+    [DataRow("Benny Goodman", "Benny Goodman and His Orchestra", "Benny Goodman and His Orchestra", "Benny Goodman")]
+    [DataRow("Benny Goodman and His Orchestra", "Benny Goodman", "Benny Goodman and His Orchestra", "Benny Goodman")]
+    [DataRow("Charlie Parker", "Charlie Parker Quartet", "Charlie Parker Quartet", "Charlie Parker")]
+    [DataRow("Charlie Parker Quartet", "Charlie Parker", "Charlie Parker Quartet", "Charlie Parker")]
+    public void Propose_ALeaderAndTheirGroup_CreditsTheGroupWithTheLeaderAsTheArtist(string mergedCredit,
+        string otherCredit, string credit, string artist)
+    {
+        var merged = new Song { Title = "Song", Artist = mergedCredit };
+        var other = new Song { Title = "Song", Artist = otherCredit };
+
+        var names = FeaturedCleanup.Propose(merged, [merged, other]);
+
+        Assert.AreEqual(credit, names.Artist);
+        CollectionAssert.AreEqual(new[] { artist }, names.Artists.ToList());
+    }
+
+    [TestMethod]
     public void Propose_MovesTheTitleFeatIntoTheArtists()
     {
         var merged = new Song { Title = "Song Title (feat. Crazy Man)", Artist = "The Artist" };

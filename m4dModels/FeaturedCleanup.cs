@@ -3,10 +3,10 @@ using System.Text.RegularExpressions;
 namespace m4dModels;
 
 /// <summary>
-/// The title, artist credit and individual artists a song should end up with. Artists is null
-/// when the individual artists shouldn't change.
+/// The title, artist credit, individual artists and tempo a song should end up with. Artists is
+/// null when the individual artists shouldn't change, and Tempo when the tempo shouldn't.
 /// </summary>
-public record SongNames(string Title, string Artist, IReadOnlyList<string> Artists = null);
+public record SongNames(string Title, string Artist, IReadOnlyList<string> Artists = null, decimal? Tempo = null);
 
 /// <summary>
 /// Moves featured artists out of a merged song's title and into its credit and individual
@@ -31,15 +31,22 @@ public static class FeaturedCleanup
     /// Artists a title features (the merged song's or a source's) that the credit still leaves
     /// out are then added to it with the title's own word: "Song (ft. Y)" by "X" gives "X ft. Y",
     /// and "X feat. Y" with Z featured gives "X feat. Y &amp; Z".
+    /// A leader's backing group isn't an artist of its own: "Benny Goodman and His Orchestra" (or
+    /// "Charlie Parker Quartet", when another song is credited to Charlie Parker) is Benny Goodman
+    /// in the individual artists, and a credit naming only the leader takes the group from the
+    /// song that credits it ("Benny Goodman and His Orchestra").
     /// <paramref name="knowledge"/> is evidence for splitting credits like "X &amp; Y", which
     /// otherwise stay one artist (a music service's list of the track's artists, say).
     /// </summary>
     public static SongNames Propose(Song merged, IEnumerable<Song> sources, IArtistKnowledge knowledge = null)
     {
         var songs = sources?.ToList() ?? [];
+        knowledge = WithGroupLeaders(knowledge, [merged, .. songs]);
         var artists = new List<string>();
+        // A leader's group is the leader: "Benny Goodman and His Orchestra" is Benny Goodman
         void Add(IEnumerable<string> names) =>
-            artists.AddRange(names.Where(n => !artists.Any(a => SameArtist(a, n))));
+            artists.AddRange(names.Select(n => ArtistSplitter.RemoveBackingGroup(n, knowledge))
+                .Where(n => !artists.Any(a => SameArtist(a, n))));
 
         Add(merged.Artists ?? ArtistSplitter.Split(merged.Artist, merged.Title, knowledge).Artists);
         // When the songs' credits only leave artists out ("X" and "X & Y"), all of them
@@ -58,9 +65,53 @@ public static class FeaturedCleanup
             Add(FeaturedArtists(song, knowledge));
         }
 
-        var credit = Credit(merged.Artist, songs, artists, knowledge);
+        var credit = WithBackingGroup(Credit(merged.Artist, songs, artists, knowledge), songs, knowledge);
         return new SongNames(Title(merged, songs), WithTitleFeaturing(credit, [merged, .. songs], knowledge),
             artists);
+    }
+
+    /// <summary>
+    /// <paramref name="knowledge"/>, also knowing the leaders of the songs' "Charlie Parker
+    /// Quartet" credits that another song credits, on their own ("Charlie Parker") or with a
+    /// possessive group ("Charlie Parker and His Orchestra"), so the
+    /// splitter takes the group off (ArtistSplitter.RemoveBackingGroup).
+    /// </summary>
+    public static IArtistKnowledge WithGroupLeaders(IArtistKnowledge knowledge, IEnumerable<Song> songs)
+    {
+        var credits = (songs ?? []).Where(s => s != null)
+            .Select(s => ArtistSplitter.RemoveArtistFeaturing(s.Artist ?? ""))
+            .Where(c => !string.IsNullOrWhiteSpace(c))
+            .ToList();
+        // A leader is known when another song is credited to them, on their own or with their
+        // group ("Benny Goodman and His Orchestra")
+        var known = Knowing([.. credits, .. credits.Select(c => ArtistSplitter.RemoveBackingGroup(c))]);
+        var leaders = credits
+            .Where(c => ArtistSplitter.RemoveBackingGroup(c) == c)
+            .Select(c => (Credit: c, Leader: ArtistSplitter.RemoveBackingGroup(c, known)))
+            .Where(c => c.Leader != c.Credit)
+            .Select(c => c.Leader)
+            .ToList();
+        return leaders.Count == 0 ? knowledge : new EitherKnowledge(knowledge, Knowing(leaders));
+    }
+
+    // Known to either
+    private sealed class EitherKnowledge(IArtistKnowledge first, IArtistKnowledge second) : IArtistKnowledge
+    {
+        public bool IsKnownArtist(string name) =>
+            first?.IsKnownArtist(name) == true || second.IsKnownArtist(name);
+    }
+
+    // The credit with its backing group, when it names only the leader and one of the songs
+    // credits the group too: "Benny Goodman" becomes "Benny Goodman and His Orchestra"
+    private static string WithBackingGroup(string credit, IEnumerable<Song> songs, IArtistKnowledge knowledge)
+    {
+        if (string.IsNullOrWhiteSpace(credit) || ArtistSplitter.RemoveBackingGroup(credit, knowledge) != credit)
+        {
+            return credit;
+        }
+
+        return songs.Select(s => s.Artist).FirstOrDefault(c => !string.IsNullOrWhiteSpace(c) &&
+            !SameArtist(c, credit) && SameArtist(ArtistSplitter.RemoveBackingGroup(c, knowledge), credit)) ?? credit;
     }
 
     // The merged title without its feat. clause or version notes, cut back to the shortest of the
@@ -188,7 +239,8 @@ public static class FeaturedCleanup
     }
 
     /// <summary>
-    /// Whether the titles and artists all match once their feat. clauses are removed, compared
+    /// Whether the titles and artists all match once their feat. clauses (and the artists'
+    /// backing groups, ArtistSplitter.RemoveBackingGroup) are removed, compared
     /// the way exact title merges compare them (Song.CreateTitleHash), the titles also without
     /// their version notes (SharedIdMatcher.TitleKey).
     /// </summary>
@@ -199,9 +251,12 @@ public static class FeaturedCleanup
             return false;
         }
 
+        var knowledge = WithGroupLeaders(null, songs);
         var keys = songs.Select(s => (
             Title: SharedIdMatcher.TitleKey(s.Title),
-            Artist: Song.CreateTitleHash(ArtistSplitter.RemoveArtistFeaturing(s.Artist)))).ToList();
+            Artist: Song.CreateTitleHash(
+                ArtistSplitter.RemoveBackingGroup(ArtistSplitter.RemoveArtistFeaturing(s.Artist), knowledge))))
+            .ToList();
         return keys.All(k => k == keys[0]);
     }
 

@@ -1944,9 +1944,9 @@ public class Song : TaggableObject
 
     /// <summary>
     /// Appends an edit block by <paramref name="user"/> setting whichever of the title, artist
-    /// credit and individual artists differ from <paramref name="names"/> (blank or null names
-    /// are left alone). A single individual artist is written as an empty list, which means the
-    /// credit itself. Only the log changes: reload the song (Song.Create) to see the new values.
+    /// credit, individual artists and tempo differ from <paramref name="names"/> (blank or null
+    /// names and a null or zero tempo are left alone). A single individual artist is written as
+    /// an empty list, which means the credit itself. Only the log changes: reload the song (Song.Create) to see the new values.
     /// Returns false, adding nothing, when everything already matches.
     /// </summary>
     public bool AppendNameEdit(ApplicationUser user, SongNames names, DateTime? time = null)
@@ -1955,7 +1955,8 @@ public class Song : TaggableObject
         var artist = !string.IsNullOrWhiteSpace(names.Artist) && names.Artist != Artist;
         var artists = names.Artists is { Count: > 0 } && !names.Artists.Select(ArtistSplitter.ArtistKey)
             .SequenceEqual(EffectiveArtists.Select(ArtistSplitter.ArtistKey));
-        if (!title && !artist && !artists)
+        var tempo = names.Tempo is > 0 && names.Tempo != Tempo;
+        if (!title && !artist && !artists && !tempo)
         {
             return false;
         }
@@ -1975,6 +1976,11 @@ public class Song : TaggableObject
         {
             SongProperties.Add(new SongProperty(ArtistsField,
                 names.Artists.Count > 1 ? ArtistSplitter.Serialize(names.Artists) : string.Empty));
+        }
+
+        if (tempo)
+        {
+            _ = CreateProperty(TempoField, names.Tempo.Value);
         }
 
         return true;

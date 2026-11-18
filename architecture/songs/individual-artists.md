@@ -3,7 +3,7 @@
 **Type:** Reference
 **Status:** Current. Fully deployed to production (confirmed 2026-10-01); operations are in
 [runbooks/artist-index-operations](../runbooks/artist-index-operations.md).
-**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Last verified:** 2026-11-18 (leader-and-group rules re-traced; the rest code references only)
 **Code:** `m4dModels/ArtistSplitter.cs`, `m4dModels/ArtistIndex.cs`, `m4dModels/ArtistIndexFileManager.cs`,
 `m4d/Services/ArtistIndexCache.cs`, `m4d/ClientApp/src/models/ArtistNames.ts`, `m4d/ClientApp/src/pages/artist-index/`
 
@@ -139,7 +139,13 @@ the save hook it is one facet query.
   Charanga`, `und sein Tanzorchester`) or by nothing but generic ensemble words (`with Orchestra`,
   `and Singers`) keeps **only the leader**, no evidence needed. `Duke Ellington and His Orchestra`
   → `[Duke Ellington]`. Anything credited after the group is split separately: `Teddy Wilson And
-  His Orchestra With Billie Holliday` → `[Teddy Wilson, Billie Holliday]`.
+  His Orchestra With Billie Holliday` → `[Teddy Wilson, Billie Holliday]`. The ensemble words
+  include the small groups: Duo, Trio, Quartet, Quintet, Sextet, Septet, Octet.
+- **Leader and group without a join** — a name followed by a group word (`Charlie Parker Quartet`,
+  `The Oscar Peterson Trio`, `Count Basie Orchestra`, `Woody Herman's Big Band`) keeps only the
+  leader, but only when the leader is a known artist: `Modern Jazz Quartet` and `Kingston Trio`
+  stay whole. `ArtistSplitter.RemoveBackingGroup` does the same to a whole credit, for comparing
+  credits (the shared-id review's tiers).
 - **Named ensembles** — a multi-word name containing an ensemble word (Orchestra, Philharmonic,
   Symphony, Sinfonietta, Choir, Trio, Collegium…) joined to another multi-word name always splits:
   `London Symphony Orchestra and Árpád Joó` → both.

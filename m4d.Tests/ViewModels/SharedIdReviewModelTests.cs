@@ -76,6 +76,8 @@ public class SharedIdReviewModelTests
         Assert.IsNull(choice.Names.Typed.Artist);
         CollectionAssert.AreEqual(new[] { "X", "Y" }, choice.Names.Typed.Artists.ToList());
         Assert.IsNull(new SharedIdChoiceRequest().ToChoice().Names.Typed);
+        var tempo = new SharedIdChoiceRequest { Tempo = 121.5m, TempoFrom = B }.ToChoice().Names;
+        Assert.AreEqual((121.5m, (Guid?)B), (tempo.Typed.Tempo, tempo.Tempo));
     }
 
     [TestMethod]
@@ -105,6 +107,8 @@ public class SharedIdReviewModelTests
                 "titleFrom": "{{B}}",
                 "artistFrom": null,
                 "artistsFrom": null,
+                "tempoFrom": "{{A}}",
+                "tempo": null,
                 "removals": [{ "songId": "{{A}}", "album": 0, "id": "I:111" }, { "songId": "{{B}}", "album": 1 }]
               }]
             }
@@ -116,7 +120,7 @@ public class SharedIdReviewModelTests
         Assert.AreEqual(3, request.Page);
         Assert.AreEqual(SharedIdAction.Reject, choice.Action);
         CollectionAssert.AreEqual(new[] { "A", "" }, choice.Groups.ToList());
-        Assert.AreEqual(new SharedIdNamePicks(Title: B), choice.Names);
+        Assert.AreEqual(new SharedIdNamePicks(Title: B, Tempo: A), choice.Names);
         CollectionAssert.AreEqual(new[] { new SharedIdRemoval(A, 0, "I:111"), new SharedIdRemoval(B, 1) },
             choice.Removals.ToList());
     }

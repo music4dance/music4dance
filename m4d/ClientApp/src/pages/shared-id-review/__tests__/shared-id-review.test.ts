@@ -435,6 +435,20 @@ describe("shared-id-review page", () => {
       expect(feat.artist).toBeNull();
     });
 
+    test("sends a tempo typed over the merge's", async () => {
+      const wrapper = loadTestPage(App, model);
+      const box = cards(wrapper)[0]!.find("#cluster-0-tempo-typed");
+      expect(box.attributes("type")).toBe("number");
+      expect(box.element).toHaveProperty("value", "120");
+
+      await box.setValue("132");
+      await wrapper.find(".apply-button").trigger("click");
+      await flushPromises();
+
+      const [feat] = lastRequest().body.choices;
+      expect([feat.tempoFrom, feat.tempo]).toEqual([null, 132]);
+    });
+
     test("a failure is shown and the page stays", async () => {
       post.mockRejectedValue(new Error("Request failed with status code 500"));
       const wrapper = loadTestPage(App, model);

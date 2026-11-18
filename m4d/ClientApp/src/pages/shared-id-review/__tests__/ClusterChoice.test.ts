@@ -6,6 +6,7 @@ import {
   leaveOut,
   lookupIds,
   parseArtists,
+  parseTempo,
   sharedLookupIds,
 } from "../ClusterChoice";
 import { SharedIdReviewCluster } from "../SharedIdReviewModel";
@@ -23,7 +24,7 @@ describe("ClusterChoice", () => {
       expect(choice.action).toBe("Merge");
       expect(choice.groupOf(songA)).toBe("A");
       expect(choice.groupOf(songB)).toBe("A");
-      expect(choice.names).toEqual({ title: null, artist: null, artists: null });
+      expect(choice.names).toEqual({ title: null, artist: null, artists: null, tempo: null });
       expect(choice.isSplit).toBe(false);
       expect(choice.isDirty).toBe(false);
     });
@@ -32,7 +33,7 @@ describe("ClusterChoice", () => {
       const choice = choiceFor(rejectedCluster);
 
       expect(choice.action).toBe("Leave");
-      expect(choice.names).toEqual({ title: songC, artist: songC, artists: songC });
+      expect(choice.names).toEqual({ title: songC, artist: songC, artists: songC, tempo: songC });
       expect(choice.isDirty).toBe(false);
     });
 
@@ -213,9 +214,11 @@ describe("ClusterChoice", () => {
         titleFrom: null,
         artistFrom: null,
         artistsFrom: null,
+        tempoFrom: null,
         title: null,
         artist: null,
         artists: null,
+        tempo: null,
         removals: [],
         deletions: [],
       });
@@ -282,7 +285,7 @@ describe("ClusterChoice", () => {
       choice.typeName("title", "Probe", "Probe");
       choice.typeName("artist", "  ", "Probe Artist");
 
-      expect(choice.typed).toEqual({ title: null, artist: null, artists: null });
+      expect(choice.typed).toEqual({ title: null, artist: null, artists: null, tempo: null });
       expect(choice.isDirty).toBe(false);
     });
 
@@ -301,6 +304,25 @@ describe("ClusterChoice", () => {
 
     test("parseArtists trims and drops the empty ones", () => {
       expect(parseArtists(" X |Y|| ")).toEqual(["X", "Y"]);
+    });
+
+    test("a tempo is picked from a song or typed, and sent as a number", () => {
+      const choice = choiceFor(featCluster);
+      choice.pickName("tempo", songB);
+      expect(choice.toRequest().tempoFrom).toBe(songB);
+
+      choice.typeName("tempo", " 124.5 ", "120");
+
+      const request = choice.toRequest();
+      expect([request.tempoFrom, request.tempo]).toEqual([null, 124.5]);
+      expect(choice.isDirty).toBe(true);
+    });
+
+    test("parseTempo takes only a positive number", () => {
+      expect(parseTempo(" 96 ")).toBe(96);
+      expect(parseTempo("fast")).toBeNull();
+      expect(parseTempo("0")).toBeNull();
+      expect(parseTempo(" ")).toBeNull();
     });
   });
 

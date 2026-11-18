@@ -119,10 +119,12 @@ export interface SharedIdChoiceRequest {
   titleFrom: string | null;
   artistFrom: string | null;
   artistsFrom: string | null;
-  // What was typed over the proposal's names, or null for each left alone
+  tempoFrom: string | null;
+  // What was typed over the proposal's names and tempo, or null for each left alone
   title: string | null;
   artist: string | null;
   artists: string[] | null;
+  tempo: number | null;
   removals: SharedIdRemovalRequest[];
   deletions: string[];
 }

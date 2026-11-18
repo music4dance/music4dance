@@ -152,15 +152,19 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
     </p>
     <p>
       The <em>Title</em>, <em>Artist</em> and <em>Individual artists</em> rows choose what the
-      merged song is called. They start on the <em>If merged</em> column, which takes any feat. (or
-      "with") clause and remaster or single-version note out of the title, cuts it back to the
-      shortest of the songs' titles it starts with ("Song - Salsa Version" and "Song" give "Song"),
-      and adds the featured artists to the credit and the individual artists. Type over any of its
-      names to name the merged song whatever you like (individual artists separated by |); that
-      works only while the songs are merged in one group. When a choice isn't what the merge gives
-      on its own, an edit by the music4dance account sets it after the merge. A song left out can't
-      name the merge. When the songs are split into groups, each song's choice is marked with the
-      group it names; a group without a choice of its own gets the same cleanup of its own merge.
+      merged song is called, and the <em>Tempo</em> row its tempo. They start on the
+      <em>If merged</em> column, which takes any feat. (or "with") clause and remaster or
+      single-version note out of the title, cuts it back to the shortest of the songs' titles it
+      starts with ("Song - Salsa Version" and "Song" give "Song"), adds the featured artists to the
+      credit and the individual artists, and keeps a leader's group in the credit but not in the
+      individual artists ("Charlie Parker Quartet" and "Charlie Parker" give the credit Charlie
+      Parker Quartet with the artist Charlie Parker); its tempo is the merge's. Type over any of
+      them to name the merged song (or set its tempo) whatever you like (individual artists
+      separated by |); that works only while the songs are merged in one group. When a choice isn't
+      what the merge gives on its own, an edit by the music4dance account sets it after the merge. A
+      song left out can't name the merge. When the songs are split into groups, each song's choice
+      is marked with the group it names; a group without a choice of its own gets the same cleanup
+      of its own merge.
     </p>
     <p>
       In the song columns, the box before an album removes the album from that song, and the box

@@ -48,6 +48,7 @@ const mergeAlone = computed(() =>
 const songTitle = (s: SharedIdReviewSong) => s.title ?? "";
 const songArtist = (s: SharedIdReviewSong) => s.artist ?? "";
 const songArtists = (s: SharedIdReviewSong) => formatArtists(s.artists);
+const songTempo = (s: SharedIdReviewSong) => s.tempo?.toString() ?? "";
 
 function setAction(value: unknown): void {
   props.choice.setAction(value as SharedIdAction);
@@ -212,11 +213,15 @@ const ownerText: Record<string, string> = {
                 <td v-for="song in songs" :key="song.songId">{{ formatLength(song.length) }}</td>
                 <td class="table-info">{{ formatLength(merged?.length) }}</td>
               </tr>
-              <tr>
-                <th>Tempo</th>
-                <td v-for="song in songs" :key="song.songId">{{ song.tempo }}</td>
-                <td class="table-info">{{ merged?.tempo }}</td>
-              </tr>
+              <NameChoiceRow
+                :choice="choice"
+                field="tempo"
+                :prefix="prefix"
+                heading="Tempo"
+                :text-of="songTempo"
+                :proposed="merged?.tempo?.toString()"
+                input-type="number"
+              />
               <tr>
                 <th>Dances</th>
                 <td v-for="song in songs" :key="song.songId">{{ formatDances(song.dances) }}</td>
