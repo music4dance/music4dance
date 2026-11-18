@@ -2,8 +2,8 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
-**Code:** `m4dModels/PlayList.cs`, `m4d/Controllers/PlayListController.cs`, `m4d/ClientApp/src/pages/playlist/`
+**Last verified:** 2026-11-18 (missing-playlist handling added; the rest last checked 2026-10-01)
+**Code:** `m4dModels/PlayList.cs`, `m4dModels/MissingPlaylistPolicy.cs`, `m4d/Controllers/PlayListController.cs`, `m4d/ClientApp/src/pages/playlist/`
 
 ## Overview
 
@@ -31,6 +31,7 @@ public class PlayList
     public DateTime Created { get; set; }
     public DateTime? Updated { get; set; }
     public bool Deleted { get; set; }    // soft-delete flag
+    public DateTime? NotFoundSince { get; set; } // first 404 from Spotify in the update batch; see below
 }
 ```
 
@@ -113,6 +114,26 @@ All actions require `dbAdmin` role. The controller extends `DanceMusicController
 - `SafeLoadPlaylist(id, dms)` — throws `ArgumentNullException` / `ArgumentOutOfRangeException` if not found.
 - `GetIndex(type, showDeleted)` / `GetUserIndex(type, user, showDeleted)` — build `PlayListIndex` from EF query, filtering by `Deleted == showDeleted`. Used by non-Index actions (e.g., confirmation pages).
 - `UserEmail(playlists)` — builds a `userId → email` map (needed to authenticate Spotify calls).
+
+### Playlists that disappear from Spotify
+
+A `SongsFromSpotify` playlist can vanish: its owner deletes it or makes it private, or (for the
+`37i9dQZF1D…` editorial ones) Spotify stops serving it to apps like ours. The update batch
+(`UpdateAll`, `UpdateBatch`) soft-deletes these on its own, with `MissingPlaylistPolicy`:
+
+- **Only a 404 counts.** `MusicServiceManager` throws `MusicServiceRequestException`, carrying the
+  status, for a failed request. `UpdateSongsFromSpotify` lets a 404 through to the batch and keeps
+  reporting every other failure (5xx, 429, auth, network) as a failed update that changes nothing.
+- **The 404 has to last.** The first miss sets `NotFoundSince`; any successful load clears it. A
+  playlist is marked `Deleted` (with `Updated` set) once it's been missing for the 7-day
+  `GracePeriod`, about a week of daily runs. Each one logs a Warning.
+- **A mass failure changes nothing.** If at least 10 playlists, and at least 10% of the run, are
+  missing at once, the cause is ours or Spotify-wide (an auth problem, an API policy change), so the
+  run neither starts clocks nor deletes, and logs an Error with the ids for a person to look at.
+
+It's the ordinary soft delete, so the Index page still lists them and `Undelete` brings one back
+(for a playlist made public again). `NotFoundSince` isn't in the playlist backup format; a restore
+just restarts the clock. The single-playlist `Update` reports a 404 as a failure and changes nothing.
 
 ---
 

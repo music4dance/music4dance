@@ -1488,7 +1488,7 @@ public class MusicServiceManager(IConfiguration configuration)
                         "{Service} request {Uri} failed with {StatusCode}: {Body}",
                         service?.Id, requestUri, (int)response.StatusCode,
                         body.Length > 1000 ? body[..1000] : body);
-                    throw new WebException(response.ReasonPhrase);
+                    throw new MusicServiceRequestException(response.StatusCode, response.ReasonPhrase);
                 }
             }
             catch (WebException we)

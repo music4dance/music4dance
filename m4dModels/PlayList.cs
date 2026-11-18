@@ -31,6 +31,12 @@ public class PlayList
     public DateTime? Updated { get; set; }
     public bool Deleted { get; set; }
 
+    /// <summary>
+    /// When the update batch first found a SongsFromSpotify playlist missing on Spotify (404);
+    /// null once it loads again. See <see cref="MissingPlaylistPolicy"/>.
+    /// </summary>
+    public DateTime? NotFoundSince { get; set; }
+
     public string Data1Name => GetData1Name(Type);
 
     public static string GetData1Name(PlayListType type)
