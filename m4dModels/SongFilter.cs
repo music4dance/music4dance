@@ -649,6 +649,14 @@ public class SongFilter
     public static bool IsCustomSearchName(string name) =>
         name != null && CustomSearchNames.Contains(name);
 
+    /// <summary>
+    /// True when CreateCustomSearchFilter can filter by <paramref name="dance"/>: none, or a dance
+    /// name it recognizes. For an unknown name it builds OData with nothing before " and (",
+    /// which Azure Search rejects.
+    /// </summary>
+    public static bool IsCustomSearchDance(string dance) =>
+        string.IsNullOrWhiteSpace(dance) || DanceLibrary.Dances.Instance.DanceFromName(dance) != null;
+
     public virtual SongFilter CreateCustomSearchFilter(string name = "holiday", string dance = null, int page = 1)
     {
         name = string.IsNullOrWhiteSpace(name) ? "holiday" : name;

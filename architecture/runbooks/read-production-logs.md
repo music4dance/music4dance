@@ -2,7 +2,7 @@
 
 **Type:** Runbook
 **Status:** Current
-**Last verified:** 2026-11-03
+**Last verified:** 2026-11-18
 
 ## When to use
 
@@ -95,19 +95,20 @@ Fetch it with `fetch_http_logs.py --source app` from the `analyze-traffic` skill
 ## Known signatures
 
 Check here before investigating. Counts are for the 2026-10-12 to 2026-10-13 download (about 1,440
-entries).
+entries) unless a row gives its own date.
 
 | Signature | Count | Cause | Status |
 | --- | --- | --- | --- |
 | Kestrel `An unhandled exception was thrown` → `BadImageFormatException: Index not found` (from `Logger'1..ctor`), followed by `The response has already started` | 213 + 39 in 4½ min | `AzureWebApp@1` zip-deploys over `wwwroot` while the old process is still serving, so assemblies change underneath it. The burst runs from deploy start until the new container's health report | **Fixed** 2026-11-03: deploys now use Run From Package, which mounts the new package instead of extracting over the running app (see [hosting-and-identity § Run From Package](../infrastructure/hosting-and-identity.md#run-from-package)). Seeing this again means `WEBSITE_RUN_FROM_PACKAGE` is off |
 | `Couldn't find dance <id>` from `DanceQueryItem.FromValue` via `BotFilter.cshtml` | 10 | Crawlers send song filters naming dances that don't exist (`4387`, `DanceTags`); parsing threw during view render, giving a 500 | **Fixed 2026-10-13**: `DanceQuery.IsValid` check returns 400 in `SongController.DoAzureSearch` and `CustomSearchController.Index` |
 | `NullReferenceException` or `Exception: Unknown holiday` at `CustomSearchController.Index`; 500s on `/song/playlist` | 551 a day (HTTP logs, 2026-10-30) | SQL-injection probes (`' UNION ALL SELECT …`) on `?name=` and `?id=` from a few IPs, plus requests with no `name`. Nothing reached SQL; the unknown name threw in `CreateCustomSearchFilter`, and the bad id went straight to the Spotify lookup (which call threw wasn't pinned down) | **Fixed 2026-10-30**: unknown names and non-base62 playlist ids return 404; a missing name defaults to Holiday |
+| `NullReferenceException` at `CustomSearchController.Index` line 95, each after a Search `400 Bad Request` | 4 (11-17 to 11-18) | An unknown `dance` (`/CustomSearch?name=halloween&dance=Slow`): `CreateCustomSearchFilter` built OData with nothing before ` and (`, Search rejected it, then `DanceStats.FromName` returned null | **Fixed 2026-11-18**: `SongFilter.IsCustomSearchDance` returns 404 for an unknown dance |
 | `Azure.Core` `404 Not Found` with a `Sync-Token` header, every ~5 min | ~815 | App Configuration refresh polls `Configuration:Sentinel` with label `Production`, which doesn't exist (only unlabeled and `Staging` do). Also means bumping a sentinel never refreshes production | **Fixed 2026-10-14**: the refresh now watches the unlabeled sentinel (`AppConfigurationStartup`) |
-| `Azure.Core` `404 Not Found` with `request-id`/`elapsed-time` headers | ~100 | Azure AI Search. Probably `FindSong` lookups for IDs not in the index (unconfirmed) | Probably noise |
-| `Azure.Core` `400 Bad Request` with `request-id`/`elapsed-time` headers, in pairs | 70 | Azure AI Search rejects a request. The pairs suggest `SongIndex.DoSearch`'s retry-without-select (unconfirmed). No matching 500s were logged, and the error body only goes to `Trace.WriteLine`, so the query and the caller are unknown | **Open**: log the `RequestFailedException` message |
+| `Azure.Core` `404 Not Found` with `request-id`/`elapsed-time` headers | ~100 | Azure AI Search: `FindSong` for IDs not in the index. Confirmed 2026-11-18 (453 in 2 days) against the app request log: they line up with `/song/details/<id>` 301s, the redirect for a merged song's old ID | Noise |
+| `Azure.Core` `400 Bad Request` with `request-id`/`elapsed-time` headers, in pairs | 70 | Azure AI Search rejects a request. 2026-11-18 (198 in 2 days), matched against the app request log: nearly all are `` `Artist:(…) `` Lucene searches on `/Song` and `/song/filtersearch` whose value has Lucene syntax in it (`IAMSU!`, an unbalanced `)`) or was cut off at an unencoded `&` (`` `Artist:(Coco ``). `SongIndex.Search` catches the failure and shows 0 results with a 200, and the error body only goes to `Trace.WriteLine` | **Partly fixed 2026-11-18**: the artist page's two search links are URL-encoded. **Open**: escape Lucene special characters in `KeywordQuery` field values, and log the `RequestFailedException` message |
 | `Azure.Core` `Response … took Ns` | 57 | Slow Azure responses (App Configuration, Search) | Watch; see the App Configuration timeout work |
 | `LuckyPennySoftware.AutoMapper.License`: license expired | 2 per start | AutoMapper's commercial license key (`Authentication:AutoMapper:Key`) expired around 2026-09-23 | **Fixed 2026-10-14**: renewed through 2027-10-14; `LicenseKeyCredential` now emails 30 days before expiry ([runbooks/renew-automapper-license](renew-automapper-license.md)) |
-| `Spotify request …/playlists/<id> failed with 404` | 38 in one 9-min run | A batch reads playlists that are gone. The `37i9dQZF1D…` IDs are Spotify-owned editorial playlists, which the Web API stopped serving to new apps in Nov 2024 | **Open**: mark dead playlists and skip them |
+| `Spotify request …/playlists/<id> failed with 404` | 38 in one 9-min run | A batch reads playlists that are gone. The `37i9dQZF1D…` IDs are Spotify-owned editorial playlists, which the Web API stopped serving to new apps in Nov 2024. On 2026-11-17 and 11-18 it's ~38 a day, all at 08:00 UTC, on `v1/users/<owner>/…` (most `spotify`) | **Open**: mark dead playlists and skip them |
 | `Antiforgery validation failed for suggestion request`, once per keystroke | 90 | No cookie (`HasAntiforgeryCookie=False`), a cookie/token mismatch, or a token for a different user after signing in from another tab. Each keystroke logs again | **Open**: see the 4xx triage log; consider re-fetching the token on failure and logging once per page |
 | `Antiforgery validation failed for usage log batch` | 6 | Same causes, from the usage beacon | Noise unless it grows |
 | `ArtistsCoverage (SongIndexExperimental) failed`: index `songs-experimental` not found | 2 | Admin page run against an index that doesn't exist in production | Noise |
@@ -115,6 +116,9 @@ entries).
 | `Out of memory.` then `startup.sh: … Aborted (core dumped) dotnet m4d.dll` (platform log: `exit code: 134`), preceded by Kestrel `heartbeat … thread pool starvation` and `OutOfMemoryException` in `_jsonCamelCase`, `ScriptJson.Escape`, `SongIndex.FindSong`/`DoSearch` | Several restarts a day from 2026-10-22 (10-23 to 10-25 download) | Peak working set pinned at ~1.25 GB, the most the B1 container allows; it was 700 MB–1 GB before. It began within a day of the platform moving to base image `dotnetcore:10.0_20261022.3`, with no app deploy and lower traffic. Each restart takes up to ~15 min to come back, often on a new VM | **Open**: scale up the plan, or cap the GC heap; take a memory dump near the ceiling |
 | SQL `error occurred during the login process` / `pre-login handshake` / `Timeout … obtaining a connection from the pool`; Search `Retry failed after <n> tries` | ~250 SQL, ~800 Search (10-24 to 10-25) | A symptom of the memory and thread-pool starvation above, not a dependency outage: SQL, Search and App Configuration metrics were normal at the same times | Recheck after the OOM is fixed |
 | `Suspicious returnUrl detected from <ip>` on `/identity/account/login` | 4 | Open-redirect probes from scanners | Noise |
+| `RegisterModel`: `Non-local return URL detected` | 4 (11-17 to 11-18) | The same open-redirect probes, on `/identity/account/register` | Noise |
+| SQL `Execution Timeout Expired` (65 s) on the `AspNetUserRoles` role lookup | 1, 2026-11-17 19:13, 2 min after a deploy's start | A cold start: migrations and cache loads were running. No repeat | Watch; investigate if it recurs outside a start |
+| `AdmAuthentication`: `Failed to fetch an access token` | 2 in 2 min | A sign-in's `AuthenticateResult` had no `access_token` (one user, `TryCreate` returns null) | Noise unless it grows |
 
 ## Verification
 

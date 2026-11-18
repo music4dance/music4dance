@@ -36,6 +36,26 @@ public class SongFilterTests
     }
 
     [TestMethod]
+    [DataRow(null, true)]
+    [DataRow("", true)]
+    [DataRow("Slow Waltz", true)]
+    [DataRow("quickstep", true)]
+    [DataRow("Tango (Ballroom)", true)]
+    [DataRow("Slow", false)]
+    [DataRow("Waltz' UNION ALL SELECT 'x'-- y", false)]
+    public void IsCustomSearchDance_MatchesTheDancesTheFilterBuilds(string dance, bool expected)
+    {
+        Assert.AreEqual(expected, SongFilter.IsCustomSearchDance(dance));
+        if (expected && !string.IsNullOrWhiteSpace(dance))
+        {
+            // A raw search keeps its OData in Dances
+            var odata = SongFilter.GetDefault(null).CreateCustomSearchFilter("halloween", dance)
+                .Dances;
+            StringAssert.StartsWith(odata, "DanceTags/any(");
+        }
+    }
+
+    [TestMethod]
     public void BasicFilter()
     {
         TestFilters(false);
