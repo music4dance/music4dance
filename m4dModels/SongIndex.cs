@@ -1481,14 +1481,14 @@ public class SongIndex
         }
 
         return await Search(
-            filter.SearchString, AzureParmsFromFilter(filter, pageSize), cruft);
+            filter.AzureSearchText, AzureParmsFromFilter(filter, pageSize), cruft);
     }
 
     public virtual async Task<SearchResults> Search(
         string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
     {
-        // Strip the Lucene indicator and escape the user's text
-        search = new KeywordQuery(search).AzureSearch;
+        // Strip off the Lucene syntax indicator (a filter's text is already escaped: AzureSearchText)
+        search = new KeywordQuery(search).Keywords;
 
         try
         {
@@ -1525,7 +1525,7 @@ public class SongIndex
         string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
     {
         const int azurePageSize = 1000;
-        search = new KeywordQuery(search).AzureSearch;
+        search = new KeywordQuery(search).Keywords;
 
         var originalFilter = parameters.Filter;
         var originalSize = parameters.Size;

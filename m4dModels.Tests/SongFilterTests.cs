@@ -46,13 +46,23 @@ public class SongFilterTests
     public void IsCustomSearchDance_MatchesTheDancesTheFilterBuilds(string dance, bool expected)
     {
         Assert.AreEqual(expected, SongFilter.IsCustomSearchDance(dance));
-        if (expected && !string.IsNullOrWhiteSpace(dance))
+        if (!string.IsNullOrWhiteSpace(dance) && !expected)
         {
-            // A raw search keeps its OData in Dances
-            var odata = SongFilter.GetDefault(null).CreateCustomSearchFilter("halloween", dance)
-                .Dances;
-            StringAssert.StartsWith(odata, "DanceTags/any(");
+            _ = Assert.ThrowsExactly<ArgumentOutOfRangeException>(
+                () => SongFilter.GetDefault(null).CreateCustomSearchFilter("halloween", dance));
         }
+    }
+
+    // DanceTags holds the canonical name and OData eq is case-sensitive
+    [TestMethod]
+    [DataRow("quickstep", "Quickstep")]
+    [DataRow("SLOW WALTZ", "Slow Waltz")]
+    [DataRow("Tango (Ballroom)", "Tango (Ballroom)")]
+    public void CustomSearchFilterUsesTheCanonicalDanceName(string dance, string canonical)
+    {
+        // A raw search keeps its OData in Dances
+        var odata = SongFilter.GetDefault(null).CreateCustomSearchFilter("halloween", dance).Dances;
+        StringAssert.StartsWith(odata, $"DanceTags/any(t: t eq '{canonical}') and (");
     }
 
     [TestMethod]

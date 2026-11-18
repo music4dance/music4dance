@@ -71,6 +71,16 @@ describe("KeywordQuery", () => {
       expect(query.description).toBe('where artist contains "Earth, Wind & Fire (Remix) \\o/"');
     });
 
+    it("should keep backslashes in the Everywhere text across edits", () => {
+      const query = new KeywordQuery("`Artist:(x) AC\\DC").update("Title", "y");
+      expect(query.getField("Everywhere")).toBe("AC\\DC");
+      expect(query.query).toBe("`Artist:(x) Title:(y) AC\\DC");
+    });
+
+    it("should drop a field that's only whitespace", () => {
+      expect(new KeywordQuery("something").update("Artist", "  ").query).toBe("something");
+    });
+
     it("should keep other fields when one has an escaped parenthesis", () => {
       const query = new KeywordQuery("`Artist:(Fred And Victor\\) Ken) Title:(Hey)");
       expect(query.getField("Artist")).toBe("Fred And Victor) Ken");

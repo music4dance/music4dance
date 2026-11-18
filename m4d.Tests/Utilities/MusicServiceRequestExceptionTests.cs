@@ -9,33 +9,25 @@ namespace m4d.Tests.Utilities;
 [TestClass]
 public class MusicServiceRequestExceptionTests
 {
-    // Only a 404 means a playlist may be gone; MissingPlaylistPolicy must never see the others
     [TestMethod]
-    [DataRow(HttpStatusCode.NotFound, true)]
-    [DataRow(HttpStatusCode.BadGateway, false)]
-    [DataRow(HttpStatusCode.InternalServerError, false)]
-    [DataRow(HttpStatusCode.TooManyRequests, false)]
-    [DataRow(HttpStatusCode.Unauthorized, false)]
-    [DataRow(HttpStatusCode.Forbidden, false)]
-    public void IsNotFoundOnlyForA404(HttpStatusCode status, bool expected)
+    public void CarriesTheStatusCode()
     {
-        Assert.AreEqual(expected,
-            MusicServiceRequestException.IsNotFound(new MusicServiceRequestException(status, "x")));
+        var e = new MusicServiceRequestException(HttpStatusCode.BadGateway, "Bad Gateway");
+        Assert.AreEqual(HttpStatusCode.BadGateway, e.StatusCode);
+        Assert.AreEqual("Bad Gateway", e.Message);
     }
 
+    // Existing callers catch WebException for these, and PlaylistNotFoundException must keep
+    // reaching them everywhere but the update batch
     [TestMethod]
-    public void OtherFailuresAreNotNotFound()
+    public void PlaylistNotFoundIsAMusicServiceRequestExceptionAndAWebException()
     {
-        Assert.IsFalse(MusicServiceRequestException.IsNotFound(new WebException("Not Found")));
-        Assert.IsFalse(MusicServiceRequestException.IsNotFound(new TaskCanceledException()));
-        Assert.IsFalse(MusicServiceRequestException.IsNotFound(new HttpRequestException()));
-    }
+        var inner = new MusicServiceRequestException(HttpStatusCode.NotFound, "Not Found");
+        var e = new PlaylistNotFoundException("https://open.spotify.com/playlist/abc", inner);
 
-    // Existing callers catch WebException for these
-    [TestMethod]
-    public void IsAWebException()
-    {
-        Assert.IsInstanceOfType<WebException>(
-            new MusicServiceRequestException(HttpStatusCode.NotFound, "Not Found"));
+        Assert.IsInstanceOfType<WebException>(e);
+        Assert.AreEqual(HttpStatusCode.NotFound, e.StatusCode);
+        Assert.AreSame(inner, e.InnerException);
+        StringAssert.Contains(e.Message, "playlist/abc");
     }
 }

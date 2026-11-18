@@ -62,19 +62,34 @@ public class MissingPlaylistPolicyTests
         Assert.AreEqual(38, outcome.Deleted.Count);
     }
 
+    // A mass failure starts the clock like any other run, but waits the longer grace period
     [TestMethod]
-    public void AMassFailureChangesNothing()
+    public void AMassFailureStartsClocksButWaitsLongerToDelete()
     {
-        var old = Now.AddDays(-30);
-        var playlists = Enumerable.Range(0, 100).Select(i => Missing($"p{i}", i % 2 == 0 ? old : null)).ToList();
+        var playlists = Enumerable.Range(0, 100)
+            .Select(i => Missing($"p{i}", i < 50 ? null : Now.AddDays(-8)))
+            .ToList();
 
         var outcome = MissingPlaylistPolicy.Apply(playlists, 800, Now);
 
         Assert.IsTrue(outcome.MassFailure);
-        Assert.AreEqual(0, outcome.Started.Count);
+        Assert.AreEqual(50, outcome.Started.Count);
+        Assert.IsTrue(playlists.All(p => p.NotFoundSince != null));
         Assert.AreEqual(0, outcome.Deleted.Count);
-        Assert.IsTrue(playlists.All(p => !p.Deleted));
-        Assert.AreEqual(50, playlists.Count(p => p.NotFoundSince == null));
+    }
+
+    // The same 85 playlists gone for good (a curator closed their account) still get marked
+    [TestMethod]
+    public void ASustainedMassFailureIsMarkedAfterTheLongerGracePeriod()
+    {
+        var since = Now - MissingPlaylistPolicy.MassFailureGracePeriod;
+        var playlists = Enumerable.Range(0, 85).Select(i => Missing($"p{i}", since)).ToList();
+
+        var outcome = MissingPlaylistPolicy.Apply(playlists, 800, Now);
+
+        Assert.IsTrue(outcome.MassFailure);
+        Assert.AreEqual(85, outcome.Deleted.Count);
+        Assert.IsTrue(playlists.All(p => p.Deleted));
     }
 
     [TestMethod]

@@ -462,7 +462,7 @@ public class PlayListController(
                 {
                     var results = new List<string>();
                     var failures = new List<string>();
-                    var notFound = new List<string>();
+                    var notFound = new List<PlayList>();
 
                     var i = 0;
                     var attempted = 0;
@@ -476,10 +476,11 @@ public class PlayListController(
                             {
                                 results.Add(await DoUpdate(id, email, dms, user));
                             }
-                            catch (Exception e) when (type == PlayListType.SongsFromSpotify &&
-                                MusicServiceRequestException.IsNotFound(e))
+                            catch (PlaylistNotFoundException) when (type == PlayListType.SongsFromSpotify)
                             {
-                                notFound.Add(id);
+                                // DoUpdate loaded it into dms, so Find returns the tracked entity
+                                // without another query
+                                notFound.Add(await dms.PlayLists.FindAsync(id));
                                 results.Add($"UpdateSongsFromSpotify {id}: Not found on Spotify");
                             }
 
@@ -523,19 +524,21 @@ public class PlayListController(
     // Soft-deletes SongsFromSpotify playlists that have stayed missing on Spotify (see
     // MissingPlaylistPolicy) and returns a summary for the batch status
     private async Task<string> ApplyMissingPlaylistPolicy(
-        DanceMusicCoreService dms, IReadOnlyCollection<string> notFoundIds, int attempted)
+        DanceMusicCoreService dms, IReadOnlyCollection<PlayList> notFound, int attempted)
     {
-        var playlists = await dms.PlayLists.Where(p => notFoundIds.Contains(p.Id)).ToListAsync();
-        var outcome = MissingPlaylistPolicy.Apply(playlists, attempted, DateTime.Now);
+        var now = DateTime.Now;
+        var outcome = MissingPlaylistPolicy.Apply(notFound, attempted, now);
 
         if (outcome.MassFailure)
         {
+            var firstDeletion = notFound.Where(p => !p.Deleted).Min(p => p.NotFoundSince)
+                + MissingPlaylistPolicy.MassFailureGracePeriod;
             Logger.LogError(
                 "Playlist batch: {NotFound} of {Attempted} SongsFromSpotify playlists were not found on Spotify, " +
-                "too many to be playlists that are really gone, so none were marked. Check the Spotify connection. " +
-                "Ids: {Ids}",
-                notFoundIds.Count, attempted, string.Join(", ", notFoundIds));
-            return $"Not found: {notFoundIds.Count} of {attempted}, too many to mark (see the error log)";
+                "more than dead playlists usually account for. Check the Spotify connection. Any still missing " +
+                "after {Days} days will be marked deleted, the first on {FirstDeletion:d}. Ids: {Ids}",
+                notFound.Count, attempted, MissingPlaylistPolicy.MassFailureGracePeriod.Days, firstDeletion,
+                string.Join(", ", notFound.Select(p => p.Id)));
         }
 
         foreach (var playlist in outcome.Deleted)
@@ -547,7 +550,8 @@ public class PlayListController(
 
         _ = await dms.SaveChanges();
 
-        return $"Not found: {notFoundIds.Count} ({outcome.Started.Count} new, {outcome.Deleted.Count} marked deleted)";
+        return $"Not found: {notFound.Count} of {attempted}{(outcome.MassFailure ? " (too many, see the error log)" : "")} " +
+            $"({outcome.Started.Count} new, {outcome.Deleted.Count} marked deleted)";
     }
 
     private async Task CheckServiceAccount(ServiceAccountMonitor serviceAccountMonitor)
@@ -773,8 +777,9 @@ public class PlayListController(
                 await dms.FindUser(playlist.User));
             return $"UpdateSongsFromSpotify {playlist.Id}: Succeeded with {succeeded} songs.";
         }
-        // A 404 goes to the batch, which decides with MissingPlaylistPolicy
-        catch (Exception e) when (!MusicServiceRequestException.IsNotFound(e))
+        // The playlist itself missing goes to the batch, which decides with MissingPlaylistPolicy;
+        // a 404 anywhere else is an ordinary failure
+        catch (Exception e) when (e is not PlaylistNotFoundException)
         {
             return $"UpdateSongsFromSpotify {playlist.Id}: Failed={e.Message}";
         }

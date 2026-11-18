@@ -612,8 +612,17 @@ public class MusicServiceManager(IConfiguration configuration)
         IEnumerable<string> oldTrackList = null, IPrincipal principal = null,
         bool includeGenres = true, int? maxTracks = null)
     {
-        var results =
-            await GetMusicServiceResults(service.BuildLookupRequest(url), service, principal);
+        dynamic results;
+        try
+        {
+            results = await GetMusicServiceResults(service.BuildLookupRequest(url), service, principal);
+        }
+        catch (MusicServiceRequestException e) when (e.StatusCode == HttpStatusCode.NotFound)
+        {
+            // Only the playlist's own lookup: a 404 on a later page or track isn't the playlist
+            throw new PlaylistNotFoundException(url, e);
+        }
+
         if (results == null)
         {
             return null;

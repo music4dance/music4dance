@@ -44,8 +44,7 @@ public class CustomSearchController : ContentController
             return ReturnError(HttpStatusCode.NotFound, "There's no custom search with that name.");
         }
 
-        // An unknown dance (e.g. ?dance=Slow) made the search a 400 from Azure and then threw
-        // on the missing DanceStats below.
+        // CreateCustomSearchFilter throws for an unknown dance (e.g. ?dance=Slow)
         if (!SongFilter.IsCustomSearchDance(dance))
         {
             return ReturnError(HttpStatusCode.NotFound, "There's no dance with that name.");
@@ -98,14 +97,11 @@ public class CustomSearchController : ContentController
 
             if (!string.IsNullOrWhiteSpace(dance))
             {
-                var ds = Database.DanceStats.FromName(dance);
-                if (ds != null)
-                {
-                    var danceName = $"{title} {ds.DanceName}";
-                    var playlist = Database.PlayLists.FirstOrDefault(
-                        p => p.Name == danceName && p.Type == PlayListType.SpotifyFromSearch);
-                    playListId = playlist?.Id;
-                }
+                // Known: IsCustomSearchDance passed above
+                var danceName = $"{title} {DanceLibrary.Dances.Instance.DanceFromName(dance).Name}";
+                var playlist = Database.PlayLists.FirstOrDefault(
+                    p => p.Name == danceName && p.Type == PlayListType.SpotifyFromSearch);
+                playListId = playlist?.Id;
             }
 
             var dictionary = await UserMapper.GetUserNameDictionary(UserManager, ServiceHealth);

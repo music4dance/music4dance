@@ -15,7 +15,7 @@ public class KeywordQuery(string s = "")
 
         foreach (var part in parts)
         {
-            if (!string.IsNullOrEmpty(part.Value) && part.Key != "Everywhere")
+            if (!string.IsNullOrWhiteSpace(part.Value) && part.Key != "Everywhere")
             {
                 segments.Add($"{part.Key}:({EscapeGrouping(part.Value)})");
                 simple = false;
@@ -57,13 +57,17 @@ public class KeywordQuery(string s = "")
                 return data;
             }
 
-            var fields = Fields;
-            var everywhere = fields.TryGetValue("Everywhere", out var value) ? value : "";
-            var segments = fields
-                .Where(f => f.Key != "Everywhere")
-                .Select(f => $"{f.Key}:({EscapeLucene(f.Value)})")
+            // Straight from the matches rather than Fields, so a repeated field
+            // (`Artist:(Ricky) Artist:(Martin)) keeps every clause. An empty group is invalid
+            // Lucene, so a blank value is dropped.
+            var search = Keywords;
+            var segments = _regex.Matches(search)
+                .Select(m => (Field: m.Groups["field"].Value, Value: Unescape(m.Groups["search"].Value).Trim()))
+                .Where(f => f.Value.Length > 0)
+                .Select(f => $"{f.Field}:({EscapeLucene(f.Value)})")
                 .ToList();
-            if (!string.IsNullOrEmpty(everywhere))
+            var everywhere = _regex.Replace(search, "").Trim();
+            if (everywhere.Length > 0)
             {
                 segments.Add(EscapeLucene(everywhere));
             }
@@ -90,7 +94,7 @@ public class KeywordQuery(string s = "")
     public KeywordQuery Update(string part, string value)
     {
         var parts = Fields;
-        if (!string.IsNullOrEmpty(value))
+        if (!string.IsNullOrWhiteSpace(value))
         {
             parts[part] = value;
         }
@@ -207,7 +211,8 @@ public class KeywordQuery(string s = "")
             {
                 result[match.Groups["field"].Value] = Unescape(match.Groups["search"].Value);
             }
-            var all = Unescape(_regex.Replace(search, "").Trim());
+            // Only field values are escaped (FromParts), so the rest is taken as written
+            var all = _regex.Replace(search, "").Trim();
             if (!string.IsNullOrEmpty(all))
             {
                 result["Everywhere"] = all;

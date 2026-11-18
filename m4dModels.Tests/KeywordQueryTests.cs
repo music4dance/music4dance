@@ -143,4 +143,39 @@ public class KeywordQueryTests
         Assert.AreEqual(
             @"Artist:(Earth, Wind \& Fire \(Remix\) \\o\/)", query.AzureSearch);
     }
+
+    // An empty group is invalid Lucene: Azure rejects the whole query
+    [TestMethod]
+    [DataRow("`Artist:( )", "")]
+    [DataRow("`Artist:() Title:(Hey)", "Title:(Hey)")]
+    [DataRow("`Artist:(  Ricky  ) x", "Artist:(Ricky) x")]
+    public void AzureSearchDropsBlankFields(string query, string expected)
+    {
+        Assert.AreEqual(expected, new KeywordQuery(query).AzureSearch);
+    }
+
+    [TestMethod]
+    public void UpdateWithWhitespaceRemovesTheField()
+    {
+        Assert.AreEqual("something", new KeywordQuery("something").Update("Artist", "  ").Query);
+    }
+
+    // Saved searches and SpotifyFromSearch playlists can hold these
+    [TestMethod]
+    public void AzureSearchKeepsRepeatedFields()
+    {
+        Assert.AreEqual(
+            "Artist:(Ricky) Artist:(Martin)",
+            new KeywordQuery("`Artist:(Ricky) Artist:(Martin)").AzureSearch);
+    }
+
+    // Only field values are escaped by FromParts, so the rest mustn't be unescaped
+    [TestMethod]
+    public void EverywhereTextKeepsBackslashesAcrossEdits()
+    {
+        var query = new KeywordQuery(@"`Artist:(x) AC\DC").Update("Title", "y");
+        Assert.AreEqual(@"AC\DC", query.GetField("Everywhere"));
+        Assert.AreEqual(@"`Artist:(x) Title:(y) AC\DC", query.Query);
+        Assert.AreEqual(@"Artist:(x) Title:(y) AC\\DC", query.AzureSearch);
+    }
 }

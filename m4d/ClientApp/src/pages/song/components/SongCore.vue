@@ -156,7 +156,7 @@ const checkDances = computed(
 );
 const deleteLink = computed(() => `/song/delete?id=${props.model.songHistory.id}`);
 const updateServices = computed(
-  () => `/song/UpdateSongAndServices?id=${song.value.songId}&filter=${filter.value.query}`,
+  () => `/song/UpdateSongAndServices?id=${song.value.songId}&filter=${filter.value.encodedQuery}`,
 );
 const commentPlaceholder = computed(() => {
   return (

@@ -121,15 +121,19 @@ A `SongsFromSpotify` playlist can vanish: its owner deletes it or makes it priva
 `37i9dQZF1D…` editorial ones) Spotify stops serving it to apps like ours. The update batch
 (`UpdateAll`, `UpdateBatch`) soft-deletes these on its own, with `MissingPlaylistPolicy`:
 
-- **Only a 404 counts.** `MusicServiceManager` throws `MusicServiceRequestException`, carrying the
-  status, for a failed request. `UpdateSongsFromSpotify` lets a 404 through to the batch and keeps
-  reporting every other failure (5xx, 429, auth, network) as a failed update that changes nothing.
+- **Only the playlist's own 404 counts.** `MusicServiceManager` throws `MusicServiceRequestException`,
+  carrying the status, for a failed request, and `LookupPlaylist` turns a 404 on the playlist's own
+  lookup into `PlaylistNotFoundException`. `UpdateSongsFromSpotify` lets only that through to the
+  batch. Everything else, including a 404 on a later page of tracks or on a catalog lookup during
+  the import, and any 5xx, 429, auth or network failure, is still a failed update that changes nothing.
 - **The 404 has to last.** The first miss sets `NotFoundSince`; any successful load clears it. A
   playlist is marked `Deleted` (with `Updated` set) once it's been missing for the 7-day
   `GracePeriod`, about a week of daily runs. Each one logs a Warning.
-- **A mass failure changes nothing.** If at least 10 playlists, and at least 10% of the run, are
-  missing at once, the cause is ours or Spotify-wide (an auth problem, an API policy change), so the
-  run neither starts clocks nor deletes, and logs an Error with the ids for a person to look at.
+- **A mass failure waits longer.** If at least 10 playlists, and at least 10% of the run, are
+  missing at once, the cause may be ours or Spotify-wide (an API policy change), so the run logs an
+  Error with the ids and the date the first would be marked, and deletion waits for the 21-day
+  `MassFailureGracePeriod` instead. Clocks still start, so a real mass loss (a curator closing an
+  account that owned many playlists) is still cleaned up, after three weeks of daily Errors.
 
 It's the ordinary soft delete, so the Index page still lists them and `Undelete` brings one back
 (for a playlist made public again). `NotFoundSince` isn't in the playlist backup format; a restore

@@ -11,7 +11,7 @@ export class KeywordQuery {
     const everywhere = parts.get("Everywhere") ?? "";
 
     parts.forEach((value, key) => {
-      if (value && key !== "Everywhere") {
+      if (value?.trim() && key !== "Everywhere") {
         segments.push(`${key}:(${escapeGrouping(value)})`);
         simple = false;
       }
@@ -40,7 +40,7 @@ export class KeywordQuery {
 
   public update(part: string, value: string): KeywordQuery {
     const parts = this.fields;
-    if (value) {
+    if (value?.trim()) {
       parts.set(part, value);
     } else {
       parts.delete(part);
@@ -94,7 +94,8 @@ export class KeywordQuery {
     for (const match of matches) {
       result.set(match.groups?.field ?? "", unescape(match.groups?.search ?? ""));
     }
-    const all = unescape(search.replaceAll(regex, "").trim());
+    // Only field values are escaped (fromParts), so the rest is taken as written
+    const all = search.replaceAll(regex, "").trim();
     if (all) {
       result.set("Everywhere", all);
     }
