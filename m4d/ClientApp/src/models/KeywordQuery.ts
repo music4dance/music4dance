@@ -1,4 +1,8 @@
-const regex = /(?<field>Artist|Title|Albums):\((?<search>[^)]*)\)/g;
+// A field's value runs to the first unescaped ")". Values escape \, ( and ) so that a name like
+// "Earth, Wind & Fire (Remix)" round-trips; the server escapes the rest before searching.
+const regex = /(?<field>Artist|Title|Albums):\((?<search>(?:\\.|[^\\)])*)\)/g;
+const escapeGrouping = (value: string): string => value.replace(/[\\()]/g, "\\$&");
+const unescape = (value: string): string => value.replace(/\\(.)/g, "$1");
 
 export class KeywordQuery {
   public static fromParts(parts: Map<string, string>): KeywordQuery {
@@ -8,7 +12,7 @@ export class KeywordQuery {
 
     parts.forEach((value, key) => {
       if (value && key !== "Everywhere") {
-        segments.push(`${key}:(${value})`);
+        segments.push(`${key}:(${escapeGrouping(value)})`);
         simple = false;
       }
     });
@@ -88,9 +92,9 @@ export class KeywordQuery {
     const matches = search.matchAll(regex);
     const result = new Map<string, string>();
     for (const match of matches) {
-      result.set(match.groups?.field ?? "", match.groups?.search ?? "");
+      result.set(match.groups?.field ?? "", unescape(match.groups?.search ?? ""));
     }
-    const all = search.replaceAll(regex, "").trim();
+    const all = unescape(search.replaceAll(regex, "").trim());
     if (all) {
       result.set("Everywhere", all);
     }

@@ -17,7 +17,7 @@ public class KeywordQuery(string s = "")
         {
             if (!string.IsNullOrEmpty(part.Value) && part.Key != "Everywhere")
             {
-                segments.Add($"{part.Key}:({part.Value})");
+                segments.Add($"{part.Key}:({EscapeGrouping(part.Value)})");
                 simple = false;
             }
         }
@@ -41,6 +41,51 @@ public class KeywordQuery(string s = "")
     {
         get { return data; }
     }
+
+    /// <summary>
+    /// The search text to send to Azure Search. A Lucene (field) query is rebuilt from its parts
+    /// with every value escaped, so user text is always searched literally: an artist like
+    /// "IAMSU!", "AC/DC" or "OR" otherwise makes Azure reject the whole query with a 400. The
+    /// field syntax itself is the only Lucene the user gets. Simple queries pass through.
+    /// </summary>
+    public string AzureSearch
+    {
+        get
+        {
+            if (!IsLucene)
+            {
+                return data;
+            }
+
+            var fields = Fields;
+            var everywhere = fields.TryGetValue("Everywhere", out var value) ? value : "";
+            var segments = fields
+                .Where(f => f.Key != "Everywhere")
+                .Select(f => $"{f.Key}:({EscapeLucene(f.Value)})")
+                .ToList();
+            if (!string.IsNullOrEmpty(everywhere))
+            {
+                segments.Add(EscapeLucene(everywhere));
+            }
+
+            return string.Join(" ", segments);
+        }
+    }
+
+    /// <summary>
+    /// Escapes every Lucene special character and lowercases the operator words AND, OR and NOT
+    /// (escaping one turns it into a term that matches nothing).
+    /// </summary>
+    public static string EscapeLucene(string value) =>
+        _operatorWords.Replace(
+            _luceneSpecial.Replace(value, @"\$0"),
+            m => m.Value.ToLowerInvariant());
+
+    // Inside a field's parentheses only \, ( and ) are structural; escaping them lets a value
+    // like "Earth, Wind & Fire (Remix)" round-trip through the query string.
+    private static string EscapeGrouping(string value) => _grouping.Replace(value, @"\$0");
+
+    private static string Unescape(string value) => _escaped.Replace(value, "$1");
 
     public KeywordQuery Update(string part, string value)
     {
@@ -160,9 +205,9 @@ public class KeywordQuery(string s = "")
             var result = new Dictionary<string, string>();
             foreach (Match match in matches)
             {
-                result[match.Groups["field"].Value] = match.Groups["search"].Value;
+                result[match.Groups["field"].Value] = Unescape(match.Groups["search"].Value);
             }
-            var all = _regex.Replace(search, "").Trim(); // replace "regex" with your actual regex pattern
+            var all = Unescape(_regex.Replace(search, "").Trim());
             if (!string.IsNullOrEmpty(all))
             {
                 result["Everywhere"] = all;
@@ -171,5 +216,12 @@ public class KeywordQuery(string s = "")
         }
     }
 
-    private static readonly Regex _regex = new(@"(?<field>Artist|Title|Albums):\((?<search>[^)]*)\)", RegexOptions.Compiled);
+    // A field's value runs to the first unescaped ")"
+    private static readonly Regex _regex = new(
+        @"(?<field>Artist|Title|Albums):\((?<search>(?:\\.|[^\\)])*)\)", RegexOptions.Compiled);
+
+    private static readonly Regex _escaped = new(@"\\(.)", RegexOptions.Compiled);
+    private static readonly Regex _grouping = new(@"[\\()]", RegexOptions.Compiled);
+    private static readonly Regex _luceneSpecial = new(@"[+\-&|!(){}\[\]^""~*?:\\/]", RegexOptions.Compiled);
+    private static readonly Regex _operatorWords = new(@"\b(?:AND|OR|NOT)\b", RegexOptions.Compiled);
 }

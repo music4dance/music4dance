@@ -62,5 +62,19 @@ describe("KeywordQuery", () => {
       const updatedQuery = searchQuery.update("Title", "");
       expect(updatedQuery.query).toBe("something");
     });
+
+    it("should round-trip a value with parentheses and backslashes", () => {
+      const query = new KeywordQuery().update("Artist", "Earth, Wind & Fire (Remix) \\o/");
+      // Matches KeywordQueryTests.FieldValuesWithParenthesesRoundTrip on the server
+      expect(query.query).toBe("`Artist:(Earth, Wind & Fire \\(Remix\\) \\\\o/)");
+      expect(query.getField("Artist")).toBe("Earth, Wind & Fire (Remix) \\o/");
+      expect(query.description).toBe('where artist contains "Earth, Wind & Fire (Remix) \\o/"');
+    });
+
+    it("should keep other fields when one has an escaped parenthesis", () => {
+      const query = new KeywordQuery("`Artist:(Fred And Victor\\) Ken) Title:(Hey)");
+      expect(query.getField("Artist")).toBe("Fred And Victor) Ken");
+      expect(query.getField("Title")).toBe("Hey");
+    });
   });
 });

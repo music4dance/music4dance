@@ -1487,8 +1487,8 @@ public class SongIndex
     public virtual async Task<SearchResults> Search(
         string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
     {
-        // Strip off the Lucene syntax indicator
-        search = new KeywordQuery(search).Keywords;
+        // Strip the Lucene indicator and escape the user's text
+        search = new KeywordQuery(search).AzureSearch;
 
         try
         {
@@ -1525,7 +1525,7 @@ public class SongIndex
         string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
     {
         const int azurePageSize = 1000;
-        search = new KeywordQuery(search).Keywords;
+        search = new KeywordQuery(search).AzureSearch;
 
         var originalFilter = parameters.Filter;
         var originalSize = parameters.Size;
