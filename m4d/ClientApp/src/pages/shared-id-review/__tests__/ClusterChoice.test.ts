@@ -7,7 +7,6 @@ import {
   lookupIds,
   parseArtists,
   parseTempo,
-  sharedLookupIds,
 } from "../ClusterChoice";
 import { SharedIdReviewCluster } from "../SharedIdReviewModel";
 import { featCluster, rejectedCluster, songA, songB, songC, songD, songE } from "./model";
@@ -220,6 +219,7 @@ describe("ClusterChoice", () => {
         artists: null,
         tempo: null,
         removals: [],
+        additions: [],
         deletions: [],
       });
     });
@@ -329,9 +329,33 @@ describe("ClusterChoice", () => {
   describe("Sort out ids", () => {
     test("runs on the page for clusters that are probably different songs with an id to look up", () => {
       expect(choiceFor(rejectedCluster).needsSorting).toBe(true);
-      // Its songs only share an ISRC, which can't be looked up
-      expect(sharedLookupIds(choiceFor(featCluster).cluster.songs)).toEqual([]);
-      expect(choiceFor({ ...featCluster, match: "Different" }).needsSorting).toBe(false);
+      // Its songs only share an ISRC, but their own ids say which song it belongs to
+      expect(choiceFor({ ...featCluster, match: "Different" }).needsSorting).toBe(true);
+      expect(choiceFor(featCluster).needsSorting).toBe(false);
+    });
+
+    test("checks the additions that move an id to its song, and sends them", () => {
+      const choice = choiceFor({ ...featCluster, defaultAction: "Merge" });
+      const addition = { songId: songB, id: "S:sp1", fromSong: songA, fromAlbum: 0, isrc: "USRC9" };
+
+      choice.applyOwners({ ids: [], removals: [], tracks: [], additions: [addition] });
+
+      expect(choice.action).toBe("Leave");
+      expect(choice.isAdded(addition)).toBe(true);
+      expect(choice.additionsTo(songB)).toEqual([{ addition, album: "First Album" }]);
+      expect(choice.toRequest().additions).toEqual([addition]);
+      choice.setAdded(addition, false);
+      expect(choice.toRequest().additions).toEqual([]);
+    });
+
+    test("an addition to or from a song to delete isn't sent", () => {
+      const choice = choiceFor(featCluster);
+      const addition = { songId: songB, id: "S:sp1", fromSong: songA, fromAlbum: 0 };
+      choice.applyOwners({ ids: [], removals: [], tracks: [], additions: [addition] });
+
+      choice.setDeleted(songA, true);
+
+      expect(choice.toRequest().additions).toEqual([]);
     });
 
     test("checks the proposed removals, fills the tooltips and leaves the cluster for later", () => {

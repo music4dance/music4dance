@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { ClusterChoice } from "../ClusterChoice";
-import type { SharedIdReviewSong, SharedIdServiceTrack } from "../SharedIdReviewModel";
+import type {
+  SharedIdAdditionRequest,
+  SharedIdReviewSong,
+  SharedIdServiceTrack,
+} from "../SharedIdReviewModel";
 import { describeTrack } from "../format";
 
 // A song's albums with their song-level ids. Given a choice (a song column), each album and id
 // has a box that removes it; without one (the If merged column) it's read-only. Nothing is
 // removed from a song to delete, so its boxes are disabled. Once the cluster's ids have been
-// looked up, each Spotify and iTunes id's tooltip says what the service has under it.
+// looked up, each Spotify and iTunes id's tooltip says what the service has under it. After Sort
+// out ids, the ids it would give the song follow its albums, each with a box.
 const props = defineProps<{
   song: SharedIdReviewSong;
   choice?: ClusterChoice;
@@ -43,6 +48,12 @@ function onAlbum(album: number, value: unknown): void {
 
 function onId(album: number, id: string, value: unknown): void {
   props.choice?.setIdRemoved(songId.value, album, id, !!value);
+}
+
+const additions = computed(() => props.choice?.additionsTo(songId.value) ?? []);
+
+function onAdd(addition: SharedIdAdditionRequest, value: unknown): void {
+  props.choice?.setAdded(addition, !!value);
 }
 </script>
 
@@ -102,6 +113,25 @@ function onId(album: number, id: string, value: unknown): void {
         <template v-else>{{ trackId.id }}</template>
       </component>
     </span>
+  </div>
+  <div
+    v-for="{ addition, album } in additions"
+    :key="addition.id"
+    class="shared-id-addition small text-success"
+  >
+    <BFormCheckbox
+      inline
+      class="me-0"
+      :model-value="choice?.isAdded(addition) ?? false"
+      :disabled="deleted || (choice?.isDeleted(addition.fromSong) ?? false)"
+      :aria-label="`Add ${addition.id} to ${label}`"
+      :title="`Add ${addition.id} to ${label}`"
+      @update:model-value="onAdd(addition, $event)"
+    >
+      + {{ album ?? "an album" }}: {{ addition.id
+      }}<template v-if="addition.isrc">, R:{{ addition.isrc }}</template>
+      <span class="text-muted">(from {{ choice?.songLabel(addition.fromSong) }})</span>
+    </BFormCheckbox>
   </div>
 </template>
 

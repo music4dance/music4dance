@@ -30,6 +30,39 @@ public class SharedIdMatcherTests
     }
 
     [TestMethod]
+    [DataRow("Ghostbusters (from \"Ghostbusters\")", "Ghostbusters - From \"Ghostbusters\"")]
+    [DataRow("Don't Stop Me Now", "Dont Stop Me Now")]
+    [DataRow("Song (Remix)", "Song - Remix")]
+    public void Match_TitlesWithTheSameLettersAndDigits_AreExact(string a, string b)
+    {
+        Assert.AreEqual(SharedIdMatch.Exact, SharedIdMatcher.Match([S(a, "Ray Parker Jr."), S(b, "Ray Parker Jr.")]));
+    }
+
+    [TestMethod]
+    public void Match_SquashedTitles_DifferOnlyByFeat()
+    {
+        Assert.AreEqual(SharedIdMatch.WithoutFeaturing, SharedIdMatcher.Match(
+            [S("Song - From \"Film\" feat. Khalid", "Ed Sheeran"), S("Song (from \"Film\")", "Ed Sheeran")]));
+    }
+
+    [TestMethod]
+    [DataRow("Pink", "P!nk")]
+    [DataRow("Lady Antebellum", "Lady A")]
+    [DataRow("The New 101 Strings Orchestra", "101 Strings Orchestra")]
+    [DataRow("New 101 String Orchestra", "101 Strings")]
+    public void Match_AnArtistsAliases_AreExact(string a, string b)
+    {
+        Assert.AreEqual(SharedIdMatch.Exact, SharedIdMatcher.Match([S("Song", a), S("Song", b)]));
+    }
+
+    [TestMethod]
+    public void Match_AnAliasWithAFeaturedArtist_DiffersOnlyByFeat()
+    {
+        Assert.AreEqual(SharedIdMatch.WithoutFeaturing,
+            SharedIdMatcher.Match([S("Just Give Me a Reason", "Pink feat. Nate Ruess"), S("Just Give Me a Reason", "P!nk")]));
+    }
+
+    [TestMethod]
     public void Match_EveryPairMustMatch()
     {
         // The first two are a close match, but the third is a different song

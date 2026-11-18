@@ -59,11 +59,14 @@ public static class SharedIdMatcher
     }
 
     /// <summary>
-    /// The song's individual artists (FeaturedCleanup.IndividualArtists) by
-    /// ArtistSplitter.ArtistKey.
+    /// The song's individual artists (FeaturedCleanup.IndividualArtists) under the names to use
+    /// (ArtistAliases), by ArtistSplitter.ArtistKey.
     /// </summary>
     public static HashSet<string> ArtistKeys(Song song, IArtistKnowledge knowledge = null) =>
-        [.. FeaturedCleanup.IndividualArtists(song, knowledge).Select(ArtistSplitter.ArtistKey)];
+        [.. FeaturedCleanup.IndividualArtists(song, knowledge).Select(ArtistKey)];
+
+    // An individual artist's identity, under the name to use: "Pink" is P!nk
+    private static string ArtistKey(string name) => ArtistSplitter.ArtistKey(ArtistAliases.PreferredName(name));
 
     // Anything that can join two artists in a credit
     private static readonly Regex LeadSeparator = new(
@@ -78,8 +81,8 @@ public static class SharedIdMatcher
         song.Artists is { Count: > 0 } ? song.Artists[0]
             : LeadSeparator.Split(ArtistSplitter.RemoveArtistFeaturing(song.Artist ?? ""))[0].Trim();
 
-    /// <summary>The song's Lead, by ArtistSplitter.ArtistKey.</summary>
-    public static string LeadKey(Song song) => ArtistSplitter.ArtistKey(Lead(song));
+    /// <summary>The song's Lead under the name to use (ArtistAliases), by ArtistSplitter.ArtistKey.</summary>
+    public static string LeadKey(Song song) => ArtistKey(Lead(song));
 
     /// <summary>
     /// The title without its feat. clause or version notes (WithoutVersionNotes), as the title
@@ -119,18 +122,37 @@ public static class SharedIdMatcher
         return stripped;
     }
 
-    private static bool TitlesMatchWithoutFeaturing(IReadOnlyList<Song> songs)
-    {
-        var title = TitleKey(songs[0].Title);
-        return songs.All(s => TitleKey(s.Title) == title);
-    }
+    private static bool TitlesMatchWithoutFeaturing(IReadOnlyList<Song> songs) =>
+        songs.All(s => SameTitleWithoutFeaturing(s.Title, songs[0].Title));
 
     /// <summary>
-    /// Every song has the same title (without version notes) and the same (non-empty) artist,
-    /// compared the way the title merge candidates are (Song.CreateTitleHash). A leader's backing
-    /// group doesn't make a different artist: "Benny Goodman and His Orchestra" is Benny Goodman,
-    /// and so is "Benny Goodman Sextet" when another song is credited to Benny Goodman
-    /// (ArtistSplitter.RemoveBackingGroup).
+    /// The title's letters and digits alone, lowercased and without accents or version notes:
+    /// "Ghostbusters (from "Ghostbusters")" and "Ghostbusters - From "Ghostbusters"" are both
+    /// ghostbustersfromghostbusters. Song.CreateTitleHash drops the bracketed text instead, so
+    /// the two only match this way.
+    /// </summary>
+    public static string SquashedTitle(string title) =>
+        new([.. ArtistSplitter.ArtistKey(WithoutVersionNotes(title) ?? "").Where(char.IsLetterOrDigit)]);
+
+    /// <summary>
+    /// The same title: the same Song.CreateTitleHash normal form without version notes, or the
+    /// same letters and digits (SquashedTitle).
+    /// </summary>
+    public static bool SameTitle(string a, string b) =>
+        Song.CreateTitleHash(WithoutVersionNotes(a)) == Song.CreateTitleHash(WithoutVersionNotes(b)) ||
+        SquashedTitle(a) is { Length: > 0 } squashed && squashed == SquashedTitle(b);
+
+    /// <summary>SameTitle once the titles' feat. clauses come out (TitleKey).</summary>
+    public static bool SameTitleWithoutFeaturing(string a, string b) =>
+        TitleKey(a) == TitleKey(b) ||
+        SameTitle(ArtistSplitter.RemoveTitleFeaturing(a), ArtistSplitter.RemoveTitleFeaturing(b));
+
+    /// <summary>
+    /// Every song has the same title (SameTitle) and the same (non-empty) artist, compared the
+    /// way the title merge candidates are (Song.CreateTitleHash). A leader's backing group
+    /// doesn't make a different artist: "Benny Goodman and His Orchestra" is Benny Goodman, and so
+    /// is "Benny Goodman Sextet" when another song is credited to Benny Goodman
+    /// (ArtistSplitter.RemoveBackingGroup); nor does an alias ("Pink" is P!nk, ArtistAliases).
     /// </summary>
     public static bool TitleArtistMatch(IReadOnlyList<Song> songs)
     {
@@ -140,10 +162,10 @@ public static class SharedIdMatcher
         }
 
         var knowledge = FeaturedCleanup.WithGroupLeaders(null, songs);
-        int Artist(Song s) => Song.CreateTitleHash(ArtistSplitter.RemoveBackingGroup(s.Artist, knowledge));
-        var title = Song.CreateTitleHash(WithoutVersionNotes(songs[0].Title));
+        int Artist(Song s) => Song.CreateTitleHash(
+            ArtistSplitter.RemoveBackingGroup(ArtistAliases.PreferredCredit(s.Artist), knowledge));
         var artist = Artist(songs[0]);
-        return songs.All(s => Song.CreateTitleHash(WithoutVersionNotes(s.Title)) == title && Artist(s) == artist);
+        return songs.All(s => SameTitle(s.Title, songs[0].Title) && Artist(s) == artist);
     }
 
     /// <summary>
@@ -160,7 +182,7 @@ public static class SharedIdMatcher
         static Song WithoutFeaturing(Song s) => new()
         {
             Title = WithoutVersionNotes(ArtistSplitter.RemoveTitleFeaturing(s.Title)),
-            Artist = ArtistSplitter.RemoveArtistFeaturing(s.Artist)
+            Artist = ArtistAliases.PreferredCredit(ArtistSplitter.RemoveArtistFeaturing(s.Artist))
         };
 
         var stripped = songs.Select(WithoutFeaturing).ToList();

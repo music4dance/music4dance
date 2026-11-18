@@ -2034,6 +2034,93 @@ public class Song : TaggableObject
         return true;
     }
 
+    /// <summary>
+    /// Appends an edit block by <paramref name="user"/> giving the song song-level purchase ids
+    /// that another song had: for each addition, the id (extended, "S:…") goes on the song's album
+    /// with the same name as <c>From</c> that has no id of that service yet, or else on a new
+    /// album copying From's name, track number and that service's album id; Isrc, when given and
+    /// the song doesn't have it, goes with it. Ids the song already has, unknown services and
+    /// albums without a name are skipped. Only the log changes: reload the song (Song.Create) to
+    /// see the result. Returns false, adding nothing, when nothing is added.
+    /// </summary>
+    public bool AppendIdAddition(ApplicationUser user,
+        IEnumerable<(AlbumDetails From, string Id, string Isrc)> additions)
+    {
+        var properties = new List<SongProperty>();
+        var has = GetExtendedPurchaseIds().ToHashSet(StringComparer.OrdinalIgnoreCase);
+        string[] albumFields = [AlbumField, PublisherField, TrackField, PurchaseField, RemovedPurchaseField];
+        var next = SongProperties
+            .Where(p => p.Index.HasValue && albumFields.Contains(p.BaseName))
+            .Select(p => p.Index.Value)
+            .DefaultIfEmpty(-1)
+            .Max() + 1;
+        // The albums made here, by name, and the services each one has been given
+        var made = new Dictionary<string, (int Index, HashSet<ServiceType> Services)>(StringComparer.OrdinalIgnoreCase);
+        var isrcService = MusicService.GetService(ServiceType.ISRC);
+
+        foreach (var (from, id, isrc) in additions)
+        {
+            var service = id is { Length: > 2 } && id[1] == ':' ? MusicService.GetService(id[0]) : null;
+            if (service == null || from == null || string.IsNullOrWhiteSpace(from.Name) || has.Contains(id))
+            {
+                continue;
+            }
+
+            int index;
+            var existing = Albums.FirstOrDefault(a =>
+                string.Equals(a.Name, from.Name, StringComparison.OrdinalIgnoreCase) &&
+                a.GetPurchaseIdentifiers(service.Id, PurchaseType.Song).Count == 0);
+            if (existing != null && !made.ContainsKey(from.Name))
+            {
+                index = existing.Index;
+                made[from.Name] = (index, [service.Id]);
+            }
+            else if (made.TryGetValue(from.Name, out var album) && !album.Services.Contains(service.Id))
+            {
+                index = album.Index;
+                _ = album.Services.Add(service.Id);
+            }
+            else
+            {
+                index = next++;
+                made[from.Name] = (index, [service.Id]);
+                properties.Add(new SongProperty(SongProperty.FormatName(AlbumField, index, null), from.Name));
+                if (from.Track is > 0)
+                {
+                    properties.Add(new SongProperty(SongProperty.FormatName(TrackField, index, null),
+                        from.Track.Value.ToString()));
+                }
+
+                var albumId = from.GetPurchaseIdentifier(service.Id, PurchaseType.Album);
+                if (!string.IsNullOrWhiteSpace(albumId))
+                {
+                    properties.Add(new SongProperty(
+                        SongProperty.FormatName(PurchaseField, index, service.BuildPurchaseKey(PurchaseType.Album)),
+                        albumId));
+                }
+            }
+
+            properties.Add(new SongProperty(
+                SongProperty.FormatName(PurchaseField, index, service.BuildPurchaseKey(PurchaseType.Song)), id[2..]));
+            _ = has.Add(id);
+            if (!string.IsNullOrWhiteSpace(isrc) && isrcService != null && has.Add($"{isrcService.CID}:{isrc}"))
+            {
+                properties.Add(new SongProperty(
+                    SongProperty.FormatName(PurchaseField, index, isrcService.BuildPurchaseKey(PurchaseType.Song)),
+                    isrc));
+            }
+        }
+
+        if (properties.Count == 0)
+        {
+            return false;
+        }
+
+        CreateEditProperties(user, EditCommand);
+        SongProperties.AddRange(properties);
+        return true;
+    }
+
     public SongHistory GetHistory(IMapper mapper)
     {
         return new SongHistory

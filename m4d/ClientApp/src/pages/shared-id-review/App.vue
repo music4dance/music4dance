@@ -177,17 +177,19 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
       each service says the cluster's ids are in their tooltips; an id it doesn't know turns red.
     </p>
     <p>
-      <strong>Sort out ids</strong> works out which song each shared Spotify or iTunes id belongs
-      to, by looking it up and comparing the track's title, artist and length with each song's (a
-      song with exactly the track's title wins over one whose title is only close). It checks the
-      boxes that take the id off the other songs, or off every song when no song is the track, and
-      an album whose ids would all go. An ISRC goes with the Spotify or iTunes id whose track
-      reports it, and an album that loses its Spotify or iTunes id loses its ISRC too. Under the
-      albums it lists each shared id's owner, or why there's none. A cluster it changes becomes
-      Leave for later, so Apply separates the songs instead of merging them; change any box before
-      you apply. <strong>Sort out ids on this page</strong> does this for every cluster that's
-      probably different songs: lengths too far apart, titles or artists that are only close or
-      differ, a rejected pair or a .NoMerge song.
+      <strong>Sort out ids</strong> works out which song each of the songs' Spotify and iTunes ids
+      belongs to, shared or not, by looking it up and comparing the track's title, artist and length
+      with each song's (a song with exactly the track's title wins over one whose title is only
+      close). It checks the boxes that take the id off the songs it doesn't belong to, or off every
+      song when no song is the track or the service doesn't have it, and an album whose ids would
+      all go. An id that belongs to a song that doesn't have it is listed under that song's albums
+      with a box that adds it there, on the album it came from. An ISRC goes with the Spotify or
+      iTunes id whose track reports it, and an album that loses its Spotify or iTunes id loses its
+      ISRC too. Under the albums it lists each id's owner, or why there's none. A cluster it changes
+      becomes Leave for later, so Apply separates the songs instead of merging them; change any box
+      before you apply. <strong>Sort out ids on this page</strong> does this for every cluster
+      that's probably different songs: lengths too far apart, titles or artists that are only close
+      or differ, a rejected pair or a .NoMerge song.
     </p>
     <p>
       The <strong>Merge all</strong> buttons merge in bulk, with the same feat. cleanup:

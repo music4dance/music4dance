@@ -116,23 +116,26 @@ public enum SharedIdMatch
 /// song in one group. Names, when given, says where the merged songs' names come from; an edit by
 /// the music4dance account sets any a merge doesn't produce on its own. Deletions, made first
 /// whatever the action, delete some of the cluster's songs, which are then left out of the rest.
-/// Removals, made next whatever the action, take albums or ids off the cluster's songs.
+/// Additions and removals, made next whatever the action, give ids one song had to another
+/// (Sort out ids, SharedIdAddition) and take albums or ids off the cluster's songs.
 /// </summary>
 public record SharedIdChoice(SharedIdAction Action, IReadOnlyList<Guid> SongIds,
     IReadOnlyCollection<int> CandidateIds, IReadOnlyList<string> Groups = null,
     SharedIdNamePicks Names = null, IReadOnlyList<SharedIdRemoval> Removals = null,
-    IReadOnlyCollection<Guid> Deletions = null)
+    IReadOnlyCollection<Guid> Deletions = null, IReadOnlyList<SharedIdAddition> Additions = null)
 {
     /// <summary>
-    /// The choice without these songs: they're in no group and have nothing removed. Used once
-    /// they've been deleted.
+    /// The choice without these songs: they're in no group, have nothing removed, and nothing is
+    /// added to them or from them. Used once they've been deleted.
     /// </summary>
     public SharedIdChoice Without(IReadOnlyCollection<Guid> songIds) =>
         songIds.Count == 0 ? this : this with
         {
             Groups = [.. SongIds.Select((id, i) => songIds.Contains(id) ? ""
                 : Groups == null ? "A" : i < Groups.Count ? Groups[i] : null)],
-            Removals = Removals == null ? null : [.. Removals.Where(r => r != null && !songIds.Contains(r.SongId))]
+            Removals = Removals == null ? null : [.. Removals.Where(r => r != null && !songIds.Contains(r.SongId))],
+            Additions = Additions == null ? null
+                : [.. Additions.Where(a => a != null && !songIds.Contains(a.SongId) && !songIds.Contains(a.FromSong))]
         };
 
     /// <summary>The songs of each group, in order of first appearance.</summary>

@@ -73,6 +73,34 @@ public class SongReviewEditTests
     }
 
     [TestMethod]
+    public async Task AppendIdAddition_CopiesTheAlbum_OrUsesTheSongsAlbumOfThatName()
+    {
+        var song = await TwoAlbums();
+        var from = (await Song.Create(
+            ".Create=\tUser=dwgray\tTime=01/01/2020 10:00:00 AM\tTitle=Other\tArtist=Other\t" +
+            "Album:00=New Album\tTrack:00=4\tPurchase:00:SS=sp9\tPurchase:00:SA=al9\tPurchase:00:IS=it9\t" +
+            "Album:01=Second Album\tTrack:01=2\tPurchase:01:IS=it8",
+            _dms)).Albums;
+
+        Assert.IsTrue(song.AppendIdAddition(_user,
+        [
+            (from[0], "S:sp9", "USRC9"), (from[0], "I:it9", null), (from[1], "I:it8", null), (from[1], "S:sp1", null)
+        ]));
+
+        var reloaded = await Reload(song);
+        var added = reloaded.Albums.Single(a => a.Name == "New Album");
+        Assert.AreEqual(4, added.Track);
+        CollectionAssert.AreEquivalent(new[] { "S:sp9", "I:it9", "R:USRC9" },
+            added.GetExtendedPurchaseIds(PurchaseType.Song).ToList());
+        Assert.AreEqual("al9", added.GetPurchaseIdentifier(ServiceType.Spotify, PurchaseType.Album));
+        // Second Album has no iTunes id, so it takes it; S:sp1 is the song's already
+        CollectionAssert.AreEquivalent(new[] { "S:sp2", "I:it8" },
+            reloaded.Albums.Single(a => a.Name == "Second Album").GetExtendedPurchaseIds(PurchaseType.Song).ToList());
+        Assert.HasCount(3, reloaded.Albums);
+        Assert.IsFalse(reloaded.AppendIdAddition(_user, [(from[0], "S:sp9", null)]), "It has it already");
+    }
+
+    [TestMethod]
     public async Task AppendNameEdit_SetsOnlyWhatDiffers()
     {
         var song = await TwoAlbums();

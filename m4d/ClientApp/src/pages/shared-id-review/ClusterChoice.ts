@@ -1,5 +1,6 @@
 import type {
   SharedIdAction,
+  SharedIdAdditionRequest,
   SharedIdChoiceRequest,
   SharedIdOwnerProposal,
   SharedIdOwnersResponse,
@@ -44,20 +45,16 @@ export function lookupIds(songs: SharedIdReviewSong[]): string[] {
   return [...new Set(ids.filter((id) => id.startsWith("S:") || id.startsWith("I:")))];
 }
 
-/** The ids the songs share that a service can look up: what Sort out ids gives an owner. */
-export function sharedLookupIds(songs: SharedIdReviewSong[]): string[] {
-  const shared = songs.flatMap((s) =>
-    s.albums.flatMap((a) => a.ids.filter((i) => i.shared).map((i) => i.id)),
-  );
-  return lookupIds(songs).filter((id) => shared.includes(id));
-}
-
 function albumKey(songId: string, album: number): string {
   return `${songId}|${album}`;
 }
 
 function idKey(songId: string, album: number, id: string): string {
   return `${songId}|${album}|${id}`;
+}
+
+function additionKey(addition: SharedIdAdditionRequest): string {
+  return `${addition.songId}|${addition.id}`;
 }
 
 /**
@@ -83,6 +80,9 @@ export class ClusterChoice {
   };
   public readonly albumRemovals = new Set<string>();
   public readonly idRemovals = new Set<string>();
+  // The ids Sort out ids would give a song that doesn't have them, and the ones checked
+  public proposedAdditions: SharedIdAdditionRequest[] = [];
+  public readonly additions = new Set<string>();
   public readonly deletions = new Set<string>();
   // What Spotify and iTunes say the ids are, once looked up
   public tracks?: Map<string, SharedIdServiceTrack>;
@@ -221,6 +221,35 @@ export class ClusterChoice {
     }
   }
 
+  /** The addition is checked, and neither song is to be deleted. */
+  public isAdded(addition: SharedIdAdditionRequest): boolean {
+    return (
+      this.additions.has(additionKey(addition)) &&
+      !this.isDeleted(addition.songId) &&
+      !this.isDeleted(addition.fromSong)
+    );
+  }
+
+  public setAdded(addition: SharedIdAdditionRequest, added: boolean): void {
+    if (added) {
+      this.additions.add(additionKey(addition));
+    } else {
+      this.additions.delete(additionKey(addition));
+    }
+  }
+
+  /** The ids Sort out ids would give this song, with the album each comes from. */
+  public additionsTo(songId: string): { addition: SharedIdAdditionRequest; album?: string }[] {
+    return this.proposedAdditions
+      .filter((a) => a.songId === songId)
+      .map((a) => ({
+        addition: a,
+        album: this.cluster.songs
+          .find((s) => s.songId === a.fromSong)
+          ?.albums.find((al) => al.index === a.fromAlbum)?.name,
+      }));
+  }
+
   public setTracks(tracks: SharedIdServiceTrack[]): void {
     this.tracks = new Map(tracks.map((t) => [t.id, t]));
   }
@@ -239,7 +268,7 @@ export class ClusterChoice {
     const c = this.cluster;
     return (
       this.hasSongs &&
-      sharedLookupIds(c.songs).length > 0 &&
+      lookupIds(c.songs).length > 0 &&
       (!!c.lengthsDiffer ||
         c.match === "Close" ||
         c.match === "Different" ||
@@ -249,8 +278,8 @@ export class ClusterChoice {
   }
 
   /**
-   * Takes in what Sort out ids proposes: checks the removals that give each shared id to its
-   * song, and fills the ids' tooltips. When something is removed the cluster becomes Leave for
+   * Takes in what Sort out ids proposes: checks the removals and additions that give each id to
+   * its song, and fills the ids' tooltips. When something changes the cluster becomes Leave for
    * later, so Apply doesn't merge the songs it has just separated.
    */
   public applyOwners(response: SharedIdOwnersResponse): void {
@@ -261,7 +290,9 @@ export class ClusterChoice {
         ? this.setAlbumRemoved(r.songId, r.album, true)
         : this.setIdRemoved(r.songId, r.album, r.id, true),
     );
-    if (response.removals.length > 0) {
+    this.proposedAdditions = response.additions ?? [];
+    this.proposedAdditions.forEach((a) => this.setAdded(a, true));
+    if (response.removals.length > 0 || this.proposedAdditions.length > 0) {
       this.action = "Leave";
     }
   }
@@ -275,6 +306,7 @@ export class ClusterChoice {
       nameFields.some((f) => this.names[f] !== defaults[f] || this.typed[f] !== null) ||
       this.albumRemovals.size > 0 ||
       this.idRemovals.size > 0 ||
+      this.additions.size > 0 ||
       this.deletions.size > 0
     );
   }
@@ -327,6 +359,7 @@ export class ClusterChoice {
       artists: artists === null ? null : parseArtists(artists),
       tempo: tempo === null ? null : parseTempo(tempo),
       removals: this.removals,
+      additions: this.proposedAdditions.filter((a) => this.isAdded(a)),
       deletions: this.cluster.songs.map((s) => s.songId).filter((id) => this.isDeleted(id)),
     };
   }

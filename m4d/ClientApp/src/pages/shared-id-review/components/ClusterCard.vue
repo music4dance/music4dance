@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { getMenuContext } from "@/helpers/GetMenuContext";
-import { type ClusterChoice, leaveOut, lookupIds, sharedLookupIds } from "../ClusterChoice";
+import { type ClusterChoice, leaveOut, lookupIds } from "../ClusterChoice";
 import type {
   SharedIdAction,
   SharedIdReviewSong,
@@ -83,7 +83,7 @@ async function lookUp(): Promise<void> {
   }
 }
 
-const canSortOut = computed(() => sharedLookupIds(songs.value).length > 0);
+const canSortOut = computed(() => lookupIds(songs.value).length > 0);
 const sortingOut = ref(false);
 const sortOutError = ref("");
 
@@ -253,7 +253,9 @@ const ownerText: Record<string, string> = {
 
         <ul v-if="choice.owners" class="small owners">
           <li v-for="owner in choice.owners" :key="owner.id">
-            <strong>{{ owner.id }}</strong> {{ ownerText[owner.status] }}
+            <strong>{{ owner.id }}</strong
+            ><span v-if="owner.shared === false" class="text-muted"> (one song's)</span>
+            {{ ownerText[owner.status] }}
             <template v-if="owner.status === 'Owned'">{{ choice.songLabel(owner.song) }}</template
             ><span v-if="owner.reason" class="text-muted">: {{ owner.reason }}</span>
           </li>

@@ -112,6 +112,16 @@ export interface SharedIdRemovalRequest {
   id?: string;
 }
 
+// An id one song had to give another, its owner (SharedIdAddition): from the album at fromAlbum
+// of fromSong, with the ISRC its track reports
+export interface SharedIdAdditionRequest {
+  songId: string;
+  id: string;
+  fromSong: string;
+  fromAlbum: number;
+  isrc?: string;
+}
+
 export interface SharedIdChoiceRequest {
   action: SharedIdAction;
   candidateIds: number[];
@@ -126,6 +136,7 @@ export interface SharedIdChoiceRequest {
   artists: string[] | null;
   tempo: number | null;
   removals: SharedIdRemovalRequest[];
+  additions: SharedIdAdditionRequest[];
   deletions: string[];
 }
 
@@ -146,10 +157,11 @@ export interface SharedIdApplyResponse {
   deleted: number;
 }
 
-// POST /api/sharedids/owners (SharedIdOwnersResponse): which of a cluster's songs each id they
-// share belongs to. Owned: song owns it, and it comes off the others; Bad: no song is the track,
-// and it comes off every song; Unsure: nothing is proposed. Via is, for an ISRC, the id whose
-// track reported it.
+// POST /api/sharedids/owners (SharedIdOwnersResponse): which of a cluster's songs each of their
+// ids belongs to. Owned: song owns it, and it comes off the others (and goes to song when it
+// doesn't have it); Bad: no song is the track, or the service doesn't have it, and it comes off
+// every song; Unsure: nothing is proposed. Via is, for an ISRC, the id whose track reported it;
+// shared is false for a song's own id.
 export type SharedIdOwnerStatus = "Owned" | "Bad" | "Unsure";
 
 export interface SharedIdOwnerProposal {
@@ -158,6 +170,7 @@ export interface SharedIdOwnerProposal {
   reason?: string;
   song?: string;
   via?: string;
+  shared?: boolean;
 }
 
 export interface SharedIdOwnersResponse {
@@ -165,6 +178,8 @@ export interface SharedIdOwnersResponse {
   // The removals that carry the proposal out: an album, when they'd take every id off it
   removals: SharedIdRemovalRequest[];
   tracks: SharedIdServiceTrack[];
+  // The ids that go to an owner that doesn't have them
+  additions?: SharedIdAdditionRequest[];
 }
 
 // POST /api/sharedids/tracks: what a music service says one of the ids is (SharedIdServiceTrack)

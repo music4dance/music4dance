@@ -88,6 +88,39 @@ public class FeaturedCleanupTests
     }
 
     [TestMethod]
+    [DataRow("Pink", "P!nk")]
+    [DataRow("pink", "P!nk")]
+    [DataRow("Lady Antebellum", "Lady A")]
+    [DataRow("The New 101 Strings Orch.", "101 Strings Orchestra")]
+    [DataRow("Pinkerton", "Pinkerton")]
+    public void ArtistAliases_PreferredName(string name, string expected)
+    {
+        Assert.AreEqual(expected, ArtistAliases.PreferredName(name));
+    }
+
+    [TestMethod]
+    [DataRow("Pink feat. Nate Ruess", "P!nk feat. Nate Ruess")]
+    [DataRow("Lady Antebellum", "Lady A")]
+    [DataRow("Pink Floyd", "Pink Floyd")]
+    [DataRow("Ed Sheeran feat. Pink", "Ed Sheeran feat. Pink")]
+    public void ArtistAliases_PreferredCredit_NamesThePrimaryArtist(string credit, string expected)
+    {
+        Assert.AreEqual(expected, ArtistAliases.PreferredCredit(credit));
+    }
+
+    [TestMethod]
+    public void Propose_AnAlias_LandsOnThePreferredName()
+    {
+        var merged = new Song { Title = "Song", Artist = "Pink" };
+        var other = new Song { Title = "Song (feat. Nate Ruess)", Artist = "P!nk" };
+
+        var names = FeaturedCleanup.Propose(merged, [merged, other]);
+
+        Assert.AreEqual("P!nk feat. Nate Ruess", names.Artist);
+        CollectionAssert.AreEqual(new[] { "P!nk", "Nate Ruess" }, names.Artists.ToList());
+    }
+
+    [TestMethod]
     public void Propose_MovesTheTitleFeatIntoTheArtists()
     {
         var merged = new Song { Title = "Song Title (feat. Crazy Man)", Artist = "The Artist" };

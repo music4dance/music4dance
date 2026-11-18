@@ -210,6 +210,9 @@ public class SharedIdChoiceRequest
 
     public List<SharedIdRemoval> Removals { get; set; } = [];
 
+    // Ids to give a song that another song had (Sort out ids), whatever the action
+    public List<SharedIdAddition> Additions { get; set; } = [];
+
     // Songs to delete, whatever the action
     public List<Guid> Deletions { get; set; } = [];
 
@@ -223,7 +226,8 @@ public class SharedIdChoiceRequest
                     : new SongNames(Title, Artist, Artists, Tempo),
                 TempoFrom),
             [.. (Removals ?? []).Where(r => r != null)],
-            [.. Deletions ?? []]);
+            [.. Deletions ?? []],
+            [.. (Additions ?? []).Where(a => a != null)]);
     }
 }
 
@@ -252,25 +256,27 @@ public class SharedIdOwnersRequest
 }
 
 /// <summary>
-/// What POST /api/sharedids/owners proposes for a cluster (SharedIdOwnership): each shared id's
-/// owner or why there's none, the removals that carry it out, and the tracks looked up, as
-/// /api/sharedids/tracks gives them. Empty when the songs changed so that fewer than two are left.
+/// What POST /api/sharedids/owners proposes for a cluster (SharedIdOwnership): the owner of each
+/// id that needs one or why there's none, the removals and additions that carry it out, and the
+/// tracks looked up, as /api/sharedids/tracks gives them. Empty when the songs changed so that
+/// fewer than two are left.
 /// </summary>
 public record SharedIdOwnersResponse(IReadOnlyList<SharedIdOwnerView> Ids, IReadOnlyList<SharedIdRemoval> Removals,
-    IReadOnlyList<SharedIdServiceTrack> Tracks)
+    IReadOnlyList<SharedIdServiceTrack> Tracks, IReadOnlyList<SharedIdAddition> Additions)
 {
     public static SharedIdOwnersResponse Build(SharedIdOwnership ownership) =>
-        ownership == null ? new SharedIdOwnersResponse([], [], [])
+        ownership == null ? new SharedIdOwnersResponse([], [], [], [])
             : new SharedIdOwnersResponse(
-                [.. ownership.Ids.Select(p => new SharedIdOwnerView(p.Id, p.Status, p.Reason, p.Song, p.Via))],
+                [.. ownership.Ids.Select(p => new SharedIdOwnerView(p.Id, p.Status, p.Reason, p.Song, p.Via, p.Shared))],
                 ownership.Removals,
-                [.. ownership.Tracks.Select(t => SharedIdServiceTrack.From(t.Key, t.Value))]);
+                [.. ownership.Tracks.Select(t => SharedIdServiceTrack.From(t.Key, t.Value))],
+                ownership.Additions ?? []);
 }
 
 // A SharedIdOwnerProposal, with its status spelled out
 public record SharedIdOwnerView(string Id,
     [property: JsonConverter(typeof(StringEnumConverter))] SharedIdOwnerStatus Status,
-    string Reason, Guid? Song, string Via);
+    string Reason, Guid? Song, string Via, bool Shared = true);
 
 /// <summary>POST /api/sharedids/tracks: extended ids ("S:…", "I:…") to look up.</summary>
 public class SharedIdTracksRequest

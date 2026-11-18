@@ -36,12 +36,24 @@ public class SharedIdOwnersTests
         return song;
     }
 
-    // A lookup that knows these tracks, by extended id
+    // A lookup that knows these tracks, by extended id, and the songs' own tracks (Own)
     private static Func<string, Task<ServiceTrack>> Tracks(params ServiceTrack[] tracks) =>
-        id => Task.FromResult(tracks.FirstOrDefault(t => t.TrackId == id));
+        id => Task.FromResult(tracks.Concat(Own).FirstOrDefault(t => t.TrackId == id));
+
+    // A lookup the services never answer
+    private static Task<ServiceTrack> NoAnswer(string id) => Task.FromResult<ServiceTrack>(null);
 
     private static ServiceTrack Track(string id, string title, string artist, int length, string isrc = null) =>
         new() { TrackId = id, Name = title, Artist = artist, Duration = length, ISRC = isrc };
+
+    // The tracks of the ids only one song in these tests has, each that song's
+    private static readonly ServiceTrack[] Own =
+    [
+        Track("S:a1", "Love Song", "The Artist", 200),
+        Track("S:c1", "Other Song", "Someone Else", 300),
+        Track("I:c2", "Other Song", "Someone Else", 300),
+        Track("I:it2", "Other Song", "Someone Else", 300),
+    ];
 
     private static async Task<(Song Love, Song Other)> TwoSongs(DanceMusicService dms)
     {
@@ -155,17 +167,74 @@ public class SharedIdOwnersTests
 
     [TestMethod]
     [DataRow("Love Song", "The Artist", 260, "the length")]
-    [DataRow(null, null, 0, "not found")]
+    [DataRow(null, null, 0, "the service never answered")]
     public async Task Propose_UnsureIds_ProposeNothing(string title, string artist, int length, string why)
     {
         var (dms, _) = await CreateService($"SharedIdOwners_Unsure_{length}");
         var (love, other) = await TwoSongs(dms);
-        var lookup = title == null ? Tracks() : Tracks(Track("S:sp1", title, artist, length));
+        var lookup = title == null ? NoAnswer : Tracks(Track("S:sp1", title, artist, length));
 
         var ownership = await SharedIdOwners.Propose([love, other], lookup);
 
         Assert.IsTrue(ownership.Ids.All(p => p.Status == SharedIdOwnerStatus.Unsure), why);
         Assert.IsEmpty(ownership.Removals);
+    }
+
+    [TestMethod]
+    public async Task Propose_ATrackTheServiceDoesntHave_IsBad_WhenItHasTheOthers()
+    {
+        var (dms, _) = await CreateService("SharedIdOwners_NotFound");
+        var (love, other) = await TwoSongs(dms);
+
+        // sp1 isn't there, but the songs' own tracks are
+        var ownership = await SharedIdOwners.Propose([love, other], Tracks());
+
+        var sp1 = ownership.Ids.Single(p => p.Id == "S:sp1");
+        Assert.AreEqual((SharedIdOwnerStatus.Bad, "The service doesn't have the track"), (sp1.Status, sp1.Reason));
+        CollectionAssert.Contains(ownership.Removals.ToList(), new SharedIdRemoval(other.SongId, 0));
+    }
+
+    [TestMethod]
+    public async Task Propose_AnIdOnTheWrongSong_MovesToTheSongItBelongsTo()
+    {
+        var (dms, _) = await CreateService("SharedIdOwners_Move");
+        var plain = await SaveSong(dms, "Song Title", "The Artist", 200,
+            ("Plain Album", ["SS=plain", "RS=USPLAIN"]), ("Acoustic Album", ["SS=acoustic", "SS=shared"]));
+        var acoustic = await SaveSong(dms, "Song Title - Acoustic", "The Artist", 240,
+            ("Live Album", ["SS=live", "SS=shared"]));
+
+        var ownership = await SharedIdOwners.Propose([plain, acoustic], Tracks(
+            Track("S:plain", "Song Title", "The Artist", 200, "USPLAIN"),
+            Track("S:acoustic", "Song Title - Acoustic", "The Artist", 241, "USACOU"),
+            Track("S:live", "Song Title - Acoustic", "The Artist", 239),
+            Track("S:shared", "Song Title - Acoustic", "The Artist", 240)));
+
+        var ids = ownership.Ids.ToDictionary(p => p.Id);
+        // The plain song's own S:plain is where it belongs, so it isn't listed
+        CollectionAssert.AreEquivalent(new[] { "S:shared", "S:acoustic" }, ids.Keys.ToList());
+        Assert.AreEqual((SharedIdOwnerStatus.Owned, acoustic.SongId, false),
+            (ids["S:acoustic"].Status, ids["S:acoustic"].Song, ids["S:acoustic"].Shared));
+        // The plain song's Acoustic Album is left with nothing
+        CollectionAssert.AreEquivalent(new[] { new SharedIdRemoval(plain.SongId, 1) }, ownership.Removals.ToList());
+        CollectionAssert.AreEqual(new[] { new SharedIdAddition(acoustic.SongId, "S:acoustic", plain.SongId, 1, "USACOU") },
+            ownership.Additions.ToList());
+    }
+
+    [TestMethod]
+    public async Task Propose_SongsThatShareOnlyAnIsrc_GiveItToTheSongWhoseTrackReportsIt()
+    {
+        var (dms, _) = await CreateService("SharedIdOwners_IsrcOnly");
+        var love = await SaveSong(dms, "Love Song", "The Artist", 200, ("Album A", ["SS=a1", "RS=USRC1"]));
+        var other = await SaveSong(dms, "Other Song", "Someone Else", 300, ("Album C", ["SS=c1", "RS=USRC1"]));
+
+        var ownership = await SharedIdOwners.Propose([love, other],
+            Tracks(Track("S:a1", "Love Song", "The Artist", 200, "USRC1")));
+
+        var isrc = ownership.Ids.Single();
+        Assert.AreEqual(("R:USRC1", SharedIdOwnerStatus.Owned, love.SongId, "S:a1"),
+            (isrc.Id, isrc.Status, isrc.Song, isrc.Via));
+        CollectionAssert.AreEqual(new[] { new SharedIdRemoval(other.SongId, 0, "R:USRC1") },
+            ownership.Removals.ToList());
     }
 
     [TestMethod]
@@ -194,7 +263,7 @@ public class SharedIdOwnersTests
         var result = await dms.SharedIds.Apply(user,
         [
             new SharedIdChoice(SharedIdAction.Leave, [.. cluster.SongIds], [.. cluster.Candidates.Select(c => c.Id)],
-                Removals: ownership.Removals)
+                Removals: ownership.Removals, Additions: ownership.Additions)
         ]);
 
         Assert.AreEqual(1, result.UnsharedPairs);
@@ -203,5 +272,36 @@ public class SharedIdOwnersTests
         Assert.AreEqual("Album C", separated.Albums.Single().Name);
         CollectionAssert.AreEquivalent(new[] { "S:sp1", "S:a1", "R:USRC1" },
             (await dms.SongIndex.FindSong(love.SongId)).GetExtendedPurchaseIds().ToList());
+    }
+
+    [TestMethod]
+    public async Task ProposeOwners_ThenApply_MovesAnIdWithItsAlbum()
+    {
+        var (dms, user) = await CreateService("SharedIdOwners_ApplyMove");
+        var plain = await SaveSong(dms, "Song Title", "The Artist", 200,
+            ("Plain Album", ["SS=plain", "SS=shared"]), ("Acoustic Album", ["SS=acoustic", "SA=album9"]));
+        var acoustic = await SaveSong(dms, "Song Title - Acoustic", "The Artist", 240,
+            ("Live Album", ["SS=shared"]));
+        _ = await dms.SharedIds.Seed();
+        var cluster = (await dms.SharedIds.PendingClusters()).Single();
+
+        var ownership = await dms.SharedIds.ProposeOwners(cluster.SongIds, Tracks(
+            Track("S:plain", "Song Title", "The Artist", 200),
+            Track("S:acoustic", "Song Title - Acoustic", "The Artist", 240, "USACOU"),
+            Track("S:shared", "Song Title - Acoustic", "The Artist", 240)));
+        var result = await dms.SharedIds.Apply(user,
+        [
+            new SharedIdChoice(SharedIdAction.Leave, [.. cluster.SongIds], [.. cluster.Candidates.Select(c => c.Id)],
+                Removals: ownership.Removals, Additions: ownership.Additions)
+        ]);
+
+        Assert.AreEqual((2, 1), (result.Edited, result.UnsharedPairs));
+        var moved = await dms.SongIndex.FindSong(acoustic.SongId);
+        var album = moved.Albums.Single(a => a.Name == "Acoustic Album");
+        CollectionAssert.AreEquivalent(new[] { "S:acoustic", "R:USACOU" },
+            album.GetExtendedPurchaseIds(PurchaseType.Song).ToList());
+        Assert.AreEqual("album9", album.GetPurchaseIdentifier(ServiceType.Spotify, PurchaseType.Album));
+        CollectionAssert.AreEquivalent(new[] { "S:plain" },
+            (await dms.SongIndex.FindSong(plain.SongId)).GetExtendedPurchaseIds().ToList());
     }
 }

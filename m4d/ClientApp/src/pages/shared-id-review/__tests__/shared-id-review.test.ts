@@ -324,7 +324,8 @@ describe("shared-id-review page", () => {
       post.mockResolvedValueOnce({ data: owners });
       const wrapper = loadTestPage(App, model);
       const card = cards(wrapper)[1]!;
-      expect(cards(wrapper)[0]!.find(".sort-out-button").exists()).toBe(false);
+      // Its songs share only an ISRC, but have Spotify and iTunes ids of their own
+      expect(cards(wrapper)[0]!.find(".sort-out-button").exists()).toBe(true);
 
       await card.find(".sort-out-button").trigger("click");
       await flushPromises();
@@ -343,6 +344,27 @@ describe("shared-id-review page", () => {
         false,
       );
       expect(card.find("#cluster-1-action-Leave").element).toHaveProperty("checked", true);
+    });
+
+    test("on a card, lists an id that moves under its song's albums, and Apply sends it", async () => {
+      const addition = { songId: songC, id: "S:sp7", fromSong: songD, fromAlbum: 0, isrc: "USRC7" };
+      post.mockResolvedValueOnce({ data: { ...owners, additions: [addition] } });
+      const wrapper = loadTestPage(App, model);
+      const card = cards(wrapper)[1]!;
+
+      await card.find(".sort-out-button").trigger("click");
+      await flushPromises();
+
+      const box = card.find('input[aria-label="Add S:sp7 to song 1"]');
+      expect(box.element).toHaveProperty("checked", true);
+      expect(card.find(".shared-id-addition").text()).toContain("S:sp7, R:USRC7");
+
+      post.mockResolvedValueOnce({ data: { message: "Done" } });
+      await wrapper.find(".apply-button").trigger("click");
+      await flushPromises();
+
+      const [, rejected] = lastRequest().body.choices;
+      expect(rejected.additions).toEqual([addition]);
     });
 
     test("on the page, sorts out each cluster that's probably different songs", async () => {

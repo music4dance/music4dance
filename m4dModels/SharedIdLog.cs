@@ -331,7 +331,7 @@ public class SharedIdLog(DanceMusicCoreService dms)
     }
 
     /// <summary>
-    /// Which of the songs each id they share belongs to (SharedIdOwners.Propose), for the review
+    /// Which of the songs each of their ids belongs to (SharedIdOwners.Propose), for the review
     /// page's Sort out ids. Songs merged or deleted since the page loaded are left out; null when
     /// fewer than two are left.
     /// </summary>
@@ -408,7 +408,7 @@ public class SharedIdLog(DanceMusicCoreService dms)
         foreach (var asChosen in choices)
         {
             var choice = asChosen.Without(await ApplyDeletions(user, asChosen, result));
-            var edited = await ApplyRemovals(user, choice, result);
+            var edited = await ApplyIdEdits(user, choice, result);
             var merges = result.Merges.Count;
             switch (choice.Action)
             {
@@ -470,19 +470,45 @@ public class SharedIdLog(DanceMusicCoreService dms)
         return deleted;
     }
 
-    // Takes the choice's albums and ids off its songs, one edit by the reviewer per song.
-    // Returns the songs edited, as saved
-    private async Task<Dictionary<Guid, Song>> ApplyRemovals(ApplicationUser user, SharedIdChoice choice,
+    // Gives the choice's songs the ids its additions move to them, then takes its albums and ids
+    // off them: an edit by the reviewer for each, saved once per song. An addition copies its
+    // album from the song that had the id as it was before any of this. Returns the songs edited,
+    // as saved
+    private async Task<Dictionary<Guid, Song>> ApplyIdEdits(ApplicationUser user, SharedIdChoice choice,
         SharedIdBatchResult result)
     {
-        var edited = new Dictionary<Guid, Song>();
         // Only the cluster's own songs
-        foreach (var bySong in (choice.Removals ?? []).Where(r => r != null && choice.SongIds.Contains(r.SongId))
-                     .GroupBy(r => r.SongId))
+        var removals = (choice.Removals ?? []).Where(r => r != null && choice.SongIds.Contains(r.SongId)).ToList();
+        var additions = (choice.Additions ?? [])
+            .Where(a => a != null && a.SongId != a.FromSong &&
+                choice.SongIds.Contains(a.SongId) && choice.SongIds.Contains(a.FromSong))
+            .ToList();
+
+        var sources = new Dictionary<Guid, Song>();
+        foreach (var id in additions.Select(a => a.FromSong).Distinct())
         {
-            var song = await SongIndex.FindSong(bySong.Key);
-            if (song == null || song.IsNull ||
-                !song.AppendIdRemoval(user, bySong.Select(r => (r.Album, r.Id))))
+            if (await SongIndex.FindSong(id) is { IsNull: false } source)
+            {
+                sources[id] = source;
+            }
+        }
+
+        var edited = new Dictionary<Guid, Song>();
+        foreach (var songId in additions.Select(a => a.SongId).Concat(removals.Select(r => r.SongId)).Distinct())
+        {
+            var song = await SongIndex.FindSong(songId);
+            if (song == null || song.IsNull)
+            {
+                continue;
+            }
+
+            var added = song.AppendIdAddition(user, additions
+                .Where(a => a.SongId == songId)
+                .Select(a => (sources.GetValueOrDefault(a.FromSong)?.Albums.FirstOrDefault(al => al.Index == a.FromAlbum),
+                    a.Id, a.Isrc)));
+            var removed = song.AppendIdRemoval(user,
+                removals.Where(r => r.SongId == songId).Select(r => (r.Album, r.Id)));
+            if (!added && !removed)
             {
                 continue;
             }

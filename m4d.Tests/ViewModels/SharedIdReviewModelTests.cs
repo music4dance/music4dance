@@ -109,6 +109,7 @@ public class SharedIdReviewModelTests
                 "artistsFrom": null,
                 "tempoFrom": "{{A}}",
                 "tempo": null,
+                "additions": [{ "songId": "{{B}}", "id": "S:sp1", "fromSong": "{{A}}", "fromAlbum": 2 }],
                 "removals": [{ "songId": "{{A}}", "album": 0, "id": "I:111" }, { "songId": "{{B}}", "album": 1 }]
               }]
             }
@@ -123,6 +124,7 @@ public class SharedIdReviewModelTests
         Assert.AreEqual(new SharedIdNamePicks(Title: B, Tempo: A), choice.Names);
         CollectionAssert.AreEqual(new[] { new SharedIdRemoval(A, 0, "I:111"), new SharedIdRemoval(B, 1) },
             choice.Removals.ToList());
+        CollectionAssert.AreEqual(new[] { new SharedIdAddition(B, "S:sp1", A, 2) }, choice.Additions.ToList());
     }
 
     [TestMethod]
@@ -240,7 +242,8 @@ public class SharedIdReviewModelTests
         var ownership = new SharedIdOwnership(
             [new SharedIdOwnerProposal("S:sp1", SharedIdOwnerStatus.Owned, "The song is it", song)],
             [new SharedIdRemoval(Guid.NewGuid(), 0)],
-            new Dictionary<string, ServiceTrack> { ["S:sp1"] = new() { Name = "Probe", Artist = "Probe Artist" }, ["I:1"] = null! });
+            new Dictionary<string, ServiceTrack> { ["S:sp1"] = new() { Name = "Probe", Artist = "Probe Artist" }, ["I:1"] = null! },
+            [new SharedIdAddition(song, "S:sp2", Guid.NewGuid(), 3, "USRC2")]);
 
         var json = JObject.Parse(JsonConvert.SerializeObject(SharedIdOwnersResponse.Build(ownership),
             JsonHelpers.CamelCaseSerializer));
@@ -250,6 +253,9 @@ public class SharedIdReviewModelTests
         Assert.AreEqual(0, (int)json["removals"]![0]!["album"]!);
         Assert.IsTrue((bool)json["tracks"]![0]!["found"]!);
         Assert.IsFalse((bool)json["tracks"]![1]!["found"]!);
+        Assert.IsTrue((bool)json["ids"]![0]!["shared"]!);
+        Assert.AreEqual(("S:sp2", 3, "USRC2"), ((string)json["additions"]![0]!["id"]!,
+            (int)json["additions"]![0]!["fromAlbum"]!, (string)json["additions"]![0]!["isrc"]!));
         Assert.IsEmpty(SharedIdOwnersResponse.Build(null!).Ids);
     }
 }
