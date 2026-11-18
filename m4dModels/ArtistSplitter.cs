@@ -172,12 +172,22 @@ public static class ArtistSplitter
         @"^(?<primary>.*?\S)\s+w/\s*(?<featured>\S.*)$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+    // "with" introduces featured artists in a title ("Song (with X)", "Song - with X"), but not
+    // when what follows is a pronoun or a common word: "(With You)", "(With Somebody)",
+    // "- With My Headphones On", "(with Intro)"
+    private const string TitleWith =
+        @"with(?!\s+(?:you|your|yours|me|my|him|her|his|us|our|them|their|it|its|a|an|" +
+        @"this|these|that|those|somebody|someone|anybody|anyone|everybody|everyone|nobody|love|" +
+        @"loving|lovin|intro|outro|strings)\b)";
+
     private static readonly Regex TitleBracketFeaturing = new(
-        @"[\(\[]\s*(?<word>feat\.?|ft\.?|featuring)\s+(?<names>[^\)\]]+?)\s*[\)\]]",
+        @"[\(\[]\s*(?<word>feat\.?|ft\.?|featuring|" + TitleWith + @")\s+(?<names>[^\)\]]+?)\s*[\)\]]",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+    // A bare "with" needs a dash before it: "Stay With Me" isn't a featuring clause
     private static readonly Regex TitleBareFeaturing = new(
-        @"(?:\s-\s*|\s)(?<word>feat\.|ft\.|featuring)\s+(?<names>[^\(\)\[\]]+?)(?:\s+-\s+[^\(\)\[\]]*|\s*[\(\[].*)?$",
+        @"(?:(?:\s-\s*|\s)(?<word>feat\.|ft\.|featuring)|\s-\s*(?<word>" + TitleWith + @"))" +
+        @"\s+(?<names>[^\(\)\[\]]+?)(?:\s+-\s+[^\(\)\[\]]*|\s*[\(\[].*)?$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static readonly Regex SpacedSlash = new(@"\s+/\s+", RegexOptions.Compiled);
@@ -421,8 +431,8 @@ public static class ArtistSplitter
     }
 
     /// <summary>
-    /// The word a title's feat. clause starts with, as written ("feat.", "Ft.", "featuring"), or
-    /// null when the title has no clause.
+    /// The word a title's feat. clause starts with, as written ("feat.", "Ft.", "featuring",
+    /// "with"), or null when the title has no clause.
     /// </summary>
     public static string TitleFeaturingWord(string title)
     {

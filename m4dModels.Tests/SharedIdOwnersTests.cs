@@ -83,8 +83,73 @@ public class SharedIdOwnersTests
         var ids = ownership.Ids.ToDictionary(p => p.Id);
         Assert.AreEqual(SharedIdOwnerStatus.Bad, ids["S:sp1"].Status);
         Assert.AreEqual(SharedIdOwnerStatus.Unsure, ids["R:USRC1"].Status, "An ISRC only moves with an owned id");
+        // The ISRC goes with the bad id from each album, which leaves Album B with nothing
         CollectionAssert.AreEquivalent(
-            new[] { new SharedIdRemoval(love.SongId, 0, "S:sp1"), new SharedIdRemoval(other.SongId, 0, "S:sp1") },
+            new[]
+            {
+                new SharedIdRemoval(love.SongId, 0, "S:sp1"), new SharedIdRemoval(love.SongId, 0, "R:USRC1"),
+                new SharedIdRemoval(other.SongId, 0)
+            },
+            ownership.Removals.ToList());
+    }
+
+    [TestMethod]
+    public async Task Propose_AnAlbumThatLosesItsSpotifyId_LosesItsIsrc()
+    {
+        var (dms, _) = await CreateService("SharedIdOwners_Isrc");
+        var love = await SaveSong(dms, "Love Song", "The Artist", 200, ("Album A", ["SS=sp1", "RS=USRC1"]));
+        var other = await SaveSong(dms, "Other Song", "Someone Else", 300,
+            ("Album B", ["SS=sp1", "IS=it2", "RS=USRC2"]), ("Album C", ["SS=c1", "IS=c2", "RS=USRC3"]));
+
+        var ownership = await SharedIdOwners.Propose([love, other],
+            Tracks(Track("S:sp1", "Love Song", "The Artist", 200, "USRC1")));
+
+        // Album B's ISRC isn't shared, but it came with one of its tracks, so it goes too
+        CollectionAssert.AreEquivalent(
+            new[] { new SharedIdRemoval(other.SongId, 0, "S:sp1"), new SharedIdRemoval(other.SongId, 0, "R:USRC2") },
+            ownership.Removals.ToList());
+    }
+
+    [TestMethod]
+    public async Task Propose_AnIsrcAKeptTrackReports_Stays()
+    {
+        var (dms, _) = await CreateService("SharedIdOwners_IsrcKept");
+        var love = await SaveSong(dms, "Love Song", "The Artist", 200, ("Album A", ["SS=sp1", "IS=it1", "RS=USRC1"]));
+        var other = await SaveSong(dms, "Other Song", "Someone Else", 300,
+            ("Album B", ["SS=sp1", "IS=it1", "RS=USRC1"]));
+
+        // sp1 is Other Song's; it1 is Love Song's, and its track reports the ISRC
+        var ownership = await SharedIdOwners.Propose([love, other],
+            Tracks(Track("S:sp1", "Other Song", "Someone Else", 300, "USRC9"),
+                Track("I:it1", "Love Song", "The Artist", 200, "USRC1")));
+
+        CollectionAssert.AreEquivalent(
+            new[]
+            {
+                new SharedIdRemoval(love.SongId, 0, "S:sp1"),
+                new SharedIdRemoval(other.SongId, 0, "I:it1"), new SharedIdRemoval(other.SongId, 0, "R:USRC1")
+            },
+            ownership.Removals.ToList());
+    }
+
+    [TestMethod]
+    public async Task Propose_TheSongWhoseTitleIsTheTracks_OwnsIt()
+    {
+        var (dms, _) = await CreateService("SharedIdOwners_Title");
+        var plain = await SaveSong(dms, "Song Name", "The Artist", 200, ("Album A", ["SS=plain", "SS=salsa"]));
+        var salsa = await SaveSong(dms, "Song Name - Salsa Version", "The Artist", 205,
+            ("Album B", ["SS=plain", "SS=salsa"]));
+
+        // Both songs pass the fuzzy match for either track, and both lengths are close
+        var ownership = await SharedIdOwners.Propose([plain, salsa],
+            Tracks(Track("S:plain", "Song Name", "The Artist", 202),
+                Track("S:salsa", "Song Name - Salsa Version", "The Artist", 202)));
+
+        var ids = ownership.Ids.ToDictionary(p => p.Id);
+        Assert.AreEqual((SharedIdOwnerStatus.Owned, plain.SongId), (ids["S:plain"].Status, ids["S:plain"].Song));
+        Assert.AreEqual((SharedIdOwnerStatus.Owned, salsa.SongId), (ids["S:salsa"].Status, ids["S:salsa"].Song));
+        CollectionAssert.AreEquivalent(
+            new[] { new SharedIdRemoval(plain.SongId, 0, "S:salsa"), new SharedIdRemoval(salsa.SongId, 0, "S:plain") },
             ownership.Removals.ToList());
     }
 

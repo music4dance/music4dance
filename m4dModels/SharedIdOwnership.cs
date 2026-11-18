@@ -30,8 +30,10 @@ public record SharedIdOwnership(IReadOnlyList<SharedIdOwnerProposal> Ids, IReadO
 /// <summary>
 /// For songs that share ids but are different songs, which song each shared id belongs to. A
 /// Spotify or iTunes id is looked up, and the song whose title, artist and length match the
-/// track owns it. When no song is the track, the id is bad. An ISRC goes with a Spotify or
-/// iTunes id that has an owner and whose track reports it. See
+/// track owns it, a song whose title is the track's winning over ones that only nearly match.
+/// When no song is the track, the id is bad. An ISRC goes with a Spotify or iTunes id that has an
+/// owner and whose track reports it, and comes off an album that loses its Spotify or iTunes id.
+/// See
 /// architecture/plans/shared-id-ownership.md.
 /// </summary>
 public static class SharedIdOwners
@@ -67,8 +69,8 @@ public static class SharedIdOwners
             }
         }
 
-        return new SharedIdOwnership(proposals, Removals(proposals, holders.ToDictionary(h => h.Id, h => h.Songs)),
-            tracks);
+        return new SharedIdOwnership(proposals,
+            Removals(proposals, holders.ToDictionary(h => h.Id, h => h.Songs), tracks), tracks);
     }
 
     // Spotify, then iTunes, then the ISRCs that follow them, then the rest
@@ -101,6 +103,15 @@ public static class SharedIdOwners
         if (named.Count == 0)
         {
             return new SharedIdOwnerProposal(id, SharedIdOwnerStatus.Bad, $"No song is {Describe(track)}");
+        }
+
+        // The fuzzy match passes "Song" for "Song - Salsa Version"; a song whose title is the
+        // track's, without feat. clauses and version notes, wins over the ones that only match
+        var title = SharedIdMatcher.TitleKey(track.Name);
+        var exact = named.Where(s => SharedIdMatcher.TitleKey(s.Title) == title).ToList();
+        if (exact.Count > 0)
+        {
+            named = exact;
         }
 
         var timed = named.Where(s => LengthMatches(s.Length, track.Duration)).ToList();
@@ -162,12 +173,14 @@ public static class SharedIdOwners
     private static bool LengthMatches(int? song, int? track) =>
         song is not > 0 || track is not > 0 || Math.Abs(song.Value - track.Value) <= SharedIdMatcher.LengthTolerance;
 
-    // Each owned id comes off the songs that don't own it, a bad one off every song; an album
-    // goes when that takes every song-level id off it
+    // Each owned id comes off the songs that don't own it, a bad one off every song. An album
+    // that loses a Spotify or iTunes id loses its ISRCs too, which came from that track, unless
+    // a Spotify or iTunes id it keeps was looked up and reports the ISRC. An album goes when that
+    // takes every song-level id off it.
     private static List<SharedIdRemoval> Removals(IEnumerable<SharedIdOwnerProposal> proposals,
-        IReadOnlyDictionary<string, List<Song>> holders)
+        IReadOnlyDictionary<string, List<Song>> holders, IReadOnlyDictionary<string, ServiceTrack> tracks)
     {
-        var removed = proposals
+        var direct = proposals
             .Where(p => p.Status != SharedIdOwnerStatus.Unsure)
             .SelectMany(p => holders[p.Id]
                 .Where(s => p.Status == SharedIdOwnerStatus.Bad || s.SongId != p.Song)
@@ -175,6 +188,23 @@ public static class SharedIdOwners
                     .Where(a => a.GetExtendedPurchaseIds(PurchaseType.Song).Contains(p.Id))
                     .Select(a => (Song: s, Album: a, p.Id))))
             .ToList();
+
+        var isrcs = direct
+            .GroupBy(r => (r.Song.SongId, r.Album.Index))
+            .Where(g => g.Any(r => IsLookable(r.Id)))
+            .SelectMany(g =>
+            {
+                var gone = g.Select(r => r.Id).ToHashSet();
+                var (song, album, _) = g.First();
+                var ids = album.GetExtendedPurchaseIds(PurchaseType.Song);
+                var kept = ids.Where(id => IsLookable(id) && !gone.Contains(id)).ToList();
+                return ids
+                    .Where(id => id.StartsWith("R:") && !gone.Contains(id) && !kept.Any(k =>
+                        tracks.TryGetValue(k, out var t) &&
+                        string.Equals(t?.ISRC, id[2..], StringComparison.OrdinalIgnoreCase)))
+                    .Select(id => (Song: song, Album: album, Id: id));
+            });
+        var removed = direct.Concat(isrcs).ToList();
 
         return [.. removed
             .GroupBy(r => (r.Song.SongId, r.Album.Index))

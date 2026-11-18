@@ -399,10 +399,11 @@ public class SharedIdLogTests
         Assert.HasCount(2, result.Merges);
         var first = await dms.SongIndex.FindSong(result.Merges[0].Into);
         var second = await dms.SongIndex.FindSong(result.Merges[1].Into);
-        // Each group gets the feat. cleanup of its own merge
+        // Each group gets the cleanup of its own merge: the feat. clause out, the title cut back
+        // to the shortest title the merged one starts with
         Assert.AreEqual("First Song", first.Title);
         CollectionAssert.AreEqual(new[] { "The Artist", "Crazy Man" }, first.EffectiveArtists.ToList());
-        Assert.AreEqual("Second Song (Radio Edit)", second.Title);
+        Assert.AreEqual("Second Song", second.Title);
         Assert.IsEmpty(await dms.SharedIds.PendingClusters());
         var rejected = (await Rows(dms)).Single(r => r.Status == SharedIdStatus.Rejected);
         Assert.AreEqual(Pair(first, second), (rejected.SongA, rejected.SongB));
@@ -476,7 +477,7 @@ public class SharedIdLogTests
         var first = await dms.SongIndex.FindSong(result.Merges[0].Into);
         var second = await dms.SongIndex.FindSong(result.Merges[1].Into);
         Assert.AreEqual("First Song", first.Title);
-        Assert.AreEqual("Second Song (Radio Edit)", second.Title);
+        Assert.AreEqual("Second Song", second.Title);
     }
 
     [TestMethod]

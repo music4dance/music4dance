@@ -18,6 +18,14 @@ public class FeaturedCleanupTests
     [DataRow("Song Title feat. Crazy Man - Radio Edit", "Song Title - Radio Edit")]
     [DataRow("Song Title (Radio Edit)", "Song Title (Radio Edit)")]
     [DataRow("Defeated", "Defeated")]
+    [DataRow("Song Title (with Crazy Man)", "Song Title")]
+    [DataRow("Song Title [With Crazy Man & Friend]", "Song Title")]
+    [DataRow("Song Title - with Crazy Man", "Song Title")]
+    [DataRow("Stay With Me", "Stay With Me")]
+    [DataRow("I Wanna Dance (With Somebody)", "I Wanna Dance (With Somebody)")]
+    [DataRow("Song Title (With You)", "Song Title (With You)")]
+    [DataRow("Naked - With My Headphones On", "Naked - With My Headphones On")]
+    [DataRow("Song Title (Without Crazy Man)", "Song Title (Without Crazy Man)")]
     public void RemoveTitleFeaturing(string title, string expected)
     {
         Assert.AreEqual(expected, ArtistSplitter.RemoveTitleFeaturing(title));
@@ -53,6 +61,9 @@ public class FeaturedCleanupTests
     [DataRow("Song Title (feat. Crazy Man & Friend)", "The Artist", "The Artist feat. Crazy Man & Friend")]
     [DataRow("Song Title (feat. Crazy Man)", "The Artist & Crazy Man", "The Artist & Crazy Man")]
     [DataRow("Song Title (feat. Crazy Man)", "The Artist feat. Crazy Man", "The Artist feat. Crazy Man")]
+    [DataRow("Song Title (with Crazy Man)", "The Artist", "The Artist with Crazy Man")]
+    [DataRow("Song Title - With Crazy Man", "The Artist", "The Artist With Crazy Man")]
+    [DataRow("Song Title (With You)", "The Artist", "The Artist")]
     public void Propose_TheTitlesFeaturedArtists_JoinTheCreditWithTheTitlesWord(string title, string artist,
         string expected)
     {
@@ -71,6 +82,22 @@ public class FeaturedCleanupTests
         var merged = new Song { Title = title, Artist = "The Artist" };
 
         Assert.AreEqual(expected, FeaturedCleanup.Propose(merged, [merged]).Title);
+    }
+
+    [TestMethod]
+    [DataRow("Song Name - Salsa Version", "Song Name", "Song Name")]
+    [DataRow("Song Name (Salsa Version)", "song name", "Song Name")]
+    [DataRow("Song Name (feat. Crazy Man) - Salsa Version", "Song Name - Remastered", "Song Name")]
+    [DataRow("Song Name", "Song Name - Salsa Version", "Song Name")]
+    [DataRow("Lovely Day", "Love", "Lovely Day")]
+    [DataRow("Song Name - Salsa Version", "Other Song", "Song Name - Salsa Version")]
+    public void Propose_TakesTheShortestTitleTheMergedTitleStartsWith(string title, string other, string expected)
+    {
+        var merged = new Song { Title = title, Artist = "The Artist" };
+
+        var names = FeaturedCleanup.Propose(merged, [merged, new Song { Title = other, Artist = "The Artist" }]);
+
+        Assert.AreEqual(expected, names.Title);
     }
 
     [TestMethod]

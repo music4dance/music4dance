@@ -19,7 +19,9 @@ public static class FeaturedCleanup
 {
     /// <summary>
     /// The names <paramref name="merged"/> should land on: its title without a feat. clause or
-    /// the remaster and single-version notes at its end (SharedIdMatcher.WithoutVersionNotes), an
+    /// the remaster and single-version notes at its end (SharedIdMatcher.WithoutVersionNotes),
+    /// cut back to the shortest of the songs' titles it starts with ("Song - Salsa Version" and
+    /// "Song" give "Song"), an
     /// artist credit, and its individual artists followed by the artists the songs it was merged
     /// from feature (in their titles or credits), each artist listed once; when the songs'
     /// credits only leave artists out of the fullest one ("X" and "X &amp; Y"), the fullest one's
@@ -57,8 +59,30 @@ public static class FeaturedCleanup
         }
 
         var credit = Credit(merged.Artist, songs, artists, knowledge);
-        return new SongNames(SharedIdMatcher.WithoutVersionNotes(ArtistSplitter.RemoveTitleFeaturing(merged.Title)),
-            WithTitleFeaturing(credit, [merged, .. songs], knowledge), artists);
+        return new SongNames(Title(merged, songs), WithTitleFeaturing(credit, [merged, .. songs], knowledge),
+            artists);
+    }
+
+    // The merged title without its feat. clause or version notes, cut back to the shortest of the
+    // songs' titles (cleaned the same way) that it starts with, word for word: "Song Name - Salsa
+    // Version" merged with "Song Name" gives "Song Name"
+    private static string Title(Song merged, IEnumerable<Song> songs)
+    {
+        static string Clean(string title) =>
+            SharedIdMatcher.WithoutVersionNotes(ArtistSplitter.RemoveTitleFeaturing(title))?.Trim();
+
+        var title = Clean(merged.Title);
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            return title;
+        }
+
+        var shortest = songs.Select(s => Clean(s.Title))
+            .Where(t => !string.IsNullOrWhiteSpace(t) && t.Length < title.Length &&
+                title.StartsWith(t, StringComparison.OrdinalIgnoreCase) && char.IsLetterOrDigit(t[^1]) &&
+                !char.IsLetterOrDigit(title[t.Length]))
+            .MinBy(t => t.Length);
+        return shortest == null ? title : title[..shortest.Length];
     }
 
     // The credit with the artists the songs' titles feature that it doesn't name, after the
