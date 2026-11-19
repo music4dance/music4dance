@@ -152,6 +152,51 @@ describe("tempo-counter App.vue", () => {
     });
   });
 
+  describe("row highlighting and badges at 93 BPM", () => {
+    function rows() {
+      const wrapper = mountTempoCounter({ numerator: 4, tempo: 93, epsilon: 5 });
+      return wrapper.findAll(".list-group-item").map((r) => ({
+        text: r.text(),
+        variant: r.classes().find((c) => /^list-group-item-(primary|success|warning)$/.test(c)),
+        badges: r.findAll(".badge").map((b) => b.text()),
+      }));
+    }
+
+    function row(name: string) {
+      const found = rows().find((r) => r.text.startsWith(name));
+      if (!found) {
+        throw new Error(`No ${name} row found`);
+      }
+      return found;
+    }
+
+    test("a dance whose range contains the tempo is unhighlighted and has no badges at all", () => {
+      // Badges must be absent from the DOM, not just hidden: they sit in a d-flex wrapper, and
+      // Bootstrap's display:flex !important beats v-show's inline display:none.
+      expect(row("West Coast Swing")).toMatchObject({
+        variant: "list-group-item-primary",
+        badges: [],
+      });
+    });
+
+    test("a near miss in 4/4 is highlighted even when it's under 1 MPM out", () => {
+      // NCS tops out at 92 BPM (1 BPM = 0.25 MPM over); Bolero starts at 96 (0.75 MPM under).
+      expect(row("Night Club Two Step")).toMatchObject({
+        variant: "list-group-item-success",
+        badges: ["1.0 BPM fast", "Pitch −1.1%"],
+      });
+      expect(row("Bolero")).toMatchObject({
+        variant: "list-group-item-warning",
+        badges: ["3.0 BPM slow", "Pitch +3.2%"],
+      });
+    });
+
+    test("the same BPM miss gets the same highlight regardless of the dance's meter", () => {
+      // Samba (2/4) and Bolero (4/4) share a 96-104 BPM range.
+      expect(row("Samba").variant).toBe(row("Bolero").variant);
+    });
+  });
+
   describe("which details to show (?show=)", () => {
     // 140 BPM against Cha Cha's max of 128 is 3.0 MPM fast, -8.6% pitch, 91.4% speed.
     const nearMiss = { numerator: 4, tempo: 140, count: "measures", epsilon: 10 };

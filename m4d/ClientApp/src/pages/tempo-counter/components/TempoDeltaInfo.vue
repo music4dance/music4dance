@@ -17,18 +17,30 @@ const variant = computed(() => {
     return "primary";
   }
 
-  return props.dance.deltaMpm < 0 ? "warning" : "success";
+  return props.dance.delta < 0 ? "warning" : "success";
 });
 
-const showDelta = computed(() => {
-  return Math.abs(props.dance.deltaMpm) >= 1.0;
-});
+const measures = computed(() => props.tempoType === TempoType.Measures);
+
+// The difference in the units the counter is showing (BPM or MPM).
+const displayDelta = computed(() =>
+  Math.abs(measures.value ? props.dance.deltaMpm : props.dance.delta),
+);
+
+// Out of range by anything that shows up at the one decimal place the badge displays. This is
+// deliberately not a fixed MPM threshold: MPM depends on each dance's meter, so the same 3 BPM
+// miss is 1.5 MPM for a 2/4 Samba but 0.75 MPM for a 4/4 Bolero.
+const showDelta = computed(() => displayDelta.value >= 0.05);
 
 const deltaMessage = computed(() => {
-  const measures = props.tempoType === TempoType.Measures;
   const slower = props.dance.delta < 0;
-  const abs = Math.abs(measures ? props.dance.deltaMpm : props.dance.delta).toFixed(1);
-  return abs + " " + (measures ? "M" : "B") + "PM " + (slower ? "slow" : "fast");
+  return (
+    displayDelta.value.toFixed(1) +
+    " " +
+    (measures.value ? "M" : "B") +
+    "PM " +
+    (slower ? "slow" : "fast")
+  );
 });
 
 // Signed the way a pitch fader is labeled: "−" slows the song down, "+" speeds it up.
@@ -72,7 +84,8 @@ const badges = computed(() =>
       :show-meter="true"
       :hide-link="hideLink"
     />
-    <span v-show="showDelta" class="d-flex flex-wrap justify-content-end gap-1">
+    <!-- v-if, not v-show: Bootstrap's d-flex is display:flex !important, which beats v-show. -->
+    <span v-if="showDelta" class="d-flex flex-wrap justify-content-end gap-1">
       <BBadge v-for="badge in badges" :key="badge.key" :variant="variant" :title="badge.title">{{
         badge.text
       }}</BBadge>

@@ -135,9 +135,12 @@ Owns the tap-tempo state machine and the manual-entry widgets. All state is pass
 
 `TempoDeltaInfo.vue` renders each `DanceOrder` as a `BListGroupItem`:
 
-- Variant is `"primary"` when `abs(deltaMpm) < 1.0` (close enough that no direction is worth
-  flagging), else `"warning"` (dance's tempo is slower than tapped — negative delta) or `"success"`
-  (dance is faster).
+- Variant is `"primary"` when the tempo is in the dance's range, meaning the difference in the
+  displayed unit (BPM or MPM, per `tempoType`) rounds to `0.0`. Otherwise it is `"warning"` (the
+  song is slower than the dance: negative delta) or `"success"` (the song is faster). This used to
+  be a fixed `abs(deltaMpm) < 1.0` threshold. That depended on each dance's meter, so at 93 BPM a
+  2/4 Samba 3 BPM out (1.5 MPM) was highlighted while a 4/4 Bolero with the same range wasn't
+  (0.75 MPM).
 - `DanceName` is rendered with `show-meter`, so each range carries its meter (`48-52 MPM (2/4)`).
   The duple pre-filter mixes 2/4 and 4/4 dances, and each range is in the dance's _own_ measures,
   so without the meter a 2/4 dance reads as twice the tempo of the counter's 4/4 MPM.
@@ -158,7 +161,8 @@ Owns the tap-tempo state machine and the manual-entry widgets. All state is pass
   - **speed**: `"Speed 91.4%"`, the same adjustment as a playback rate where 100% = unchanged
     (`DanceOrder.speedPercent` = `100 + pitchPercent`). This is how tempo-change software and sites
     such as pitch-tempo.online express it (target ÷ current × 100).
-- All badges are hidden when `abs(deltaMpm) < 1.0`.
+- In-range rows render no badges at all. The wrapper uses `v-if`, not `v-show`: its Bootstrap
+  `d-flex` class is `display: flex !important`, which overrides `v-show`'s inline `display: none`.
 - Clicking a row emits `choose-dance(danceId, ctrlKey)`; `App.vue`'s `chooseDance(danceId)` handler
   only declares one parameter, so the `ctrlKey` argument is silently dropped — there's currently no
   distinction between a plain click and a ctrl/cmd-click (both `window.open(..., "_blank")` to
