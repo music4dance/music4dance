@@ -12,6 +12,7 @@ import {
   DEFAULT_NUMERATOR,
   DEFAULT_TEMPO,
 } from "../QueryValidation";
+import { defaultDeltaMetrics } from "../deltaMetrics";
 
 const mockContext = new MenuContext({
   userName: "dwgray",
@@ -141,6 +142,126 @@ describe("tempo-counter App.vue", () => {
 
       expect(justOutside.text()).not.toContain("Cha Cha");
       expect(justInside.text()).toContain("Cha Cha");
+    });
+
+    test("an out-of-range match shows the pitch-control percentage that brings it into range", () => {
+      // 140 BPM against Cha Cha's max of 128: 128 / 140 = 91.43% speed, i.e. -8.6% pitch.
+      const wrapper = mountTempoCounter({ numerator: 4, tempo: 140, epsilon: 10, show: ["pitch"] });
+
+      expect(wrapper.text()).toContain("Pitch −8.6%");
+    });
+  });
+
+  describe("row highlighting and badges at 93 BPM", () => {
+    function rows() {
+      const wrapper = mountTempoCounter({
+        numerator: 4,
+        tempo: 93,
+        epsilon: 5,
+        show: ["tempo", "pitch"],
+      });
+      return wrapper.findAll(".list-group-item").map((r) => ({
+        text: r.text(),
+        variant: r.classes().find((c) => /^list-group-item-(primary|success|warning)$/.test(c)),
+        badges: r.findAll(".badge").map((b) => b.text()),
+      }));
+    }
+
+    function row(name: string) {
+      const found = rows().find((r) => r.text.startsWith(name));
+      if (!found) {
+        throw new Error(`No ${name} row found`);
+      }
+      return found;
+    }
+
+    test("a dance whose range contains the tempo is unhighlighted and has no badges at all", () => {
+      // Badges must be absent from the DOM, not just hidden: they sit in a d-flex wrapper, and
+      // Bootstrap's display:flex !important beats v-show's inline display:none.
+      expect(row("West Coast Swing")).toMatchObject({
+        variant: "list-group-item-primary",
+        badges: [],
+      });
+    });
+
+    test("a near miss in 4/4 is highlighted even when it's under 1 MPM out", () => {
+      // NCS tops out at 92 BPM (1 BPM = 0.25 MPM over); Bolero starts at 96 (0.75 MPM under).
+      expect(row("Night Club Two Step")).toMatchObject({
+        variant: "list-group-item-success",
+        badges: ["1.0 BPM fast", "Pitch −1.1%"],
+      });
+      expect(row("Bolero")).toMatchObject({
+        variant: "list-group-item-warning",
+        badges: ["3.0 BPM slow", "Pitch +3.2%"],
+      });
+    });
+
+    test("the same BPM miss gets the same highlight regardless of the dance's meter", () => {
+      // Samba (2/4) and Bolero (4/4) share a 96-104 BPM range.
+      expect(row("Samba").variant).toBe(row("Bolero").variant);
+    });
+  });
+
+  describe("which details to show (?show=)", () => {
+    // 140 BPM against Cha Cha's max of 128 is 3.0 MPM fast, -8.6% pitch, 91.4% speed.
+    const nearMiss = { numerator: 4, tempo: 140, count: "measures", epsilon: 10 };
+
+    // Scoped to one row's badges: the page text also contains the chooser's option labels.
+    function chaChaBadges(wrapper: VueWrapper<InstanceType<typeof App>>): string[] {
+      const row = wrapper.findAll(".list-group-item").find((r) => r.text().includes("Cha Cha"));
+      if (!row) {
+        throw new Error("No Cha Cha row found");
+      }
+      return row.findAll(".badge").map((b) => b.text());
+    }
+
+    test("defaults to just the tempo difference, with pitch and speed opt-in", () => {
+      const wrapper = mountTempoCounter(nearMiss);
+
+      expect(wrapper.vm.metrics).toEqual(defaultDeltaMetrics);
+      expect(defaultDeltaMetrics).toEqual(["tempo"]);
+      expect(chaChaBadges(wrapper)).toEqual(["3.0 MPM fast"]);
+      expect(wrapper.text()).not.toContain("tempo-change software");
+    });
+
+    test("seeds the shown details from the server-provided model", () => {
+      const wrapper = mountTempoCounter({ ...nearMiss, show: ["speed"] });
+
+      expect(chaChaBadges(wrapper)).toEqual(["Speed 91.4%"]);
+    });
+
+    test("all three details render in a fixed order regardless of the seeded order", () => {
+      const wrapper = mountTempoCounter({ ...nearMiss, show: ["speed", "pitch", "tempo"] });
+
+      expect(chaChaBadges(wrapper)).toEqual(["3.0 MPM fast", "Pitch −8.6%", "Speed 91.4%"]);
+    });
+
+    test("unknown keys are silently dropped", () => {
+      const wrapper = mountTempoCounter({ ...nearMiss, show: ["speed", "not-a-real-metric"] });
+
+      expect(wrapper.vm.metrics).toEqual(["speed"]);
+    });
+
+    test("the explanatory note only appears when pitch or speed is shown", () => {
+      expect(mountTempoCounter({ ...nearMiss, show: ["tempo"] }).text()).not.toContain(
+        "tempo-change software",
+      );
+      expect(mountTempoCounter({ ...nearMiss, show: ["speed"] }).text()).toContain(
+        "tempo-change software",
+      );
+    });
+
+    test("the address bar omits show at its default and lists a custom selection", async () => {
+      const wrapper = mountTempoCounter(nearMiss);
+      expect(new URLSearchParams(window.location.search).has("show")).toBe(false);
+
+      wrapper.vm.metrics = ["tempo", "speed"];
+      await nextTick();
+
+      expect(new URLSearchParams(window.location.search).getAll("show")).toEqual([
+        "tempo",
+        "speed",
+      ]);
     });
   });
 
