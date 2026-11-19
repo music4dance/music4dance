@@ -146,7 +146,7 @@ describe("tempo-counter App.vue", () => {
 
     test("an out-of-range match shows the pitch-control percentage that brings it into range", () => {
       // 140 BPM against Cha Cha's max of 128: 128 / 140 = 91.43% speed, i.e. -8.6% pitch.
-      const wrapper = mountTempoCounter({ numerator: 4, tempo: 140, epsilon: 10 });
+      const wrapper = mountTempoCounter({ numerator: 4, tempo: 140, epsilon: 10, show: ["pitch"] });
 
       expect(wrapper.text()).toContain("Pitch −8.6%");
     });
@@ -154,7 +154,12 @@ describe("tempo-counter App.vue", () => {
 
   describe("row highlighting and badges at 93 BPM", () => {
     function rows() {
-      const wrapper = mountTempoCounter({ numerator: 4, tempo: 93, epsilon: 5 });
+      const wrapper = mountTempoCounter({
+        numerator: 4,
+        tempo: 93,
+        epsilon: 5,
+        show: ["tempo", "pitch"],
+      });
       return wrapper.findAll(".list-group-item").map((r) => ({
         text: r.text(),
         variant: r.classes().find((c) => /^list-group-item-(primary|success|warning)$/.test(c)),
@@ -210,11 +215,13 @@ describe("tempo-counter App.vue", () => {
       return row.findAll(".badge").map((b) => b.text());
     }
 
-    test("defaults to the tempo difference and pitch, with speed opt-in", () => {
+    test("defaults to just the tempo difference, with pitch and speed opt-in", () => {
       const wrapper = mountTempoCounter(nearMiss);
 
       expect(wrapper.vm.metrics).toEqual(defaultDeltaMetrics);
-      expect(chaChaBadges(wrapper)).toEqual(["3.0 MPM fast", "Pitch −8.6%"]);
+      expect(defaultDeltaMetrics).toEqual(["tempo"]);
+      expect(chaChaBadges(wrapper)).toEqual(["3.0 MPM fast"]);
+      expect(wrapper.text()).not.toContain("tempo-change software");
     });
 
     test("seeds the shown details from the server-provided model", () => {

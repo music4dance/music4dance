@@ -16,7 +16,7 @@ export interface DeltaMetricOption {
 
 export const deltaMetrics: DeltaMetricOption[] = [
   { key: "tempo", label: "Tempo", defaultVisible: true },
-  { key: "pitch", label: "Pitch", defaultVisible: true },
+  { key: "pitch", label: "Pitch", defaultVisible: false },
   { key: "speed", label: "Speed", defaultVisible: false },
 ];
 

@@ -177,7 +177,7 @@ A **Show:** `CheckedList` (the Tempo List page's column-chooser component) sits 
 gets. The selection comes from `?show=` (repeatable, e.g. `?show=tempo&show=speed`):
 `HomeController.Counter` passes it through as `TempoCounterModel.Show`, and `validateDeltaMetrics`
 fences it on the client. That fencing follows Tempo List's `?columns=` convention: unknown keys
-are dropped, a missing param falls back to the default (`tempo` and `pitch`), and badges always
+are dropped, a missing param falls back to the default (`tempo` only), and badges always
 render in the fixed tempo/pitch/speed order regardless of the order given. A short note under the
 list explains Pitch and Speed whenever either one is shown, since hover titles don't help on touch
 devices.
