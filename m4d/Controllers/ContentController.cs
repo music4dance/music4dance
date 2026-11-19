@@ -29,7 +29,7 @@ public class ContentController(
     public override async Task OnActionExecutionAsync(
     ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        ViewBag.SongFilter = Filter = GetFilterFromContext(context);
+        ViewBag.SongFilter = Filter = await GetFilterFromContext(context);
         await base.OnActionExecutionAsync(context, next);
     }
 

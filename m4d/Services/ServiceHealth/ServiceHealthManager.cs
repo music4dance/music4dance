@@ -12,6 +12,7 @@ public class ServiceHealthManager
     private static readonly TimeSpan DefaultUnavailableCooldown = TimeSpan.FromMinutes(1);
 
     private readonly ConcurrentDictionary<string, ServiceHealthStatus> _serviceStatuses = new();
+    private readonly ConcurrentDictionary<string, Func<bool?>> _healthGates = new();
     private readonly ILogger<ServiceHealthManager> _logger;
     private ServiceHealthNotifier? _notifier;
 
@@ -223,6 +224,17 @@ public class ServiceHealthManager
     }
 
     /// <summary>
+    /// Let something that knows better than the status and cooldown decide
+    /// <see cref="IsServiceHealthy"/> for a service: the gate returns true or false to decide, or
+    /// null to leave it to the usual rule. A Search circuit breaker uses this while it's open, so
+    /// callers retry when its break ends rather than when <see cref="UnavailableCooldown"/> does.
+    /// </summary>
+    public void SetHealthGate(string serviceName, Func<bool?> gate)
+    {
+        _healthGates[serviceName] = gate;
+    }
+
+    /// <summary>
     /// Check if a service is healthy (or unknown - optimistic assumption).
     /// Returns false if the service is marked Unavailable and the cooldown since that failure
     /// hasn't elapsed yet; once it has, optimistically returns true so the next caller retries
@@ -234,6 +246,11 @@ public class ServiceHealthManager
     /// </summary>
     public bool IsServiceHealthy(string serviceName)
     {
+        if (_healthGates.TryGetValue(serviceName, out var gate) && gate() is bool decided)
+        {
+            return decided;
+        }
+
         if (!_serviceStatuses.TryGetValue(serviceName, out var status))
         {
             // Unknown service - assume healthy until proven otherwise (optimistic)

@@ -25,6 +25,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging.AzureAppServices;
 using Microsoft.FeatureManagement;
 using Microsoft.Data.SqlClient;
 
@@ -83,10 +84,7 @@ public static class M4dApplicationExtensions
 
         Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] Configuring logging");
 
-        var logging = builder.Logging;
-        logging.ClearProviders();
-        logging.AddConsole();
-        logging.AddAzureWebAppDiagnostics();
+        AddM4dLogging(builder.Logging);
 
         // Log level filters should be set via configuration (see appsettings.json / appsettings.Production.json)
 
@@ -199,6 +197,17 @@ public static class M4dApplicationExtensions
                 // Fast registration - skip validation, Azure SDK will handle invalid endpoints
                 Console.WriteLine($"[Search] Registering {indexSections.Count} search index clients (fast startup mode)");
 
+                // One breaker per Search service, shared by its query clients since they share its
+                // capacity. The SearchIndexClient (schema reads, index create/delete) has none and
+                // keeps the SDK's retries
+                services.AddSingleton<SearchCircuitBreakers>();
+                var breakerNames = SearchCircuitBreakers.AssignServiceNames(
+                    indexSections.Select(s => (s.Key, s["endpoint"])));
+                Action<ClientOptions, IServiceProvider> AddSearchCircuitBreaker(string sectionKey) =>
+                    (options, provider) => options.AddPolicy(
+                        provider.GetRequiredService<SearchCircuitBreakers>().For(breakerNames[sectionKey]),
+                        HttpPipelinePosition.PerRetry);
+
                 services.AddAzureClients(clientBuilder =>
                 {
                     Console.WriteLine("[Search] Using shared DefaultAzureCredential");
@@ -208,7 +217,8 @@ public static class M4dApplicationExtensions
                     {
                         var endpoint = section["endpoint"];
                         Console.WriteLine($"[Search] Registering: {section.Key} -> {endpoint}");
-                        _ = AzureSearchExtensions.AddSearchClient(clientBuilder, section).WithName(section.Key);
+                        _ = AzureSearchExtensions.AddSearchClient(clientBuilder, section).WithName(section.Key)
+                            .ConfigureOptions(AddSearchCircuitBreaker(section.Key));
                     }
 
                     // Add a single SearchIndexClient named "SongIndex"
@@ -532,8 +542,17 @@ public static class M4dApplicationExtensions
                 // Bridges SongIndex's post-success signal (ISearchServiceManager.ReportSearchSuccess)
                 // to ServiceHealthManager, so a service marked Unavailable by a transient search
                 // failure clears immediately the next time a live search actually succeeds,
-                // instead of only via ServiceHealthManager's cooldown-based inference.
-                manager.OnSearchSuccess = () => serviceHealth.MarkHealthy("SearchService");
+                // instead of only via ServiceHealthManager's cooldown-based inference. While the
+                // circuit breaker is open, a success can only be a request sent before it opened,
+                // so it's ignored; the breaker marks Search healthy when its probe succeeds.
+                var breakers = sp.GetService<SearchCircuitBreakers>();
+                manager.OnSearchSuccess = () =>
+                {
+                    if (breakers?.IsOpen(SearchCircuitBreaker.ServiceName) != true)
+                    {
+                        serviceHealth.MarkHealthy("SearchService");
+                    }
+                };
                 return manager;
             });
             services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(
@@ -620,6 +639,25 @@ public static class M4dApplicationExtensions
         services.AddHostedService<StartupInitializationService>();
 
         return builder;
+    }
+
+    /// <summary>
+    /// The most the App Service file logger writes to one day's
+    /// <c>LogFiles/Application/diagnostics-YYYYMMDD.txt</c>. Past it, the provider silently drops
+    /// every message until the next UTC day. Its 10 MB default filled in about 8 minutes of a
+    /// Search throttling burst on 2026-11-18 (Azure.Core logs each 503 with its headers), which
+    /// hid the rest of that day's warnings and errors. It keeps 2 files, so this is ~100 MB of
+    /// <c>/home</c>.
+    /// </summary>
+    internal const int AzureFileLogSizeLimitBytes = 50 * 1024 * 1024;
+
+    internal static void AddM4dLogging(ILoggingBuilder logging)
+    {
+        logging.ClearProviders();
+        logging.AddConsole();
+        logging.AddAzureWebAppDiagnostics();
+        _ = logging.Services.Configure<AzureFileLoggerOptions>(
+            options => options.FileSizeLimit = AzureFileLogSizeLimitBytes);
     }
 
     public static async Task<WebApplication> UseM4dPipeline(
