@@ -684,7 +684,8 @@ minutes). Built in the same PR; rollout is in [runbooks/edge-cache](../runbooks/
   `Cloudflare-CDN-Cache-Control: max-age=86400` (`EdgeCache:Enabled`, `EdgeCache:MaxAgeSeconds`)
   to anonymous 200 HTML that's the same for every signed-out human. Browsers and
   `UseResponseCaching` keep seeing `no-cache`, so neither needed to change. It's left off for
-  Googlebot, `IsSpider` agents, `/admin`, and whenever Search, the database or App
+  Googlebot, `IsSpider` agents, `/admin`, `/payment`, pages with an antiforgery form token
+  (antiforgery's own `no-store` is honored), and whenever Search, the database or App
   Configuration isn't healthy, because Cloudflare Free can't vary a cached copy by user agent
   and `menuContext` bakes service health into the page.
 - **A Cloudflare Cache Rule** makes HTML eligible only for `GET`s without the `music4dance`

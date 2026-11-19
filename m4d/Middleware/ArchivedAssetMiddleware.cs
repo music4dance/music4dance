@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using m4d.Services;
 
 using Microsoft.AspNetCore.StaticFiles;
@@ -29,32 +31,47 @@ public class ArchivedAssetMiddleware(
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var path = FindArchived(context);
-        if (path == null)
+        var found = FindArchived(context);
+        if (found == null)
         {
             await next(context);
             return;
         }
 
-        var response = context.Response;
-        response.StatusCode = StatusCodes.Status200OK;
-        response.ContentType = ContentTypes.TryGetContentType(path.Original, out var type)
-            ? type
-            : "application/octet-stream";
-        response.Headers.Vary = HeaderNames.AcceptEncoding;
-        if (path.Encoding != null)
+        // Opened before any header is set: another instance can prune the build between the
+        // lookup and here, and then the request just passes through (and 404s) instead of failing.
+        // Once open, the copy is ours to finish even if the folder is deleted meanwhile.
+        FileStream stream;
+        try
         {
-            response.Headers.ContentEncoding = path.Encoding;
+            stream = new FileStream(found.Served, FileMode.Open, FileAccess.Read,
+                FileShare.Read | FileShare.Delete, bufferSize: 1, FileOptions.Asynchronous);
         }
-
-        var file = new FileInfo(path.Served);
-        response.ContentLength = file.Length;
-        if (HttpMethods.IsHead(context.Request.Method))
+        catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException)
         {
+            await next(context);
             return;
         }
 
-        await response.SendFileAsync(file.FullName, context.RequestAborted);
+        await using (stream)
+        {
+            var response = context.Response;
+            response.StatusCode = StatusCodes.Status200OK;
+            response.ContentType = ContentTypes.TryGetContentType(found.Name, out var type)
+                ? type
+                : "application/octet-stream";
+            response.Headers.Vary = HeaderNames.AcceptEncoding;
+            if (found.Encoding != null)
+            {
+                response.Headers.ContentEncoding = found.Encoding;
+            }
+            response.ContentLength = stream.Length;
+
+            if (!HttpMethods.IsHead(context.Request.Method))
+            {
+                await stream.CopyToAsync(response.Body, context.RequestAborted);
+            }
+        }
     }
 
     private ArchivedFile FindArchived(HttpContext context)
@@ -79,22 +96,39 @@ public class ArchivedAssetMiddleware(
             return null;
         }
 
+        // The names carry content hashes, so a precompressed copy from any archived build is this
+        // same file compressed
         var accepted = request.Headers.AcceptEncoding.ToString();
-        var compressed = Encodings
+        return Encodings
             .Where(e => Accepts(accepted, e.Encoding))
-            .Select(e => (e.Encoding, Path: original + e.Extension))
-            .FirstOrDefault(e => File.Exists(e.Path));
-
-        return compressed.Path != null
-            ? new ArchivedFile(original, compressed.Path, compressed.Encoding)
-            : new ArchivedFile(original, original, null);
+            .Select(e => (e.Encoding, Path: archive.Find(name + e.Extension)))
+            .Where(e => e.Path != null)
+            .Select(e => new ArchivedFile(name, e.Path, e.Encoding))
+            .FirstOrDefault() ?? new ArchivedFile(name, original, null);
     }
 
-    private static bool Accepts(string acceptEncoding, string encoding) =>
+    // True when Accept-Encoding lists the encoding with a q-value above zero (no q means 1)
+    internal static bool Accepts(string acceptEncoding, string encoding) =>
         acceptEncoding.Split(',')
             .Select(part => part.Split(';'))
             .Any(parts => parts[0].Trim().Equals(encoding, StringComparison.OrdinalIgnoreCase)
-                && !parts.Skip(1).Any(p => p.Replace(" ", "").Equals("q=0", StringComparison.Ordinal)));
+                && Quality(parts.Skip(1)) > 0);
 
-    private sealed record ArchivedFile(string Original, string Served, string Encoding);
+    private static double Quality(IEnumerable<string> parameters)
+    {
+        var q = parameters
+            .Select(p => p.Trim())
+            .FirstOrDefault(p => p.StartsWith("q=", StringComparison.OrdinalIgnoreCase));
+        if (q == null)
+        {
+            return 1;
+        }
+
+        // An unparsable q-value counts as a refusal rather than a guess
+        return double.TryParse(q[2..], NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var value)
+            ? value
+            : 0;
+    }
+
+    private sealed record ArchivedFile(string Name, string Served, string Encoding);
 }

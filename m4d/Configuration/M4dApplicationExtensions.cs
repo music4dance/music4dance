@@ -507,7 +507,12 @@ public static class M4dApplicationExtensions
         // deploy can still load them once Run From Package has replaced wwwroot
         var assetArchiveOptions =
             configuration.GetSection("AssetArchive").Get<AssetArchiveOptions>() ?? new AssetArchiveOptions();
-        if (assetArchiveOptions.Enabled)
+        if (assetArchiveOptions.Enabled && string.IsNullOrEmpty(environment.WebRootPath))
+        {
+            // No wwwroot (a host without static files): nothing to archive or to fall back from
+            Console.WriteLine("Asset archive off: no web root");
+        }
+        else if (assetArchiveOptions.Enabled)
         {
             services.AddSingleton(sp => new AssetArchive(
                 Path.Combine(appDataPaths.AppData, AssetArchive.FolderName),

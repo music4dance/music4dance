@@ -179,8 +179,10 @@ background. In production that's `/home/data/m4d/AppData/asset-archive`.
 
 - **Build id:** a hash of the bundle file names. Redeploying the same client reuses its folder
   and marks it newest again.
-- **Concurrent starts:** each copy goes into a temporary folder that is then renamed. During a
-  deploy the old and new containers both run, and the first rename wins.
+- **Concurrent starts:** each copy, with its `.archived` marker, goes into a temporary folder
+  that is then renamed, so a build folder is complete when it appears. During a deploy the old
+  and new containers both run, and the first rename wins. A later start of the same build
+  rewrites the marker through a temporary file and a rename.
 - **Size:** a build is about 2.6 MB, because publish writes a `.br` and a `.gz` beside every
   bundle.
 
@@ -192,12 +194,18 @@ the static-file middleware. It handles only a `GET` or `HEAD` for a single-segme
   uses the precompressed copy the client accepts (brotli, then gzip) and gets the same immutable
   `Cache-Control` as a current bundle, so Cloudflare caches it again.
 - If no build has the file, the request passes through and 404s as before.
+- Lookups use an in-memory index of the archive's file names. It's rebuilt after this
+  instance archives, and at most once a minute otherwise, so a miss (a scanner, a real 404)
+  costs no round trips to the `/home` share. A file pruned since the index was built (by
+  another instance) also passes through.
 
 **Retention** runs after each archive:
 
 - The newest `AssetArchive:KeepBuilds` builds (default 3) are always kept.
 - An older build is kept until `AssetArchive:MinRetention` (default 48 hours) has passed since
   the build that replaced it was archived. That covers several redeploys in quick succession.
+- Abandoned temporary folders, and build folders without a marker, are removed once they're an
+  hour old.
   `MinRetention` must stay longer than the longest time anything caches HTML. The planned edge
   cache keeps anonymous HTML for a day.
 
@@ -347,9 +355,13 @@ The only automatic remedy is a forced worker replacement after an hour of contin
     requests without the sign-in cookie (`music4dance`) and takes the TTL from this header;
     signed-in requests always reach the app. The header is left off when the page differs by
     requester or would freeze a transient state: Googlebot (no AdSense in `_head.cshtml`),
-    anything `SpiderManager` calls a spider (BotWarning, the bot stub), `/admin`, and any time
-    Search, the database or App Configuration isn't healthy (`menuContext` bakes their health
-    into the page). Cached requests skip the app entirely, including the crawler throttle and
+    anything `SpiderManager` calls a spider (BotWarning, the bot stub), `/admin`, `/payment`
+    (the Stripe return pages are per checkout), and any time Search, the database or App
+    Configuration isn't healthy. Health is checked both as `_head.cshtml` rendered it (it
+    records that in `HttpContext.Items`) and when the response starts, because `menuContext`
+    bakes it into the page. A response that already sent `no-store`, `private` or
+    `Pragma: no-cache` is left as it is: antiforgery sends those whenever a page carries a form
+    token, even when it reuses the visitor's cookie and sets none. Cached requests skip the app entirely, including the crawler throttle and
     server-side analytics; page views still count through `ClientSideUsageLogging`. Setup,
     verification and turning it off are in [runbooks/edge-cache](../runbooks/edge-cache.md).
   - Responses that set any cookie are left alone. That includes the legacy server-side `Usage`

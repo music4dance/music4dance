@@ -227,4 +227,49 @@ public class AssetArchiveTests
         Assert.AreNotEqual(AssetArchive.BuildId(["a.js", "b.js"]), AssetArchive.BuildId(["a.js", "c.js"]));
         Assert.AreEqual(16, AssetArchive.BuildId(["a.js"]).Length);
     }
+
+    [TestMethod]
+    public void ArchiveCurrent_PublishesTheBuildWithItsMarker()
+    {
+        Deploy("index-AAAA1111.js");
+
+        CreateArchive().ArchiveCurrent();
+
+        var build = Path.Combine(_archiveRoot, ArchivedBuilds().Single());
+        Assert.IsTrue(File.Exists(Path.Combine(build, AssetArchive.MarkerFile)));
+        // No marker temp files left behind
+        Assert.AreEqual(2, Directory.GetFiles(build).Length);
+    }
+
+    [TestMethod]
+    public void Find_SeesAnotherInstancesBuild_OnceTheIndexExpires()
+    {
+        var archive = CreateArchive();
+        DeployAndArchive(archive, "build1-AAAA1111.js", TimeSpan.Zero);
+        Assert.IsNull(archive.Find("build2-AAAA1111.js")); // builds the index
+
+        // A second instance, sharing the archive, starts a new build
+        DeployAndArchive(CreateArchive(), "build2-AAAA1111.js", TimeSpan.Zero);
+
+        Assert.IsNull(archive.Find("build2-AAAA1111.js"), "answered from the index, not storage");
+        _clock.Now += AssetArchive.IndexLifetime;
+        Assert.IsNotNull(archive.Find("build2-AAAA1111.js"));
+    }
+
+    [TestMethod]
+    public void Prune_RemovesABuildFolderThatNeverGotAMarker_OnceItIsStale()
+    {
+        var markerless = Path.Combine(_archiveRoot, "0123456789abcdef");
+        _ = Directory.CreateDirectory(markerless);
+        Deploy("index-AAAA1111.js");
+
+        // Younger than an hour: it may still be in progress
+        CreateArchive().ArchiveCurrent();
+        Assert.IsTrue(Directory.Exists(markerless));
+
+        _clock.Now = DateTimeOffset.UtcNow.AddHours(2);
+        CreateArchive().ArchiveCurrent();
+        Assert.IsFalse(Directory.Exists(markerless));
+        Assert.AreEqual(1, ArchivedBuilds().Length);
+    }
 }

@@ -69,6 +69,7 @@ serves them ([hosting-and-identity § Bundles from earlier builds](../infrastruc
     and not starts_with(http.request.uri.path, "/identity")
     and not starts_with(http.request.uri.path, "/api")
     and not starts_with(http.request.uri.path, "/admin")
+    and not starts_with(http.request.uri.path, "/payment")
     and not cf.client.bot)
    ```
 
@@ -124,6 +125,7 @@ curl -s -o /dev/null -D - https://www.music4dance.net/dances | grep -i "cf-cache
 | Signed in: add `-H "Cookie: music4dance=x"`, or look at a page's response headers in the browser's dev tools while signed in | `cf-cache-status: DYNAMIC` |
 | `/api/health/status`, `/identity/account/login` | `DYNAMIC` |
 | A 404 (`/song/details/not-a-song`) | Not `HIT` |
+| `/home/contribute` (it has a form token), `/payment/cancel` | Not `HIT`; the origin sends no `cloudflare-cdn-cache-control` |
 
 Over the next day, check **Analytics → Caching** in Cloudflare for the HTML hit ratio, and the
 App Service **Requests** metric for the drop at the origin.

@@ -104,6 +104,9 @@ public class ArchivedAssetMiddlewareTests
     [DataRow("gzip, deflate, br", "br", "old bundle, brotli")]
     [DataRow("gzip", "gzip", "old bundle, gzip")]
     [DataRow("br;q=0, gzip", "gzip", "old bundle, gzip")]
+    [DataRow("br;q=0.0, gzip", "gzip", "old bundle, gzip")]
+    [DataRow("br; q=0.000, gzip;q=0.5", "gzip", "old bundle, gzip")]
+    [DataRow("gzip;q=1.0", "gzip", "old bundle, gzip")]
     public async Task EarlierBuildsBundle_PrefersAPrecompressedCopy(
         string acceptEncoding, string expectedEncoding, string expectedBody)
     {
@@ -175,5 +178,31 @@ public class ArchivedAssetMiddlewareTests
 
         Assert.IsTrue(passedThrough);
         Assert.AreEqual("", body);
+    }
+
+    [TestMethod]
+    [DataRow("br;q=0, gzip;q=0")]
+    [DataRow("br;q=0.0, gzip;q=0.00")]
+    [DataRow("identity")]
+    public async Task EveryCompressionRefused_ServesTheUncompressedFile(string acceptEncoding)
+    {
+        var (response, body, _) = await Invoke($"/vclient/assets/{OldBundle}", acceptEncoding: acceptEncoding);
+
+        Assert.AreEqual(0, response.Headers.ContentEncoding.Count);
+        Assert.AreEqual("old bundle", body);
+    }
+
+    [TestMethod]
+    public async Task BundlePrunedAfterTheLookup_PassesThrough()
+    {
+        // The index still lists the build when another instance deletes it
+        Assert.IsNotNull(_archive.Find(OldBundle));
+        Directory.Delete(_archive.Root, recursive: true);
+
+        var (response, body, passedThrough) = await Invoke($"/vclient/assets/{OldBundle}");
+
+        Assert.IsTrue(passedThrough);
+        Assert.AreEqual("", body);
+        Assert.AreEqual(0, response.Headers.ContentEncoding.Count);
     }
 }

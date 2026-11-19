@@ -22,8 +22,11 @@ namespace m4d.Middleware;
 /// A page gets no edge header when it differs by requester or would freeze a transient state:
 /// - Googlebot: _head.cshtml leaves the AdSense script out for it.
 /// - Anything SpiderManager calls a spider: it can get BotWarning or the bot stub instead.
-/// - Search, the database or App Configuration not healthy: menuContext bakes their health into
-///   every page, and a cached "search is unavailable" banner would outlive the outage.
+/// - Search, the database or App Configuration not healthy, as the page was rendered or when it's
+///   sent: menuContext bakes their health into every page, and a cached "search is unavailable"
+///   banner would outlive the outage.
+/// - /admin and /payment, and any response that already sent no-store, private or
+///   Pragma: no-cache (antiforgery does, for pages with a form token).
 ///
 /// Registered on its own response-starting callback; needs context.User, so it must run after
 /// UseAuthentication().
@@ -36,6 +39,14 @@ public class CacheControlMiddleware(
 
     // The services whose health _head.cshtml writes into menuContext.
     internal static readonly string[] PageHealthServices = ["SearchService", "Database", "AppConfiguration"];
+
+    // HttpContext.Items key where _head.cshtml records whether all of them were healthy as the
+    // page was rendered.
+    public const string RenderedHealthKey = "m4d.RenderedPageHealthy";
+
+    // Never edge-cached: /admin is per-user, and /payment's Stripe return pages are per checkout
+    // (Success and Cancel read session_id, have side effects and show one donor's confirmation).
+    internal static readonly string[] EdgeExcludedPrefixes = ["/admin", "/payment"];
 
     public Task InvokeAsync(HttpContext context)
     {
@@ -92,6 +103,15 @@ public class CacheControlMiddleware(
             return;
         }
 
+        // Nor ones that already opted out of caching. Antiforgery sends no-cache, no-store and
+        // Pragma: no-cache whenever it issues a form token, including when it reuses the visitor's
+        // existing cookie and so sets none: a page with someone's request token must never be
+        // shared (/home/contribute, any form tag helper with method="post").
+        if (OptedOutOfCaching(context.Response))
+        {
+            return;
+        }
+
         // Only HTML pages.
         var contentType = context.Response.ContentType?.ToLowerInvariant() ?? "";
         if (!contentType.Contains("text/html"))
@@ -119,10 +139,18 @@ public class CacheControlMiddleware(
         }
     }
 
+    internal static bool OptedOutOfCaching(HttpResponse response)
+    {
+        var directives = response.Headers.CacheControl.ToString();
+        return directives.Contains("no-store", StringComparison.OrdinalIgnoreCase)
+            || directives.Contains("private", StringComparison.OrdinalIgnoreCase)
+            || response.Headers.Pragma.ToString().Contains("no-cache", StringComparison.OrdinalIgnoreCase);
+    }
+
     internal string EdgePolicy(HttpContext context, string path)
     {
         var options = EdgeCacheOptions.FromConfiguration(configuration);
-        if (!options.Enabled || path.StartsWith("/admin"))
+        if (!options.Enabled || EdgeExcludedPrefixes.Any(p => path.StartsWith(p, StringComparison.Ordinal)))
         {
             return null;
         }
@@ -134,7 +162,13 @@ public class CacheControlMiddleware(
             return null;
         }
 
-        return PageHealthServices.All(serviceHealth.IsServiceHealthy)
+        // Health as the page showed it (see _head.cshtml), and as it is now. The current value
+        // alone could turn healthy between render and the response starting (a cooldown ending)
+        // and freeze an outage banner; pages without _head fall back to the current value.
+        var renderedHealthy = context.Items.TryGetValue(RenderedHealthKey, out var rendered)
+            ? rendered as bool? ?? false
+            : true;
+        return renderedHealthy && PageHealthServices.All(serviceHealth.IsServiceHealthy)
             ? $"max-age={options.MaxAgeSeconds}"
             : null;
     }

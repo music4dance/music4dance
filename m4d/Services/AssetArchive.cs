@@ -27,6 +27,13 @@ public partial class AssetArchive(
     private const string TempPrefix = ".tmp-";
     private static readonly TimeSpan StaleTemp = TimeSpan.FromHours(1);
 
+    // How long Find trusts its file index before listing the archive again. Another instance's
+    // archive or prune shows up within this; this instance's own refreshes the index at once.
+    internal static readonly TimeSpan IndexLifetime = TimeSpan.FromMinutes(1);
+
+    private readonly Lock _indexLock = new();
+    private volatile Index _index;
+
     public string Root { get; } = root;
 
     /// <summary>
@@ -59,9 +66,11 @@ public partial class AssetArchive(
 
         if (!Directory.Exists(target))
         {
+            // The marker goes in before the rename, so a build folder is complete when it appears
             var temp = Path.Combine(Root, $"{TempPrefix}{Guid.NewGuid():N}");
             _ = Directory.CreateDirectory(temp);
             files.ForEach(f => File.Copy(Path.Combine(currentAssets, f), Path.Combine(temp, f)));
+            File.WriteAllText(Path.Combine(temp, MarkerFile), clock.GetUtcNow().ToString("O"));
             try
             {
                 Directory.Move(temp, target);
@@ -71,29 +80,110 @@ public partial class AssetArchive(
             {
                 // Another instance archived the same build first
                 Directory.Delete(temp, recursive: true);
+                TouchMarker(target);
             }
         }
-
-        // Written on every start, so a redeploy of an older build makes it the newest again
-        File.WriteAllText(Path.Combine(target, MarkerFile), clock.GetUtcNow().ToString("O"));
+        else
+        {
+            // A redeploy of an older build makes it the newest again
+            TouchMarker(target);
+        }
 
         Prune();
+        _index = null;
+    }
+
+    // Rewrites the marker through a temporary file and a rename, so a reader never sees it half
+    // written. Losing a race with another instance doing the same is harmless: either time works.
+    private void TouchMarker(string buildPath)
+    {
+        var temp = Path.Combine(buildPath, $"{MarkerFile}{TempPrefix}{Guid.NewGuid():N}");
+        try
+        {
+            File.WriteAllText(temp, clock.GetUtcNow().ToString("O"));
+            File.Move(temp, Path.Combine(buildPath, MarkerFile), overwrite: true);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            logger.LogWarning(ex, "Couldn't update the archive marker in {Path}", buildPath);
+            try
+            {
+                File.Delete(temp);
+            }
+            catch (Exception cleanup) when (cleanup is IOException or UnauthorizedAccessException)
+            {
+                // Harmless: a dot-file is never served, and it goes when the build folder does
+            }
+        }
     }
 
     /// <summary>
-    /// The archived copy of <paramref name="fileName"/>, newest build first, or null.
+    /// The archived copy of <paramref name="fileName"/>, from the newest build that has it, or
+    /// null. Answers from an in-memory index of the archive, so a miss (a scanner, a real 404)
+    /// costs no storage round trips. The file can still have been pruned since the index was
+    /// built; callers handle it being gone.
     /// </summary>
     public string Find(string fileName)
     {
-        if (!IsSafeName(fileName) || !Directory.Exists(Root))
+        return IsSafeName(fileName) && CurrentIndex().Files.TryGetValue(fileName, out var path)
+            ? path
+            : null;
+    }
+
+    private Index CurrentIndex()
+    {
+        var now = clock.GetUtcNow();
+        var index = _index;
+        if (index != null && now - index.BuiltAt < IndexLifetime)
         {
-            return null;
+            return index;
         }
 
-        return Builds()
-            .Select(b => Path.Combine(b.Path, fileName))
-            .FirstOrDefault(File.Exists);
+        lock (_indexLock)
+        {
+            index = _index;
+            if (index == null || now - index.BuiltAt >= IndexLifetime)
+            {
+                index = new Index(now, BuildIndex());
+                _index = index;
+            }
+            return index;
+        }
     }
+
+    private Dictionary<string, string> BuildIndex()
+    {
+        var files = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (!Directory.Exists(Root))
+        {
+            return files;
+        }
+
+        try
+        {
+            foreach (var build in Builds())
+            {
+                foreach (var file in Directory.GetFiles(build.Path))
+                {
+                    var name = Path.GetFileName(file);
+                    if (IsSafeName(name))
+                    {
+                        _ = files.TryAdd(name, file); // newest build first, so the first one wins
+                    }
+                }
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // A build pruned mid-listing; what was read so far is still right, and the next
+            // refresh lists it again
+            logger.LogWarning(ex, "Couldn't list the asset archive at {Root}", Root);
+        }
+
+        return files;
+    }
+
+    private sealed record Index(DateTimeOffset BuiltAt, Dictionary<string, string> Files);
 
     internal void Prune()
     {
@@ -106,10 +196,14 @@ public partial class AssetArchive(
                 && now - builds[x.index - 1].ArchivedAt >= options.MinRetention)
             .Select(x => x.build.Path);
 
-        var staleTemps = Directory.GetDirectories(Root, $"{TempPrefix}*")
+        // Abandoned copies, and build folders that never got a marker (written by an older
+        // version of this code, or damaged); a folder younger than this may still be in progress
+        var stale = Directory.GetDirectories(Root)
+            .Where(d => Path.GetFileName(d).StartsWith(TempPrefix, StringComparison.Ordinal)
+                || !Path.GetFileName(d).StartsWith('.') && ReadMarker(d) == null)
             .Where(d => now - Directory.GetCreationTimeUtc(d) >= StaleTemp);
 
-        foreach (var path in expired.Concat(staleTemps).ToList())
+        foreach (var path in expired.Concat(stale).ToList())
         {
             try
             {

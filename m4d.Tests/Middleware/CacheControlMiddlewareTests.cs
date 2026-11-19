@@ -5,9 +5,15 @@ using System.Security.Claims;
 using m4d.Middleware;
 using m4d.Services.ServiceHealth;
 
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace m4d.Tests.Middleware;
@@ -62,7 +68,9 @@ public class CacheControlMiddlewareTests
         int status = StatusCodes.Status200OK,
         string contentType = "text/html; charset=utf-8",
         string method = "GET",
-        bool setCookie = false)
+        bool setCookie = false,
+        Action<HttpResponse> respond = null,
+        bool? renderedHealthy = null)
     {
         var feature = new StartableResponseFeature();
         var context = new DefaultHttpContext();
@@ -83,6 +91,11 @@ public class CacheControlMiddlewareTests
             {
                 ctx.Response.Headers.SetCookie = "music4dance=abc; path=/";
             }
+            if (renderedHealthy != null)
+            {
+                ctx.Items[CacheControlMiddleware.RenderedHealthKey] = renderedHealthy.Value;
+            }
+            respond?.Invoke(ctx.Response);
             return Task.CompletedTask;
         }, configuration ?? Config(), health ?? Healthy());
 
@@ -176,6 +189,8 @@ public class CacheControlMiddlewareTests
     [DataRow("/identity/account/login")]
     [DataRow("/song/rawsearchform")]
     [DataRow("/admin/diagnostics")]
+    [DataRow("/payment/success?session_id=cs_test_123")]
+    [DataRow("/payment/cancel")]
     public async Task ExcludedPaths_AreNotEdgeCached(string path)
     {
         var response = await Invoke(path);
@@ -195,5 +210,70 @@ public class CacheControlMiddlewareTests
     {
         var response = await Invoke("/identity/account/login", status: StatusCodes.Status302Found);
         Assert.AreEqual(CacheControlMiddleware.NoStore, response.Headers.CacheControl.ToString());
+    }
+
+    [TestMethod]
+    [DataRow("no-cache, no-store", null)]
+    [DataRow("private, max-age=60", null)]
+    [DataRow(null, "no-cache")]
+    public async Task ResponseThatOptedOutOfCaching_KeepsItsHeaders_AndIsNotEdgeCached(
+        string cacheControl, string pragma)
+    {
+        var response = await Invoke(respond: r =>
+        {
+            if (cacheControl != null)
+            {
+                r.Headers.CacheControl = cacheControl;
+            }
+            if (pragma != null)
+            {
+                r.Headers.Pragma = pragma;
+            }
+        });
+
+        Assert.AreEqual("", Edge(response));
+        Assert.AreEqual(cacheControl ?? "", response.Headers.CacheControl.ToString());
+        Assert.AreEqual(pragma ?? "", response.Headers.Pragma.ToString());
+    }
+
+    [TestMethod]
+    public async Task FormTokenPage_WithTheVisitorsExistingCookie_IsNotEdgeCached()
+    {
+        // The real antiforgery service: the second visit reuses the cookie from the first, so the
+        // response sets no cookie, but it still carries that visitor's request token
+        var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+        {
+            EnvironmentName = Environments.Production,
+        });
+        builder.WebHost.UseTestServer();
+        builder.Services.AddAntiforgery();
+        await using var app = builder.Build();
+        app.UseMiddleware<CacheControlMiddleware>(Config(), Healthy());
+        app.MapGet("/home/contribute", (HttpContext context, IAntiforgery antiforgery) =>
+        {
+            var token = antiforgery.GetAndStoreTokens(context).RequestToken;
+            return Results.Content($"<form><input name=\"t\" value=\"{token}\"></form>", "text/html");
+        });
+        await app.StartAsync();
+        using var client = app.GetTestClient();
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(Browser);
+
+        var first = await client.GetAsync("/home/contribute");
+        var cookie = first.Headers.GetValues("Set-Cookie").First().Split(';')[0];
+
+        using var second = new HttpRequestMessage(HttpMethod.Get, "/home/contribute");
+        second.Headers.Add("Cookie", cookie);
+        var response = await client.SendAsync(second);
+
+        Assert.IsFalse(response.Headers.Contains("Set-Cookie"));
+        Assert.IsFalse(response.Headers.Contains(CacheControlMiddleware.EdgeCacheHeader));
+        Assert.IsTrue(response.Headers.CacheControl?.NoStore, "antiforgery's no-store survives");
+    }
+
+    [TestMethod]
+    public async Task PageRenderedWhileAServiceWasDown_IsNotEdgeCached_EvenIfHealthyNow()
+    {
+        Assert.AreEqual("", Edge(await Invoke(renderedHealthy: false)));
+        Assert.AreEqual("max-age=86400", Edge(await Invoke(renderedHealthy: true)));
     }
 }
