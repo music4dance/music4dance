@@ -197,6 +197,11 @@ public static class M4dApplicationExtensions
                 // Fast registration - skip validation, Azure SDK will handle invalid endpoints
                 Console.WriteLine($"[Search] Registering {indexSections.Count} search index clients (fast startup mode)");
 
+                // One breaker for every Search client: they share the service's capacity
+                services.AddSingleton<SearchCircuitBreaker>();
+                static void AddSearchCircuitBreaker(ClientOptions options, IServiceProvider provider) =>
+                    options.AddPolicy(provider.GetRequiredService<SearchCircuitBreaker>(), HttpPipelinePosition.PerRetry);
+
                 services.AddAzureClients(clientBuilder =>
                 {
                     Console.WriteLine("[Search] Using shared DefaultAzureCredential");
@@ -206,7 +211,8 @@ public static class M4dApplicationExtensions
                     {
                         var endpoint = section["endpoint"];
                         Console.WriteLine($"[Search] Registering: {section.Key} -> {endpoint}");
-                        _ = AzureSearchExtensions.AddSearchClient(clientBuilder, section).WithName(section.Key);
+                        _ = AzureSearchExtensions.AddSearchClient(clientBuilder, section).WithName(section.Key)
+                            .ConfigureOptions(AddSearchCircuitBreaker);
                     }
 
                     // Add a single SearchIndexClient named "SongIndex"
@@ -220,7 +226,8 @@ public static class M4dApplicationExtensions
                         var endpoint = firstSongIndexSection["endpoint"];
 
                         Console.WriteLine($"[Search] Registering SearchIndexClient: SongIndex -> {endpoint}");
-                        _ = AzureSearchExtensions.AddSearchIndexClient(clientBuilder, firstSongIndexSection).WithName("SongIndex");
+                        _ = AzureSearchExtensions.AddSearchIndexClient(clientBuilder, firstSongIndexSection).WithName("SongIndex")
+                            .ConfigureOptions(AddSearchCircuitBreaker);
                     }
                     Console.WriteLine("[Search] All search clients registered");
                 });
@@ -510,8 +517,17 @@ public static class M4dApplicationExtensions
                 // Bridges SongIndex's post-success signal (ISearchServiceManager.ReportSearchSuccess)
                 // to ServiceHealthManager, so a service marked Unavailable by a transient search
                 // failure clears immediately the next time a live search actually succeeds,
-                // instead of only via ServiceHealthManager's cooldown-based inference.
-                manager.OnSearchSuccess = () => serviceHealth.MarkHealthy("SearchService");
+                // instead of only via ServiceHealthManager's cooldown-based inference. While the
+                // circuit breaker is open, a success can only be a request sent before it opened,
+                // so it's ignored; the breaker marks Search healthy when its probe succeeds.
+                var breaker = sp.GetService<SearchCircuitBreaker>();
+                manager.OnSearchSuccess = () =>
+                {
+                    if (breaker?.IsOpen != true)
+                    {
+                        serviceHealth.MarkHealthy("SearchService");
+                    }
+                };
                 return manager;
             });
             services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(
