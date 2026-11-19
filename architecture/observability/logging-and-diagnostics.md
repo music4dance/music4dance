@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-16
+**Last verified:** 2026-11-19
 **Code:** `m4d/Configuration/M4dApplicationExtensions.cs` (logging setup),
 `m4d/Services/Diagnostics/` (`GcDiagnostics`, `GcSnapshot`, `DumpResult`),
 `m4d/Controllers/AdminController.cs`, `m4d/Views/Admin/Diagnostics.cshtml`,
@@ -17,7 +17,7 @@ covered in [service-resilience](../infrastructure/service-resilience.md).
 ## Application logs
 
 **Providers.** Logging is reset and configured in `M4dApplicationExtensions`, with two providers:
-`AddConsole()` and `AddAzureWebAppDiagnostics()`. Log levels come from configuration
+`AddConsole()` and `AddAzureWebAppDiagnostics()` (in `AddM4dLogging`). Log levels come from configuration
 (`appsettings*.json` / App Configuration). Startup also writes progress lines with
 `Console.WriteLine`, including the service-health startup report.
 
@@ -40,6 +40,11 @@ az webapp log config --name <app> --resource-group m4d-Web \
   [runbooks/read-production-logs](../runbooks/read-production-logs.md).
 - It's a **rolling, quota-bound window**: free, but not durable or long-term, not queryable, and
   without alerting.
+- The file logger writes one `diagnostics-YYYYMMDD.txt` per UTC day and keeps 2. Past its
+  `FileSizeLimit` it **silently drops the rest of the day**. `AddM4dLogging` raises the limit
+  from the 10 MB default to 50 MB (`AzureFileLogSizeLimitBytes`), because a Search throttling
+  burst on 2026-11-18 filled 10 MB in about 8 minutes and hid the next 4¾ hours. Container
+  stdout keeps logging past the cap until it rotates.
 - On Linux, the Portal's toggle only offers "Gather STDOUT/STDERR", with no level control. Set both
   CLI flags together. The command overwrites the whole logs configuration; when it was applied,
   HTTP-log retention changed to 3 days / 100 MB, which was accepted.

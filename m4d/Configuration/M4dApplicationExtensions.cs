@@ -25,6 +25,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging.AzureAppServices;
 using Microsoft.FeatureManagement;
 using Microsoft.Data.SqlClient;
 
@@ -83,10 +84,7 @@ public static class M4dApplicationExtensions
 
         Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] Configuring logging");
 
-        var logging = builder.Logging;
-        logging.ClearProviders();
-        logging.AddConsole();
-        logging.AddAzureWebAppDiagnostics();
+        AddM4dLogging(builder.Logging);
 
         // Log level filters should be set via configuration (see appsettings.json / appsettings.Production.json)
 
@@ -600,6 +598,25 @@ public static class M4dApplicationExtensions
         services.AddHostedService<StartupInitializationService>();
 
         return builder;
+    }
+
+    /// <summary>
+    /// The most the App Service file logger writes to one day's
+    /// <c>LogFiles/Application/diagnostics-YYYYMMDD.txt</c>. Past it, the provider silently drops
+    /// every message until the next UTC day. Its 10 MB default filled in about 8 minutes of a
+    /// Search throttling burst on 2026-11-18 (Azure.Core logs each 503 with its headers), which
+    /// hid the rest of that day's warnings and errors. It keeps 2 files, so this is ~100 MB of
+    /// <c>/home</c>.
+    /// </summary>
+    internal const int AzureFileLogSizeLimitBytes = 50 * 1024 * 1024;
+
+    internal static void AddM4dLogging(ILoggingBuilder logging)
+    {
+        logging.ClearProviders();
+        logging.AddConsole();
+        logging.AddAzureWebAppDiagnostics();
+        _ = logging.Services.Configure<AzureFileLoggerOptions>(
+            options => options.FileSizeLimit = AzureFileLogSizeLimitBytes);
     }
 
     public static async Task<WebApplication> UseM4dPipeline(

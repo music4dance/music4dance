@@ -171,12 +171,7 @@ public class DanceMusicController(
     protected SongFilter GetFilterFromContext(ActionExecutingContext context)
     {
         var user = UserName;
-        var request = context.HttpContext.Request;
-        var filterString = request.Query["filter"];
-        if (string.IsNullOrWhiteSpace(filterString) && request.Method.Equals("POST", StringComparison.OrdinalIgnoreCase))
-        {
-            filterString = context.HttpContext.Request.Form["filter"];
-        }
+        var filterString = ReadFilterString(context.HttpContext.Request);
         SongFilter filter;
         if (!string.IsNullOrEmpty(filterString))
         {
@@ -189,6 +184,22 @@ public class DanceMusicController(
         }
 
         return filter;
+    }
+
+    /// <summary>
+    /// The raw <c>filter</c> value from the query string, or from a POST's form body. Reading
+    /// <see cref="HttpRequest.Form"/> throws when the body isn't form-encoded (a POST with no
+    /// Content-Type, or JSON), so those fall back to the default filter instead of a 500.
+    /// </summary>
+    internal static string ReadFilterString(HttpRequest request)
+    {
+        string filterString = request.Query["filter"];
+        if (string.IsNullOrWhiteSpace(filterString) && HttpMethods.IsPost(request.Method) &&
+            request.HasFormContentType)
+        {
+            filterString = request.Form["filter"];
+        }
+        return filterString;
     }
 
     protected UseVue UseVue { get; set; } = UseVue.No;
