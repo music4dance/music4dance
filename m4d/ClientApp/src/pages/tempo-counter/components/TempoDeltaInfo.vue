@@ -3,7 +3,12 @@ import { TempoType } from "@/models/DanceDatabase/TempoType";
 import { DanceOrder } from "@/models/DanceDatabase/DanceOrder";
 import { computed } from "vue";
 
-const props = defineProps<{ dance: DanceOrder; tempoType: number; hideLink: boolean }>();
+const props = defineProps<{
+  dance: DanceOrder;
+  tempoType: number;
+  hideLink: boolean;
+  showPitch?: boolean;
+}>();
 
 const emit = defineEmits<{ "choose-dance": [danceId: string, ctrl: boolean] }>();
 const variant = computed(() => {
@@ -24,6 +29,12 @@ const deltaMessage = computed(() => {
   const abs = Math.abs(measures ? props.dance.deltaMpm : props.dance.delta).toFixed(1);
   return abs + " " + (measures ? "M" : "B") + "PM " + (slower ? "slow" : "fast");
 });
+
+// Signed the way a pitch fader is labeled: "−" slows the song down, "+" speeds it up.
+const pitchMessage = computed(() => {
+  const pitch = props.dance.pitchPercent;
+  return "Pitch " + (pitch < 0 ? "−" : "+") + Math.abs(pitch).toFixed(1) + "%";
+});
 </script>
 
 <template>
@@ -40,6 +51,15 @@ const deltaMessage = computed(() => {
       :show-meter="true"
       :hide-link="hideLink"
     />
-    <BBadge v-show="showDelta" :variant="variant">{{ deltaMessage }}</BBadge>
+    <span v-show="showDelta" class="text-nowrap">
+      <BBadge :variant="variant">{{ deltaMessage }}</BBadge>
+      <BBadge
+        v-if="showPitch"
+        :variant="variant"
+        class="ms-1"
+        title="Set your CD player's or DJ deck's pitch (tempo) control to this to play the song at this dance's tempo"
+        >{{ pitchMessage }}</BBadge
+      >
+    </span>
   </BListGroupItem>
 </template>

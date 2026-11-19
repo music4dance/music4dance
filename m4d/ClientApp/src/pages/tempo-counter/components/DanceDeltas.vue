@@ -12,6 +12,7 @@ const props = defineProps<{
   epsilonPercent: number;
   tempoType: number;
   hideNameLink: boolean;
+  showPitch?: boolean;
 }>();
 
 const duplefilter = new DanceFilter({ meters: [new Meter(2, 4), new Meter(4, 4)] });
@@ -45,6 +46,7 @@ const orderedDances = computed(() => {
         :dance="ds"
         :tempo-type="tempoType"
         :hide-link="hideNameLink"
+        :show-pitch="showPitch"
         v-bind="$attrs"
       />
     </BListGroup>

@@ -88,6 +88,7 @@ defineExpose({
       :tempo-type="tempoType"
       :epsilon-percent="epsilonPercent"
       :hide-name-link="true"
+      :show-pitch="true"
       @choose-dance="chooseDance"
     />
   </PageFrame>

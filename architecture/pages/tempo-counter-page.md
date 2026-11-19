@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Last verified:** 2026-11-19 (pitch badge added; other behavior not re-traced)
 **Code:** `m4d/ClientApp/src/pages/tempo-counter/`, `m4d/Controllers/HomeController.cs` (`Counter`)
 
 ## Overview
@@ -141,6 +141,14 @@ Owns the tap-tempo state machine and the manual-entry widgets. All state is pass
   so without the meter a 2/4 dance reads as twice the tempo of the counter's 4/4 MPM.
 - A `BBadge` (same variant) shows e.g. `"2.3 BPM fast"`/`"1.1 MPM slow"` — units follow
   `tempoType` (Beats vs. Measures), matching whichever mode `countMethod` is currently in.
+- When `showPitch` is set (only this page sets it; `DanceChooser`'s "By Tempo" tab doesn't), a
+  second badge shows the pitch-control setting that brings the song to the dance's nearest range
+  edge, e.g. `"Pitch −8.6%"`: `DanceOrder.pitchPercent`, from
+  `TempoRange.calculatePitchPercent` = `(edge − tempo) / tempo × 100`. This is deliberately
+  relative to the *song's* tempo, since that is what a CD/DJ pitch fader scales. `deltaPercent` is
+  relative to the range edge, so it can't be reused here (140 BPM vs. a 128 max is 9.4% by
+  `deltaPercent`, but the fader setting is −8.6%). It is the same number tempo-stretch tools show
+  as a playback rate (91.4%), minus 100.
 - Clicking a row emits `choose-dance(danceId, ctrlKey)`; `App.vue`'s `chooseDance(danceId)` handler
   only declares one parameter, so the `ctrlKey` argument is silently dropped — there's currently no
   distinction between a plain click and a ctrl/cmd-click (both `window.open(..., "_blank")` to

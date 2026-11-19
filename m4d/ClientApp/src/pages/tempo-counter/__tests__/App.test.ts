@@ -142,6 +142,13 @@ describe("tempo-counter App.vue", () => {
       expect(justOutside.text()).not.toContain("Cha Cha");
       expect(justInside.text()).toContain("Cha Cha");
     });
+
+    test("an out-of-range match shows the pitch-control percentage that brings it into range", () => {
+      // 140 BPM against Cha Cha's max of 128: 128 / 140 = 91.43% speed, i.e. -8.6% pitch.
+      const wrapper = mountTempoCounter({ numerator: 4, tempo: 140, epsilon: 10 });
+
+      expect(wrapper.text()).toContain("Pitch −8.6%");
+    });
   });
 
   describe("shareable URL (useUrlQuerySync)", () => {
