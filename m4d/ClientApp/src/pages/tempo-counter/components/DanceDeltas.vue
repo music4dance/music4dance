@@ -4,16 +4,22 @@ import type { DanceType } from "@/models/DanceDatabase/DanceType";
 import { DanceFilter } from "@/models/DanceDatabase/DanceFilter";
 import { Meter } from "@/models/DanceDatabase/Meter";
 import { DanceDatabase } from "@/models/DanceDatabase/DanceDatabase";
+import type { DeltaMetric } from "../deltaMetrics";
 
-const props = defineProps<{
-  dances: DanceType[];
-  beatsPerMinute: number;
-  beatsPerMeasure: number;
-  epsilonPercent: number;
-  tempoType: number;
-  hideNameLink: boolean;
-  showPitch?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    dances: DanceType[];
+    beatsPerMinute: number;
+    beatsPerMeasure: number;
+    epsilonPercent: number;
+    tempoType: number;
+    hideNameLink: boolean;
+    // Which badges to show for a near-miss dance (see deltaMetrics.ts). Only the Tempo Counter
+    // page offers the pitch/speed badges; other callers (DanceChooser) keep the tempo one alone.
+    metrics?: DeltaMetric[];
+  }>(),
+  { metrics: () => ["tempo"] },
+);
 
 const duplefilter = new DanceFilter({ meters: [new Meter(2, 4), new Meter(4, 4)] });
 const triplefilter = new DanceFilter({ meters: [new Meter(3, 4)] });
@@ -46,7 +52,7 @@ const orderedDances = computed(() => {
         :dance="ds"
         :tempo-type="tempoType"
         :hide-link="hideNameLink"
-        :show-pitch="showPitch"
+        :metrics="metrics"
         v-bind="$attrs"
       />
     </BListGroup>

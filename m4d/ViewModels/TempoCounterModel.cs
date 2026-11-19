@@ -6,4 +6,5 @@ public class TempoCounterModel
     public decimal? Tempo { get; set; }
     public string Count { get; set; }
     public decimal? Epsilon { get; set; }
+    public List<string> Show { get; set; }
 }

@@ -12,6 +12,7 @@ import {
   DEFAULT_NUMERATOR,
   DEFAULT_TEMPO,
 } from "../QueryValidation";
+import { defaultDeltaMetrics } from "../deltaMetrics";
 
 const mockContext = new MenuContext({
   userName: "dwgray",
@@ -148,6 +149,67 @@ describe("tempo-counter App.vue", () => {
       const wrapper = mountTempoCounter({ numerator: 4, tempo: 140, epsilon: 10 });
 
       expect(wrapper.text()).toContain("Pitch −8.6%");
+    });
+  });
+
+  describe("which details to show (?show=)", () => {
+    // 140 BPM against Cha Cha's max of 128 is 3.0 MPM fast, -8.6% pitch, 91.4% speed.
+    const nearMiss = { numerator: 4, tempo: 140, count: "measures", epsilon: 10 };
+
+    // Scoped to one row's badges: the page text also contains the chooser's option labels.
+    function chaChaBadges(wrapper: VueWrapper<InstanceType<typeof App>>): string[] {
+      const row = wrapper.findAll(".list-group-item").find((r) => r.text().includes("Cha Cha"));
+      if (!row) {
+        throw new Error("No Cha Cha row found");
+      }
+      return row.findAll(".badge").map((b) => b.text());
+    }
+
+    test("defaults to the tempo difference and pitch, with speed opt-in", () => {
+      const wrapper = mountTempoCounter(nearMiss);
+
+      expect(wrapper.vm.metrics).toEqual(defaultDeltaMetrics);
+      expect(chaChaBadges(wrapper)).toEqual(["3.0 MPM fast", "Pitch −8.6%"]);
+    });
+
+    test("seeds the shown details from the server-provided model", () => {
+      const wrapper = mountTempoCounter({ ...nearMiss, show: ["speed"] });
+
+      expect(chaChaBadges(wrapper)).toEqual(["Speed 91.4%"]);
+    });
+
+    test("all three details render in a fixed order regardless of the seeded order", () => {
+      const wrapper = mountTempoCounter({ ...nearMiss, show: ["speed", "pitch", "tempo"] });
+
+      expect(chaChaBadges(wrapper)).toEqual(["3.0 MPM fast", "Pitch −8.6%", "Speed 91.4%"]);
+    });
+
+    test("unknown keys are silently dropped", () => {
+      const wrapper = mountTempoCounter({ ...nearMiss, show: ["speed", "not-a-real-metric"] });
+
+      expect(wrapper.vm.metrics).toEqual(["speed"]);
+    });
+
+    test("the explanatory note only appears when pitch or speed is shown", () => {
+      expect(mountTempoCounter({ ...nearMiss, show: ["tempo"] }).text()).not.toContain(
+        "tempo-change software",
+      );
+      expect(mountTempoCounter({ ...nearMiss, show: ["speed"] }).text()).toContain(
+        "tempo-change software",
+      );
+    });
+
+    test("the address bar omits show at its default and lists a custom selection", async () => {
+      const wrapper = mountTempoCounter(nearMiss);
+      expect(new URLSearchParams(window.location.search).has("show")).toBe(false);
+
+      wrapper.vm.metrics = ["tempo", "speed"];
+      await nextTick();
+
+      expect(new URLSearchParams(window.location.search).getAll("show")).toEqual([
+        "tempo",
+        "speed",
+      ]);
     });
   });
 

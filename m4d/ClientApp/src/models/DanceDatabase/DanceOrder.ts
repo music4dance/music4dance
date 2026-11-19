@@ -5,6 +5,11 @@ export class DanceOrder {
   public delta: number;
   public deltaPercent: number;
   public pitchPercent: number;
+  // The same adjustment as pitchPercent, expressed as a playback rate where 100% = unchanged
+  // (e.g. 128 / 140 = 91.4%): how tempo-change software usually asks for it.
+  public get speedPercent(): number {
+    return 100 + this.pitchPercent;
+  }
   public get deltaPercentAbsolute(): number {
     return Math.abs(this.deltaPercent);
   }
