@@ -1,3 +1,5 @@
+#nullable disable
+
 using AutoMapper;
 
 using m4d.Controllers;
