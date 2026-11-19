@@ -93,6 +93,8 @@ public class FeaturedCleanupTests
     [DataRow("Lady Antebellum", "Lady A")]
     [DataRow("The New 101 Strings Orch.", "101 Strings Orchestra")]
     [DataRow("Pinkerton", "Pinkerton")]
+    [DataRow("Juan Luis Guerra", "Juan Luis Guerra 4.40")]
+    [DataRow("Michael P. Kramer", "Michael Paul Kramer")]
     public void ArtistAliases_PreferredName(string name, string expected)
     {
         Assert.AreEqual(expected, ArtistAliases.PreferredName(name));

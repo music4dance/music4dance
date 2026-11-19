@@ -5943,28 +5943,29 @@ public class Song : TaggableObject
             return false;
         }
 
-        // Normalize to remove accents (e.g., "Versión" → "Version")
-        var normalized = parenContent.Normalize(NormalizationForm.FormD);
-        var sb = new StringBuilder();
-        foreach (var c in normalized)
+        // Check for exclusion words (e.g., "Instrumental", "Vocal", "Live")
+        var upper = UpperWithoutAccents(parenContent);
+        return ExclusionWords.Any(word => upper.Contains(word)) || NamesADance(parenContent);
+    }
+
+    /// <summary>
+    /// Whether the text (a version note such as "Salsa Version" or "128 BPM Remix") is about a
+    /// dance or a tempo: a numeric BPM marker, or a dance's name, synonym or one of their
+    /// significant words (Dances.GetAllDanceWordsUpper). Such a version is danced differently, so
+    /// it isn't the same song as the plain title.
+    /// </summary>
+    public static bool NamesADance(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
         {
-            var uc = GetUnicodeCategory(c);
-            if (uc != UnicodeCategory.NonSpacingMark)
-            {
-                _ = sb.Append(c);
-            }
+            return false;
         }
-        var upper = sb.ToString().ToUpperInvariant();
+
+        var upper = UpperWithoutAccents(text);
 
         // Check for numeric BPM marker (e.g., "128 BPM", "130 BPM", "128BPM")
         // Pattern: digit(s) + optional space(s) + "BPM"
         if (BpmPattern.IsMatch(upper))
-        {
-            return true;
-        }
-
-        // Check for exclusion words (e.g., "Instrumental", "Vocal", "Live")
-        if (ExclusionWords.Any(word => upper.Contains(word)))
         {
             return true;
         }
@@ -5979,9 +5980,25 @@ public class Song : TaggableObject
             return CommonDanceNames.Any(danceWord => upper.Contains(danceWord));
         }
 
-        // Check if any dance words (names, synonyms, or fragments) appear in the parenthetical content
+        // Check if any dance words (names, synonyms, or fragments) appear in the text
         var allDanceWords = danceLibrary.GetAllDanceWordsUpper();
         return allDanceWords.Any(danceWord => upper.Contains(danceWord));
+    }
+
+    // Upper case without accents ("Versión" is "VERSION")
+    private static string UpperWithoutAccents(string text)
+    {
+        var normalized = text.Normalize(NormalizationForm.FormD);
+        var sb = new StringBuilder();
+        foreach (var c in normalized)
+        {
+            var uc = GetUnicodeCategory(c);
+            if (uc != UnicodeCategory.NonSpacingMark)
+            {
+                _ = sb.Append(c);
+            }
+        }
+        return sb.ToString().ToUpperInvariant();
     }
 
     // TODO: This should really end up in a utility class at some point

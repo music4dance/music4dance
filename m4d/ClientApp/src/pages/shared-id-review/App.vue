@@ -200,9 +200,11 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
       "X"), or leave out artists ("X" and "X &amp; Y") when the song credited to X alone has a
       Spotify or iTunes track of its own that lists them all. All of them skip clusters with a
       rejected pair, a .NoMerge song, a song with no artist, or lengths more than 15 seconds apart.
-      <strong>Preview merges</strong> works out what each would merge and what the merged songs
-      would be called, without merging anything, and sorts this page by it;
-      <strong>Show preview</strong> lists the result.
+      Titles count as the same once the qualifiers at their end come off ("Song - Radio Edit" and
+      "Song - Big Band Version" are "Song"), unless a qualifier names a dance or a tempo ("Song -
+      Salsa Version", "Song - 128 BPM"). <strong>Preview merges</strong> works out what each would
+      merge and what the merged songs would be called, without merging anything, and sorts this page
+      by it; <strong>Show preview</strong> lists the result.
     </p>
 
     <BAlert v-if="model.message" :model-value="true" variant="info">{{ model.message }}</BAlert>

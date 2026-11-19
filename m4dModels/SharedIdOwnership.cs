@@ -141,7 +141,7 @@ public static class SharedIdOwners
 
         // The fuzzy match passes "Song" for "Song - Salsa Version"; a song whose title is the
         // track's, without feat. clauses and version notes, wins over the ones that only match
-        var exact = named.Where(s => SharedIdMatcher.SameTitleWithoutFeaturing(s.Title, track.Name)).ToList();
+        var exact = named.Where(s => SharedIdMatcher.SameVersionWithoutFeaturing(s.Title, track.Name)).ToList();
         if (exact.Count > 0)
         {
             named = exact;

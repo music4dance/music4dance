@@ -85,18 +85,19 @@ public static class SharedIdMatcher
     public static string LeadKey(Song song) => ArtistKey(Lead(song));
 
     /// <summary>
-    /// The title without its feat. clause or version notes (WithoutVersionNotes), as the title
-    /// merge candidates compare titles (Song.CreateTitleHash).
+    /// The title without its feat. clause, version notes (WithoutVersionNotes) or the qualifiers
+    /// that don't change how it's danced (WithoutQualifiers), as the title merge candidates
+    /// compare titles (Song.CreateTitleHash).
     /// </summary>
     public static int TitleKey(string title) =>
-        Song.CreateTitleHash(WithoutVersionNotes(ArtistSplitter.RemoveTitleFeaturing(title)));
+        Song.CreateTitleHash(WithoutQualifiers(WithoutVersionNotes(ArtistSplitter.RemoveTitleFeaturing(title))));
 
     // A note at the end of a title that a service adds to the same recording: "- Remastered
     // 2011", "(2011 Remaster)", "[Digitally Remastered]", "- Remastered Version", "- Single
     // Version", after a dash, a colon or in brackets
     private static readonly Regex VersionNote = new(
         @"\s*(?:[-\u2013\u2014:]\s*|[\(\[]\s*)(?:(?:19|20)\d{2}\s+)?(?:digital(?:ly)?\s+)?" +
-        @"(?:remaster(?:ed)?|single\s+version)(?:\s+(?:version|edition))?(?:\s+(?:19|20)\d{2})?" +
+        @"(?:remaster(?:ed|is[e\u00e9]e?)?|single\s+version)(?:\s+(?:version|edition))?(?:\s+(?:19|20)\d{2})?" +
         @"(?:\s+version)?\s*[\)\]]?\s*$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -122,6 +123,38 @@ public static class SharedIdMatcher
         return stripped;
     }
 
+    // A qualifier at the end of a title, after a spaced dash or in brackets: "- Radio Edit",
+    // "(Big Band Version)"
+    private static readonly Regex Qualifier = new(
+        @"(?:\s+[-\u2013\u2014]\s+(?<note>[^-\u2013\u2014]+)|\s*[\(\[](?<note>[^\(\)\[\]]+)[\)\]])\s*$",
+        RegexOptions.Compiled);
+
+    /// <summary>
+    /// The title without the qualifiers at its end ("Song - Radio Edit", "Song - Big Band Version",
+    /// "Song (Remix)" are all "Song"): versions danced the same way, so the review groups them
+    /// with the plain title. A qualifier that names a dance or a tempo ("- Salsa Version", "(128
+    /// BPM)", Song.NamesADance) stays, and so does one with a feat. clause in it, which is the
+    /// WithoutFeaturing tier's to compare; so does the title when it's nothing but qualifiers.
+    /// </summary>
+    public static string WithoutQualifiers(string title)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            return title;
+        }
+
+        var stripped = title.TrimEnd();
+        while (Qualifier.Match(stripped) is { Success: true } match &&
+            !Song.NamesADance(match.Groups["note"].Value) &&
+            ArtistSplitter.RemoveTitleFeaturing(match.Groups["note"].Value) == match.Groups["note"].Value &&
+            stripped[..match.Index].Trim().Length > 0)
+        {
+            stripped = stripped[..match.Index].TrimEnd();
+        }
+
+        return stripped;
+    }
+
     private static bool TitlesMatchWithoutFeaturing(IReadOnlyList<Song> songs) =>
         songs.All(s => SameTitleWithoutFeaturing(s.Title, songs[0].Title));
 
@@ -135,17 +168,33 @@ public static class SharedIdMatcher
         new([.. ArtistSplitter.ArtistKey(WithoutVersionNotes(title) ?? "").Where(char.IsLetterOrDigit)]);
 
     /// <summary>
-    /// The same title: the same Song.CreateTitleHash normal form without version notes, or the
-    /// same letters and digits (SquashedTitle).
+    /// The same title of the same version: the same Song.CreateTitleHash normal form without
+    /// version notes, or the same letters and digits (SquashedTitle).
     /// </summary>
-    public static bool SameTitle(string a, string b) =>
+    public static bool SameVersionTitle(string a, string b) =>
         Song.CreateTitleHash(WithoutVersionNotes(a)) == Song.CreateTitleHash(WithoutVersionNotes(b)) ||
         SquashedTitle(a) is { Length: > 0 } squashed && squashed == SquashedTitle(b);
+
+    /// <summary>
+    /// The same title, as the review's tiers group songs: SameVersionTitle as given or without
+    /// the qualifiers that don't change how the song is danced (WithoutQualifiers), so "Song -
+    /// Radio Edit" is "Song" but "Song - Salsa Version" isn't.
+    /// </summary>
+    public static bool SameTitle(string a, string b) =>
+        SameVersionTitle(a, b) || SameVersionTitle(WithoutQualifiers(WithoutVersionNotes(a)),
+            WithoutQualifiers(WithoutVersionNotes(b)));
 
     /// <summary>SameTitle once the titles' feat. clauses come out (TitleKey).</summary>
     public static bool SameTitleWithoutFeaturing(string a, string b) =>
         TitleKey(a) == TitleKey(b) ||
         SameTitle(ArtistSplitter.RemoveTitleFeaturing(a), ArtistSplitter.RemoveTitleFeaturing(b));
+
+    /// <summary>
+    /// SameVersionTitle once the titles' feat. clauses come out: "Song - Acoustic" isn't "Song",
+    /// for telling which of the versions a service's track is.
+    /// </summary>
+    public static bool SameVersionWithoutFeaturing(string a, string b) =>
+        SameVersionTitle(ArtistSplitter.RemoveTitleFeaturing(a), ArtistSplitter.RemoveTitleFeaturing(b));
 
     /// <summary>
     /// Every song has the same title (SameTitle) and the same (non-empty) artist, compared the

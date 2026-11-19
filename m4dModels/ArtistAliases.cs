@@ -17,6 +17,12 @@ public static class ArtistAliases
         ],
         ["Lady A", "Lady Antebellum"],
         ["P!nk", "Pink"],
+        ["Andy Fortuna", "Andy Fortuna Productions"],
+        ["Orquesta Yambao", "Yambao Orquesta"],
+        ["El Gran Combo", "El Gran Combo De Puerto Rico"],
+        ["Michael Paul Kramer", "Michael P. Kramer"],
+        ["Juan Luis Guerra 4.40", "Juan Luis Guerra"],
+        ["Sasha Alex Sloan", "Sasha Sloan"],
     ];
 
     private static readonly Dictionary<string, string> Preferred = Aliases

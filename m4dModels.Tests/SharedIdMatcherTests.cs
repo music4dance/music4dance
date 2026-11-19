@@ -9,6 +9,13 @@ namespace m4dModels.Tests;
 [TestClass]
 public class SharedIdMatcherTests
 {
+    [ClassInitialize]
+    public static async Task ClassInitialize(TestContext _)
+    {
+        // The dance names that keep a qualified title apart
+        await DanceMusicTester.LoadDances();
+    }
+
     private static Song S(string title, string artist) => new() { Title = title, Artist = artist };
 
     [TestMethod]
@@ -17,7 +24,8 @@ public class SharedIdMatcherTests
     [DataRow("Shape of You", "Ed Sheeran feat. Khalid", "Shape of You", "Ed Sheeran", SharedIdMatch.WithoutFeaturing)]
     [DataRow("Shape of You feat. Khalid", "Ed Sheeran", "Shape of You", "Ed Sheeran", SharedIdMatch.WithoutFeaturing)]
     [DataRow("Shape of You - 2017 Remaster", "Ed Sheeran", "Shape of You", "Ed Sheeran", SharedIdMatch.Exact)]
-    [DataRow("Shape of You - Radio Edit", "Ed Sheeran", "Shape of You", "Ed Sheeran", SharedIdMatch.Close)]
+    [DataRow("Shape of You - Radio Edit", "Ed Sheeran", "Shape of You", "Ed Sheeran", SharedIdMatch.Exact)]
+    [DataRow("Shape of You - Salsa Version", "Ed Sheeran", "Shape of You", "Ed Sheeran", SharedIdMatch.Close)]
     [DataRow("Shape of You feat. Khalid - Remastered", "Ed Sheeran", "Shape of You", "Ed Sheeran", SharedIdMatch.WithoutFeaturing)]
     [DataRow("Shape of You", "Ed Sheeran", "Shape of You", "Ed Sheeran & Khalid", SharedIdMatch.FewerArtists)]
     [DataRow("Perfect", "Ed Sheeran", "Shape of You", "Ed Sheeran", SharedIdMatch.Different)]
@@ -46,10 +54,67 @@ public class SharedIdMatcherTests
     }
 
     [TestMethod]
+    [DataRow("Too Good At Goodbyes - Edit", "Too Good At Goodbyes")]
+    [DataRow("Scooby Doo Pa Pa - Remix", "Scooby Doo Pa Pa")]
+    [DataRow("A Nightmare on My Street - Edit", "A Nightmare on My Street")]
+    [DataRow("Don't Let Me Get Me - Radio Edit", "Don't Let Me Get Me")]
+    [DataRow("Come on over Baby (All I Want Is You) - Radio Version", "Come on over Baby (All I Want Is You)")]
+    [DataRow("A Little Less Conversation - JXL Radio Edit Remix", "A Little Less Conversation")]
+    [DataRow("Seven Nation Army - Remasteris\u00e9e", "Seven Nation Army - Remastered")]
+    [DataRow("Miss Kiss Kiss Bang - Big Band Version", "Miss Kiss Kiss Bang - Radio Version")]
+    [DataRow("After All The Bars Are Closed - Last Call Version", "After All The Bars Are Closed")]
+    [DataRow("Stay - Rerecorded", "Stay")]
+    [DataRow("Song (Radio Edit)", "Song")]
+    [DataRow("Song \u2013 Extended Mix", "Song [Club Mix]")]
+    public void Match_AQualifierThatDoesntChangeTheDance_IsExact(string a, string b)
+    {
+        Assert.AreEqual(SharedIdMatch.Exact, SharedIdMatcher.Match([S(a, "Artist"), S(b, "Artist")]));
+    }
+
+    [TestMethod]
+    [DataRow("Song - Salsa Version", "Song")]
+    [DataRow("Song - Bachata Remix", "Song - Radio Edit")]
+    [DataRow("Song (Cha Cha Mix)", "Song")]
+    [DataRow("Song - 128 BPM", "Song")]
+    [DataRow("Song - West Coast Swing Edit", "Song - Edit")]
+    public void Match_AQualifierNamingADanceOrTempo_IsNotExact(string a, string b)
+    {
+        Assert.AreNotEqual(SharedIdMatch.Exact, SharedIdMatcher.Match([S(a, "Artist"), S(b, "Artist")]));
+    }
+
+    [TestMethod]
+    [DataRow("Song - Radio Edit", "Song")]
+    [DataRow("Song - Part 1 - Remix", "Song")]
+    [DataRow("Song (Live) [Remix]", "Song")]
+    [DataRow("Song - Salsa Version", "Song - Salsa Version")]
+    [DataRow("Song - Salsa Version - Edit", "Song - Salsa Version")]
+    [DataRow("Song-Name", "Song-Name")]
+    [DataRow("(Intro)", "(Intro)")]
+    [DataRow("Edit - Remix", "Edit")]
+    public void WithoutQualifiers_DropsTheQualifiersThatDontNameADance(string title, string expected)
+    {
+        Assert.AreEqual(expected, SharedIdMatcher.WithoutQualifiers(title));
+    }
+
+    [TestMethod]
+    public void SameVersionWithoutFeaturing_KeepsTheQualifiers()
+    {
+        Assert.IsTrue(SharedIdMatcher.SameTitleWithoutFeaturing("Song - Acoustic", "Song"));
+        Assert.IsFalse(SharedIdMatcher.SameVersionWithoutFeaturing("Song - Acoustic", "Song"));
+        Assert.IsTrue(SharedIdMatcher.SameVersionWithoutFeaturing("Song (feat. X) - Remastered", "Song"));
+    }
+
+    [TestMethod]
     [DataRow("Pink", "P!nk")]
     [DataRow("Lady Antebellum", "Lady A")]
     [DataRow("The New 101 Strings Orchestra", "101 Strings Orchestra")]
     [DataRow("New 101 String Orchestra", "101 Strings")]
+    [DataRow("Andy Fortuna Productions", "Andy Fortuna")]
+    [DataRow("Yambao Orquesta", "Orquesta Yambao")]
+    [DataRow("El Gran Combo De Puerto Rico", "El Gran Combo")]
+    [DataRow("Michael P. Kramer", "Michael Paul Kramer")]
+    [DataRow("Juan Luis Guerra", "Juan Luis Guerra 4.40")]
+    [DataRow("Sasha Sloan", "Sasha Alex Sloan")]
     public void Match_AnArtistsAliases_AreExact(string a, string b)
     {
         Assert.AreEqual(SharedIdMatch.Exact, SharedIdMatcher.Match([S("Song", a), S("Song", b)]));
@@ -67,7 +132,7 @@ public class SharedIdMatcherTests
     {
         // The first two are a close match, but the third is a different song
         Assert.AreEqual(SharedIdMatch.Different, SharedIdMatcher.Match(
-            [S("Shape of You", "Ed Sheeran"), S("Shape of You - Radio Edit", "Ed Sheeran"), S("Perfect", "Ed Sheeran")]));
+            [S("Shape of You", "Ed Sheeran"), S("Shape of You - Salsa Version", "Ed Sheeran"), S("Perfect", "Ed Sheeran")]));
     }
 
     [TestMethod]

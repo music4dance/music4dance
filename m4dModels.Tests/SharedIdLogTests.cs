@@ -861,7 +861,7 @@ public class SharedIdLogTests
         _ = await SaveSong(dms, "Purchase:00:IS=111");
         _ = await SaveSong(dms, "Purchase:00:IS=222", title: "Feat Song feat. Crazy Man");
         _ = await SaveSong(dms, "Purchase:00:IS=222", title: "Feat Song");
-        _ = await SaveSong(dms, "Purchase:00:IS=333", title: "Close Song - Radio Edit");
+        _ = await SaveSong(dms, "Purchase:00:IS=333", title: "Close Song - Salsa Version");
         _ = await SaveSong(dms, "Purchase:00:IS=333", title: "Close Song");
         _ = await SaveSong(dms, "Purchase:00:IS=444", title: "Remastered Song - 2011 Remaster");
         _ = await SaveSong(dms, "Purchase:00:IS=444", title: "Remastered Song");
