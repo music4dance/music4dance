@@ -1,10 +1,13 @@
 # Azure Front Door Caching
 
 **Type:** Plan
-**Status:** Not started (owner confirmed 2026-10-01). Phase 1 (application prep) shipped; Front Door
-itself has never been deployed. Being weighed against Cloudflare: see
-[plans/bot-load-and-public-page-rendering § Edge options compared](bot-load-and-public-page-rendering.md#edge-options-compared-2026-10-31).
-**Last verified:** 2026-10-31
+**Status:** On hold (superseded by Cloudflare). The owner chose Cloudflare as the edge on 2026-11-04,
+and anonymous HTML is cached there instead (built 2026-11-18; see
+[runbooks/edge-cache](../runbooks/edge-cache.md) and
+[plans/bot-load-and-public-page-rendering § Phase 2](bot-load-and-public-page-rendering.md#phase-2-caching-after-a3)).
+Phase 1 (application prep) shipped; Front Door itself has never been deployed. Kept only as the
+Azure-native alternative if Cloudflare is ever dropped.
+**Last verified:** 2026-11-18
 
 Put Azure Front Door in front of the App Service to cache anonymous HTML at the edge, cut origin
 load, and add WAF and bot rules, while never caching authenticated or Identity responses.

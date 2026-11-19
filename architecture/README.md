@@ -135,6 +135,7 @@ into `runbooks/` as its area is consolidated.
 | Link new blog posts / help articles | [runbooks/link-new-blog-posts](runbooks/link-new-blog-posts.md) |
 | Provision a new App Service instance | [runbooks/provision-app-service](runbooks/provision-app-service.md) |
 | Deploy to test or production | [runbooks/deploy](runbooks/deploy.md) |
+| Set up, verify, purge or turn off the Cloudflare edge cache for anonymous pages | [runbooks/edge-cache](runbooks/edge-cache.md) |
 | Add a partner API client, issue, rotate or revoke its keys | [runbooks/add-a-partner](runbooks/add-a-partner.md) |
 | Configure service-failure email alerts | [runbooks/configure-failure-email](runbooks/configure-failure-email.md) |
 | Renew the AutoMapper license key (yearly; emailed 30 days ahead) | [runbooks/renew-automapper-license](runbooks/renew-automapper-license.md) |
@@ -155,10 +156,9 @@ into `runbooks/` as its area is consolidated.
 | Public API & third-party authorization (DanzQ) | Foundation (PR 1) merged behind a disabled flag; PR 2 on hold after Apple denied the business plan, alternatives being explored | [plans/public-api-authorization](plans/public-api-authorization.md) |
 | Partner API on a standalone host (Azure Functions over the search index, independent of the web app) | In progress: PRs 1–4 done (test environment serving resolve behind partner API keys and limits; key issuing pages in the web app); unmatched queue and production next | [plans/partner-api-standalone-host](plans/partner-api-standalone-host.md) |
 | Apple Music API migration: replace the iTunes Search/Lookup API (ISRC backfill, reverse ISRC enrichment, search), plus link switch, customer export and curated playlists | Proposed; Apple Developer membership confirmed, so stage 0 (token + ISRC backfill) is unblocked | [plans/apple-music-api-migration](plans/apple-music-api-migration.md) |
-| Azure Front Door caching | Not started; app-side prep shipped | [plans/front-door-caching](plans/front-door-caching.md) |
-| Bot load and public-page rendering (compression, caching, SSR vs. bot HTML vs. Razor shell) | Partially implemented: Phase 1 quick wins (A1–A7) on branch `bot-load-quick-wins`; caching and rendering phases not started | [plans/bot-load-and-public-page-rendering](plans/bot-load-and-public-page-rendering.md) |
+| Azure Front Door caching | On hold: superseded by the Cloudflare edge cache; app-side prep shipped | [plans/front-door-caching](plans/front-door-caching.md) |
 | Migrate email off Azure Communication Services (ACS Email retires 2028-09-30) to SMTP via a transactional provider | Proposed | [plans/acs-email-migration](plans/acs-email-migration.md) |
-| Bot load and public-page rendering (compression, caching, SSR vs. bot HTML vs. Razor shell) | Partially implemented: Phase 1 quick wins (A1–A7) deployed 2026-10-30; caching (Front Door vs. Cloudflare compared) and rendering phases not started | [plans/bot-load-and-public-page-rendering](plans/bot-load-and-public-page-rendering.md) |
+| Bot load and public-page rendering (compression, caching, SSR vs. bot HTML vs. Razor shell) | Partially implemented: Phase 1 quick wins (A1–A7) deployed 2026-10-30; Phase 2 (Cloudflare edge cache) built 2026-11-18, rollout pending; rendering phase not started | [plans/bot-load-and-public-page-rendering](plans/bot-load-and-public-page-rendering.md) |
 | Key Vault RBAC migration | Not started (vault `music4dance` still uses access policies, verified 2026-10-01) | [plans/key-vault-rbac-migration](plans/key-vault-rbac-migration.md) |
 | Attack mitigation Phase 2+ (telemetry, alerts, WAF, honeypots) | Proposed | [plans/attack-mitigation-phase2](plans/attack-mitigation-phase2.md) |
 | Cloudflare migration: DNS from Namecheap to Cloudflare (registration stays), edge proxy, Origin CA certificate, Bot Fight Mode (attack-mitigation step 2.2) | In progress: Phases 1–4 done (DNS on Cloudflare, `www` and `@` proxied, Full (strict)); Phase 6 started (Bot Fight Mode and leaked credentials detection on, 2026-11-07); Phase 5 due by the end of January 2027; Free plan | [plans/cloudflare-migration](plans/cloudflare-migration.md) |

@@ -157,6 +157,8 @@ go in user secrets.
 | `CrawlerThrottle:ExemptFragments` (`;`-separated) | same | Per request | Google's crawlers, `bingbot`, `applebot`, `duckduckbot` | same list |
 | `CrawlerThrottle:PathPrefixes` (`;`-separated) | same | Per request | `/song;/customsearch;/dances` | same |
 | `CrawlerThrottle:AgentLimits` (`;`-separated `fragment` or `fragment=limit`) | same | Per request | `reflectionbot=3;barkrowler;meta-externalagent;meta-webindexer` | same |
+| `EdgeCache:Enabled` | `EdgeCacheOptions` (`CacheControlMiddleware`) | Per request | `false` | `false` (App Configuration turns it on for Production) |
+| `EdgeCache:MaxAgeSeconds` | same | Per request | `86400` (also used for zero or negative values) | `86400` |
 | `Configuration:Commerce:Enabled` | `CommerceController.IsCommerceEnabled` | Per request | `true` | (unset; sandbox `false`) |
 | `Configuration:Commerce:FailLimit` | `CommerceController.GetCardFailLimit` | Per request | `5` | (unset) |
 | `Configuration:Marketing` (`Enabled`, `Banner`, `Notice`, `Start`, `End`, `Product:Name`/`Link`/`Password`) | `GlobalState.SetMarketing` → `MarketingInfo` | At registration and on every configuration reload | Missing: no marketing banner/notice | (unset) |
@@ -169,7 +171,9 @@ go in user secrets.
 | `EngagementOffcanvas:Messages:Level1`/`Level2`/`Level3`/`LoggedInUpgrade`, `PremiumBenefits:Items`/`MoreText`/`CompleteListUrl`, `CtaUrls:Register`/`Login`/`Subscribe`/`Features` | same | Per page | Empty messages and items; built-in URLs | Full copy and URLs |
 
 Rate limiting and the bot filter are explained in
-[bot-and-abuse-defense](../security/bot-and-abuse-defense.md); usage tracking in
+[bot-and-abuse-defense](../security/bot-and-abuse-defense.md); the edge cache in
+[hosting-and-identity § Request pipeline notes](hosting-and-identity.md#request-pipeline-notes)
+and [runbooks/edge-cache](../runbooks/edge-cache.md); usage tracking in
 [usage-tracking](../observability/usage-tracking.md); the engagement offcanvas in
 [visitor-engagement-monetization](../pages/visitor-engagement-monetization.md); the asset archive in
 [hosting-and-identity § Bundles from earlier builds](hosting-and-identity.md#bundles-from-earlier-builds); failure email in
@@ -229,6 +233,7 @@ splitter analyses. These only affect opt-in analysis tests.
   label (`LabelFilter.Null` + environment), fixing flags silently falling back to appsettings.
 - 2026-10-01: This reference created.
 - 2026-10-14: AutoMapper license key expiry emailed from 30 days ahead (`LicenseKeyCredential`).
+- 2026-11-18: `EdgeCache` section (Cloudflare edge cache for anonymous pages).
 - 2026-11-19: `AssetArchive` section: recent builds' bundles kept for HTML cached before a deploy.
 
 ## Related

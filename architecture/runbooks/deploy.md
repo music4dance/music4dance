@@ -2,7 +2,7 @@
 
 **Type:** Runbook
 **Status:** Current
-**Last verified:** 2026-11-04 (against `azure-pipelines.yml`)
+**Last verified:** 2026-11-18 (against `azure-pipelines.yml`)
 
 ## When to use
 
@@ -58,6 +58,9 @@ off takes the site down once, for between about 45 seconds and 4 minutes (see
 - With Run From Package on, `/home/data/SitePackages/packagename.txt` names the zip this run
   uploaded.
 - Load the home page, a dance page, and a song search.
+- The app log shows `Archived N bundles as build <id>` after the start (or nothing, when the
+  client didn't change and its folder already exists), and no `Couldn't archive this build's
+  bundles`. The edge cache relies on it: see [edge-cache § After a deploy](edge-cache.md#after-a-deploy).
 
 ## Rollback
 

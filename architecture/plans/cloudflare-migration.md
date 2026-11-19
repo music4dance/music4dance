@@ -42,9 +42,11 @@ Next session, after a day or two of data:
 8. Phase 5 (Origin CA certificate) by the end of January 2027.
 9. DNS cleanup and DMARC tightening in early December 2026 (section 4).
 
-HTML caching isn't part of this plan. Cloudflare doesn't cache HTML by default, and the app
-marks anonymous pages `no-cache` and signed-in pages `no-store`. Edge caching of HTML is Phase 2
-of the bot-load plan and can follow once this is stable.
+HTML caching isn't part of this plan. Cloudflare doesn't cache HTML by default. Edge caching of
+anonymous HTML was built on 2026-11-18 as Phase 2 of the bot-load plan: a Cache Rule plus a
+Cloudflare-only header from the app. Deploys don't purge it, because the app keeps serving
+the previous builds' bundles. Setup is in [runbooks/edge-cache](../runbooks/edge-cache.md). It
+uses one Cache Rule.
 
 ## 1. Can this run on the Free plan?
 
