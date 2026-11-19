@@ -15,9 +15,9 @@ namespace m4d.Middleware;
 ///
 /// The edge header is the origin's half of the edge cache. Cloudflare's half is a Cache Rule that
 /// makes HTML eligible only for requests without the sign-in cookie and takes its TTL from this
-/// header, and the deploy pipeline purges the zone after every production deploy, since cached
-/// pages point at hashed bundles a deploy removes. See
-/// architecture/plans/bot-load-and-public-page-rendering.md (Phase 2).
+/// header. Cached pages point at hashed bundles that a deploy removes from wwwroot; the app keeps
+/// recent builds' bundles and serves them (AssetArchive, ArchivedAssetMiddleware), so deploys
+/// don't purge the cache. See architecture/plans/bot-load-and-public-page-rendering.md (Phase 2).
 ///
 /// A page gets no edge header when it differs by requester or would freeze a transient state:
 /// - Googlebot: _head.cshtml leaves the AdSense script out for it.

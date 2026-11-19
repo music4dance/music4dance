@@ -2,26 +2,27 @@
 
 **Type:** Runbook
 **Status:** Current (written 2026-11-18; the Cloudflare steps haven't been run yet)
-**Last verified:** 2026-11-18 (against `CacheControlMiddleware` and `azure-pipelines.yml`)
-**Code:** `m4d/Middleware/CacheControlMiddleware.cs`, `azure-pipelines.yml` (Purge Cloudflare cache)
+**Last verified:** 2026-11-19 (against `CacheControlMiddleware` and `AssetArchive`)
+**Code:** `m4d/Middleware/CacheControlMiddleware.cs`, `m4d/Services/AssetArchive.cs`,
+`m4d/Middleware/ArchivedAssetMiddleware.cs`
 
 ## When to use
 
 - Setting up the edge cache for the first time (once).
 - Checking that it works, or why a page isn't cached.
-- Purging by hand: after a failed deploy purge, or to show a fix before the cache expires.
+- Purging by hand: to show a change before the cache expires (see [After a deploy](#after-a-deploy)).
 - Turning it off.
 
 How it works and why: [hosting-and-identity § Request pipeline notes](../infrastructure/hosting-and-identity.md#request-pipeline-notes).
 In short, the app marks anonymous pages that are the same for every signed-out visitor with
 `Cloudflare-CDN-Cache-Control: max-age=86400`, a Cloudflare Cache Rule caches HTML only for
-requests without the `music4dance` sign-in cookie, and every production deploy purges the zone.
+requests without the `music4dance` sign-in cookie. Deploys don't purge it. A page cached before
+a deploy points at the previous build's bundles, and the app keeps recent builds' bundles and
+serves them ([hosting-and-identity § Bundles from earlier builds](../infrastructure/hosting-and-identity.md#bundles-from-earlier-builds)).
 
 ## Prerequisites / access
 
-- Cloudflare dashboard access to the `music4dance.net` zone (Free plan), with permission to
-  create API tokens.
-- Edit access to the Azure DevOps deploy pipeline (its variables).
+- Cloudflare dashboard access to the `music4dance.net` zone (Free plan).
 - `az` signed in to the `music4dance` tenant, with write access to App Configuration
   `music4dance`.
 
@@ -29,34 +30,17 @@ requests without the `music4dance` sign-in cookie, and every production deploy p
 
 ### One-time setup (in this order)
 
-1. **Create a purge-only API token.** Cloudflare dashboard → your profile (top right) →
-   **My Profile → API Tokens → Create Token → Create Custom Token**.
-   - Name: `azure-devops-cache-purge`.
-   - Permissions: **Zone · Cache Purge · Purge**. Nothing else.
-   - Zone Resources: **Include · Specific zone · music4dance.net**.
-   - Client IP filtering: leave empty (hosted agents use changing IPs).
-   - TTL: either none, or an end date with a calendar reminder: an expired token makes the
-     deploy's purge step fail.
-   - **Create Token** and copy it; it's shown only once. Check it:
+1. **Deploy the edge cache and the asset archive** (#411 and #414), to test and then
+   production. Nothing is cached yet. Then check that production archived its bundles:
 
-     ```bash
-     curl -s https://api.cloudflare.com/client/v4/user/tokens/verify -H "Authorization: Bearer <token>"
-     ```
+   ```bash
+   az rest --method get --resource https://management.azure.com/      --url https://msc4dnc.scm.azurewebsites.net/api/vfs/data/m4d/AppData/asset-archive/      --query "[].name" -o tsv
+   ```
 
-     The answer includes `"status":"active"`.
-2. **Find the zone ID.** The `music4dance.net` zone → **Overview**; it's under **API** in the
-   right-hand column.
-3. **Add both to the pipeline.** Azure DevOps → Pipelines → the deploy pipeline → **Edit →
-   Variables → +**:
-   - `CLOUDFLARE_ZONE_ID`: the zone ID.
-   - `CLOUDFLARE_API_TOKEN`: the token, with **Keep this value secret** checked.
-
-   Leave **Let users override this value when running this pipeline** unchecked on both, then
-   **Save**.
-4. **Deploy the PR** that added the edge cache, to test and then production. The production
-   run's last step, **Purge Cloudflare cache**, should log `The new build is serving after Ns`
-   and `Cloudflare cache purged`. That proves the token works. Nothing is cached yet.
-5. **Turn on the origin header** (Production label), then bump the sentinel so the app reloads
+   Expect one folder per build, named with 16 hex characters. Don't go on until the running
+   build is archived: pages cached from a build that never archived itself break at its next
+   deploy.
+2. **Turn on the origin header** (Production label), then bump the sentinel so the app reloads
    configuration:
 
    ```bash
@@ -73,9 +57,9 @@ requests without the `music4dance` sign-in cookie, and every production deploy p
 
    Expect `cache-control: no-cache` and `cloudflare-cdn-cache-control: max-age=86400`.
    This is still harmless: Cloudflare doesn't cache HTML until the next step.
-6. **Turn on Tiered Cache** (free): **Caching → Tiered Cache → Smart Tiered Caching Topology**.
+3. **Turn on Tiered Cache** (free): **Caching → Tiered Cache → Smart Tiered Caching Topology**.
    Data centers then fill from a regional tier instead of each going to the origin.
-7. **Create the Cache Rule.** **Caching → Cache Rules → Create rule**. Name it
+4. **Create the Cache Rule.** **Caching → Cache Rules → Create rule**. Name it
    `Anonymous HTML`, choose **Edit expression**, and paste:
 
    ```txt
@@ -103,13 +87,22 @@ requests without the `music4dance` sign-in cookie, and every production deploy p
    already leaves Googlebot's page out of the cache, and Googlebot would just get the human page
    from the cache.
 
+### After a deploy
+
+Nothing is needed. Pages cached before the deploy keep working for up to a day, but they show
+the previous build. Purge by hand when that matters:
+
+- A change should be seen by signed-out visitors right away.
+- The deploy changed an API that page scripts call in a way old scripts can't handle. A cached
+  page runs the previous build's scripts against the new server.
+
 ### Purge by hand
 
-- **Everything:** **Caching → Configuration → Purge Everything**. Use this after a failed or
-  skipped deploy purge, or if pages load with broken scripts.
+- **Everything:** **Caching → Configuration → Purge Everything**.
 - **One page:** **Custom Purge → URL**, with the exact URL. Each query string is a separate
   entry, so `/song/album?title=X` and `/song/album?title=X&page=2` are purged separately.
-- **From a shell:**
+- **From a shell**, with an API token that has only **Zone · Cache Purge · Purge** on
+  `music4dance.net`:
 
   ```bash
   curl -s -X POST "https://api.cloudflare.com/client/v4/zones/<zone-id>/purge_cache" \
@@ -139,17 +132,19 @@ App Service **Requests** metric for the drop at the origin.
 
 - **Never `HIT`, status `DYNAMIC`:** the rule doesn't match. Check the expression and that the
   rule is deployed.
-- **Never `HIT`, status `BYPASS` or `MISS` every time:** the origin header is missing (step 5:
+- **Never `HIT`, status `BYPASS` or `MISS` every time:** the origin header is missing (step 2:
   the setting or the sentinel), or the page is one the app keeps out on purpose (a bot user
   agent, a service unhealthy). Don't switch Edge TTL to *Ignore cache-control header*: that
   would cache bot variants, outage pages and errors too.
-- **The origin sends the header (step 5 check passes) but it's still `BYPASS`:** Cloudflare
+- **The origin sends the header (step 2 check passes) but it's still `BYPASS`:** Cloudflare
   isn't reading `Cloudflare-CDN-Cache-Control` in this Edge TTL mode. Turn the rule off and
   revisit the origin side. The fallback is for the app to send
   `Cache-Control: public, s-maxage=86400, max-age=0` instead, which first needs
   `UseResponseCaching` removed, because it would serve that page to signed-in users.
-- **Broken scripts or styles after a deploy:** the purge failed or was skipped. Purge
-  everything.
+- **Broken scripts or styles after a deploy:** a cached page names bundles the archive doesn't
+  have. Purge everything to fix it now. Then list the archive (step 1) and search the app log
+  for `Couldn't archive this build's bundles`. A build that failed to archive leaves its pages
+  without a fallback at the next deploy.
 - **A fix or an edit isn't showing for signed-out visitors:** it will within a day; purge that
   URL to show it now.
 
@@ -165,6 +160,3 @@ App Service **Requests** metric for the drop at the origin.
    az appconfig kv set -n music4dance --key Configuration:Sentinel --value "$(date +%s)" --yes
    ```
 
-The pipeline variables can stay. If you delete the token or the variables while the rule is
-on, deploys stop purging: the step warns and skips when the variables are missing, and fails
-when the token is rejected.

@@ -4,7 +4,7 @@
 **Status:** Partially implemented: Phase 1 (A1–A7) deployed 2026-10-30 (PR #365) and measured afterwards; Phase 0 partly done (weekday baseline); Phase 2 (Cloudflare edge cache) built 2026-11-18, rollout pending; Phase 3 not started
 **Last verified:** 2026-11-18
 **Code:** `m4d/Views/Shared/Vue3.cshtml`, `m4d/Views/Shared/_head.cshtml`, `m4d/Views/Shared/_vue-Layout.cshtml`,
-`m4d/Middleware/CacheControlMiddleware.cs`, `azure-pipelines.yml` (Cloudflare purge), `m4d/Utilities/SpiderManager.cs`,
+`m4d/Middleware/CacheControlMiddleware.cs`, `m4d/Services/AssetArchive.cs`, `m4d/Utilities/SpiderManager.cs`,
 `m4d/Controllers/SongController.cs`, `m4d/ClientApp/vite.config.ts`
 
 This plan covers two problems that share a cause. Every public page is an empty `<div id="app">`
@@ -689,11 +689,17 @@ minutes). Built in the same PR; rollout is in [runbooks/edge-cache](../runbooks/
   and `menuContext` bakes service health into the page.
 - **A Cloudflare Cache Rule** makes HTML eligible only for `GET`s without the `music4dance`
   sign-in cookie, with Edge TTL taken from the origin header and browser TTL respected.
-- **Purge on every production deploy.** Cached pages point at hashed bundles that Run From
-  Package removes, so the pipeline waits until the origin serves the new bundles and then calls
-  `purge_everything`. Purging only the bundles wouldn't help: they never go stale, the HTML
-  pointing at them does. Keeping old bundles available instead was rejected as more pipeline
-  work that still leaves old page code calling new APIs.
+- **No purge on deploy; old bundles stay available instead.** Cached pages point at hashed
+  bundles that Run From Package removes. Cloudflare's copy of an old bundle can't be relied on:
+  it caches per data center, evicts little-used files early, and most crawlers cache HTML
+  without fetching its bundles. So the app archives recent builds' bundles on `/home` and
+  serves them when the current build lacks them
+  ([hosting-and-identity § Bundles from earlier builds](../infrastructure/hosting-and-identity.md#bundles-from-earlier-builds)).
+  Purging every deploy was the first design (2026-11-18). It was dropped because it empties
+  the bundle cache along with the HTML, and it depends on a pipeline token. A cached page
+  still runs the previous build's scripts against the new server for up to a day. When a
+  deploy changes an API those scripts call, purge by hand
+  ([runbooks/edge-cache § After a deploy](../runbooks/edge-cache.md#after-a-deploy)).
 - **Expected effect** (replaying 2026-11-17/18 through one shared 24-hour cache): about 17% of
   anonymous page requests and 42% of their server time, an upper bound, since Cloudflare caches
   per data center (Tiered Cache narrows the gap). Most URLs are distinct, so this complements

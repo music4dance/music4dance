@@ -66,14 +66,6 @@ It runs the YAML from the branch being deployed. It runs these steps:
    lands while a start is in progress cancels that start and leaves the site stopped.
 6. Sets the App Service health check path to `/health/ready`, only if it isn't already, since
    every config write restarts the app. This step is non-fatal.
-7. Production only: purges the Cloudflare cache. Cached anonymous pages point at the hashed
-   bundles under `/vclient/assets`, which the new package replaces. Since the old container
-   serves until the new one is ready, the step first polls `https://msc4dnc.azurewebsites.net/dances`
-   until every bundle it references is in the package just deployed (up to 15 minutes), then
-   calls Cloudflare's `purge_everything`. It reads pipeline variables `CLOUDFLARE_ZONE_ID` and
-   `CLOUDFLARE_API_TOKEN` (secret). Without them it warns and skips; a failed purge fails the
-   run, though the deploy itself has already happened. See
-   [runbooks/edge-cache](../runbooks/edge-cache.md).
 
 ### Run From Package
 
@@ -389,8 +381,9 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
 - 2026-11-04: The first ordinary production deploy with Run From Package on had no failed
   requests, and the dance stats cache survived it (see [Run From Package](#run-from-package)).
 - 2026-11-18: The cache-control lambda became `CacheControlMiddleware`, which adds
-  `Cloudflare-CDN-Cache-Control` to anonymous pages when `EdgeCache:Enabled` is on, and the
-  pipeline purges Cloudflare after production deploys. This is Phase 2 of
+  `Cloudflare-CDN-Cache-Control` to anonymous pages when `EdgeCache:Enabled` is on. Deploys
+  don't purge Cloudflare: pages cached before a deploy load the previous build's bundles from
+  the asset archive (#414). This is Phase 2 of
   [plans/bot-load-and-public-page-rendering](../plans/bot-load-and-public-page-rendering.md),
   with Cloudflare as the edge instead of Front Door.
 - 2026-10-01: Consolidated from `SELF_CONTAINED_DEPLOYMENT.md`, `managed-identity-self-contained-plan.md`

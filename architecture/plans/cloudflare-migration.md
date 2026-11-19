@@ -44,9 +44,9 @@ Next session, after a day or two of data:
 
 HTML caching isn't part of this plan. Cloudflare doesn't cache HTML by default. Edge caching of
 anonymous HTML was built on 2026-11-18 as Phase 2 of the bot-load plan: a Cache Rule plus a
-Cloudflare-only header from the app, and a purge after each production deploy. Setup is in
-[runbooks/edge-cache](../runbooks/edge-cache.md). It uses one Cache Rule and one API token
-(Cache Purge only).
+Cloudflare-only header from the app. Deploys don't purge it, because the app keeps serving
+the previous builds' bundles. Setup is in [runbooks/edge-cache](../runbooks/edge-cache.md). It
+uses one Cache Rule.
 
 ## 1. Can this run on the Free plan?
 
