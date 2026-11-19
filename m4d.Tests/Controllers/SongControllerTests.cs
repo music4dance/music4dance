@@ -31,6 +31,12 @@ namespace m4d.Tests.Controllers;
 [TestClass]
 public class SongControllerTests
 {
+    [ClassInitialize]
+    public static async Task ClassInitialize(TestContext _)
+    {
+        await DanceMusicTester.LoadDances();
+    }
+
     [TestMethod]
     [DataRow("4PGMLc2lfy6hsdmyj2rm2x", true)]
     [DataRow("37i9dQZF1DXcBWIGoYBM5M", true)]
@@ -202,10 +208,18 @@ public class SongControllerTests
 
     #region Test factory
 
+    // A fresh ServiceHealthManager reports every service healthy, which is what the tests that
+    // don't care about Search's state need.
+    private static Task<SongController> CreateController(bool artistIndexEnabled) =>
+        CreateController(
+            artistIndexEnabled, new ServiceHealthManager(NullLogger<ServiceHealthManager>.Instance));
+
     private static async Task<SongController> CreateController(
-        bool artistIndexEnabled, ServiceHealthManager serviceHealth = null)
+        bool artistIndexEnabled, ServiceHealthManager serviceHealth)
     {
-        var dms = await DanceMusicTester.CreateServiceWithUsers("BareArtistUrl");
+        // Tests run in parallel, so each needs its own in-memory database: a shared name has two
+        // tests seed the same users and roles at once.
+        var dms = await DanceMusicTester.CreateServiceWithUsers($"SongController_{Guid.NewGuid():N}");
 
         var featureManager = new Mock<IFeatureManagerSnapshot>();
         featureManager
