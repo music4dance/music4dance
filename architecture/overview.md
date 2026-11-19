@@ -83,8 +83,9 @@ In order, as `UseM4dPipeline` builds it:
 8. `DatabaseRecoveryService.TriggerRecoveryIfNeeded()`.
 9. Forwarded headers, then authentication.
 10. `RateLimitingMiddleware`, for the Identity endpoints.
-11. The cache-control middleware: anonymous HTML gets `public, max-age=300`, authenticated HTML
-    gets `no-store`.
+11. `CacheControlMiddleware`: anonymous HTML gets `no-cache` (plus a Cloudflare-only
+    `Cloudflare-CDN-Cache-Control` when `EdgeCache:Enabled` is on), and authenticated HTML gets
+    `no-store`.
 12. Authorization, then response caching.
 13. A redirect of any path containing `/blog` to `https://music4dance.blog`.
 14. Routes: the `dances/...` routes to `DanceController`, the default

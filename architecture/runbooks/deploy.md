@@ -2,7 +2,7 @@
 
 **Type:** Runbook
 **Status:** Current
-**Last verified:** 2026-11-04 (against `azure-pipelines.yml`)
+**Last verified:** 2026-11-18 (against `azure-pipelines.yml`)
 
 ## When to use
 
@@ -38,6 +38,9 @@ deploys fit after PR checks and merge, see [ci-cd-and-release](../infrastructure
    - sets `SELF_CONTAINED_DEPLOYMENT`, `ASPNETCORE_ENVIRONMENT`, `SEARCHINDEX`, `SEARCHINDEXVERSION`
      and `WEBSITES_CONTAINER_START_TIME_LIMIT`, plus the startup command
    - points the health check at `/health/ready`, if it isn't already
+   - production only: waits until the origin serves the new bundles, then purges the
+     Cloudflare cache (pipeline variables `CLOUDFLARE_ZONE_ID` and `CLOUDFLARE_API_TOKEN`; see
+     [edge-cache](edge-cache.md))
 
    Switching modes needs no portal changes.
 
@@ -58,6 +61,9 @@ off takes the site down once, for between about 45 seconds and 4 minutes (see
 - With Run From Package on, `/home/data/SitePackages/packagename.txt` names the zip this run
   uploaded.
 - Load the home page, a dance page, and a song search.
+- Production: the **Purge Cloudflare cache** step logs `Cloudflare cache purged`. A warning that
+  the variables aren't set is safe only while the edge cache's Cache Rule is off; a failed purge
+  means purging by hand (see [edge-cache § Purge by hand](edge-cache.md#purge-by-hand)).
 
 ## Rollback
 
