@@ -84,6 +84,44 @@ public class SharedIdOwnersTests
     }
 
     [TestMethod]
+    [DataRow("Tony Bennett", true)]
+    [DataRow("Tony Bennett & Lady Gaga", false)]
+    public async Task Propose_TheSongThatNamesTheTracksArtists_OwnsIt(string trackCredit, bool spotify)
+    {
+        var (dms, _) = await CreateService("SharedIdOwners_Artists" + spotify);
+        var solo = await SaveSong(dms, "Cheek to Cheek", "Tony Bennett", 200, ("Album A", ["SS=sp1", "IS=it1"]));
+        var duet = await SaveSong(dms, "Cheek to Cheek", "Tony Bennett & Lady Gaga", 200,
+            ("Album B", ["SS=sp1", "IS=it1"]));
+        // Spotify lists each artist and credits the first; iTunes gives the whole credit
+        var track = spotify
+            ? new ServiceTrack
+            {
+                TrackId = "S:sp1", Name = "Cheek to Cheek", Artist = trackCredit, Duration = 200,
+                Artists = ["Tony Bennett", "Lady Gaga"]
+            }
+            : Track("I:it1", "Cheek to Cheek", trackCredit, 200);
+
+        var ownership = await SharedIdOwners.Propose([solo, duet], Tracks(track));
+
+        var proposal = ownership.Ids.Single(p => p.Id == track.TrackId);
+        Assert.AreEqual((SharedIdOwnerStatus.Owned, duet.SongId), (proposal.Status, proposal.Song));
+    }
+
+    [TestMethod]
+    public async Task Propose_ATrackBySomeOfTheSongsArtists_IsTheSongThatNamesThem()
+    {
+        var (dms, _) = await CreateService("SharedIdOwners_Solo");
+        var solo = await SaveSong(dms, "Cheek to Cheek", "Tony Bennett", 200, ("Album A", ["IS=it1"]));
+        var duet = await SaveSong(dms, "Cheek to Cheek", "Tony Bennett & Lady Gaga", 200, ("Album B", ["IS=it1"]));
+
+        var ownership = await SharedIdOwners.Propose([solo, duet],
+            Tracks(Track("I:it1", "Cheek to Cheek", "Tony Bennett", 200)));
+
+        var proposal = ownership.Ids.Single(p => p.Id == "I:it1");
+        Assert.AreEqual((SharedIdOwnerStatus.Owned, solo.SongId), (proposal.Status, proposal.Song));
+    }
+
+    [TestMethod]
     public async Task Propose_ATrackNoSongIs_IsBadAndComesOffEverySong()
     {
         var (dms, _) = await CreateService("SharedIdOwners_Bad");

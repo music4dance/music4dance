@@ -42,8 +42,9 @@ public record SharedIdOwnership(IReadOnlyList<SharedIdOwnerProposal> Ids, IReadO
 /// For songs that share ids but are different songs (different versions, say, whose albums and
 /// ids are mixed up), which song each of their ids belongs to. Every Spotify and iTunes id on
 /// the songs is looked up (the shared ones first, at most MaxLookups), and the song whose title,
-/// artist and length match the track owns it, a song whose title is the track's winning over
-/// ones that only nearly match; it needn't be a song that has it. When no song is the track, or
+/// artist and length match the track owns it, a song whose title is the track's, then one that
+/// names exactly the track's artists, winning over ones that only nearly match; it needn't be a
+/// song that has it. When no song is the track, or
 /// the service doesn't have it, the id is bad. An ISRC goes with a Spotify or iTunes id that has
 /// an owner and whose track reports it, and comes off an album that loses its Spotify or iTunes
 /// id. See architecture/plans/shared-id-ownership.md.
@@ -147,6 +148,18 @@ public static class SharedIdOwners
             named = exact;
         }
 
+        // The fuzzy artist match passes "Tony Bennett" for a track by Tony Bennett and Lady Gaga
+        // too; a song that names the track's artists, no more and no fewer, wins
+        var knowledge = FeaturedCleanup.WithGroupLeaders(
+            FeaturedCleanup.Knowing(songs.SelectMany(s => FeaturedCleanup.IndividualArtists(s))), songs);
+        var artists = TrackArtistKeys(track, knowledge);
+        var credited = named.Where(s => ArtistKeys(FeaturedCleanup.IndividualArtists(s, knowledge), knowledge)
+            .SetEquals(artists)).ToList();
+        if (credited.Count > 0)
+        {
+            named = credited;
+        }
+
         var timed = named.Where(s => LengthMatches(s.Length, track.Duration)).ToList();
         return timed.Count switch
         {
@@ -203,6 +216,20 @@ public static class SharedIdOwners
                     hasIsrc ? null : isrc);
             })
             .Where(a => a != null)
+    ];
+
+    // The track's individual artists: Spotify lists them, and an iTunes credit (and its title's
+    // feat. clause) is split with the songs' artists as evidence
+    private static HashSet<string> TrackArtistKeys(ServiceTrack track, IArtistKnowledge knowledge) =>
+        ArtistKeys(track.Artists is { Length: > 0 } ? track.Artists
+            : FeaturedCleanup.IndividualArtists(new Song { Title = track.Name, Artist = track.Artist ?? "" }, knowledge),
+            knowledge);
+
+    // Each artist's identity, without a leader's backing group and under the name to use
+    private static HashSet<string> ArtistKeys(IEnumerable<string> artists, IArtistKnowledge knowledge) =>
+    [
+        .. artists.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a =>
+            ArtistSplitter.ArtistKey(ArtistAliases.PreferredName(ArtistSplitter.RemoveBackingGroup(a, knowledge))))
     ];
 
     // Spotify lists the artists; iTunes gives a credit
