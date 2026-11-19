@@ -503,6 +503,26 @@ public static class M4dApplicationExtensions
         services.AddSingleton(appDataPaths);
         Console.WriteLine($"App data root: {appDataPaths.Root}");
 
+        // Keeps recent builds' hashed bundles on persistent storage, so HTML cached before a
+        // deploy can still load them once Run From Package has replaced wwwroot
+        var assetArchiveOptions =
+            configuration.GetSection("AssetArchive").Get<AssetArchiveOptions>() ?? new AssetArchiveOptions();
+        if (assetArchiveOptions.Enabled && string.IsNullOrEmpty(environment.WebRootPath))
+        {
+            // No wwwroot (a host without static files): nothing to archive or to fall back from
+            Console.WriteLine("Asset archive off: no web root");
+        }
+        else if (assetArchiveOptions.Enabled)
+        {
+            services.AddSingleton(sp => new AssetArchive(
+                Path.Combine(appDataPaths.AppData, AssetArchive.FolderName),
+                Path.Combine(environment.WebRootPath, "vclient", "assets"),
+                assetArchiveOptions,
+                TimeProvider.System,
+                sp.GetRequiredService<ILogger<AssetArchive>>()));
+            services.AddHostedService<AssetArchiveHostedService>();
+        }
+
         if (appOptions.ConfigureSearch)
         {
             var appRoot = environment.WebRootPath;
@@ -792,6 +812,12 @@ public static class M4dApplicationExtensions
         // day). Without it they go out no-cache and Cloudflare revalidates every one.
         app.UseMiddleware<m4d.Middleware.StaticAssetCacheMiddleware>();
 
+        // Bundles from earlier builds that the current package doesn't have (see AssetArchive)
+        if (app.Services.GetService<AssetArchive>() != null)
+        {
+            app.UseMiddleware<m4d.Middleware.ArchivedAssetMiddleware>();
+        }
+
         // MapStaticAssets() requires a manifest file that doesn't get properly included
         // in single-file (PublishSingleFile=true) self-contained deployments.
         // Use UseStaticFiles() instead for self-contained mode.
@@ -856,99 +882,9 @@ public static class M4dApplicationExtensions
         // Search engines and signed-in users are exempt; needs context.User.
         app.UseMiddleware<m4d.Middleware.CrawlerThrottleMiddleware>();
 
-        // Cache control middleware: Allow Azure Front Door to cache anonymous pages with careful exclusions
-        // This relies on context.User being populated by UseAuthentication() above
-        app.Use(async (context, next) =>
-        {
-            // Register callback to modify headers just before they're sent (after pipeline completes)
-            context.Response.OnStarting(() =>
-            {
-                // Only cache GET requests
-                if (context.Request.Method != "GET")
-                {
-                    return Task.CompletedTask;
-                }
-
-                // Prevent caching of redirect responses to identity paths.
-                // Meta crawlers and proxies caching 302→/login amplifies redirect loops.
-                if (context.Response.StatusCode >= 300 && context.Response.StatusCode < 400)
-                {
-                    var reqPath = context.Request.Path.Value?.ToLowerInvariant() ?? "";
-                    if (reqPath.StartsWith("/identity/"))
-                    {
-                        context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
-                        context.Response.Headers["Pragma"] = "no-cache";
-                    }
-                    return Task.CompletedTask;
-                }
-
-                // Only modify cache headers on successful responses (200-299)
-                if (context.Response.StatusCode < 200 || context.Response.StatusCode >= 300)
-                {
-                    return Task.CompletedTask;
-                }
-
-                // Get the request path for exclusion checks
-                var path = context.Request.Path.Value?.ToLowerInvariant() ?? "";
-
-                // Never cache Identity responses regardless of auth state or Set-Cookie presence.
-                // The Meta crawler short-circuit returns 200 without Set-Cookie on /identity/,
-                // which would otherwise be treated as cacheable for anonymous users.
-                if (path.StartsWith("/identity/"))
-                {
-                    return Task.CompletedTask;
-                }
-
-                // Exclude API endpoints from caching (dynamic data)
-                if (path.StartsWith("/api/"))
-                {
-                    return Task.CompletedTask;
-                }
-
-                // Exclude specific pages that have anti-forgery tokens for anonymous users
-                // RawSearchForm has a form with anti-forgery token that must not be cached
-                if (path.StartsWith("/song/rawsearchform"))
-                {
-                    return Task.CompletedTask;
-                }
-
-                // Don't cache responses that set cookies (includes anti-forgery cookies, auth cookies, etc.)
-                if (context.Response.Headers.ContainsKey("Set-Cookie"))
-                {
-                    return Task.CompletedTask;
-                }
-
-                // Only cache HTML responses (not JSON, XML, etc.)
-                var contentType = context.Response.ContentType?.ToLowerInvariant() ?? "";
-                if (!contentType.Contains("text/html"))
-                {
-                    return Task.CompletedTask;
-                }
-
-                if (context.User.Identity?.IsAuthenticated == true)
-                {
-                    // Authenticated users: Prevent all caching
-                    context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
-                    context.Response.Headers["Pragma"] = "no-cache";
-                }
-                else
-                {
-                    // Anonymous users. Until anonymous pages stopped minting an antiforgery
-                    // token (and so a Set-Cookie) this branch never ran. It sends no-cache, not
-                    // public/max-age: UseResponseCaching below doesn't check cookies, so a public
-                    // anonymous page would be served from memory to signed-in users, and a
-                    // browser would show the signed-out page for its max-age after login. Making
-                    // anonymous HTML cacheable needs a cache that keys on sign-in state, which is
-                    // Phase 2 of architecture/plans/bot-load-and-public-page-rendering.md.
-                    context.Response.Headers.Remove("Pragma");
-                    context.Response.Headers["Cache-Control"] = "no-cache";
-                }
-
-                return Task.CompletedTask;
-            });
-
-            await next();
-        });
+        // Cache-Control for HTML pages, and the Cloudflare-only header that lets the edge keep
+        // anonymous pages (EdgeCache:Enabled). Needs context.User from UseAuthentication() above.
+        app.UseMiddleware<m4d.Middleware.CacheControlMiddleware>();
 
         app.UseAuthorization();
         app.UseResponseCaching();

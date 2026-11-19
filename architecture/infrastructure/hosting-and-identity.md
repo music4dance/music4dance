@@ -2,9 +2,11 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-04
+**Last verified:** 2026-11-19
 **Code:** `azure-pipelines.yml`, `m4d/Program.cs`, `m4d/Configuration/M4dApplicationExtensions.cs`,
 `m4d/Configuration/AppDataPaths.cs`, `m4d/Middleware/BlockAppDataMiddleware.cs`,
+`m4d/Middleware/CacheControlMiddleware.cs`, `m4d/Services/AssetArchive.cs`,
+`m4d/Middleware/ArchivedAssetMiddleware.cs`,
 `m4d/Services/StartupInitializationService.cs`, `m4d/m4d.csproj`
 
 Where music4dance runs, how it's deployed, how it authenticates to Azure, and what happens
@@ -146,8 +148,9 @@ Unset (local runs, the sandbox and tests), the root is the web root, so those fi
 logs the root at startup (`App data root: ...`) and creates the folder then.
 
 There's no separate `content` folder under the data root. `wwwroot/content` and `wwwroot/AppData`
-are kept apart because one is served publicly and the other isn't, and nothing under
-`/home/data/m4d` is served.
+are kept apart because one is served publicly and the other isn't. Nothing under
+`/home/data/m4d` is served, apart from archived bundles (next section), which are reachable only
+by their `/vclient/assets` file name.
 
 Nothing was copied over when production switched. The dance stats loaded the checked-in
 fallback and rebuilt from the search index in the background (19s on production), the artist
@@ -155,6 +158,66 @@ index rebuilds on first use, and older backups stay on disk in the old extracted
 `wwwroot/AppData`, hidden while the package is mounted. On the next deploy (2026-11-04) the
 dance stats loaded straight from the runtime cache under `/home/data/m4d/AppData`, with no
 fallback or rebuild, so the cache now survives deploys.
+
+### Bundles from earlier builds
+
+Every page's HTML names content-hashed Vite bundles under `/vclient/assets`. With Run From
+Package, a build's bundles leave `wwwroot` as soon as the next package mounts, but HTML that
+names them can outlive the deploy:
+
+- in Cloudflare, once anonymous HTML is edge-cached;
+- in a browser's cache;
+- in a tab that was open during the deploy and loads a chunk later.
+
+Cloudflare's copy of an old bundle doesn't cover this. It caches per data center, evicts files
+that aren't requested much long before their year-long `max-age`, and most crawlers fetch HTML
+without its bundles. So a page can be cached in a data center that never held its scripts.
+
+**The archive.** At startup, `AssetArchiveHostedService` copies the build's
+`wwwroot/vclient/assets` into `<data root>/AppData/asset-archive/<build id>/` in the
+background. In production that's `/home/data/m4d/AppData/asset-archive`.
+
+- **Build id:** a hash of the bundle file names. Redeploying the same client reuses its folder
+  and marks it newest again.
+- **Concurrent starts:** each copy, with its `.archived` marker, goes into a temporary folder
+  that is then renamed, so a build folder is complete when it appears. During a deploy the old
+  and new containers both run, and the first rename wins. A later start of the same build
+  rewrites the marker through a temporary file and a rename.
+- **Size:** a build is about 2.6 MB, because publish writes a `.br` and a `.gz` beside every
+  bundle.
+
+**Serving.** `ArchivedAssetMiddleware` sits after `StaticAssetCacheMiddleware` and ahead of
+the static-file middleware. It handles only a `GET` or `HEAD` for a single-segment
+`/vclient/assets` name that the current build doesn't have:
+
+- If an archived build has the file, it's served from the newest one that does. The response
+  uses the precompressed copy the client accepts (brotli, then gzip) and gets the same immutable
+  `Cache-Control` as a current bundle, so Cloudflare caches it again.
+- If no build has the file, the request passes through and 404s as before.
+- Lookups use an in-memory index of the archive's file names. It's rebuilt after this
+  instance archives, and at most once a minute otherwise, so a miss (a scanner, a real 404)
+  costs no round trips to the `/home` share. A file pruned since the index was built (by
+  another instance) also passes through.
+
+**Retention** runs after each archive:
+
+- The newest `AssetArchive:KeepBuilds` builds (default 3) are always kept.
+- An older build is kept until `AssetArchive:MinRetention` (default 48 hours) has passed since
+  the build that replaced it was archived. That covers several redeploys in quick succession.
+- Abandoned temporary folders, and build folders without a marker, are removed once they're an
+  hour old.
+  `MinRetention` must stay longer than the longest time anything caches HTML. The planned edge
+  cache keeps anonymous HTML for a day.
+
+Setting `AssetArchive:Enabled` to `false` turns off both the archiving and the middleware.
+A build archives itself when it starts, so pages cached while it serves are covered at the next
+deploy. The edge cache can go on as soon as the running build is archived. Only HTML from builds
+before this code, in a browser cache or an open tab, had no fallback at the first deploy that
+carried it.
+
+This doesn't use the zips Kudu keeps in `/home/data/SitePackages` (five on production, checked
+2026-11-19). Their layout and retention belong to the platform, and they don't exist when the
+app runs extracted or self-contained.
 
 ## Identity and secrets
 
@@ -276,25 +339,37 @@ The only automatic remedy is a forced worker replacement after an hour of contin
   responses change, so a missing bundle isn't pinned at the edge. Before this (2026-11-12), every
   bundle load behind Cloudflare was an origin revalidation: 1.3M 304s over five days, about half
   the server time.
-- **Cache-control middleware** (HTML) runs after authentication and rate limiting:
+- **`CacheControlMiddleware`** (HTML) runs after authentication, rate limiting and the crawler
+  throttle:
   - Anonymous `GET 200` HTML responses that don't set cookies get `Cache-Control: no-cache`:
     browsers may keep them but revalidate every time, and `UseResponseCaching` won't store
-    them, because it isn't `public`. Until 2026-10-29 this branch never ran. Every page minted
-    an antiforgery token, so every response set a cookie and carried antiforgery's own
-    `no-cache, no-store`. Anonymous pages no longer carry a token (see
-    [frontend-architecture](../pages/frontend-architecture.md#menucontext-per-request-user-and-site-state)).
-    The branch used to say `public, max-age=300`, but that isn't safe yet.
-    `UseResponseCaching` doesn't check cookies, so it would serve a stored anonymous page to
-    signed-in users, and a browser would show the signed-out page for five minutes after login.
-    Real anonymous caching needs a cache keyed on sign-in state. That's Phase 2 of
-    [plans/bot-load-and-public-page-rendering](../plans/bot-load-and-public-page-rendering.md).
+    them, because it isn't `public`. That matters: `UseResponseCaching` doesn't check cookies,
+    so it would serve a stored anonymous page to signed-in users, and a browser would show the
+    signed-out page after login. (Until 2026-10-29 this branch never ran, because every page
+    minted an antiforgery token and so set a cookie. Anonymous pages no longer carry a token;
+    see [frontend-architecture](../pages/frontend-architecture.md#menucontext-per-request-user-and-site-state).)
+  - **Edge cache.** With `EdgeCache:Enabled` on, those anonymous pages also get
+    `Cloudflare-CDN-Cache-Control: max-age=<EdgeCache:MaxAgeSeconds>` (a day by default).
+    Only Cloudflare reads that header, and it doesn't pass it on, so browsers and the in-process
+    cache still see only `no-cache`. A Cloudflare Cache Rule makes HTML eligible only for
+    requests without the sign-in cookie (`music4dance`) and takes the TTL from this header;
+    signed-in requests always reach the app. The header is left off when the page differs by
+    requester or would freeze a transient state: Googlebot (no AdSense in `_head.cshtml`),
+    anything `SpiderManager` calls a spider (BotWarning, the bot stub), `/admin`, `/payment`
+    (the Stripe return pages are per checkout), and any time Search, the database or App
+    Configuration isn't healthy. Health is checked both as `_head.cshtml` rendered it (it
+    records that in `HttpContext.Items`) and when the response starts, because `menuContext`
+    bakes it into the page. A response that already sent `no-store`, `private` or
+    `Pragma: no-cache` is left as it is: antiforgery sends those whenever a page carries a form
+    token, even when it reuses the visitor's cookie and sets none. Cached requests skip the app entirely, including the crawler throttle and
+    server-side analytics; page views still count through `ClientSideUsageLogging`. Setup,
+    verification and turning it off are in [runbooks/edge-cache](../runbooks/edge-cache.md).
   - Responses that set any cookie are left alone. That includes the legacy server-side `Usage`
     cookie, which `DanceMusicController` sets only while `ClientSideUsageLogging` is off.
   - Authenticated HTML gets `no-store, no-cache, must-revalidate`.
   - `/identity/*` (including redirects to it), `/api/*` and `/song/rawsearchform` are excluded.
     `/api/antiforgery/token` sets `no-store` itself.
-  - **Azure Front Door is not deployed.** The CDN rollout is in
-    [plans/front-door-caching](../plans/front-door-caching.md).
+  - **Azure Front Door is not deployed**, and isn't planned: the edge is Cloudflare.
 - **Database recovery hook:** `DatabaseRecoveryService.TriggerRecoveryIfNeeded()` runs early
   on every request (see [service-resilience](service-resilience.md)).
 
@@ -371,6 +446,15 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
   stats rebuild after a fallback load came in the same PR.
 - 2026-11-04: The first ordinary production deploy with Run From Package on had no failed
   requests, and the dance stats cache survived it (see [Run From Package](#run-from-package)).
+- 2026-11-18: The cache-control lambda became `CacheControlMiddleware`, which adds
+  `Cloudflare-CDN-Cache-Control` to anonymous pages when `EdgeCache:Enabled` is on. Deploys
+  don't purge Cloudflare: pages cached before a deploy load the previous build's bundles from
+  the asset archive (next entry). This is Phase 2 of
+  [plans/bot-load-and-public-page-rendering](../plans/bot-load-and-public-page-rendering.md),
+  with Cloudflare as the edge instead of Front Door.
+- 2026-11-19: Recent builds' bundles archived under the data root and served when the current
+  build doesn't have them ([Bundles from earlier builds](#bundles-from-earlier-builds)), so
+  cached HTML survives a deploy without purging Cloudflare.
 - 2026-10-01: Consolidated from `SELF_CONTAINED_DEPLOYMENT.md`, `managed-identity-self-contained-plan.md`
   and the architecture sections of `azure-app-service-setup-managed-identity.md`. Stale details
   dropped: legacy pipeline files, `appsettings.SelfContained.json`, and in-app Kestrel port and
@@ -387,5 +471,6 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
 - [configuration-and-feature-flags](configuration-and-feature-flags.md): every configuration key and feature flag, its source and default
 - [data-layer](data-layer.md): what's in SQL vs the search index, EF migrations applied at startup
 - [plans/key-vault-rbac-migration](../plans/key-vault-rbac-migration.md)
+- [runbooks/edge-cache](../runbooks/edge-cache.md): set up, verify, purge or turn off the Cloudflare edge cache
 - [plans/front-door-caching](../plans/front-door-caching.md)
 - [search-index-versioning](../search/search-index-versioning.md)

@@ -36,6 +36,13 @@
     var expiration = noWarnings ? null : userMetadata.Expiration;
     var started = userMetadata.Started;
     var searchIndex = _searchService.GetInfo().Abbr + (_searchService.NextVersion ? "n" : "");
+    // Read once: menuContext shows these, and CacheControlMiddleware keeps the page out of the
+    // edge cache unless all three were healthy when the page was rendered
+    var searchHealthy = _serviceHealth.IsServiceHealthy("SearchService");
+    var databaseHealthy = _serviceHealth.IsServiceHealthy("Database");
+    var configurationHealthy = _serviceHealth.IsServiceHealthy("AppConfiguration");
+    Context.Items[m4d.Middleware.CacheControlMiddleware.RenderedHealthKey] =
+        searchHealthy && databaseHealthy && configurationHealthy;
     var isTestDb = _configuration.GetValue<bool>("TEST_DB");
     var isProdDb = _configuration.GetValue<bool>("PROD_DB");
     var hasIcons = ViewData.TryGetValue("HasIcons", out var hasIconsObj) && (hasIconsObj as bool?).Value;
@@ -153,9 +160,9 @@
         marketingMessage: @Html.Raw(ScriptJson.Serialize(marketingMessage ?? "")),
         customerReminder: @(customerReminder && !hideAds ? "true" : "false"),
         xsrfToken: '@GetAntiXsrfRequestToken()',
-        searchHealthy: @(_serviceHealth.IsServiceHealthy("SearchService").ToString().ToLower()),
-        databaseHealthy: @(_serviceHealth.IsServiceHealthy("Database").ToString().ToLower()),
-        configurationHealthy: @(_serviceHealth.IsServiceHealthy("AppConfiguration").ToString().ToLower()),
+        searchHealthy: @(searchHealthy.ToString().ToLower()),
+        databaseHealthy: @(databaseHealthy.ToString().ToLower()),
+        configurationHealthy: @(configurationHealthy.ToString().ToLower()),
         useClientSideTracking: @((shouldTrack && clientSideTracking).ToString().ToLower()),
         googleAdsActive: @(googleAdsLoaded.ToString().ToLower()),
         artistIndex: @((await _featureManager.IsEnabledAsync(FeatureFlags.ArtistIndex)).ToString().ToLower()),
