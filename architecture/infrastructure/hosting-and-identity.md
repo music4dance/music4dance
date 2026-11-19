@@ -2,9 +2,10 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-04
+**Last verified:** 2026-11-19
 **Code:** `azure-pipelines.yml`, `m4d/Program.cs`, `m4d/Configuration/M4dApplicationExtensions.cs`,
 `m4d/Configuration/AppDataPaths.cs`, `m4d/Middleware/BlockAppDataMiddleware.cs`,
+`m4d/Services/AssetArchive.cs`, `m4d/Middleware/ArchivedAssetMiddleware.cs`,
 `m4d/Services/StartupInitializationService.cs`, `m4d/m4d.csproj`
 
 Where music4dance runs, how it's deployed, how it authenticates to Azure, and what happens
@@ -146,8 +147,9 @@ Unset (local runs, the sandbox and tests), the root is the web root, so those fi
 logs the root at startup (`App data root: ...`) and creates the folder then.
 
 There's no separate `content` folder under the data root. `wwwroot/content` and `wwwroot/AppData`
-are kept apart because one is served publicly and the other isn't, and nothing under
-`/home/data/m4d` is served.
+are kept apart because one is served publicly and the other isn't. Nothing under
+`/home/data/m4d` is served, apart from archived bundles (next section), which are reachable only
+by their `/vclient/assets` file name.
 
 Nothing was copied over when production switched. The dance stats loaded the checked-in
 fallback and rebuilt from the search index in the background (19s on production), the artist
@@ -155,6 +157,56 @@ index rebuilds on first use, and older backups stay on disk in the old extracted
 `wwwroot/AppData`, hidden while the package is mounted. On the next deploy (2026-11-04) the
 dance stats loaded straight from the runtime cache under `/home/data/m4d/AppData`, with no
 fallback or rebuild, so the cache now survives deploys.
+
+### Bundles from earlier builds
+
+Every page's HTML names content-hashed Vite bundles under `/vclient/assets`. With Run From
+Package, a build's bundles leave `wwwroot` as soon as the next package mounts, but HTML that
+names them can outlive the deploy:
+
+- in Cloudflare, once anonymous HTML is edge-cached;
+- in a browser's cache;
+- in a tab that was open during the deploy and loads a chunk later.
+
+Cloudflare's copy of an old bundle doesn't cover this. It caches per data center, evicts files
+that aren't requested much long before their year-long `max-age`, and most crawlers fetch HTML
+without its bundles. So a page can be cached in a data center that never held its scripts.
+
+**The archive.** At startup, `AssetArchiveHostedService` copies the build's
+`wwwroot/vclient/assets` into `<data root>/AppData/asset-archive/<build id>/` in the
+background. In production that's `/home/data/m4d/AppData/asset-archive`.
+
+- **Build id:** a hash of the bundle file names. Redeploying the same client reuses its folder
+  and marks it newest again.
+- **Concurrent starts:** each copy goes into a temporary folder that is then renamed. During a
+  deploy the old and new containers both run, and the first rename wins.
+- **Size:** a build is about 2.6 MB, because publish writes a `.br` and a `.gz` beside every
+  bundle.
+
+**Serving.** `ArchivedAssetMiddleware` sits after `StaticAssetCacheMiddleware` and ahead of
+the static-file middleware. It handles only a `GET` or `HEAD` for a single-segment
+`/vclient/assets` name that the current build doesn't have:
+
+- If an archived build has the file, it's served from the newest one that does. The response
+  uses the precompressed copy the client accepts (brotli, then gzip) and gets the same immutable
+  `Cache-Control` as a current bundle, so Cloudflare caches it again.
+- If no build has the file, the request passes through and 404s as before.
+
+**Retention** runs after each archive:
+
+- The newest `AssetArchive:KeepBuilds` builds (default 3) are always kept.
+- An older build is kept until `AssetArchive:MinRetention` (default 48 hours) has passed since
+  the build that replaced it was archived. That covers several redeploys in quick succession.
+  `MinRetention` must stay longer than the longest time anything caches HTML. The planned edge
+  cache keeps anonymous HTML for a day.
+
+Setting `AssetArchive:Enabled` to `false` turns off both the archiving and the middleware.
+Protection starts with the second deploy that carries this code. The first one can only archive
+itself.
+
+This doesn't use the zips Kudu keeps in `/home/data/SitePackages` (five on production, checked
+2026-11-19). Their layout and retention belong to the platform, and they don't exist when the
+app runs extracted or self-contained.
 
 ## Identity and secrets
 
@@ -371,6 +423,9 @@ including the startup report, is at `/home/LogFiles/Application/` in Kudu. See
   stats rebuild after a fallback load came in the same PR.
 - 2026-11-04: The first ordinary production deploy with Run From Package on had no failed
   requests, and the dance stats cache survived it (see [Run From Package](#run-from-package)).
+- 2026-11-19: Recent builds' bundles archived under the data root and served when the current
+  build doesn't have them ([Bundles from earlier builds](#bundles-from-earlier-builds)), so
+  cached HTML survives a deploy without purging Cloudflare.
 - 2026-10-01: Consolidated from `SELF_CONTAINED_DEPLOYMENT.md`, `managed-identity-self-contained-plan.md`
   and the architecture sections of `azure-app-service-setup-managed-identity.md`. Stale details
   dropped: legacy pipeline files, `appsettings.SelfContained.json`, and in-app Kestrel port and

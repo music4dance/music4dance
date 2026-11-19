@@ -503,6 +503,21 @@ public static class M4dApplicationExtensions
         services.AddSingleton(appDataPaths);
         Console.WriteLine($"App data root: {appDataPaths.Root}");
 
+        // Keeps recent builds' hashed bundles on persistent storage, so HTML cached before a
+        // deploy can still load them once Run From Package has replaced wwwroot
+        var assetArchiveOptions =
+            configuration.GetSection("AssetArchive").Get<AssetArchiveOptions>() ?? new AssetArchiveOptions();
+        if (assetArchiveOptions.Enabled)
+        {
+            services.AddSingleton(sp => new AssetArchive(
+                Path.Combine(appDataPaths.AppData, AssetArchive.FolderName),
+                Path.Combine(environment.WebRootPath, "vclient", "assets"),
+                assetArchiveOptions,
+                TimeProvider.System,
+                sp.GetRequiredService<ILogger<AssetArchive>>()));
+            services.AddHostedService<AssetArchiveHostedService>();
+        }
+
         if (appOptions.ConfigureSearch)
         {
             var appRoot = environment.WebRootPath;
@@ -791,6 +806,12 @@ public static class M4dApplicationExtensions
         // Long-lived Cache-Control for static files (hashed Vite bundles immutable, the rest a
         // day). Without it they go out no-cache and Cloudflare revalidates every one.
         app.UseMiddleware<m4d.Middleware.StaticAssetCacheMiddleware>();
+
+        // Bundles from earlier builds that the current package doesn't have (see AssetArchive)
+        if (app.Services.GetService<AssetArchive>() != null)
+        {
+            app.UseMiddleware<m4d.Middleware.ArchivedAssetMiddleware>();
+        }
 
         // MapStaticAssets() requires a manifest file that doesn't get properly included
         // in single-file (PublishSingleFile=true) self-contained deployments.
