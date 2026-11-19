@@ -86,7 +86,7 @@ public class DanceMusicController(
             return;
         }
 
-        var filter = GetFilterFromContext(context);
+        var filter = await GetFilterFromContext(context);
         if (filter.IsDefault)
         {
             filter = null;
@@ -168,10 +168,10 @@ public class DanceMusicController(
         return usageId;
     }
 
-    protected SongFilter GetFilterFromContext(ActionExecutingContext context)
+    protected async Task<SongFilter> GetFilterFromContext(ActionExecutingContext context)
     {
         var user = UserName;
-        var filterString = ReadFilterString(context.HttpContext.Request);
+        var filterString = await ReadFilterString(context.HttpContext.Request);
         SongFilter filter;
         if (!string.IsNullOrEmpty(filterString))
         {
@@ -187,19 +187,29 @@ public class DanceMusicController(
     }
 
     /// <summary>
-    /// The raw <c>filter</c> value from the query string, or from a POST's form body. Reading
-    /// <see cref="HttpRequest.Form"/> throws when the body isn't form-encoded (a POST with no
-    /// Content-Type, or JSON), so those fall back to the default filter instead of a 500.
+    /// The raw <c>filter</c> value from the query string, or from a POST's form body. Reading the
+    /// form throws when the body isn't form-encoded (a POST with no Content-Type, or JSON), or is
+    /// a broken form (multipart with no boundary, malformed, too large, or cut off), so those fall
+    /// back to the default filter instead of a 500.
     /// </summary>
-    internal static string ReadFilterString(HttpRequest request)
+    internal static async Task<string> ReadFilterString(HttpRequest request)
     {
         string filterString = request.Query["filter"];
-        if (string.IsNullOrWhiteSpace(filterString) && HttpMethods.IsPost(request.Method) &&
-            request.HasFormContentType)
+        if (!string.IsNullOrWhiteSpace(filterString) || !HttpMethods.IsPost(request.Method) ||
+            !request.HasFormContentType)
         {
-            filterString = request.Form["filter"];
+            return filterString;
         }
-        return filterString;
+
+        try
+        {
+            var form = await request.ReadFormAsync(request.HttpContext.RequestAborted);
+            return form["filter"];
+        }
+        catch (Exception ex) when (ex is InvalidDataException or IOException or BadHttpRequestException)
+        {
+            return filterString;
+        }
     }
 
     protected UseVue UseVue { get; set; } = UseVue.No;

@@ -57,12 +57,14 @@ public class SearchCircuitBreakerTests
                 {
                     _held.Add(held);
                 }
-                status = await held.Task;
+                status = await held.Task.WaitAsync(cancellationToken);
             }
+            var ok = status == HttpStatusCode.OK
+                ? request.RequestUri.AbsolutePath.EndsWith("/docs/search.index") ? """{"value":[]}""" : """{"id":"1"}"""
+                : "{}";
             return new HttpResponseMessage(status)
             {
-                Content = new StringContent(status == HttpStatusCode.OK ? """{"id":"1"}""" : "{}",
-                    Encoding.UTF8, "application/json")
+                Content = new StringContent(ok, Encoding.UTF8, "application/json")
             };
         }
     }
@@ -87,7 +89,7 @@ public class SearchCircuitBreakerTests
     public void Setup()
     {
         _health = new ServiceHealthManager(NullLogger<ServiceHealthManager>.Instance);
-        _breaker = new SearchCircuitBreaker(_health, NullLogger<SearchCircuitBreaker>.Instance, _time);
+        _breaker = new SearchCircuitBreaker(_health, NullLogger<SearchCircuitBreaker>.Instance, time: _time);
         var options = new SearchClientOptions { Transport = new HttpClientTransport(new HttpClient(_search)) };
         options.Retry.Delay = TimeSpan.FromMilliseconds(1);
         options.Retry.MaxDelay = TimeSpan.FromMilliseconds(5);
@@ -96,7 +98,11 @@ public class SearchCircuitBreakerTests
             new AzureKeyCredential("key"), options);
     }
 
-    private Task<Response<SearchDocument>> Get() => _client.GetDocumentAsync<SearchDocument>("1");
+    private Task<Response<SearchDocument>> Get(CancellationToken cancellationToken = default) =>
+        _client.GetDocumentAsync<SearchDocument>("1", cancellationToken: cancellationToken);
+
+    private Task<Response<IndexDocumentsResult>> Write() =>
+        _client.IndexDocumentsAsync(IndexDocumentsBatch.Upload([new SearchDocument { ["id"] = "1" }]));
 
     private async Task<RequestFailedException> GetFails()
     {
@@ -259,5 +265,172 @@ public class SearchCircuitBreakerTests
         _ = await Get();
         Assert.AreEqual(1, _search.Calls);
         Assert.IsFalse(_breaker.IsOpen);
+    }
+
+    [TestMethod]
+    public async Task StaleThrottledAfterClose_DoesNotReopen()
+    {
+        // Sent before the breaker opened, answered 503 after a probe closed it
+        _search.Hold = true;
+        var stale = Get();
+        await WaitForCalls(1);
+        _search.Hold = false;
+        await Open();
+        _search.Status = HttpStatusCode.OK;
+        _time.Now += SearchCircuitBreaker.DefaultBreakDuration;
+        _ = await Get();
+        Assert.IsFalse(_breaker.IsOpen);
+
+        _search.Release(HttpStatusCode.ServiceUnavailable);
+        _ = await stale; // The SDK's retry of it goes out as a new attempt, and succeeds
+
+        Assert.IsFalse(_breaker.IsOpen);
+    }
+
+    [TestMethod]
+    [DataRow(HttpStatusCode.InternalServerError)]
+    [DataRow(HttpStatusCode.BadGateway)]
+    [DataRow(HttpStatusCode.GatewayTimeout)]
+    public async Task ProbeServerError_Reopens(HttpStatusCode status)
+    {
+        await Open();
+        _time.Now += SearchCircuitBreaker.DefaultBreakDuration;
+        _search.Status = status;
+
+        _ = await GetFails();
+
+        Assert.AreEqual(1, _search.Calls);
+        Assert.IsTrue(_breaker.IsOpen);
+    }
+
+    [TestMethod]
+    public async Task ProbeRequestError_Closes()
+    {
+        await Open();
+        _time.Now += SearchCircuitBreaker.DefaultBreakDuration;
+        _search.Status = HttpStatusCode.NotFound; // Search answered
+
+        _ = await GetFails();
+
+        Assert.IsFalse(_breaker.IsOpen);
+    }
+
+    [TestMethod]
+    public async Task SlowProbe_LetsAnotherProbeAfterTheProbeTimeout()
+    {
+        await Open();
+        _time.Now += SearchCircuitBreaker.DefaultBreakDuration;
+        _search.Hold = true;
+        var slow = Get();
+        await WaitForCalls(1);
+        _search.Hold = false;
+        _search.Status = HttpStatusCode.OK;
+
+        _ = await GetFails();
+        Assert.AreEqual(1, _search.Calls);
+
+        _time.Now += SearchCircuitBreaker.DefaultProbeTimeout;
+        _ = await Get();
+        Assert.AreEqual(2, _search.Calls);
+        Assert.IsFalse(_breaker.IsOpen);
+
+        // The superseded probe's answer doesn't reopen it
+        _search.Release(HttpStatusCode.ServiceUnavailable);
+        _ = await slow;
+        Assert.IsFalse(_breaker.IsOpen);
+    }
+
+    [TestMethod]
+    public async Task CancelledProbe_FreesTheProbeSlot()
+    {
+        await Open();
+        _time.Now += SearchCircuitBreaker.DefaultBreakDuration;
+        _search.Hold = true;
+        using var cancel = new CancellationTokenSource();
+        var probe = Get(cancel.Token);
+        await WaitForCalls(1);
+        _search.Hold = false;
+        _search.Status = HttpStatusCode.OK;
+
+        await cancel.CancelAsync();
+        _ = await Assert.ThrowsAsync<OperationCanceledException>(() => probe);
+        Assert.IsTrue(_breaker.IsOpen);
+
+        _ = await Get();
+        Assert.AreEqual(2, _search.Calls);
+        Assert.IsFalse(_breaker.IsOpen);
+    }
+
+    [TestMethod]
+    public async Task DocumentWrites_BypassTheBreaker()
+    {
+        _search.Status = HttpStatusCode.ServiceUnavailable;
+
+        _ = await Assert.ThrowsExactlyAsync<RequestFailedException>(Write);
+
+        // The SDK's 3 retries all go out, and a throttled write doesn't open the breaker
+        Assert.AreEqual(4, _search.Calls);
+        Assert.IsFalse(_breaker.IsOpen);
+
+        await Open();
+        _search.Status = HttpStatusCode.OK;
+        _ = await Write();
+        Assert.AreEqual(1, _search.Calls);
+        Assert.IsTrue(_breaker.IsOpen);
+    }
+
+    [TestMethod]
+    public async Task WhileOpen_TheBreakerDecidesServiceHealth()
+    {
+        const string name = SearchCircuitBreaker.ServiceName;
+        await Open();
+        Assert.IsFalse(_health.IsServiceHealthy(name));
+
+        // A controller that caught a fast-fail marks it again; that doesn't stretch the break
+        // to the health check's one-minute cooldown
+        _health.MarkUnavailable(name, "test: caught the breaker's 503");
+        _time.Now += SearchCircuitBreaker.DefaultBreakDuration;
+        Assert.IsTrue(_health.IsServiceHealthy(name), "Due a probe");
+
+        _search.Status = HttpStatusCode.OK;
+        _search.Hold = true;
+        var probe = Get();
+        await WaitForCalls(1);
+        Assert.IsFalse(_health.IsServiceHealthy(name), "Probe in flight");
+
+        _search.Release(HttpStatusCode.OK);
+        _ = await probe;
+        Assert.IsTrue(_health.IsServiceHealthy(name));
+    }
+
+    [TestMethod]
+    public void AssignServiceNames_OneNamePerSearchService()
+    {
+        // The appsettings.json layout
+        var names = SearchCircuitBreakers.AssignServiceNames([
+            ("SongIndexProd-4", "https://music4dance.search.windows.net"),
+            ("SongIndexTest-4", "https://music4dance.search.windows.net"),
+            ("SongIndexExperimental", "https://music4dance.search.windows.net"),
+            ("PageIndex", "https://m4d.search.windows.net"),
+            ("OtherIndex", "https://other.search.windows.net/"),
+        ]);
+
+        Assert.AreEqual(SearchCircuitBreaker.ServiceName, names["SongIndexProd-4"]);
+        Assert.AreEqual(SearchCircuitBreaker.ServiceName, names["SongIndexExperimental"]);
+        Assert.AreEqual(SearchCircuitBreakers.PageServiceName, names["PageIndex"]);
+        Assert.AreEqual("SearchService (other.search.windows.net)", names["OtherIndex"]);
+    }
+
+    [TestMethod]
+    public void Breakers_AreSeparatePerService()
+    {
+        var breakers = new SearchCircuitBreakers(_health, NullLoggerFactory.Instance);
+
+        var songs = breakers.For(SearchCircuitBreaker.ServiceName);
+
+        Assert.AreSame(songs, breakers.For(SearchCircuitBreaker.ServiceName));
+        Assert.AreNotSame(songs, breakers.For(SearchCircuitBreakers.PageServiceName));
+        Assert.AreEqual(SearchCircuitBreakers.PageServiceName,
+            breakers.For(SearchCircuitBreakers.PageServiceName).HealthServiceName);
     }
 }

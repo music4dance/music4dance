@@ -84,21 +84,46 @@ After startup the app prints a `GenerateStartupReport()` summary to the console 
 `PlayListController`, …) mark `SearchService` unavailable and return empty results, an error view,
 or a `503` JSON response instead of an unhandled exception.
 
-**Search circuit breaker.** `SearchCircuitBreaker` is an Azure.Core pipeline policy on every
-Search client (`SearchClient` per index and the `SearchIndexClient`), one instance shared by all
-of them, at `HttpPipelinePosition.PerRetry`. The first `503` or `429` opens it: it marks
-`SearchService` unavailable, and for the next 30 seconds every attempt throws
-`RequestFailedException(503)` without being sent, which `DoSearch` maps to the same
-"unavailable" error as above. Because it runs on each retry and ahead of Azure.Core's logging
-policy, the SDK's retries of a throttled request stop after one more attempt, and a
-short-circuited attempt writes nothing to the log. After the break, one request goes through as
-a probe while the others keep failing fast: a non-throttled response closes it and marks Search
-healthy, a throttled one (or an exception) reopens it for another 30 seconds. Opening, each
-failed probe (with how many requests failed fast) and closing are logged at Warning. Requests
-already in flight when it opens can't be stopped, so the first wave of a burst still logs its
-`503`s. Added after the 2026-11-18 bursts, in which 12,024 logged `503`s filled the day's log
-file in minutes, and every success from an in-flight request marked Search healthy again and
-let the next wave through.
+**Search circuit breaker.** `SearchCircuitBreaker` is an Azure.Core pipeline policy on the
+`SearchClient`s, at `HttpPipelinePosition.PerRetry`. There's one per Search service
+(`SearchCircuitBreakers`), shared by that service's clients, and each marks its own health
+name: `SearchService` for music4dance.search.windows.net (the song indexes) and
+`PageSearchService` for m4d.search.windows.net (the pages index, checked by `SearchController`),
+so throttling on one doesn't fail the other.
+
+- **Opening.** The first `503` or `429` opens it and marks its service unavailable. For the next
+  30 seconds every query attempt throws `RequestFailedException(503)` without being sent, which
+  `DoSearch` maps to the same "unavailable" error as above. Because it runs on each retry and
+  ahead of Azure.Core's logging policy, the SDK's retries of a throttled request stop after one
+  more attempt, and a short-circuited attempt writes nothing to the log.
+- **Probing.** After the break, one request goes through as a probe while the others keep failing
+  fast. A response below 500 closes it and marks the service healthy; a 5xx, a `429` or an
+  exception reopens it for another 30 seconds; a probe the caller cancels just frees the slot. A
+  probe still running after 10 seconds lets another request probe, so one slow response doesn't
+  hold Search closed.
+- **Health.** While it's open the breaker decides `IsServiceHealthy` for its service (through
+  `ServiceHealthManager.SetHealthGate`): false during the break and while a probe runs, true when
+  a probe is due. So callers retry when the break ends, not when the health check's one-minute
+  cooldown does, which controllers catching the breaker's `503` would otherwise keep restarting.
+- **Stale responses.** Every attempt carries the breaker's generation, which moves on each open,
+  reopen and close, and only an attempt from the current generation changes the state. A request
+  sent before the breaker opened can't close it by succeeding, or reopen it by coming back `503`
+  after a probe closed it.
+- **Not covered.** Document writes (`docs/search.index`) pass straight through and keep the SDK's
+  retries, so a song save during a brief `503` still lands and a bulk load on a test index can't
+  open the breaker for production queries. The `SearchIndexClient` (schema reads, index
+  create/delete) has no breaker either. Requests already in flight when it opens can't be
+  stopped, so the first wave of a burst still logs its `503`s.
+
+Opening, each failed probe (with how many requests failed fast) and closing are logged at
+Warning. Added after the 2026-11-18 bursts, in which 12,024 logged `503`s filled the day's log
+file in minutes, and every success from an in-flight request marked Search healthy again and let
+the next wave through.
+
+Two index operations are guarded against transient failures. `SongIndex.GetSearchIndex` recreates
+the index only when reading it returns `404`, never on throttling or an outage. And
+`SearchServiceInfo.HasFieldAsync` doesn't cache a throttled schema read, so a "no Artists field"
+answer from a `503` can't drive uploads that drop the field for the next minute.
 
 **Database.**
 - If `UserMetadata.Create` throws, `DMController.OnActionExecutionAsync` marks the database
@@ -377,8 +402,9 @@ notified, so no lone "recovered" email follows. Configuration and testing steps 
 - 2026-10-25: The update message moved from `GlobalState.UpdateMessage` to
   `UpdateMessageService`. It can persist across restarts (a file in `wwwroot/AppData`) and is
   shared across the instances in a plan.
-- 2026-11-19: `SearchCircuitBreaker` in the Search clients' pipeline: fail fast for 30 seconds
-  after a `503`/`429`, then a single probe.
+- 2026-11-19: `SearchCircuitBreaker` in the Search query clients' pipeline, one per Search
+  service: fail fast for 30 seconds after a `503`/`429`, then a single probe; it decides
+  `IsServiceHealthy` while open. Page search moved to its own health name, `PageSearchService`.
 
 ## Related
 

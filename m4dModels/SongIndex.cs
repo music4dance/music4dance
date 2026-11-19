@@ -1437,8 +1437,10 @@ public class SongIndex
         {
             return await Info.GetIndexAsync(IsNext);
         }
-        catch (Azure.RequestFailedException ex)
+        catch (Azure.RequestFailedException ex) when (ex.Status == 404)
         {
+            // Only an index that doesn't exist yet gets created. Anything else (throttling, an
+            // outage, auth) rethrows: resetting would delete and recreate a live index
             Debug.WriteLine(ex.Message);
             return await ResetIndex();
         }

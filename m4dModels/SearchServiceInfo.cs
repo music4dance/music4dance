@@ -258,7 +258,12 @@ public class SearchServiceInfo(string id, int version, string name,
         catch (Exception ex)
         {
             Trace.WriteLine($"HasFieldAsync({indexName}, {fieldName}) failed: {ex.Message}");
-            _schemaCache[indexName] = ([], DateTime.UtcNow + SchemaFailureCacheDuration);
+            // A throttled read is transient, so the next caller asks again rather than trusting
+            // "no fields" for a minute: an upload built from that drops fields the index has
+            if (ex is not RequestFailedException { Status: 503 or 429 })
+            {
+                _schemaCache[indexName] = ([], DateTime.UtcNow + SchemaFailureCacheDuration);
+            }
             return false;
         }
     }
