@@ -230,6 +230,12 @@ public class SongFilter
     public bool DescriptionOverride => IsRaw && !string.IsNullOrWhiteSpace(Purchase);
 
     public virtual KeywordQuery KeywordQuery => new(SearchString);
+
+    /// <summary>
+    /// The search text to send to Azure: the user's text escaped (KeywordQuery.AzureSearch), or a
+    /// raw admin search exactly as typed.
+    /// </summary>
+    public string AzureSearchText => IsRaw ? SearchString : KeywordQuery.AzureSearch;
     public virtual DanceQuery DanceQuery => new(IsRaw ? null : Dances);
     public virtual RawDanceQuery RawDanceQuery => new(Dances, Tags);
     public virtual UserQuery UserQuery => new(User);
@@ -649,6 +655,13 @@ public class SongFilter
     public static bool IsCustomSearchName(string name) =>
         name != null && CustomSearchNames.Contains(name);
 
+    /// <summary>
+    /// True for no dance or a dance name (any case) CreateCustomSearchFilter knows; it throws for
+    /// anything else.
+    /// </summary>
+    public static bool IsCustomSearchDance(string dance) =>
+        string.IsNullOrWhiteSpace(dance) || DanceLibrary.Dances.Instance.DanceFromName(dance) != null;
+
     public virtual SongFilter CreateCustomSearchFilter(string name = "holiday", string dance = null, int page = 1)
     {
         name = string.IsNullOrWhiteSpace(name) ? "holiday" : name;
@@ -668,12 +681,12 @@ public class SongFilter
         }
         else
         {
-            var d = DanceLibrary.Dances.Instance.DanceFromName(dance);
-            if (d != null)
-            {
-                danceFilter = $"DanceTags/any(t: t eq '{dance}')";
-                danceSort = $"dance_{d.Id}/Votes desc";
-            }
+            // DanceTags holds the canonical name and eq is case-sensitive, so ?dance=quickstep
+            // has to filter on "Quickstep"
+            var d = DanceLibrary.Dances.Instance.DanceFromName(dance)
+                ?? throw new ArgumentOutOfRangeException(nameof(dance), dance, "Unknown dance");
+            danceFilter = $"DanceTags/any(t: t eq '{d.Name}')";
+            danceSort = $"dance_{d.Id}/Votes desc";
         }
 
         var odata = string.IsNullOrWhiteSpace(dance)

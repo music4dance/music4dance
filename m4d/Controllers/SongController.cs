@@ -1883,7 +1883,7 @@ public class SongController : ContentController
                         var save = new List<Song>();
 
                         await foreach (var song in dms.SongIndex.StreamAll(
-                            capturedFilter.SearchString, parameters, CruftFilter.AllCruft))
+                            capturedFilter.AzureSearchText, parameters, CruftFilter.AllCruft))
                         {
                             try
                             {
@@ -2190,7 +2190,7 @@ public class SongController : ContentController
         var p = await AzureParmsFromFilter(filter, 1000);
         p.IncludeTotalCount = true;
 
-        var results = await SongIndex.Search(filter.SearchString, p, filter.CruftFilter);
+        var results = await SongIndex.Search(filter.AzureSearchText, p, filter.CruftFilter);
 
         return type switch
         {

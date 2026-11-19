@@ -133,7 +133,7 @@ public class SongSearch(SongFilter filter, string userName, bool isPremium, Song
         try
         {
             await foreach (var song in SongIndex.StreamAll(
-                Filter.SearchString, options, Filter.CruftFilter))
+                Filter.AzureSearchText, options, Filter.CruftFilter))
             {
                 if (predicate(song)) matched.Add(song);
             }

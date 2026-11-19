@@ -44,6 +44,12 @@ public class CustomSearchController : ContentController
             return ReturnError(HttpStatusCode.NotFound, "There's no custom search with that name.");
         }
 
+        // CreateCustomSearchFilter throws for an unknown dance (e.g. ?dance=Slow)
+        if (!SongFilter.IsCustomSearchDance(dance))
+        {
+            return ReturnError(HttpStatusCode.NotFound, "There's no dance with that name.");
+        }
+
         Filter = Database.SearchService.GetSongFilter().CreateCustomSearchFilter(name, dance, page);
         if (!Filter.DanceQuery.IsValid)
         {
@@ -91,8 +97,8 @@ public class CustomSearchController : ContentController
 
             if (!string.IsNullOrWhiteSpace(dance))
             {
-                var ds = Database.DanceStats.FromName(dance);
-                var danceName = $"{title} {ds.DanceName}";
+                // Known: IsCustomSearchDance passed above
+                var danceName = $"{title} {DanceLibrary.Dances.Instance.DanceFromName(dance).Name}";
                 var playlist = Database.PlayLists.FirstOrDefault(
                     p => p.Name == danceName && p.Type == PlayListType.SpotifyFromSearch);
                 playListId = playlist?.Id;

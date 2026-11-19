@@ -1481,13 +1481,13 @@ public class SongIndex
         }
 
         return await Search(
-            filter.SearchString, AzureParmsFromFilter(filter, pageSize), cruft);
+            filter.AzureSearchText, AzureParmsFromFilter(filter, pageSize), cruft);
     }
 
     public virtual async Task<SearchResults> Search(
         string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
     {
-        // Strip off the Lucene syntax indicator
+        // Strip off the Lucene syntax indicator (a filter's text is already escaped: AzureSearchText)
         search = new KeywordQuery(search).Keywords;
 
         try
