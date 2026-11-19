@@ -201,8 +201,10 @@ the static-file middleware. It handles only a `GET` or `HEAD` for a single-segme
   cache keeps anonymous HTML for a day.
 
 Setting `AssetArchive:Enabled` to `false` turns off both the archiving and the middleware.
-Protection starts with the second deploy that carries this code. The first one can only archive
-itself.
+A build archives itself when it starts, so pages cached while it serves are covered at the next
+deploy. The edge cache can go on as soon as the running build is archived. Only HTML from builds
+before this code, in a browser cache or an open tab, had no fallback at the first deploy that
+carried it.
 
 This doesn't use the zips Kudu keeps in `/home/data/SitePackages` (five on production, checked
 2026-11-19). Their layout and retention belong to the platform, and they don't exist when the
