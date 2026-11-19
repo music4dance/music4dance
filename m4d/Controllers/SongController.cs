@@ -884,25 +884,38 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> Album(string title)
     {
+        var spider = CheckSpiders();
+        if (spider != null)
+        {
+            return spider;
+        }
+
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            return ReturnError(HttpStatusCode.NotFound, @"Empty album title not valid.");
+        }
+
+        // A Search outage is a 503, not a 404: a 404 tells crawlers a real album page is gone.
+        // Checking first also sheds a burst quickly once Search is marked unavailable, instead
+        // of queueing every request behind a throttled service.
+        if (!IsSearchAvailable())
+        {
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
         try
         {
-            var spider = CheckSpiders();
-            if (spider != null)
-            {
-                return spider;
-            }
-
-            if (!string.IsNullOrWhiteSpace(title))
-            {
-                var model = await AlbumViewModel.Create(
-                    title, Mapper, DefaultCruftFilter(), Database);
-                model.Histories = ForListViewer(model.Histories);
-                return Vue3(
-                    $"Album: {title}", $"Songs for dancing on {title}", "album",
-                    model, danceEnvironment: true);
-            }
-
-            return ReturnError(HttpStatusCode.NotFound, @"Empty album title not valid.");
+            var model = await AlbumViewModel.Create(
+                title, Mapper, DefaultCruftFilter(), Database);
+            model.Histories = ForListViewer(model.Histories);
+            return Vue3(
+                $"Album: {title}", $"Songs for dancing on {title}", "album",
+                model, danceEnvironment: true);
+        }
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
+        {
+            HandleSearchServiceError(ex);
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
         }
         catch
         {
@@ -936,8 +949,22 @@ public class SongController : ContentController
                 : ReturnError(HttpStatusCode.NotFound, @"Empty artist name not valid.");
         }
 
-        var model = await ArtistViewModel.Create(
-            name, Mapper, DefaultCruftFilter(), Database, artistIndex);
+        if (!IsSearchAvailable())
+        {
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
+        ArtistViewModel model;
+        try
+        {
+            model = await ArtistViewModel.Create(
+                name, Mapper, DefaultCruftFilter(), Database, artistIndex);
+        }
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
+        {
+            HandleSearchServiceError(ex);
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
         model.Histories = ForListViewer(model.Histories);
 
         // Splitting credits turns one artist page into tens of thousands, most of them a
