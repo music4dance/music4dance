@@ -1,3 +1,4 @@
+import { formatArtists } from "./format";
 import type {
   SharedIdAction,
   SharedIdAdditionRequest,
@@ -192,6 +193,26 @@ export class ClusterChoice {
     }
     this.names[field] = null;
     this.typed[field] = text.trim() === "" || text === (proposed ?? "") ? null : text;
+  }
+
+  /**
+   * Merge artist: makes the cluster Merge and types the combined artists into the If merged
+   * column's Artist and Individual artists. Returns why it couldn't: the songs are split into
+   * groups, which can't be typed over, or the merge couldn't be previewed, so there's no box to
+   * type in; null when it could.
+   */
+  public typeArtists(artist: string, artists: string[]): string | null {
+    const proposal = this.cluster.proposal;
+    if (!proposal) {
+      return "The merge couldn't be previewed, so its artists can't be typed";
+    }
+    this.setAction("Merge");
+    if (!this.canType) {
+      return "Put the songs in one group to merge their artists";
+    }
+    this.typeName("artist", artist, proposal.artist);
+    this.typeName("artists", formatArtists(artists), formatArtists(proposal.artists));
+    return null;
   }
 
   public isAlbumRemoved(songId: string, album: number): boolean {

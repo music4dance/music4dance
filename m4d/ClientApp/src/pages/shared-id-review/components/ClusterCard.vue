@@ -8,6 +8,7 @@ import type {
   SharedIdServiceTrack,
 } from "../SharedIdReviewModel";
 import { formatArtists, formatDances, formatDate, formatLength } from "../format";
+import { mergeArtists } from "../mergeArtists";
 import { sortOutIds } from "../sortOut";
 import AlbumIds from "./AlbumIds.vue";
 import NameChoiceRow from "./NameChoiceRow.vue";
@@ -96,6 +97,25 @@ async function sortOut(): Promise<void> {
     sortOutError.value = `Sort out ids failed: ${e instanceof Error ? e.message : String(e)}`;
   } finally {
     sortingOut.value = false;
+  }
+}
+
+// Merge artist checks the combined artists against a track the songs have; Force doesn't
+const mergingArtists = ref(false);
+const artistsResult = ref<{ ok: boolean; message: string } | null>(null);
+
+async function onMergeArtists(force: boolean): Promise<void> {
+  mergingArtists.value = true;
+  artistsResult.value = null;
+  try {
+    artistsResult.value = await mergeArtists(props.choice, force);
+  } catch (e: unknown) {
+    artistsResult.value = {
+      ok: false,
+      message: `Merge artist failed: ${e instanceof Error ? e.message : String(e)}`,
+    };
+  } finally {
+    mergingArtists.value = false;
   }
 }
 
@@ -314,7 +334,32 @@ const ownerText: Record<string, string> = {
           >
             Sort out ids
           </BButton>
+          <BButton
+            size="sm"
+            variant="outline-secondary"
+            class="merge-artists-button"
+            :disabled="mergingArtists"
+            @click="onMergeArtists(false)"
+          >
+            Merge artist
+          </BButton>
+          <BButton
+            size="sm"
+            variant="outline-secondary"
+            class="force-merge-artists-button"
+            :disabled="mergingArtists"
+            @click="onMergeArtists(true)"
+          >
+            Force merge artist
+          </BButton>
         </div>
+        <p
+          v-if="artistsResult"
+          class="small mt-2 mb-0 artists-result"
+          :class="artistsResult.ok ? 'text-success' : 'text-danger'"
+        >
+          {{ artistsResult.message }}
+        </p>
         <BAlert v-if="lookupError" :model-value="true" variant="danger" class="mt-2 mb-0">
           {{ lookupError }}
         </BAlert>

@@ -72,11 +72,28 @@ public class SharedIdsController(
     public async Task<IActionResult> Owners([FromBody] SharedIdOwnersRequest request)
     {
         var songIds = (request?.SongIds ?? []).Take(SharedIdOwnersRequest.MaxSongs).ToList();
-        var manager = MusicServiceManager;
-        var ownership = await Database.SharedIds.ProposeOwners(songIds,
-            id => id is { Length: > 2 } && id[1] == ':' && MusicService.GetService(id[0]) is { } service
-                ? manager.GetMusicServiceTrack(id[2..], service)
-                : Task.FromResult<ServiceTrack>(null));
+        var ownership = await Database.SharedIds.ProposeOwners(songIds, TrackLookup());
         return JsonCamelCase(SharedIdOwnersResponse.Build(ownership));
+    }
+
+    //
+    // POST: /api/sharedids/artists
+    // The cluster's songs' artists combined, for Merge artist (checked against the songs'
+    // Spotify and iTunes tracks) and Force merge artist (force, not checked)
+    [HttpPost("artists")]
+    public async Task<IActionResult> Artists([FromBody] SharedIdArtistsRequest request)
+    {
+        var songIds = (request?.SongIds ?? []).Take(SharedIdOwnersRequest.MaxSongs).ToList();
+        var combined = await Database.SharedIds.CombineArtists(songIds, TrackLookup(), request?.Force == true);
+        return JsonCamelCase(SharedIdArtistsResponse.Build(combined));
+    }
+
+    // An extended id ("S:…", "I:…") to its track, through MusicServiceManager's track cache
+    private Func<string, Task<ServiceTrack>> TrackLookup()
+    {
+        var manager = MusicServiceManager;
+        return id => id is { Length: > 2 } && id[1] == ':' && MusicService.GetService(id[0]) is { } service
+            ? manager.GetMusicServiceTrack(id[2..], service)
+            : Task.FromResult<ServiceTrack>(null);
     }
 }

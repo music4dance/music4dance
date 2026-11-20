@@ -220,7 +220,7 @@ public static class SharedIdOwners
 
     // The track's individual artists: Spotify lists them, and an iTunes credit (and its title's
     // feat. clause) is split with the songs' artists as evidence
-    private static HashSet<string> TrackArtistKeys(ServiceTrack track, IArtistKnowledge knowledge) =>
+    internal static HashSet<string> TrackArtistKeys(ServiceTrack track, IArtistKnowledge knowledge) =>
         ArtistKeys(track.Artists is { Length: > 0 } ? track.Artists
             : FeaturedCleanup.IndividualArtists(new Song { Title = track.Name, Artist = track.Artist ?? "" }, knowledge),
             knowledge);

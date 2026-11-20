@@ -278,6 +278,31 @@ public record SharedIdOwnerView(string Id,
     [property: JsonConverter(typeof(StringEnumConverter))] SharedIdOwnerStatus Status,
     string Reason, Guid? Song, string Via, bool Shared = true);
 
+/// <summary>
+/// POST /api/sharedids/artists: a cluster's songs, and whether to combine their artists without
+/// checking them against the songs' tracks (Force merge artist).
+/// </summary>
+public class SharedIdArtistsRequest
+{
+    public List<Guid> SongIds { get; set; } = [];
+    public bool Force { get; set; }
+}
+
+/// <summary>
+/// What POST /api/sharedids/artists gives (SharedIdCombinedArtists): the songs' artists
+/// combined, whether a track credits all of them (Via, the track's id), and otherwise the ones
+/// the track leaves out or why nothing was checked. Empty when fewer than two of the songs are
+/// left.
+/// </summary>
+public record SharedIdArtistsResponse(string Artist, IReadOnlyList<string> Artists, bool Confirmed,
+    string Via, IReadOnlyList<string> Missing, string Reason)
+{
+    public static SharedIdArtistsResponse Build(SharedIdCombinedArtists combined) =>
+        combined == null ? new SharedIdArtistsResponse(null, [], false, null, [], "The songs changed: reload")
+            : new SharedIdArtistsResponse(combined.Artist, combined.Artists, combined.Confirmed, combined.Via,
+                combined.Missing ?? [], combined.Reason);
+}
+
 /// <summary>POST /api/sharedids/tracks: extended ids ("S:…", "I:…") to look up.</summary>
 public class SharedIdTracksRequest
 {

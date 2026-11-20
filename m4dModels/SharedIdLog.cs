@@ -338,6 +338,25 @@ public class SharedIdLog(DanceMusicCoreService dms)
     public async Task<SharedIdOwnership> ProposeOwners(IEnumerable<Guid> songIds,
         Func<string, Task<ServiceTrack>> lookup)
     {
+        var songs = await FindSongs(songIds);
+        return songs.Count < 2 ? null : await SharedIdOwners.Propose(songs, lookup);
+    }
+
+    /// <summary>
+    /// The songs' artists combined, checked against their Spotify and iTunes tracks unless
+    /// <paramref name="force"/> (SharedIdArtists.Propose); null when fewer than two of the songs
+    /// are still in the catalog.
+    /// </summary>
+    public async Task<SharedIdCombinedArtists> CombineArtists(IEnumerable<Guid> songIds,
+        Func<string, Task<ServiceTrack>> lookup, bool force)
+    {
+        var songs = await FindSongs(songIds);
+        return songs.Count < 2 ? null : await SharedIdArtists.Propose(songs, lookup, force);
+    }
+
+    // The songs still in the catalog
+    private async Task<List<Song>> FindSongs(IEnumerable<Guid> songIds)
+    {
         var songs = new List<Song>();
         foreach (var id in (songIds ?? []).Distinct())
         {
@@ -348,7 +367,7 @@ public class SharedIdLog(DanceMusicCoreService dms)
             }
         }
 
-        return songs.Count < 2 ? null : await SharedIdOwners.Propose(songs, lookup);
+        return songs;
     }
 
     /// <summary>

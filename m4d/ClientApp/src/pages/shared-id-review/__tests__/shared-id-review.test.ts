@@ -367,6 +367,102 @@ describe("shared-id-review page", () => {
       expect(rejected.additions).toEqual([addition]);
     });
 
+    test("Merge artist types in the artists a track the songs have credits, and merges", async () => {
+      post.mockResolvedValueOnce({
+        data: {
+          artist: "Ann & Bob",
+          artists: ["Ann", "Bob"],
+          confirmed: true,
+          via: "S:sp1",
+          missing: [],
+        },
+      });
+      const wrapper = loadTestPage(App, model);
+      const card = cards(wrapper)[0]!;
+
+      await card.find(".merge-artists-button").trigger("click");
+      await flushPromises();
+
+      expect(lastRequest()).toEqual({
+        url: "/api/sharedids/artists",
+        body: { songIds: [songA, songB], force: false },
+      });
+      expect(card.find(".artists-result").text()).toBe("S:sp1 credits Ann & Bob: artists merged");
+      expect(card.find("#cluster-0-action-Merge").element).toHaveProperty("checked", true);
+      expect(card.find('input[aria-label="Type the artist if merged"]').element).toHaveProperty(
+        "value",
+        "Ann & Bob",
+      );
+
+      post.mockResolvedValueOnce({ data: { message: "Done" } });
+      await wrapper.find(".apply-button").trigger("click");
+      await flushPromises();
+
+      const [choice] = lastRequest().body.choices;
+      expect(choice.artist).toBe("Ann & Bob");
+      expect(choice.artists).toEqual(["Ann", "Bob"]);
+    });
+
+    test("Merge artist changes nothing when the track leaves an artist out", async () => {
+      post.mockResolvedValueOnce({
+        data: {
+          artist: "Ann & Bob",
+          artists: ["Ann", "Bob"],
+          confirmed: false,
+          via: "S:sp1",
+          missing: ["Bob"],
+        },
+      });
+      const wrapper = loadTestPage(App, model);
+      const card = cards(wrapper)[0]!;
+      const before = card.find("#cluster-0-action-Merge").element as HTMLInputElement;
+      const wasMerge = before.checked;
+
+      await card.find(".merge-artists-button").trigger("click");
+      await flushPromises();
+
+      expect(card.find(".artists-result").text()).toBe("S:sp1 doesn't credit Bob: nothing changed");
+      expect(before.checked).toBe(wasMerge);
+    });
+
+    test("Merge artist says why when the merge couldn't be previewed", async () => {
+      post.mockResolvedValueOnce({
+        data: {
+          artist: "Ann & Bob",
+          artists: ["Ann", "Bob"],
+          confirmed: true,
+          via: "S:sp1",
+          missing: [],
+        },
+      });
+      const wrapper = loadTestPage(App, model);
+      const card = cards(wrapper)[1]!;
+
+      await card.find(".merge-artists-button").trigger("click");
+      await flushPromises();
+
+      expect(card.find(".artists-result").text()).toBe(
+        "The merge couldn't be previewed, so its artists can't be typed",
+      );
+    });
+
+    test("Force merge artist doesn't need a track to credit them", async () => {
+      post.mockResolvedValueOnce({
+        data: { artist: "Ann & Bob", artists: ["Ann", "Bob"], confirmed: false, missing: [] },
+      });
+      const wrapper = loadTestPage(App, model);
+      const card = cards(wrapper)[0]!;
+
+      await card.find(".force-merge-artists-button").trigger("click");
+      await flushPromises();
+
+      expect(lastRequest().body.force).toBe(true);
+      expect(card.find(".artists-result").text()).toBe("Artists merged: Ann & Bob");
+      expect(
+        card.find('input[aria-label="Type the individual artists if merged"]').element,
+      ).toHaveProperty("value", "Ann | Bob");
+    });
+
     test("on the page, sorts out each cluster that's probably different songs", async () => {
       post.mockResolvedValueOnce({ data: owners });
       const wrapper = loadTestPage(App, model);

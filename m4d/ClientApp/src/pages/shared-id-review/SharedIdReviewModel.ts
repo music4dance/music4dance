@@ -182,6 +182,19 @@ export interface SharedIdOwnersResponse {
   additions?: SharedIdAdditionRequest[];
 }
 
+// POST /api/sharedids/artists (SharedIdArtistsResponse): the cluster's songs' artists combined,
+// as a credit joined with " & " and as the individual artists. Confirmed when the track via (a
+// Spotify or iTunes id the songs have) credits all of them; otherwise missing is the ones it
+// leaves out, or reason says why nothing was checked. Not checked at all for Force merge artist.
+export interface SharedIdArtistsResponse {
+  artist?: string;
+  artists: string[];
+  confirmed: boolean;
+  via?: string;
+  missing: string[];
+  reason?: string;
+}
+
 // POST /api/sharedids/tracks: what a music service says one of the ids is (SharedIdServiceTrack)
 export interface SharedIdServiceTrack {
   id: string;
