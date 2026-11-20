@@ -1,7 +1,7 @@
 # Partner API: Standalone Host Independent of the Web App
 
 **Type:** Plan
-**Status:** In progress. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided and PR 1 (skeleton + test environment) deployed 2026-11-01; PR 2 (resolve) deployed to test 2026-11-01; PR 3 (API keys and limits) deployed to test and PR 4 (key issuing pages) checked end to end against it 2026-11-04 (#389, with the `partnerDeveloper` role created on first use in #391). PRs 1 to 4 are done; PR 5 (unmatched queue) remains. PR 6 (production) is in progress: alias `songs-api-prod`, the `m4d-api` environment (no always-ready instance) and the `msc4dnc` vault connection were deployed 2026-11-19. The custom domain, alerts, index-versioning runbook step and first partner key remain.
+**Status:** In progress. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided and PR 1 (skeleton + test environment) deployed 2026-11-01; PR 2 (resolve) deployed to test 2026-11-01; PR 3 (API keys and limits) deployed to test and PR 4 (key issuing pages) checked end to end against it 2026-11-04 (#389, with the `partnerDeveloper` role created on first use in #391). PRs 1 to 4 are done; PR 5 (unmatched queue) remains. PR 6 (production) is in progress: alias `songs-api-prod`, the `m4d-api` environment (no always-ready instance), the `msc4dnc` vault connection and the `api.music4dance.net` custom domain were set up 2026-11-19. Alerts, index-versioning runbook step and first partner key remain.
 **Last verified:** 2026-11-06 (DNS for the custom domain now lives at Cloudflare; see [Operations](#operations))
 **Code:** `m4d-api/` (Azure Functions project: `/v1/health`, and `/v1/songs/resolve` behind partner API keys, a per-client rate limit and a daily cap), with infrastructure and the deploy script in `m4d-api/infra/` and unit tests in `m4d-api.Tests/`. Reads the index built by `m4dModels/SongIndex.cs`, guarded by `m4dModels.Tests/PartnerApiIndexContractTests.cs`; the existing in-app API foundation is under `m4d/PublicApi/`.
 
@@ -779,8 +779,21 @@ minutes however it's hosted. Two notes for expectations rather than action:
   - The zone's DNS moved to Cloudflare on 2026-11-05 (see
     [cloudflare-migration](cloudflare-migration.md)). Create the records **in Cloudflare**; any
     record added at Namecheap is ignored. They are a CNAME `api` to the function app's default
-    hostname and a TXT `asuid.api` with the function app's domain verification ID, which Azure
-    shows when the custom domain is added and is likely different from the web app's.
+    hostname and a TXT `asuid.api` with the function app's domain verification ID
+    (`properties.customDomainVerificationId` on the site). It differs from the web app's. Keep
+    the TXT record after setup, because certificate renewal checks it again.
+  - Set up 2026-11-19. With both records resolving:
+    1. `az webapp config hostname add -g m4d-api --webapp-name m4d-api --hostname api.music4dance.net`
+    2. `az webapp config ssl create -g m4d-api -n m4d-api --hostname api.music4dance.net` issues
+       the free managed certificate in a minute or two. The CLI prints a harmless
+       deserialization traceback. On Flex the certificate is **site-scoped**
+       (`Microsoft.Web/sites/m4d-api/certificates`), so `az webapp config ssl show`, `list` and
+       `bind` never find it. Read it with
+       `az rest --method get --url .../sites/m4d-api/certificates?api-version=2024-11-01`.
+    3. Bind it with a PUT to `.../sites/m4d-api/hostNameBindings/api.music4dance.net` with
+       `sslState: SniEnabled` and the certificate's `thumbprint`.
+    4. Check `https://api.music4dance.net/v1/health`. For the first few minutes Windows `curl`
+       may fail its revocation check on the new certificate. Retry, or use `--ssl-no-revoke`.
   - Keep `api` **DNS only** (grey cloud), never proxied. A proxied name resolves to
     Cloudflare, so the managed certificate couldn't be issued or renewed. Bot Fight Mode can't
     be skipped per host and could challenge server-to-server calls. And the API stays

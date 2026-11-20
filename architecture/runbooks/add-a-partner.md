@@ -18,7 +18,7 @@ For why it works this way (key format, the partner-keys vault, limits), see
 | Environment | Web app (issues keys) | API | Partner-keys vault | Key prefix |
 | --- | --- | --- | --- | --- |
 | test | `m4d-test` (App Configuration label `Staging`) | `https://m4d-api-test.azurewebsites.net` | `m4d-api-keys-test` | `m4d_test_` |
-| production | `msc4dnc` (label `Production`) | `https://m4d-api.azurewebsites.net` (custom domain `api.music4dance.net` to follow) | `m4d-api-keys` | `m4d_live_` |
+| production | `msc4dnc` (label `Production`) | `https://api.music4dance.net` (also `https://m4d-api.azurewebsites.net`) | `m4d-api-keys` | `m4d_live_` |
 
 Test and production are separate: a test key works only against the test API, and the
 partner's developer needs an account on each site.
@@ -104,7 +104,7 @@ through a channel you'd trust with a password, never plain email.
 1. With the key in an environment variable (so it doesn't land in shell history):
 
    ```bash
-   curl -s -X POST https://m4d-api-test.azurewebsites.net/v1/songs/resolve \
+   curl -s -X POST https://m4d-api-test.azurewebsites.net/v1/songs/resolve   # production: https://api.music4dance.net \
      -H "Authorization: Bearer $PARTNER_KEY" -H "Content-Type: application/json" \
      -d '{"title":"Moon River","artist":"Andy Williams"}'
    ```
