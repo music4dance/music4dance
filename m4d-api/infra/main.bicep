@@ -33,6 +33,10 @@ param maximumInstanceCount int = 2
 
 param instanceMemoryMB int = 2048
 
+@description('Always-ready instances for the HTTP trigger group. 0 scales to zero, so a request after a quiet spell is a ~2.5 s cold start. Each always-ready instance is a fixed monthly charge with no free grant.')
+@minValue(0)
+param alwaysReadyHttpInstances int = 0
+
 var deploymentContainer = 'app-package'
 
 // Built-in role definition ids
@@ -139,6 +143,7 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
       scaleAndConcurrency: {
         maximumInstanceCount: maximumInstanceCount
         instanceMemoryMB: instanceMemoryMB
+        alwaysReady: alwaysReadyHttpInstances > 0 ? [{ name: 'http', instanceCount: alwaysReadyHttpInstances }] : []
       }
       runtime: { name: 'dotnet-isolated', version: '10.0' }
     }

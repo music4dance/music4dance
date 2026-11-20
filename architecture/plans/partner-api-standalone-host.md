@@ -1,7 +1,7 @@
 # Partner API: Standalone Host Independent of the Web App
 
 **Type:** Plan
-**Status:** In progress. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided and PR 1 (skeleton + test environment) deployed 2026-11-01; PR 2 (resolve) deployed to test 2026-11-01; PR 3 (API keys and limits) deployed to test and PR 4 (key issuing pages) checked end to end against it 2026-11-04 (#389, with the `partnerDeveloper` role created on first use in #391). PRs 1 to 4 are done; PR 5 (unmatched queue) and PR 6 (production) remain.
+**Status:** In progress. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided and PR 1 (skeleton + test environment) deployed 2026-11-01; PR 2 (resolve) deployed to test 2026-11-01; PR 3 (API keys and limits) deployed to test and PR 4 (key issuing pages) checked end to end against it 2026-11-04 (#389, with the `partnerDeveloper` role created on first use in #391). PRs 1 to 4 are done; PR 5 (unmatched queue) remains. PR 6 (production) is in progress: alias `songs-api-prod`, the `m4d-api` environment (no always-ready instance) and the `msc4dnc` vault connection were deployed 2026-11-19. The custom domain, alerts, index-versioning runbook step and first partner key remain.
 **Last verified:** 2026-11-06 (DNS for the custom domain now lives at Cloudflare; see [Operations](#operations))
 **Code:** `m4d-api/` (Azure Functions project: `/v1/health`, and `/v1/songs/resolve` behind partner API keys, a per-client rate limit and a daily cap), with infrastructure and the deploy script in `m4d-api/infra/` and unit tests in `m4d-api.Tests/`. Reads the index built by `m4dModels/SongIndex.cs`, guarded by `m4dModels.Tests/PartnerApiIndexContractTests.cs`; the existing in-app API foundation is under `m4d/PublicApi/`.
 
@@ -694,6 +694,7 @@ mix, and the limits should be reset from that.
 | Setting | Start | Why |
 | --- | --- | --- |
 | Instance size | 2 GB | Faster cold start than 512 MB, which matters with a person waiting. At these volumes the cost difference is small; revisit after the spike. |
+| Always-ready instances | 0 | Scale to zero until the API brings in income (see [Decisions so far](#decisions-so-far)). |
 | Max instances | 2 | One instance covers ~10,000 subscribers; the second covers bursts and instance recycling. Raise to 4 if limits are raised. |
 | Per-client rate limit | 20 req/s sustained, burst 50 | ~20× the expected peak at 1,000 subscribers; low enough that a runaway client can't swamp Search |
 | Daily cap | 100,000 calls | Far above expected use (~1,000 subscribers × a few dozen lookups on a busy day); catches bugs and loops |
@@ -787,9 +788,13 @@ minutes however it's hosted. Two notes for expectations rather than action:
   - The function's rate limit and daily cap are per API key, not per IP, so they don't need
     the web app's `CF-Connecting-IP` handling. That would change only if `api` were ever
     proxied.
-- **Monitoring.** Application Insights on the function, with an availability test against
-  `/v1/health` from a couple of regions and alerts on 5xx rate, on p95 latency, and on a
-  client reaching its daily cap (logged as a warning: `Client {Client} reached its daily cap`).
+- **Monitoring.** Application Insights on the function, with alerts on 5xx rate, on p95
+  latency, and on a client reaching its daily cap (logged as a warning:
+  `Client {Client} reached its daily cap`). **No availability test**, deferred indefinitely
+  (decided 2026-11-19). Classic URL ping tests are retired, and standard tests are billed per
+  run: 5-minute probes from two regions are ~17,000 runs a month. Probes would also keep waking
+  the function and undo scale-to-zero. Partner traffic and the 5xx alert show an outage
+  instead.
   `Program.cs` removes the Application Insights SDK's default Warning-and-above filter; until PR
   3 it silently dropped the per-query Search timings (`Resolved {Match} by {Method} for {Client}`)
   and every other Information log.
@@ -940,6 +945,8 @@ the test environment uses it.
 | Subscriber ids | Not sent. Settlement uses call volume or the partner's reporting. |
 | Fuzzy matches | Returned as candidates with evidence (including length); the third-party app decides how to present them. |
 | Client authentication | API keys, issued by the partner developer from a music4dance.net page, hashes in a dedicated Key Vault per environment. See [Authentication](#authentication-dont-route-token-issuance-through-the-web-app). |
+| Cold starts (decided 2026-11-19) | **No always-ready instance until the partner API brings in income.** Production scales to zero and accepts the ~2.5 s first lookup after a quiet spell. `alwaysReadyHttpInstances` in `m4d-api/infra/prod.bicepparam` is pinned to 0, and raising it is a deliberate cost decision. Revisit once a partner is paying. Startup warming (a cheap way to cut ~0.5 s) is still open. |
+| Availability tests (decided 2026-11-19) | **Deferred indefinitely.** They're billed per run and would keep the function warm, which undoes scale-to-zero. See [Operations](#operations) § Monitoring. |
 
 ## Open questions
 
@@ -954,8 +961,9 @@ the test environment uses it.
    partner's launch plans? The spike showed 20 req/s is absorbed easily on a normal day, but
    the capacity section argues for ~5 req/s if the 20% carve-out is policy. Pick one number
    for both sections.
-5. **Cold starts.** Startup warming only, or an always-ready instance as well? Depends on how
-   the partner app handles a 2 s first lookup.
+5. **Cold starts.** The always-ready instance is decided: none until there's income (see
+   [Decisions so far](#decisions-so-far)). Still open is whether to add startup warming, which
+   depends on how the partner app handles a 2 s first lookup.
 
 ---
 
