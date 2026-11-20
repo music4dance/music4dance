@@ -11,9 +11,18 @@
 <p>
     Clients of the standalone partner API (<code>m4d-api</code>), the accounts that can issue their keys,
     and the keys themselves. Limits and status are copied to the partner-keys vault, where the API
-    reads them within 5 minutes; an empty limit uses the API's default. Developers manage their own
+    reads them within 5 minutes. Developers manage their own
     keys at @Html.ActionLink("Partner API Keys", "Index", "PartnerKeys").
     @(Model.IsLive ? "This site issues live keys." : "This site issues test keys.")
+</p>
+
+<p class="form-text">
+    <strong>Limit defaults:</strong> 20 requests/second, burst 50, daily cap 100,000. A blank limit
+    isn't pinned to these numbers: it's saved as empty, and the API applies its current default on
+    every request, so a client with blank limits follows any later change to the defaults. Those
+    are the API's built-in values; the <code>PARTNER_DEFAULT_RATE</code>,
+    <code>PARTNER_DEFAULT_BURST</code> and <code>PARTNER_DEFAULT_DAILY_CAP</code> app settings on
+    the function app override them. Enter a number only to give a client its own limit.
 </p>
 
 @if (!Model.VaultConnected)
@@ -58,15 +67,15 @@
                 </div>
                 <div class="col-sm-2">
                     <label class="form-label" for="rate-@client.Id">Requests/second</label>
-                    <input class="form-control" id="rate-@client.Id" name="ratePerSecond" type="number" step="any" min="0.01" value="@client.RatePerSecond" placeholder="default" />
+                    <input class="form-control" id="rate-@client.Id" name="ratePerSecond" type="number" step="any" min="0.01" value="@client.RatePerSecond" placeholder="default (20)" />
                 </div>
                 <div class="col-sm-2">
                     <label class="form-label" for="burst-@client.Id">Burst</label>
-                    <input class="form-control" id="burst-@client.Id" name="burst" type="number" min="1" value="@client.Burst" placeholder="default" />
+                    <input class="form-control" id="burst-@client.Id" name="burst" type="number" min="1" value="@client.Burst" placeholder="default (50)" />
                 </div>
                 <div class="col-sm-2">
                     <label class="form-label" for="cap-@client.Id">Daily cap</label>
-                    <input class="form-control" id="cap-@client.Id" name="dailyCap" type="number" min="1" value="@client.DailyCap" placeholder="default" />
+                    <input class="form-control" id="cap-@client.Id" name="dailyCap" type="number" min="1" value="@client.DailyCap" placeholder="default (100,000)" />
                 </div>
                 <div class="col-sm-1 form-check ms-2">
                     <input class="form-check-input" id="disabled-@client.Id" name="disabled" type="checkbox" value="true" @(client.Disabled ? "checked" : "") />
@@ -128,15 +137,15 @@
     </div>
     <div class="col-sm-2">
         <label class="form-label" for="new-rate">Requests/second</label>
-        <input class="form-control" id="new-rate" name="ratePerSecond" type="number" step="any" min="0.01" placeholder="default" />
+        <input class="form-control" id="new-rate" name="ratePerSecond" type="number" step="any" min="0.01" placeholder="default (20)" />
     </div>
     <div class="col-sm-2">
         <label class="form-label" for="new-burst">Burst</label>
-        <input class="form-control" id="new-burst" name="burst" type="number" min="1" placeholder="default" />
+        <input class="form-control" id="new-burst" name="burst" type="number" min="1" placeholder="default (50)" />
     </div>
     <div class="col-sm-2">
         <label class="form-label" for="new-cap">Daily cap</label>
-        <input class="form-control" id="new-cap" name="dailyCap" type="number" min="1" placeholder="default" />
+        <input class="form-control" id="new-cap" name="dailyCap" type="number" min="1" placeholder="default (100,000)" />
     </div>
     <div class="col-sm-auto">
         <button type="submit" class="btn btn-primary">Add</button>
