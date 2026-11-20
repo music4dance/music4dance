@@ -101,10 +101,11 @@ through a channel you'd trust with a password, never plain email.
 
 ## Verification
 
-1. With the key in an environment variable (so it doesn't land in shell history):
+1. With the key in an environment variable (so it doesn't land in shell history), call the
+   API. This is the test one; for production use `https://api.music4dance.net`:
 
    ```bash
-   curl -s -X POST https://m4d-api-test.azurewebsites.net/v1/songs/resolve   # production: https://api.music4dance.net \
+   curl -s -X POST https://m4d-api-test.azurewebsites.net/v1/songs/resolve \
      -H "Authorization: Bearer $PARTNER_KEY" -H "Content-Type: application/json" \
      -d '{"title":"Moon River","artist":"Andy Williams"}'
    ```
