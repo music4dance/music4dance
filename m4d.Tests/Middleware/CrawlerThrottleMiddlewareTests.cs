@@ -212,6 +212,27 @@ public class CrawlerThrottleMiddlewareTests
     }
 
     [TestMethod]
+    public async Task DefaultAgentLimits_ThrottleTheChrome48Crawler_NotOtherBrowsers()
+    {
+        const string chrome48 =
+            "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36";
+        var harness = new Harness(Config(limit: 20));
+
+        var crawler = new List<int>();
+        for (var i = 0; i < 6; i++)
+        {
+            crawler.Add((await SendAsync(harness, chrome48)).Response.StatusCode);
+        }
+        for (var i = 0; i < 6; i++)
+        {
+            await SendAsync(harness, Browser);
+        }
+
+        CollectionAssert.AreEqual(new[] { 200, 200, 200, 200, 200, 429 }, crawler);
+        Assert.AreEqual(11, harness.NextCalls);
+    }
+
+    [TestMethod]
     public async Task ExemptFragment_WinsOverAgentLimit()
     {
         var harness = new Harness(Config(limit: 1, agentLimits: "googlebot=1"));

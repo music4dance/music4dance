@@ -156,7 +156,7 @@ go in user secrets.
 | `CrawlerThrottle:MaxRequestsPerMinute` | same | Per request | `20` | `20` |
 | `CrawlerThrottle:ExemptFragments` (`;`-separated) | same | Per request | Google's crawlers, `bingbot`, `applebot`, `duckduckbot` | same list |
 | `CrawlerThrottle:PathPrefixes` (`;`-separated) | same | Per request | `/song;/customsearch;/dances` | same |
-| `CrawlerThrottle:AgentLimits` (`;`-separated `fragment` or `fragment=limit`) | same | Per request | `reflectionbot=3;barkrowler;meta-externalagent;meta-webindexer` | same |
+| `CrawlerThrottle:AgentLimits` (`;`-separated `fragment` or `fragment=limit`) | same | Per request | `reflectionbot=3;barkrowler;meta-externalagent;meta-webindexer;chrome/48.0.2564.116=5` | same |
 | `EdgeCache:Enabled` | `EdgeCacheOptions` (`CacheControlMiddleware`) | Per request | `false` | `false` (App Configuration turns it on for Production) |
 | `EdgeCache:MaxAgeSeconds` | same | Per request | `86400` (also used for zero or negative values) | `86400` |
 | `Configuration:Commerce:Enabled` | `CommerceController.IsCommerceEnabled` | Per request | `true` | (unset; sandbox `false`) |
