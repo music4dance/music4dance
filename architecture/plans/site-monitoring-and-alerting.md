@@ -69,15 +69,26 @@ Starting thresholds:
 | --- | --- | --- | --- | --- |
 | Site slow | `HttpResponseTime` (Average) | 5 min / 1 min | > 1 s | 2 |
 | Site very slow | `HttpResponseTime` (Average) | 5 min / 1 min | > 3 s | 1 |
-| Server errors | `Http5xx` (Total) | 5 min / 1 min | > 25 | 2 |
+| Server errors | `Http5xx` (Total) | 5 min / 1 min | > 10 | 2 |
 | Health check failing | `HealthCheckStatus` (Average) | 5 min / 1 min | < 100 | 1 |
-| Traffic spike | `Requests` (Total) | 5 min / 5 min | > 15,000 (about 6x a normal 5 minutes) | 3 |
+| Traffic spike | `Requests` (Total) | 5 min / 5 min | > 5,000 | 3 |
 
 - **Cost:** metric alert rules are about $0.10 per monitored time series a month, so this set
   costs about $0.50 a month.
-- **`HttpResponseTime` is an average over every request,** static files included, and those
-  stay fast during a burst. That pulls the average down, so 1 s may be too high. Replay one
-  of the 2026-10-31 bursts in the portal's metric chart (1-minute grain) before settling on it.
+- **Replayed against the 1-minute metrics (2026-11-20)**, using a request-weighted 5-minute
+  rolling average:
+
+  | Day | 5-min average response time: median / max | Requests per 5 min: median / max | Windows over 1 s | Windows over 3 s |
+  | --- | --- | --- | --- | --- |
+  | 2026-10-31 (wave) | 0.021 s / 3.93 s | 598 / 53,728 | 9 | 3 |
+  | 2026-11-18 (wave, Search throttling) | 0.030 s / 15.9 s | 228 / 8,101 | 18 | 13 |
+  | 2026-11-19 (normal) | 0.024 s / 0.54 s | 265 / 4,190 | 0 | 0 |
+
+  Both incidents would have fired "slow" and "very slow", and the normal day fires neither.
+  The spike threshold is 5,000, not the 15,000 first proposed: 15,000 would have missed the
+  11-18 wave (8,101), and a normal day reached 4,190. Http5xx stayed at 0–1 per 5 minutes
+  on all three days, including both waves, so the 5xx alert catches a different kind of
+  failure.
 - **Alert state:** Azure sends one email when an alert fires and one when it resolves (with
   auto-resolve on). That gives an incident's start and end without any extra work.
 - **Blind spots:** these metrics come from the App Service front ends. They can't see DNS,
