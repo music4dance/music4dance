@@ -1,5 +1,6 @@
 #nullable enable
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using m4d.Services;
 using m4d.Services.ServiceHealth;
@@ -29,7 +30,15 @@ public class HealthController : ControllerBase
     }
 
     /// <summary>
-    /// Get health status of all services
+    /// The role that may see the diagnostic detail: the error text (often a raw exception
+    /// message) and response times. Everyone else gets each service's name and status, which
+    /// is all the status banner uses.
+    /// </summary>
+    public const string DetailRole = "showDiagnostics";
+
+    /// <summary>
+    /// Get health status of all services. Public, because every page's status banner polls
+    /// it; the error text and response times are only included for <see cref="DetailRole"/>.
     /// </summary>
     /// <returns>JSON object with service health information</returns>
     [HttpGet("status")]
@@ -37,6 +46,7 @@ public class HealthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public IActionResult GetStatus()
     {
+        var details = User.IsInRole(DetailRole);
         var allStatuses = _serviceHealth.GetAllStatuses();
         var summary = _serviceHealth.GetHealthSummary();
 
@@ -58,8 +68,8 @@ public class HealthController : ControllerBase
                 status = s.Status.ToString().ToLowerInvariant(),
                 lastChecked = s.LastChecked,
                 lastHealthy = s.LastHealthy,
-                errorMessage = s.ErrorMessage,
-                responseTime = s.ResponseTime?.TotalMilliseconds,
+                errorMessage = details ? s.ErrorMessage : null,
+                responseTime = details ? s.ResponseTime?.TotalMilliseconds : null,
                 consecutiveFailures = s.ConsecutiveFailures
             })
         };
@@ -96,9 +106,10 @@ public class HealthController : ControllerBase
     }
 
     /// <summary>
-    /// Human-readable health report (HTML)
+    /// Human-readable health report (HTML), with the error text. <see cref="DetailRole"/> only.
     /// </summary>
     [HttpGet("report")]
+    [Authorize(Roles = DetailRole)]
     [Produces("text/html")]
     public IActionResult GetReport()
     {
