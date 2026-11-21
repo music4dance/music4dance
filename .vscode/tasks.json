@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Functions: Build",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "type": "process",
+      "group": "build",
+      "problemMatcher": "$msCompile",
+      "options": {
+        "cwd": "${workspaceFolder}/m4d-api"
+      }
+    },
+    {
+      "label": "Functions: Run",
+      "detail": "Runs m4d-api under Functions Core Tools for the 'Attach to .NET Functions' debug config. Deploy with m4d-api/infra/deploy.ps1, not from VS Code.",
+      "type": "func",
+      "dependsOn": "Functions: Build",
+      "options": {
+        "cwd": "${workspaceFolder}/m4d-api/bin/Debug/net10.0"
+      },
+      "command": "host start",
+      "args": ["--dotnet-isolated-debug", "--enable-json-output"],
+      "isBackground": true,
+      "problemMatcher": "$func-dotnet-watch"
+    }
+  ]
+}
