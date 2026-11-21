@@ -2,7 +2,17 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { flushPromises, type VueWrapper } from "@vue/test-utils";
 import { loadTestPage, testPageSnapshot } from "@/helpers/TestPageSnapshot";
 import App from "../App.vue";
-import { emptyModel, model, songA, songB, songC, songD, songE } from "./model";
+import {
+  emptyModel,
+  featCluster,
+  model,
+  rejectedCluster,
+  songA,
+  songB,
+  songC,
+  songD,
+  songE,
+} from "./model";
 
 const { post, navigateTo } = vi.hoisted(() => ({ post: vi.fn(), navigateTo: vi.fn() }));
 
@@ -461,6 +471,123 @@ describe("shared-id-review page", () => {
       expect(
         card.find('input[aria-label="Type the individual artists if merged"]').element,
       ).toHaveProperty("value", "Ann | Bob");
+    });
+
+    test("Unmerge artist puts back the action and the artists Merge artist typed over", async () => {
+      post.mockResolvedValueOnce({
+        data: {
+          artist: "Ann & Bob",
+          artists: ["Ann", "Bob"],
+          confirmed: true,
+          via: "S:sp1",
+          missing: [],
+        },
+      });
+      const wrapper = loadTestPage(App, model);
+      const card = cards(wrapper)[0]!;
+      const artistBox = () =>
+        card.find('input[aria-label="Type the artist if merged"]').element as HTMLInputElement;
+      await card.find("#cluster-0-action-Leave").setValue(true);
+
+      await card.find(".merge-artists-button").trigger("click");
+      await flushPromises();
+
+      expect(card.find(".merge-artists-button").exists()).toBe(false);
+      expect(card.find(".force-merge-artists-button").exists()).toBe(false);
+      expect(artistBox().value).toBe("Ann & Bob");
+
+      await card.find(".unmerge-artists-button").trigger("click");
+
+      expect(card.find(".unmerge-artists-button").exists()).toBe(false);
+      expect(card.find(".merge-artists-button").exists()).toBe(true);
+      expect(card.find(".artists-result").exists()).toBe(false);
+      expect(card.find("#cluster-0-action-Leave").element).toHaveProperty("checked", true);
+
+      await card.find("#cluster-0-action-Merge").setValue(true);
+      expect(artistBox().value).toBe("Probe Artist");
+
+      post.mockResolvedValueOnce({ data: { message: "Done" } });
+      await wrapper.find(".apply-button").trigger("click");
+      await flushPromises();
+
+      const [choice] = lastRequest().body.choices;
+      expect(choice.artist).toBeNull();
+      expect(choice.artists).toBeNull();
+    });
+
+    test("on the page, merges the artists of each cluster whose songs credit different ones", async () => {
+      const [first, second] = featCluster.songs;
+      const credits = {
+        ...model,
+        clusters: [
+          {
+            ...featCluster,
+            songs: [
+              { ...first!, artist: "Ann" },
+              { ...second!, artist: "Bob" },
+            ],
+          },
+          rejectedCluster,
+        ],
+      };
+      post.mockResolvedValueOnce({
+        data: {
+          artist: "Ann & Bob",
+          artists: ["Ann", "Bob"],
+          confirmed: true,
+          via: "S:sp1",
+          missing: [],
+        },
+      });
+      const wrapper = loadTestPage(App, credits);
+      const button = wrapper.find(".merge-artists-page-button");
+      expect(button.text()).toBe("Merge artists on this page (1)");
+
+      await button.trigger("click");
+      await flushPromises();
+
+      expect(post).toHaveBeenCalledTimes(1);
+      expect(lastRequest()).toEqual({
+        url: "/api/sharedids/artists",
+        body: { songIds: [songA, songB], force: false },
+      });
+      expect(wrapper.find(".merging-artists-progress").text()).toBe(
+        "Merged the artists of 1 of 1 clusters. Check them (Unmerge artist puts one back), then Apply.",
+      );
+      const card = cards(wrapper)[0]!;
+      expect(card.find(".artists-result").text()).toBe("S:sp1 credits Ann & Bob: artists merged");
+      expect(card.find(".unmerge-artists-button").exists()).toBe(true);
+      expect(wrapper.find(".merge-artists-page-button").exists()).toBe(false);
+    });
+
+    test("on the page, a cluster that fails is left as it was", async () => {
+      const [first, second] = featCluster.songs;
+      const credits = {
+        ...model,
+        clusters: [
+          {
+            ...featCluster,
+            songs: [
+              { ...first!, artist: "Ann" },
+              { ...second!, artist: "Bob" },
+            ],
+          },
+        ],
+      };
+      post.mockRejectedValueOnce(new Error("Request failed with status code 500"));
+      const wrapper = loadTestPage(App, credits);
+
+      await wrapper.find(".merge-artists-page-button").trigger("click");
+      await flushPromises();
+
+      expect(wrapper.find(".merging-artists-progress").text()).toContain(
+        "Merged the artists of 0 of 1 clusters",
+      );
+      const card = cards(wrapper)[0]!;
+      expect(card.find(".artists-result").text()).toBe(
+        "Merge artist failed: Request failed with status code 500",
+      );
+      expect(card.find(".merge-artists-button").exists()).toBe(true);
     });
 
     test("on the page, sorts out each cluster that's probably different songs", async () => {

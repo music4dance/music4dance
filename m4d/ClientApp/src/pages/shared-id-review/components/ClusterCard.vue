@@ -100,20 +100,15 @@ async function sortOut(): Promise<void> {
   }
 }
 
-// Merge artist checks the combined artists against a track the songs have; Force doesn't
+// Merge artist checks the combined artists against a track the songs have; Force doesn't.
+// What it said is kept with the choice, so Merge artists on this page shows here too.
 const mergingArtists = ref(false);
-const artistsResult = ref<{ ok: boolean; message: string } | null>(null);
+const artistsResult = computed(() => props.choice.artistsResult);
 
 async function onMergeArtists(force: boolean): Promise<void> {
   mergingArtists.value = true;
-  artistsResult.value = null;
   try {
-    artistsResult.value = await mergeArtists(props.choice, force);
-  } catch (e: unknown) {
-    artistsResult.value = {
-      ok: false,
-      message: `Merge artist failed: ${e instanceof Error ? e.message : String(e)}`,
-    };
+    await mergeArtists(props.choice, force);
   } finally {
     mergingArtists.value = false;
   }
@@ -335,23 +330,34 @@ const ownerText: Record<string, string> = {
             Sort out ids
           </BButton>
           <BButton
+            v-if="choice.artistsMerged"
             size="sm"
             variant="outline-secondary"
-            class="merge-artists-button"
-            :disabled="mergingArtists"
-            @click="onMergeArtists(false)"
+            class="unmerge-artists-button"
+            @click="choice.untypeArtists()"
           >
-            Merge artist
+            Unmerge artist
           </BButton>
-          <BButton
-            size="sm"
-            variant="outline-secondary"
-            class="force-merge-artists-button"
-            :disabled="mergingArtists"
-            @click="onMergeArtists(true)"
-          >
-            Force merge artist
-          </BButton>
+          <template v-else>
+            <BButton
+              size="sm"
+              variant="outline-secondary"
+              class="merge-artists-button"
+              :disabled="mergingArtists"
+              @click="onMergeArtists(false)"
+            >
+              Merge artist
+            </BButton>
+            <BButton
+              size="sm"
+              variant="outline-secondary"
+              class="force-merge-artists-button"
+              :disabled="mergingArtists"
+              @click="onMergeArtists(true)"
+            >
+              Force merge artist
+            </BButton>
+          </template>
         </div>
         <p
           v-if="artistsResult"

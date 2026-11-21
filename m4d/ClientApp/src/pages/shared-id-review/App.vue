@@ -12,6 +12,7 @@ import {
 } from "./SharedIdReviewModel";
 import { formatDateTime } from "./format";
 import { navigateTo, reviewPageUrl } from "./navigate";
+import { mergeArtists } from "./mergeArtists";
 import { sortOutIds } from "./sortOut";
 import ClusterCard from "./components/ClusterCard.vue";
 
@@ -95,6 +96,37 @@ const sortingText = computed(() => {
     : `Sorted out the ids of ${s.total} clusters${failed}. Check the proposals, then Apply.`;
 });
 const sortingBusy = computed(() => !!sorting.value && sorting.value.done < sorting.value.total);
+
+// Merge artists on this page: Merge artist (checked against the tracks, never forced) on every
+// cluster whose songs credit different artists, one at a time like Sort out ids on this page
+const toMergeArtists = computed(() => choices.filter((c) => c.needsArtistMerge));
+const mergingArtists = ref<{ done: number; total: number; merged: number }>();
+
+async function mergeArtistsPage(): Promise<void> {
+  const clusters = toMergeArtists.value;
+  const progress = { done: 0, total: clusters.length, merged: 0 };
+  mergingArtists.value = progress;
+  for (const choice of clusters) {
+    if ((await mergeArtists(choice, false)).ok) {
+      progress.merged += 1;
+    }
+    progress.done += 1;
+    mergingArtists.value = { ...progress };
+  }
+}
+
+const mergingArtistsText = computed(() => {
+  const m = mergingArtists.value;
+  if (!m) {
+    return "";
+  }
+  return m.done < m.total
+    ? `Merging artists: ${m.done} of ${m.total} clusters`
+    : `Merged the artists of ${m.merged} of ${m.total} clusters. Check them (Unmerge artist puts one back), then Apply.`;
+});
+const mergingArtistsBusy = computed(
+  () => !!mergingArtists.value && mergingArtists.value.done < mergingArtists.value.total,
+);
 
 function onPageClick(event: BvEvent, page: number): void {
   event.preventDefault();
@@ -198,7 +230,10 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
       cluster Merge, but only when a Spotify or iTunes track the songs have (a shared one first)
       credits them all; otherwise it says which artists the track leaves out and changes nothing.
       <strong>Force merge artist</strong> does the same without checking. Either way you can still
-      edit the names before you apply.
+      edit the names before you apply. Once the artists are typed in, the buttons become
+      <strong>Unmerge artist</strong>, which puts the action and the artist names back as they were.
+      <strong>Merge artists on this page</strong> runs Merge artist, checked and never forced, on
+      every cluster whose songs credit different artists.
     </p>
     <p>
       The <strong>Merge all</strong> buttons merge in bulk, with the same feat. cleanup:
@@ -296,10 +331,21 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", leaveWarning));
           @click="sortOutPage"
           >Sort out ids on this page ({{ toSort.length }})</BButton
         >
+        <BButton
+          v-if="toMergeArtists.length > 0 || mergingArtistsBusy"
+          class="ms-2 merge-artists-page-button"
+          variant="outline-secondary"
+          :disabled="applying || mergingArtistsBusy"
+          @click="mergeArtistsPage"
+          >Merge artists on this page ({{ toMergeArtists.length }})</BButton
+        >
         <span v-if="changedCount > 0" class="ms-2 text-muted changed-count"
           >{{ changedCount }} changed from their defaults</span
         >
         <div v-if="sortingText" class="mt-2 small sorting-progress">{{ sortingText }}</div>
+        <div v-if="mergingArtistsText" class="mt-2 small merging-artists-progress">
+          {{ mergingArtistsText }}
+        </div>
       </div>
 
       <ClusterCard

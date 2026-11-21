@@ -1,17 +1,29 @@
 import { getMenuContext } from "@/helpers/GetMenuContext";
-import type { ClusterChoice } from "./ClusterChoice";
+import type { ArtistsResult, ClusterChoice } from "./ClusterChoice";
 import type { SharedIdArtistsResponse } from "./SharedIdReviewModel";
 
 /**
  * Merge artist (and, with force, Force merge artist): asks the server for the cluster's songs'
  * artists combined (POST /api/sharedids/artists) and, when a track the songs have credits them
  * all or force skips the check, types them into the If merged column and makes the cluster
- * Merge. Returns what happened, for the card to show.
+ * Merge. Keeps what happened with the choice, for the card to show, and returns it; a failed
+ * request is kept as a failure too.
  */
-export async function mergeArtists(
-  choice: ClusterChoice,
-  force: boolean,
-): Promise<{ ok: boolean; message: string }> {
+export async function mergeArtists(choice: ClusterChoice, force: boolean): Promise<ArtistsResult> {
+  let result: ArtistsResult;
+  try {
+    result = await combine(choice, force);
+  } catch (e: unknown) {
+    result = {
+      ok: false,
+      message: `Merge artist failed: ${e instanceof Error ? e.message : String(e)}`,
+    };
+  }
+  choice.artistsResult = result;
+  return result;
+}
+
+async function combine(choice: ClusterChoice, force: boolean): Promise<ArtistsResult> {
   const response = await getMenuContext().axiosXsrf.post<SharedIdArtistsResponse>(
     "/api/sharedids/artists",
     { songIds: choice.cluster.songs.map((s) => s.songId), force },

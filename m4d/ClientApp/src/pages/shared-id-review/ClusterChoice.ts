@@ -46,6 +46,19 @@ export function lookupIds(songs: SharedIdReviewSong[]): string[] {
   return [...new Set(ids.filter((id) => id.startsWith("S:") || id.startsWith("I:")))];
 }
 
+/** What Merge artist said it did, for the card to show. */
+export interface ArtistsResult {
+  ok: boolean;
+  message: string;
+}
+
+// The choice as it was before Merge artist typed the artists in, for Unmerge artist
+interface ArtistsUndo {
+  action: SharedIdAction;
+  names: Pick<Record<NameField, string | null>, "artist" | "artists">;
+  typed: Pick<Record<NameField, string | null>, "artist" | "artists">;
+}
+
 function albumKey(songId: string, album: number): string {
   return `${songId}|${album}`;
 }
@@ -89,6 +102,9 @@ export class ClusterChoice {
   public tracks?: Map<string, SharedIdServiceTrack>;
   // Which song each shared id belongs to, once Sort out ids has run
   public owners?: SharedIdOwnerProposal[];
+  // What the last Merge artist said, and, while its artists are typed in, what it typed over
+  public artistsResult: ArtistsResult | null = null;
+  public artistsUndo: ArtistsUndo | null = null;
 
   public constructor(public readonly cluster: SharedIdReviewCluster) {
     this.action = cluster.defaultAction;
@@ -197,22 +213,61 @@ export class ClusterChoice {
 
   /**
    * Merge artist: makes the cluster Merge and types the combined artists into the If merged
-   * column's Artist and Individual artists. Returns why it couldn't: the songs are split into
-   * groups, which can't be typed over, or the merge couldn't be previewed, so there's no box to
-   * type in; null when it could.
+   * column's Artist and Individual artists, remembering what they were for Unmerge artist.
+   * Returns why it couldn't: the songs are split into groups, which can't be typed over, or the
+   * merge couldn't be previewed, so there's no box to type in; null when it could. When it
+   * can't, nothing changes.
    */
   public typeArtists(artist: string, artists: string[]): string | null {
     const proposal = this.cluster.proposal;
     if (!proposal) {
       return "The merge couldn't be previewed, so its artists can't be typed";
     }
+    const undo: ArtistsUndo = this.artistsUndo ?? {
+      action: this.action,
+      names: { artist: this.names.artist, artists: this.names.artists },
+      typed: { artist: this.typed.artist, artists: this.typed.artists },
+    };
     this.setAction("Merge");
     if (!this.canType) {
+      this.action = undo.action;
       return "Put the songs in one group to merge their artists";
     }
     this.typeName("artist", artist, proposal.artist);
     this.typeName("artists", formatArtists(artists), formatArtists(proposal.artists));
+    this.artistsUndo = undo;
     return null;
+  }
+
+  /** Merge artist has typed the artists in, and Unmerge artist can put back what was there. */
+  public get artistsMerged(): boolean {
+    return this.artistsUndo !== null;
+  }
+
+  /** Unmerge artist: the action and the artist names as they were before Merge artist. */
+  public untypeArtists(): void {
+    const undo = this.artistsUndo;
+    if (!undo) {
+      return;
+    }
+    this.action = undo.action;
+    this.names.artist = undo.names.artist;
+    this.names.artists = undo.names.artists;
+    this.typed.artist = undo.typed.artist;
+    this.typed.artists = undo.typed.artists;
+    this.artistsUndo = null;
+    this.artistsResult = null;
+  }
+
+  /**
+   * The songs credit different artists and could be merged under all of them: Merge artists on
+   * this page runs for these.
+   */
+  public get needsArtistMerge(): boolean {
+    const artists = new Set(
+      this.cluster.songs.map((s) => (s.artist ?? "").trim().toLowerCase()).filter((a) => a !== ""),
+    );
+    return this.hasSongs && !!this.cluster.proposal && !this.artistsMerged && artists.size > 1;
   }
 
   public isAlbumRemoved(songId: string, album: number): boolean {
