@@ -232,7 +232,7 @@ the **HTTP Requests** log category to Log Analytics and query `AACHttpRequest`, 
 | `/health/startup` | Liveness: the process is listening | Always `200` |
 | `/health/ready` | Readiness: mapped directly on the pipeline, no MVC dependency | `200 ready` when `IsServiceHealthy("Database")`, else `503` |
 | `GET /api/health` | Coarse status | `503` only when `Database` is `Unavailable`; else `healthy` / `degraded` |
-| `GET /api/health/status` | Full JSON: per-service status, summary, and `updateMessage` (the admin "update warning"). Public, since every page's banner polls it; `errorMessage` and `responseTime` are `null` unless the caller has `showDiagnostics` | `503` when any service is `Unavailable` |
+| `GET /api/health/status` | Full JSON: per-service status, summary, and `updateMessage` (the admin "update warning"). Public, since every page's banner polls it; each service's `errorMessage`, `responseTime`, `lastHealthy` and `consecutiveFailures` are `null` unless the caller has `showDiagnostics` (`name`, `status` and `lastChecked` are always sent) | `503` when any service is `Unavailable` |
 | `GET /api/health/report` | Human-readable HTML table, with the error text. `showDiagnostics` only | `200` |
 
 The error text is often a raw exception message (`MarkUnavailable(..., $"{ex.GetType().Name}: {ex.Message}")`),

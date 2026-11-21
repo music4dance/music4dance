@@ -30,9 +30,11 @@ public class HealthController : ControllerBase
     }
 
     /// <summary>
-    /// The role that may see the diagnostic detail: the error text (often a raw exception
-    /// message) and response times. Everyone else gets each service's name and status, which
-    /// is all the status banner uses.
+    /// The role that may see the diagnostic detail for each service: errorMessage (often a raw
+    /// exception message), responseTime, lastHealthy and consecutiveFailures (which together
+    /// show when an outage started and how long it has run). For everyone else those fields
+    /// are null; they still get name, status and lastChecked, and the banner reads only name
+    /// and status.
     /// </summary>
     public const string DetailRole = "showDiagnostics";
 
@@ -67,10 +69,10 @@ public class HealthController : ControllerBase
                 name = s.ServiceName,
                 status = s.Status.ToString().ToLowerInvariant(),
                 lastChecked = s.LastChecked,
-                lastHealthy = s.LastHealthy,
+                lastHealthy = details ? s.LastHealthy : null,
                 errorMessage = details ? s.ErrorMessage : null,
                 responseTime = details ? s.ResponseTime?.TotalMilliseconds : null,
-                consecutiveFailures = s.ConsecutiveFailures
+                consecutiveFailures = details ? s.ConsecutiveFailures : (int?)null
             })
         };
 

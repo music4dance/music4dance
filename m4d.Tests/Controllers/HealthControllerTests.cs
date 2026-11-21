@@ -69,7 +69,10 @@ public class HealthControllerTests
         var services = Services(result);
         Assert.AreEqual("unavailable", services["Database"].GetProperty("status").GetString());
         Assert.AreEqual(JsonValueKind.Null, services["Database"].GetProperty("errorMessage").ValueKind);
+        Assert.AreEqual(JsonValueKind.Null, services["Database"].GetProperty("consecutiveFailures").ValueKind);
         Assert.AreEqual(JsonValueKind.Null, services["SearchService"].GetProperty("responseTime").ValueKind);
+        Assert.AreEqual(JsonValueKind.Null, services["SearchService"].GetProperty("lastHealthy").ValueKind);
+        Assert.AreEqual(JsonValueKind.String, services["SearchService"].GetProperty("lastChecked").ValueKind);
     }
 
     [TestMethod]
@@ -79,6 +82,8 @@ public class HealthControllerTests
 
         Assert.AreEqual(Failure, services["Database"].GetProperty("errorMessage").GetString());
         Assert.AreEqual(42, services["SearchService"].GetProperty("responseTime").GetDouble());
+        Assert.AreEqual(1, services["Database"].GetProperty("consecutiveFailures").GetInt32());
+        Assert.AreEqual(JsonValueKind.String, services["SearchService"].GetProperty("lastHealthy").ValueKind);
     }
 
     [TestMethod]
