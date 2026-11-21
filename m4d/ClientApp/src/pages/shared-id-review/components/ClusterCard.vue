@@ -148,6 +148,9 @@ const ownerText: Record<string, string> = {
       <BBadge v-if="cluster.lengthsDiffer" variant="warning" class="ms-2"
         >Lengths {{ formatLength(cluster.lengthSpread) }} apart</BBadge
       >
+      <BBadge v-else-if="cluster.temposAgree" variant="info" class="ms-2 tempos-agree"
+        >Lengths {{ formatLength(cluster.lengthSpread) }} apart, tempos agree</BBadge
+      >
       <BBadge v-if="choice.isDirty" variant="dark" class="ms-2">Changed</BBadge>
     </BCardHeader>
     <BCardBody>

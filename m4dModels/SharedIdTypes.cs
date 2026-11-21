@@ -23,8 +23,14 @@ public class SharedIdCluster
     // The longest song minus the shortest, in seconds (SharedIdMatcher.LengthSpread)
     public int LengthSpread { get; private set; }
 
-    // Further apart than SharedIdMatcher.LengthTolerance: probably different recordings
-    public bool LengthsDiffer => LengthSpread > SharedIdMatcher.LengthTolerance;
+    // Every song has a tempo, within SharedIdMatcher.TempoTolerance of the others
+    public bool TemposAgree { get; private set; }
+
+    // Further apart than SharedIdMatcher.LengthTolerance
+    public bool LengthsApart => LengthSpread > SharedIdMatcher.LengthTolerance;
+
+    // Lengths apart and tempos that don't settle it: probably different recordings
+    public bool LengthsDiffer => LengthsApart && !TemposAgree;
 
     // Identifies the cluster by its songs, whatever order they're listed in
     public string Key => string.Join(",", SongIds.Order());
@@ -39,6 +45,7 @@ public class SharedIdCluster
         HasNoMergeSong = songs.Any(s => s.SongProperties.Any(p => p.Name == Song.NoMergeCommand));
         Match = SharedIdMatcher.Match(songs);
         LengthSpread = SharedIdMatcher.LengthSpread(songs);
+        TemposAgree = SharedIdMatcher.TemposAgree(songs);
     }
 
     /// <summary>
@@ -223,7 +230,8 @@ public record SharedIdMergePlan(SharedIdCluster Cluster, string SkipReason)
     public const string NoMerge = "A song is marked .NoMerge";
     public const string NoArtist = "A song has no artist";
     public static readonly string LengthsDiffer =
-        $"The lengths are more than {SharedIdMatcher.LengthTolerance} seconds apart";
+        $"The lengths are more than {SharedIdMatcher.LengthTolerance} seconds apart, " +
+        $"and the tempos aren't all known and within {SharedIdMatcher.TempoTolerance} BPM";
     public const string WithoutFeaturing = "The titles or artists differ only by feat.";
     public const string SameArtists = "The same artists, credited differently";
     public const string ConfirmedArtists =

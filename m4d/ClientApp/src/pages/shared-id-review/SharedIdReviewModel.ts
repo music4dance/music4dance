@@ -75,6 +75,9 @@ export class SharedIdReviewCluster {
   // tolerance (SharedIdMatcher.LengthTolerance)
   @jsonMember(Number) public lengthSpread?: number;
   @jsonMember(Boolean) public lengthsDiffer?: boolean;
+  // The lengths are beyond the tolerance, but every song's tempo is within
+  // SharedIdMatcher.TempoTolerance of the others, so they don't count
+  @jsonMember(Boolean) public temposAgree?: boolean;
   @jsonMember(String) public defaultAction!: SharedIdAction;
   @jsonArrayMember(SharedIdReviewCandidate) public candidates!: SharedIdReviewCandidate[];
   // Empty when the songs changed while the page loaded

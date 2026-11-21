@@ -17,6 +17,13 @@ public static class SharedIdMatcher
     public const int LengthTolerance = 15;
 
     /// <summary>
+    /// Songs whose tempos are all known and no further apart than this, in BPM, are taken to be
+    /// the same recording whatever their lengths: a service's length can include a long fade or
+    /// silence, but a different take rarely lands on the same tempo.
+    /// </summary>
+    public const decimal TempoTolerance = 2;
+
+    /// <summary>
     /// The longest of the songs' lengths minus the shortest, in seconds; 0 when fewer than two of
     /// them have a length.
     /// </summary>
@@ -24,6 +31,21 @@ public static class SharedIdMatcher
     {
         var lengths = songs.Where(s => s?.Length is > 0).Select(s => s.Length.Value).ToList();
         return lengths.Count < 2 ? 0 : lengths.Max() - lengths.Min();
+    }
+
+    /// <summary>
+    /// Every one of the songs (at least two) has a tempo, and they're within TempoTolerance BPM of
+    /// each other.
+    /// </summary>
+    public static bool TemposAgree(IReadOnlyList<Song> songs)
+    {
+        if (songs.Count < 2 || songs.Any(s => s?.Tempo is not > 0))
+        {
+            return false;
+        }
+
+        var tempos = songs.Select(s => s.Tempo.Value).ToList();
+        return tempos.Max() - tempos.Min() <= TempoTolerance;
     }
 
     public static SharedIdMatch Match(IReadOnlyList<Song> songs) =>

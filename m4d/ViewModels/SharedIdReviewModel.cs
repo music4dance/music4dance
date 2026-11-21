@@ -74,8 +74,11 @@ public class SharedIdReviewCluster
     public bool CleansFeaturing { get; init; }
 
     // The longest song minus the shortest, in seconds, and whether that's beyond the tolerance
+    // with tempos that don't settle it (LengthsDiffer), or beyond it with tempos that agree, so
+    // the lengths don't count (TemposAgree)
     public int LengthSpread { get; init; }
     public bool LengthsDiffer { get; init; }
+    public bool TemposAgree { get; init; }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public SharedIdAction DefaultAction { get; init; }
@@ -104,6 +107,7 @@ public class SharedIdReviewCluster
             CleansFeaturing = entry.CleansFeaturing,
             LengthSpread = cluster.LengthSpread,
             LengthsDiffer = cluster.LengthsDiffer,
+            TemposAgree = cluster.LengthsApart && cluster.TemposAgree,
             DefaultAction = entry.DefaultAction,
             Candidates = [.. cluster.Candidates.Select(c =>
                 new SharedIdReviewCandidate(c.Id, c.Source, c.Created, c.ServiceIds, c.Detail))],

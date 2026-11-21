@@ -137,6 +137,17 @@ describe("shared-id-review page", () => {
       expect(feat!.find(".card-header").text()).not.toContain("apart");
     });
 
+    test("says when the tempos agree, so lengths apart don't count", () => {
+      const agreed = {
+        ...model,
+        clusters: [{ ...featCluster, lengthSpread: 60, lengthsDiffer: false, temposAgree: true }],
+      };
+      const header = cards(loadTestPage(App, agreed))[0]!.find(".card-header");
+
+      expect(header.find(".tempos-agree").text()).toBe("Lengths 1:00 apart, tempos agree");
+      expect(header.text()).not.toContain("apart Lengths");
+    });
+
     test("starts on its default action", () => {
       const wrapper = loadTestPage(App, model);
 

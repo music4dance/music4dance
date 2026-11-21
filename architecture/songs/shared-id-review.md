@@ -116,8 +116,11 @@ what Apply makes.
 
 **Lengths.** Whatever the tier, a cluster whose songs' lengths are more than
 `SharedIdMatcher.LengthTolerance` (15) seconds apart, longest minus shortest among the songs that
-have a length, is almost certainly two recordings (a live take, an extended mix). No Merge all
-task merges it (skip reason `LengthsDiffer`), and on the review page it gets a "Lengths m:ss
+have a length, is almost certainly two recordings (a live take, an extended mix), unless every song has a
+tempo and they're all within `SharedIdMatcher.TempoTolerance` (2) BPM of each other
+(`SharedIdMatcher.TemposAgree`): then the lengths don't count (a service's length can include a
+long fade or silence), and the review page shows a "Lengths m:ss apart, tempos agree" badge
+instead. Otherwise no Merge all task merges it (skip reason `LengthsDiffer`), and on the review page it gets a "Lengths m:ss
 apart" badge and starts as **Leave for later**; it can still be merged by hand. The title-based
 merge candidates use a looser 20 seconds from the median (`MergeManager.FilterLength`).
 

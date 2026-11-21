@@ -907,6 +907,30 @@ public class SharedIdLogTests
     }
 
     [TestMethod]
+    public async Task PlanMergeMatching_LengthsApart_MergeWhenEveryTempoAgrees()
+    {
+        var (dms, user) = await CreateService("SharedIds_PlanTempos");
+        _ = await SaveSong(dms, "Purchase:00:IS=111	Length=200	Tempo=120.0");
+        _ = await SaveSong(dms, "Purchase:00:IS=111	Length=260	Tempo=122.0");
+        _ = await SaveSong(dms, "Purchase:00:IS=222	Length=200	Tempo=120.0");
+        _ = await SaveSong(dms, "Purchase:00:IS=222	Length=260	Tempo=123.0");
+        _ = await SaveSong(dms, "Purchase:00:IS=333	Length=200	Tempo=120.0");
+        _ = await SaveSong(dms, "Purchase:00:IS=333	Length=260");
+        _ = await dms.SharedIds.Seed();
+
+        var plans = (await dms.SharedIds.PlanMergeMatching()).ToDictionary(p => p.Cluster.ServiceIds.Single());
+
+        Assert.IsTrue(plans["I:111"].WillMerge, "Tempos within 2 BPM: the lengths don't count");
+        Assert.IsTrue(plans["I:111"].Cluster.LengthsApart);
+        Assert.AreEqual(SharedIdMergePlan.LengthsDiffer, plans["I:222"].SkipReason, "3 BPM apart");
+        Assert.AreEqual(SharedIdMergePlan.LengthsDiffer, plans["I:333"].SkipReason, "A song without a tempo");
+
+        var page = await dms.SharedIds.LoadPage(user, 1);
+        var agreed = page.Clusters.Single(c => c.Cluster.ServiceIds.Single() == "I:111");
+        Assert.AreEqual(SharedIdAction.Merge, agreed.DefaultAction);
+    }
+
+    [TestMethod]
     public async Task LoadPage_LengthsTooFarApart_StartAsLeave()
     {
         var (dms, user) = await CreateService("SharedIds_PageLengths");

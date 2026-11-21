@@ -179,6 +179,17 @@ public class SharedIdMatcherTests
         Assert.AreEqual(0, SharedIdMatcher.LengthSpread([L(null), L(null)]));
     }
 
+    private static Song T(decimal? tempo) => new() { Title = "Song", Artist = "Artist", Tempo = tempo };
+
+    [TestMethod]
+    public void TemposAgree_EverySongHasATempo_WithinTwoBpm()
+    {
+        Assert.IsTrue(SharedIdMatcher.TemposAgree([T(120), T(122), T(121.5m)]));
+        Assert.IsFalse(SharedIdMatcher.TemposAgree([T(120), T(122.5m)]), "More than 2 BPM apart");
+        Assert.IsFalse(SharedIdMatcher.TemposAgree([T(120), T(null)]), "A song without a tempo");
+        Assert.IsFalse(SharedIdMatcher.TemposAgree([T(120)]), "One song");
+    }
+
     [TestMethod]
     [DataRow("Benny Goodman and His Orchestra", "Benny Goodman")]
     [DataRow("Benny Goodman & His Orchestra", "Benny Goodman")]
