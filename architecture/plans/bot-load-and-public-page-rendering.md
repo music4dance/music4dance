@@ -209,8 +209,10 @@ week before (9.9 over 2026-11-08 to 11-12).
 - **Azure Search stalled under it.** At 23:35 search calls took 40–180 s, album pages
   returned 404 and then 503, and the search circuit breaker opened at 23:38:23 and closed 30 s
   later (925 requests failed fast). It's the first 5xx burst since the Cloudflare cutover.
-- `CrawlerThrottle` can't see it: it's a browser user agent, so `IsSpider` is false. Capping it
-  needs `CrawlerThrottle:AgentLimits` (per user agent, read per request) or a Cloudflare rule.
+- `CrawlerThrottle` can't see it: it's a browser user agent, so `IsSpider` is false. On
+  2026-11-21 a Cloudflare custom rule started blocking that user agent at the edge (4,000
+  requests in its first hours). As a fallback, `AgentLimits` now caps
+  `chrome/48.0.2564.116` at 5 a minute.
 - Everything else looks like the earlier samples. Meta's AI crawler is the biggest by requests
   (29,000, cheap; 17,000 of them `/identity/account/*`, including the capitalized
   `/Identity/...` that robots.txt's lowercase rule doesn't cover). Applebot is the costliest

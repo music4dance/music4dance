@@ -9,6 +9,7 @@ Sitemap: https://www.music4dance.net/sitemap.xml
 # /api/ is the client's JSON API. See architecture/plans/bot-load-and-public-page-rendering.md.
 User-agent: *
 Disallow: /identity/
+Disallow: /Identity/
 Disallow: /api/
 Disallow: /song/sort
 Disallow: /Song/Sort
@@ -30,6 +31,7 @@ Disallow: /Searches
 # Googlebot reads only its own group, so it repeats the rules above.
 User-agent: Googlebot
 Disallow: /identity/
+Disallow: /Identity/
 Disallow: /api/
 Disallow: /song/sort
 Disallow: /Song/Sort
@@ -54,6 +56,7 @@ Disallow: /Searches
 # repeats the rules above.
 User-agent: Reflectionbot
 Disallow: /identity/
+Disallow: /Identity/
 Disallow: /api/
 Disallow: /song/sort
 Disallow: /Song/Sort
@@ -78,9 +81,11 @@ Disallow: /Song/Artist
 
 User-agent: facebookexternalhit
 Disallow: /identity/
+Disallow: /Identity/
 
 User-agent: Facebot
 Disallow: /identity/
+Disallow: /Identity/
 
 User-agent: Baiduspider
 Disallow: /

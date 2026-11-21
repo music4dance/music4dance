@@ -99,7 +99,11 @@ All three consult `SpiderManager`, but check different lists and produce differe
    BotFilter lists miss, without sending them the bot stub, and gives an agent its own limit:
    `reflectionbot=3` (it crawls a steady 5–6 pages a minute, under the default, and rendered
    22% of server time in the 2026-10-30 full-day sample), plus `barkrowler`,
-   `meta-externalagent` and `meta-webindexer` at the default. Exempt fragments still win.
+   `meta-externalagent` and `meta-webindexer` at the default, and `chrome/48.0.2564.116=5`. That
+   last one is a disguised album crawler on a 2016 Chrome user agent, from two Chinese ISP
+   ranges. On 2026-11-20 it took 94% of server time and stalled Azure Search. A Cloudflare
+   custom rule blocks that user agent at the edge, and this limit is the fallback.
+   Exempt fragments still win.
    Link previews (`facebookexternalhit`) and user-triggered fetchers (`ChatGPT-User`,
    `Claude-User`, `meta-externalfetcher`) aren't throttled.
    Settings are the `CrawlerThrottle` section (`Enabled`, `MaxRequestsPerMinute` = 20,
@@ -205,7 +209,9 @@ Two companions reinforce it:
 - The cache-control middleware sends `no-store` on any 3xx to `/identity/*`, so a redirect is
   never cached, and it never marks `/identity/*` responses cacheable. See
   [hosting-and-identity](../infrastructure/hosting-and-identity.md#request-pipeline-notes).
-- `robots.txt` disallows `/identity/` for `*`, Googlebot, `facebookexternalhit` and `Facebot`.
+- `robots.txt` disallows `/identity/` and `/Identity/` (robots paths are case-sensitive, and
+  Meta's crawler was fetching the capitalized login and manage URLs) for `*`, Googlebot,
+  `facebookexternalhit` and `Facebot`.
   The source is `m4d/ClientApp/src/assets/robots.txt`, which the build copies to `wwwroot`.
   Googlebot reads only its own group, so that group repeats every `*` rule. So does the
   `Reflectionbot` group, which also disallows `/song/album` and `/song/artist`: it's a

@@ -33,9 +33,12 @@ public class CrawlerThrottleOptions
     /// default limit, so it needs a lower one to be slowed at all; Barkrowler and
     /// Meta's AI crawlers (meta-externalagent, meta-webindexer) don't say "bot" or "spider" in their
     /// user agents. Meta's link previews (facebookexternalhit) and user-triggered fetchers
-    /// (meta-externalfetcher, ChatGPT-User, Claude-User) are left alone.
+    /// (meta-externalfetcher, ChatGPT-User, Claude-User) are left alone. Chrome/48.0.2564.116
+    /// is a disguised album crawler (2026-11-20): a 2016 Chrome build no visitor still runs,
+    /// on a browser user agent the BotFilter lists can't see. A Cloudflare rule blocks it at
+    /// the edge; this limit is the fallback if it gets past.
     /// </summary>
-    public string AgentLimits { get; set; } = "reflectionbot=3;barkrowler;meta-externalagent;meta-webindexer";
+    public string AgentLimits { get; set; } = "reflectionbot=3;barkrowler;meta-externalagent;meta-webindexer;chrome/48.0.2564.116=5";
 
     public IReadOnlyList<string> ExemptFragmentList => ListFromString(ExemptFragments);
     public IReadOnlyList<string> PathPrefixList => ListFromString(PathPrefixes);
