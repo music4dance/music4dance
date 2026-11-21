@@ -1,7 +1,9 @@
 # Site Monitoring and Alerting
 
 **Type:** Plan
-**Status:** Proposed
+**Status:** Partially implemented: phase 1a (Azure Monitor metric alerts) created 2026-11-20 and
+recorded in [service-resilience](../infrastructure/service-resilience.md#site-slow-or-down-azure-monitor-metric-alerts);
+the uptime monitor (1b) and phases 2 and 3 not started
 **Last verified:** 2026-11-20
 **Code:** (none yet) touches `m4d/Middleware/RequestLogFieldsMiddleware.cs`,
 `m4d/Services/ServiceHealth/ServiceHealthNotifier.cs`, `m4d/Views/Admin/Diagnostics.cshtml`,
@@ -93,9 +95,9 @@ Starting thresholds:
   auto-resolve on). That gives an incident's start and end without any extra work.
 - **Blind spots:** these metrics come from the App Service front ends. They can't see DNS,
   Cloudflare, or a failure in Azure's alerting path. Section 2b covers those.
-- Create the rules with `az monitor metric alert create`, one per row, scoped to the `msc4dnc`
-  resource and pointing at the existing action group. Record the commands in a runbook when
-  this ships.
+- **Created 2026-11-20** with `az monitor metrics alert create`, one per row, scoped to `msc4dnc`
+  and sent to the `m4d-admins` action group, with auto-resolve on. The as-built rules are
+  in [service-resilience](../infrastructure/service-resilience.md#site-slow-or-down-azure-monitor-metric-alerts).
 
 ### 2b. External uptime monitor
 
