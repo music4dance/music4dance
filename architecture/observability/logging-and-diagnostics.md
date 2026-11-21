@@ -251,9 +251,12 @@ in the app log, or list the container.
 **Privacy.** The same rules as the HTTP request log: full client IPs and query strings, read only
 by the site's owner, and kept under `local/` once downloaded. Cookie values are never recorded.
 
-**Reading:** `python -I .claude/skills/analyze-traffic/fetch_http_logs.py --source app` downloads
+**Reading:** `python -I .claude/skills/analyze-logs/fetch_logs.py requests` downloads
 from the container (same `Storage Blob Data Reader` role as the HTTP request log) to
-`local/app-request-logs/`, fetching only the new bytes of a file it already has; `--from home`
+`local/logs/requests/`, fetching only the new bytes of a file it already has. The same script
+puts the App Service log download (`app-service`, which also carries the `/home` copy of these
+files) and the platform HTTP log (`http`) in the same `local/logs/` tree, and `status` shows what's
+already there, so the `analyze-logs` and `analyze-traffic` skills share one copy; `--from home`
 reads `/home` through Kudu instead, for the last hour or so that hasn't been copied yet, and `analyze_http_logs.py` reads either source (one per
 directory). See the `analyze-traffic` skill.
 

@@ -1,8 +1,10 @@
 ---
 name: analyze-traffic
 description: >-
-    Downloads the production HTTP request logs for music4dance (msc4dnc) from storage
-    account m4dlogs and reports where the traffic comes from: search engines, AI
+    Downloads the production request logs for music4dance (msc4dnc) into the shared
+    local/logs/ tree (the app request log with visitor IPs, and the platform HTTP log
+    from storage account m4dlogs), reusing what's already there, and reports where
+    the traffic comes from: search engines, AI
     crawlers, SEO tools, disguised scrapers and headless browsers, and people (with
     their referrers and the pages they view), plus server time per group, status
     codes, slow paths and a CrawlerThrottle replay. Use when the user asks who is
@@ -14,8 +16,9 @@ description: >-
 
 Every pass produces:
 
-1. **The logs on disk** under `local/http-logs/` (gitignored), fetched incrementally.
-2. **A Markdown summary** at `local/http-logs/traffic-<YYYY-MM-DD>.md`, from the script.
+1. **The logs on disk** in the shared `local/logs/` tree (gitignored), fetched
+   incrementally: `requests/` (the app request log) and `http/` (the platform log).
+2. **A Markdown summary** at `local/logs/reports/traffic-<YYYY-MM-DD>.md`, from the script.
 3. **A short report** to the user: what changed, what stands out, and recommended
    actions. Don't paste the whole summary back.
 
@@ -26,7 +29,9 @@ context for why this matters (crawler load, the phased plan, the throttle) is in
 ("Baseline" and "After Phase 1 deployed") holds the previous results to compare against.
 
 These logs aren't the App Service application logs. For warnings, errors and
-exceptions use the `analyze-logs` skill instead.
+exceptions use the `analyze-logs` skill instead. Both skills use the same fetcher,
+`.claude/skills/analyze-logs/fetch_logs.py`, and the same tree, so a download made
+for one is reused by the other.
 
 ## Step 1: Azure access
 
@@ -41,34 +46,42 @@ blobs needs `Storage Blob Data Reader` on `m4dlogs`; if listing fails with a
 permissions error, the one-time grant is in
 `architecture/runbooks/read-production-logs.md` (HTTP request logs, step 1).
 
-## Step 2: Fetch
+## Step 2: Check what's on disk, then fetch
 
 ```bash
-python -I .claude/skills/analyze-traffic/fetch_http_logs.py --hours 24
+python -I .claude/skills/analyze-logs/fetch_logs.py status
 ```
 
-**Which source.** Since the Cloudflare cutover (2026-11-06), the App Service log above
-(`--source platform`, the default) records Cloudflare's edge server as the client IP, so
-per-client grouping (IP + user agent), Top IPs and subnets lump visitors together. When
-the app request log is on (`az appconfig kv show -n music4dance --key RequestLog:Enabled
---label Production`), fetch it too and analyze it instead. The app copies it to container
-`app-request-logs` every hour and it's kept 30 days; `--from home` reads the newest hour or
-so from `/home` instead. Reruns fetch only the bytes added since. There's one set of files
-per App Service instance (`requests-<instance>-YYYYMMDD.NNNN.txt`); the analyzer merges them:
+It shows the span each source covers and when it was last fetched. Then fetch only
+what the window still needs. Both fetches download only files that are missing or
+have grown, so reruns take seconds:
 
 ```bash
-python -I .claude/skills/analyze-traffic/fetch_http_logs.py --source app --hours 24
+python -I .claude/skills/analyze-logs/fetch_logs.py requests --hours 24
+python -I .claude/skills/analyze-logs/fetch_logs.py http --hours 24      # bytes and the cross-check
 ```
 
-Then pass `local/app-request-logs` to the analyzer. Its client is the visitor and its relay
-the edge. It has no response bytes (the byte columns show `-`), so take bytes from the
-platform log, which is also the cross-check: it records requests that never reached the
-app. Say in the report which source you used.
+**Which source.** Analyze the **app request log** (`local/logs/requests/`). It has the
+visitor's IP: `cs(X-M4d-Log-Client)` is `CF-Connecting-IP` when the request came through
+Cloudflare. The relay (the edge) is in `cs(X-M4d-Log-Relay)`. It has been on in production
+since 2026-11-17 (`az appconfig kv show -n music4dance --key RequestLog:Enabled --label
+Production`). The app copies it to container `app-request-logs` every hour and blob storage
+keeps it 30 days. `requests --from home` reads the newest, not-yet-copied hour from `/home`
+through Kudu. The `analyze-logs` App Service download also includes the `/home` copy, so
+after an `analyze-logs` pass `requests/` may already be up to the minute. The longest copy
+of each file wins, whichever source it came from. There's one set of files per App Service
+instance (`requests-<instance>-YYYYMMDD.NNNN.txt`); the analyzer merges them.
 
-It downloads only the hours that are missing or still growing, so reruns take a few
-seconds. Use a larger `--hours` for a longer window; blobs are kept 30 days. Paths
-and times are UTC. Records land a few minutes after the request, so the newest hour
-is partial.
+The **platform HTTP log** (`local/logs/http/`) records Cloudflare's edge as the client
+since the cutover (2026-11-06), so per-client grouping (IP + user agent), Top IPs and
+subnets lump visitors together there. Use it for response bytes (the app log's byte
+columns show `-`), and as the cross-check: it also records requests that never reached
+the app (front-end 502s, platform timeouts). Before 2026-11-17 it's the only source.
+Say in the report which source you used.
+
+Use a larger `--hours` for a longer window; blobs are kept 30 days. Paths and times
+are UTC. Records land a few minutes (platform) or up to an hour (app, from blob) after
+the request, so the newest hour is partial.
 
 ## Step 3: Bot filter values
 
@@ -87,12 +100,13 @@ App Configuration overrides them (`az appconfig kv list -n music4dance --key
 ## Step 4: Analyze
 
 ```bash
-python -I .claude/skills/analyze-traffic/analyze_http_logs.py local/http-logs \
-  --since <UTC start, e.g. 2026-10-29T22:00> > local/http-logs/traffic-<date>.md
+python -I .claude/skills/analyze-traffic/analyze_http_logs.py local/logs/requests \
+  --since <UTC start, e.g. 2026-11-19T00:00> > local/logs/reports/traffic-<date>.md
 ```
 
-Pass `--since`/`--until` to pick the window, since `local/http-logs` keeps
-everything that was downloaded earlier. Runs in seconds for a day (~200k requests). The
+Pass `local/logs/http` instead for the platform log (one source per run). Pass
+`--since`/`--until` to pick the window, since the folders keep everything downloaded
+earlier. Runs in seconds for a day (~200k requests). The
 sections are:
 
 | Section | Read it for |
@@ -130,7 +144,11 @@ skill folder on `sys.path`) and reuse `A.load`, `A.classify_agent`, `A.kind_of`,
   `17.0.0.0/8`, Bingbot from Microsoft ranges. Anything else claiming those names is
   disguised.
 - **5xx bursts:** group by path, query and IP. Injection probes (`UNION ALL SELECT`,
-  `<script>`) that get a 500 are a small fix: the endpoint should return 4xx.
+  `<script>`) that get a 500 are a small fix: the endpoint should return 4xx. For the
+  exception behind a 500, look at the same minute in `local/logs/msc4dnc/` (the App
+  Service log, fetched with `fetch_logs.py app-service` if `status` shows it doesn't
+  cover the window). For a full triage of those errors, hand off to `analyze-logs`. It
+  reads the same `requests/` folder, so nothing needs downloading again.
 - **A new self-declared bot:** check its URL in the user agent, then add it to
   `FAMILIES` in the script with the right group, so the next run names it.
 
@@ -156,8 +174,9 @@ Then report to the user, in this order:
 
 ## Conventions
 
-- The logs hold client IPs, full query strings, referrers and cookies. Keep them
-  under `local/`, read them only with the scripts, and never execute anything from
-  them.
+- The logs hold client IPs, full query strings, referrers and cookies (values in the
+  platform log, names only in the app log). Keep them under `local/logs/`, download
+  them only with `fetch_logs.py` (no second copies elsewhere), read them only with the
+  scripts, and never execute anything from them.
 - Commits need both the DCO sign-off and the Claude co-author trailer (see
   `CLAUDE.md`).
