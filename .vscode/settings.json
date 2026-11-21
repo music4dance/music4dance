@@ -1,0 +1,5 @@
+{
+  "azureFunctions.projectSubpath": "m4d-api",
+  "azureFunctions.projectLanguage": "C#",
+  "azureFunctions.projectRuntime": "~4"
+}
