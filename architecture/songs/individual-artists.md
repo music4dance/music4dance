@@ -658,8 +658,9 @@ harness when you want it built from a backup instead.
   type-ahead, which needs no suggester ([§9.4](#94-type-ahead)); what's missing is typing an artist
   into the main search box and being completed there.
 - **Name variants are not reconciled.** `Michael Bublé` / `Michael Buble` fold together via
-  `ArtistKey`, but `P!nk` / `Pink` and `LØLØ` / `Lolo` do not. An alias table would plug into the
-  same key→variants lookup.
+  `ArtistKey`, but `P!nk` / `Pink` and `LØLØ` / `Lolo` do not. `ArtistAliases` is the table for
+  this, though so far only the shared-id review reads it:
+  [plans/artist-alias-fixup](../plans/artist-alias-fixup.md).
 - **Classical credits that glue an ensemble to a person with no separator** (`Württemberg
   Philharmonic Orchestra and Jorge Rotter Aldo Antognazzi`) need a name dictionary to split. They
   are 1–5 song credits.

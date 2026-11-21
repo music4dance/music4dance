@@ -166,6 +166,8 @@ into `runbooks/` as its area is consolidated.
 | Durable log storage (Blob / Log Analytics / tuned App Insights) | Proposed | [plans/log-persistence-options](plans/log-persistence-options.md) |
 | Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
 | Visitor engagement next steps (post-launch priorities, enhancements) | Proposed | [plans/visitor-engagement-next](plans/visitor-engagement-next.md) |
+| Add-song matching: compare artists, titles and lengths the way the shared-id review does | Proposed | [plans/add-song-matching-next](plans/add-song-matching-next.md) |
+| Artist alias fix-up: fold `ArtistAliases` into individual artists, artist pages and (optionally) credits | Proposed | [plans/artist-alias-fixup](plans/artist-alias-fixup.md) |
 | Shared-id ownership: give each shared id to the song it belongs to | Partially implemented: Sort out ids (per card and per page) shipped 2026-11; bulk task, bad-id report and ISRC-only clusters next | [plans/shared-id-ownership](plans/shared-id-ownership.md) |
 | Dance family voting next steps | Proposed | [plans/dance-family-voting-next](plans/dance-family-voting-next.md) |
 | Update message beyond one App Service plan (App Config / Blob) | Partially implemented: persisted, shared file within a plan shipped 2026-10-25 | [plans/persistent-update-message](plans/persistent-update-message.md) |

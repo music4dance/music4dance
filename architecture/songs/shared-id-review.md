@@ -224,8 +224,12 @@ tooltips).
   Worth doing if splits and removals keep coming up in review.
 
 - More automatic tiers, once a pattern in the close and different clusters is clear enough to
-  merge without review, and `FeaturedCleanup` in the add-time merge
-  ([song-merge-algorithm](song-merge-algorithm.md)).
+  merge without review.
+- Bring the matching and the feat. cleanup to the add-time title match:
+  [plans/add-song-matching-next](../plans/add-song-matching-next.md). Fold the aliases into
+  individual artists and artist pages: [plans/artist-alias-fixup](../plans/artist-alias-fixup.md).
+  [song-merge-algorithm](song-merge-algorithm.md) § Matching new songs by title compares the two
+  matchers.
 
 - Moving a wrong id to the song it belongs to (rather than only removing it) needs the song
   editor.
