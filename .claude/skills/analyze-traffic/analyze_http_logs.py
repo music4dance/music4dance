@@ -130,6 +130,9 @@ FAMILIES = [
     (r"node-fetch|axios/|undici|^node", "Node", "tool"),
     (r"libwww-perl|^perl", "Perl", "tool"),
     (r"scrapy", "Scrapy", "tool"),
+    # Browser-shaped strings whose comment says it's a script ("research script",
+    # "privater-Musikbibliothek-Abgleich") but with no bot/spider/crawler token.
+    (r"research script|musikbibliothek", "Self-described script", "tool"),
     (r"headlesschrome|phantomjs|puppeteer|playwright|selenium|lightpanda", "Headless browser", "tool"),
 ]
 FAMILY_RES = [(re.compile(p), f, g) for p, f, g in FAMILIES]
@@ -417,6 +420,10 @@ def main():
     for client, s in stats.items():
         if not s["js"]:
             browser_group[client] = "nojs"
+        elif s["page"] == 0 and s["api"] >= 10:
+            # Many API calls but never a page of its own: a rendering farm running our
+            # scripts (it may carry _ga, since Google Analytics runs in its renderer too).
+            browser_group[client] = "headless"
         elif s["cookie"] or s["extref"] or s["page"] >= 2:
             browser_group[client] = "human"
         else:

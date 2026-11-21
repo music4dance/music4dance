@@ -25,7 +25,7 @@ Done:
 
 Next session, after a day or two of data:
 
-1. Rerun `analyze-traffic` and `analyze-logs`. Compare with `local/http-logs/traffic-2026-11-07.md`,
+1. Rerun `analyze-traffic` and `analyze-logs`. Compare with `local/logs/reports/traffic-2026-11-07.md`,
    the day before Bot Fight Mode, especially the headless group, then check **Security, Events**
    and Search Console crawl stats.
 2. Decide on Precursor (Phase 6 step 2) from what the headless group did.
@@ -418,7 +418,7 @@ one-off scripts pointed at `www`, and those would start getting challenged.
    - Check Search Console **Crawl stats** for a drop in Googlebot requests or a rise in errors.
    - Confirm the Logic Apps still succeed. They should, since Phase 1 moved them off `www`.
    - Rerun `analyze-traffic` and compare server time with the 2026-10-31 numbers in the bot-load
-     plan. Also compare with `local/http-logs/traffic-2026-11-07.md`, the last full day before
+     plan. Also compare with `local/logs/reports/traffic-2026-11-07.md`, the last full day before
      Bot Fight Mode, especially the "Browser UA, headless pattern" group: 46k requests that day.
 2. **Precursor, only if headless browsers still get through** (Security, Settings, Precursor).
    Leave it **Off** while Bot Fight Mode settles, so the two effects can be told apart.
@@ -586,7 +586,7 @@ When the phases ship, fold the as-built result into the reference docs and delet
     cookie names. It doesn't record response bytes.
   - Daily files go to `/home/LogFiles/requests`, and the app copies them to blob storage hourly
     (kept 30 days).
-  - `analyze-traffic` reads either source (`fetch_http_logs.py --source app`) and keeps the
+  - `analyze-traffic` reads either source (`fetch_logs.py requests` or `http`) and keeps the
     platform log as a cross-check and for bytes.
 
   Until it's turned on, use `/Admin/Diagnostics` and Cloudflare's Security Events for per-IP views. The skill's per-host section (Phase 7 baseline) doesn't

@@ -21,8 +21,10 @@ is configured is described in [logging-and-diagnostics](../observability/logging
 - `az webapp log download` goes through Kudu, which shares the app's VM: while the app is out of
   memory it returns `503` from `/dump`. Restart the app, wait for it to come back, then download.
 - The `analyze-logs` Claude Code skill (`.claude/skills/analyze-logs/`) automates steps 2 and 3:
-  it downloads the logs, unzips them to `local/logs/msc4dnc-<date>/`, and groups them into
-  signatures.
+  it downloads the logs, merges them into `local/logs/msc4dnc/`, and groups them into
+  signatures, with the matching 5xx requests from the app request log. Its `fetch_logs.py` is the
+  one downloader for every log in this runbook. It keeps them all under `local/logs/` (`msc4dnc/`,
+  `m4d-test/`, `requests/`, `http/`), and `fetch_logs.py status` shows what's already there.
 - Know what's actually persisted: **Warning and above** from `ILogger`, plus container stdout and
   stderr, which includes the console startup output. Information-level logs are *not* persisted.
   Watch them live with `az webapp log tail`, or temporarily lower the level.
@@ -35,12 +37,12 @@ is configured is described in [logging-and-diagnostics](../observability/logging
    ```
    This is a live tap only. Anything written while no one is connected is lost from this view.
 2. **After the fact**, either:
-   - Download everything:
+   - Download everything (wraps `az webapp log download` and merges the zip into
+     `local/logs/msc4dnc/`, which is gitignored; earlier days stay):
      ```bash
-     az webapp log download --name msc4dnc --resource-group m4d-Web --log-file local/msc4dnc-logs.zip
+     python -I .claude/skills/analyze-logs/fetch_logs.py app-service
      ```
-     Then unzip under `local/` (it's gitignored) and grep, e.g.
-     `grep -rn "Antiforgery validation failed" local/msc4dnc-logs/`.
+     Then grep, e.g. `grep -rn "Antiforgery validation failed" local/logs/msc4dnc/`.
    - Or browse in Kudu: `https://msc4dnc.scm.azurewebsites.net/api/vfs/LogFiles/Application/`
      (or the Kudu console at `/home/LogFiles/Application/`).
 3. **Useful searches:**
@@ -67,7 +69,8 @@ The download in step 2 doesn't include them, and there's no `http` folder in Kud
 Behind Cloudflare these records show the edge server as the client; the app request log has the
 visitor's IP
 ([logging-and-diagnostics § App request log](../observability/logging-and-diagnostics.md#app-request-log)).
-Fetch it with `fetch_http_logs.py --source app` from the `analyze-traffic` skill.
+Fetch it with `fetch_logs.py requests` (into `local/logs/requests/`), and the platform log with
+`fetch_logs.py http` (into `local/logs/http/`).
 
 1. **Access, once:** grant yourself `Storage Blob Data Reader` on `m4dlogs`. The account is a
    guest in the `music4dance` tenant, so `--assignee <email>` fails with "Cannot find user or
@@ -84,12 +87,12 @@ Fetch it with `fetch_http_logs.py --source app` from the `analyze-traffic` skill
    Narrow it to an hour with `*m=10/d=29/h=14*`, and include `m=` when ranging across months:
    ```bash
    az storage blob download-batch --account-name m4dlogs --auth-mode login \
-     -s insights-logs-appservicehttplogs --pattern "*m=10/d=29*" -d local/http-logs
+     -s insights-logs-appservicehttplogs --pattern "*m=10/d=29*" -d local/logs/http
    ```
    To see what's there first: `az storage blob list --account-name m4dlogs --auth-mode login
    -c insights-logs-appservicehttplogs --query "[].name" -o tsv`.
 3. **Analyze** with the `analyze-traffic` skill (`.claude/skills/analyze-traffic/`):
-   `fetch_http_logs.py` downloads only new or growing hours, and `analyze_http_logs.py` writes a
+   `fetch_logs.py http` downloads only new or growing hours, and `analyze_http_logs.py` writes a
    Markdown summary of traffic by group, agent, IP, path and status, plus a CrawlerThrottle
    replay. For one-off questions, import its helpers in a probe script (each line's
    `properties` is a JSON string; parse it a second time). The busy hours (20–50k requests,
