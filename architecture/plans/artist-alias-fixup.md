@@ -21,8 +21,8 @@ or its primary artist before a feat. clause, is a non-preferred spelling):
 | --- | --- | --- |
 | 101 Strings Orchestra | 112 (seven spellings) | 38 |
 | Andy Fortuna | 59 | 54 |
-| El Gran Combo | 49 | 11 |
-| Ke$ha | 31 | 20 |
+| El Gran Combo De Puerto Rico | 11 | 49 |
+| Kesha | 20 | 31 |
 | Juan Luis Guerra 4.40 | 24 | 28 |
 | Michael Paul Kramer | 17 | 31 |
 | Lady A | 14 | 25 |
@@ -31,9 +31,9 @@ or its primary artist before a feat. clause, is a non-preferred spelling):
 | Son By Four, Yambao, Village People, Bobby V., Café Latino | 7 | 16 |
 
 That's about 330 songs, plus 10 whose individual artists (`Artists`) name a non-preferred
-spelling. Where a row's first name isn't the most common spelling (El Gran Combo, Andy Fortuna,
-Sasha Alex Sloan, Ke$ha), check that it's the name you want shown. The artist has used "Kesha"
-since 2014, for example.
+spelling. Kesha and El Gran Combo De Puerto Rico were made the preferred spellings on 2026-11-21, as the
+current and the most common. Andy Fortuna and Sasha Alex Sloan are still the less common
+spelling; check that they're the names you want shown.
 
 ## Two separate fixes
 
@@ -48,8 +48,8 @@ Apply `ArtistAliases.PreferredName` to each name where individual artists are pr
 - `Song.EffectiveArtists`, for both a recorded `Artists` list and the cleaned-credit fallback.
 - The splitter's final name pass (`ArtistSplitter`, § 3.4), so a freshly split list is already
   preferred. Bump `ArtistSplitter.Version`.
-- The artist page's lookup (`SongIndex.FindIndividualArtist`, which compares `ArtistKey`s), so `/song/artist?name=Kesha` finds
-  the Ke$ha songs, and old links keep working.
+- The artist page's lookup (`SongIndex.FindIndividualArtist`, which compares `ArtistKey`s), so `/song/artist?name=Ke$ha` finds
+  the Kesha songs, and old links keep working.
 
 This writes nothing to the property log. A credit stays as the service wrote it, which is the
 rule individual artists were designed around. User and service lists aren't overwritten either:
@@ -66,19 +66,19 @@ they're read under the preferred name. Only the search index has to catch up:
   keeps it cheap.
 
 **Client parity.** `Song.ts` replays `Artists` too (§ 2.4), so the song page would still show
-"Kesha" until the client knows the table. Move the aliases into a JSON file that both C# and
+"Ke$ha" until the client knows the table. Move the aliases into a JSON file that both C# and
 TypeScript read, as `artists-replay-cases.json` already is for the replay rules, and apply it
-in the client's effective artists. Until then the page links to `/song/artist?name=Kesha`,
+in the client's effective artists. Until then the page links to `/song/artist?name=Ke$ha`,
 which still works once the artist page folds the name.
 
 ### 2. Credits: rewrite only where asked (optional, after 1)
 
-Rewriting `Artist` itself ("Kesha" → "Ke$ha" in the credit) makes the song list and search
+Rewriting `Artist` itself ("Ke$ha" → "Kesha" in the credit) makes the song list and search
 results consistent. But it overrides what the service said, and it's what the review's merges
 already do for the songs they touch. If you want it:
 
 - Mark each alias row with whether its credits may be rewritten. A pure respelling (P!nk/Pink,
-  Ke$ha/Kesha, Son By Four/Son By 4, the 101 Strings Orchestra spellings) can be. A row joining
+  Kesha/Ke$ha, Son By Four/Son By 4, the 101 Strings Orchestra spellings) can be. A row joining
   different entities (Juan Luis Guerra and his band 4.40, Andy Fortuna and Andy Fortuna
   Productions) should only fold individual artists.
 - Add a `Report`/`Apply` admin task that runs `ArtistAliases.PreferredCredit` over the songs

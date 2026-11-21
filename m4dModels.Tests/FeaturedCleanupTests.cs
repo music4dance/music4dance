@@ -96,7 +96,8 @@ public class FeaturedCleanupTests
     [DataRow("Juan Luis Guerra", "Juan Luis Guerra 4.40")]
     [DataRow("Michael P. Kramer", "Michael Paul Kramer")]
     [DataRow("Cafe Latino", "Café Latino")]
-    [DataRow("Kesha", "Ke$ha")]
+    [DataRow("Ke$ha", "Kesha")]
+    [DataRow("El Gran Combo", "El Gran Combo De Puerto Rico")]
     [DataRow("Son By 4", "Son By Four")]
     public void ArtistAliases_PreferredName(string name, string expected)
     {
