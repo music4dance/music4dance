@@ -95,6 +95,9 @@ public class FeaturedCleanupTests
     [DataRow("Pinkerton", "Pinkerton")]
     [DataRow("Juan Luis Guerra", "Juan Luis Guerra 4.40")]
     [DataRow("Michael P. Kramer", "Michael Paul Kramer")]
+    [DataRow("Cafe Latino", "Café Latino")]
+    [DataRow("Kesha", "Ke$ha")]
+    [DataRow("Son By 4", "Son By Four")]
     public void ArtistAliases_PreferredName(string name, string expected)
     {
         Assert.AreEqual(expected, ArtistAliases.PreferredName(name));

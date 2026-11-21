@@ -23,10 +23,18 @@ public static class ArtistAliases
         ["Michael Paul Kramer", "Michael P. Kramer"],
         ["Juan Luis Guerra 4.40", "Juan Luis Guerra"],
         ["Sasha Alex Sloan", "Sasha Sloan"],
+        ["Ke$ha", "Kesha"],
+        ["Village People", "The Village People"],
+        ["Bobby V.", "Bobby Valentino"],
+        ["Café Latino", "Cafe Latino"],
+        ["Son By Four", "Son By 4"],
     ];
 
+    // Spellings that only differ by accent or punctuation share a key ("Café Latino" is to be
+    // used for "Cafe Latino"); the first list to name a key wins
     private static readonly Dictionary<string, string> Preferred = Aliases
         .SelectMany(names => names.Select(n => (Key: Key(n), Preferred: names[0])))
+        .DistinctBy(a => a.Key)
         .ToDictionary(a => a.Key, a => a.Preferred);
 
     // The name's letters and digits, lowercased and without accents
