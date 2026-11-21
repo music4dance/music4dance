@@ -301,7 +301,8 @@ includes query string, truncates long URLs).
 
 **Limitations (by design, like the other trackers)**: in-memory only,
 resets on app restart; single-instance in-process (production runs as a single instance — no cross-instance aggregation, which is fine at
-current scale); no automated alerting, admin must check `/Admin/Diagnostics` manually.
+current scale); no automated alerting, admin must check `/Admin/Diagnostics` manually (alerts
+are proposed in [plans/site-monitoring-and-alerting](../plans/site-monitoring-and-alerting.md)).
 
 ## Admin diagnostics
 
@@ -346,10 +347,13 @@ Procedures that use this page: [runbooks/respond-to-attack](../runbooks/respond-
 
 ## Future improvements
 
+- **Email alerts** on failed logins, credential stuffing, lockouts and rate-limit hits, read
+  from these trackers, in
+  [plans/site-monitoring-and-alerting](../plans/site-monitoring-and-alerting.md) (section 4).
 - **Phase 2 and beyond**, covered in
-  [plans/attack-mitigation-phase2](../plans/attack-mitigation-phase2.md): persistent telemetry and
-  email alerts, an edge WAF and IP reputation, honeypot fields, user-agent analysis, and later
-  behavioral, geolocation and fingerprinting rules.
+  [plans/attack-mitigation-phase2](../plans/attack-mitigation-phase2.md): an edge WAF and IP
+  reputation, honeypot fields, user-agent analysis, and later behavioral, geolocation and
+  fingerprinting rules.
 - **Log the `Referer` and `returnUrl`** when crawlers hit identity pages, to find which shared
   URLs trigger the loops.
 - **Make the CAPTCHA duration and the crawler list configurable**, instead of compiled in.
