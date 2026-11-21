@@ -142,9 +142,9 @@ the save hook it is one facet query.
   His Orchestra With Billie Holliday` → `[Teddy Wilson, Billie Holliday]`. The ensemble words
   include the small groups: Duo, Trio, Quartet, Quintet, Sextet, Septet, Octet.
 - **Leader and group without a join** — a name followed by a group word (`Charlie Parker Quartet`,
-  `The Oscar Peterson Trio`, `Count Basie Orchestra`, `Woody Herman's Big Band`) keeps only the
-  leader, but only when the leader is a known artist: `Modern Jazz Quartet` and `Kingston Trio`
-  stay whole. `ArtistSplitter.RemoveBackingGroup` does the same to a whole credit, for comparing
+  `The Oscar Peterson Trio`, `Count Basie Orchestra`, `Woody Herman's Big Band`,
+  `Andy Fortuna Productions`) keeps only the leader, but only when the leader is a known artist:
+  `Modern Jazz Quartet`, `Kingston Trio` and `WinRon Productions` stay whole. `ArtistSplitter.RemoveBackingGroup` does the same to a whole credit, for comparing
   credits (the shared-id review's tiers).
 - **Named ensembles** — a multi-word name containing an ensemble word (Orchestra, Philharmonic,
   Symphony, Sinfonietta, Choir, Trio, Collegium…) joined to another multi-word name always splits:

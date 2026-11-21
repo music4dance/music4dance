@@ -20,20 +20,26 @@ or its primary artist before a feat. clause, is a non-preferred spelling):
 | Preferred | Other spellings (songs) | Preferred spelling (songs) |
 | --- | --- | --- |
 | 101 Strings Orchestra | 112 (seven spellings) | 38 |
-| Andy Fortuna | 59 | 54 |
 | El Gran Combo De Puerto Rico | 11 | 49 |
 | Kesha | 20 | 31 |
 | Juan Luis Guerra 4.40 | 24 | 28 |
 | Michael Paul Kramer | 17 | 31 |
 | Lady A | 14 | 25 |
 | P!nk | 9 | 93 |
-| Sasha Alex Sloan | 8 | 5 |
+| Sasha Sloan | 5 | 8 |
 | Son By Four, Yambao, Village People, Bobby V., Café Latino | 7 | 16 |
 
-That's about 330 songs, plus 10 whose individual artists (`Artists`) name a non-preferred
-spelling. Kesha and El Gran Combo De Puerto Rico were made the preferred spellings on 2026-11-21, as the
-current and the most common. Andy Fortuna and Sasha Alex Sloan are still the less common
-spelling; check that they're the names you want shown.
+That's about 270 songs, plus 10 whose individual artists (`Artists`) name a non-preferred
+spelling. On 2026-11-21 Kesha, El Gran Combo De Puerto Rico and Sasha Sloan were made the
+preferred spellings, as the current or the most common.
+
+Andy Fortuna isn't an alias any more. "Andy Fortuna Productions" is the leader's group, like
+"Charlie Parker Quartet" (the splitter's group-suffix rule, which now includes "Productions"). So
+the credit stays as the service wrote it, and the individual artist is Andy Fortuna. That's done
+already: the 59 songs need only a `BatchArtists` `ApplyChanged` run for splitter version 4. The
+same rule gives John Upegui Productions (4 songs) and Steve Rice Productions (1) their leaders.
+The other "Productions" credits in the snapshot (WinRon, Ferran, Paxus and so on) have no leader
+credited alone, so they stay whole.
 
 ## Two separate fixes
 
@@ -79,8 +85,9 @@ already do for the songs they touch. If you want it:
 
 - Mark each alias row with whether its credits may be rewritten. A pure respelling (P!nk/Pink,
   Kesha/Ke$ha, Son By Four/Son By 4, the 101 Strings Orchestra spellings) can be. A row joining
-  different entities (Juan Luis Guerra and his band 4.40, Andy Fortuna and Andy Fortuna
-  Productions) should only fold individual artists.
+  different entities (Juan Luis Guerra and his band 4.40) should only fold individual artists.
+  A leader and their group is the splitter's job, not the alias table's (see Andy Fortuna
+  above).
 - Add a `Report`/`Apply` admin task that runs `ArtistAliases.PreferredCredit` over the songs
   the `Aliases` filter finds. It writes the change as an edit by a new `alias-bot` pseudo user
   (`Song.AppendNameEdit`), so the history shows why it changed and a person's later edit wins.

@@ -60,7 +60,7 @@ public static class ArtistSplitter
     /// Bump on any behavior change (including the protected lists below) so batch re-runs and
     /// analysis reports can be tied to a heuristic version.
     /// </summary>
-    public const int Version = 3;
+    public const int Version = 4;
 
     public const char Delimiter = '|';
 
@@ -117,11 +117,12 @@ public static class ArtistSplitter
     };
 
     // A leader's name followed by their group, without a join: "Charlie Parker Quartet", "The
-    // Oscar Peterson Trio", "Count Basie Orchestra", "Woody Herman's Big Band". Only a leader known
-    // as an artist counts: "Modern Jazz Quartet" and "Kingston Trio" are act names.
+    // Oscar Peterson Trio", "Count Basie Orchestra", "Woody Herman's Big Band", "Andy Fortuna
+    // Productions". Only a leader known as an artist counts: "Modern Jazz Quartet" and "Kingston
+    // Trio" are act names, and so is "WinRon Productions".
     private static readonly Regex GroupSuffix = new(
         @"^(?:the\s+)?(?<leader>\S.*?)(?:'s)?\s+(?:big\s+band|band|orchestra|orchestre|orquesta|orchester|" +
-        @"duo|trio|quartet|quintet|sextet|septet|octet|combo|ensemble)$",
+        @"duo|trio|quartet|quintet|sextet|septet|octet|combo|ensemble|productions)$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     // Words that make a multi-word name a named ensemble ("London Symphony Orchestra", "Berliner

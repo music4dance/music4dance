@@ -109,7 +109,6 @@ public class SharedIdMatcherTests
     [DataRow("Lady Antebellum", "Lady A")]
     [DataRow("The New 101 Strings Orchestra", "101 Strings Orchestra")]
     [DataRow("New 101 String Orchestra", "101 Strings")]
-    [DataRow("Andy Fortuna Productions", "Andy Fortuna")]
     [DataRow("Yambao Orquesta", "Orquesta Yambao")]
     [DataRow("El Gran Combo De Puerto Rico", "El Gran Combo")]
     [DataRow("Michael P. Kramer", "Michael Paul Kramer")]
@@ -199,6 +198,7 @@ public class SharedIdMatcherTests
     [DataRow("Benny Goodman Sextet", "Benny Goodman")]
     [DataRow("Stan Getz Duo", "Stan Getz")]
     [DataRow("Count Basie Big Band", "Count Basie")]
+    [DataRow("Andy Fortuna Productions", "Andy Fortuna")]
     public void Match_ALeaderWithOrWithoutTheirGroup_IsExact(string first, string second)
     {
         Assert.AreEqual(SharedIdMatch.Exact, SharedIdMatcher.Match([S("Song", first), S("Song", second)]));

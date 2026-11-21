@@ -51,6 +51,8 @@ public class FeaturedCleanupTests
     [DataRow("The Oscar Peterson Trio", "Oscar Peterson", "Oscar Peterson")]
     [DataRow("Woody Herman's Big Band", "Woody Herman", "Woody Herman")]
     [DataRow("Modern Jazz Quartet", "Charlie Parker", "Modern Jazz Quartet")]
+    [DataRow("Andy Fortuna Productions", "Andy Fortuna", "Andy Fortuna")]
+    [DataRow("Andy Fortuna Productions", null, "Andy Fortuna Productions")]
     [DataRow("Teddy Wilson And His Orchestra With Billie Holliday", null,
         "Teddy Wilson And His Orchestra With Billie Holliday")]
     [DataRow("Earth, Wind & Fire", null, "Earth, Wind & Fire")]
@@ -75,6 +77,8 @@ public class FeaturedCleanupTests
     [DataRow("Benny Goodman and His Orchestra", "Benny Goodman", "Benny Goodman and His Orchestra", "Benny Goodman")]
     [DataRow("Charlie Parker", "Charlie Parker Quartet", "Charlie Parker Quartet", "Charlie Parker")]
     [DataRow("Charlie Parker Quartet", "Charlie Parker", "Charlie Parker Quartet", "Charlie Parker")]
+    [DataRow("Andy Fortuna", "Andy Fortuna Productions", "Andy Fortuna Productions", "Andy Fortuna")]
+    [DataRow("Andy Fortuna Productions", "Andy Fortuna", "Andy Fortuna Productions", "Andy Fortuna")]
     public void Propose_ALeaderAndTheirGroup_CreditsTheGroupWithTheLeaderAsTheArtist(string mergedCredit,
         string otherCredit, string credit, string artist)
     {
@@ -94,6 +98,7 @@ public class FeaturedCleanupTests
     [DataRow("The New 101 Strings Orch.", "101 Strings Orchestra")]
     [DataRow("Pinkerton", "Pinkerton")]
     [DataRow("Juan Luis Guerra", "Juan Luis Guerra 4.40")]
+    [DataRow("Sasha Alex Sloan", "Sasha Sloan")]
     [DataRow("Michael P. Kramer", "Michael Paul Kramer")]
     [DataRow("Cafe Latino", "Café Latino")]
     [DataRow("Ke$ha", "Kesha")]
