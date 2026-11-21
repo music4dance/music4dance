@@ -187,6 +187,36 @@ directly. No 5xx bursts (8 in total). Googlebot, Bingbot and Applebot kept crawl
 - Moz DotBot is the biggest page crawler (96,000, mostly apex redirects and throttled 429s).
   ElevenLabs and Exa are the AI crawlers that cost the most.
 
+#### A disguised album crawler (2026-11-20)
+
+24 hours, 2026-11-20 00:00 to 2026-11-21 00:00 UTC, from the app request log (visitor IPs).
+158,000 requests (112,500 pages), 19.1 server-hours, against about 2 server-hours a day the
+week before (9.9 over 2026-11-08 to 11-12).
+
+- **One user agent took 94% of server time.** `Chrome/48.0.2564.116` (a 2016 build) on
+  Windows, from about 140 addresses in two Hebei ranges (China Telecom and China Unicom). It
+  never ran JS, sent no referrer, and walked `/song/album` (30,000) and `/song/details` (12,000)
+  with almost no repeats, so the cache never helps. It started around 03:00 at 30 pages an
+  hour, reached 500 an hour at 12:00 and 10,000 an hour by 22:00, and was still going after
+  midnight. Album pages run an uncached Azure Search query each.
+- **A rendering farm with it.** About 50 addresses in a China Unicom range ran our scripts and
+  called `/api/health/status` 39,000 times with album-page referrers, without fetching a page
+  themselves. It rose and fell with the crawler. Those ranges and a couple of `m.baidu.com`
+  referrers point at Baidu, but there's no reverse DNS to verify it (robots.txt shuts out
+  Baiduspider). Because Google Analytics runs in its renderer too, it carried `_ga` and the
+  analyzer counted it as people; it now treats a client that makes many API calls but fetches
+  no page as headless.
+- **Azure Search stalled under it.** At 23:35 search calls took 40–180 s, album pages
+  returned 404 and then 503, and the search circuit breaker opened at 23:38:23 and closed 30 s
+  later (925 requests failed fast). It's the first 5xx burst since the Cloudflare cutover.
+- `CrawlerThrottle` can't see it: it's a browser user agent, so `IsSpider` is false. Capping it
+  needs `CrawlerThrottle:AgentLimits` (per user agent, read per request) or a Cloudflare rule.
+- Everything else looks like the earlier samples. Meta's AI crawler is the biggest by requests
+  (29,000, cheap; 17,000 of them `/identity/account/*`, including the capitalized
+  `/Identity/...` that robots.txt's lowercase rule doesn't cover). Applebot is the costliest
+  real search engine. Moz DotBot gets most of the 429s. People: about 790 clients and 2,500
+  page views.
+
 ### 1.2 What a public page costs
 
 The sizes below were measured with `curl` against production.
