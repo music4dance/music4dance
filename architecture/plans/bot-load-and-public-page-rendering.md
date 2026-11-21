@@ -201,7 +201,11 @@ week before (9.9 over 2026-11-08 to 11-12).
   midnight. Album pages run an uncached Azure Search query each.
 - **A rendering farm with it.** About 50 addresses in a China Unicom range ran our scripts and
   called `/api/health/status` 39,000 times with album-page referrers, without fetching a page
-  themselves. It rose and fell with the crawler. Those ranges and a couple of `m.baidu.com`
+  themselves. It's the crawler's second half: 99% of its referrers are the exact pages
+  Chrome/48 had just fetched, hour by hour the counts match, and both stopped within a minute
+  when the Cloudflare rule went in (00:31 UTC on 2026-11-21). The calls themselves are cheap
+  (0.7 ms each, 41 s of server time over two days), so `/api/health/status` stays public; it
+  now hides the error text from anyone without `showDiagnostics`. Those ranges and a couple of `m.baidu.com`
   referrers point at Baidu, but there's no reverse DNS to verify it (robots.txt shuts out
   Baiduspider). Because Google Analytics runs in its renderer too, it carried `_ga` and the
   analyzer counted it as people; it now treats a client that makes many API calls but fetches

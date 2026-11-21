@@ -51,7 +51,8 @@ off takes the site down once, for between about 45 seconds and 4 minutes (see
 ## Verification
 
 - `GET https://<app>/health/ready` returns `200 {"status":"ready"}`.
-- `GET https://<app>/api/health/report` shows no unexpected `Unavailable` services.
+- `GET https://<app>/api/health/report`, signed in with `showDiagnostics`, shows no unexpected
+  `Unavailable` services.
 - Kudu → `/home/LogFiles/Application/`: the startup report ends `Overall Status: HEALTHY`, and
   the log shows `Production environment detected. Deployment mode: <mode>` and
   `App data root: /home/data/m4d`.

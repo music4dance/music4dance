@@ -5,10 +5,11 @@ export interface ServiceHealthStatus {
   name: string;
   status: "healthy" | "degraded" | "unavailable" | "unknown";
   lastChecked: string;
-  lastHealthy?: string;
-  errorMessage?: string;
-  responseTime?: number;
-  consecutiveFailures: number;
+  // The server sends these four as null unless the user has showDiagnostics.
+  lastHealthy?: string | null;
+  errorMessage?: string | null;
+  responseTime?: number | null;
+  consecutiveFailures: number | null;
 }
 
 export interface ServiceHealthResponse {
