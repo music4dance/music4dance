@@ -770,7 +770,8 @@ minutes however it's hosted. Two notes for expectations rather than action:
   first.
 - **Deployment.** Infrastructure changes create role assignments, so they run by hand from
   `deploy.ps1` under an Owner account; they're rare. Code deploys need only rights to deploy to
-  the function app: `deploy.ps1 -SkipInfrastructure` today, and later a separate pipeline stage
+  the function app: `deploy.ps1 -SkipInfrastructure` today, and later a separate pipeline (see
+  [partner-api-deploy-pipeline](partner-api-deploy-pipeline.md))
   so API deploys and web app deploys stay independent (that independence is the point).
   `azure-pipelines.yml` today targets the web apps only.
 - **Custom domain.** `api.music4dance.net` with a Flex site-scoped managed certificate. DNS
