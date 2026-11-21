@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-19
+**Last verified:** 2026-11-20
 **Code:** `m4d/Services/ServiceHealth/`, `m4d/Services/DatabaseRecoveryService.cs`,
 `m4d/Services/AppConfigurationRecoveryService.cs`, `m4d/Configuration/AppConfigurationStartup.cs`,
 `m4d/Configuration/SecretBackedServices.cs`,
@@ -305,6 +305,34 @@ Likewise, when notifications are disabled or email isn't configured, nothing is 
 notified, so no lone "recovered" email follows. Configuration and testing steps are in
 [runbooks/configure-failure-email](../runbooks/configure-failure-email.md).
 
+### Site slow or down: Azure Monitor metric alerts
+
+The app's own emails can't report the site being slow, or the app being down. Five Azure Monitor
+metric alerts on `msc4dnc` (resource group `m4d-Web`) cover that. They email the admins through
+the `m4d-admins` action group, the same one the App Configuration quota alert uses. Each
+alert evaluates a 5-minute window and auto-resolves, so Azure sends one email when it fires and
+one when it clears.
+
+| Alert rule | Condition | Checked every | Severity |
+| --- | --- | --- | --- |
+| `msc4dnc site slow` | Average `HttpResponseTime` > 1 s | 1 min | 2 |
+| `msc4dnc site very slow` | Average `HttpResponseTime` > 3 s | 1 min | 1 |
+| `msc4dnc server errors` | Total `Http5xx` > 10 | 1 min | 2 |
+| `msc4dnc health check failing` | Average `HealthCheckStatus` < 100 (the `/health/ready` probe) | 1 min | 1 |
+| `msc4dnc traffic spike` | Total `Requests` > 5,000 | 5 min | 3 |
+
+- The thresholds were replayed against the 1-minute metrics of 2026-10-31 and 2026-11-18 (both
+  residential-proxy waves) and 2026-11-19 (a normal day). Both waves fire "slow" and "very
+  slow"; the normal day fires nothing. The figures are in
+  [plans/site-monitoring-and-alerting § 2a](../plans/site-monitoring-and-alerting.md).
+- `HttpResponseTime` averages every request, static files included, so a burst of slow pages
+  shows up diluted. 1 s is about 40x a normal 5-minute average.
+- These metrics come from the App Service front ends. They can't see DNS or Cloudflare
+  failures; the external uptime monitor in the plan covers those.
+- To change a threshold: `az monitor metrics alert update -g m4d-Web -n "<rule>" --condition
+  "<agg> <metric> <op> <value>"`. In Git Bash, set `MSYS_NO_PATHCONV=1` first if the command
+  includes a `/subscriptions/...` ID. Cost is about $0.10 per rule a month.
+
 ## Known issues
 
 - **No email while App Configuration is down.** The Azure Communication Services connection
@@ -408,6 +436,9 @@ notified, so no lone "recovered" email follows. Configuration and testing steps 
 - 2026-11-19: `SearchCircuitBreaker` in the Search query clients' pipeline, one per Search
   service: fail fast for 30 seconds after a `503`/`429`, then a single probe; it decides
   `IsServiceHealthy` while open. Page search moved to its own health name, `PageSearchService`.
+- 2026-11-20: Five Azure Monitor metric alerts on `msc4dnc` (slow, very slow, 5xx, health
+  check, traffic spike) to the `m4d-admins` action group: phase 1a of
+  [plans/site-monitoring-and-alerting](../plans/site-monitoring-and-alerting.md).
 
 ## Related
 
