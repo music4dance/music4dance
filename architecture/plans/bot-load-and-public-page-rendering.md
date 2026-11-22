@@ -1,7 +1,7 @@
 # Bot Load and Public-Page Rendering Options
 
 **Type:** Plan
-**Status:** Partially implemented: Phase 1 (A1–A7) deployed 2026-10-30 (PR #365) and measured afterwards; Phase 0 partly done (weekday baseline); Phase 2 (Cloudflare edge cache) built 2026-11-18, rollout pending; Phase 3 not started
+**Status:** Partially implemented: Phase 1 (A1–A7) deployed 2026-10-30 (PR #365) and measured afterwards; Phase 0 partly done (weekday baseline); Phase 2 (Cloudflare edge cache) built 2026-11-18, in production 2026-11-21; Phase 3 not started
 **Last verified:** 2026-11-18
 **Code:** `m4d/Views/Shared/Vue3.cshtml`, `m4d/Views/Shared/_head.cshtml`, `m4d/Views/Shared/_vue-Layout.cshtml`,
 `m4d/Middleware/CacheControlMiddleware.cs`, `m4d/Services/AssetArchive.cs`, `m4d/Utilities/SpiderManager.cs`,

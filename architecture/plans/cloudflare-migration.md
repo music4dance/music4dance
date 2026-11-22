@@ -82,7 +82,8 @@ Phase 7 (locking the origin) is optional and doesn't use App Service IP restrict
 **When to pay for Pro ($20/month annual, $25 monthly):** if Bot Fight Mode challenges something
 the site needs and it can't be moved off `www`; if the headless wave still reaches the origin
 with Bot Fight Mode on; or if the 5 custom rules or 1 rate-limit rule run out. Upgrading is a
-plan change on the same zone, with no migration.
+plan change on the same zone, with no migration. What we'd turn on after upgrading is listed in
+[cloudflare-pro-upgrade](cloudflare-pro-upgrade.md).
 
 ## 2. Current DNS inventory (queried 2026-11-04, reconciled 2026-11-05)
 

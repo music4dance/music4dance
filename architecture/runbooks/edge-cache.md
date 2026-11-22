@@ -90,7 +90,8 @@ serves them ([hosting-and-identity § Bundles from earlier builds](../infrastruc
    (`/Identity/Account/Login`, `/Admin/...`). The Free plan doesn't allow `cf.client.bot` in
    Cache Rules, so verified crawlers aren't excluded by the rule. Pages the origin renders for
    Googlebot have no `Cloudflare-CDN-Cache-Control` header, so they're never cached, and
-   Googlebot can be served the cached human page.
+   Googlebot can be served the cached human page. Adding the clause back is on the
+   [Cloudflare Pro list](../plans/cloudflare-pro-upgrade.md).
 
 ### After a deploy
 
