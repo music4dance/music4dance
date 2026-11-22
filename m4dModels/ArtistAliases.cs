@@ -20,7 +20,6 @@ public static class ArtistAliases
         ["Orquesta Yambao", "Yambao Orquesta"],
         ["El Gran Combo De Puerto Rico", "El Gran Combo"],
         ["Michael Paul Kramer", "Michael P. Kramer"],
-        ["Juan Luis Guerra 4.40", "Juan Luis Guerra"],
         ["Sasha Sloan", "Sasha Alex Sloan"],
         ["Kesha", "Ke$ha"],
         ["Village People", "The Village People"],

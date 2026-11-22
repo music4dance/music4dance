@@ -108,8 +108,7 @@ Steps 4 and 5 touch the add path's edits and want an integration test through `C
 - **A wrong merge is worse than a duplicate.** A duplicate can be merged later, but separating a
   wrong merge means unmerging, which isn't built (song-merge-algorithm § Future: Unmerge).
   Every loosening above is paired with a length check for that reason.
-- **Aliases that aren't just spellings.** "Juan Luis Guerra" and "Juan Luis Guerra 4.40" are a
-  person and his band. The alias table treats them as one, which suits a cluster that already
-  shares an id, but it's a stronger claim when matching by title alone. Consider marking such
-  rows in `ArtistAliases` so the add path can skip them (see
-  [artist-alias-fixup](artist-alias-fixup.md)).
+- **Aliases that aren't just spellings.** A row that joins different entities (as "Juan Luis
+  Guerra" and his band "Juan Luis Guerra 4.40" did until it was taken out) suits a cluster that
+  already shares an id, but it's a stronger claim when matching by title alone. Mark such rows in
+  `ArtistAliases` so the add path can skip them (see [artist-alias-fixup](artist-alias-fixup.md)).

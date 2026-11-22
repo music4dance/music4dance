@@ -112,7 +112,6 @@ public class SharedIdMatcherTests
     [DataRow("Yambao Orquesta", "Orquesta Yambao")]
     [DataRow("El Gran Combo De Puerto Rico", "El Gran Combo")]
     [DataRow("Michael P. Kramer", "Michael Paul Kramer")]
-    [DataRow("Juan Luis Guerra", "Juan Luis Guerra 4.40")]
     [DataRow("Sasha Sloan", "Sasha Alex Sloan")]
     public void Match_AnArtistsAliases_AreExact(string a, string b)
     {

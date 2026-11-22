@@ -97,7 +97,7 @@ public class FeaturedCleanupTests
     [DataRow("Lady Antebellum", "Lady A")]
     [DataRow("The New 101 Strings Orch.", "101 Strings Orchestra")]
     [DataRow("Pinkerton", "Pinkerton")]
-    [DataRow("Juan Luis Guerra", "Juan Luis Guerra 4.40")]
+    [DataRow("Juan Luis Guerra", "Juan Luis Guerra")]
     [DataRow("Sasha Alex Sloan", "Sasha Sloan")]
     [DataRow("Michael P. Kramer", "Michael Paul Kramer")]
     [DataRow("Cafe Latino", "Café Latino")]

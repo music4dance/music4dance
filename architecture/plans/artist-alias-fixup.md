@@ -51,7 +51,8 @@ already do for the songs they touch. If you want it:
 
 - Mark each alias row with whether its credits may be rewritten. A pure respelling (P!nk/Pink,
   Kesha/Ke$ha, Son By Four/Son By 4, the 101 Strings Orchestra spellings) can be. A row joining
-  different entities (Juan Luis Guerra and his band 4.40) should only fold individual artists.
+  different entities should only fold individual artists. (Juan Luis Guerra and his band 4.40
+  were taken out of the table on 2026-11-22 to keep them apart on artist pages.)
   A leader and their group is the splitter's job, not the alias table's (see Andy Fortuna
   above).
 - Add a `Report`/`Apply` admin task that runs `ArtistAliases.PreferredCredit` over the songs
