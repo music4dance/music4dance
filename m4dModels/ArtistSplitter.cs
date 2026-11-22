@@ -270,16 +270,18 @@ public static class ArtistSplitter
             names.AddRange(context.SplitSegment(context.Mask(clause), true));
         }
 
+        // Each artist under the name to use (ArtistAliases): "Pink" is P!nk
         var artists = names
             .Select(context.Unmask)
             .Select(FinalizeName)
             .Where(n => n.Length > 0 && !IsFiller(n) && !IsBackingGroup(n))
+            .Select(ArtistAliases.PreferredName)
             .DistinctBy(n => n.ToLowerInvariant())
             .ToList();
 
         if (artists.Count == 0)
         {
-            artists.Add(credit);
+            artists.Add(ArtistAliases.PreferredName(credit));
         }
 
         return new ArtistSplit(artists, [.. context.Rules.Distinct()], [.. context.Unresolved.Distinct()]);

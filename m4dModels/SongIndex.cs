@@ -1438,6 +1438,8 @@ public class SongIndex
 
     private async Task<List<Song>> FindIndividualArtist(string name, CruftFilter cruft)
     {
+        // Individual artists are indexed under the name to use, so "Pink" finds P!nk
+        name = ArtistAliases.PreferredName(ArtistSplitter.CleanName(name));
         var key = ArtistSplitter.ArtistKey(name);
         if (key.Length == 0)
         {

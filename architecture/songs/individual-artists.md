@@ -3,7 +3,7 @@
 **Type:** Reference
 **Status:** Current. Fully deployed to production (confirmed 2026-10-01); operations are in
 [runbooks/artist-index-operations](../runbooks/artist-index-operations.md).
-**Last verified:** 2026-11-18 (leader-and-group rules re-traced; the rest code references only)
+**Last verified:** 2026-11-22 (artist aliases traced; leader-and-group rules re-traced 2026-11-18; the rest code references only)
 **Code:** `m4dModels/ArtistSplitter.cs`, `m4dModels/ArtistIndex.cs`, `m4dModels/ArtistIndexFileManager.cs`,
 `m4d/Services/ArtistIndexCache.cs`, `m4d/ClientApp/src/models/ArtistNames.ts`, `m4d/ClientApp/src/pages/artist-index/`
 
@@ -78,10 +78,15 @@ or when the new list equals the old one.
 ### 2.2 `EffectiveArtists`
 
 ```csharp
-if (Artists != null) return Artists;
+if (Artists != null) return [.. Artists.Select(ArtistAliases.PreferredName).DistinctBy(ArtistSplitter.ArtistKey)];
 var credit = ArtistSplitter.CleanName(Artist);
-return credit.Length == 0 ? [] : [credit];
+return credit.Length == 0 ? [] : [ArtistAliases.PreferredName(credit)];
 ```
+
+Each name is read under the name to use (`ArtistAliases`, a short table in code: "Pink" is P!nk,
+"Ke$ha" is Kesha). That includes a list a person or a service recorded, so the artist pages and
+the artist index see one artist without anyone's edit being overwritten. `Song.HasArtistAlias`
+says whether the recorded names, or the credit standing in for them, differ from what's read.
 
 Everything that displays or indexes artists reads `EffectiveArtists`, so a song with no derived
 list still behaves like a one-artist song. A consequence worth remembering: **any full re-save
@@ -173,6 +178,10 @@ Every produced name goes through a final pass that strips a role marker, conjunc
 backing-group label the segmenting left in front of it (`Featuring Hilary Alexander`, `With Lester
 Young`, `His Band Ross Mitchell`) and drops a name that is nothing but such a label (`His
 Orchestra`, `Chorus`). Without it the browsable index accumulates entries that are not artists.
+
+The splitter then puts each name under the name to use (`ArtistAliases.PreferredName`), so a
+credit of "Ke$ha" splits to Kesha, which `artist-bot` records because it differs from the credit.
+The credit itself is never rewritten.
 
 `ArtistSplitter.ArtistKey` folds case and diacritics (NFD, strip non-spacing marks) and is what
 artist-page matching compares on. Note that it does **not** fold `Ø` — `LØLØ` and `Lolo` are
@@ -296,7 +305,9 @@ add the field, wait out the cache (or restart) before backfilling, and verify co
 
 ### 5.4 Query path
 
-`FindArtist(name, cruft, individualArtists)` does an analyzed **phrase search** on `Artists`, then
+`FindArtist(name, cruft, individualArtists)` first puts the name under the name to use
+(`ArtistAliases.PreferredName`, so `?name=Ke$ha` looks for Kesha, as the field is indexed), then
+does an analyzed **phrase search** on `Artists`, then
 post-filters on `ArtistSplitter.ArtistKey` so matching is case- and diacritic-insensitive without a
 second index field. The phrase search alone would also match a name inside a longer name (`Tony
 Evans` inside `Tony Evans and His Orchestra`); the key comparison rejects those. If it finds
@@ -314,10 +325,12 @@ Results are capped at 1,000 songs. The most prolific artist in the corpus has 35
 | ---- | ---- |
 | `Report` | Streams every song, computes what would change, writes nothing |
 | `Apply` | Re-saves **every** song — what populates the field across an index |
-| `ApplyChanged` | Re-saves only songs whose list changed — for re-runs after heuristic changes |
+| `ApplyChanged` | Re-saves only songs whose list changed, and songs whose recorded names include an alias (`HasArtistAlias`, which the splitter leaves alone when a person or a service recorded them) — for re-runs after heuristic changes or new rows in `ArtistAliases` |
 
-It runs as an `AdminMonitor` background task, logs the first 200 changes as `[before] -> [after]`,
-and finishes with `Tried / Changed / HumanOrServiceLists`.
+It runs as an `AdminMonitor` background task, logs the first 200 changes as `[before] -> [after]`
+(the before as recorded; a re-save for an alias alone is marked "alias, index only"), and finishes
+with `Tried / Changed / AliasesReindexed / HumanOrServiceLists`. It drops this instance's artist
+index snapshot at the end, so the index page rebuilds from the new field.
 
 Every mode creates the `artist-bot` pseudo user if missing, which also activates the save hook — so
 `Report` is read-only with respect to song data but not entirely without effect.
@@ -657,9 +670,9 @@ harness when you want it built from a backup instead.
   [#277](https://github.com/music4dance/music4dance/issues/277). The artist index page has its own
   type-ahead, which needs no suggester ([§9.4](#94-type-ahead)); what's missing is typing an artist
   into the main search box and being completed there.
-- **Name variants are not reconciled.** `Michael Bublé` / `Michael Buble` fold together via
-  `ArtistKey`, but `P!nk` / `Pink` and `LØLØ` / `Lolo` do not. `ArtistAliases` is the table for
-  this, though so far only the shared-id review reads it:
+- **Name variants are reconciled only on the server.** `ArtistAliases` folds `P!nk` / `Pink` in
+  `EffectiveArtists`, the splitter and the artist page lookup, but the client's replay doesn't
+  know the table, and `LØLØ` / `Lolo` isn't in it:
   [plans/artist-alias-fixup](../plans/artist-alias-fixup.md).
 - **Classical credits that glue an ensemble to a person with no separator** (`Württemberg
   Philharmonic Orchestra and Jorge Rotter Aldo Antognazzi`) need a name dictionary to split. They

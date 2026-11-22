@@ -126,4 +126,20 @@ public class SongIndexArtistsTests
             .Select(s => s.SongId).ToList();
         CollectionAssert.AreEquivalent(new[] { solo.SongId, duet.SongId }, bubles);
     }
+
+    [TestMethod]
+    public async Task FindArtist_AnAliasFindsTheArtistUnderTheNameToUse()
+    {
+        var (dms, index) = await CreateService("ArtistsFindAlias");
+        var old = await CreateSong(dms, "Tik Tok", "Ke$ha");
+        var current = await CreateSong(dms, "Praying", "Kesha");
+        await index.SaveSongs([old, current]);
+
+        foreach (var name in new[] { "Ke$ha", "Kesha" })
+        {
+            var found = (await index.FindArtist(name, CruftFilter.AllCruft, individualArtists: true))
+                .Select(s => s.SongId).ToList();
+            CollectionAssert.AreEquivalent(new[] { old.SongId, current.SongId }, found, name);
+        }
+    }
 }

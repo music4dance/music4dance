@@ -150,6 +150,41 @@ public class ArtistsPropertyTests
         Assert.IsFalse(service.UpdateArtists(null));
     }
 
+    [TestMethod]
+    public async Task UpdateArtists_AnAliasedCredit_RecordsTheNameToUse()
+    {
+        var song = await CreateSong([".Create=", "User=dwgray", "Time=01/15/2024 14:30:00",
+            "Title=Tik Tok", "Artist=Ke$ha"]);
+        Assert.IsTrue(song.HasArtistAlias);
+
+        Assert.IsTrue(song.UpdateArtists(null));
+        CollectionAssert.AreEqual(new[] { "Kesha" }, song.Artists.ToList());
+        Assert.AreEqual("Ke$ha", song.Artist, "The credit is left as written");
+        Assert.IsFalse(song.HasArtistAlias);
+
+        var duet = await CreateSong([".Create=", "User=dwgray", "Time=01/15/2024 14:30:00",
+            "Title=Just Give Me a Reason", "Artist=Pink feat. Nate Ruess"]);
+        Assert.IsTrue(duet.UpdateArtists(null));
+        CollectionAssert.AreEqual(new[] { "P!nk", "Nate Ruess" }, duet.Artists.ToList());
+    }
+
+    [TestMethod]
+    public async Task EffectiveArtists_ReadsHumanAndServiceListsUnderTheNameToUse()
+    {
+        var service = await CreateSong([".Create=", "User=dwgray", "Time=01/15/2024 14:30:00",
+            "Title=Just Give Me a Reason", "Artist=Pink feat. Nate Ruess",
+            ".Edit=", "User=batch-s|P", "Time=01/16/2024 14:30:00", "Artists=Pink|Nate Ruess"]);
+
+        Assert.IsTrue(service.HasArtistAlias);
+        Assert.IsFalse(service.UpdateArtists(null), "The service's list is left alone");
+        CollectionAssert.AreEqual(new[] { "Pink", "Nate Ruess" }, service.Artists.ToList());
+        CollectionAssert.AreEqual(new[] { "P!nk", "Nate Ruess" }, service.EffectiveArtists.ToList());
+
+        var plain = await CreateSong([".Create=", "User=dwgray", "Time=01/15/2024 14:30:00",
+            "Title=Come Away With Me", "Artist=Norah Jones"]);
+        Assert.IsFalse(plain.HasArtistAlias);
+    }
+
     /// <summary>
     /// "Undo My Changes" strips the user's own blocks and replays what is left, so an artist-bot
     /// split written before the user touched it should come back.

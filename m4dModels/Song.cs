@@ -2158,17 +2158,32 @@ public class Song : TaggableObject
     /// <summary>
     /// The individual artists for indexing and display: the explicit list, else the cleaned credit.
     /// </summary>
+    // Each under the name to use (ArtistAliases), so a list a person or a service recorded as
+    // "Pink" still reads as P!nk; the credit itself is left as written
     public IReadOnlyList<string> EffectiveArtists
     {
         get
         {
             if (Artists != null)
             {
-                return Artists;
+                return [.. Artists.Select(ArtistAliases.PreferredName).DistinctBy(ArtistSplitter.ArtistKey)];
             }
 
             var credit = ArtistSplitter.CleanName(Artist);
-            return credit.Length == 0 ? [] : [credit];
+            return credit.Length == 0 ? [] : [ArtistAliases.PreferredName(credit)];
+        }
+    }
+
+    /// <summary>
+    /// The recorded individual artists, or the credit standing in for them, name an artist under
+    /// another of their names (ArtistAliases), so EffectiveArtists differs from what was recorded.
+    /// </summary>
+    public bool HasArtistAlias
+    {
+        get
+        {
+            var recorded = Artists ?? [ArtistSplitter.CleanName(Artist)];
+            return recorded.Any(a => a.Length > 0 && ArtistAliases.PreferredName(a) != a);
         }
     }
 

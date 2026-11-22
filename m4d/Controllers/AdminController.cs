@@ -530,7 +530,9 @@ public class AdminController(
     //   Apply      - appends artist-bot edits where the individual artists change and re-saves
     //                every song, populating the Artists index field everywhere
     //   ApplyChanged - like Apply but only re-saves songs whose artists changed (for re-runs
-    //                after a heuristic update, once the field is already populated)
+    //                after a heuristic update, once the field is already populated), and songs
+    //                whose recorded artists name an alias (ArtistAliases), whose index field reads
+    //                them under the name to use
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "dbAdmin")]
@@ -564,6 +566,7 @@ public class AdminController(
                     var tried = 0;
                     var changed = 0;
                     var skipped = 0;
+                    var aliased = 0;
                     var batch = new List<Song>();
                     const int batchSize = 500;
                     const int logLimit = 200;
@@ -588,20 +591,34 @@ public class AdminController(
                             skipped++;
                         }
 
-                        var before = string.Join(" | ", song.EffectiveArtists);
+                        // As recorded, not under the aliases' names, so an alias shows as a change
+                        var before = string.Join(" | ", song.Artists ?? [ArtistSplitter.CleanName(song.Artist)]);
+                        var hasAlias = song.HasArtistAlias;
                         var didChange = song.UpdateArtists(knowledge);
-                        if (didChange)
+                        // A list a person or a service recorded keeps its log, but the index field
+                        // has to catch up with the name to use
+                        var reindex = !didChange && hasAlias;
+                        if (didChange || reindex)
                         {
-                            changed++;
-                            if (changed <= logLimit)
+                            if (didChange)
+                            {
+                                changed++;
+                            }
+                            else
+                            {
+                                aliased++;
+                            }
+
+                            if (changed + aliased <= logLimit)
                             {
                                 Logger.LogInformation(
-                                    "BatchArtists {Mode}: {Title} by {Artist}: [{Before}] -> [{After}]",
-                                    mode, song.Title, song.Artist, before, string.Join(" | ", song.EffectiveArtists));
+                                    "BatchArtists {Mode}: {Title} by {Artist}: [{Before}] -> [{After}]{Note}",
+                                    mode, song.Title, song.Artist, before, string.Join(" | ", song.EffectiveArtists),
+                                    reindex ? " (alias, index only)" : "");
                             }
                         }
 
-                        if (apply && (saveAll || didChange))
+                        if (apply && (saveAll || didChange || reindex))
                         {
                             batch.Add(song);
                             if (batch.Count >= batchSize)
@@ -633,7 +650,7 @@ public class AdminController(
 
                     AdminMonitor.CompleteTask(true,
                         $"BatchArtists ({idxName}, {mode}, splitter v{ArtistSplitter.Version}): " +
-                        $"Tried={tried}, Changed={changed}, HumanOrServiceLists={skipped}");
+                        $"Tried={tried}, Changed={changed}, AliasesReindexed={aliased}, HumanOrServiceLists={skipped}");
                 }
                 catch (Exception e)
                 {
