@@ -244,4 +244,29 @@ public class PartnerKeyServiceTests
         Assert.IsFalse(await service.RemoveDeveloper("other", "u1"));
         _ = await Assert.ThrowsExactlyAsync<PartnerKeyException>(() => service.AddDeveloper("nobody", user));
     }
+
+    [TestMethod]
+    public async Task SaveClient_WritesTheSoftCapToTheVault()
+    {
+        var (service, vault, context) = await WithClient();
+
+        _ = await service.SaveClient("acme", "Acme", null, null, null, false, create: false, softCap: 25_000);
+
+        Assert.AreEqual(25_000, vault.Clients["acme"].SoftCap);
+        Assert.AreEqual(25_000, (await context.PartnerClients.SingleAsync()).SoftCap);
+        StringAssert.Contains(vault.Clients["acme"].ToJson(), "\"softCap\":25000");
+    }
+
+    [TestMethod]
+    [DataRow(1000L, 1000L)]
+    [DataRow(null, PartnerDefaults.BuiltInDailyCap)]
+    public async Task SaveClient_RefusesASoftCapAtOrAboveTheDailyCap(long? dailyCap, long softCap)
+    {
+        var (service, _, _) = await WithClient();
+
+        var ex = await Assert.ThrowsExactlyAsync<PartnerKeyException>(
+            () => service.SaveClient("acme", "Acme", null, null, dailyCap, false, create: false, softCap: softCap));
+
+        StringAssert.Contains(ex.Message, "soft limit");
+    }
 }

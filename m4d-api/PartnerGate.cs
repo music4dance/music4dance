@@ -4,12 +4,9 @@ using Microsoft.Extensions.Logging;
 
 namespace m4dApi;
 
-/// <summary>Limits for a client whose config secret leaves them out. Set by app settings.</summary>
-public record PartnerDefaults(double RatePerSecond = 20, int Burst = 50, long DailyCap = 100_000);
-
 /// <summary>
 /// What every authenticated request passes before it reaches Search: the API key, then the
-/// client's status, daily cap and rate limit. The order matters: an unknown key is rejected from
+/// client's status, daily cap and rate limit, and last the soft cap, which only warns. The order matters: an unknown key is rejected from
 /// the in-memory cache before anything else, and a request over the cap doesn't spend a token.
 /// </summary>
 public class PartnerGate(
@@ -59,23 +56,44 @@ public class PartnerGate(
                 return Reject(StatusCodes.Status403Forbidden, "This client is disabled", auth.ClientId);
         }
 
+        // Each warning below is logged once per episode on an instance (a day for the caps, a
+        // minute for the rate limit), not once per request: a client that ignores Retry-After
+        // would otherwise write a log line for every refused call.
         var client = auth.Client;
         var dailyCap = client.DailyCap ?? defaults.DailyCap;
-        if (usage.DailyTotal(auth.ClientId) >= dailyCap)
+        var today = usage.DailyTotal(auth.ClientId);
+        if (today >= dailyCap)
         {
-            usage.Record(auth.ClientId, UsageMeter.Limited);
+            if (usage.RecordCapLimited(auth.ClientId))
+            {
+                logger.LogWarning("Client {Client} reached its daily cap of {Cap}", auth.ClientId, dailyCap);
+            }
+
             var midnight = time.GetUtcNow().UtcDateTime.Date.AddDays(1);
             response.Headers.RetryAfter = Seconds(midnight - time.GetUtcNow().UtcDateTime);
-            logger.LogWarning("Client {Client} reached its daily cap of {Cap}", auth.ClientId, dailyCap);
             return Reject(StatusCodes.Status429TooManyRequests, "Daily request cap reached", auth.ClientId);
         }
 
-        if (!limiter.TryAcquire(auth.ClientId, client.RatePerSecond ?? defaults.RatePerSecond,
-                client.Burst ?? defaults.Burst, out var retryAfter))
+        var rate = client.RatePerSecond ?? defaults.RatePerSecond;
+        var burst = client.Burst ?? defaults.Burst;
+        if (!limiter.TryAcquire(auth.ClientId, rate, burst, out var retryAfter))
         {
-            usage.Record(auth.ClientId, UsageMeter.Limited);
+            if (usage.RecordRateLimited(auth.ClientId))
+            {
+                logger.LogWarning("Client {Client} hit its rate limit of {Rate}/s with burst {Burst}",
+                    auth.ClientId, rate, burst);
+            }
+
             response.Headers.RetryAfter = Seconds(retryAfter);
             return Reject(StatusCodes.Status429TooManyRequests, "Rate limit exceeded", auth.ClientId);
+        }
+
+        // The soft cap never refuses a request; it's the early warning, well before the hard cap
+        var softCap = client.SoftCap ?? defaults.SoftCap;
+        if (today >= softCap && usage.NoticeToday(auth.ClientId, "softCap"))
+        {
+            logger.LogWarning("Client {Client} passed its soft daily limit of {SoftCap} ({Total} calls so far)",
+                auth.ClientId, softCap, today);
         }
 
         return new Admission(auth.ClientId, null);

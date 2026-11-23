@@ -3,7 +3,7 @@
 **Type:** Runbook
 **Status:** Current (test and production)
 **Last verified:** 2026-11-19 (production API deployed and `msc4dnc` connected to its vault)
-**Code:** `m4d/Controllers/PartnerKeysController.cs`, `m4d/PublicApi/PartnerKeyService.cs`, `m4d-api/PartnerGate.cs`, `m4d-api/infra/new-key.ps1`
+**Code:** `m4d/Controllers/PartnerKeysController.cs`, `m4d/PublicApi/PartnerKeyService.cs`, `m4d/PublicApi/PartnerUsageReader.cs`, `m4d-api/PartnerGate.cs`, `m4d-api/infra/new-key.ps1`
 
 ## When to use
 
@@ -37,21 +37,24 @@ partner's developer needs an account on each site.
 ### 0. One-time setup per web app
 
 Skip this if the web app's `/PartnerKeys/Clients` page doesn't show the notice that
-`PartnerApi:KeyVaultUri` isn't set.
+`PartnerApi:KeyVaultUri` isn't set, and a client's **Usage** page doesn't say
+`PartnerApi:UsageTableUri` isn't set.
 
-1. Set the two settings in App Configuration under the web app's label:
+1. Set the settings in App Configuration under the web app's label:
 
    ```bash
    # test
    az appconfig kv set -n music4dance --label Staging --key PartnerApi:KeyVaultUri --value https://m4d-api-keys-test.vault.azure.net/ --yes
    az appconfig kv set -n music4dance --label Staging --key PartnerApi:Environment --value test --yes
+   az appconfig kv set -n music4dance --label Staging --key PartnerApi:UsageTableUri --value https://m4dapitest.table.core.windows.net/ --yes
    # production
    az appconfig kv set -n music4dance --label Production --key PartnerApi:KeyVaultUri --value https://m4d-api-keys.vault.azure.net/ --yes
    az appconfig kv set -n music4dance --label Production --key PartnerApi:Environment --value live --yes
+   az appconfig kv set -n music4dance --label Production --key PartnerApi:UsageTableUri --value https://m4dapiprod.table.core.windows.net/ --yes
    ```
 
-2. Restart the web app (`az webapp restart -n m4d-test -g m4d-Web`). The vault client is created
-   at startup, so a sentinel refresh doesn't pick these up.
+2. Restart the web app (`az webapp restart -n m4d-test -g m4d-Web`). The vault and usage table
+   clients are created at startup, so a sentinel refresh doesn't pick these up.
 3. Check that the web app's managed identity has Key Vault Secrets Officer on the vault. The API's
    Bicep grants it, so this only fails if the identity was recreated:
 
@@ -68,8 +71,11 @@ Skip this if the web app's `/PartnerKeys/Clients` page doesn't show the notice t
    - **Client id**: 2 to 40 lowercase letters, digits and dashes, e.g. `acme`. It's
      permanent, because it names the vault secret and the usage rows, and it appears in logs.
    - **Name**: the partner's display name.
-   - **Requests/second**, **Burst**, **Daily cap**: leave blank for the API defaults (20/s,
-     burst 50, 100,000 a day). Set lower values for a trial partner.
+   - **Requests/second**, **Burst**, **Daily cap**, **Soft limit**: leave blank for the API
+     defaults (20/s, burst 50, 100,000 a day, soft limit 25,000 a day). The first three are hard
+     limits that answer `429`, sized to protect Search, so leave them alone unless a partner's
+     volume needs more. The soft limit only warns (an alert, and a yellow day on the usage page);
+     set it from the partner's expected volume. It must be below the daily cap.
 3. Save. The client's limits are written to the vault as `client-{clientId}`.
 
 ### 2. Link the partner's developer
@@ -98,6 +104,9 @@ through a channel you'd trust with a password, never plain email.
 - The API base URL for the environment (table above).
 - How to send the key: `Authorization: Bearer <key>`. A key in the URL is refused with `400`.
 - Their limits, and that `429` comes with `Retry-After`.
+- Their usage page: **Usage, last 30 days** on `/PartnerKeys`, where their developers see their
+  own client's daily counts. An admin sees every client's from **Usage** on
+  `/PartnerKeys/Clients`.
 
 ## Verification
 
@@ -119,6 +128,7 @@ through a channel you'd trust with a password, never plain email.
    ```
 
 3. In the API's Application Insights, the next requests log `Resolved … for acme`.
+4. Within a minute, the client's **Usage** page shows today's calls.
 
 ## Rotating a key
 

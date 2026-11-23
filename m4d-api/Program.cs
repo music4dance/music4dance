@@ -53,14 +53,15 @@ builder.Services.AddSingleton<PartnerKeyStore>();
 builder.Services.AddHostedService<PartnerKeyRefresher>();
 builder.Services.AddSingleton<IUsageTable>(new StorageUsageTable(new TableClient(
     new Uri($"https://{configuration.GetValue<string>("AzureWebJobsStorage:accountName")}.table.core.windows.net"),
-    "usage", credential)));
+    UsageColumns.TableName, credential)));
 builder.Services.AddSingleton<UsageMeter>();
 builder.Services.AddHostedService<UsageFlusher>();
 builder.Services.AddSingleton<ClientRateLimiter>();
 builder.Services.AddSingleton(new PartnerDefaults(
-    configuration.GetValue("PARTNER_DEFAULT_RATE", 20.0),
-    configuration.GetValue("PARTNER_DEFAULT_BURST", 50),
-    configuration.GetValue("PARTNER_DEFAULT_DAILY_CAP", 100_000L)));
+    configuration.GetValue("PARTNER_DEFAULT_RATE", PartnerDefaults.BuiltInRate),
+    configuration.GetValue("PARTNER_DEFAULT_BURST", PartnerDefaults.BuiltInBurst),
+    configuration.GetValue("PARTNER_DEFAULT_DAILY_CAP", PartnerDefaults.BuiltInDailyCap),
+    configuration.GetValue("PARTNER_DEFAULT_SOFT_CAP", PartnerDefaults.BuiltInSoftCap)));
 builder.Services.AddSingleton<PartnerGate>();
 
 builder.Build().Run();

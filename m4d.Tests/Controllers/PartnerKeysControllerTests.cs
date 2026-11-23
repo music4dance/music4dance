@@ -96,4 +96,58 @@ public class PartnerKeysControllerTests
         Assert.AreEqual(1, setup.Roles.Roles.Count(r => r.Name == DanceMusicCoreService.PartnerDeveloperRole));
         Assert.IsTrue(await setup.Users.IsInRoleAsync(setup.Developer, DanceMusicCoreService.PartnerDeveloperRole));
     }
+
+    private sealed class FakeUsage(params PartnerUsageDay[] days) : IPartnerUsageReader
+    {
+        public bool IsConnected => true;
+
+        public Task<IReadOnlyList<PartnerUsageDay>> Days(string clientId, DateOnly from, DateOnly to) =>
+            Task.FromResult<IReadOnlyList<PartnerUsageDay>>(
+                [.. days.Where(d => clientId == "danzq" && d.Day >= from && d.Day <= to)]);
+    }
+
+    private static void SignIn(PartnerKeysController controller, params string[] roles) =>
+        controller.ControllerContext.HttpContext.User = new System.Security.Claims.ClaimsPrincipal(
+            new System.Security.Claims.ClaimsIdentity(
+                [new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, "someone"),
+                 .. roles.Select(r => new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, r))],
+                "test"));
+
+    [TestMethod]
+    public async Task Usage_ShowsAnAdminTheClientsLast30Days()
+    {
+        var setup = await Create();
+        SignIn(setup.Controller, "dbAdmin");
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        var result = await setup.Controller.Usage("danzq", new FakeUsage(new PartnerUsageDay(today, Exact: 3, Total: 3)));
+
+        var model = (m4d.ViewModels.PartnerUsageModel)((ViewResult)result).Model;
+        Assert.AreEqual("danzq", model.Client.Id);
+        Assert.AreEqual(3, model.Report.Total);
+        Assert.AreEqual(m4dApi.PartnerDefaults.BuiltInSoftCap, model.Report.SoftCap);
+        Assert.IsTrue(model.IsAdmin);
+    }
+
+    [TestMethod]
+    public async Task Usage_RefusesAnAccountNotLinkedToTheClient()
+    {
+        var setup = await Create();
+        SignIn(setup.Controller, DanceMusicCoreService.PartnerDeveloperRole);
+
+        var result = await setup.Controller.Usage("danzq", new FakeUsage());
+
+        Assert.IsInstanceOfType<ForbidResult>(result);
+    }
+
+    [TestMethod]
+    public async Task Usage_IsNotFoundForAnUnknownClient()
+    {
+        var setup = await Create();
+        SignIn(setup.Controller, "dbAdmin");
+
+        var result = await setup.Controller.Usage("nosuch", new FakeUsage());
+
+        Assert.IsInstanceOfType<NotFoundResult>(result);
+    }
 }

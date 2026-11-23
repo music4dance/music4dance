@@ -21,7 +21,7 @@ param searchServiceName string
 @description('Index alias the API queries, so index cutovers are an alias repoint')
 param searchIndexAlias string
 
-@description('Web app that issues partner keys; gets Key Vault Secrets Officer on the vault')
+@description('Web app that issues partner keys; gets Key Vault Secrets Officer on the vault and Storage Table Data Reader on the storage account, for the usage pages')
 param keyWriterWebAppName string
 
 param keyWriterWebAppResourceGroup string
@@ -44,6 +44,7 @@ var roles = {
   storageBlobDataOwner: 'b7e6dc6d-f1e8-4753-8033-0f276bb0955b'
   storageQueueDataContributor: '974c5e8b-45b9-4653-ba55-5f855dd0fb88'
   storageTableDataContributor: '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3'
+  storageTableDataReader: '76199698-9eea-4c19-bc75-cec21354c6b6'
   keyVaultSecretsUser: '4633458b-17de-408a-b874-0445c86b69e6'
   keyVaultSecretsOfficer: 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7'
 }
@@ -187,6 +188,17 @@ resource webAppVaultWriter 'Microsoft.Authorization/roleAssignments@2022-04-01' 
   }
 }
 
+// The usage pages read the usage table; the web app never writes it
+resource webAppUsageReader 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(storage.id, keyWriterWebApp.id, roles.storageTableDataReader)
+  scope: storage
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roles.storageTableDataReader)
+    principalId: keyWriterWebApp.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
 resource userVaultWriters 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
   for userId in (empty(keyWriterUserIds) ? [] : split(keyWriterUserIds, ',')): {
     name: guid(vault.id, userId, roles.keyVaultSecretsOfficer)
@@ -203,3 +215,4 @@ output functionAppName string = functionApp.name
 output functionPrincipalId string = functionApp.identity.principalId
 output defaultHostName string = functionApp.properties.defaultHostName
 output vaultUri string = vault.properties.vaultUri
+output usageTableUri string = storage.properties.primaryEndpoints.table

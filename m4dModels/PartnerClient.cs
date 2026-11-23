@@ -15,6 +15,9 @@ public class PartnerClient
     public int? Burst { get; set; }
     public long? DailyCap { get; set; }
 
+    // Warns (an alert, and a highlight on the usage page) but never refuses a request
+    public long? SoftCap { get; set; }
+
     public bool Disabled { get; set; }
 
     public DateTimeOffset Created { get; set; }

@@ -40,6 +40,9 @@ public class PartnerKeyService(DanceMusicContext context, IPartnerKeyVault vault
             .OrderBy(c => c.Name)
             .ToListAsync();
 
+    public Task<PartnerClient> Client(string clientId) =>
+        context.PartnerClients.FirstOrDefaultAsync(c => c.Id == clientId);
+
     public Task<bool> IsDeveloper(string clientId, string userId) =>
         context.PartnerDevelopers.AnyAsync(d => d.ClientId == clientId && d.UserId == userId);
 
@@ -115,7 +118,7 @@ public class PartnerKeyService(DanceMusicContext context, IPartnerKeyVault vault
     /// by hand when the vault isn't connected, otherwise null.
     /// </summary>
     public async Task<string> SaveClient(string id, string name, double? ratePerSecond, int? burst,
-        long? dailyCap, bool disabled, bool create)
+        long? dailyCap, bool disabled, bool create, long? softCap = null)
     {
         id = id?.Trim().ToLowerInvariant();
         name = name?.Trim();
@@ -130,9 +133,15 @@ public class PartnerKeyService(DanceMusicContext context, IPartnerKeyVault vault
             throw new PartnerKeyException("The name is required and can be at most 100 characters.");
         }
 
-        if (ratePerSecond <= 0 || burst < 1 || dailyCap < 1)
+        if (ratePerSecond <= 0 || burst < 1 || dailyCap < 1 || softCap < 1)
         {
             throw new PartnerKeyException("Limits must be positive; leave one empty for the API's default.");
+        }
+
+        if (softCap >= (dailyCap ?? PartnerDefaults.BuiltInDailyCap))
+        {
+            throw new PartnerKeyException(
+                "The soft limit must be below the daily cap, so it warns before the cap refuses requests.");
         }
 
         var client = await context.PartnerClients.FindAsync(id);
@@ -155,6 +164,7 @@ public class PartnerKeyService(DanceMusicContext context, IPartnerKeyVault vault
         client.RatePerSecond = ratePerSecond;
         client.Burst = burst;
         client.DailyCap = dailyCap;
+        client.SoftCap = softCap;
         client.Disabled = disabled;
 
         var config = ToConfig(client);
@@ -196,7 +206,7 @@ public class PartnerKeyService(DanceMusicContext context, IPartnerKeyVault vault
 
     public static ClientConfig ToConfig(PartnerClient client) =>
         new(client.Name, client.RatePerSecond, client.Burst, client.DailyCap,
-            client.Disabled ? ClientConfig.Disabled : ClientConfig.Active);
+            client.Disabled ? ClientConfig.Disabled : ClientConfig.Active, client.SoftCap);
 
     private string ManualKeyCommand(string keyId, string hash, string clientId, string label) =>
         $"az keyvault secret set --vault-name {vault.VaultName} --name {PartnerKeyFormat.KeySecretName(keyId)} " +

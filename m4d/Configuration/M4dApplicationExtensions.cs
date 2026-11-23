@@ -10,6 +10,8 @@ using m4d.Services.ServiceHealth;
 using m4d.Utilities;
 using m4d.ViewModels;
 
+using m4dApi;
+
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -500,6 +502,14 @@ public static class M4dApplicationExtensions
         }
 
         services.AddScoped<PartnerKeyService>();
+
+        // The API's usage table, read by the usage pages; the web app's identity needs Storage
+        // Table Data Reader on the API's storage account (m4d-api/infra/main.bicep)
+        var partnerUsageUri = configuration["PartnerApi:UsageTableUri"];
+        services.AddSingleton<IPartnerUsageReader>(string.IsNullOrEmpty(partnerUsageUri)
+            ? new UnconnectedPartnerUsageReader()
+            : new PartnerUsageReader(new Azure.Data.Tables.TableClient(
+                new Uri(partnerUsageUri), UsageColumns.TableName, azureCredential)));
 
         // reCAPTCHA
         services.AddReCaptchaWithResilience(configuration);

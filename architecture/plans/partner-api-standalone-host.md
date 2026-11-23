@@ -1,9 +1,9 @@
 # Partner API: Standalone Host Independent of the Web App
 
 **Type:** Plan
-**Status:** In progress. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided and PR 1 (skeleton + test environment) deployed 2026-11-01; PR 2 (resolve) deployed to test 2026-11-01; PR 3 (API keys and limits) deployed to test and PR 4 (key issuing pages) checked end to end against it 2026-11-04 (#389, with the `partnerDeveloper` role created on first use in #391). PRs 1 to 4 are done; PR 5 (unmatched queue) remains. PR 6 (production) is in progress: alias `songs-api-prod`, the `m4d-api` environment (no always-ready instance), the `msc4dnc` vault connection and the `api.music4dance.net` custom domain were set up 2026-11-19. Alerts, index-versioning runbook step and first partner key remain.
+**Status:** In progress. Spike complete 2026-10-29 (see [Spike results](#spike-results-2026-10-29)); auth decided and PR 1 (skeleton + test environment) deployed 2026-11-01; PR 2 (resolve) deployed to test 2026-11-01; PR 3 (API keys and limits) deployed to test and PR 4 (key issuing pages) checked end to end against it 2026-11-04 (#389, with the `partnerDeveloper` role created on first use in #391). PRs 1 to 4 are done; PR 5 (unmatched queue) remains. PR 6 (production) is in progress: alias `songs-api-prod`, the `m4d-api` environment (no always-ready instance), the `msc4dnc` vault connection and the `api.music4dance.net` custom domain were set up 2026-11-19. Alerts, index-versioning runbook step and first partner key remain. PR 7 (soft limit, separate counts for rate-limit and cap refusals, and the 30-day usage page) was written 2026-11-23; usage over longer periods is [options only](#usage-over-longer-periods-options-not-built).
 **Last verified:** 2026-11-06 (DNS for the custom domain now lives at Cloudflare; see [Operations](#operations))
-**Code:** `m4d-api/` (Azure Functions project: `/v1/health`, and `/v1/songs/resolve` behind partner API keys, a per-client rate limit and a daily cap), with infrastructure and the deploy script in `m4d-api/infra/` and unit tests in `m4d-api.Tests/`. Reads the index built by `m4dModels/SongIndex.cs`, guarded by `m4dModels.Tests/PartnerApiIndexContractTests.cs`; the existing in-app API foundation is under `m4d/PublicApi/`.
+**Code:** `m4d-api/` (Azure Functions project: `/v1/health`, and `/v1/songs/resolve` behind partner API keys, a per-client rate limit, a daily cap and a soft daily limit that only warns), with infrastructure and the deploy script in `m4d-api/infra/` and unit tests in `m4d-api.Tests/`. Reads the index built by `m4dModels/SongIndex.cs`, guarded by `m4dModels.Tests/PartnerApiIndexContractTests.cs`; the existing in-app API foundation is under `m4d/PublicApi/`.
 
 **Context:** The likely first integration is a third-party app that sells its own subscription,
 with the partner developer's backend calling music4dance server to server using a single
@@ -498,20 +498,37 @@ All of this goes to the function's own Storage account, never SQL:
   redeploy. With two instances a client can get up to twice its rate; the instance cap bounds
   that. See [Capacity](#capacity-and-throughput) for starting values.
 - **Defaults.** A client secret is JSON like
-  `{"name":"…","ratePerSecond":5,"burst":20,"dailyCap":100000,"status":"active"}`. Any limit it
-  leaves out, or every limit for a key whose client has no secret, comes from the app settings
-  `PARTNER_DEFAULT_RATE`, `PARTNER_DEFAULT_BURST` and `PARTNER_DEFAULT_DAILY_CAP` (20, 50 and
-  100,000 when unset, per [Starting settings](#starting-settings-all-configurable)).
+  `{"name":"…","ratePerSecond":5,"burst":20,"dailyCap":100000,"status":"active","softCap":25000}`.
+  Any limit it leaves out, or every limit for a key whose client has no secret, comes from the
+  app settings `PARTNER_DEFAULT_RATE`, `PARTNER_DEFAULT_BURST`, `PARTNER_DEFAULT_DAILY_CAP` and
+  `PARTNER_DEFAULT_SOFT_CAP` (20, 50, 100,000 and 25,000 when unset, per
+  [Starting settings](#starting-settings-all-configurable)). The built-in values live in
+  `m4d-api/PartnerUsage.cs`, which the web app links so its pages show the same numbers.
+- **Hard limits and the soft limit** (decided 2026-11-23). The rate, burst and daily cap are
+  hard: past them the API answers `429`. They're sized to protect the shared Search service, not
+  to ration a partner, so a partner app should never hit them in normal use. The **soft limit**
+  (25,000 calls a UTC day by default) refuses nothing. Crossing it logs `Client {Client} passed
+  its soft daily limit` once a day, which drives an alert, and highlights the day on the usage
+  page. It's the cue to talk to the partner about volume while there's still 4× headroom below
+  the hard cap. The web app refuses a soft limit at or above the client's daily cap.
 - **Daily cap** (`UsageMeter.cs`). Counts are kept in memory and flushed to Table Storage every
   30 seconds, which also reads back the totals other instances flushed. When the day's total
   reaches the client's `dailyCap`, return `429` with `Retry-After` until UTC midnight. Across
   instances it's accurate to within one flush interval, which is fine for a cap meant to catch
   runaway bugs.
+- **Limit warnings are logged once per episode**, not per refused request: the daily cap and the
+  soft limit once per client per day on an instance, the rate limit once per client per minute.
+  A client that ignores `Retry-After` would otherwise write a log line for every refused call.
 - **Max instance count.** A backstop on cost and Search load, not the primary throttle.
 - **Usage aggregates.** Table `usage`, one row per client and UTC day (PartitionKey client id,
-  RowKey `yyyy-MM-dd`), with a column per result (`exact`, `ambiguous`, `fuzzy`, `none`), a
-  `limited` column for requests the rate limit or cap turned away, and `total` (results only,
-  which is what the cap reads). Instances update a row with ETag optimistic concurrency, so
+  RowKey `yyyy-MM-dd`), with a column per result (`exact`, `ambiguous`, `fuzzy`, `none`) and
+  `total` (results only, which is what the cap reads). Refusals are counted apart from the total:
+  `limited` is every request the rate limit or cap turned away, `capLimited` is the part the cap
+  turned away (the rest is the rate limit's), and `rateLimitedMinutes` counts the minutes in
+  which an instance's rate limit refused at least one request. `limited` says how hard a client
+  kept retrying; `rateLimitedMinutes` says how often the limit actually bit. With two instances
+  one minute can count twice. Rows written before 2026-11-23 have only `limited`. The column
+  names are in `UsageColumns` (`m4d-api/PartnerUsage.cs`). Instances update a row with ETag optimistic concurrency, so
   their counts add up. This is the self-verifying volume number for a tiered-fee settlement. It
   has no sampling problem, unlike deriving counts from Application Insights. There are no
   per-subscriber ids; settlement uses these volumes or the partner's own sales reporting.
@@ -525,6 +542,54 @@ the cap keeps working from what each instance has seen, so during an outage it's
 rather than shared. An earlier draft had the cap fail closed after 5 minutes without Storage;
 that contradicted the failure-modes table (Storage down, API up), and per-instance counting
 already catches a runaway client. A Storage blip doesn't become a partner outage.
+
+### Seeing usage: the 30-day page (PR 7)
+
+`/PartnerKeys/Usage?clientId=…` shows a client's last 30 UTC days, read straight from the usage
+table. The same page serves both audiences:
+
+- **Admins** (`dbAdmin`) open it from **Usage** on any client's card on `/PartnerKeys/Clients`.
+- **The partner's developers** (accounts linked to the client, with `partnerDeveloper`) open it
+  from **Usage, last 30 days** on `/PartnerKeys`. `CanManage` is the same check that guards their
+  keys, so a developer only ever sees their own client's usage.
+
+The page leads with the 30-day total and daily average, the busiest day, the days over the soft
+limit, and the requests turned away (by the rate limit, with the minutes it bit, and by the daily
+cap). Then it lists the client's limits (marked when they're the defaults) and a row per day with
+the counts per result, a bar, and the refusals. Days past the soft limit are yellow, days that
+reached the cap red, and today is marked as still filling in.
+
+- **Code:** `m4d/PublicApi/PartnerUsageReader.cs` (`IPartnerUsageReader`, `PartnerUsageDay`, and
+  `PartnerUsageReport`, which fills days without a row with zeros),
+  `PartnerKeysController.Usage`, `m4d/Views/PartnerKeys/Usage.cshtml`.
+- **Access:** the web app's identity has **Storage Table Data Reader** on the API's storage
+  account (`webAppUsageReader` in `m4d-api/infra/main.bicep`). It reads the table; only the
+  function writes it.
+- **Configuration:** `PartnerApi:UsageTableUri`, the API storage account's table endpoint:
+  `https://m4dapitest.table.core.windows.net/` for `m4d-test` and
+  `https://m4dapiprod.table.core.windows.net/` for `msc4dnc` (the bicep outputs it as
+  `usageTableUri`). Without it the page says there's nothing to show. It's read at startup, so
+  restart after setting it.
+- **Freshness:** instances flush every 30 seconds, so today's row runs up to a minute behind.
+
+### Usage over longer periods (options, not built)
+
+The usage table keeps every day forever (Table Storage has no expiry, and a year is 365 small
+rows per client), so the data for longer views is already there. Application Insights isn't:
+the workspace keeps 30 days. These options aren't mutually exclusive; the first two are cheap
+and cover settlement.
+
+| Option | What it gives | Cost and effort | Fits |
+| --- | --- | --- | --- |
+| **A. Range and monthly rollup on the same page** | A range selector (30 days, 90 days, 12 months, a calendar month) and, past 90 days, a row per month instead of per day. Computed on read from the client's partition: one query, no new storage. | Small. Mostly view and report code; the reader already takes a date range. | Recommended first. Shows how volume is trending, for admins and partners alike. |
+| **B. CSV download** | The same rows for any range as CSV, for the partner's own reporting and for invoicing against a tiered fee. | Small, alongside A. | Recommended with A. The self-verifying volume numbers settlement needs, in a form both sides can keep. |
+| **C. Partner-facing `/v1/usage` on the API** | The partner's backend pulls its own daily counts with its API key and reconciles automatically, without signing in. Served by the function from the same table, so it works when the web app is down. | Medium: a new endpoint and its contract, and a decision on whether usage calls count toward limits (they shouldn't). | When a partner asks for it, or once there's more than one partner. |
+| **D. Monthly settlement snapshot in SQL** | At month end (a timer, or an admin **Close month** action), copy each client's month totals into a `PartnerUsageMonths` table and mark the month closed. The invoice basis then can't move if a late flush lands. | Medium: a table, a migration, a job or action. | When billing starts. Pairs with A, whose monthly view would read closed months from here. |
+| **E. Hourly rows** | A second table, `usageHourly` (RowKey `yyyy-MM-ddTHH`), for the shape of a day: the peak hour, and when rate-limited minutes cluster. | Small in the function (one more row per flush), plus a chart. Writes double, still negligible. | Capacity planning, if a partner's peaks start to approach the rate limit. Not needed for settlement. |
+| **F. Longer Log Analytics retention plus a workbook** | KQL over the per-request `Resolved {Match} by {Method} for {Client}` lines: latency by client, match-method trends, anything the table doesn't count. | Retention past 30 days is billed per GB-month; a workbook lives only in the portal. Sampling makes counts approximate. | Diagnostics, not settlement. Only if per-request detail beyond 30 days is ever needed. |
+
+Recommendation: A and B together as the next small PR, D when the first invoice is due, and C or E
+only on demand.
 
 ### Reviewing unmatched ids: reuse the shared-id queue where it fits (PR 5)
 
@@ -698,6 +763,7 @@ mix, and the limits should be reset from that.
 | Max instances | 2 | One instance covers ~10,000 subscribers; the second covers bursts and instance recycling. Raise to 4 if limits are raised. |
 | Per-client rate limit | 20 req/s sustained, burst 50 | ~20× the expected peak at 1,000 subscribers; low enough that a runaway client can't swamp Search |
 | Daily cap | 100,000 calls | Far above expected use (~1,000 subscribers × a few dozen lookups on a busy day); catches bugs and loops |
+| Soft daily limit | 25,000 calls | Warns, never refuses. Roughly the busy-day figure at 1,000 subscribers, and 4× below the hard cap, so there's time to react before a partner is turned away |
 
 **Room to grow:** before raising limits, look at the search service's own metrics in the portal
 (search queries per second, search latency, throttled search query percentage) over the last
@@ -803,8 +869,11 @@ minutes however it's hosted. Two notes for expectations rather than action:
     the web app's `CF-Connecting-IP` handling. That would change only if `api` were ever
     proxied.
 - **Monitoring.** Application Insights on the function, with alerts on 5xx rate, on p95
-  latency, and on a client reaching its daily cap (logged as a warning:
-  `Client {Client} reached its daily cap`). **No availability test**, deferred indefinitely
+  latency, on a client passing its soft daily limit (`Client {Client} passed its soft daily
+  limit`, the early warning) and on a client reaching its daily cap (`Client {Client} reached
+  its daily cap`). The rate limit logs `Client {Client} hit its rate limit` at most once a minute
+  per instance; that's worth a query rather than an alert. All three are warnings, logged once
+  per episode. **No availability test**, deferred indefinitely
   (decided 2026-11-19). Classic URL ping tests are retired, and standard tests are billed per
   run: 5-minute probes from two regions are ~17,000 runs a month. Probes would also keep waking
   the function and undo scale-to-zero. Partner traffic and the 5xx alert show an outage
@@ -841,6 +910,8 @@ minutes however it's hosted. Two notes for expectations rather than action:
 | **4. Key issuance** (done, #389 and #391) | In `m4d`: `partnerDeveloper` role, client and key metadata tables (EF migration), API keys page (generate once, list, revoke), admin view of clients and keys, vault writes from the web app's identity |
 | **5. Unmatched queue** | Queue writes (misses, ambiguous and fuzzy-only results) in the function; admin drain in `m4d` that sends `ambiguous` pairs to the shared-id queue and the rest to a new unmatched-track table with its review page (can trail; see [Reviewing unmatched ids](#reviewing-unmatched-ids-reuse-the-shared-id-queue-where-it-fits-pr-5)) |
 | **6. Production** | Prod alias, custom domain (DNS-only `api` and `asuid.api` records in Cloudflare) and certificate, alerts, runbook step added to search-index-versioning.md, production key issued to the first partner |
+| **7. Soft limit and usage page** | Soft daily limit (warns only), `capLimited` and `rateLimitedMinutes` counts, limit warnings logged once per episode, the 30-day usage page for admins and partner developers, Storage Table Data Reader for the web app (see [Seeing usage](#seeing-usage-the-30-day-page-pr-7)) |
+| **8. Longer-period usage** (proposed) | Options A and B from [Usage over longer periods](#usage-over-longer-periods-options-not-built): a range selector with a monthly rollup, and CSV download |
 
 The spike below came before PR 1. Its `m4d-api/` project is the starting point for PRs 1 and 2.
 
