@@ -98,6 +98,10 @@ public static class FeaturedCleanup
         return leaders.Count == 0 ? knowledge : new EitherKnowledge(knowledge, Knowing(leaders));
     }
 
+    /// <summary>The artists either of the two knows (either may be null, meaning no evidence).</summary>
+    public static IArtistKnowledge Either(IArtistKnowledge first, IArtistKnowledge second) =>
+        first == null ? second : second == null ? first : new EitherKnowledge(first, second);
+
     // Known to either
     private sealed class EitherKnowledge(IArtistKnowledge first, IArtistKnowledge second) : IArtistKnowledge
     {

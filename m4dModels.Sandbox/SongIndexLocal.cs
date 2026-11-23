@@ -42,6 +42,19 @@ public class SongIndexLocal : SongIndex
             "SongIndexLocal.AttachToService must be called before using this index. " +
             "Pattern: var localIndex = new SongIndexLocal(); var service = await CreateService(dbName, customSongIndex: localIndex); localIndex.AttachToService(service);");
 
+    /// <summary>
+    /// The title search the add-time match uses (SongIndex.SongsFromTitle), over the saved songs:
+    /// a song whose title contains any word of the text, ignoring case, as the search's default
+    /// any-term match does ("Song - Radio Edit" finds "Song").
+    /// </summary>
+    protected override Task<IEnumerable<Song>> SongsFromTitle(string title)
+    {
+        var words = System.Text.RegularExpressions.Regex.Split(title ?? "", @"\W+").Where(w => w.Length > 0).ToList();
+        return Task.FromResult<IEnumerable<Song>>(_songStore.Values
+            .Where(s => words.Any(w => ContainsText(s.Title, w)))
+            .ToList());
+    }
+
     // Override the virtual EditSong method to capture calls
     public override async Task<bool> EditSong(ApplicationUser user, Song song, Song edit,
         IEnumerable<UserTag> tags = null)

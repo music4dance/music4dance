@@ -132,10 +132,10 @@ internal class MergeCluster(int hash)
                 {
                     foreach (var l in lumps.Values)
                     {
-                        // Level 3 == level but filter out lumps with lengths that are too divergents (epsilon > 20?)
+                        // Level 3 == level but drop songs whose lengths are too far apart from one another
                         if (level == 3)
                         {
-                            l.Songs = FilterLength(l.Songs);
+                            l.Songs = SharedIdMatcher.WithinLengthTolerance(l.Songs);
                         }
 
                         if (ret.Count + l.Songs.Count > n)
@@ -174,37 +174,4 @@ internal class MergeCluster(int hash)
         s_mergeCandidateCache.RemoveAt(idx);
     }
 
-    private static List<Song> FilterLength(List<Song> lump)
-    {
-        if (lump.Count < 2)
-        {
-            return lump;
-        }
-
-        var total = 0;
-        var count = 0;
-        foreach (var song in lump.Where(song => song.Length.HasValue))
-        {
-            count += 1;
-            // ReSharper disable once PossibleInvalidOperationException
-            total += song.Length.Value;
-        }
-
-        // No songs have length, so this filter makes no sense
-        if (count == 0)
-        {
-            return lump;
-        }
-
-        var avg = total / count;
-        var ret = new List<Song>();
-        foreach (var song in lump.Where(
-            song =>
-                !song.Length.HasValue || Math.Abs(song.Length.Value - avg) < 20))
-        {
-            ret.Add(song);
-        }
-
-        return ret;
-    }
 }

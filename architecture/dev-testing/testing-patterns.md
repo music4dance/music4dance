@@ -244,6 +244,46 @@ referencing the same `Azure.Search.Documents` package version and reflecting
 guessing at overloads that vary between SDK versions.
 
 ---
+### Pattern 6: Faking the Music Services Over HTTP
+
+**Problem:** `MusicServiceManager` is the code that calls Spotify and iTunes (track lookup, search,
+audio features, samples, ISRC). Its request method is private, and it used to send through the
+shared `HttpClientHelper.Client`, so a test that reached `CreateSong` or `GetMusicServiceTrack`
+made live calls.
+
+**Solution:** The manager sends every request through its `Http` property
+(`internal HttpClient Http { get; init; } = HttpClientHelper.Client`). A test sets it to an
+`HttpClient` over a fake `HttpMessageHandler`, so the whole path runs (request building, auth
+lookup, response parsing, the genre and artist follow-up requests) with no network. The handler
+answers from fixtures and returns 404 for anything it doesn't know.
+
+```csharp
+var manager = new MusicServiceManager(new Mock<IConfiguration>().Object)
+{
+    Http = new HttpClient(new SpotifyFixtureHandler()),
+};
+var song = await manager.CreateSong(
+    dms, user, SpotifyFixtureHandler.TrackId, MusicService.GetService(ServiceType.Spotify));
+```
+
+`m4d.Tests/Utilities/SpotifyFixtureHandler.cs` is the handler. Its Spotify responses are the
+track ("Cut To The Feeling", Carly Rae Jepsen, ISRC USUM71703861) and the audio features as the
+Spotify API console returned them on 2026-11-23. The search response wraps that track, and the
+album and artist responses carry the same names with empty genres. Audio features are served for
+any id (the console sample's own id is `2takcwOaAZWiXQijPHIx7B`), since the add path only needs the
+tempo. iTunes is 404 everywhere, until the Apple Music migration.
+
+**Two checks when you use it:**
+
+- A parse that fails returns null, and `GetMusicServiceTrack` logs it rather than throwing. When a
+  lookup comes back null, call `service.ParseTrackResults` directly on the deserialized JSON to see
+  the exception (a fixture with an uninterpolated placeholder, for example, shows up as a
+  `JsonReaderException` there).
+- Keep a `Song.Create` or `FindSongByISRC` test on the in-memory index. Its title search goes
+  through `SongIndexLocal.SongsFromTitle`, which answers from the songs saved to it.
+
+---
+
 
 ## Client-Side Testing Patterns
 

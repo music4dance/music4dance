@@ -110,9 +110,11 @@ more first. See [song-merge-algorithm](song-merge-algorithm.md) § Matching new 
    creation attributed to the real user, everything else re-attributed to the service's bot user —
    see [add-augment-song](add-augment-song.md) § "Attribution split").
 3. **`FindSongByISRC`, then `FindMatchingSong`** — the track's ISRC first (Spotify only; iTunes
-   tracks carry none), then `MergeFromTitle`: searches the catalog by title, then requires
-   `MatchType.Exact` or `MatchType.Length` title/artist similarity. Anything weaker leaves the
-   transient song from step 2 as a new song, unless step 7 finds it.
+   tracks carry none), then `MergeFromTitle`: searches the catalog by title (and by the title
+   without a remaster note), keeps songs whose title, artist credit and length agree (see
+   [song-merge-algorithm](song-merge-algorithm.md) § Matching New Songs by Title), then requires
+   `MatchType.Exact` or `MatchType.Length`. A `Weak` match is not accepted here. Anything weaker
+   leaves the transient song from step 2 as a new song, unless step 7 finds it.
 4. **`UpdateSongAndServices`** — a blanket "fill in whatever's missing from every searchable
    service" pass (iTunes, Spotify — not just the one being added), independent of the specific
    track being resolved. Mostly a no-op for the service actually in play (step 5 handles that
@@ -131,6 +133,13 @@ more first. See [song-merge-algorithm](song-merge-algorithm.md) § Matching new 
    attached to that song instead. When the song being enriched is already in the catalog (a
    step 3 match), steps 4 to 6 instead leave off any id another song holds and queue the pair
    for review ([shared-id-review](shared-id-review.md)).
+8. **`MusicServiceManager.NameMergedSong`** — only for a song matched by title in step 3 (not by
+   ISRC or service id). The track's own song is kept as the source, and
+   `FeaturedCleanup.Propose(catalogSong, [trackSong])` names the merge the way the shared-id review
+   does: a feat. credit the track brings moves into the individual artists, and a remaster note
+   doesn't overwrite a clean title. The result is written as an edit by the music4dance account
+   (`AppendNameEdit`), and the song is reloaded. A song that already has those names is left
+   alone.
 
 Step 1 only succeeds if the *literal* id being looked up is already on file. Services, Spotify in
 particular, periodically reissue a different track id for the same recording (see

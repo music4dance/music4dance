@@ -383,10 +383,8 @@ public class GetISRCDataTests
 
 // Covers MusicServiceManager.FindSongByISRC — the helper CreateSong uses to check for an
 // existing catalog song sharing an ISRC before falling back to SongIndex.FindMatchingSong's
-// (Azure-search-backed) title dedup. CreateSong itself isn't covered end-to-end here: once the
-// ISRC branch misses, UpdateSongAndServices makes live HTTP calls to iTunes/Spotify with no
-// available test seam (GetMusicServiceResults is private, non-virtual) — the same reason no
-// other CreateSong tests exist in this suite yet.
+// title dedup. CreateSong itself runs end to end in CreateSongTests, with the Spotify API served
+// by SpotifyFixtureHandler through the manager's Http property.
 [TestClass]
 public class FindSongByISRCTests
 {
