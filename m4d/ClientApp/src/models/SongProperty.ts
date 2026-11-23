@@ -110,6 +110,8 @@ export enum PropertyType {
   editCommand = ".Edit",
   deleteCommand = ".Delete",
   mergeCommand = ".Merge",
+  noMergeCommand = ".NoMerge",
+  unmergeCommand = ".Unmerge",
   undoCommand = ".Undo",
   redoCommand = ".Redo",
   failedLookup = ".FailedLookup",

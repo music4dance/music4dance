@@ -565,13 +565,36 @@ public class SongIndex
         {
             var blocks = SongPropertyBlockParser.ParseBlocks(properties[song.SongId]);
 
+            // A block with no time of its own (.FailedLookup is written inside an edit, after
+            // that edit's User and Time) sorts with the block before it. Sorted as the earliest
+            // block, it would start the merged log, and SongPropertyCompression only reads a log
+            // as plain text when it starts with .Create, .Edit or .Merge.
+            DateTime? previous = null;
             foreach (var block in blocks)
             {
-                // Only stamp .Create and .Edit blocks with the source GUID; other action types
-                // (e.g. .Merge, .Delete, .NoMerge) keep their original value.
+                block.Timestamp ??= previous;
+                previous = block.Timestamp;
+            }
+
+            foreach (var block in blocks)
+            {
+                // Stamp .Create and .Edit blocks with the source GUID. Other action types
+                // (e.g. .Merge, .NoMerge, .FailedLookup) keep their value, which means something
+                // else, and carry the source in a MergeSource property instead, so an unmerge can
+                // give them back. Either way a later merge overwrites the earlier source.
                 if (block.ActionCommand == Song.CreateCommand || block.ActionCommand == Song.EditCommand)
                 {
                     block.ActionValue = song.SongId.ToString();
+                }
+                else
+                {
+                    var header = block.Properties.TakeWhile(IsHeader).ToList();
+                    block.Properties =
+                    [
+                        .. header,
+                        new SongProperty(Song.MergeSourceField, song.SongId.ToString()),
+                        .. block.Properties.Skip(header.Count).Where(p => p.Name != Song.MergeSourceField)
+                    ];
                 }
                 allBlocks.Add(block);
             }
@@ -663,6 +686,202 @@ public class SongIndex
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Splits <paramref name="extract"/> (some, not all, of
+    /// <see cref="Song.GetUnmergeableSources"/>) back out of a simple merge, saves the restored
+    /// songs and the remainder, and marks each pair of them that still shares a service id as
+    /// not the same song in the shared-id queue. See architecture/songs/song-merge-algorithm.md
+    /// § Unmerging.
+    /// </summary>
+    public async Task<UnmergeResult> UnmergeSong(ApplicationUser user, Guid songId,
+        IReadOnlyCollection<Guid> extract, bool noMerge)
+    {
+        var merged = await FindSong(songId);
+        if (merged == null || merged.IsNull)
+        {
+            throw new ArgumentException($"Song {songId} wasn't found");
+        }
+
+        var (remainder, restored) = await BuildUnmerge(user, merged, extract, noMerge);
+        await SaveSongs([remainder, .. restored]);
+
+        var shared = await DanceMusicService.SharedIds.RejectSharedIds(
+            user, [remainder, .. restored], "unmerge");
+        return new UnmergeResult(remainder, restored, shared);
+    }
+
+    /// <summary>
+    /// The songs <see cref="UnmergeSong"/> would save: each extracted source rebuilt under its
+    /// original id from the blocks stamped with it (stamps cleared, albums renumbered from 0,
+    /// optionally marked .NoMerge), and the merged song keeping every other block plus an
+    /// .Unmerge listing the extracted ids. A post-merge album property whose album only one
+    /// extracted source held moves to that source. Nothing is saved.
+    /// </summary>
+    public async Task<(Song Remainder, IReadOnlyList<Song> Restored)> BuildUnmerge(
+        ApplicationUser user, Song merged, IReadOnlyCollection<Guid> extract, bool noMerge)
+    {
+        var sources = merged.GetUnmergeableSources();
+        var ids = sources.Where(extract.Contains).ToList();
+        if (ids.Count == 0 || ids.Count != extract.Distinct().Count() || ids.Count >= sources.Count)
+        {
+            throw new ArgumentException(
+                "Choose one or more of the merged songs, and leave at least one in place");
+        }
+
+        var blocks = SongPropertyBlockParser.ParseBlocks(merged.SongProperties);
+        var mergeBlock = blocks.FindLastIndex(b => b.ActionCommand == Song.MergeCommand);
+        var owners = blocks.Select((b, i) => i < mergeBlock ? BlockOwner(b) : null).ToList();
+
+        // Which sources' blocks set each album index (Guid.Empty for blocks no source owns)
+        var albumOwners = new Dictionary<int, HashSet<Guid>>();
+        for (var i = 0; i < mergeBlock; i++)
+        {
+            foreach (var index in blocks[i].Properties.Where(IsAlbumProperty).Select(p => p.Index.Value))
+            {
+                if (!albumOwners.TryGetValue(index, out var set))
+                {
+                    albumOwners[index] = set = [];
+                }
+                _ = set.Add(owners[i] ?? Guid.Empty);
+            }
+        }
+
+        Guid? ExclusiveOwner(SongProperty prop) =>
+            IsAlbumProperty(prop) && albumOwners.TryGetValue(prop.Index.Value, out var set) &&
+            set.Count == 1 && ids.Contains(set.First())
+                ? set.First()
+                : null;
+
+        var kept = new List<SongPropertyBlock>();
+        var restored = ids.ToDictionary(id => id, _ => new List<SongPropertyBlock>());
+        for (var i = 0; i < blocks.Count; i++)
+        {
+            var block = blocks[i];
+            if (owners[i] is { } owner && restored.TryGetValue(owner, out var list))
+            {
+                list.Add(RestoreBlock(block));
+                continue;
+            }
+
+            if (i <= mergeBlock)
+            {
+                kept.Add(block);
+                continue;
+            }
+
+            // After the merge: album properties for an album only one extracted source held go
+            // with that source, in a copy of the block under the same user and time
+            var header = block.Properties.TakeWhile(IsHeader).ToList();
+            var content = block.Properties.Skip(header.Count).ToList();
+            var moved = content.Select(p => (Prop: p, Owner: ExclusiveOwner(p)))
+                .Where(m => m.Owner.HasValue)
+                .ToList();
+            foreach (var group in moved.GroupBy(m => m.Owner.Value))
+            {
+                restored[group.Key].Add(new SongPropertyBlock
+                {
+                    ActionCommand = block.ActionCommand,
+                    ActionValue = block.ActionValue,
+                    User = block.User,
+                    Timestamp = block.Timestamp,
+                    Properties = [.. header, .. group.Select(m => m.Prop)]
+                });
+            }
+
+            var left = content.Except(moved.Select(m => m.Prop)).ToList();
+            if (moved.Count > 0 && left.Count == 0)
+            {
+                continue;
+            }
+            block.Properties = [.. header, .. left];
+            kept.Add(block);
+        }
+
+        var time = DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss tt");
+        var remainderProps = SongPropertyBlockParser.FlattenBlocks(kept);
+        remainderProps.AddRange(
+        [
+            new SongProperty(Song.UnmergeCommand, string.Join(";", ids)),
+            new SongProperty(Song.UserField, user.DecoratedName),
+            new SongProperty(Song.TimeField, time)
+        ]);
+        var remainder = await Song.Create(merged.SongId, remainderProps, DanceMusicService);
+
+        var songs = new List<Song>();
+        foreach (var id in ids)
+        {
+            var props = CompactAlbums(SongPropertyBlockParser.FlattenBlocks(restored[id]));
+            if (noMerge)
+            {
+                props.AddRange(
+                [
+                    new SongProperty(Song.NoMergeCommand, string.Empty),
+                    new SongProperty(Song.UserField, user.DecoratedName),
+                    new SongProperty(Song.TimeField, time)
+                ]);
+            }
+            songs.Add(await Song.Create(id, props, DanceMusicService));
+        }
+
+        return (remainder, songs);
+    }
+
+    private static bool IsAlbumProperty(SongProperty prop) =>
+        prop.Index.HasValue && AlbumIndexedFields.Contains(prop.BaseName);
+
+    private static bool IsHeader(SongProperty prop) =>
+        prop.Name is Song.UserField or Song.TimeField;
+
+    /// <summary>The source a block came from in a simple merge, or null if no source owns it.</summary>
+    private static Guid? BlockOwner(SongPropertyBlock block)
+    {
+        var stamp = block.ActionCommand is Song.CreateCommand or Song.EditCommand
+            ? block.ActionValue
+            : block.Properties.FirstOrDefault(p => p.Name == Song.MergeSourceField)?.Value;
+        return Guid.TryParse(stamp, out var id) ? id : null;
+    }
+
+    /// <summary>A copy of a block as it was before the merge stamped it.</summary>
+    private static SongPropertyBlock RestoreBlock(SongPropertyBlock block) => new()
+    {
+        ActionCommand = block.ActionCommand,
+        ActionValue = block.ActionCommand is Song.CreateCommand or Song.EditCommand
+            ? string.Empty
+            : block.ActionValue,
+        User = block.User,
+        Timestamp = block.Timestamp,
+        Properties = [.. block.Properties.Where(p => p.Name != Song.MergeSourceField)]
+    };
+
+    /// <summary>
+    /// Renumbers the album properties from 0, in the order the albums first appear, undoing the
+    /// shared numbering a merge gave them.
+    /// </summary>
+    internal static List<SongProperty> CompactAlbums(IEnumerable<SongProperty> properties)
+    {
+        var map = new Dictionary<int, int>();
+        return
+        [
+            .. properties.Select(prop =>
+            {
+                if (!IsAlbumProperty(prop))
+                {
+                    return prop;
+                }
+
+                var index = prop.Index.Value;
+                if (!map.TryGetValue(index, out var target))
+                {
+                    map[index] = target = map.Count;
+                }
+
+                return target == index
+                    ? prop
+                    : new SongProperty(SongProperty.FormatName(prop.BaseName, target, prop.Qualifier), prop.Value);
+            })
+        ];
     }
 
 
@@ -1218,8 +1437,10 @@ public class SongIndex
         {
             return await Info.GetIndexAsync(IsNext);
         }
-        catch (Azure.RequestFailedException ex)
+        catch (Azure.RequestFailedException ex) when (ex.Status == 404)
         {
+            // Only an index that doesn't exist yet gets created. Anything else (throttling, an
+            // outage, auth) rethrows: resetting would delete and recreate a live index
             Debug.WriteLine(ex.Message);
             return await ResetIndex();
         }
@@ -1262,13 +1483,13 @@ public class SongIndex
         }
 
         return await Search(
-            filter.SearchString, AzureParmsFromFilter(filter, pageSize), cruft);
+            filter.AzureSearchText, AzureParmsFromFilter(filter, pageSize), cruft);
     }
 
     public virtual async Task<SearchResults> Search(
         string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
     {
-        // Strip off the Lucene syntax indicator
+        // Strip off the Lucene syntax indicator (a filter's text is already escaped: AzureSearchText)
         search = new KeywordQuery(search).Keywords;
 
         try
@@ -2742,3 +2963,10 @@ public class SongIndex
     }
     #endregion
 }
+
+/// <summary>
+/// What <see cref="SongIndex.UnmergeSong"/> saved: the merged song that stays, the songs split
+/// back out of it, and the pairs of them that still share a service id.
+/// </summary>
+public record UnmergeResult(Song Remainder, IReadOnlyList<Song> Restored,
+    IReadOnlyList<SharedIdPair> Shared);

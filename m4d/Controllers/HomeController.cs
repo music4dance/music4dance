@@ -124,14 +124,23 @@ public class HomeController(
     // letting a specific match sensitivity be linked to directly alongside numerator/tempo/count.
     // As with the other three parameters, the client (tempo-counter/App.vue) is responsible for
     // fencing an out-of-range or otherwise invalid value back to its default.
+    // `show` picks which badges each near-miss dance gets (tempo-counter/deltaMetrics.ts keys:
+    // tempo, pitch, speed), e.g. /Home/Counter?tempo=140&show=tempo&show=speed
     public IActionResult Counter(int? numerator = null, decimal? tempo = null, string count = "beats",
-        decimal? epsilon = null)
+        decimal? epsilon = null, List<string> show = null)
     {
         return Vue3(
             "Counter",
             "A web application to measure the tempo of a song and match it with styles of dance.",
             "tempo-counter",
-            new TempoCounterModel { Numerator = numerator, Tempo = tempo, Count = count, Epsilon = epsilon },
+            new TempoCounterModel
+            {
+                Numerator = numerator,
+                Tempo = tempo,
+                Count = count,
+                Epsilon = epsilon,
+                Show = ConvertParameter(show),
+            },
             "tempo-counter",
             danceEnvironment: true);
     }

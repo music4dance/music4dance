@@ -30,7 +30,7 @@ procedural, to become a runbook.
 | --- | --- | --- |
 | [song-internal-format](songs/song-internal-format.md) | Ref | The append-only `SongProperty` log: wire format, field reference, edit blocks, user types, index compression |
 | [song-details-viewing-editing](songs/song-details-viewing-editing.md) | Ref | Song details page, `SongCore.vue`, editing flow, permissions, pseudo-users, per-dance tempo |
-| [song-merge-algorithm](songs/song-merge-algorithm.md) | Ref | Service id matching, duplicate detection levels, title normalization, the history-weaving merge and the post-merge editor |
+| [song-merge-algorithm](songs/song-merge-algorithm.md) | Ref | Service id matching, duplicate detection levels, title normalization, the history-weaving merge, the post-merge editor and unmerge |
 | [song-upload-format](songs/song-upload-format.md) | Ref | `UploadCatalog` file format: header fields, tags, upload form parameters |
 | [add-augment-song](songs/add-augment-song.md) | Ref | `/song/augment`: locating a track, server-side lookup/dedup, saving user edits |
 | [service-track-lookup](songs/service-track-lookup.md) | Ref | Backend resolution of a Spotify/Apple track ID to a catalog song |
@@ -108,7 +108,7 @@ procedural, to become a runbook.
 | Doc | Kind | What it covers |
 | --- | --- | --- |
 | [usage-tracking](observability/usage-tracking.md) | Ref | Page-view `UsageLog`: server vs client-side recording, batch endpoint, admin analysis pages, the antiforgery 400 root cause |
-| [logging-and-diagnostics](observability/logging-and-diagnostics.md) | Ref | Where app logs go (filesystem Warning+), HTTP request logs (storage `m4dlogs`), orphaned App Insights, GC snapshots, forced GC, memory dumps |
+| [logging-and-diagnostics](observability/logging-and-diagnostics.md) | Ref | Where app logs go (filesystem Warning+), HTTP request logs (storage `m4dlogs`), the app request log with real client IPs (built-in W3C logger, copied hourly to `m4dlogs`), orphaned App Insights, GC snapshots, forced GC, memory dumps |
 
 ## Development and testing
 
@@ -135,6 +135,7 @@ into `runbooks/` as its area is consolidated.
 | Link new blog posts / help articles | [runbooks/link-new-blog-posts](runbooks/link-new-blog-posts.md) |
 | Provision a new App Service instance | [runbooks/provision-app-service](runbooks/provision-app-service.md) |
 | Deploy to test or production | [runbooks/deploy](runbooks/deploy.md) |
+| Set up, verify, purge or turn off the Cloudflare edge cache for anonymous pages | [runbooks/edge-cache](runbooks/edge-cache.md) |
 | Add a partner API client, issue, rotate or revoke its keys | [runbooks/add-a-partner](runbooks/add-a-partner.md) |
 | Configure service-failure email alerts | [runbooks/configure-failure-email](runbooks/configure-failure-email.md) |
 | Renew the AutoMapper license key (yearly; emailed 30 days ahead) | [runbooks/renew-automapper-license](runbooks/renew-automapper-license.md) |
@@ -154,16 +155,18 @@ into `runbooks/` as its area is consolidated.
 | Remove the unused MarkdownDeep pieces (`markdowndeep` npm package, `MarkdownDeepVendor` copy in `m4d.csproj`, `MarkdownDeep.NET.Core`), left over after showdown was replaced with `marked` + `DOMPurify` | Not started; confirm in production logs that nothing requests `/vendor/markdowndeep/` first | [pages/frontend-architecture § Future improvements](pages/frontend-architecture.md#future-improvements) |
 | Public API & third-party authorization (DanzQ) | Foundation (PR 1) merged behind a disabled flag; PR 2 on hold after Apple denied the business plan, alternatives being explored | [plans/public-api-authorization](plans/public-api-authorization.md) |
 | Partner API on a standalone host (Azure Functions over the search index, independent of the web app) | In progress: PRs 1–4 done (test environment serving resolve behind partner API keys and limits; key issuing pages in the web app); unmatched queue and production next | [plans/partner-api-standalone-host](plans/partner-api-standalone-host.md) |
+| Partner API deploy pipeline: routine `m4d-api` code deploys through Azure DevOps; infrastructure stays in `deploy.ps1` | Proposed; deferred while `deploy.ps1` works | [plans/partner-api-deploy-pipeline](plans/partner-api-deploy-pipeline.md) |
 | Apple Music API migration: replace the iTunes Search/Lookup API (ISRC backfill, reverse ISRC enrichment, search), plus link switch, customer export and curated playlists | Proposed; Apple Developer membership confirmed, so stage 0 (token + ISRC backfill) is unblocked | [plans/apple-music-api-migration](plans/apple-music-api-migration.md) |
-| Azure Front Door caching | Not started; app-side prep shipped | [plans/front-door-caching](plans/front-door-caching.md) |
-| Bot load and public-page rendering (compression, caching, SSR vs. bot HTML vs. Razor shell) | Partially implemented: Phase 1 quick wins (A1–A7) on branch `bot-load-quick-wins`; caching and rendering phases not started | [plans/bot-load-and-public-page-rendering](plans/bot-load-and-public-page-rendering.md) |
+| Azure Front Door caching | On hold: superseded by the Cloudflare edge cache; app-side prep shipped | [plans/front-door-caching](plans/front-door-caching.md) |
 | Migrate email off Azure Communication Services (ACS Email retires 2028-09-30) to SMTP via a transactional provider | Proposed | [plans/acs-email-migration](plans/acs-email-migration.md) |
-| Bot load and public-page rendering (compression, caching, SSR vs. bot HTML vs. Razor shell) | Partially implemented: Phase 1 quick wins (A1–A7) deployed 2026-10-30; caching (Front Door vs. Cloudflare compared) and rendering phases not started | [plans/bot-load-and-public-page-rendering](plans/bot-load-and-public-page-rendering.md) |
+| Bot load and public-page rendering (compression, caching, SSR vs. bot HTML vs. Razor shell) | Partially implemented: Phase 1 quick wins (A1–A7) deployed 2026-10-30; Phase 2 (Cloudflare edge cache) built 2026-11-18, in production 2026-11-21; rendering phase not started | [plans/bot-load-and-public-page-rendering](plans/bot-load-and-public-page-rendering.md) |
 | Key Vault RBAC migration | Not started (vault `music4dance` still uses access policies, verified 2026-10-01) | [plans/key-vault-rbac-migration](plans/key-vault-rbac-migration.md) |
-| Attack mitigation Phase 2+ (telemetry, alerts, WAF, honeypots) | Proposed | [plans/attack-mitigation-phase2](plans/attack-mitigation-phase2.md) |
+| Attack mitigation Phase 2+ (WAF, IP reputation, honeypots, user-agent analysis; its alerts moved to site monitoring) | Proposed | [plans/attack-mitigation-phase2](plans/attack-mitigation-phase2.md) |
 | Cloudflare migration: DNS from Namecheap to Cloudflare (registration stays), edge proxy, Origin CA certificate, Bot Fight Mode (attack-mitigation step 2.2) | In progress: Phases 1–4 done (DNS on Cloudflare, `www` and `@` proxied, Full (strict)); Phase 6 started (Bot Fight Mode and leaked credentials detection on, 2026-11-07); Phase 5 due by the end of January 2027; Free plan | [plans/cloudflare-migration](plans/cloudflare-migration.md) |
+| Cloudflare Pro upgrade: a running list of what we'd turn on (Super Bot Fight Mode, proxying `api`, verified crawlers past the edge cache, more WAF and rate-limiting rules) | Proposed; the zone stays on Free until a trigger in the list is hit | [plans/cloudflare-pro-upgrade](plans/cloudflare-pro-upgrade.md) |
 | Contributor environments beyond the sandbox (test deploys, diagnostics, samplified data, own Azure) | Proposed | [plans/contributor-environments-next](plans/contributor-environments-next.md) |
 | Durable log storage (Blob / Log Analytics / tuned App Insights) | Proposed | [plans/log-persistence-options](plans/log-persistence-options.md) |
+| Site monitoring and alerting by email: Azure metric alerts and an external uptime monitor, a daily traffic digest on the Mac mini, an in-app detector for traffic waves and sign-in attacks | Partially implemented: Azure metric alerts created 2026-11-20; uptime monitor, digest and detector not started | [plans/site-monitoring-and-alerting](plans/site-monitoring-and-alerting.md) |
 | Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
 | Visitor engagement next steps (post-launch priorities, enhancements) | Proposed | [plans/visitor-engagement-next](plans/visitor-engagement-next.md) |
 | Add-song matching: compare artists, titles and lengths the way the shared-id review does | Proposed | [plans/add-song-matching-next](plans/add-song-matching-next.md) |

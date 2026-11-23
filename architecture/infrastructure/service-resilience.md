@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-03
+**Last verified:** 2026-11-20
 **Code:** `m4d/Services/ServiceHealth/`, `m4d/Services/DatabaseRecoveryService.cs`,
 `m4d/Services/AppConfigurationRecoveryService.cs`, `m4d/Configuration/AppConfigurationStartup.cs`,
 `m4d/Configuration/SecretBackedServices.cs`,
@@ -84,6 +84,47 @@ After startup the app prints a `GenerateStartupReport()` summary to the console 
 `PlayListController`, …) mark `SearchService` unavailable and return empty results, an error view,
 or a `503` JSON response instead of an unhandled exception.
 
+**Search circuit breaker.** `SearchCircuitBreaker` is an Azure.Core pipeline policy on the
+`SearchClient`s, at `HttpPipelinePosition.PerRetry`. There's one per Search service
+(`SearchCircuitBreakers`), shared by that service's clients, and each marks its own health
+name: `SearchService` for music4dance.search.windows.net (the song indexes) and
+`PageSearchService` for m4d.search.windows.net (the pages index, checked by `SearchController`),
+so throttling on one doesn't fail the other.
+
+- **Opening.** The first `503` or `429` opens it and marks its service unavailable. For the next
+  30 seconds every query attempt throws `RequestFailedException(503)` without being sent, which
+  `DoSearch` maps to the same "unavailable" error as above. Because it runs on each retry and
+  ahead of Azure.Core's logging policy, the SDK's retries of a throttled request stop after one
+  more attempt, and a short-circuited attempt writes nothing to the log.
+- **Probing.** After the break, one request goes through as a probe while the others keep failing
+  fast. A response below 500 closes it and marks the service healthy; a 5xx, a `429` or an
+  exception reopens it for another 30 seconds; a probe the caller cancels just frees the slot. A
+  probe still running after 10 seconds lets another request probe, so one slow response doesn't
+  hold Search closed.
+- **Health.** While it's open the breaker decides `IsServiceHealthy` for its service (through
+  `ServiceHealthManager.SetHealthGate`): false during the break and while a probe runs, true when
+  a probe is due. So callers retry when the break ends, not when the health check's one-minute
+  cooldown does, which controllers catching the breaker's `503` would otherwise keep restarting.
+- **Stale responses.** Every attempt carries the breaker's generation, which moves on each open,
+  reopen and close, and only an attempt from the current generation changes the state. A request
+  sent before the breaker opened can't close it by succeeding, or reopen it by coming back `503`
+  after a probe closed it.
+- **Not covered.** Document writes (`docs/search.index`) pass straight through and keep the SDK's
+  retries, so a song save during a brief `503` still lands and a bulk load on a test index can't
+  open the breaker for production queries. The `SearchIndexClient` (schema reads, index
+  create/delete) has no breaker either. Requests already in flight when it opens can't be
+  stopped, so the first wave of a burst still logs its `503`s.
+
+Opening, each failed probe (with how many requests failed fast) and closing are logged at
+Warning. Added after the 2026-11-18 bursts, in which 12,024 logged `503`s filled the day's log
+file in minutes, and every success from an in-flight request marked Search healthy again and let
+the next wave through.
+
+Two index operations are guarded against transient failures. `SongIndex.GetSearchIndex` recreates
+the index only when reading it returns `404`, never on throttling or an outage. And
+`SearchServiceInfo.HasFieldAsync` doesn't cache a throttled schema read, so a "no Artists field"
+answer from a `503` can't drive uploads that drop the field for the next minute.
+
 **Database.**
 - If `UserMetadata.Create` throws, `DMController.OnActionExecutionAsync` marks the database
   unavailable and continues with `UserMetadata.Anonymous`, so the page renders for an anonymous
@@ -121,7 +162,8 @@ reads them.)
 ## Recovery
 
 - **Search:** recovers immediately on the next successful live query, because
-  `SearchServiceManager.OnSearchSuccess` is wired in DI to `MarkHealthy("SearchService")`.
+  `SearchServiceManager.OnSearchSuccess` is wired in DI to `MarkHealthy("SearchService")`,
+  except while the circuit breaker is open: then only the breaker's probe marks it healthy.
   Otherwise it recovers implicitly through the cooldown.
 - **Database:** `DatabaseRecoveryService.TriggerRecoveryIfNeeded()` runs early in the request
   pipeline. While `Database` is `Unavailable` and a connection string exists, it starts a
@@ -190,8 +232,11 @@ the **HTTP Requests** log category to Log Analytics and query `AACHttpRequest`, 
 | `/health/startup` | Liveness: the process is listening | Always `200` |
 | `/health/ready` | Readiness: mapped directly on the pipeline, no MVC dependency | `200 ready` when `IsServiceHealthy("Database")`, else `503` |
 | `GET /api/health` | Coarse status | `503` only when `Database` is `Unavailable`; else `healthy` / `degraded` |
-| `GET /api/health/status` | Full JSON: per-service status, summary, and `updateMessage` (the admin "update warning") | `503` when any service is `Unavailable` |
-| `GET /api/health/report` | Human-readable HTML table | `200` |
+| `GET /api/health/status` | Full JSON: per-service status, summary, and `updateMessage` (the admin "update warning"). Public, since every page's banner polls it; each service's `errorMessage`, `responseTime`, `lastHealthy` and `consecutiveFailures` are `null` unless the caller has `showDiagnostics` (`name`, `status` and `lastChecked` are always sent) | `503` when any service is `Unavailable` |
+| `GET /api/health/report` | Human-readable HTML table, with the error text. `showDiagnostics` only | `200` |
+
+The error text is often a raw exception message (`MarkUnavailable(..., $"{ex.GetType().Name}: {ex.Message}")`),
+which can name servers or internals, so anonymous callers don't get it.
 
 The deploy pipeline points the App Service health check at `/health/ready`. See
 [hosting-and-identity § Health checks](hosting-and-identity.md#health-checks) for what Azure
@@ -260,6 +305,34 @@ Likewise, when notifications are disabled or email isn't configured, nothing is 
 notified, so no lone "recovered" email follows. Configuration and testing steps are in
 [runbooks/configure-failure-email](../runbooks/configure-failure-email.md).
 
+### Site slow or down: Azure Monitor metric alerts
+
+The app's own emails can't report the site being slow, or the app being down. Five Azure Monitor
+metric alerts on `msc4dnc` (resource group `m4d-Web`) cover that. They email the admins through
+the `m4d-admins` action group, the same one the App Configuration quota alert uses. Each
+alert evaluates a 5-minute window and auto-resolves, so Azure sends one email when it fires and
+one when it clears.
+
+| Alert rule | Condition | Checked every | Severity |
+| --- | --- | --- | --- |
+| `msc4dnc site slow` | Average `HttpResponseTime` > 1 s | 1 min | 2 |
+| `msc4dnc site very slow` | Average `HttpResponseTime` > 3 s | 1 min | 1 |
+| `msc4dnc server errors` | Total `Http5xx` > 10 | 1 min | 2 |
+| `msc4dnc health check failing` | Average `HealthCheckStatus` < 100 (the `/health/ready` probe) | 1 min | 1 |
+| `msc4dnc traffic spike` | Total `Requests` > 5,000 | 5 min | 3 |
+
+- The thresholds were replayed against the 1-minute metrics of 2026-10-31 and 2026-11-18 (both
+  residential-proxy waves) and 2026-11-19 (a normal day). Both waves fire "slow" and "very
+  slow"; the normal day fires nothing. The figures are in
+  [plans/site-monitoring-and-alerting § 2a](../plans/site-monitoring-and-alerting.md).
+- `HttpResponseTime` averages every request, static files included, so a burst of slow pages
+  shows up diluted. 1 s is about 40x a normal 5-minute average.
+- These metrics come from the App Service front ends. They can't see DNS or Cloudflare
+  failures; the external uptime monitor in the plan covers those.
+- To change a threshold: `az monitor metrics alert update -g m4d-Web -n "<rule>" --condition
+  "<agg> <metric> <op> <value>"`. In Git Bash, set `MSYS_NO_PATHCONV=1` first if the command
+  includes a `/subscriptions/...` ID. Cost is about $0.10 per rule a month.
+
 ## Known issues
 
 - **No email while App Configuration is down.** The Azure Communication Services connection
@@ -299,8 +372,8 @@ notified, so no lone "recovered" email follows. Configuration and testing steps 
   [plans/persistent-update-message](../plans/persistent-update-message.md).
 - **Admin dashboard** with health history, response times and uptime, and export to Azure
   Monitor.
-- **Circuit breakers** per service (closed / open / half-open), if the cooldown proves too
-  coarse.
+- **Circuit breakers for the other services** (closed / open / half-open), like Search's, if
+  the cooldown proves too coarse for them.
 - **Cache common anonymous search results**, to serve during search outages.
 - **Faster App Configuration recovery**, if a slow store keeps making recovery take tens of
   minutes even with the 2-minute timeout after startup:
@@ -360,6 +433,12 @@ notified, so no lone "recovered" email follows. Configuration and testing steps 
 - 2026-10-25: The update message moved from `GlobalState.UpdateMessage` to
   `UpdateMessageService`. It can persist across restarts (a file in `wwwroot/AppData`) and is
   shared across the instances in a plan.
+- 2026-11-19: `SearchCircuitBreaker` in the Search query clients' pipeline, one per Search
+  service: fail fast for 30 seconds after a `503`/`429`, then a single probe; it decides
+  `IsServiceHealthy` while open. Page search moved to its own health name, `PageSearchService`.
+- 2026-11-20: Five Azure Monitor metric alerts on `msc4dnc` (slow, very slow, 5xx, health
+  check, traffic spike) to the `m4d-admins` action group: phase 1a of
+  [plans/site-monitoring-and-alerting](../plans/site-monitoring-and-alerting.md).
 
 ## Related
 

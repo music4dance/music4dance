@@ -612,8 +612,17 @@ public class MusicServiceManager(IConfiguration configuration)
         IEnumerable<string> oldTrackList = null, IPrincipal principal = null,
         bool includeGenres = true, int? maxTracks = null)
     {
-        var results =
-            await GetMusicServiceResults(service.BuildLookupRequest(url), service, principal);
+        dynamic results;
+        try
+        {
+            results = await GetMusicServiceResults(service.BuildLookupRequest(url), service, principal);
+        }
+        catch (MusicServiceRequestException e) when (e.StatusCode == HttpStatusCode.NotFound)
+        {
+            // Only the playlist's own lookup: a 404 on a later page or track isn't the playlist
+            throw new PlaylistNotFoundException(url, e);
+        }
+
         if (results == null)
         {
             return null;
@@ -1488,7 +1497,7 @@ public class MusicServiceManager(IConfiguration configuration)
                         "{Service} request {Uri} failed with {StatusCode}: {Body}",
                         service?.Id, requestUri, (int)response.StatusCode,
                         body.Length > 1000 ? body[..1000] : body);
-                    throw new WebException(response.ReasonPhrase);
+                    throw new MusicServiceRequestException(response.StatusCode, response.ReasonPhrase);
                 }
             }
             catch (WebException we)

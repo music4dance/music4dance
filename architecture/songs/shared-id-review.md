@@ -52,6 +52,12 @@ first song holding its ISRC. When two songs share an ISRC, that pair is already 
 Only a pending row picks up new ids. A rejected pair stays rejected, so enrichment keeps leaving
 the id where it is and doesn't queue the pair again.
 
+**Unmerge.** Splitting a merged song apart ([song-merge-algorithm](song-merge-algorithm.md)
+§ Unmerging) can leave the songs sharing the id they were merged for. `SharedIdLog.RejectSharedIds`
+records each such pair as `Rejected` by the admin (source `unmerge`), adding a row if there
+isn't one, so the queue doesn't merge them back. The unmerge result page lists the ids, so the
+admin can remove the one that belongs to the other song.
+
 **Seeding.** `SharedIdLog.Seed` streams every song's `ServiceIds` (`SongIndex.StreamSongServiceIdsAsync`),
 and adds a row for each pair of songs that share one. Running it again adds only new pairs. It
 covers the same ground as `scripts/song_snapshot.py duplicate-ids --qualifiers SS,IS,RS`.
@@ -265,6 +271,7 @@ tooltips).
 - 2026-11: Sort out ids prefers the song that names exactly the track's artists.
 - 2026-11: Merge artist and Force merge artist combine the songs' artists in the If merged column, checked against their tracks unless forced.
 - 2026-11: Merge artists on this page, and Unmerge artist to undo a Merge artist.
+- 2026-11-14: An unmerge marks the split songs that still share an id as not the same (`RejectSharedIds`).
 
 ## Related
 

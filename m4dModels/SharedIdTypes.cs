@@ -172,6 +172,9 @@ public record SharedIdNamePicks(Guid? Title = null, Guid? Artist = null, Guid? A
 /// </summary>
 public record SharedIdRemoval(Guid SongId, int Album, string Id = null);
 
+/// <summary>Two songs and the service ids (spelled "S:…", "I:…", "R:…") both hold.</summary>
+public record SharedIdPair(Guid SongA, Guid SongB, IReadOnlyList<string> Ids);
+
 public class SharedIdBatchResult
 {
     // Songs that had albums or ids removed, and the pairs marked not the same because their songs

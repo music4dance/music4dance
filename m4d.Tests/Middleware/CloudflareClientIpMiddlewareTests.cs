@@ -176,6 +176,55 @@ public class CloudflareClientIpMiddlewareTests
         Assert.AreEqual(IPAddress.Parse(CloudflareEdge), fromDefault.Connection.RemoteIpAddress);
     }
 
+    private static ClientAddresses Addresses(HttpContext context) =>
+        context.Features.Get<ClientAddresses>()!;
+
+    [TestMethod]
+    public async Task Feature_FromCloudflare_IsVisitorAndEdge()
+    {
+        var (context, _) = await SendAsync(CloudflareEdge, Visitor);
+
+        Assert.AreEqual(new ClientAddresses(IPAddress.Parse(Visitor), IPAddress.Parse(CloudflareEdge)),
+            Addresses(context));
+    }
+
+    [TestMethod]
+    public async Task Feature_ViaAppServiceFrontEnd_RelayIsLastForwardedFor()
+    {
+        var (context, _) = await SendAsync(AppServiceFrontEnd, Visitor,
+            forwardedFor: $"{Visitor}, {CloudflareEdge}:51234");
+
+        Assert.AreEqual(new ClientAddresses(IPAddress.Parse(Visitor), IPAddress.Parse(CloudflareEdge)),
+            Addresses(context));
+    }
+
+    [TestMethod]
+    public async Task Feature_DirectWithSpoofedHeader_IsTheConnection()
+    {
+        var (context, _) = await SendAsync(Direct, Visitor);
+
+        Assert.AreEqual(new ClientAddresses(IPAddress.Parse(Direct), IPAddress.Parse(Direct)),
+            Addresses(context));
+    }
+
+    [TestMethod]
+    public async Task Feature_Disabled_IsTheRelay()
+    {
+        var (context, _) = await SendAsync(Config(enabled: false), CloudflareEdge, Visitor);
+
+        Assert.AreEqual(new ClientAddresses(IPAddress.Parse(CloudflareEdge), IPAddress.Parse(CloudflareEdge)),
+            Addresses(context));
+    }
+
+    [TestMethod]
+    public async Task Feature_FrontEndWithoutForwardedFor_IsTheNormalizedConnection()
+    {
+        var (context, _) = await SendAsync("::ffff:10.0.0.5");
+
+        Assert.AreEqual(new ClientAddresses(IPAddress.Parse("10.0.0.5"), IPAddress.Parse("10.0.0.5")),
+            Addresses(context));
+    }
+
     [TestMethod]
     public void DefaultRanges_AllParse()
     {

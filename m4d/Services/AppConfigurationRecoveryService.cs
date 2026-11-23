@@ -94,6 +94,11 @@ public class AppConfigurationRecoveryService(
         {
             message += $" Still not configured: {string.Join(", ", stillMissing)}.";
         }
+        var requestLogNote = RequestLogSetup.RestartNote(configuration);
+        if (requestLogNote != null)
+        {
+            message += " " + requestLogNote;
+        }
         logger.LogWarning("[AppConfigRecovery] {Message}", message);
 
         try

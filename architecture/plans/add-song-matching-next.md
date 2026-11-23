@@ -105,8 +105,9 @@ Steps 4 and 5 touch the add path's edits and want an integration test through `C
 
 ## Risks
 
-- **A wrong merge is worse than a duplicate.** A duplicate can be merged later, but separating a
-  wrong merge means unmerging, which isn't built (song-merge-algorithm § Future: Unmerge).
+- **A wrong merge is worse than a duplicate.** A duplicate can be merged later in one step. A
+  wrong merge has to be found first, and then an admin unmerges it from the song page
+  (song-merge-algorithm § 4. Unmerging), after which the two songs are kept apart.
   Every loosening above is paired with a length check for that reason.
 - **Aliases that aren't just spellings.** A row that joins different entities (as "Juan Luis
   Guerra" and his band "Juan Luis Guerra 4.40" did until it was taken out) suits a cluster that

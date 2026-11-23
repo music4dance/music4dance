@@ -2,39 +2,28 @@
 
 **Type:** Plan
 **Status:** Proposed. Not started; Phase 1 shipped 2026-03-05.
-**Last verified:** 2026-10-01
+**Last verified:** 2026-11-20
 
 Follow-on hardening after the Phase 1 identity-endpoint defenses described in
-[bot-and-abuse-defense](../security/bot-and-abuse-defense.md). The aim is to move from in-memory,
-manually watched stats to persistent telemetry with alerts, and to add edge and form-level
-defenses.
+[bot-and-abuse-defense](../security/bot-and-abuse-defense.md): edge and form-level defenses.
 
-Before starting, re-check two dependencies:
-- **Application Insights is not enabled** today. The cheaper log-persistence options are compared
-  in [log-persistence-options](../plans/log-persistence-options.md).
-- **Azure Front Door is not deployed.** The edge/WAF items overlap the Front Door caching plan
-  (`plans/front-door-caching.md`).
+**Monitoring and alerting moved out (2026-11-20).** This plan used to propose Application
+Insights telemetry with email alerts on failed logins, lockouts and rate-limit hits. Those
+alerts are now part of [site-monitoring-and-alerting](site-monitoring-and-alerting.md)
+(section 4, security signals), built on the in-memory trackers the app already has, without
+Application Insights.
+
+Before starting, re-check: **Azure Front Door is not deployed**, and Cloudflare (Free plan) is
+now the edge ([cloudflare-migration](cloudflare-migration.md)). The edge/WAF items overlap the
+Front Door caching plan (`plans/front-door-caching.md`).
 
 ## Phase 2: Enhanced Protection
 
-### 2.1 Application Insights Integration
+### 2.1 Monitoring and alerting
 
-**Goal**: Centralized monitoring, alerting, and anomaly detection
-
-**Features to Implement**:
-
-- Custom telemetry for authentication events
-- Failed login metrics and alerts
-- Rate limiting metrics
-- Attack pattern detection
-
-**Alert Thresholds**:
-
-- Global rate limit hits: 10/hour (warning), 30/hour (critical)
-- Failed logins: 50/hour (warning), 100/hour (critical)
-- Distinct IPs per username: 5/5min (credential stuffing alert)
-
-**Why Phase 2**: Need to establish baseline patterns first, then implement intelligent alerting
+Moved to [site-monitoring-and-alerting](site-monitoring-and-alerting.md). When the features
+below are built (honeypot submissions, low-reputation IPs, suspicious user agents), add their
+signals to that plan's detector.
 
 ---
 
@@ -185,7 +174,9 @@ private async Task<bool> IsKnownBadActor(string ipAddress)
   - User-Agent patterns
   - Failed/success ratios
 
-**Tools**: Azure Application Insights Anomaly Detection (requires Phase 2 AppInsights setup)
+**Tools**: Azure Application Insights Anomaly Detection. Application Insights isn't part of the
+alerting plan any more, so this would mean bringing it back, with a daily cap
+([log-persistence-options](log-persistence-options.md)).
 
 **Prerequisites**:
 
@@ -215,62 +206,9 @@ private async Task<bool> IsKnownBadActor(string ipAddress)
 
 **Privacy Consideration**: May conflict with privacy regulations (GDPR, CCPA)
 
-## Phase 2 Detail: Monitoring and Alerting
-
-**Upgrade Path:**
-
-When Phase 1 baseline data indicates alert thresholds, implement:
-
-**Key Metrics to Track** (via Application Insights):
-
-1. **Rate Limiting Metrics**
-   - Per-IP rate limit hits per hour
-   - Global rate limit hits per hour
-   - CAPTCHA challenge rate
-   - Average requests per IP
-
-2. **Authentication Metrics**
-   - Failed login attempts per hour
-   - Failed logins per username
-   - Distinct IPs per username (distributed attack indicator)
-   - Account lockout events
-   - Successful logins after lockout
-
-3. **Attack Indicators**
-   - Suspicious returnUrl detections
-   - Honeypot field submissions (Phase 2 feature)
-   - Low reputation IP attempts (Phase 2 feature)
-   - Suspicious User-Agent strings (Phase 2 feature)
-
-**Email Alert Thresholds** (Recommended - tune after Phase 1 baseline established)
-
-| Metric                         | Warning Email | Critical Email |
-| ------------------------------ | ------------- | -------------- |
-| Global rate limit hits         | 10/hour       | 30/hour        |
-| Failed logins (total)          | 50/hour       | 100/hour       |
-| Failed logins (per username)   | 5/5min        | 10/5min        |
-| Distinct IPs per username      | 5/5min        | 10/5min        |
-| Non-local returnUrl detections | 5/hour        | 20/hour        |
-| Account lockouts               | 10/hour       | 25/hour        |
-
-**Email Configuration**:
-
-- Send alerts to: [security team email]
-- Include: Top 5 attacking IPs, targeted usernames, time window
-- Throttle: Max 1 email per 15 minutes per alert type
-- Digest: Hourly summary during active attacks
-
 ## Phase 2 Settings
 
 ```json
-"ApplicationInsights": {
-  "ConnectionString": "[YOUR_APP_INSIGHTS_CONNECTION_STRING]",
-  "EnableAdaptiveSampling": false
-},
-"Alerting": {
-  "EmailRecipient": "[security-team@example.com]",
-  "ThrottleMinutes": 15
-},
 "IPReputation": {
   "AbuseIPDBApiKey": "[YOUR_ABUSEIPDB_KEY]",
   "CacheDurationHours": 1,
@@ -282,9 +220,8 @@ When Phase 1 baseline data indicates alert thresholds, implement:
 
 When Phase 2 is implemented, success will be demonstrated by:
 
-- Security team receives email alerts within 5 minutes of attack detection
-- Application Insights provides comprehensive attack telemetry and historical analysis
-- Historical pattern analysis enables trend detection and predictive defense
-- Alert throttling prevents email fatigue (max 1 email/15min per alert type)
 - False positive rate < 5%
 - IP reputation service blocks known bad actors proactively
+
+Alerting success (email within minutes of an attack, throttled per alert type) is measured in
+[site-monitoring-and-alerting](site-monitoring-and-alerting.md).

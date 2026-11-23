@@ -181,6 +181,8 @@ deployed", and the record of what's live is the Azure DevOps run history.
 
 - **Required status checks.** Add CI-SERVER, CI-CLIENT and DCO as required checks in the
   `main-default` ruleset, so a red check blocks merge instead of relying on review.
+- **Partner API pipeline.** `m4d-api` code deploys still run from `m4d-api/infra/deploy.ps1`;
+  see [partner-api-deploy-pipeline](../plans/partner-api-deploy-pipeline.md).
 - **Explicit `trigger: none`** in `azure-pipelines.yml`, so its manual-only intent doesn't depend
   on UI settings.
 - **Promote E2E to a PR check** once it has proven stable (the comment in `e2e.yaml` and

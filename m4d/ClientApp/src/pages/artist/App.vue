@@ -80,7 +80,7 @@ const danceCount = (dance: DanceType) => {
       <span v-for="(dance, idx) in dances" :key="dance.id"
         ><span v-if="idx + 1 === dances.length && dances.length > 1"> and </span
         ><a :href="'/dances/' + dance.seoName">{{ dance.name }}&nbsp;</a
-        ><a :href="'/song/filtersearch?filter=' + danceFilter(dance).query"
+        ><a :href="'/song/filtersearch?filter=' + danceFilter(dance).encodedQuery"
           >( {{ danceCount(dance) }} song{{ danceCount(dance) > 1 ? "s" : "" }} )</a
         ><span v-if="idx + 1 < dances.length && dances.length > 2">, </span></span
       >
@@ -93,7 +93,7 @@ const danceCount = (dance: DanceType) => {
       >
     </p>
     <p>
-      <a :href="'/song/filtersearch?filter=' + artistSearchFilter().query">
+      <a :href="'/song/filtersearch?filter=' + artistSearchFilter().encodedQuery">
         Search all songs with "{{ model.artist }}" in the artist field
       </a>
       <template v-if="individualArtists">

@@ -22,6 +22,7 @@ using Microsoft.Net.Http.Headers;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Net;
+using System.Text;
 
 namespace m4d.Controllers;
 
@@ -883,25 +884,38 @@ public class SongController : ContentController
     [AllowAnonymous]
     public async Task<ActionResult> Album(string title)
     {
+        var spider = CheckSpiders();
+        if (spider != null)
+        {
+            return spider;
+        }
+
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            return ReturnError(HttpStatusCode.NotFound, @"Empty album title not valid.");
+        }
+
+        // A Search outage is a 503, not a 404: a 404 tells crawlers a real album page is gone.
+        // Checking first also sheds a burst quickly once Search is marked unavailable, instead
+        // of queueing every request behind a throttled service.
+        if (!IsSearchAvailable())
+        {
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
         try
         {
-            var spider = CheckSpiders();
-            if (spider != null)
-            {
-                return spider;
-            }
-
-            if (!string.IsNullOrWhiteSpace(title))
-            {
-                var model = await AlbumViewModel.Create(
-                    title, Mapper, DefaultCruftFilter(), Database);
-                model.Histories = ForListViewer(model.Histories);
-                return Vue3(
-                    $"Album: {title}", $"Songs for dancing on {title}", "album",
-                    model, danceEnvironment: true);
-            }
-
-            return ReturnError(HttpStatusCode.NotFound, @"Empty album title not valid.");
+            var model = await AlbumViewModel.Create(
+                title, Mapper, DefaultCruftFilter(), Database);
+            model.Histories = ForListViewer(model.Histories);
+            return Vue3(
+                $"Album: {title}", $"Songs for dancing on {title}", "album",
+                model, danceEnvironment: true);
+        }
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
+        {
+            HandleSearchServiceError(ex);
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
         }
         catch
         {
@@ -935,8 +949,22 @@ public class SongController : ContentController
                 : ReturnError(HttpStatusCode.NotFound, @"Empty artist name not valid.");
         }
 
-        var model = await ArtistViewModel.Create(
-            name, Mapper, DefaultCruftFilter(), Database, artistIndex);
+        if (!IsSearchAvailable())
+        {
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
+        ArtistViewModel model;
+        try
+        {
+            model = await ArtistViewModel.Create(
+                name, Mapper, DefaultCruftFilter(), Database, artistIndex);
+        }
+        catch (InvalidOperationException ex) when (IsSearchServiceError(ex))
+        {
+            HandleSearchServiceError(ex);
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
         model.Histories = ForListViewer(model.Histories);
 
         // Splitting credits turns one artist page into tens of thousands, most of them a
@@ -1296,6 +1324,70 @@ public class SongController : ContentController
         var user = await Database.FindUser(userName);
         await Database.UndoUserChanges(user, id);
         return RedirectToAction("Details", new { id, Filter });
+    }
+
+    // POST: /Song/Unmerge: split some of a simple merge's sources back out as songs of their own
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "dbAdmin")]
+    public async Task<ActionResult> Unmerge(Guid id, List<Guid> extract, bool noMerge = false)
+    {
+        UseVue = UseVue.No;
+        ViewBag.Title = "Unmerge";
+
+        if (!IsSearchAvailable())
+        {
+            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
+        }
+
+        var user = await Database.FindUser(User.Identity?.Name);
+        UnmergeResult result;
+        try
+        {
+            result = await SongIndex.UnmergeSong(user, id, extract ?? [], noMerge);
+        }
+        catch (ArgumentException ex)
+        {
+            ViewBag.Message = WebUtility.HtmlEncode(ex.Message);
+            return View("Info");
+        }
+
+        Database.RemoveMergeCandidates([result.Remainder, .. result.Restored]);
+
+        // The songs are saved by now, so a failed stats rebuild mustn't turn this into an error page
+        try
+        {
+            await DanceStatsManager.ClearCache(Database, true);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Dance stats rebuild after unmerging {SongId} failed", id);
+        }
+
+        string Link(Song song) =>
+            $"<a href=\"{Url.Action("Details", new { id = song.SongId })}\">" +
+            $"{WebUtility.HtmlEncode(song.Title)} by {WebUtility.HtmlEncode(song.Artist)}</a>";
+
+        var message = new StringBuilder();
+        _ = message.Append($"Kept {Link(result.Remainder)}. Split back out: ");
+        _ = message.Append(string.Join(", ", result.Restored.Select(Link)));
+        _ = message.Append('.');
+        if (noMerge)
+        {
+            _ = message.Append(" The restored songs are marked .NoMerge.");
+        }
+
+        if (result.Shared.Count > 0)
+        {
+            var songs = result.Restored.Append(result.Remainder).ToDictionary(s => s.SongId);
+            _ = message.Append("<br/>These still share service ids, so each pair is marked not the same in the shared-id queue: ");
+            _ = message.Append(string.Join("; ", result.Shared.Select(p =>
+                $"{Link(songs[p.SongA])} and {Link(songs[p.SongB])} ({WebUtility.HtmlEncode(string.Join(", ", p.Ids))})")));
+        }
+
+        ViewBag.Message = message.ToString();
+        return View("Info");
     }
 
 
@@ -1818,7 +1910,7 @@ public class SongController : ContentController
                         var save = new List<Song>();
 
                         await foreach (var song in dms.SongIndex.StreamAll(
-                            capturedFilter.SearchString, parameters, CruftFilter.AllCruft))
+                            capturedFilter.AzureSearchText, parameters, CruftFilter.AllCruft))
                         {
                             try
                             {
@@ -2125,7 +2217,7 @@ public class SongController : ContentController
         var p = await AzureParmsFromFilter(filter, 1000);
         p.IncludeTotalCount = true;
 
-        var results = await SongIndex.Search(filter.SearchString, p, filter.CruftFilter);
+        var results = await SongIndex.Search(filter.AzureSearchText, p, filter.CruftFilter);
 
         return type switch
         {

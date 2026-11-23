@@ -99,7 +99,11 @@ All three consult `SpiderManager`, but check different lists and produce differe
    BotFilter lists miss, without sending them the bot stub, and gives an agent its own limit:
    `reflectionbot=3` (it crawls a steady 5–6 pages a minute, under the default, and rendered
    22% of server time in the 2026-10-30 full-day sample), plus `barkrowler`,
-   `meta-externalagent` and `meta-webindexer` at the default. Exempt fragments still win.
+   `meta-externalagent` and `meta-webindexer` at the default, and `chrome/48.0.2564.116=5`. That
+   last one is a disguised album crawler on a 2016 Chrome user agent, from two Chinese ISP
+   ranges. On 2026-11-20 it took 94% of server time and stalled Azure Search. A Cloudflare
+   custom rule blocks that user agent at the edge, and this limit is the fallback.
+   Exempt fragments still win.
    Link previews (`facebookexternalhit`) and user-triggered fetchers (`ChatGPT-User`,
    `Claude-User`, `meta-externalfetcher`) aren't throttled.
    Settings are the `CrawlerThrottle` section (`Enabled`, `MaxRequestsPerMinute` = 20,
@@ -135,8 +139,8 @@ to `a.b.c.xxx` and user agents truncated to 256 characters.
 The client IP is `HttpContext.Connection.RemoteIpAddress`, after the forwarded-headers middleware
 and `CloudflareClientIpMiddleware` have run. Raw `X-Forwarded-For` is never trusted directly.
 
-**Behind Cloudflare.** `CloudflareClientIpMiddleware` (right after `UseForwardedHeaders`, before
-authentication) replaces a Cloudflare edge server's address with the visitor's, taken from
+**Behind Cloudflare.** `CloudflareClientIpMiddleware` (first in the pipeline, ahead of the
+request log, `UseForwardedHeaders` and authentication) replaces a Cloudflare edge server's address with the visitor's, taken from
 `CF-Connecting-IP`. Without it, every visitor routed through one edge server would share a rate
 limit and a lockout. It trusts the header only when the address that handed the request to App
 Service is in `CloudflareClientIp:IpRanges` (Cloudflare's published ranges; check
@@ -145,7 +149,9 @@ Service is in `CloudflareClientIp:IpRanges` (Cloudflare's published ranges; chec
 `RemoteIpAddress` is the front end's private address, and the last `X-Forwarded-For` entry
 (the one the front end appends) is used instead. Requests that skip Cloudflare
 (`msc4dnc.azurewebsites.net`, local dev) are left alone, so sending the header yourself does
-nothing. It's inert until DNS is proxied; see
+nothing. It also stores the resolved client and relay addresses as a `ClientAddresses` request
+feature, which the app request log reads, so the log and the rate limits agree. It's inert until
+DNS is proxied; see
 [plans/cloudflare-migration](../plans/cloudflare-migration.md).
 
 **CAPTCHA.** `GlobalState.RequireCaptcha` is a timed flag: setting it lasts 5 minutes, and setting
@@ -203,7 +209,9 @@ Two companions reinforce it:
 - The cache-control middleware sends `no-store` on any 3xx to `/identity/*`, so a redirect is
   never cached, and it never marks `/identity/*` responses cacheable. See
   [hosting-and-identity](../infrastructure/hosting-and-identity.md#request-pipeline-notes).
-- `robots.txt` disallows `/identity/` for `*`, Googlebot, `facebookexternalhit` and `Facebot`.
+- `robots.txt` disallows `/identity/` and `/Identity/` (robots paths are case-sensitive, and
+  Meta's crawler was fetching the capitalized login and manage URLs) for `*`, Googlebot,
+  `facebookexternalhit` and `Facebot`.
   The source is `m4d/ClientApp/src/assets/robots.txt`, which the build copies to `wwwroot`.
   Googlebot reads only its own group, so that group repeats every `*` rule. So does the
   `Reflectionbot` group, which also disallows `/song/album` and `/song/artist`: it's a
@@ -293,7 +301,8 @@ includes query string, truncates long URLs).
 
 **Limitations (by design, like the other trackers)**: in-memory only,
 resets on app restart; single-instance in-process (production runs as a single instance — no cross-instance aggregation, which is fine at
-current scale); no automated alerting, admin must check `/Admin/Diagnostics` manually.
+current scale); no automated alerting, admin must check `/Admin/Diagnostics` manually (alerts
+are proposed in [plans/site-monitoring-and-alerting](../plans/site-monitoring-and-alerting.md)).
 
 ## Admin diagnostics
 
@@ -338,10 +347,13 @@ Procedures that use this page: [runbooks/respond-to-attack](../runbooks/respond-
 
 ## Future improvements
 
+- **Email alerts** on failed logins, credential stuffing, lockouts and rate-limit hits, read
+  from these trackers, in
+  [plans/site-monitoring-and-alerting](../plans/site-monitoring-and-alerting.md) (section 4).
 - **Phase 2 and beyond**, covered in
-  [plans/attack-mitigation-phase2](../plans/attack-mitigation-phase2.md): persistent telemetry and
-  email alerts, an edge WAF and IP reputation, honeypot fields, user-agent analysis, and later
-  behavioral, geolocation and fingerprinting rules.
+  [plans/attack-mitigation-phase2](../plans/attack-mitigation-phase2.md): an edge WAF and IP
+  reputation, honeypot fields, user-agent analysis, and later behavioral, geolocation and
+  fingerprinting rules.
 - **Log the `Referer` and `returnUrl`** when crawlers hit identity pages, to find which shared
   URLs trigger the loops.
 - **Make the CAPTCHA duration and the crawler list configurable**, instead of compiled in.

@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Last verified:** 2026-11-19 (pitch badge added; other behavior not re-traced)
 **Code:** `m4d/ClientApp/src/pages/tempo-counter/`, `m4d/Controllers/HomeController.cs` (`Counter`)
 
 ## Overview
@@ -22,13 +22,15 @@ counter.
 
 ## Server-Side Wiring
 
-- `HomeController.Counter(numerator, tempo, count, epsilon)` (`m4d/Controllers/HomeController.cs`)
-  reads four scalar query-string parameters — `int? numerator`, `decimal? tempo`,
-  `string count = "beats"`, `decimal? epsilon` — and renders the generic Vue3 host view with:
+- `HomeController.Counter(numerator, tempo, count, epsilon, show)`
+  (`m4d/Controllers/HomeController.cs`) reads four scalar query-string parameters (`int?
+  numerator`, `decimal? tempo`, `string count = "beats"`, `decimal? epsilon`) and one multi-value
+  one (`List<string> show`, see "Which details to show" below). It renders the generic Vue3 host
+  view with:
   - component name `"tempo-counter"` (resolves to this `App.vue`)
-  - a `TempoCounterModel` (`m4d/ViewModels/TempoCounterModel.cs`) built directly from the four
-    parameters (no `ConvertParameter`/list handling — unlike `Tempi`, none of these are
-    multi-value)
+  - a `TempoCounterModel` (`m4d/ViewModels/TempoCounterModel.cs`) built directly from the
+    parameters, with `show` going through `ConvertParameter` (empty → `null`) as `Tempi`'s lists
+    do
   - `danceEnvironment: true`, which emits `window.danceDatabaseJson` the same way `Tempi` does
 - No `[Route]` attribute; the URL is the default MVC route,
   `/Home/Counter?numerator=4&tempo=120&count=beats&epsilon=5`.
@@ -133,20 +135,52 @@ Owns the tap-tempo state machine and the manual-entry widgets. All state is pass
 
 `TempoDeltaInfo.vue` renders each `DanceOrder` as a `BListGroupItem`:
 
-- Variant is `"primary"` when `abs(deltaMpm) < 1.0` (close enough that no direction is worth
-  flagging), else `"warning"` (dance's tempo is slower than tapped — negative delta) or `"success"`
-  (dance is faster).
+- Variant is `"primary"` when the tempo is in the dance's range, meaning the difference in the
+  displayed unit (BPM or MPM, per `tempoType`) rounds to `0.0`. Otherwise it is `"warning"` (the
+  song is slower than the dance: negative delta) or `"success"` (the song is faster). This used to
+  be a fixed `abs(deltaMpm) < 1.0` threshold. That depended on each dance's meter, so at 93 BPM a
+  2/4 Samba 3 BPM out (1.5 MPM) was highlighted while a 4/4 Bolero with the same range wasn't
+  (0.75 MPM).
 - `DanceName` is rendered with `show-meter`, so each range carries its meter (`48-52 MPM (2/4)`).
   The duple pre-filter mixes 2/4 and 4/4 dances, and each range is in the dance's _own_ measures,
   so without the meter a 2/4 dance reads as twice the tempo of the counter's 4/4 MPM.
-- A `BBadge` (same variant) shows e.g. `"2.3 BPM fast"`/`"1.1 MPM slow"` — units follow
-  `tempoType` (Beats vs. Measures), matching whichever mode `countMethod` is currently in.
+- Up to three badges (same variant), chosen by the `metrics` prop. Keys and defaults are in
+  `pages/tempo-counter/deltaMetrics.ts`. `DanceDeltas` defaults `metrics` to `["tempo"]`, so
+  `DanceChooser`'s "By Tempo" tab shows only the tempo badge. This page passes the visitor's
+  selection from the **Show:** chooser (see "Which details to show" below). For 140 BPM against
+  Cha Cha's 128 BPM max, the badges are:
+  - **tempo**: `"3.0 MPM fast"` / `"12.0 BPM fast"`. Units follow `tempoType` (Beats vs.
+    Measures), matching whichever mode `countMethod` is currently in.
+  - **pitch**: `"Pitch −8.6%"`, the CD player or DJ deck pitch-fader setting that brings the song
+    to the dance's nearest range edge. It comes from `DanceOrder.pitchPercent` via
+    `TempoRange.calculatePitchPercent` = `(edge − tempo) / tempo × 100`. This is deliberately
+    relative to the *song's* tempo, since that is what a pitch fader scales. `deltaPercent` is
+    relative to the range edge, so it can't be reused here: for the same example it gives 9.4%.
+    The value isn't capped to a typical fader range (±8%/±16%), since modern decks and software go
+    much further and the number is useful either way.
+  - **speed**: `"Speed 91.4%"`, the same adjustment as a playback rate where 100% = unchanged
+    (`DanceOrder.speedPercent` = `100 + pitchPercent`). This is how tempo-change software and sites
+    such as pitch-tempo.online express it (target ÷ current × 100).
+- In-range rows render no badges at all. The wrapper uses `v-if`, not `v-show`: its Bootstrap
+  `d-flex` class is `display: flex !important`, which overrides `v-show`'s inline `display: none`.
 - Clicking a row emits `choose-dance(danceId, ctrlKey)`; `App.vue`'s `chooseDance(danceId)` handler
   only declares one parameter, so the `ctrlKey` argument is silently dropped — there's currently no
   distinction between a plain click and a ctrl/cmd-click (both `window.open(..., "_blank")` to
   `/dances/{seoName}`), unlike a native link where ctrl-click is a browser-native "open in
   background tab" gesture. `DanceName`'s own link is suppressed via `hide-name-link="true"` since
   the whole list item is already clickable.
+
+## Which details to show (`?show=`)
+
+A **Show:** `CheckedList` (the Tempo List page's column-chooser component) sits on the same row as
+**Copy Link to This Tempo**. It selects which of the three badges above each near-miss dance
+gets. The selection comes from `?show=` (repeatable, e.g. `?show=tempo&show=speed`):
+`HomeController.Counter` passes it through as `TempoCounterModel.Show`, and `validateDeltaMetrics`
+fences it on the client. That fencing follows Tempo List's `?columns=` convention: unknown keys
+are dropped, a missing param falls back to the default (`tempo` only), and badges always
+render in the fixed tempo/pitch/speed order regardless of the order given. A short note under the
+list explains Pitch and Speed whenever either one is shown, since hover titles don't help on touch
+devices.
 
 ## Shareable URLs
 
@@ -162,6 +196,7 @@ useUrlQuerySync(() => ({
   tempo: beatsPerMinute.value.toFixed(1),
   count: countMethod.value,
   epsilon: epsilonPercent.value.toString(),
+  show: arraysEqualAsSets(metrics.value, defaultDeltaMetrics) ? undefined : metrics.value,
 }));
 ```
 
@@ -169,9 +204,10 @@ useUrlQuerySync(() => ({
 state machine and the `measuresPerMinute`/`beatsPerMinute` bridging computed can both produce many
 more significant digits than `BeatsPerMinute.vue`/`MeasuresPerMinute.vue` ever actually display, so
 the shared link matches what the visitor sees rather than exposing that extra, meaningless
-precision. Unlike Tempo List, none of these four params have a "default" worth omitting — every
-counter configuration is equally likely to be the one worth sharing — so all four are always
-present in the URL.
+precision. Unlike Tempo List's filters, none of the four tempo params has a default worth omitting,
+because every counter configuration is equally likely to be the one worth sharing. Those four are
+always in the URL. `show` is the exception: like Tempo List's `columns`, it's omitted at its
+default set.
 
 ## Testing
 
@@ -207,8 +243,9 @@ which now otherwise matches the Tempo List page's coverage level (see [tempo-lis
 | `m4d/ClientApp/src/pages/tempo-counter/components/TempoModal.vue` | Shared numeric-entry modal used by both BPM and MPM manual-entry buttons |
 | `m4d/ClientApp/src/pages/tempo-counter/components/StrictSlider.vue` | `epsilonPercent` range slider |
 | `m4d/ClientApp/src/pages/tempo-counter/components/DanceDeltas.vue` | Meter pre-filter + `DanceDatabase.filterTempo` ranking |
-| `m4d/ClientApp/src/pages/tempo-counter/components/TempoDeltaInfo.vue` | Single result row: variant/badge derived from tempo delta |
-| `m4d/ClientApp/src/models/DanceDatabase/DanceOrder.ts` | Wraps a `DanceType` with `delta`/`deltaPercent`/`deltaMpm` relative to a tapped tempo |
+| `m4d/ClientApp/src/pages/tempo-counter/components/TempoDeltaInfo.vue` | Single result row: variant and the tempo/pitch/speed badges derived from the tempo delta |
+| `m4d/ClientApp/src/pages/tempo-counter/deltaMetrics.ts` | The three badge keys, their default set, and `validateDeltaMetrics` for `?show=` |
+| `m4d/ClientApp/src/models/DanceDatabase/DanceOrder.ts` | Wraps a `DanceType` with `delta`/`deltaPercent`/`deltaMpm`/`pitchPercent`/`speedPercent` relative to a tapped tempo |
 | `m4d/ClientApp/src/models/DanceDatabase/DanceDatabase.ts` | `filterTempo()` — maps, thresholds, and sorts by tempo delta (shared with other tempo-matching UI) |
 | `m4d/ClientApp/src/models/DanceDatabase/DanceFilter.ts` | Filter matching logic; used here only for the meter pre-filter |
 | `m4d/Controllers/HomeController.cs` | `Counter` action |

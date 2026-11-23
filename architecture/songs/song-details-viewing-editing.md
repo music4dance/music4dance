@@ -153,6 +153,7 @@ The first time `modified` becomes true, a "Don't Forget!" bootstrap-vue-next toa
 - **Track list** (`<TrackList>`) — admin-only; search for tracks to associate new albums.
 - **Admin Edit** textarea — raw `SongProperty` list editable as newline-delimited text via `adminProperties` computed.
 - **Undo User Edits** — admin-only per-user undo buttons.
+- **Unmerge** (`<UnmergeSection>`) — admin-only, shown when `SongHistory.mergeSources` lists at least two sources of the song's last merge; splits the checked ones back out (`POST /Song/Unmerge`). Disabled while editing, since it commits immediately. See [song-merge-algorithm](song-merge-algorithm.md) § Unmerging.
 - **Update Services** — admin-only button linking to `/song/UpdateSongAndServices`.
 - **History log** (`<SongHistoryLog>`) — admin-only; shows individual properties with move/delete/insert controls.
 - **Song history viewer** (`<SongHistoryViewer>`) — shows a filtered change summary visible to all users. See [Song History Viewer](#song-history-viewer) below for what is included.

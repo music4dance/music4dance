@@ -633,6 +633,53 @@ public class SharedIdLog(DanceMusicCoreService dms)
 
     private static string Typed(string name) => string.IsNullOrWhiteSpace(name) ? null : name.Trim();
 
+    /// <summary>
+    /// Marks each pair of <paramref name="songs"/> that shares a Spotify, iTunes or ISRC id as not
+    /// the same song (an admin just split them apart), so the queue doesn't merge them again.
+    /// Returns those pairs and their ids.
+    /// </summary>
+    public async Task<IReadOnlyList<SharedIdPair>> RejectSharedIds(ApplicationUser user,
+        IReadOnlyList<Song> songs, string source)
+    {
+        var held = songs.Select(s => (s.SongId, Ids: s.GetExtendedPurchaseIds().ToHashSet())).ToList();
+        var pairs = held
+            .SelectMany((a, i) => held.Skip(i + 1).Select(b => new SharedIdPair(
+                a.SongId, b.SongId, [.. a.Ids.Intersect(b.Ids).Order()])))
+            .Where(p => p.Ids.Count > 0)
+            .ToList();
+        if (pairs.Count == 0)
+        {
+            return pairs;
+        }
+
+        foreach (var pair in pairs)
+        {
+            var (lo, hi) = Order(pair.SongA, pair.SongB);
+            var row = await Context.SharedIdCandidates.FirstOrDefaultAsync(c => c.SongA == lo && c.SongB == hi);
+            if (row == null)
+            {
+                row = new SharedIdCandidate
+                {
+                    SongA = lo,
+                    SongB = hi,
+                    ServiceIds = JoinIds(pair.Ids),
+                    Source = Truncate(source, 64),
+                    Created = DateTimeOffset.UtcNow
+                };
+                _ = Context.SharedIdCandidates.Add(row);
+            }
+            else
+            {
+                row.ServiceIds = JoinIds([.. SplitIds(row.ServiceIds), .. pair.Ids]);
+            }
+
+            Resolve(row, SharedIdStatus.Rejected, user.UserName);
+        }
+
+        _ = await Context.SaveChangesAsync();
+        return pairs;
+    }
+
     public async Task Reject(ApplicationUser user, IEnumerable<int> candidateIds)
     {
         var ids = candidateIds.ToList();

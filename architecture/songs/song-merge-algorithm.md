@@ -2,8 +2,8 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-21 (§ Matching new songs by title traced; § Merging and § Settling the fields traced 2026-11-04; § Matching new songs by service id traced 2026-11-03; the rest: code references checked, behavior not re-traced)
-**Code:** `m4dModels/MergeManager.cs`, `m4d/Controllers/SongController.cs` (merge actions), `m4dModels/SongIndex.cs` (`SimpleMergeSongs`, `RenumberAlbums`, service id matching), `m4d/ClientApp/src/pages/song/components/FieldEditor.vue` (merged-value links)
+**Last verified:** 2026-11-21 (§ Matching new songs by title traced; § Merging and § Unmerging written with the code 2026-11-14; § Settling the fields traced 2026-11-04; § Matching new songs by service id traced 2026-11-03; the rest: code references checked, behavior not re-traced)
+**Code:** `m4dModels/MergeManager.cs`, `m4d/Controllers/SongController.cs` (merge actions, `Unmerge`), `m4dModels/SongIndex.cs` (`SimpleMergeSongs`, `RenumberAlbums`, `UnmergeSong`, `BuildUnmerge`, service id matching), `m4dModels/Song.cs` (`GetAltids`, `GetUnmergeableSources`), `m4d/ClientApp/src/pages/song/components/FieldEditor.vue` (merged-value links), `m4d/ClientApp/src/pages/song/components/UnmergeSection.vue`
 
 ## Overview
 
@@ -330,8 +330,16 @@ Both are gone; the editor step below replaces the field choices.
    combine; every other index, including one for an album the song later deleted, gets a new one.
    `OrderAlbums` is dropped: it lists only one song's albums, and replaying it would hide the rest.
 3. **Group by edit blocks** - Properties between `.Create`/`.Edit` and `.User=` are kept together
-4. **Annotate commands** - Replaces empty `.Create=` and `.Edit=` with `.Create={songGUID}` and `.Edit={songGUID}`
-5. **Sort by timestamp** - Orders all edit blocks chronologically
+4. **Annotate commands** - Replaces empty `.Create=` and `.Edit=` with `.Create={songGUID}` and
+   `.Edit={songGUID}`. Other blocks (`.Merge`, `.NoMerge`, `.FailedLookup`) keep their value,
+   which means something else, and get a `MergeSource={songGUID}` property after their
+   `User`/`Time` instead. Either way, merging an already-merged song overwrites the earlier source.
+   Songs merged before 2026-11-14 have no `MergeSource`.
+5. **Sort by timestamp** - Orders all edit blocks chronologically. A block with no time of its own
+   (`.FailedLookup` is written inside an edit, after that edit's `User` and `Time`) sorts with
+   its song's previous block. Sorted as the earliest block, it would start the log, and
+   `SongPropertyCompression` only reads a stored log as plain text when it starts with `.Create`,
+   `.Edit`, `.Merge` or `SongId`.
 6. **Add merge metadata** - Appends `.Merge=` command with source song GUIDs
 7. **Create new song** - Generates new GUID, creates song from merged properties
 8. **Delete source songs** - Removes original songs from database
@@ -342,7 +350,7 @@ dance ratings, tags and comments across the songs.
 **Benefits**:
 
 - **100% information preservation** - Every edit from every source song retained
-- **Unmerge capability** - Original song GUIDs allow reconstruction
+- **Unmerge capability** - The stamps say which source each block came from (see [4. Unmerging](#4-unmerging))
 - **Simpler logic** - No conflict resolution at merge time
 - **Complete audit trail** - User attributions preserved with original song context
 
@@ -383,6 +391,51 @@ After the merge commits, the controller rebuilds the dance stats (`DanceStatsMan
 A failed rebuild is logged as a warning and the redirect still happens: the sources are already
 deleted, so an error page would leave the admin nothing to retry.
 
+### 4. Unmerging
+
+An admin can split one or more sources back out of a merged song from the song page. The song's
+history makes this possible: every block before the last `.Merge` says which source it came from,
+in its stamp or its `MergeSource`.
+
+**Which songs qualify.** `Song.GetUnmergeableSources()` (client: `SongHistory.mergeSources`)
+takes the ids in the song's last `.Merge`. It drops any that a later `.Unmerge` removed, and any
+that own no stamped `.Create`/`.Edit` block. A merge from before the stamps (the old field-by-field
+merge) has none of those blocks. The result is empty unless at least two sources are left,
+because one always stays. Only the last merge layer can be split. Merging an already-merged song
+restamps its blocks, so a restored intermediate song comes back whole and can't be split further.
+
+**The operation.** `SongIndex.UnmergeSong(user, songId, extract, noMerge)` calls
+`BuildUnmerge`, which saves nothing, and then saves the result:
+
+- Each extracted source is rebuilt **under its original id** from the blocks it owns.
+  `MergeSource` is removed, and the `.Create`/`.Edit` stamps are cleared back to empty. Its album
+  indices are compacted to 0..n in order of first appearance (`CompactAlbums`). When the admin
+  asks, a `.NoMerge` block is appended so that auto-merge won't merge it straight back. Deleting a
+  song removes it from the index, so the id is free, and old links to the source work again.
+- The merged song (the remainder) keeps its id, its other blocks, and every edit made after the
+  merge. It gets an `.Unmerge=id1;id2` block appended. The `.Merge` block stays unchanged.
+- A post-merge album property (`Album`, `Track`, `Publisher`, `Purchase`, `Purchase-`,
+  `PromoteAlbum`) can be on an album index that only one extracted source's blocks set. Such a
+  property moves to that source, in a copy of its block with the same user and time. On the
+  remainder, it would replay as an album with no name. Properties on an index that two sources
+  share stay on the remainder, and an edit left with nothing in it is dropped.
+- `Song.GetAltids()` applies `.Merge` and `.Unmerge` in log order. The remainder stops listing
+  the split-out ids, and a song merged back in later is listed again. This matters because
+  `UploadIndex(trackDeleted: true)` deletes every alternate id. Without it, an index reload would
+  delete the restored songs.
+- `SharedIdLog.RejectSharedIds` records each pair of the saved songs that still shares a service
+  id as **Rejected** in the shared-id queue, so the queue won't merge them back.
+
+**UI.** `UnmergeSection.vue` sits in the admin area of the song page, next to Undo User Edits. It
+appears only for a song with unmergeable sources. It shows one checkbox per source (title,
+artist, creator, date and number of edits) and a "Mark unmerged songs NoMerge" checkbox, which is
+on by default. It is disabled while the song is being edited, because the unmerge commits
+immediately. The button needs at least one source checked and one left unchecked. After a
+confirm dialog it posts to `POST /Song/Unmerge` (`dbAdmin`, anti-forgery checked). That action
+clears the merge-candidate cache and rebuilds the dance stats; a failed rebuild is only logged, as
+for a merge. It then shows the `Info` page with links to the remainder and each restored song,
+and any ids they still share.
+
 ### Auto Merge Behavior
 
 **Current Implementation** (as of latest update):
@@ -420,37 +473,6 @@ private async Task<Song> AutoMergeSingleCluster(List<Song> songs, ApplicationUse
 4. Returns list of merged songs
 
 **Result**: Batch processing of high-confidence duplicates with complete audit trail
-
-### Future: Unmerge Functionality
-
-With Simple Merge's GUID annotation, unmerging becomes feasible:
-
-```csharp
-public async Task<List<Song>> UnmergeSong(Guid mergedSongId)
-{
-    var merged = await FindSong(mergedSongId);
-    var mergeCommand = merged.SongProperties.First(p => p.Name == Song.MergeCommand);
-    var sourceIds = mergeCommand.Value.Split(';').Select(Guid.Parse).ToList();
-
-    var reconstructedSongs = new List<Song>();
-    foreach (var sourceId in sourceIds)
-    {
-        // Filter properties annotated with this GUID
-        var props = merged.SongProperties
-            .Where(p =>
-                (p.Name == Song.CreateCommand || p.Name == Song.EditCommand) &&
-                p.Value == sourceId.ToString())
-            // Get properties until next command
-            .SelectMany(GetPropertiesUntilNextCommand)
-            .ToList();
-
-        var song = await Song.Create(sourceId, props, DanceMusicService);
-        reconstructedSongs.Add(song);
-    }
-
-    return reconstructedSongs;
-}
-```
 
 ## Database Integration
 
@@ -586,15 +608,26 @@ Common variations handled automatically:
 
 **Integration Tests**: Merge workflow tests
 
-- `MergeTests`: block weaving and GUID annotation, and album renumbering (separate albums kept,
-  same-named albums combined, deleted albums kept apart, `OrderAlbums` dropped)
+- `MergeTests`: block weaving and GUID annotation, album renumbering (separate albums kept,
+  same-named albums combined, deleted albums kept apart, `OrderAlbums` dropped), and a block with
+  no time keeping its place
+- `UnmergeTests`: a source restored exactly, two of three split out with `.NoMerge`, post-merge
+  album properties moved (and an emptied edit dropped), shared ids recorded as Rejected, nested
+  merges (outer layer, and the inner `.Merge` given back through `MergeSource`), invalid choices,
+  unstamped merges, and `GetAltids` ordering
 - User history preservation
 
-**Client Tests**: `SongHistory.fieldValues`, and the `FieldEditor` alternatives (shown only while
-editing, current value left out, numeric values compared as numbers, a click sets the field)
+**Client Tests**: `SongHistory.fieldValues`, the `FieldEditor` alternatives (shown only while
+editing, current value left out, numeric values compared as numbers, a click sets the field),
+`SongHistory.mergeSources`, and `UnmergeSection` (hidden without sources, what it posts, the
+button's enabled states, submit only after confirming)
+
+**Controller**: `SongControllerUnmergeTests` (`dbAdmin`, anti-forgery-checked POST)
 
 **End-to-end**: `e2e/tests/merge.spec.ts` merges two songs from a search, picks the earlier song's
-artist and tempo in the editor, saves, and checks the stored song keeps both albums
+artist and tempo in the editor, saves, and checks the stored song keeps both albums. A second
+test merges two songs, unmerges one from the song page, and checks each song has its own album
+again
 
 ### Validation Commands
 
@@ -633,11 +666,17 @@ GET /Song/MergeCandidates?level=1&autoCommit=true
 3. **Language Variations**: "Bésame Mucho" vs "Besame Mucho" normalized identically
 4. **Special Characters**: Some unicode characters may normalize unexpectedly
 
+## History
+
+- 2026-11-14: Unmerge (song page, `POST /Song/Unmerge`, `.Unmerge`); `MergeSource` on blocks a
+  merge can't stamp; a block with no time keeps its place in the merge sort.
+
 ## Related Documentation
 
 - **Testing Patterns**: `architecture/dev-testing/testing-patterns.md`
 - **Dance Library**: `DanceLib/Dances.cs`
 - **Song Model**: `m4dModels/Song.cs` (especially `MungeString` method)
 - **Merge Controller**: `m4d/Controllers/SongController.cs` (`MergeCandidates`, with `autoCommit` for auto-merge; `ClearMergeCache`; `BulkEdit` → `Merge`)
-- **Song editor**: [song-details-viewing-editing](song-details-viewing-editing.md) (`?edit`, merged-value links)
+- **Song editor**: [song-details-viewing-editing](song-details-viewing-editing.md) (`?edit`, merged-value links, the Unmerge section)
+- **Shared-id review**: [shared-id-review](shared-id-review.md) (pairs an unmerge marks not the same)
 - **Block Parser**: `m4dModels/SongPropertyBlockParser.cs` — shared infrastructure used by both `SimpleMergeSongs` (chronological sorting) and `ChunkedSong` (batch cleanup); keeps the block-layout contract (`[Action, User, Time, content…]`) in one place

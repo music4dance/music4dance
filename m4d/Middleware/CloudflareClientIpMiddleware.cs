@@ -20,7 +20,10 @@ namespace m4d.Middleware;
 /// used instead. A request that skips Cloudflare (msc4dnc.azurewebsites.net, local dev) is
 /// left alone, so a client can't pick its own IP by sending the header itself.
 ///
-/// Must run before anything that reads RemoteIpAddress (authentication, rate limiting). See
+/// Registered first in the pipeline, ahead of everything that reads RemoteIpAddress
+/// (authentication, rate limiting, the request log). Whether or not it's enabled, it also sets a
+/// <see cref="ClientAddresses"/> feature with the resolved client and relay, so the request log
+/// (<see cref="RequestLogFieldsMiddleware"/>) uses the same answer instead of resolving again. See
 /// architecture/plans/cloudflare-migration.md (Phase 1).
 /// </summary>
 public class CloudflareClientIpMiddleware
@@ -51,44 +54,53 @@ public class CloudflareClientIpMiddleware
 
     public Task InvokeAsync(HttpContext context)
     {
-        if (_enabled)
+        var remoteIp = context.Connection.RemoteIpAddress;
+        var relay = RelayAddress(remoteIp, context.Request.Headers[ForwardedForHeader].ToString());
+        var visitor = _enabled
+            ? TrustedVisitor(relay, context.Request.Headers[ConnectingIpHeader].ToString(), _networks)
+            : null;
+
+        if (visitor != null)
         {
-            var clientIp = ResolveClientIp(
-                context.Connection.RemoteIpAddress,
-                context.Request.Headers[ForwardedForHeader].ToString(),
-                context.Request.Headers[ConnectingIpHeader].ToString(),
-                _networks);
-            if (clientIp != null)
-            {
-                context.Connection.RemoteIpAddress = clientIp;
-            }
+            context.Connection.RemoteIpAddress = visitor;
         }
+
+        var fallback = remoteIp == null ? null : Normalize(remoteIp);
+        context.Features.Set(new ClientAddresses(visitor ?? relay ?? fallback, relay ?? fallback));
 
         return _next(context);
     }
 
     /// <summary>
     /// The visitor's address from <paramref name="connectingIp"/> when the request was relayed
-    /// by Cloudflare, otherwise null (keep RemoteIpAddress as it is).
+    /// (<paramref name="relay"/>) by Cloudflare, otherwise null (keep RemoteIpAddress as it is).
     /// </summary>
-    public static IPAddress ResolveClientIp(IPAddress remoteIp, string forwardedFor,
-        string connectingIp, IReadOnlyList<IPNetwork> cloudflareNetworks)
+    private static IPAddress TrustedVisitor(IPAddress relay, string connectingIp,
+        IReadOnlyList<IPNetwork> cloudflareNetworks)
     {
-        if (remoteIp == null || string.IsNullOrWhiteSpace(connectingIp)
+        if (relay == null || string.IsNullOrWhiteSpace(connectingIp)
             || !IPAddress.TryParse(connectingIp.Trim(), out var visitor))
         {
             return null;
         }
 
-        var relay = Normalize(remoteIp);
-        if (IsPrivate(relay))
+        return cloudflareNetworks.Any(n => n.Contains(relay)) ? Normalize(visitor) : null;
+    }
+
+    /// <summary>
+    /// The address that handed the request to App Service: <paramref name="remoteIp"/>, or
+    /// the front end's appended (last) X-Forwarded-For entry when remoteIp is the front end's
+    /// own private address. Null if neither is usable.
+    /// </summary>
+    public static IPAddress RelayAddress(IPAddress remoteIp, string forwardedFor)
+    {
+        if (remoteIp == null)
         {
-            relay = LastForwardedFor(forwardedFor);
+            return null;
         }
 
-        return relay != null && cloudflareNetworks.Any(n => n.Contains(relay))
-            ? Normalize(visitor)
-            : null;
+        var relay = Normalize(remoteIp);
+        return IsPrivate(relay) ? LastForwardedFor(forwardedFor) : relay;
     }
 
     private static IPAddress LastForwardedFor(string forwardedFor)

@@ -25,24 +25,28 @@ Done:
 
 Next session, after a day or two of data:
 
-1. Rerun `analyze-traffic` and `analyze-logs`. Compare with `local/http-logs/traffic-2026-11-07.md`,
+1. Rerun `analyze-traffic` and `analyze-logs`. Compare with `local/logs/reports/traffic-2026-11-07.md`,
    the day before Bot Fight Mode, especially the headless group, then check **Security, Events**
    and Search Console crawl stats.
 2. Decide on Precursor (Phase 6 step 2) from what the headless group did.
 3. Leaked credentials: turn on the header transform, test whether Cloudflare recognizes the login
    form, then decide on the app-side follow-up (Phase 6 step 3).
 4. Add the scanner WAF rule (step 4) and update the respond-to-attack runbook (step 6).
-5. Build the app-side request log that records the real client IP, so `analyze-traffic` keeps its
-   per-IP view (section 4).
+5. The app request log that records the real client IP is built (2026-11-16) but off. Do the
+   one-time setup (a container, a role for the app's identity, a lifecycle prefix, three settings) in
+   [logging-and-diagnostics § App request log](../observability/logging-and-diagnostics.md#app-request-log),
+   then point `analyze-traffic` at it (`--source app`).
 6. A small fix: `HomeController.Index` and other GET-only actions throw a 500 on a POST. They
    should answer only GET.
 7. Turn on Cloudflare Fonts and remove the Google Fonts preconnect links (Phase 2 notes).
 8. Phase 5 (Origin CA certificate) by the end of January 2027.
 9. DNS cleanup and DMARC tightening in early December 2026 (section 4).
 
-HTML caching isn't part of this plan. Cloudflare doesn't cache HTML by default, and the app
-marks anonymous pages `no-cache` and signed-in pages `no-store`. Edge caching of HTML is Phase 2
-of the bot-load plan and can follow once this is stable.
+HTML caching isn't part of this plan. Cloudflare doesn't cache HTML by default. Edge caching of
+anonymous HTML was built on 2026-11-18 as Phase 2 of the bot-load plan: a Cache Rule plus a
+Cloudflare-only header from the app. Deploys don't purge it, because the app keeps serving
+the previous builds' bundles. Setup is in [runbooks/edge-cache](../runbooks/edge-cache.md). It
+uses one Cache Rule.
 
 ## 1. Can this run on the Free plan?
 
@@ -78,7 +82,8 @@ Phase 7 (locking the origin) is optional and doesn't use App Service IP restrict
 **When to pay for Pro ($20/month annual, $25 monthly):** if Bot Fight Mode challenges something
 the site needs and it can't be moved off `www`; if the headless wave still reaches the origin
 with Bot Fight Mode on; or if the 5 custom rules or 1 rate-limit rule run out. Upgrading is a
-plan change on the same zone, with no migration.
+plan change on the same zone, with no migration. What we'd turn on after upgrading is listed in
+[cloudflare-pro-upgrade](cloudflare-pro-upgrade.md).
 
 ## 2. Current DNS inventory (queried 2026-11-04, reconciled 2026-11-05)
 
@@ -414,7 +419,7 @@ one-off scripts pointed at `www`, and those would start getting challenged.
    - Check Search Console **Crawl stats** for a drop in Googlebot requests or a rise in errors.
    - Confirm the Logic Apps still succeed. They should, since Phase 1 moved them off `www`.
    - Rerun `analyze-traffic` and compare server time with the 2026-10-31 numbers in the bot-load
-     plan. Also compare with `local/http-logs/traffic-2026-11-07.md`, the last full day before
+     plan. Also compare with `local/logs/reports/traffic-2026-11-07.md`, the last full day before
      Bot Fight Mode, especially the "Browser UA, headless pattern" group: 46k requests that day.
 2. **Precursor, only if headless browsers still get through** (Security, Settings, Precursor).
    Leave it **Off** while Bot Fight Mode settles, so the two effects can be told apart.
@@ -574,14 +579,18 @@ When the phases ship, fold the as-built result into the reference docs and delet
   Fight Mode, the scanner WAF rule.
 - `analyze-traffic` skill: after Phase 4, the App Service HTTP logs record Cloudflare's IP as
   `c-ip`, so the per-client grouping (IP + user agent) degrades. That log can't record
-  `CF-Connecting-IP`, because it has no header fields. The chosen fix is an app-side request log:
-  - A middleware after `CloudflareClientIpMiddleware` writes one record per request, with the
-    same fields as the platform log plus the real client IP.
-  - Records are batched about once a minute into hourly blobs in `m4dlogs`, with the same layout
-    and the same 30-day delete rule.
-  - `analyze-traffic` reads them and keeps the platform log as a cross-check.
+  `CF-Connecting-IP`, because it has no header fields. The fix is the app request log
+  (built 2026-11-16, see
+  [logging-and-diagnostics § App request log](../observability/logging-and-diagnostics.md#app-request-log)):
+  - ASP.NET Core's built-in W3C logger, right after `CloudflareClientIpMiddleware` at the top of
+    the pipeline, writes one line per request with the visitor's IP, the edge as the relay, and
+    cookie names. It doesn't record response bytes.
+  - Daily files go to `/home/LogFiles/requests`, and the app copies them to blob storage hourly
+    (kept 30 days).
+  - `analyze-traffic` reads either source (`fetch_logs.py requests` or `http`) and keeps the
+    platform log as a cross-check and for bytes.
 
-  Until it ships, use `/Admin/Diagnostics` and Cloudflare's Security Events for per-IP views. The skill's per-host section (Phase 7 baseline) doesn't
+  Until it's turned on, use `/Admin/Diagnostics` and Cloudflare's Security Events for per-IP views. The skill's per-host section (Phase 7 baseline) doesn't
   depend on this: it needs only the edge IP, which is what tells proxied and direct requests
   apart.
 - [plans/front-door-caching](front-door-caching.md): mark it superseded, or delete it.

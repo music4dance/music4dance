@@ -1,8 +1,8 @@
 # Add a Partner API Client
 
 **Type:** Runbook
-**Status:** Current (test environment; production follows once the production API is deployed)
-**Last verified:** 2026-11-05
+**Status:** Current (test and production)
+**Last verified:** 2026-11-19 (production API deployed and `msc4dnc` connected to its vault)
 **Code:** `m4d/Controllers/PartnerKeysController.cs`, `m4d/PublicApi/PartnerKeyService.cs`, `m4d-api/PartnerGate.cs`, `m4d-api/infra/new-key.ps1`
 
 ## When to use
@@ -18,7 +18,7 @@ For why it works this way (key format, the partner-keys vault, limits), see
 | Environment | Web app (issues keys) | API | Partner-keys vault | Key prefix |
 | --- | --- | --- | --- | --- |
 | test | `m4d-test` (App Configuration label `Staging`) | `https://m4d-api-test.azurewebsites.net` | `m4d-api-keys-test` | `m4d_test_` |
-| production | `msc4dnc` (label `Production`) | Not deployed yet (plan PR 6) | `m4d-api-keys` | `m4d_live_` |
+| production | `msc4dnc` (label `Production`) | `https://api.music4dance.net` (also `https://m4d-api.azurewebsites.net`) | `m4d-api-keys` | `m4d_live_` |
 
 Test and production are separate: a test key works only against the test API, and the
 partner's developer needs an account on each site.
@@ -101,7 +101,8 @@ through a channel you'd trust with a password, never plain email.
 
 ## Verification
 
-1. With the key in an environment variable (so it doesn't land in shell history):
+1. With the key in an environment variable (so it doesn't land in shell history), call the
+   API. This is the test one; for production use `https://api.music4dance.net`:
 
    ```bash
    curl -s -X POST https://m4d-api-test.azurewebsites.net/v1/songs/resolve \

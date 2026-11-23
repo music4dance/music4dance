@@ -1,10 +1,10 @@
 # Bot Load and Public-Page Rendering Options
 
 **Type:** Plan
-**Status:** Partially implemented: Phase 1 (A1–A7) deployed 2026-10-30 (PR #365) and measured afterwards; Phase 0 partly done (weekday baseline); Phases 2 and 3 not started
-**Last verified:** 2026-10-31
+**Status:** Partially implemented: Phase 1 (A1–A7) deployed 2026-10-30 (PR #365) and measured afterwards; Phase 0 partly done (weekday baseline); Phase 2 (Cloudflare edge cache) built 2026-11-18, in production 2026-11-21; Phase 3 not started
+**Last verified:** 2026-11-18
 **Code:** `m4d/Views/Shared/Vue3.cshtml`, `m4d/Views/Shared/_head.cshtml`, `m4d/Views/Shared/_vue-Layout.cshtml`,
-`m4d/Configuration/M4dApplicationExtensions.cs` (cache-control middleware), `m4d/Utilities/SpiderManager.cs`,
+`m4d/Middleware/CacheControlMiddleware.cs`, `m4d/Services/AssetArchive.cs`, `m4d/Utilities/SpiderManager.cs`,
 `m4d/Controllers/SongController.cs`, `m4d/ClientApp/vite.config.ts`
 
 This plan covers two problems that share a cause. Every public page is an empty `<div id="app">`
@@ -186,6 +186,42 @@ directly. No 5xx bursts (8 in total). Googlebot, Bingbot and Applebot kept crawl
   them; see [hosting-and-identity](../infrastructure/hosting-and-identity.md).
 - Moz DotBot is the biggest page crawler (96,000, mostly apex redirects and throttled 429s).
   ElevenLabs and Exa are the AI crawlers that cost the most.
+
+#### A disguised album crawler (2026-11-20)
+
+24 hours, 2026-11-20 00:00 to 2026-11-21 00:00 UTC, from the app request log (visitor IPs).
+158,000 requests (112,500 pages), 19.1 server-hours, against about 2 server-hours a day the
+week before (9.9 over 2026-11-08 to 11-12).
+
+- **One user agent took 94% of server time.** `Chrome/48.0.2564.116` (a 2016 build) on
+  Windows, from about 140 addresses in two Hebei ranges (China Telecom and China Unicom). It
+  never ran JS, sent no referrer, and walked `/song/album` (30,000) and `/song/details` (12,000)
+  with almost no repeats, so the cache never helps. It started around 03:00 at 30 pages an
+  hour, reached 500 an hour at 12:00 and 10,000 an hour by 22:00, and was still going after
+  midnight. Album pages run an uncached Azure Search query each.
+- **A rendering farm with it.** About 50 addresses in a China Unicom range ran our scripts and
+  called `/api/health/status` 39,000 times with album-page referrers, without fetching a page
+  themselves. It's the crawler's second half: 99% of its referrers are the exact pages
+  Chrome/48 had just fetched, hour by hour the counts match, and both stopped within a minute
+  when the Cloudflare rule went in (00:31 UTC on 2026-11-21). The calls themselves are cheap
+  (0.7 ms each, 41 s of server time over two days), so `/api/health/status` stays public; it
+  now hides the error text from anyone without `showDiagnostics`. Those ranges and a couple of `m.baidu.com`
+  referrers point at Baidu, but there's no reverse DNS to verify it (robots.txt shuts out
+  Baiduspider). Because Google Analytics runs in its renderer too, it carried `_ga` and the
+  analyzer counted it as people; it now treats a client that makes many API calls but fetches
+  no page as headless.
+- **Azure Search stalled under it.** At 23:35 search calls took 40–180 s, album pages
+  returned 404 and then 503, and the search circuit breaker opened at 23:38:23 and closed 30 s
+  later (925 requests failed fast). It's the first 5xx burst since the Cloudflare cutover.
+- `CrawlerThrottle` can't see it: it's a browser user agent, so `IsSpider` is false. On
+  2026-11-21 a Cloudflare custom rule started blocking that user agent at the edge (4,000
+  requests in its first hours). As a fallback, `AgentLimits` now caps
+  `chrome/48.0.2564.116` at 5 a minute.
+- Everything else looks like the earlier samples. Meta's AI crawler is the biggest by requests
+  (29,000, cheap; 17,000 of them `/identity/account/*`, including the capitalized
+  `/Identity/...` that robots.txt's lowercase rule doesn't cover). Applebot is the costliest
+  real search engine. Moz DotBot gets most of the 429s. People: about 790 clients and 2,500
+  page views.
 
 ### 1.2 What a public page costs
 
@@ -674,9 +710,43 @@ produce what a view renders:
 
 ### Phase 2: Caching (after A3)
 
-Choose between **B1** alone (cheap, server-side, size-capped) and an edge (**B2** Front Door, or
-**B3** Cloudflare, which leads on bot tooling per dollar). Update
-[plans/front-door-caching](front-door-caching.md) with the outcome, either way.
+**Decided 2026-11-18: B3, Cloudflare's edge cache, with a 24-hour TTL for signed-out visitors.**
+The owner accepts that signed-out visitors and bots see catalog data up to a day old, as long as
+signed-in users always get the dynamic page. It came up after two Search throttling bursts on
+2026-11-18 (the residential-proxy wave of section 1.1 again: `Chrome/153`, ~10,800 IPs in 13
+minutes). Built in the same PR; rollout is in [runbooks/edge-cache](../runbooks/edge-cache.md):
+
+- **Origin decides, Cloudflare stores.** `CacheControlMiddleware` adds
+  `Cloudflare-CDN-Cache-Control: max-age=86400` (`EdgeCache:Enabled`, `EdgeCache:MaxAgeSeconds`)
+  to anonymous 200 HTML that's the same for every signed-out human. Browsers and
+  `UseResponseCaching` keep seeing `no-cache`, so neither needed to change. It's left off for
+  Googlebot, `IsSpider` agents, `/admin`, `/payment`, pages with an antiforgery form token
+  (antiforgery's own `no-store` is honored), and whenever Search, the database or App
+  Configuration isn't healthy, because Cloudflare Free can't vary a cached copy by user agent
+  and `menuContext` bakes service health into the page.
+- **A Cloudflare Cache Rule** makes HTML eligible only for `GET`s without the `music4dance`
+  sign-in cookie, with Edge TTL taken from the origin header and browser TTL respected.
+- **No purge on deploy; old bundles stay available instead.** Cached pages point at hashed
+  bundles that Run From Package removes. Cloudflare's copy of an old bundle can't be relied on:
+  it caches per data center, evicts little-used files early, and most crawlers cache HTML
+  without fetching its bundles. So the app archives recent builds' bundles on `/home` and
+  serves them when the current build lacks them
+  ([hosting-and-identity § Bundles from earlier builds](../infrastructure/hosting-and-identity.md#bundles-from-earlier-builds)).
+  Purging every deploy was the first design (2026-11-18). It was dropped because it empties
+  the bundle cache along with the HTML, and it depends on a pipeline token. A cached page
+  still runs the previous build's scripts against the new server for up to a day. When a
+  deploy changes an API those scripts call, purge by hand
+  ([runbooks/edge-cache § After a deploy](../runbooks/edge-cache.md#after-a-deploy)).
+- **Expected effect** (replaying 2026-11-17/18 through one shared 24-hour cache): about 17% of
+  anonymous page requests and 42% of their server time, an upper bound, since Cloudflare caches
+  per data center (Tiered Cache narrows the gap). Most URLs are distinct, so this complements
+  the Cloudflare challenge rule for the scraper rather than replacing it.
+- **Not done:** purging a song's URLs when it's edited, so 24-hour staleness applies to edits,
+  merges and deletions; and B1 (server-side `OutputCache`), which the edge makes unnecessary for
+  now.
+
+The original framing: choose between **B1** alone (cheap, server-side, size-capped) and an edge
+(**B2** Front Door, or **B3** Cloudflare, which leads on bot tooling per dollar).
 
 What the 2026-10-31 data adds:
 

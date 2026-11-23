@@ -156,7 +156,7 @@ const checkDances = computed(
 );
 const deleteLink = computed(() => `/song/delete?id=${props.model.songHistory.id}`);
 const updateServices = computed(
-  () => `/song/UpdateSongAndServices?id=${song.value.songId}&filter=${filter.value.query}`,
+  () => `/song/UpdateSongAndServices?id=${song.value.songId}&filter=${filter.value.encodedQuery}`,
 );
 const commentPlaceholder = computed(() => {
   return (
@@ -591,6 +591,11 @@ onBeforeUnmount(() => {
             <input type="hidden" name="userName" :value="mb.userName" />
             <BButton type="submit">{{ mb.userName }}</BButton>
           </BForm>
+          <UnmergeSection
+            v-if="model.songHistory"
+            :history="model.songHistory as SongHistory"
+            :disabled="editing"
+          />
           <div class="mb-2">
             <h3>Admin Actions</h3>
             <BButton variant="outline-primary" :href="updateServices">Update Services</BButton>

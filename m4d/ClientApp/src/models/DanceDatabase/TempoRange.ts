@@ -47,6 +47,15 @@ export class TempoRange {
     return (this.calculateDelta(tempo) * 100) / (tempo >= this.max ? this.max : this.min);
   }
 
+  // The percentage to set on a CD player's or DJ deck's pitch/tempo control to play a song at
+  // `tempo` at the nearest edge of this range: negative slows the song down, positive speeds it
+  // up. Unlike calculateDeltaPercent (relative to the range edge), this is relative to the song's
+  // own tempo, since that is what a pitch control scales.
+  public calculatePitchPercent(tempo: number): number {
+    const delta = this.calculateDelta(tempo);
+    return tempo > 0 && delta !== 0 ? (-delta * 100) / tempo : 0;
+  }
+
   public include(that?: TempoRange | null): TempoRange {
     return that ? new TempoRange(Math.min(this.min, that.min), Math.max(this.max, that.max)) : this;
   }

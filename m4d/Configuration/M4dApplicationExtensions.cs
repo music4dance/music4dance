@@ -25,6 +25,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging.AzureAppServices;
 using Microsoft.FeatureManagement;
 using Microsoft.Data.SqlClient;
 
@@ -83,10 +84,7 @@ public static class M4dApplicationExtensions
 
         Console.WriteLine($"[{startupTimer.Elapsed.TotalSeconds:F2}s] Configuring logging");
 
-        var logging = builder.Logging;
-        logging.ClearProviders();
-        logging.AddConsole();
-        logging.AddAzureWebAppDiagnostics();
+        AddM4dLogging(builder.Logging);
 
         // Log level filters should be set via configuration (see appsettings.json / appsettings.Production.json)
 
@@ -172,6 +170,11 @@ public static class M4dApplicationExtensions
             }
         }
 
+        // App request log: one line per request with the visitor's IP (App Service's own HTTP log
+        // only sees Cloudflare's), via the built-in W3C logger, copied hourly to blob storage when
+        // RequestLog:UploadContainer is set. Off unless RequestLog:Enabled.
+        services.AddM4dRequestLog(configuration, azureCredential);
+
         // Manual-testing escape hatch: write the Azure Search Properties field uncompressed.
         // Reads always handle both formats (see SongPropertyCompression.IsCompressed), so this only
         // affects what gets written going forward. Default on; flip off via a launch profile
@@ -194,6 +197,17 @@ public static class M4dApplicationExtensions
                 // Fast registration - skip validation, Azure SDK will handle invalid endpoints
                 Console.WriteLine($"[Search] Registering {indexSections.Count} search index clients (fast startup mode)");
 
+                // One breaker per Search service, shared by its query clients since they share its
+                // capacity. The SearchIndexClient (schema reads, index create/delete) has none and
+                // keeps the SDK's retries
+                services.AddSingleton<SearchCircuitBreakers>();
+                var breakerNames = SearchCircuitBreakers.AssignServiceNames(
+                    indexSections.Select(s => (s.Key, s["endpoint"])));
+                Action<ClientOptions, IServiceProvider> AddSearchCircuitBreaker(string sectionKey) =>
+                    (options, provider) => options.AddPolicy(
+                        provider.GetRequiredService<SearchCircuitBreakers>().For(breakerNames[sectionKey]),
+                        HttpPipelinePosition.PerRetry);
+
                 services.AddAzureClients(clientBuilder =>
                 {
                     Console.WriteLine("[Search] Using shared DefaultAzureCredential");
@@ -203,7 +217,8 @@ public static class M4dApplicationExtensions
                     {
                         var endpoint = section["endpoint"];
                         Console.WriteLine($"[Search] Registering: {section.Key} -> {endpoint}");
-                        _ = AzureSearchExtensions.AddSearchClient(clientBuilder, section).WithName(section.Key);
+                        _ = AzureSearchExtensions.AddSearchClient(clientBuilder, section).WithName(section.Key)
+                            .ConfigureOptions(AddSearchCircuitBreaker(section.Key));
                     }
 
                     // Add a single SearchIndexClient named "SongIndex"
@@ -498,6 +513,26 @@ public static class M4dApplicationExtensions
         services.AddSingleton(appDataPaths);
         Console.WriteLine($"App data root: {appDataPaths.Root}");
 
+        // Keeps recent builds' hashed bundles on persistent storage, so HTML cached before a
+        // deploy can still load them once Run From Package has replaced wwwroot
+        var assetArchiveOptions =
+            configuration.GetSection("AssetArchive").Get<AssetArchiveOptions>() ?? new AssetArchiveOptions();
+        if (assetArchiveOptions.Enabled && string.IsNullOrEmpty(environment.WebRootPath))
+        {
+            // No wwwroot (a host without static files): nothing to archive or to fall back from
+            Console.WriteLine("Asset archive off: no web root");
+        }
+        else if (assetArchiveOptions.Enabled)
+        {
+            services.AddSingleton(sp => new AssetArchive(
+                Path.Combine(appDataPaths.AppData, AssetArchive.FolderName),
+                Path.Combine(environment.WebRootPath, "vclient", "assets"),
+                assetArchiveOptions,
+                TimeProvider.System,
+                sp.GetRequiredService<ILogger<AssetArchive>>()));
+            services.AddHostedService<AssetArchiveHostedService>();
+        }
+
         if (appOptions.ConfigureSearch)
         {
             var appRoot = environment.WebRootPath;
@@ -507,8 +542,17 @@ public static class M4dApplicationExtensions
                 // Bridges SongIndex's post-success signal (ISearchServiceManager.ReportSearchSuccess)
                 // to ServiceHealthManager, so a service marked Unavailable by a transient search
                 // failure clears immediately the next time a live search actually succeeds,
-                // instead of only via ServiceHealthManager's cooldown-based inference.
-                manager.OnSearchSuccess = () => serviceHealth.MarkHealthy("SearchService");
+                // instead of only via ServiceHealthManager's cooldown-based inference. While the
+                // circuit breaker is open, a success can only be a request sent before it opened,
+                // so it's ignored; the breaker marks Search healthy when its probe succeeds.
+                var breakers = sp.GetService<SearchCircuitBreakers>();
+                manager.OnSearchSuccess = () =>
+                {
+                    if (breakers?.IsOpen(SearchCircuitBreaker.ServiceName) != true)
+                    {
+                        serviceHealth.MarkHealthy("SearchService");
+                    }
+                };
                 return manager;
             });
             services.AddSingleton<IDanceStatsManager>(new DanceStatsManager(
@@ -600,6 +644,25 @@ public static class M4dApplicationExtensions
         return builder;
     }
 
+    /// <summary>
+    /// The most the App Service file logger writes to one day's
+    /// <c>LogFiles/Application/diagnostics-YYYYMMDD.txt</c>. Past it, the provider silently drops
+    /// every message until the next UTC day. Its 10 MB default filled in about 8 minutes of a
+    /// Search throttling burst on 2026-11-18 (Azure.Core logs each 503 with its headers), which
+    /// hid the rest of that day's warnings and errors. It keeps 2 files, so this is ~100 MB of
+    /// <c>/home</c>.
+    /// </summary>
+    internal const int AzureFileLogSizeLimitBytes = 50 * 1024 * 1024;
+
+    internal static void AddM4dLogging(ILoggingBuilder logging)
+    {
+        logging.ClearProviders();
+        logging.AddConsole();
+        logging.AddAzureWebAppDiagnostics();
+        _ = logging.Services.Configure<AzureFileLoggerOptions>(
+            options => options.FileSizeLimit = AzureFileLogSizeLimitBytes);
+    }
+
     public static async Task<WebApplication> UseM4dPipeline(
         this WebApplication app,
         string connectionString,
@@ -653,6 +716,16 @@ public static class M4dApplicationExtensions
                 timestamp = DateTime.UtcNow
             }, statusCode: isReady ? StatusCodes.Status200OK : StatusCodes.Status503ServiceUnavailable);
         }).AllowAnonymous();
+
+        // Behind Cloudflare: replace the edge server's address with CF-Connecting-IP, but only
+        // for requests relayed from Cloudflare's published ranges. First in the pipeline, so
+        // everything after it (the request log, authentication, rate limiting) sees the
+        // visitor; it also records the resolved addresses as the ClientAddresses feature.
+        app.UseMiddleware<m4d.Middleware.CloudflareClientIpMiddleware>();
+
+        // Next, so it sees every request (static files included) and the final status. Only
+        // when RequestLog:Enabled.
+        app.UseM4dRequestLog();
 
         if (!isDevelopment)
         {
@@ -780,6 +853,12 @@ public static class M4dApplicationExtensions
         // day). Without it they go out no-cache and Cloudflare revalidates every one.
         app.UseMiddleware<m4d.Middleware.StaticAssetCacheMiddleware>();
 
+        // Bundles from earlier builds that the current package doesn't have (see AssetArchive)
+        if (app.Services.GetService<AssetArchive>() != null)
+        {
+            app.UseMiddleware<m4d.Middleware.ArchivedAssetMiddleware>();
+        }
+
         // MapStaticAssets() requires a manifest file that doesn't get properly included
         // in single-file (PublishSingleFile=true) self-contained deployments.
         // Use UseStaticFiles() instead for self-contained mode.
@@ -816,15 +895,13 @@ public static class M4dApplicationExtensions
         // RemoteIpAddress is the visitor's. With default KnownProxies (loopback only) this call
         // applies X-Forwarded-For only for a local proxy. On App Service, the front end's
         // X-Forwarded-For is applied before this (when ASPNETCORE_FORWARDEDHEADERS_ENABLED is
-        // set) or not at all; CloudflareClientIpMiddleware below copes with either.
+        // set) or not at all; CloudflareClientIpMiddleware (first in the pipeline) copes with
+        // either, and by the time this runs it has already replaced a Cloudflare edge address
+        // with the visitor's, which isn't loopback, so this call leaves it alone.
         app.UseForwardedHeaders(new ForwardedHeadersOptions
         {
             ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
         });
-
-        // Behind Cloudflare: replace the edge server's address with CF-Connecting-IP, but only
-        // for requests relayed from Cloudflare's published ranges.
-        app.UseMiddleware<m4d.Middleware.CloudflareClientIpMiddleware>();
 
         // Authentication middleware: Populates context.User from authentication cookies
         // This MUST come before any middleware that checks context.User.Identity.IsAuthenticated
@@ -846,99 +923,9 @@ public static class M4dApplicationExtensions
         // Search engines and signed-in users are exempt; needs context.User.
         app.UseMiddleware<m4d.Middleware.CrawlerThrottleMiddleware>();
 
-        // Cache control middleware: Allow Azure Front Door to cache anonymous pages with careful exclusions
-        // This relies on context.User being populated by UseAuthentication() above
-        app.Use(async (context, next) =>
-        {
-            // Register callback to modify headers just before they're sent (after pipeline completes)
-            context.Response.OnStarting(() =>
-            {
-                // Only cache GET requests
-                if (context.Request.Method != "GET")
-                {
-                    return Task.CompletedTask;
-                }
-
-                // Prevent caching of redirect responses to identity paths.
-                // Meta crawlers and proxies caching 302→/login amplifies redirect loops.
-                if (context.Response.StatusCode >= 300 && context.Response.StatusCode < 400)
-                {
-                    var reqPath = context.Request.Path.Value?.ToLowerInvariant() ?? "";
-                    if (reqPath.StartsWith("/identity/"))
-                    {
-                        context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
-                        context.Response.Headers["Pragma"] = "no-cache";
-                    }
-                    return Task.CompletedTask;
-                }
-
-                // Only modify cache headers on successful responses (200-299)
-                if (context.Response.StatusCode < 200 || context.Response.StatusCode >= 300)
-                {
-                    return Task.CompletedTask;
-                }
-
-                // Get the request path for exclusion checks
-                var path = context.Request.Path.Value?.ToLowerInvariant() ?? "";
-
-                // Never cache Identity responses regardless of auth state or Set-Cookie presence.
-                // The Meta crawler short-circuit returns 200 without Set-Cookie on /identity/,
-                // which would otherwise be treated as cacheable for anonymous users.
-                if (path.StartsWith("/identity/"))
-                {
-                    return Task.CompletedTask;
-                }
-
-                // Exclude API endpoints from caching (dynamic data)
-                if (path.StartsWith("/api/"))
-                {
-                    return Task.CompletedTask;
-                }
-
-                // Exclude specific pages that have anti-forgery tokens for anonymous users
-                // RawSearchForm has a form with anti-forgery token that must not be cached
-                if (path.StartsWith("/song/rawsearchform"))
-                {
-                    return Task.CompletedTask;
-                }
-
-                // Don't cache responses that set cookies (includes anti-forgery cookies, auth cookies, etc.)
-                if (context.Response.Headers.ContainsKey("Set-Cookie"))
-                {
-                    return Task.CompletedTask;
-                }
-
-                // Only cache HTML responses (not JSON, XML, etc.)
-                var contentType = context.Response.ContentType?.ToLowerInvariant() ?? "";
-                if (!contentType.Contains("text/html"))
-                {
-                    return Task.CompletedTask;
-                }
-
-                if (context.User.Identity?.IsAuthenticated == true)
-                {
-                    // Authenticated users: Prevent all caching
-                    context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
-                    context.Response.Headers["Pragma"] = "no-cache";
-                }
-                else
-                {
-                    // Anonymous users. Until anonymous pages stopped minting an antiforgery
-                    // token (and so a Set-Cookie) this branch never ran. It sends no-cache, not
-                    // public/max-age: UseResponseCaching below doesn't check cookies, so a public
-                    // anonymous page would be served from memory to signed-in users, and a
-                    // browser would show the signed-out page for its max-age after login. Making
-                    // anonymous HTML cacheable needs a cache that keys on sign-in state, which is
-                    // Phase 2 of architecture/plans/bot-load-and-public-page-rendering.md.
-                    context.Response.Headers.Remove("Pragma");
-                    context.Response.Headers["Cache-Control"] = "no-cache";
-                }
-
-                return Task.CompletedTask;
-            });
-
-            await next();
-        });
+        // Cache-Control for HTML pages, and the Cloudflare-only header that lets the edge keep
+        // anonymous pages (EdgeCache:Enabled). Needs context.User from UseAuthentication() above.
+        app.UseMiddleware<m4d.Middleware.CacheControlMiddleware>();
 
         app.UseAuthorization();
         app.UseResponseCaching();

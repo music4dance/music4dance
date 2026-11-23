@@ -56,10 +56,10 @@ variables:
 
 steps:
   # ===== CLIENT BUILD =====
-  - task: NodeTool@0
+  - task: UseNode@1
     displayName: "Install Node.js"
     inputs:
-      versionSpec: "22.x"
+      version: "22.x"
 
   - script: corepack enable
     displayName: "Enable Corepack"

@@ -1,7 +1,10 @@
+#nullable disable
+
 using AutoMapper;
 
 using m4d.Controllers;
 using m4d.Services;
+using m4d.Services.ServiceHealth;
 using m4d.Tests.TestHelpers;
 using m4d.Utilities;
 
@@ -30,6 +33,12 @@ namespace m4d.Tests.Controllers;
 [TestClass]
 public class SongControllerTests
 {
+    [ClassInitialize]
+    public static async Task ClassInitialize(TestContext _)
+    {
+        await DanceMusicTester.LoadDances();
+    }
+
     [TestMethod]
     [DataRow("4PGMLc2lfy6hsdmyj2rm2x", true)]
     [DataRow("37i9dQZF1DXcBWIGoYBM5M", true)]
@@ -147,11 +156,72 @@ public class SongControllerTests
 
     #endregion
 
+    #region Search unavailable Tests
+
+    // During a Search outage album and artist pages must answer 503, not 404 (which tells
+    // crawlers the page is gone) or 500, and must not call Search at all once it's marked down.
+
+    [TestMethod]
+    public async Task Album_SearchUnavailable_ReturnsServiceUnavailable()
+    {
+        var controller = await CreateController(artistIndexEnabled: true, CreateUnhealthySearch());
+
+        var result = await controller.Album("Dean Martin At His Best");
+
+        Assert.AreEqual("HttpError", ((ViewResult)result).ViewName);
+        Assert.AreEqual(
+            (int)HttpStatusCode.ServiceUnavailable,
+            controller.ControllerContext.HttpContext.Response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Artist_SearchUnavailable_ReturnsServiceUnavailable()
+    {
+        var controller = await CreateController(artistIndexEnabled: true, CreateUnhealthySearch());
+
+        var result = await controller.Artist("Dean Martin");
+
+        Assert.AreEqual("HttpError", ((ViewResult)result).ViewName);
+        Assert.AreEqual(
+            (int)HttpStatusCode.ServiceUnavailable,
+            controller.ControllerContext.HttpContext.Response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Album_NoTitle_SearchUnavailable_StillReturnsNotFound()
+    {
+        // An empty title is a bad request whatever Search's state, so it stays a 404.
+        var controller = await CreateController(artistIndexEnabled: true, CreateUnhealthySearch());
+
+        _ = await controller.Album("  ");
+
+        Assert.AreEqual(
+            (int)HttpStatusCode.NotFound, controller.ControllerContext.HttpContext.Response.StatusCode);
+    }
+
+    private static ServiceHealthManager CreateUnhealthySearch()
+    {
+        var health = new ServiceHealthManager(NullLogger<ServiceHealthManager>.Instance);
+        health.MarkUnavailable("SearchService", "test: search throttled");
+        return health;
+    }
+
+    #endregion
+
     #region Test factory
 
-    private static async Task<SongController> CreateController(bool artistIndexEnabled)
+    // A fresh ServiceHealthManager reports every service healthy, which is what the tests that
+    // don't care about Search's state need.
+    private static Task<SongController> CreateController(bool artistIndexEnabled) =>
+        CreateController(
+            artistIndexEnabled, new ServiceHealthManager(NullLogger<ServiceHealthManager>.Instance));
+
+    private static async Task<SongController> CreateController(
+        bool artistIndexEnabled, ServiceHealthManager serviceHealth)
     {
-        var dms = await DanceMusicTester.CreateServiceWithUsers("BareArtistUrl");
+        // Tests run in parallel, so each needs its own in-memory database: a shared name has two
+        // tests seed the same users and roles at once.
+        var dms = await DanceMusicTester.CreateServiceWithUsers($"SongController_{Guid.NewGuid():N}");
 
         var featureManager = new Mock<IFeatureManagerSnapshot>();
         featureManager
@@ -178,7 +248,7 @@ public class SongControllerTests
             new Mock<LinkGenerator>().Object,
             new Mock<IMapper>().Object,
             new SpotifyAuthService(configuration, spotifyUserManager.Object),
-            serviceHealth: null);
+            serviceHealth);
 
         var httpContext = new DefaultHttpContext
         {
