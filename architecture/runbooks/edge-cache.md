@@ -1,8 +1,8 @@
 # Cloudflare Edge Cache for Anonymous Pages
 
 **Type:** Runbook
-**Status:** Current (written 2026-11-18; the Cloudflare steps haven't been run yet)
-**Last verified:** 2026-11-19 (against `CacheControlMiddleware` and `AssetArchive`)
+**Status:** Current (set up in production 2026-11-21)
+**Last verified:** 2026-11-21 (production rollout; the Verification checks all passed)
 **Code:** `m4d/Middleware/CacheControlMiddleware.cs`, `m4d/Services/AssetArchive.cs`,
 `m4d/Middleware/ArchivedAssetMiddleware.cs`
 
@@ -48,6 +48,9 @@ serves them ([hosting-and-identity § Bundles from earlier builds](../infrastruc
    az appconfig kv set -n music4dance --key Configuration:Sentinel --value "$(date +%s)" --yes
    ```
 
+   `$(date +%s)` is bash. In PowerShell, use
+   `--value ([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())`.
+
    Check the origin directly (Cloudflare strips the header, so this has to go to the App
    Service host):
 
@@ -55,7 +58,8 @@ serves them ([hosting-and-identity § Bundles from earlier builds](../infrastruc
    curl -s -o /dev/null -D - https://msc4dnc.azurewebsites.net/dances | grep -i cache-control
    ```
 
-   Expect `cache-control: no-cache` and `cloudflare-cdn-cache-control: max-age=86400`.
+   Expect `cache-control: no-cache` and `cloudflare-cdn-cache-control: max-age=86400`. The app
+   reloads configuration on a timer, so the header can take a minute or so to appear.
    This is still harmless: Cloudflare doesn't cache HTML until the next step.
 3. **Turn on Tiered Cache** (free): **Caching → Tiered Cache → Smart Tiered Caching Topology**.
    Data centers then fill from a regional tier instead of each going to the origin.
@@ -66,11 +70,10 @@ serves them ([hosting-and-identity § Bundles from earlier builds](../infrastruc
    (http.host eq "www.music4dance.net"
     and http.request.method eq "GET"
     and not http.cookie contains "music4dance="
-    and not starts_with(http.request.uri.path, "/identity")
-    and not starts_with(http.request.uri.path, "/api")
-    and not starts_with(http.request.uri.path, "/admin")
-    and not starts_with(http.request.uri.path, "/payment")
-    and not cf.client.bot)
+    and not starts_with(lower(http.request.uri.path), "/identity")
+    and not starts_with(lower(http.request.uri.path), "/api")
+    and not starts_with(lower(http.request.uri.path), "/admin")
+    and not starts_with(lower(http.request.uri.path), "/payment"))
    ```
 
    Then:
@@ -83,10 +86,12 @@ serves them ([hosting-and-identity § Bundles from earlier builds](../infrastruc
    - Leave the cache key at its default (it includes the query string).
    - **Deploy**.
 
-   `not cf.client.bot` sends verified crawlers (Googlebot, Bingbot) to the origin, so they keep
-   getting their own variant. If the editor rejects that field, drop the line: the origin
-   already leaves Googlebot's page out of the cache, and Googlebot would just get the human page
-   from the cache.
+   `lower()` matters: `starts_with` is case-sensitive, and the site's URLs use capitals
+   (`/Identity/Account/Login`, `/Admin/...`). The Free plan doesn't allow `cf.client.bot` in
+   Cache Rules, so verified crawlers aren't excluded by the rule. Pages the origin renders for
+   Googlebot have no `Cloudflare-CDN-Cache-Control` header, so they're never cached, and
+   Googlebot can be served the cached human page. Adding the clause back is on the
+   [Cloudflare Pro list](../plans/cloudflare-pro-upgrade.md).
 
 ### After a deploy
 
@@ -113,7 +118,11 @@ the previous build. Purge by hand when that matters:
 
 ## Verification
 
-Run each request twice. The first can be a `MISS`; the second should be a `HIT`:
+Run each request twice. The first can be a `MISS`; the second should be a `HIT`. If someone
+requested the page recently, both can be `HIT`, because your nearest data center already holds
+it. To see the `MISS`, add a random query string (`/dances?t=123`), since each query string is
+cached separately. Pages that are never cached show the same status both times (`DYNAMIC` or
+`BYPASS`):
 
 ```bash
 curl -s -o /dev/null -D - https://www.music4dance.net/dances | grep -i "cf-cache-status\|cache-control"
