@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-14 (§ Merging and § Unmerging written with the code; § Settling the fields traced 2026-11-04; § Matching new songs by service id traced 2026-11-03; the rest: code references checked, behavior not re-traced)
+**Last verified:** 2026-11-21 (§ Matching new songs by title traced; § Merging and § Unmerging written with the code 2026-11-14; § Settling the fields traced 2026-11-04; § Matching new songs by service id traced 2026-11-03; the rest: code references checked, behavior not re-traced)
 **Code:** `m4dModels/MergeManager.cs`, `m4d/Controllers/SongController.cs` (merge actions, `Unmerge`), `m4dModels/SongIndex.cs` (`SimpleMergeSongs`, `RenumberAlbums`, `UnmergeSong`, `BuildUnmerge`, service id matching), `m4dModels/Song.cs` (`GetAltids`, `GetUnmergeableSources`), `m4d/ClientApp/src/pages/song/components/FieldEditor.vue` (merged-value links), `m4d/ClientApp/src/pages/song/components/UnmergeSection.vue`
 
 ## Overview
@@ -44,6 +44,54 @@ copies of a shared id were attached by a later `batch-i`/`batch-s` edit, not at 
 leaves an id that another song holds where it is, and queues the pair for review. See
 [shared-id-review](shared-id-review.md), which also covers clearing the pairs that already
 share an id.
+
+## Matching New Songs by Title, and How the Shared-Id Review Differs
+
+When no service id matches, a new song is matched by title and artist
+(`SongIndex.MergeFromTitle`). That matcher and the one the [shared-id review](shared-id-review.md)
+uses (`SharedIdMatcher`) do different jobs. The add-time one decides alone, with no one looking,
+whether a song someone is adding already exists. The review one sorts clusters that are already
+linked by a shared Spotify, iTunes or ISRC id, so most of them are the same song, and a person
+reviews whatever isn't an exact match.
+
+**The add-time match.** `MergeFromTitle(song)`:
+
+1. Fetches up to 50 catalog songs by a full-text search of the new song's title as given
+   (`SongsFromTitle`).
+2. Keeps the ones that are `Song.TitleArtistEquivalent`: the same `Song.CreateTitleHash` title,
+   and the same `CreateTitleHash` artist credit or either credit blank.
+3. Of those, picks one that has the new song's first album (`MatchType.Exact`), else one whose
+   length is within 5 seconds (`MatchType.Length`), else the only candidate if there is just one
+   (`MatchType.Weak`).
+
+How each path uses the result:
+
+| Path | Accepts | On a match |
+| --- | --- | --- |
+| Add by link or search (`MusicServiceManager.CreateSong`, through `FindMatchingSong`) | `Exact` and `Length` only, after the track's ISRC | The track and its enrichment are added to the existing song, and the add page shows "Edit Song". |
+| Playlist imports and the catalog upload (`MatchSongs` → `MergeCatalog`) | Any match, `Weak` included, after the SongId override and the service ids | `AdditiveMerge`: the new song's dances, tags, albums and ids are added to the existing song. A scalar field such as title or artist is only filled in if it's blank. |
+| Save a new song (`CreateOrMergeSong`) | No title match, service ids only | — |
+
+**What's different.** The add-time match compares less loosely in some ways and more loosely in
+others:
+
+| | Add time (`MergeFromTitle`) | Shared-id review (`SharedIdMatcher`) |
+| --- | --- | --- |
+| Why the songs are compared | Only their titles: any catalog song with a similar title | They share a Spotify, iTunes or ISRC id |
+| Title | `CreateTitleHash`: case, accents, punctuation, small words and bracketed text are ignored (apart from a dance name or BPM in brackets) | The same, or the same letters and digits (`SquashedTitle`). Version notes ("- Remastered 2011", "- Single Version") are removed, and so are qualifiers ("- Radio Edit", "- Live") that don't name a dance or a tempo (`TitleKey`). |
+| Artist | `CreateTitleHash` of the whole credit. "Pink" and "P!nk" differ, and so do "X feat. Y" and "X", or "Benny Goodman and His Orchestra" and "Benny Goodman". A blank credit matches any. | The credit under its preferred name (`ArtistAliases`), without the leader's backing group (`RemoveBackingGroup`). Later tiers also compare without feat. clauses, by individual artists, and by the lead artist alone. A song with no artist is never merged automatically. |
+| Length | Picks a candidate when lengths are within 5 seconds, but a `Weak` match ignores length | Over 15 seconds apart (`LengthTolerance`) keeps a cluster out of every Merge all task, unless every song has a tempo and they're within 2 BPM (`TemposAgree`) |
+| Tempo | Not used. Tempo usually isn't known until after the match (`UpdateAudioData`). | Can outweigh length |
+| Album | The new song's first album on a candidate settles it (`Exact`) | Not used to match |
+| Evidence from the services | Only the ISRC lookup before the title match | Track lookups confirm artists (`FewerArtists`, Merge artist) and decide which song owns an id (Sort out ids) |
+| Names after the merge | The existing song keeps its title and artist | `FeaturedCleanup.Propose`: the title without its feat. clause or version notes, a credit that names every artist, and individual artists under their preferred names |
+| A doubtful match | Add by link or search: a new song. Imports: `Weak`, merged when only one candidate remains. | Left for a person to review |
+
+So adding a song creates a duplicate when the only difference is an alias, a feat. clause in the
+credit, a backing group, or a version note, unless a service id or ISRC links the two. These are
+exactly the differences that filled the shared-id queue. An import can also merge two recordings
+whose lengths are far apart, when only one candidate has the same title and artist. See
+[plans/add-song-matching-next](../plans/add-song-matching-next.md) for what to bring over.
 
 ## Merge Levels
 

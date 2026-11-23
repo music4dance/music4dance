@@ -180,259 +180,6 @@ public class AdminController(
     }
 
     //
-    // GET: /Admin/SharedIds
-    // The review queue of songs that share a Spotify, iTunes or ISRC id - see
-    // architecture/songs/shared-id-review.md
-    [Authorize(Roles = "dbAdmin")]
-    public async Task<ActionResult> SharedIds(int page = 1, string message = null)
-    {
-        if (ServiceHealth?.IsServiceHealthy("SearchService") == false)
-        {
-            return ReturnError(HttpStatusCode.ServiceUnavailable, "Search service temporarily unavailable. Please try again later.");
-        }
-
-        page = Math.Max(1, page);
-        var log = Database.SharedIds;
-        IReadOnlyList<SharedIdCluster> clusters = [];
-        List<SharedIdCluster> shown = [];
-
-        // Loading a page follows songs merged or deleted since they were queued, which can change
-        // the clusters, so compute them again until a page loads cleanly
-        // The last merge preview classified every cluster; review the ones that differ only by
-        // feat., then the close matches, before the rest
-        var preview = _sharedIdsPreview;
-        for (var attempt = 0; attempt < 3; attempt++)
-        {
-            clusters = await log.PendingClusters();
-            if (preview != null)
-            {
-                clusters = [.. clusters.OrderBy(preview.RankOf)];
-            }
-
-            shown =[.. clusters.Skip((page - 1) * SharedIdsModel.PageSize).Take(SharedIdsModel.PageSize)];
-            var current = true;
-            foreach (var cluster in shown)
-            {
-                current &= await log.LoadSongs(cluster);
-            }
-
-            if (current)
-            {
-                break;
-            }
-        }
-
-        // What each cluster would become if all its songs were merged
-        var user = await Database.FindUser(UserName);
-        var previews = new List<Song>();
-        foreach (var cluster in shown)
-        {
-            try
-            {
-                previews.Add(await log.PreviewMerge(user, cluster));
-            }
-            catch (Exception e)
-            {
-                Logger.LogWarning(e, "SharedIds: couldn't preview the merge of {SongIds}",
-                    string.Join(",", cluster.SongIds));
-                previews.Add(null);
-            }
-        }
-
-        var rankCounts = preview == null ? []
-            : clusters.GroupBy(preview.RankOf).ToDictionary(g => g.Key, g => g.Count());
-        return View(new SharedIdsModel
-        {
-            PendingCandidates = await log.PendingCount(),
-            ClusterCount = clusters.Count,
-            Page = page,
-            Clusters = shown,
-            Previews = previews,
-            Proposals = [.. previews.Select((p, i) => p == null ? null : FeaturedCleanup.Propose(p, shown[i].Songs))],
-            SortedBy = preview?.Created,
-            WithoutFeaturingCount = rankCounts.GetValueOrDefault(SharedIdsPreviewModel.WithoutFeaturingRank),
-            CloseCount = rankCounts.GetValueOrDefault(SharedIdsPreviewModel.CloseRank),
-            Message = message
-        });
-    }
-
-    //
-    // POST: /Admin/ApplySharedIds
-    // Applies the choice made for each cluster on a page of the queue: merge its groups of songs,
-    // not the same, or leave for later
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "dbAdmin")]
-    public async Task<ActionResult> ApplySharedIds(List<SharedIdChoiceForm> items, int page = 1)
-    {
-        var user = await Database.FindUser(UserName);
-        var result = await Database.SharedIds.Apply(user, (items ?? []).Select(i => i.ToChoice()).ToList());
-        foreach (var (from, into) in result.Merges)
-        {
-            _sharedIdsPreview?.Merged(from, into);
-        }
-        if (result.Merged > 0 || result.Edited > 0)
-        {
-            await DanceStatsManager.ClearCache(Database, false);
-        }
-
-        var message = $"Merged {result.Merged}, marked {result.Rejected} not the same, left {result.Left}.";
-        if (result.Edited > 0)
-        {
-            message += $" Removed albums or ids from {result.Edited} songs; {result.Unshared} pairs " +
-                "no longer shared an id and were marked not the same.";
-        }
-        if (result.Stale > 0)
-        {
-            message += $" {result.Stale} weren't merged: fewer than two of their grouped songs " +
-                "are still in the catalog (already merged with Merge and edit, for example).";
-        }
-
-        return RedirectToAction(nameof(SharedIds), new { page, message });
-    }
-
-    //
-    // POST: /Admin/SeedSharedIds
-    // Queues every pair of songs that already share an id
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "dbAdmin")]
-    public ActionResult SeedSharedIds()
-    {
-        try
-        {
-            StartAdminTask("SeedSharedIds");
-            AdminMonitor.UpdateTask("SeedSharedIds");
-
-            var dms = Database.GetTransientService();
-
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    var added = await dms.SharedIds.Seed(AdminMonitor.UpdateTask);
-                    AdminMonitor.CompleteTask(true, $"SeedSharedIds: Added={added}");
-                }
-                catch (Exception e)
-                {
-                    AdminMonitor.CompleteTask(false, $"SeedSharedIds: Failed={e.Message}");
-                }
-                finally
-                {
-                    dms.Dispose();
-                }
-            });
-
-            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
-        }
-        catch (Exception e)
-        {
-            return FailAdminTask($"SeedSharedIds: {e.Message}", e);
-        }
-    }
-
-    //
-    // POST: /Admin/MergeMatchingSharedIds
-    // Merges every pending cluster whose songs also have the same title and artist
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "dbAdmin")]
-    public async Task<ActionResult> MergeMatchingSharedIds()
-    {
-        try
-        {
-            StartAdminTask("MergeMatchingSharedIds");
-            AdminMonitor.UpdateTask("MergeMatchingSharedIds");
-
-            var user = await Database.FindUser(UserName);
-            var dms = Database.GetTransientService();
-
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    var merged = await dms.SharedIds.MergeMatching(user, AdminMonitor.UpdateTask);
-                    await DanceStatsManager.ClearCache(dms, false);
-                    AdminMonitor.CompleteTask(true, $"MergeMatchingSharedIds: Merged={merged}");
-                }
-                catch (Exception e)
-                {
-                    AdminMonitor.CompleteTask(false, $"MergeMatchingSharedIds: Failed={e.Message}");
-                }
-                finally
-                {
-                    dms.Dispose();
-                }
-            });
-
-            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
-        }
-        catch (Exception e)
-        {
-            return FailAdminTask($"MergeMatchingSharedIds: {e.Message}", e);
-        }
-    }
-
-    // The last merge preview, kept until the next one replaces it
-    private static SharedIdsPreviewModel _sharedIdsPreview;
-
-    //
-    // POST: /Admin/PreviewMergeMatchingSharedIds
-    // Works out what MergeMatchingSharedIds would merge and skip, without merging anything
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "dbAdmin")]
-    public ActionResult PreviewMergeMatchingSharedIds()
-    {
-        try
-        {
-            StartAdminTask("PreviewMergeMatchingSharedIds");
-            AdminMonitor.UpdateTask("PreviewMergeMatchingSharedIds");
-
-            var dms = Database.GetTransientService();
-
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    var plans = await dms.SharedIds.PlanMergeMatching(AdminMonitor.UpdateTask);
-                    _sharedIdsPreview = new SharedIdsPreviewModel
-                    {
-                        Created = DateTimeOffset.UtcNow,
-                        Plans = plans
-                    };
-                    AdminMonitor.CompleteTask(true,
-                        $"PreviewMergeMatchingSharedIds: WouldMerge={plans.Count(p => p.WillMerge)}, " +
-                        $"Skipped={plans.Count(p => !p.WillMerge)} (see /Admin/SharedIdsPreview)");
-                }
-                catch (Exception e)
-                {
-                    AdminMonitor.CompleteTask(false, $"PreviewMergeMatchingSharedIds: Failed={e.Message}");
-                }
-                finally
-                {
-                    dms.Dispose();
-                }
-            });
-
-            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
-        }
-        catch (Exception e)
-        {
-            return FailAdminTask($"PreviewMergeMatchingSharedIds: {e.Message}", e);
-        }
-    }
-
-    //
-    // GET: /Admin/SharedIdsPreview
-    // The result of the last PreviewMergeMatchingSharedIds
-    [Authorize(Roles = "dbAdmin")]
-    public ActionResult SharedIdsPreview()
-    {
-        return View(_sharedIdsPreview);
-    }
-
-    //
     // GET: /Admin/ConnectSpotifyServiceAccount
     // Runs the normal Spotify OAuth handshake, but returns to SpotifyServiceAccountCallback
     // instead of signing in, so the admin's own site login doesn't change. Spotify shows its
@@ -783,7 +530,9 @@ public class AdminController(
     //   Apply      - appends artist-bot edits where the individual artists change and re-saves
     //                every song, populating the Artists index field everywhere
     //   ApplyChanged - like Apply but only re-saves songs whose artists changed (for re-runs
-    //                after a heuristic update, once the field is already populated)
+    //                after a heuristic update, once the field is already populated), and songs
+    //                whose recorded artists name an alias (ArtistAliases), whose index field reads
+    //                them under the name to use
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "dbAdmin")]
@@ -817,6 +566,7 @@ public class AdminController(
                     var tried = 0;
                     var changed = 0;
                     var skipped = 0;
+                    var aliased = 0;
                     var batch = new List<Song>();
                     const int batchSize = 500;
                     const int logLimit = 200;
@@ -841,20 +591,34 @@ public class AdminController(
                             skipped++;
                         }
 
-                        var before = string.Join(" | ", song.EffectiveArtists);
+                        // As recorded, not under the aliases' names, so an alias shows as a change
+                        var before = string.Join(" | ", song.Artists ?? [ArtistSplitter.CleanName(song.Artist)]);
+                        var hasAlias = song.HasArtistAlias;
                         var didChange = song.UpdateArtists(knowledge);
-                        if (didChange)
+                        // A list a person or a service recorded keeps its log, but the index field
+                        // has to catch up with the name to use
+                        var reindex = !didChange && hasAlias;
+                        if (didChange || reindex)
                         {
-                            changed++;
-                            if (changed <= logLimit)
+                            if (didChange)
+                            {
+                                changed++;
+                            }
+                            else
+                            {
+                                aliased++;
+                            }
+
+                            if (changed + aliased <= logLimit)
                             {
                                 Logger.LogInformation(
-                                    "BatchArtists {Mode}: {Title} by {Artist}: [{Before}] -> [{After}]",
-                                    mode, song.Title, song.Artist, before, string.Join(" | ", song.EffectiveArtists));
+                                    "BatchArtists {Mode}: {Title} by {Artist}: [{Before}] -> [{After}]{Note}",
+                                    mode, song.Title, song.Artist, before, string.Join(" | ", song.EffectiveArtists),
+                                    reindex ? " (alias, index only)" : "");
                             }
                         }
 
-                        if (apply && (saveAll || didChange))
+                        if (apply && (saveAll || didChange || reindex))
                         {
                             batch.Add(song);
                             if (batch.Count >= batchSize)
@@ -886,7 +650,7 @@ public class AdminController(
 
                     AdminMonitor.CompleteTask(true,
                         $"BatchArtists ({idxName}, {mode}, splitter v{ArtistSplitter.Version}): " +
-                        $"Tried={tried}, Changed={changed}, HumanOrServiceLists={skipped}");
+                        $"Tried={tried}, Changed={changed}, AliasesReindexed={aliased}, HumanOrServiceLists={skipped}");
                 }
                 catch (Exception e)
                 {

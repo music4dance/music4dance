@@ -34,7 +34,7 @@ procedural, to become a runbook.
 | [song-upload-format](songs/song-upload-format.md) | Ref | `UploadCatalog` file format: header fields, tags, upload form parameters |
 | [add-augment-song](songs/add-augment-song.md) | Ref | `/song/augment`: locating a track, server-side lookup/dedup, saving user edits |
 | [service-track-lookup](songs/service-track-lookup.md) | Ref | Backend resolution of a Spotify/Apple track ID to a catalog song |
-| [shared-id-review](songs/shared-id-review.md) | Ref | Enrichment guard against giving a second song a held Spotify/iTunes/ISRC id, and the `/Admin/SharedIds` merge queue |
+| [shared-id-review](songs/shared-id-review.md) | Ref | Enrichment guard against giving a second song a held Spotify/iTunes/ISRC id, and the `/SharedIds` merge queue (Vue page app) |
 | [drop-target-lookup](songs/drop-target-lookup.md) | Ref | `useDropTarget`: pasted service IDs/URLs in ordinary search boxes |
 | [dance-family-voting](songs/dance-family-voting.md) | Ref | Voting with style families (International, American, …): auto-selection, family choice modal, vote/tag encoding |
 | [unconfirmed-dance-votes](songs/unconfirmed-dance-votes.md) | Ref | Excluding bulk-imported, unconfirmed dance ratings from default search |
@@ -169,6 +169,9 @@ into `runbooks/` as its area is consolidated.
 | Site monitoring and alerting by email: Azure metric alerts and an external uptime monitor, a daily traffic digest on the Mac mini, an in-app detector for traffic waves and sign-in attacks | Partially implemented: Azure metric alerts created 2026-11-20; uptime monitor, digest and detector not started | [plans/site-monitoring-and-alerting](plans/site-monitoring-and-alerting.md) |
 | Memory diagnostics: history, allocation tracking, pressure health check | Proposed | [plans/memory-diagnostics-next](plans/memory-diagnostics-next.md) |
 | Visitor engagement next steps (post-launch priorities, enhancements) | Proposed | [plans/visitor-engagement-next](plans/visitor-engagement-next.md) |
+| Add-song matching: compare artists, titles and lengths the way the shared-id review does | Proposed | [plans/add-song-matching-next](plans/add-song-matching-next.md) |
+| Artist alias fix-up: optionally rewrite credits to the name `ArtistAliases` gives (folding into individual artists, artist pages and song-page links shipped 2026-11-22) | Proposed (optional) | [plans/artist-alias-fixup](plans/artist-alias-fixup.md) |
+| Shared-id ownership: give each shared id to the song it belongs to | Partially implemented: Sort out ids (per card and per page) shipped 2026-11; bulk task, bad-id report and telling a missing track from a failed lookup next | [plans/shared-id-ownership](plans/shared-id-ownership.md) |
 | Dance family voting next steps | Proposed | [plans/dance-family-voting-next](plans/dance-family-voting-next.md) |
 | Update message beyond one App Service plan (App Config / Blob) | Partially implemented: persisted, shared file within a plan shipped 2026-10-25 | [plans/persistent-update-message](plans/persistent-update-message.md) |
 

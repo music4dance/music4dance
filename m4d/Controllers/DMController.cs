@@ -532,6 +532,44 @@ public class DanceMusicController(
         return View("Results");
     }
 
+    /// <summary>
+    /// Starts <paramref name="work"/> as the admin task <paramref name="name"/> in the background,
+    /// on a service of its own (disposed when it's done), and redirects to /Admin/AdminStatus to
+    /// watch it. The task completes with "name: " and what <paramref name="work"/> returns, or
+    /// fails with its exception's message.
+    /// </summary>
+    protected ActionResult RunAdminTask(string name, Func<DanceMusicCoreService, Task<string>> work)
+    {
+        try
+        {
+            StartAdminTask(name);
+            AdminMonitor.UpdateTask(name);
+
+            var dms = Database.GetTransientService();
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    AdminMonitor.CompleteTask(true, $"{name}: {await work(dms)}");
+                }
+                catch (Exception e)
+                {
+                    AdminMonitor.CompleteTask(false, $"{name}: Failed={e.Message}");
+                }
+                finally
+                {
+                    dms.Dispose();
+                }
+            });
+
+            return RedirectToAction("AdminStatus", "Admin", AdminMonitor.Status);
+        }
+        catch (Exception e)
+        {
+            return FailAdminTask($"{name}: {e.Message}", e);
+        }
+    }
+
     protected void BuildEnvironment(bool danceEnvironment = false, bool tagDatabase = false)
     {
         if (danceEnvironment)

@@ -1,0 +1,406 @@
+import { describe, expect, test } from "vitest";
+import { TypedJSON } from "typedjson";
+import {
+  ClusterChoice,
+  groupNames,
+  leaveOut,
+  lookupIds,
+  parseArtists,
+  parseTempo,
+} from "../ClusterChoice";
+import { SharedIdReviewCluster } from "../SharedIdReviewModel";
+import { featCluster, rejectedCluster, songA, songB, songC, songD, songE } from "./model";
+
+function choiceFor(cluster: unknown): ClusterChoice {
+  return new ClusterChoice(TypedJSON.parse(cluster, SharedIdReviewCluster)!);
+}
+
+describe("ClusterChoice", () => {
+  describe("defaults", () => {
+    test("a clean cluster starts as a merge of every song in A, named by the proposal", () => {
+      const choice = choiceFor(featCluster);
+
+      expect(choice.action).toBe("Merge");
+      expect(choice.groupOf(songA)).toBe("A");
+      expect(choice.groupOf(songB)).toBe("A");
+      expect(choice.names).toEqual({ title: null, artist: null, artists: null, tempo: null });
+      expect(choice.isSplit).toBe(false);
+      expect(choice.isDirty).toBe(false);
+    });
+
+    test("a cluster with a rejected pair starts as Leave, named by its first song without a proposal", () => {
+      const choice = choiceFor(rejectedCluster);
+
+      expect(choice.action).toBe("Leave");
+      expect(choice.names).toEqual({ title: songC, artist: songC, artists: songC, tempo: songC });
+      expect(choice.isDirty).toBe(false);
+    });
+
+    test("there's a group for each song", () => {
+      expect(groupNames(3)).toEqual(["A", "B", "C"]);
+      expect(choiceFor(featCluster).groupNames).toEqual(["A", "B"]);
+    });
+  });
+
+  describe("groups", () => {
+    test("putting a song in another group splits the cluster", () => {
+      const choice = choiceFor(featCluster);
+
+      choice.setGroup(songB, "B");
+
+      expect(choice.isSplit).toBe(true);
+      expect(choice.isDirty).toBe(true);
+    });
+
+    test("leaving a song out splits it too", () => {
+      const choice = choiceFor(featCluster);
+
+      choice.setGroup(songB, leaveOut);
+
+      expect(choice.isSplit).toBe(true);
+    });
+
+    test("choosing a group makes a cluster that started as Leave a merge, so its names apply", () => {
+      const choice = choiceFor(rejectedCluster);
+      expect(choice.action).toBe("Leave");
+      expect(choice.canName(songC)).toBe(false);
+
+      choice.setGroup(songE, leaveOut);
+
+      expect(choice.action).toBe("Merge");
+      expect(choice.canName(songC)).toBe(true);
+      expect(choice.canName(songE)).toBe(false);
+    });
+
+    test("leaving out the song a name came from puts the name back on its default", () => {
+      const choice = choiceFor(featCluster);
+      choice.pickName("title", songB);
+      choice.pickName("artist", songA);
+
+      choice.setGroup(songB, leaveOut);
+
+      expect(choice.names.title).toBeNull();
+      expect(choice.names.artist).toBe(songA);
+    });
+  });
+
+  describe("names", () => {
+    test("a song outside every group can't name the merge", () => {
+      const choice = choiceFor(featCluster);
+      choice.setGroup(songB, leaveOut);
+
+      choice.pickName("title", songB);
+
+      expect(choice.canName(songB)).toBe(false);
+      expect(choice.names.title).toBeNull();
+    });
+
+    test("names only apply to a merge", () => {
+      const choice = choiceFor(featCluster);
+      choice.setAction("Reject");
+
+      choice.pickName("title", songB);
+
+      expect(choice.canName(songA)).toBe(false);
+      expect(choice.names.title).toBeNull();
+    });
+
+    test("picking a song's name, then the proposal again, is back to the default", () => {
+      const choice = choiceFor(featCluster);
+
+      choice.pickName("title", songB);
+      expect(choice.isDirty).toBe(true);
+      choice.pickName("title", null);
+
+      expect(choice.isDirty).toBe(false);
+    });
+  });
+
+  describe("removals", () => {
+    test("removing an album covers its ids, and its ids aren't sent on their own", () => {
+      const choice = choiceFor(featCluster);
+      choice.setIdRemoved(songA, 0, "S:sp1", true);
+
+      choice.setAlbumRemoved(songA, 0, true);
+
+      expect(choice.isIdRemoved(songA, 0, "S:sp1")).toBe(true);
+      expect(choice.isIdRemoved(songA, 0, "R:USRC1")).toBe(true);
+      expect(choice.removals).toEqual([{ songId: songA, album: 0 }]);
+    });
+
+    test("putting the album back leaves the id that was checked", () => {
+      const choice = choiceFor(featCluster);
+      choice.setIdRemoved(songA, 0, "S:sp1", true);
+      choice.setAlbumRemoved(songA, 0, true);
+
+      choice.setAlbumRemoved(songA, 0, false);
+
+      expect(choice.removals).toEqual([{ songId: songA, album: 0, id: "S:sp1" }]);
+    });
+
+    test("removals use the album's index, not its position", () => {
+      const choice = choiceFor(featCluster);
+
+      choice.setAlbumRemoved(songB, 2, true);
+      choice.setIdRemoved(songB, 0, "R:USRC1", true);
+
+      expect(choice.removals).toEqual([
+        { songId: songB, album: 2 },
+        { songId: songB, album: 0, id: "R:USRC1" },
+      ]);
+      expect(choice.isDirty).toBe(true);
+    });
+  });
+
+  describe("deletions", () => {
+    test("a song to delete is left out, can't name the merge, and has nothing removed", () => {
+      const choice = choiceFor(featCluster);
+      choice.pickName("title", songB);
+      choice.setIdRemoved(songB, 2, "I:111", true);
+      choice.setIdRemoved(songA, 0, "S:sp1", true);
+
+      choice.setDeleted(songB, true);
+
+      expect(choice.isDeleted(songB)).toBe(true);
+      expect(choice.groupOf(songB)).toBe(leaveOut);
+      expect(choice.canName(songB)).toBe(false);
+      expect(choice.names.title).toBeNull();
+      expect(choice.removals).toEqual([{ songId: songA, album: 0, id: "S:sp1" }]);
+      expect(choice.isDirty).toBe(true);
+    });
+
+    test("not deleting it after all gives it its group back", () => {
+      const choice = choiceFor(rejectedCluster);
+      choice.setGroup(songD, "B");
+      choice.setDeleted(songD, true);
+
+      choice.setDeleted(songD, false);
+
+      expect(choice.groupOf(songD)).toBe("B");
+    });
+
+    test("are sent whatever the action, with the song out of every group", () => {
+      const choice = choiceFor(rejectedCluster);
+      choice.setDeleted(songE, true);
+
+      const request = choice.toRequest();
+
+      expect(request.action).toBe("Leave");
+      expect(request.deletions).toEqual([songE]);
+      expect(request.songs.at(-1)).toEqual({ songId: songE, group: "" });
+    });
+  });
+
+  describe("lookupIds", () => {
+    test("are the songs' Spotify and iTunes ids, once each", () => {
+      const cluster = new ClusterChoice(TypedJSON.parse(featCluster, SharedIdReviewCluster)!)
+        .cluster;
+
+      expect(lookupIds(cluster.songs)).toEqual(["S:sp1", "I:111"]);
+      expect(lookupIds([])).toEqual([]);
+    });
+  });
+
+  describe("toRequest", () => {
+    test("a default merge sends every song in A and the proposal's names", () => {
+      expect(choiceFor(featCluster).toRequest()).toEqual({
+        action: "Merge",
+        candidateIds: [11],
+        songs: [
+          { songId: songA, group: "A" },
+          { songId: songB, group: "A" },
+        ],
+        titleFrom: null,
+        artistFrom: null,
+        artistsFrom: null,
+        tempoFrom: null,
+        title: null,
+        artist: null,
+        artists: null,
+        tempo: null,
+        removals: [],
+        additions: [],
+        deletions: [],
+      });
+    });
+
+    test("a split merge sends the groups and the picks", () => {
+      const choice = choiceFor(rejectedCluster);
+      choice.setAction("Merge");
+      choice.setGroup(songD, "B");
+      choice.setGroup(songE, leaveOut);
+      choice.pickName("artist", songD);
+
+      const request = choice.toRequest();
+
+      expect(request.songs).toEqual([
+        { songId: songC, group: "A" },
+        { songId: songD, group: "B" },
+        { songId: songE, group: "" },
+      ]);
+      expect(request.titleFrom).toBe(songC);
+      expect(request.artistFrom).toBe(songD);
+      expect(request.candidateIds).toEqual([21, 22]);
+    });
+
+    test("Not the same sends no names, but still sends removals", () => {
+      const choice = choiceFor(rejectedCluster);
+      choice.setAction("Reject");
+      choice.setIdRemoved(songD, 0, "S:sp9", true);
+
+      const request = choice.toRequest();
+
+      expect(request.action).toBe("Reject");
+      expect([request.titleFrom, request.artistFrom, request.artistsFrom]).toEqual([
+        null,
+        null,
+        null,
+      ]);
+      expect(request.removals).toEqual([{ songId: songD, album: 0, id: "S:sp9" }]);
+    });
+
+    test("Leave for later is sent as is", () => {
+      expect(choiceFor(rejectedCluster).toRequest().action).toBe("Leave");
+    });
+  });
+
+  describe("Typing over the proposal", () => {
+    test("picks the proposal and sends the text, artists split on |", () => {
+      const choice = choiceFor(featCluster);
+      choice.pickName("title", songB);
+
+      choice.typeName("title", " My Title ", "Probe");
+      choice.typeName("artists", "Probe Artist | | Someone", "Probe Artist | Crazy Man");
+
+      expect(choice.names.title).toBeNull();
+      expect(choice.isDirty).toBe(true);
+      const request = choice.toRequest();
+      expect([request.titleFrom, request.title, request.artist]).toEqual([null, "My Title", null]);
+      expect(request.artists).toEqual(["Probe Artist", "Someone"]);
+    });
+
+    test("the proposal's own text, or a blank, is the proposal again", () => {
+      const choice = choiceFor(featCluster);
+      choice.typeName("title", "Changed", "Probe");
+      choice.typeName("title", "Probe", "Probe");
+      choice.typeName("artist", "  ", "Probe Artist");
+
+      expect(choice.typed).toEqual({ title: null, artist: null, artists: null, tempo: null });
+      expect(choice.isDirty).toBe(false);
+    });
+
+    test("isn't sent once a song's name is picked, or the songs are split", () => {
+      const choice = choiceFor(featCluster);
+      choice.typeName("title", "Typed", "Probe");
+      choice.pickName("title", songB);
+      expect(choice.toRequest().title).toBeNull();
+
+      choice.pickName("title", null);
+      expect(choice.toRequest().title).toBe("Typed");
+      choice.setGroup(songB, "B");
+      expect(choice.canType).toBe(false);
+      expect(choice.toRequest().title).toBeNull();
+    });
+
+    test("parseArtists trims and drops the empty ones", () => {
+      expect(parseArtists(" X |Y|| ")).toEqual(["X", "Y"]);
+    });
+
+    test("a tempo is picked from a song or typed, and sent as a number", () => {
+      const choice = choiceFor(featCluster);
+      choice.pickName("tempo", songB);
+      expect(choice.toRequest().tempoFrom).toBe(songB);
+
+      choice.typeName("tempo", " 124.5 ", "120");
+
+      const request = choice.toRequest();
+      expect([request.tempoFrom, request.tempo]).toEqual([null, 124.5]);
+      expect(choice.isDirty).toBe(true);
+    });
+
+    test("parseTempo takes only a positive number", () => {
+      expect(parseTempo(" 96 ")).toBe(96);
+      expect(parseTempo("fast")).toBeNull();
+      expect(parseTempo("0")).toBeNull();
+      expect(parseTempo(" ")).toBeNull();
+    });
+  });
+
+  describe("Sort out ids", () => {
+    test("runs on the page for clusters that are probably different songs with an id to look up", () => {
+      expect(choiceFor(rejectedCluster).needsSorting).toBe(true);
+      // Its songs only share an ISRC, but their own ids say which song it belongs to
+      expect(choiceFor({ ...featCluster, match: "Different" }).needsSorting).toBe(true);
+      expect(choiceFor(featCluster).needsSorting).toBe(false);
+    });
+
+    test("checks the additions that move an id to its song, and sends them", () => {
+      const choice = choiceFor({ ...featCluster, defaultAction: "Merge" });
+      const addition = { songId: songB, id: "S:sp1", fromSong: songA, fromAlbum: 0, isrc: "USRC9" };
+
+      choice.applyOwners({ ids: [], removals: [], tracks: [], additions: [addition] });
+
+      expect(choice.action).toBe("Leave");
+      expect(choice.isAdded(addition)).toBe(true);
+      expect(choice.additionsTo(songB)).toEqual([{ addition, album: "First Album" }]);
+      expect(choice.toRequest().additions).toEqual([addition]);
+      choice.setAdded(addition, false);
+      expect(choice.toRequest().additions).toEqual([]);
+    });
+
+    test("an addition to or from a song to delete isn't sent", () => {
+      const choice = choiceFor(featCluster);
+      const addition = { songId: songB, id: "S:sp1", fromSong: songA, fromAlbum: 0 };
+      choice.applyOwners({ ids: [], removals: [], tracks: [], additions: [addition] });
+
+      choice.setDeleted(songA, true);
+
+      expect(choice.toRequest().additions).toEqual([]);
+    });
+
+    test("checks the proposed removals, fills the tooltips and leaves the cluster for later", () => {
+      const choice = choiceFor({ ...featCluster, defaultAction: "Merge" });
+
+      choice.applyOwners({
+        ids: [
+          {
+            id: "R:USRC1",
+            status: "Owned",
+            reason: "The ISRC of S:sp1",
+            song: songA,
+            via: "S:sp1",
+          },
+        ],
+        removals: [
+          { songId: songB, album: 0 },
+          { songId: songB, album: 2, id: "I:111" },
+        ],
+        tracks: [{ id: "S:sp1", found: true, title: "Probe" }],
+      });
+
+      expect(choice.isAlbumRemoved(songB, 0)).toBe(true);
+      expect(choice.isIdRemoved(songB, 2, "I:111")).toBe(true);
+      expect(choice.action).toBe("Leave");
+      expect(choice.tracks?.get("S:sp1")?.title).toBe("Probe");
+      expect(choice.owners?.[0]?.status).toBe("Owned");
+      expect(choice.songLabel(songA)).toBe("song 1");
+      expect(choice.toRequest().removals).toEqual([
+        { songId: songB, album: 0 },
+        { songId: songB, album: 2, id: "I:111" },
+      ]);
+    });
+
+    test("a proposal with nothing to remove leaves the action alone", () => {
+      const choice = choiceFor(featCluster);
+
+      choice.applyOwners({
+        ids: [{ id: "S:sp1", status: "Unsure", reason: "More than one song is it" }],
+        removals: [],
+        tracks: [],
+      });
+
+      expect(choice.action).toBe("Merge");
+      expect(choice.isDirty).toBe(false);
+    });
+  });
+});

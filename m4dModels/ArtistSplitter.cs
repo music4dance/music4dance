@@ -60,7 +60,7 @@ public static class ArtistSplitter
     /// Bump on any behavior change (including the protected lists below) so batch re-runs and
     /// analysis reports can be tied to a heuristic version.
     /// </summary>
-    public const int Version = 2;
+    public const int Version = 4;
 
     public const char Delimiter = '|';
 
@@ -112,9 +112,18 @@ public static class ArtistSplitter
     private static readonly HashSet<string> GenericEnsembleWords = new(StringComparer.OrdinalIgnoreCase)
     {
         "orchestra", "orchestre", "orquesta", "orquestra", "orchester", "tanzorchester", "band",
-        "singers", "chorus", "choir", "ensemble", "quartet", "quintet", "trio", "combo", "conjunto",
-        "strings", "rhythm",
+        "singers", "chorus", "choir", "ensemble", "duo", "trio", "quartet", "quintet", "sextet",
+        "septet", "octet", "combo", "conjunto", "strings", "rhythm",
     };
+
+    // A leader's name followed by their group, without a join: "Charlie Parker Quartet", "The
+    // Oscar Peterson Trio", "Count Basie Orchestra", "Woody Herman's Big Band", "Andy Fortuna
+    // Productions". Only a leader known as an artist counts: "Modern Jazz Quartet" and "Kingston
+    // Trio" are act names, and so is "WinRon Productions".
+    private static readonly Regex GroupSuffix = new(
+        @"^(?:the\s+)?(?<leader>\S.*?)(?:'s)?\s+(?:big\s+band|band|orchestra|orchestre|orquesta|orchester|" +
+        @"duo|trio|quartet|quintet|sextet|septet|octet|combo|ensemble|productions)$",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     // Words that make a multi-word name a named ensemble ("London Symphony Orchestra", "Berliner
     // Philharmoniker"), which is always its own individual artist
@@ -172,12 +181,22 @@ public static class ArtistSplitter
         @"^(?<primary>.*?\S)\s+w/\s*(?<featured>\S.*)$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+    // "with" introduces featured artists in a title ("Song (with X)", "Song - with X"), but not
+    // when what follows is a pronoun or a common word: "(With You)", "(With Somebody)",
+    // "- With My Headphones On", "(with Intro)"
+    private const string TitleWith =
+        @"with(?!\s+(?:you|your|yours|me|my|him|her|his|us|our|them|their|it|its|a|an|" +
+        @"this|these|that|those|somebody|someone|anybody|anyone|everybody|everyone|nobody|love|" +
+        @"loving|lovin|intro|outro|strings)\b)";
+
     private static readonly Regex TitleBracketFeaturing = new(
-        @"[\(\[]\s*(?:feat\.?|ft\.?|featuring)\s+(?<names>[^\)\]]+?)\s*[\)\]]",
+        @"[\(\[]\s*(?<word>feat\.?|ft\.?|featuring|" + TitleWith + @")\s+(?<names>[^\)\]]+?)\s*[\)\]]",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+    // A bare "with" needs a dash before it: "Stay With Me" isn't a featuring clause
     private static readonly Regex TitleBareFeaturing = new(
-        @"(?:\s-\s*|\s)(?:feat\.|ft\.|featuring)\s+(?<names>[^\(\)\[\]]+?)(?:\s+-\s+[^\(\)\[\]]*|\s*[\(\[].*)?$",
+        @"(?:(?:\s-\s*|\s)(?<word>feat\.|ft\.|featuring)|\s-\s*(?<word>" + TitleWith + @"))" +
+        @"\s+(?<names>[^\(\)\[\]]+?)(?:\s+-\s+[^\(\)\[\]]*|\s*[\(\[].*)?$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static readonly Regex SpacedSlash = new(@"\s+/\s+", RegexOptions.Compiled);
@@ -251,16 +270,18 @@ public static class ArtistSplitter
             names.AddRange(context.SplitSegment(context.Mask(clause), true));
         }
 
+        // Each artist under the name to use (ArtistAliases): "Pink" is P!nk
         var artists = names
             .Select(context.Unmask)
             .Select(FinalizeName)
             .Where(n => n.Length > 0 && !IsFiller(n) && !IsBackingGroup(n))
+            .Select(ArtistAliases.PreferredName)
             .DistinctBy(n => n.ToLowerInvariant())
             .ToList();
 
         if (artists.Count == 0)
         {
-            artists.Add(credit);
+            artists.Add(ArtistAliases.PreferredName(credit));
         }
 
         return new ArtistSplit(artists, [.. context.Rules.Distinct()], [.. context.Unresolved.Distinct()]);
@@ -389,6 +410,42 @@ public static class ArtistSplitter
         return featuring.Success ? CleanName(context.Unmask(featuring.Groups["primary"].Value)) : artist;
     }
 
+    /// <summary>
+    /// The credit without the leader's backing group: "Benny Goodman and His Orchestra" and
+    /// "Benny Goodman &amp; The Orchestra" become "Benny Goodman", and so does "Benny Goodman
+    /// Sextet" when <paramref name="knowledge"/> knows Benny Goodman (GroupSuffix). Anything
+    /// credited after the group ("Teddy Wilson And His Orchestra With Billie Holliday"), a
+    /// protected act or a credit without a group comes back unchanged.
+    /// </summary>
+    public static string RemoveBackingGroup(string artist, IArtistKnowledge knowledge = null)
+    {
+        var credit = CleanName(artist);
+        if (credit.Length == 0 || IsProtectedAct(credit))
+        {
+            return artist;
+        }
+
+        foreach (Match m in AmbiguousSeparator.Matches(credit))
+        {
+            var leader = CleanName(credit[..m.Index]);
+            var (group, tail) = SplitContext.BackingGroupAndTail(credit[(m.Index + m.Length)..]);
+            if (leader.Length > 0 && tail == null && IsBackingGroup(group))
+            {
+                return leader;
+            }
+        }
+
+        return GroupLeader(credit, knowledge) ?? artist;
+    }
+
+    // The leader of a "Charlie Parker Quartet" credit, when knowledge knows them; otherwise null
+    private static string GroupLeader(string credit, IArtistKnowledge knowledge)
+    {
+        var suffix = GroupSuffix.Match(credit);
+        var leader = suffix.Success ? CleanName(suffix.Groups["leader"].Value) : "";
+        return leader.Length > 0 && knowledge != null && knowledge.IsKnownArtist(leader) ? leader : null;
+    }
+
     private static bool IsProtectedAct(string name) =>
         ProtectedActs.Any(a => string.Equals(a, name, StringComparison.OrdinalIgnoreCase));
 
@@ -418,6 +475,26 @@ public static class ArtistSplitter
         return Possessives.Contains(words[0]) ||
             words.Any(GenericEnsembleWords.Contains) &&
             words.All(w => GenericEnsembleWords.Contains(w) || Articles.Contains(w) || JoinWords.Contains(w));
+    }
+
+    /// <summary>
+    /// The word a title's feat. clause starts with, as written ("feat.", "Ft.", "featuring",
+    /// "with"), or null when the title has no clause.
+    /// </summary>
+    public static string TitleFeaturingWord(string title)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            return null;
+        }
+
+        var match = TitleBracketFeaturing.Match(title);
+        if (!match.Success)
+        {
+            match = TitleBareFeaturing.Match(title);
+        }
+
+        return match.Success ? match.Groups["word"].Value : null;
     }
 
     private static IEnumerable<string> TitleFeaturedClauses(string title)
@@ -622,6 +699,16 @@ public static class ArtistSplitter
                 .ToList();
             if (matches.Count == 0)
             {
+                // "Charlie Parker Quartet" -> Charlie Parker, when Charlie Parker is known
+                var leader = GroupSuffix.Match(segment) is { Success: true } suffix &&
+                    IsKnown(suffix.Groups["leader"].Value)
+                        ? CleanName(suffix.Groups["leader"].Value) : null;
+                if (leader is { Length: > 0 })
+                {
+                    AddRule("group-leader");
+                    return [leader];
+                }
+
                 return [segment];
             }
 
@@ -757,7 +844,7 @@ public static class ArtistSplitter
         /// Splits the text after a join into the part that could be a backing group and whatever is
         /// credited after it: "His Orchestra With Billie Holliday" -> ("His Orchestra", "Billie Holliday").
         /// </summary>
-        private static (string Group, string Tail) BackingGroupAndTail(string text)
+        internal static (string Group, string Tail) BackingGroupAndTail(string text)
         {
             foreach (Match m in AmbiguousSeparator.Matches(text))
             {

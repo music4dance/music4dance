@@ -1951,9 +1951,9 @@ public class Song : TaggableObject
 
     /// <summary>
     /// Appends an edit block by <paramref name="user"/> setting whichever of the title, artist
-    /// credit and individual artists differ from <paramref name="names"/> (blank or null names
-    /// are left alone). A single individual artist is written as an empty list, which means the
-    /// credit itself. Only the log changes: reload the song (Song.Create) to see the new values.
+    /// credit, individual artists and tempo differ from <paramref name="names"/> (blank or null
+    /// names and a null or zero tempo are left alone). A single individual artist is written as
+    /// an empty list, which means the credit itself. Only the log changes: reload the song (Song.Create) to see the new values.
     /// Returns false, adding nothing, when everything already matches.
     /// </summary>
     public bool AppendNameEdit(ApplicationUser user, SongNames names, DateTime? time = null)
@@ -1962,7 +1962,8 @@ public class Song : TaggableObject
         var artist = !string.IsNullOrWhiteSpace(names.Artist) && names.Artist != Artist;
         var artists = names.Artists is { Count: > 0 } && !names.Artists.Select(ArtistSplitter.ArtistKey)
             .SequenceEqual(EffectiveArtists.Select(ArtistSplitter.ArtistKey));
-        if (!title && !artist && !artists)
+        var tempo = names.Tempo is > 0 && names.Tempo != Tempo;
+        if (!title && !artist && !artists && !tempo)
         {
             return false;
         }
@@ -1982,6 +1983,11 @@ public class Song : TaggableObject
         {
             SongProperties.Add(new SongProperty(ArtistsField,
                 names.Artists.Count > 1 ? ArtistSplitter.Serialize(names.Artists) : string.Empty));
+        }
+
+        if (tempo)
+        {
+            _ = CreateProperty(TempoField, names.Tempo.Value);
         }
 
         return true;
@@ -2035,6 +2041,93 @@ public class Song : TaggableObject
         return true;
     }
 
+    /// <summary>
+    /// Appends an edit block by <paramref name="user"/> giving the song song-level purchase ids
+    /// that another song had: for each addition, the id (extended, "S:…") goes on the song's album
+    /// with the same name as <c>From</c> that has no id of that service yet, or else on a new
+    /// album copying From's name, track number and that service's album id; Isrc, when given and
+    /// the song doesn't have it, goes with it. Ids the song already has, unknown services and
+    /// albums without a name are skipped. Only the log changes: reload the song (Song.Create) to
+    /// see the result. Returns false, adding nothing, when nothing is added.
+    /// </summary>
+    public bool AppendIdAddition(ApplicationUser user,
+        IEnumerable<(AlbumDetails From, string Id, string Isrc)> additions)
+    {
+        var properties = new List<SongProperty>();
+        var has = GetExtendedPurchaseIds().ToHashSet(StringComparer.OrdinalIgnoreCase);
+        string[] albumFields = [AlbumField, PublisherField, TrackField, PurchaseField, RemovedPurchaseField];
+        var next = SongProperties
+            .Where(p => p.Index.HasValue && albumFields.Contains(p.BaseName))
+            .Select(p => p.Index.Value)
+            .DefaultIfEmpty(-1)
+            .Max() + 1;
+        // The albums made here, by name, and the services each one has been given
+        var made = new Dictionary<string, (int Index, HashSet<ServiceType> Services)>(StringComparer.OrdinalIgnoreCase);
+        var isrcService = MusicService.GetService(ServiceType.ISRC);
+
+        foreach (var (from, id, isrc) in additions)
+        {
+            var service = id is { Length: > 2 } && id[1] == ':' ? MusicService.GetService(id[0]) : null;
+            if (service == null || from == null || string.IsNullOrWhiteSpace(from.Name) || has.Contains(id))
+            {
+                continue;
+            }
+
+            int index;
+            var existing = Albums.FirstOrDefault(a =>
+                string.Equals(a.Name, from.Name, StringComparison.OrdinalIgnoreCase) &&
+                a.GetPurchaseIdentifiers(service.Id, PurchaseType.Song).Count == 0);
+            if (existing != null && !made.ContainsKey(from.Name))
+            {
+                index = existing.Index;
+                made[from.Name] = (index, [service.Id]);
+            }
+            else if (made.TryGetValue(from.Name, out var album) && !album.Services.Contains(service.Id))
+            {
+                index = album.Index;
+                _ = album.Services.Add(service.Id);
+            }
+            else
+            {
+                index = next++;
+                made[from.Name] = (index, [service.Id]);
+                properties.Add(new SongProperty(SongProperty.FormatName(AlbumField, index, null), from.Name));
+                if (from.Track is > 0)
+                {
+                    properties.Add(new SongProperty(SongProperty.FormatName(TrackField, index, null),
+                        from.Track.Value.ToString()));
+                }
+
+                var albumId = from.GetPurchaseIdentifier(service.Id, PurchaseType.Album);
+                if (!string.IsNullOrWhiteSpace(albumId))
+                {
+                    properties.Add(new SongProperty(
+                        SongProperty.FormatName(PurchaseField, index, service.BuildPurchaseKey(PurchaseType.Album)),
+                        albumId));
+                }
+            }
+
+            properties.Add(new SongProperty(
+                SongProperty.FormatName(PurchaseField, index, service.BuildPurchaseKey(PurchaseType.Song)), id[2..]));
+            _ = has.Add(id);
+            if (!string.IsNullOrWhiteSpace(isrc) && isrcService != null && has.Add($"{isrcService.CID}:{isrc}"))
+            {
+                properties.Add(new SongProperty(
+                    SongProperty.FormatName(PurchaseField, index, isrcService.BuildPurchaseKey(PurchaseType.Song)),
+                    isrc));
+            }
+        }
+
+        if (properties.Count == 0)
+        {
+            return false;
+        }
+
+        CreateEditProperties(user, EditCommand);
+        SongProperties.AddRange(properties);
+        return true;
+    }
+
     public SongHistory GetHistory(IMapper mapper)
     {
         return new SongHistory
@@ -2072,17 +2165,32 @@ public class Song : TaggableObject
     /// <summary>
     /// The individual artists for indexing and display: the explicit list, else the cleaned credit.
     /// </summary>
+    // Each under the name to use (ArtistAliases), so a list a person or a service recorded as
+    // "Pink" still reads as P!nk; the credit itself is left as written
     public IReadOnlyList<string> EffectiveArtists
     {
         get
         {
             if (Artists != null)
             {
-                return Artists;
+                return [.. Artists.Select(ArtistAliases.PreferredName).DistinctBy(ArtistSplitter.ArtistKey)];
             }
 
             var credit = ArtistSplitter.CleanName(Artist);
-            return credit.Length == 0 ? [] : [credit];
+            return credit.Length == 0 ? [] : [ArtistAliases.PreferredName(credit)];
+        }
+    }
+
+    /// <summary>
+    /// The recorded individual artists, or the credit standing in for them, name an artist under
+    /// another of their names (ArtistAliases), so EffectiveArtists differs from what was recorded.
+    /// </summary>
+    public bool HasArtistAlias
+    {
+        get
+        {
+            var recorded = Artists ?? [ArtistSplitter.CleanName(Artist)];
+            return recorded.Any(a => a.Length > 0 && ArtistAliases.PreferredName(a) != a);
         }
     }
 
@@ -5907,28 +6015,29 @@ public class Song : TaggableObject
             return false;
         }
 
-        // Normalize to remove accents (e.g., "Versión" → "Version")
-        var normalized = parenContent.Normalize(NormalizationForm.FormD);
-        var sb = new StringBuilder();
-        foreach (var c in normalized)
+        // Check for exclusion words (e.g., "Instrumental", "Vocal", "Live")
+        var upper = UpperWithoutAccents(parenContent);
+        return ExclusionWords.Any(word => upper.Contains(word)) || NamesADance(parenContent);
+    }
+
+    /// <summary>
+    /// Whether the text (a version note such as "Salsa Version" or "128 BPM Remix") is about a
+    /// dance or a tempo: a numeric BPM marker, or a dance's name, synonym or one of their
+    /// significant words (Dances.GetAllDanceWordsUpper). Such a version is danced differently, so
+    /// it isn't the same song as the plain title.
+    /// </summary>
+    public static bool NamesADance(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
         {
-            var uc = GetUnicodeCategory(c);
-            if (uc != UnicodeCategory.NonSpacingMark)
-            {
-                _ = sb.Append(c);
-            }
+            return false;
         }
-        var upper = sb.ToString().ToUpperInvariant();
+
+        var upper = UpperWithoutAccents(text);
 
         // Check for numeric BPM marker (e.g., "128 BPM", "130 BPM", "128BPM")
         // Pattern: digit(s) + optional space(s) + "BPM"
         if (BpmPattern.IsMatch(upper))
-        {
-            return true;
-        }
-
-        // Check for exclusion words (e.g., "Instrumental", "Vocal", "Live")
-        if (ExclusionWords.Any(word => upper.Contains(word)))
         {
             return true;
         }
@@ -5943,9 +6052,25 @@ public class Song : TaggableObject
             return CommonDanceNames.Any(danceWord => upper.Contains(danceWord));
         }
 
-        // Check if any dance words (names, synonyms, or fragments) appear in the parenthetical content
+        // Check if any dance words (names, synonyms, or fragments) appear in the text
         var allDanceWords = danceLibrary.GetAllDanceWordsUpper();
         return allDanceWords.Any(danceWord => upper.Contains(danceWord));
+    }
+
+    // Upper case without accents ("Versión" is "VERSION")
+    private static string UpperWithoutAccents(string text)
+    {
+        var normalized = text.Normalize(NormalizationForm.FormD);
+        var sb = new StringBuilder();
+        foreach (var c in normalized)
+        {
+            var uc = GetUnicodeCategory(c);
+            if (uc != UnicodeCategory.NonSpacingMark)
+            {
+                _ = sb.Append(c);
+            }
+        }
+        return sb.ToString().ToUpperInvariant();
     }
 
     // TODO: This should really end up in a utility class at some point

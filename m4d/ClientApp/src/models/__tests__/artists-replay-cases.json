@@ -409,6 +409,44 @@
         "Dolly Parton"
       ],
       "source": "User"
+    },
+    {
+      "name": "an aliased credit reads as the name to use",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=01/15/2024 14:30:00",
+        "Title=Tik Tok",
+        "Artist=Ke$ha"
+      ],
+      "artists": null,
+      "effective": [
+        "Kesha"
+      ],
+      "source": "None"
+    },
+    {
+      "name": "a service list reads under the names to use",
+      "log": [
+        ".Create=",
+        "User=dwgray",
+        "Time=01/15/2024 14:30:00",
+        "Title=Just Give Me a Reason",
+        "Artist=Pink feat. Nate Ruess",
+        ".Edit=",
+        "User=batch-s|P",
+        "Time=01/16/2024 14:30:00",
+        "Artists=Pink|Nate Ruess"
+      ],
+      "artists": [
+        "Pink",
+        "Nate Ruess"
+      ],
+      "effective": [
+        "P!nk",
+        "Nate Ruess"
+      ],
+      "source": "Service"
     }
   ],
   "cleanName": [

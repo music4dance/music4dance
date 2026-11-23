@@ -10,6 +10,7 @@ import {
   cleanArtistName,
   collaborators,
   deserializeArtists,
+  preferredArtistName,
   serializeArtists,
 } from "../ArtistNames";
 import cases from "./artists-replay-cases.json";
@@ -46,6 +47,18 @@ describe("ArtistNames", () => {
     },
   );
 
+  it("names an artist by the name to use, from the table shared with the server", () => {
+    expect(preferredArtistName("Pink")).toBe("P!nk");
+    expect(preferredArtistName("ke$ha")).toBe("Kesha");
+    expect(preferredArtistName("Cafe Latino")).toBe("Café Latino");
+    expect(preferredArtistName("Norah Jones")).toBe("Norah Jones");
+  });
+
+  it("finds an alias's collaborators under the name to use", () => {
+    const songs = [{ effectiveArtists: ["P!nk", "Nate Ruess"] }];
+    expect(collaborators("Pink", songs)).toEqual([{ artist: "Nate Ruess", count: 1 }]);
+  });
+
   it("round trips lists", () => {
     const value = serializeArtists(["Dolly Parton", " Kenny  Rogers ", "", "A|B"]);
     expect(value).toBe("Dolly Parton|Kenny Rogers|A/B");
@@ -79,6 +92,20 @@ describe("artistCreditLayout", () => {
     const layout = artistCreditLayout("Lindsey Stirling", ["Lindsey Stirling", "ZZ Ward"]);
     expect(layout.segments).toEqual([{ text: "Lindsey Stirling", artist: "Lindsey Stirling" }]);
     expect(layout.extra).toEqual(["ZZ Ward"]);
+  });
+
+  it("links an artist on any of their spellings", () => {
+    expect(artistCreditLayout("Pink", ["P!nk"])).toEqual({
+      segments: [{ text: "Pink", artist: "P!nk" }],
+      extra: [],
+    });
+    expect(artistCreditLayout("Ke$ha feat. 3OH!3", ["Kesha", "3OH!3"]).segments[0]).toEqual({
+      text: "Ke$ha",
+      artist: "Kesha",
+    });
+    expect(
+      artistCreditLayout("The New 101 Strings Orchestra", ["101 Strings Orchestra"]).segments,
+    ).toEqual([{ text: "The New 101 Strings Orchestra", artist: "101 Strings Orchestra" }]);
   });
 
   it("doesn't overlap matches", () => {

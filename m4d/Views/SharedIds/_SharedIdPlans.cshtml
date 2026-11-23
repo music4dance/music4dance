@@ -1,0 +1,69 @@
+@using m4dModels
+@model List<SharedIdMergePlan>
+
+@if (Model.Count == 0)
+{
+    <p class="text-muted">None.</p>
+}
+else
+{
+    // Plans of clusters a Merge all would merge carry the names the merge lands on
+    var named = Model.Any(p => p.WouldMerge);
+    <div class="table-responsive">
+        <table class="table table-sm table-striped">
+            <tr>
+                <th>Shared ids</th>
+                <th>Songs</th>
+                @if (named)
+                {
+                    <th>Becomes <span class="fw-normal text-muted small">(bold: not what any of the songs has)</span></th>
+                }
+            </tr>
+            @foreach (var plan in Model)
+            {
+                <tr>
+                    <td class="small">@string.Join(", ", plan.Cluster.ServiceIds)</td>
+                    <td>
+                        @foreach (var song in plan.Cluster.Songs)
+                        {
+                            <div>
+                                <a href="/song/details/@song.SongId" target="_blank" rel="noopener noreferrer">@song.Title</a>
+                                <span class="text-muted">by @song.Artist</span>
+                            </div>
+                        }
+                        @if (plan.CheckedBy is { Count: > 0 })
+                        {
+                            <div class="small text-muted">
+                                Checked against @string.Join(", ", plan.CheckedBy), which list
+                                @string.Join(" | ", plan.ServiceArtists)
+                            </div>
+                        }
+                    </td>
+                    @if (named)
+                    {
+                        <td>
+                            @if (plan.Names == null)
+                            {
+                                <span class="text-muted">Couldn't be previewed</span>
+                            }
+                            else
+                            {
+                                var newTitle = plan.Cluster.Songs.All(s => s.Title != plan.Names.Title);
+                                var newArtist = plan.Cluster.Songs.All(s => s.Artist != plan.Names.Artist);
+                                <div>
+                                    <span class="@(newTitle ? "fw-bold" : "")">@plan.Names.Title</span>
+                                    <span class="text-muted">by</span>
+                                    <span class="@(newArtist ? "fw-bold" : "")">@plan.Names.Artist</span>
+                                </div>
+                                @if (plan.Names.Artists is { Count: > 1 })
+                                {
+                                    <div class="small text-muted">Artists: @string.Join(" | ", plan.Names.Artists)</div>
+                                }
+                            }
+                        </td>
+                    }
+                </tr>
+            }
+        </table>
+    </div>
+}

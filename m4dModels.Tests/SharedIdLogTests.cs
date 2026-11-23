@@ -399,10 +399,11 @@ public class SharedIdLogTests
         Assert.HasCount(2, result.Merges);
         var first = await dms.SongIndex.FindSong(result.Merges[0].Into);
         var second = await dms.SongIndex.FindSong(result.Merges[1].Into);
-        // Each group gets the feat. cleanup of its own merge
+        // Each group gets the cleanup of its own merge: the feat. clause out, the title cut back
+        // to the shortest title the merged one starts with
         Assert.AreEqual("First Song", first.Title);
         CollectionAssert.AreEqual(new[] { "The Artist", "Crazy Man" }, first.EffectiveArtists.ToList());
-        Assert.AreEqual("Second Song (Radio Edit)", second.Title);
+        Assert.AreEqual("Second Song", second.Title);
         Assert.IsEmpty(await dms.SharedIds.PendingClusters());
         var rejected = (await Rows(dms)).Single(r => r.Status == SharedIdStatus.Rejected);
         Assert.AreEqual(Pair(first, second), (rejected.SongA, rejected.SongB));
@@ -434,7 +435,68 @@ public class SharedIdLogTests
 
         // The title of song 3, which is in group B (the merge alone gives song 4's)
         var result = await dms.SharedIds.Apply(user,
-            [Groups(cluster, songs, ["A", "A", "B", "B"], new SharedIdNamePicks(Title: 2))]);
+            [Groups(cluster, songs, ["A", "A", "B", "B"], new SharedIdNamePicks(Title: songs[2].SongId))]);
+
+        var first = await dms.SongIndex.FindSong(result.Merges[0].Into);
+        var second = await dms.SongIndex.FindSong(result.Merges[1].Into);
+        Assert.AreEqual("First Song", first.Title);
+        Assert.AreEqual("Second Song", second.Title);
+    }
+
+    [TestMethod]
+    public async Task Apply_TypedNames_WinOverThePickedSongAndTheCleanup()
+    {
+        var (dms, user) = await CreateService("SharedIds_ApplyTypedNames");
+        var (cluster, songs) = await FourSongCluster(dms);
+
+        // A blank title falls back to the song picked for it
+        var result = await dms.SharedIds.Apply(user,
+        [
+            Groups(cluster, songs, ["A", "A", "A", "A"], new SharedIdNamePicks(Title: songs[2].SongId,
+                Typed: new SongNames(" ", " Typed Artist ", ["Typed Artist", " ", "Someone Else"])))
+        ]);
+
+        var merged = await dms.SongIndex.FindSong(result.Merges.Single().Into);
+        Assert.AreEqual("Second Song", merged.Title);
+        Assert.AreEqual("Typed Artist", merged.Artist);
+        CollectionAssert.AreEqual(new[] { "Typed Artist", "Someone Else" }, merged.EffectiveArtists.ToList());
+    }
+
+    [TestMethod]
+    [DataRow(true, 130.0, DisplayName = "Typed")]
+    [DataRow(false, 110.0, DisplayName = "Picked")]
+    public async Task Apply_TheTempo_IsTypedOrPicked(bool type, double expected)
+    {
+        var (dms, user) = await CreateService($"SharedIds_ApplyTempo_{type}");
+        var songs = new[]
+        {
+            await SaveSong(dms, "Tempo=110.0\tPurchase:00:IS=111"),
+            await SaveSong(dms, "Tempo=120.0\tPurchase:00:IS=111")
+        };
+        _ = await dms.SharedIds.Seed();
+        var cluster = (await dms.SharedIds.PendingClusters()).Single();
+
+        var result = await dms.SharedIds.Apply(user,
+        [
+            Groups(cluster, songs, ["A", "A"], type
+                ? new SharedIdNamePicks(Tempo: songs[0].SongId, Typed: new SongNames(null, null, null, 130m))
+                : new SharedIdNamePicks(Tempo: songs[0].SongId))
+        ]);
+
+        Assert.AreEqual((decimal)expected, (await dms.SongIndex.FindSong(result.Merges.Single().Into)).Tempo);
+    }
+
+    [TestMethod]
+    public async Task Apply_TypedNames_AreIgnoredWhenTheSongsAreSplit()
+    {
+        var (dms, user) = await CreateService("SharedIds_ApplyTypedNamesSplit");
+        var (cluster, songs) = await FourSongCluster(dms);
+
+        var result = await dms.SharedIds.Apply(user,
+        [
+            Groups(cluster, songs, ["A", "A", "B", "B"],
+                new SharedIdNamePicks(Typed: new SongNames("Typed Title", null)))
+        ]);
 
         var first = await dms.SongIndex.FindSong(result.Merges[0].Into);
         var second = await dms.SongIndex.FindSong(result.Merges[1].Into);
@@ -480,9 +542,9 @@ public class SharedIdLogTests
         var (cluster, songs) = await TwoSongCluster(dms);
 
         var result = await dms.SharedIds.Apply(user,
-            [Removing(SharedIdAction.Leave, cluster, songs, new SharedIdRemoval(1, 0, "I:111"))]);
+            [Removing(SharedIdAction.Leave, cluster, songs, new SharedIdRemoval(songs[1].SongId, 0, "I:111"))]);
 
-        Assert.AreEqual((1, 1), (result.Edited, result.Unshared));
+        Assert.AreEqual((1, 1), (result.Edited, result.UnsharedPairs));
         var edited = await dms.SongIndex.FindSong(songs[1].SongId);
         CollectionAssert.AreEqual(new[] { "S:sp2" }, edited.GetExtendedPurchaseIds().ToList());
         Assert.AreEqual("Album", edited.Albums.Single().Name);
@@ -499,9 +561,9 @@ public class SharedIdLogTests
         var (cluster, songs) = await TwoSongCluster(dms);
 
         var result = await dms.SharedIds.Apply(user,
-            [Removing(SharedIdAction.Leave, cluster, songs, new SharedIdRemoval(0, 0))]);
+            [Removing(SharedIdAction.Leave, cluster, songs, new SharedIdRemoval(songs[0].SongId, 0))]);
 
-        Assert.AreEqual((1, 1), (result.Edited, result.Unshared));
+        Assert.AreEqual((1, 1), (result.Edited, result.UnsharedPairs));
         Assert.IsEmpty((await dms.SongIndex.FindSong(songs[0].SongId)).Albums);
         Assert.AreEqual(SharedIdStatus.Rejected, (await Rows(dms)).Single().Status);
     }
@@ -513,9 +575,9 @@ public class SharedIdLogTests
         var (cluster, songs) = await TwoSongCluster(dms);
 
         var result = await dms.SharedIds.Apply(user,
-            [Removing(SharedIdAction.Leave, cluster, songs, new SharedIdRemoval(1, 0, "S:sp2"))]);
+            [Removing(SharedIdAction.Leave, cluster, songs, new SharedIdRemoval(songs[1].SongId, 0, "S:sp2"))]);
 
-        Assert.AreEqual((1, 0), (result.Edited, result.Unshared));
+        Assert.AreEqual((1, 0), (result.Edited, result.UnsharedPairs));
         CollectionAssert.AreEqual(new[] { "I:111" },
             (await dms.SongIndex.FindSong(songs[1].SongId)).GetExtendedPurchaseIds().ToList());
         Assert.AreEqual(SharedIdStatus.Pending, (await Rows(dms)).Single().Status);
@@ -528,8 +590,8 @@ public class SharedIdLogTests
         var (cluster, songs) = await TwoSongCluster(dms);
 
         var result = await dms.SharedIds.Apply(user,
-            [Removing(SharedIdAction.Leave, cluster, songs, new SharedIdRemoval(0, 0, "S:sp2"),
-                new SharedIdRemoval(0, 3))]);
+            [Removing(SharedIdAction.Leave, cluster, songs, new SharedIdRemoval(songs[0].SongId, 0, "S:sp2"),
+                new SharedIdRemoval(songs[0].SongId, 3))]);
 
         Assert.AreEqual(0, result.Edited);
         Assert.AreEqual(SharedIdStatus.Pending, (await Rows(dms)).Single().Status);
@@ -542,7 +604,7 @@ public class SharedIdLogTests
         var (cluster, songs) = await FourSongCluster(dms);
         var choice = Groups(cluster, songs, ["A", "A", "B", "B"]) with
         {
-            Removals = [new SharedIdRemoval(2, 0, "S:sp1")]
+            Removals = [new SharedIdRemoval(songs[2].SongId, 0, "S:sp1")]
         };
 
         var result = await dms.SharedIds.Apply(user, [choice]);
@@ -554,26 +616,13 @@ public class SharedIdLogTests
     }
 
     [TestMethod]
-    public void SharedIdRemoval_ParsesWhatItFormats()
-    {
-        foreach (var removal in new[] { new SharedIdRemoval(1, 2), new SharedIdRemoval(0, 3, "S:a|b") })
-        {
-            Assert.AreEqual(removal, SharedIdRemoval.Parse(removal.Format()));
-        }
-
-        Assert.IsNull(SharedIdRemoval.Parse("x|1"));
-        Assert.IsNull(SharedIdRemoval.Parse("1"));
-    }
-
-    [TestMethod]
     public async Task Merge_WithNames_AppendsAMusic4danceEditForWhatTheMergeDoesNotGive()
     {
         var (dms, user) = await CreateService("SharedIds_MergeNames");
         // The merge alone takes the later song's title, the one with the feat.
         var a = await SaveSong(dms, "Purchase:00:IS=111");
         var b = await SaveSong(dms, "Purchase:00:IS=111", title: "Shared Song (feat. Crazy Man)");
-        Assert.AreEqual(b.Title, (await dms.SharedIds.PreviewMerge(user,
-            new SharedIdCluster { Candidates = [], SongIds = [], Songs = [a, b] })).Title);
+        Assert.AreEqual(b.Title, (await dms.SongIndex.BuildSimpleMerge(user, [a, b])).Title);
 
         var merged = await dms.SharedIds.Merge(user, [a.SongId, b.SongId],
             new SongNames("Shared Song", "The Artist", ["The Artist", "Crazy Man"]));
@@ -600,32 +649,603 @@ public class SharedIdLogTests
             merged.SongProperties.Last(p => p.IsAction).Name);
     }
 
-    [TestMethod]
-    public void Match_ClassifiesTheTiers()
-    {
-        static Song S(string title, string artist) => new() { Title = title, Artist = artist };
+    #region Following songs that changed elsewhere
 
-        Assert.AreEqual(SharedIdMatch.Exact,
-            SharedIdLog.Match([S("Shape of You", "Ed Sheeran"), S("Shape Of You (Remastered)", "ed sheeran")]));
-        Assert.AreEqual(SharedIdMatch.WithoutFeaturing,
-            SharedIdLog.Match([S("Shape of You", "Ed Sheeran feat. Khalid"), S("Shape of You", "Ed Sheeran")]));
-        Assert.AreEqual(SharedIdMatch.WithoutFeaturing,
-            SharedIdLog.Match([S("Shape of You feat. Khalid", "Ed Sheeran"), S("Shape of You", "Ed Sheeran")]));
-        Assert.AreEqual(SharedIdMatch.Close,
-            SharedIdLog.Match([S("Shape of You - 2017 Remaster", "Ed Sheeran"), S("Shape of You", "Ed Sheeran")]));
-        Assert.AreEqual(SharedIdMatch.Different,
-            SharedIdLog.Match([S("Perfect", "Ed Sheeran"), S("Shape of You", "Ed Sheeran")]));
+    [TestMethod]
+    public async Task LoadSongs_SongDeleted_MarksItsRowsDeleted()
+    {
+        var (dms, user) = await CreateService("SharedIds_Deleted");
+        var a = await SaveSong(dms, "Purchase:00:IS=111");
+        _ = await SaveSong(dms, "Purchase:00:IS=111");
+        _ = await dms.SharedIds.Seed();
+        await dms.SongIndex.DeleteSong(user, await dms.SongIndex.FindSong(a.SongId));
+
+        var cluster = (await dms.SharedIds.PendingClusters()).Single();
+        Assert.IsFalse(await dms.SharedIds.LoadSongs(cluster));
+
+        Assert.AreEqual(SharedIdStatus.Deleted, (await Rows(dms)).Single().Status);
+        Assert.IsEmpty(await dms.SharedIds.PendingClusters());
     }
 
     [TestMethod]
-    public void TitleArtistMatch_RequiresAnArtist()
+    public async Task Merge_TwoRowsLandingOnOnePair_FoldIntoOneWithBothIds()
     {
-        var songs = new[]
+        var (dms, user) = await CreateService("SharedIds_Fold");
+        // a and b each share a different id with c, and nothing with each other
+        var a = await SaveSong(dms, "Purchase:00:IS=111");
+        var b = await SaveSong(dms, "Purchase:00:SS=sp1");
+        var c = await SaveSong(dms, "Purchase:00:IS=111\tPurchase:00:SS=sp1", title: "Other Song");
+        _ = await dms.SharedIds.Seed();
+        Assert.HasCount(2, await Rows(dms));
+
+        var merged = await dms.SharedIds.Merge(user, [a.SongId, b.SongId]);
+
+        var row = (await Rows(dms)).Single();
+        Assert.AreEqual(Pair(merged, c), (row.SongA, row.SongB));
+        Assert.AreEqual("I:111,S:sp1", row.ServiceIds);
+        Assert.AreEqual(SharedIdStatus.Pending, row.Status);
+    }
+
+    [TestMethod]
+    public async Task Merge_RejectedAndPendingRowsLandingOnOnePair_StayRejected()
+    {
+        var (dms, user) = await CreateService("SharedIds_FoldRejected");
+        var a = await SaveSong(dms, "Purchase:00:IS=111");
+        var b = await SaveSong(dms, "Purchase:00:SS=sp1");
+        var c = await SaveSong(dms, "Purchase:00:IS=111\tPurchase:00:SS=sp1", title: "Other Song");
+        _ = await dms.SharedIds.Seed();
+        var ac = (await Rows(dms)).Single(r => (r.SongA, r.SongB) == Pair(a, c));
+        await dms.SharedIds.Reject(user, [ac.Id]);
+
+        var merged = await dms.SharedIds.Merge(user, [a.SongId, b.SongId]);
+
+        var row = (await Rows(dms)).Single();
+        Assert.AreEqual(Pair(merged, c), (row.SongA, row.SongB));
+        Assert.AreEqual(SharedIdStatus.Rejected, row.Status);
+        Assert.IsEmpty(await dms.SharedIds.PendingClusters());
+    }
+
+    #endregion
+
+    #region More of Apply
+
+    [TestMethod]
+    public async Task Apply_TwoGroupsOneStale_RejectsNothing()
+    {
+        var (dms, user) = await CreateService("SharedIds_ApplyGroupStale");
+        var (cluster, songs) = await FourSongCluster(dms);
+        // Group A was merged in another tab after the page loaded
+        var mergedA = await dms.SharedIds.Merge(user, [songs[0].SongId, songs[1].SongId]);
+
+        var result = await dms.SharedIds.Apply(user, [Groups(cluster, songs, ["A", "A", "B", "B"])]);
+
+        Assert.AreEqual((1, 1, 0), (result.Merged, result.Stale, result.Rejected));
+        var rows = await Rows(dms);
+        Assert.IsFalse(rows.Any(r => r.Status == SharedIdStatus.Rejected));
+        var pending = rows.Single(r => r.Status == SharedIdStatus.Pending);
+        Assert.AreEqual(Pair(mergedA, await dms.SongIndex.FindSong(result.Merges.Single().Into)),
+            (pending.SongA, pending.SongB));
+    }
+
+    [TestMethod]
+    public async Task Apply_RemoveAndNotTheSame_DoesBoth()
+    {
+        var (dms, user) = await CreateService("SharedIds_RemoveReject");
+        var (cluster, songs) = await TwoSongCluster(dms);
+
+        var result = await dms.SharedIds.Apply(user,
+            [Removing(SharedIdAction.Reject, cluster, songs, new SharedIdRemoval(songs[1].SongId, 0, "S:sp2"))]);
+
+        Assert.AreEqual((1, 1, 0), (result.Edited, result.Rejected, result.UnsharedPairs));
+        CollectionAssert.AreEquivalent(new[] { "I:111" },
+            (await dms.SongIndex.FindSong(songs[1].SongId)).GetExtendedPurchaseIds().Distinct().ToList());
+        Assert.AreEqual(SharedIdStatus.Rejected, (await Rows(dms)).Single().Status);
+    }
+
+    [TestMethod]
+    public async Task Apply_RemoveInAThreeSongCluster_RejectsOnlyThePairThatStopsSharing()
+    {
+        var (dms, user) = await CreateService("SharedIds_RemoveThree");
+        Song[] songs =
+        [
+            await SaveSong(dms, "Purchase:00:IS=111"),
+            await SaveSong(dms, "Purchase:00:IS=111\tPurchase:00:SS=sp1"),
+            await SaveSong(dms, "Purchase:00:SS=sp1", title: "Other Song")
+        ];
+        _ = await dms.SharedIds.Seed();
+        var cluster = (await dms.SharedIds.PendingClusters()).Single();
+
+        var result = await dms.SharedIds.Apply(user,
+            [Removing(SharedIdAction.Leave, cluster, songs, new SharedIdRemoval(songs[2].SongId, 0, "S:sp1"))]);
+
+        Assert.AreEqual((1, 1), (result.Edited, result.UnsharedPairs));
+        var rows = await Rows(dms);
+        Assert.AreEqual(SharedIdStatus.Rejected, rows.Single(r => (r.SongA, r.SongB) == Pair(songs[1], songs[2])).Status);
+        Assert.AreEqual(SharedIdStatus.Pending, rows.Single(r => (r.SongA, r.SongB) == Pair(songs[0], songs[1])).Status);
+    }
+
+    [TestMethod]
+    public async Task Apply_DeleteASong_DeletesItAndMergesTheRest()
+    {
+        var (dms, user) = await CreateService("SharedIds_ApplyDelete");
+        var (cluster, songs) = await FourSongCluster(dms);
+        var choice = Groups(cluster, songs, ["A", "A", "A", "A"]) with { Deletions = [songs[3].SongId] };
+
+        var result = await dms.SharedIds.Apply(user, [choice]);
+
+        Assert.AreEqual((1, 1, 0), (result.Deleted, result.Merged, result.Stale));
+        CollectionAssert.AreEquivalent(songs.Take(3).Select(s => s.SongId).ToList(),
+            result.Merges.Single().From.ToList());
+        Assert.IsTrue((await dms.SongIndex.FindSong(songs[3].SongId)).IsNull);
+        Assert.IsFalse((await dms.SongIndex.FindSong(result.Merges.Single().Into)).IsNull);
+        var deleted = (await Rows(dms)).Single(r => r.SongA == songs[3].SongId || r.SongB == songs[3].SongId);
+        Assert.AreEqual(SharedIdStatus.Deleted, deleted.Status);
+        Assert.IsEmpty(await dms.SharedIds.PendingClusters());
+    }
+
+    [TestMethod]
+    public async Task Apply_DeleteWithLeaveForLater_TakesThePairOutOfTheQueue()
+    {
+        var (dms, user) = await CreateService("SharedIds_ApplyDeleteLeave");
+        var (cluster, songs) = await TwoSongCluster(dms);
+        var choice = new SharedIdChoice(SharedIdAction.Leave, [.. songs.Select(s => s.SongId)],
+            [.. cluster.Candidates.Select(c => c.Id)], Deletions: [songs[1].SongId],
+            Removals: [new SharedIdRemoval(songs[1].SongId, 0, "I:111")]);
+
+        var result = await dms.SharedIds.Apply(user, [choice]);
+
+        Assert.AreEqual((1, 1, 0), (result.Deleted, result.Left, result.Edited), "No removal from a deleted song");
+        Assert.IsTrue((await dms.SongIndex.FindSong(songs[1].SongId)).IsNull);
+        Assert.IsFalse((await dms.SongIndex.FindSong(songs[0].SongId)).IsNull);
+        Assert.AreEqual(SharedIdStatus.Deleted, (await Rows(dms)).Single().Status);
+        Assert.IsEmpty(await dms.SharedIds.PendingClusters());
+    }
+
+    [TestMethod]
+    public async Task Apply_DeletionOfASongOutsideTheCluster_IsIgnored()
+    {
+        var (dms, user) = await CreateService("SharedIds_DeleteOutside");
+        var (cluster, songs) = await TwoSongCluster(dms);
+        var outsider = await SaveSong(dms, "Purchase:00:IS=999", title: "Outsider");
+        var choice = new SharedIdChoice(SharedIdAction.Leave, [.. songs.Select(s => s.SongId)],
+            [.. cluster.Candidates.Select(c => c.Id)], Deletions: [outsider.SongId]);
+
+        var result = await dms.SharedIds.Apply(user, [choice]);
+
+        Assert.AreEqual(0, result.Deleted);
+        Assert.IsFalse((await dms.SongIndex.FindSong(outsider.SongId)).IsNull);
+        Assert.AreEqual(SharedIdStatus.Pending, (await Rows(dms)).Single().Status);
+    }
+
+    [TestMethod]
+    public async Task Apply_RemovalFromASongOutsideTheCluster_IsIgnored()
+    {
+        var (dms, user) = await CreateService("SharedIds_RemoveOutside");
+        var (cluster, songs) = await TwoSongCluster(dms);
+        var outsider = await SaveSong(dms, "Purchase:00:IS=999", title: "Outsider");
+
+        var result = await dms.SharedIds.Apply(user,
+            [Removing(SharedIdAction.Leave, cluster, songs, new SharedIdRemoval(outsider.SongId, 0, "I:999"))]);
+
+        Assert.AreEqual(0, result.Edited);
+        CollectionAssert.Contains((await dms.SongIndex.FindSong(outsider.SongId)).GetExtendedPurchaseIds().ToList(), "I:999");
+    }
+
+    [TestMethod]
+    public async Task Apply_NamePickedFromASongOutsideEveryGroup_GetsTheProposal()
+    {
+        var (dms, user) = await CreateService("SharedIds_ApplyNameOutside");
+        var (cluster, songs) = await FourSongCluster(dms);
+
+        // Song 4 is left out, so group A doesn't take its title
+        var result = await dms.SharedIds.Apply(user,
+            [Groups(cluster, songs, ["A", "A", "A", ""], new SharedIdNamePicks(Title: songs[3].SongId))]);
+
+        Assert.AreNotEqual(songs[3].Title, (await dms.SongIndex.FindSong(result.Merges.Single().Into)).Title);
+    }
+
+    #endregion
+
+    #region Merge all reasons
+
+    [TestMethod]
+    public async Task PlanMergeMatching_GivesTheNoMergeFeatAndCloseReasons()
+    {
+        var (dms, _) = await CreateService("SharedIds_PlanReasons");
+        var noMerge = await Song.Create(
+            ".Create=\tUser=dwgray\tTime=01/01/2020 10:00:00 AM\tTitle=Shared Song\tArtist=The Artist\t" +
+            "Album:00=Album\tTrack:00=1\tPurchase:00:IS=111\tDanceRating=SLS+1\t" +
+            ".NoMerge=\tUser=dwgray\tTime=01/02/2020 10:00:00 AM",
+            dms);
+        await dms.SongIndex.SaveSong(noMerge);
+        _ = await SaveSong(dms, "Purchase:00:IS=111");
+        _ = await SaveSong(dms, "Purchase:00:IS=222", title: "Feat Song feat. Crazy Man");
+        _ = await SaveSong(dms, "Purchase:00:IS=222", title: "Feat Song");
+        _ = await SaveSong(dms, "Purchase:00:IS=333", title: "Close Song - Salsa Version");
+        _ = await SaveSong(dms, "Purchase:00:IS=333", title: "Close Song");
+        _ = await SaveSong(dms, "Purchase:00:IS=444", title: "Remastered Song - 2011 Remaster");
+        _ = await SaveSong(dms, "Purchase:00:IS=444", title: "Remastered Song");
+        _ = await dms.SharedIds.Seed();
+
+        var plans = (await dms.SharedIds.PlanMergeMatching()).ToDictionary(p => p.Cluster.ServiceIds.Single());
+
+        Assert.AreEqual(SharedIdMergePlan.NoMerge, plans["I:111"].SkipReason);
+        Assert.AreEqual(SharedIdMergePlan.WithoutFeaturing, plans["I:222"].SkipReason);
+        Assert.AreEqual(SharedIdMatch.WithoutFeaturing, plans["I:222"].Match);
+        Assert.AreEqual(SharedIdMergePlan.Close, plans["I:333"].SkipReason);
+        Assert.AreEqual(SharedIdMatch.Close, plans["I:333"].Match);
+        Assert.IsFalse(plans["I:111"].WillMergeFeaturing, "A .NoMerge song is skipped by both");
+        Assert.IsTrue(plans["I:222"].WillMergeFeaturing);
+        Assert.IsFalse(plans["I:333"].WillMergeFeaturing);
+        // A remaster note doesn't make a different song
+        Assert.AreEqual(SharedIdMatch.Exact, plans["I:444"].Match);
+        Assert.IsTrue(plans["I:444"].WillMerge);
+    }
+
+    [TestMethod]
+    public async Task PlanMergeMatching_SkipsLengthsTooFarApart_ForBothTasks()
+    {
+        var (dms, user) = await CreateService("SharedIds_PlanLengths");
+        _ = await SaveSong(dms, "Purchase:00:IS=111	Length=200");
+        _ = await SaveSong(dms, "Purchase:00:IS=111	Length=215");
+        _ = await SaveSong(dms, "Purchase:00:IS=222	Length=200");
+        _ = await SaveSong(dms, "Purchase:00:IS=222	Length=216");
+        _ = await SaveSong(dms, "Purchase:00:IS=333	Length=200", title: "Feat Song feat. Crazy Man");
+        _ = await SaveSong(dms, "Purchase:00:IS=333	Length=260", title: "Feat Song");
+        _ = await SaveSong(dms, "Purchase:00:IS=444	Length=200");
+        _ = await SaveSong(dms, "Purchase:00:IS=444");
+        _ = await dms.SharedIds.Seed();
+
+        var plans = (await dms.SharedIds.PlanMergeMatching()).ToDictionary(p => p.Cluster.ServiceIds.Single());
+
+        Assert.IsTrue(plans["I:111"].WillMerge, "15 seconds apart is close enough");
+        Assert.AreEqual(SharedIdMergePlan.LengthsDiffer, plans["I:222"].SkipReason);
+        Assert.AreEqual(SharedIdMergePlan.LengthsDiffer, plans["I:333"].SkipReason);
+        Assert.IsFalse(plans["I:333"].WillMergeFeaturing);
+        Assert.IsTrue(plans["I:444"].WillMerge, "A song without a length doesn't count");
+        Assert.AreEqual(0, await dms.SharedIds.MergeFeaturing(user));
+    }
+
+    [TestMethod]
+    public async Task PlanMergeMatching_LengthsApart_MergeWhenEveryTempoAgrees()
+    {
+        var (dms, user) = await CreateService("SharedIds_PlanTempos");
+        _ = await SaveSong(dms, "Purchase:00:IS=111	Length=200	Tempo=120.0");
+        _ = await SaveSong(dms, "Purchase:00:IS=111	Length=260	Tempo=122.0");
+        _ = await SaveSong(dms, "Purchase:00:IS=222	Length=200	Tempo=120.0");
+        _ = await SaveSong(dms, "Purchase:00:IS=222	Length=260	Tempo=123.0");
+        _ = await SaveSong(dms, "Purchase:00:IS=333	Length=200	Tempo=120.0");
+        _ = await SaveSong(dms, "Purchase:00:IS=333	Length=260");
+        _ = await dms.SharedIds.Seed();
+
+        var plans = (await dms.SharedIds.PlanMergeMatching()).ToDictionary(p => p.Cluster.ServiceIds.Single());
+
+        Assert.IsTrue(plans["I:111"].WillMerge, "Tempos within 2 BPM: the lengths don't count");
+        Assert.IsTrue(plans["I:111"].Cluster.LengthsApart);
+        Assert.AreEqual(SharedIdMergePlan.LengthsDiffer, plans["I:222"].SkipReason, "3 BPM apart");
+        Assert.AreEqual(SharedIdMergePlan.LengthsDiffer, plans["I:333"].SkipReason, "A song without a tempo");
+
+        var page = await dms.SharedIds.LoadPage(user, 1);
+        var agreed = page.Clusters.Single(c => c.Cluster.ServiceIds.Single() == "I:111");
+        Assert.AreEqual(SharedIdAction.Merge, agreed.DefaultAction);
+    }
+
+    [TestMethod]
+    public async Task LoadPage_LengthsTooFarApart_StartAsLeave()
+    {
+        var (dms, user) = await CreateService("SharedIds_PageLengths");
+        _ = await SaveSong(dms, "Purchase:00:IS=111	Length=200");
+        _ = await SaveSong(dms, "Purchase:00:IS=111	Length=260");
+        _ = await dms.SharedIds.Seed();
+
+        var entry = (await dms.SharedIds.LoadPage(user, 1)).Clusters.Single();
+
+        Assert.AreEqual(60, entry.Cluster.LengthSpread);
+        Assert.IsTrue(entry.Cluster.LengthsDiffer);
+        Assert.AreEqual(SharedIdAction.Leave, entry.DefaultAction);
+    }
+
+    [TestMethod]
+    public async Task MergeFeaturing_MergesOnlyClustersThatDifferByFeat_WithTheCleanup()
+    {
+        var (dms, user) = await CreateService("SharedIds_MergeFeaturing");
+        var titled = await SaveSong(dms, "Purchase:00:IS=111", title: "Feat Song (feat. Crazy Man)");
+        _ = await SaveSong(dms, "Purchase:00:IS=111", title: "Feat Song", artist: "The Artist feat. Crazy Man");
+        var exact = await SaveSong(dms, "Purchase:00:IS=222");
+        _ = await SaveSong(dms, "Purchase:00:IS=222");
+        _ = await dms.SharedIds.Seed();
+
+        Assert.AreEqual(1, await dms.SharedIds.MergeFeaturing(user));
+
+        var merged = await dms.SongIndex.FindMergedSong(titled.SongId);
+        Assert.AreEqual("Feat Song", merged.Title);
+        Assert.AreEqual("The Artist feat. Crazy Man", merged.Artist,
+            "The credit that names both artists");
+        CollectionAssert.AreEqual(new[] { "The Artist", "Crazy Man" }, merged.EffectiveArtists.ToList());
+        Assert.IsFalse((await dms.SongIndex.FindSong(exact.SongId)).IsNull, "Left to MergeMatching");
+    }
+
+    // A lookup that knows these tracks: an extended id, its title and its artists (Spotify lists
+    // them; for an iTunes id, the first is the credit)
+    private static Func<string, Task<ServiceTrack>> Tracks(params (string Id, string Title, string[] Artists)[] tracks) =>
+        extended => Task.FromResult(tracks.Where(t => t.Id == extended)
+            .Select(t => new ServiceTrack
+            {
+                Name = t.Title, Artist = t.Artists[0], Artists = extended.StartsWith("S:") ? t.Artists : null
+            })
+            .FirstOrDefault());
+
+    // A second album holding ids of the song's own
+    private static string Own(string ids) => $"Album:01=Own Album	Track:01=1	{ids}";
+
+    [TestMethod]
+    public async Task PlanMergeMatching_SameArtistsMerge_FewerArtistsOnlyWhenTheSongsOwnTrackListsThemAll()
+    {
+        var (dms, user) = await CreateService("SharedIds_PlanCredits");
+        _ = await SaveSong(dms, "Purchase:00:IS=111", artist: "Teddy Wilson And His Orchestra With Billie Holliday");
+        _ = await SaveSong(dms, "Purchase:00:IS=111", artist: "Teddy Wilson; Billie Holliday");
+        _ = await SaveSong(dms, "Purchase:00:IS=112", title: "Swing Song", artist: "Benny Goodman and His Orchestra");
+        _ = await SaveSong(dms, "Purchase:00:IS=112", title: "Swing Song", artist: "Benny Goodman");
+        _ = await SaveSong(dms, "Purchase:00:IS=113", title: "Bird Song", artist: "Charlie Parker");
+        _ = await SaveSong(dms, "Purchase:00:IS=113", title: "Bird Song", artist: "Charlie Parker Quartet");
+        _ = await SaveSong(dms, $"Purchase:00:SS=sp2	{Own("Purchase:01:SS=a2")}", artist: "Tony Bennett");
+        _ = await SaveSong(dms, "Purchase:00:SS=sp2", artist: "Tony Bennett & Lady Gaga");
+        _ = await SaveSong(dms, "Purchase:00:SS=sp3", title: "Other Song", artist: "Tony Bennett");
+        _ = await SaveSong(dms, "Purchase:00:SS=sp3", title: "Other Song", artist: "Tony Bennett & Diana Krall");
+        _ = await dms.SharedIds.Seed();
+        var lookup = Tracks(
+            ("S:a2", "Shared Song", ["Tony Bennett", "Lady Gaga"]),
+            ("S:sp3", "Other Song", ["Tony Bennett", "Diana Krall"]));
+
+        var offline = (await dms.SharedIds.PlanMergeMatching()).ToDictionary(p => p.Cluster.ServiceIds.Single());
+        var plans = (await dms.SharedIds.PlanMergeMatching(previewAs: user, lookup: lookup))
+            .ToDictionary(p => p.Cluster.ServiceIds.Single());
+
+        Assert.AreEqual(SharedIdMergePlan.SameArtists, plans["I:111"].SkipReason);
+        Assert.IsTrue(plans["I:111"].WillMergeCredits);
+        // A leader and their group are the same artist: the merge keeps the group in the credit
+        foreach (var (id, credit, leader) in new[]
+                 {
+                     ("I:112", "Benny Goodman and His Orchestra", "Benny Goodman"),
+                     ("I:113", "Charlie Parker Quartet", "Charlie Parker")
+                 })
         {
-            new Song { Title = "Shared Song", Artist = "" },
-            new Song { Title = "Shared Song", Artist = "" }
-        };
-
-        Assert.IsFalse(SharedIdLog.TitleArtistMatch(songs));
+            Assert.IsTrue(plans[id].WillMerge, id);
+            Assert.AreEqual(credit, plans[id].Names.Artist, id);
+            CollectionAssert.AreEqual(new[] { leader }, plans[id].Names.Artists.ToList(), id);
+        }
+        Assert.AreEqual(SharedIdMergePlan.FewerArtists, offline["S:sp2"].SkipReason, "Not looked up");
+        Assert.AreEqual(SharedIdMergePlan.ConfirmedArtists, plans["S:sp2"].SkipReason);
+        CollectionAssert.AreEqual(new[] { "S:a2" }, plans["S:sp2"].CheckedBy.ToList());
+        Assert.AreEqual("Tony Bennett & Lady Gaga", plans["S:sp2"].Names.Artist);
+        CollectionAssert.AreEqual(new[] { "Tony Bennett", "Lady Gaga" }, plans["S:sp2"].Names.Artists.ToList());
+        Assert.AreEqual(SharedIdMergePlan.FewerArtists, plans["S:sp3"].SkipReason,
+            "The shared track doesn't count, and the song has no id of its own");
+        Assert.IsFalse(plans["S:sp3"].WillMergeCredits);
+        Assert.IsTrue(plans["S:sp3"].WillMergeUnchecked);
     }
+
+    [TestMethod]
+    public async Task PlanMergeMatching_FewerArtists_TheSongsOwnTrackLeavingArtistsOut_IsADifferentRecording()
+    {
+        var (dms, user) = await CreateService("SharedIds_PlanCreditsDenied");
+        _ = await SaveSong(dms, $"Purchase:00:SS=sp2	{Own("Purchase:01:SS=a1	Purchase:01:IS=a2")}",
+            artist: "Tony Bennett");
+        _ = await SaveSong(dms, "Purchase:00:SS=sp2", artist: "Tony Bennett & Lady Gaga");
+        _ = await dms.SharedIds.Seed();
+        // Its Spotify track has another title, so its iTunes track decides
+        var lookup = Tracks(
+            ("S:sp2", "Shared Song", ["Tony Bennett", "Lady Gaga"]),
+            ("S:a1", "Another Song", ["Tony Bennett", "Lady Gaga"]),
+            ("I:a2", "Shared Song", ["Tony Bennett"]));
+
+        var plan = (await dms.SharedIds.PlanMergeMatching(lookup: lookup)).Single();
+
+        Assert.AreEqual(SharedIdMergePlan.ServiceListsFewer, plan.SkipReason);
+        Assert.IsFalse(plan.WillMergeCredits);
+        Assert.IsTrue(plan.WillMergeListsFewer);
+        CollectionAssert.AreEqual(new[] { "I:a2" }, plan.CheckedBy.ToList());
+        CollectionAssert.AreEqual(new[] { "Tony Bennett" }, plan.ServiceArtists.ToList());
+        Assert.AreEqual(0, await dms.SharedIds.MergeCredits(user, lookup));
+    }
+
+    [TestMethod]
+    public async Task MergeCredits_MergesTheConfirmedClusterWithEveryArtist()
+    {
+        var (dms, user) = await CreateService("SharedIds_MergeCredits");
+        var single = await SaveSong(dms, $"Purchase:00:SS=sp2	{Own("Purchase:01:SS=a1")}", artist: "Tony Bennett");
+        _ = await SaveSong(dms, "Purchase:00:SS=sp2", artist: "Tony Bennett & Lady Gaga");
+        var exact = await SaveSong(dms, "Purchase:00:IS=222");
+        _ = await SaveSong(dms, "Purchase:00:IS=222");
+        _ = await dms.SharedIds.Seed();
+
+        Assert.AreEqual(1, await dms.SharedIds.MergeCredits(user,
+            Tracks(("S:a1", "Shared Song (feat. Lady Gaga)", ["Tony Bennett", "Lady Gaga"]))));
+
+        var merged = await dms.SongIndex.FindMergedSong(single.SongId);
+        Assert.AreEqual("Tony Bennett & Lady Gaga", merged.Artist);
+        CollectionAssert.AreEqual(new[] { "Tony Bennett", "Lady Gaga" }, merged.EffectiveArtists.ToList());
+        Assert.IsFalse((await dms.SongIndex.FindSong(exact.SongId)).IsNull, "Left to MergeMatching");
+    }
+
+    [TestMethod]
+    public async Task MergeLeadArtist_MergesTheUncheckedOrTheListsFewer_KeepingEveryArtist()
+    {
+        var (dms, user) = await CreateService("SharedIds_MergeLeadArtist");
+        var noCheck = await SaveSong(dms, "Purchase:00:SS=sp2", artist: "Tony Bennett");
+        _ = await SaveSong(dms, "Purchase:00:SS=sp2", artist: "Tony Bennett & Lady Gaga");
+        var fewer = await SaveSong(dms, $"Purchase:00:SS=sp3\t{Own("Purchase:01:SS=a3")}",
+            title: "Other Song", artist: "Tony Bennett");
+        _ = await SaveSong(dms, "Purchase:00:SS=sp3", title: "Other Song", artist: "Tony Bennett & Diana Krall");
+        _ = await dms.SharedIds.Seed();
+        var lookup = Tracks(("S:a3", "Other Song", ["Tony Bennett"]));
+
+        Assert.AreEqual(0, await dms.SharedIds.MergeCredits(user, lookup));
+        Assert.AreEqual(1, await dms.SharedIds.MergeLeadArtist(user, false, lookup));
+
+        var merged = await dms.SongIndex.FindMergedSong(noCheck.SongId);
+        Assert.AreEqual("Tony Bennett & Lady Gaga", merged.Artist);
+        CollectionAssert.AreEqual(new[] { "Tony Bennett", "Lady Gaga" }, merged.EffectiveArtists.ToList());
+        Assert.IsFalse((await dms.SongIndex.FindSong(fewer.SongId)).IsNull, "Its own track leaves artists out");
+
+        Assert.AreEqual(1, await dms.SharedIds.MergeLeadArtist(user, true, lookup));
+        var other = await dms.SongIndex.FindMergedSong(fewer.SongId);
+        Assert.AreEqual("Tony Bennett & Diana Krall", other.Artist);
+    }
+
+    [TestMethod]
+    public async Task MergeMatching_CleansUpAFeatInTheTitles()
+    {
+        var (dms, user) = await CreateService("SharedIds_MergeMatchingCleanup");
+        var a = await SaveSong(dms, "Purchase:00:IS=111", title: "Feat Song (feat. Crazy Man)");
+        _ = await SaveSong(dms, "Purchase:00:IS=111", title: "Feat Song (feat. Crazy Man)");
+        _ = await dms.SharedIds.Seed();
+
+        Assert.AreEqual(1, await dms.SharedIds.MergeMatching(user));
+
+        var merged = await dms.SongIndex.FindMergedSong(a.SongId);
+        Assert.AreEqual("Feat Song", merged.Title);
+        CollectionAssert.AreEqual(new[] { "The Artist", "Crazy Man" }, merged.EffectiveArtists.ToList());
+    }
+
+    [TestMethod]
+    public async Task PlanMergeMatching_ForAPreview_GivesTheNamesOfEachMerge()
+    {
+        var (dms, user) = await CreateService("SharedIds_PlanNames");
+        _ = await SaveSong(dms, "Purchase:00:IS=111", title: "Feat Song (feat. Crazy Man)");
+        _ = await SaveSong(dms, "Purchase:00:IS=111", title: "Feat Song", artist: "The Artist feat. Crazy Man");
+        _ = await SaveSong(dms, "Purchase:00:IS=222", title: "First Title");
+        _ = await SaveSong(dms, "Purchase:00:IS=222", title: "Second Title");
+        _ = await dms.SharedIds.Seed();
+
+        Assert.IsTrue((await dms.SharedIds.PlanMergeMatching()).All(p => p.Names == null),
+            "Only a preview works out the names");
+        var plans = (await dms.SharedIds.PlanMergeMatching(previewAs: user))
+            .ToDictionary(p => p.Cluster.ServiceIds.Single());
+
+        var names = plans["I:111"].Names;
+        Assert.AreEqual("Feat Song", names.Title);
+        Assert.AreEqual("The Artist feat. Crazy Man", names.Artist);
+        CollectionAssert.AreEqual(new[] { "The Artist", "Crazy Man" }, names.Artists.ToList());
+        Assert.IsNull(plans["I:222"].Names, "Neither task merges it");
+        Assert.IsTrue((await Rows(dms)).All(r => r.Status == SharedIdStatus.Pending));
+    }
+
+    #endregion
+
+    #region LoadPage
+
+    // Three two-song clusters, I:111 oldest
+    private static async Task ThreeClusters(DanceMusicService dms)
+    {
+        foreach (var id in new[] { "111", "222", "333" })
+        {
+            _ = await SaveSong(dms, $"Purchase:00:IS={id}", title: $"Song {id} feat. Crazy Man");
+            _ = await SaveSong(dms, $"Purchase:00:IS={id}", title: $"Song {id}");
+            _ = await dms.SharedIds.Seed();
+        }
+    }
+
+    [TestMethod]
+    public async Task LoadPage_PagesTheClustersAndPreviewsEach()
+    {
+        var (dms, user) = await CreateService("SharedIds_LoadPage");
+        await ThreeClusters(dms);
+
+        var first = await dms.SharedIds.LoadPage(user, 1, pageSize: 2);
+        var second = await dms.SharedIds.LoadPage(user, 2, pageSize: 2);
+        var past = await dms.SharedIds.LoadPage(user, 5, pageSize: 2);
+
+        Assert.AreEqual((3, 3, 2), (first.PendingCandidates, first.ClusterCount, first.PageCount));
+        CollectionAssert.AreEqual(new[] { "I:111", "I:222" },
+            first.Clusters.Select(c => c.Cluster.ServiceIds.Single()).ToList());
+        var entry = second.Clusters.Single();
+        Assert.AreEqual("I:333", entry.Cluster.ServiceIds.Single());
+        Assert.HasCount(2, entry.Cluster.Songs);
+        Assert.AreEqual(SharedIdMatch.WithoutFeaturing, entry.Cluster.Match);
+        Assert.IsNotNull(entry.Preview);
+        Assert.AreEqual("Song 333", entry.Proposal.Title);
+        Assert.IsTrue(entry.CleansFeaturing);
+        Assert.AreEqual(SharedIdAction.Merge, entry.DefaultAction);
+        Assert.IsEmpty(past.Clusters);
+        Assert.IsEmpty(first.RankCounts, "Unsorted");
+        Assert.AreEqual(1, (await dms.SharedIds.LoadPage(user, 0, pageSize: 2)).Page);
+    }
+
+    [TestMethod]
+    public async Task LoadPage_SortsByRankAndCountsEachRank()
+    {
+        var (dms, user) = await CreateService("SharedIds_LoadPageRank");
+        await ThreeClusters(dms);
+        var clusters = await dms.SharedIds.PendingClusters();
+        var last = clusters[2].Key;
+
+        var page = await dms.SharedIds.LoadPage(user, 1, c => c.Key == last ? 0 : 2);
+
+        Assert.AreEqual(last, page.Clusters[0].Cluster.Key);
+        CollectionAssert.AreEqual(new[] { clusters[0].Key, clusters[1].Key },
+            page.Clusters.Skip(1).Select(c => c.Cluster.Key).ToList());
+        Assert.AreEqual(1, page.RankCounts[0]);
+        Assert.AreEqual(2, page.RankCounts[2]);
+        Assert.AreEqual(0, page.DeferredCount);
+    }
+
+    [TestMethod]
+    public async Task LoadPage_PutsTheDeferredClustersLastAndLeavesThemOutOfTheRankCounts()
+    {
+        var (dms, user) = await CreateService("SharedIds_LoadPageDeferred");
+        await ThreeClusters(dms);
+        var clusters = await dms.SharedIds.PendingClusters();
+        var (first, second, third) = (clusters[0].Key, clusters[1].Key, clusters[2].Key);
+
+        // The third ranks first, but it and the first were left for later
+        var page = await dms.SharedIds.LoadPage(user, 1, c => c.Key == third ? 0 : 2,
+            c => c.Key == first || c.Key == third);
+
+        CollectionAssert.AreEqual(new[] { second, third, first },
+            page.Clusters.Select(c => c.Cluster.Key).ToList());
+        Assert.AreEqual(2, page.DeferredCount);
+        Assert.AreEqual(3, page.ClusterCount);
+        Assert.IsFalse(page.RankCounts.ContainsKey(0));
+        Assert.AreEqual(1, page.RankCounts[2]);
+
+        var unranked = await dms.SharedIds.LoadPage(user, 1, deferred: c => c.Key == first);
+        CollectionAssert.AreEqual(new[] { second, third, first },
+            unranked.Clusters.Select(c => c.Cluster.Key).ToList());
+    }
+
+    [TestMethod]
+    public async Task LoadPage_SongMergedElsewhere_ShowsTheCurrentCluster()
+    {
+        var (dms, user) = await CreateService("SharedIds_LoadPageStale");
+        var a = await SaveSong(dms, "Purchase:00:IS=111");
+        var b = await SaveSong(dms, "Purchase:00:IS=111\tPurchase:00:SS=sp1");
+        var c = await SaveSong(dms, "Purchase:00:SS=sp1");
+        _ = await dms.SharedIds.Seed();
+        var merged = await dms.SongIndex.SimpleMergeSongs(user, [b, c]);
+
+        var page = await dms.SharedIds.LoadPage(user, 1);
+
+        var cluster = page.Clusters.Single().Cluster;
+        CollectionAssert.AreEquivalent(new[] { a.SongId, merged.SongId }, cluster.SongIds.ToList());
+        Assert.HasCount(2, cluster.Songs);
+    }
+
+    [TestMethod]
+    public async Task LoadPage_ClusterWithARejectedPair_StartsAsLeave()
+    {
+        var (dms, user) = await CreateService("SharedIds_LoadPageRejected");
+        var a = await SaveSong(dms, "Purchase:00:IS=111\tPurchase:00:RS=USRC10000001");
+        var b = await SaveSong(dms, "Purchase:00:IS=111\tPurchase:00:SS=sp1");
+        _ = await SaveSong(dms, "Purchase:00:SS=sp1\tPurchase:00:RS=USRC10000001");
+        _ = await dms.SharedIds.Seed();
+        await dms.SharedIds.Reject(user, [(await Rows(dms)).Single(r => (r.SongA, r.SongB) == Pair(a, b)).Id]);
+
+        var entry = (await dms.SharedIds.LoadPage(user, 1)).Clusters.Single();
+
+        Assert.IsTrue(entry.Cluster.HasRejectedPair);
+        Assert.AreEqual(SharedIdAction.Leave, entry.DefaultAction);
+    }
+
+    #endregion
 }

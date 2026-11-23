@@ -176,7 +176,7 @@ public class SongIndexLocal : SongIndex
     public override Task<IEnumerable<Song>> FindArtist(string name,
         CruftFilter cruft = CruftFilter.NoCruft, bool individualArtists = false)
     {
-        var key = ArtistSplitter.ArtistKey(name);
+        var key = ArtistSplitter.ArtistKey(ArtistAliases.PreferredName(ArtistSplitter.CleanName(name)));
         var candidates = _songStore.Values.Where(s => !s.IsNull && PassesCruft(s, cruft)).ToList();
 
         var matches = individualArtists
