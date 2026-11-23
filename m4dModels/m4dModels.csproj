@@ -19,6 +19,10 @@
     <PackageReference Include="OpenIddict.EntityFrameworkCore" />
   </ItemGroup>
   <ItemGroup>
+    <!-- The artist alias table, shared with the client (ArtistNames.ts) -->
+    <EmbeddedResource Include="..\m4d\ClientApp\src\models\artist-aliases.json" LogicalName="m4dModels.artist-aliases.json" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\DanceLib\DanceLibrary.csproj" />
   </ItemGroup>
 </Project>

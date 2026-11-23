@@ -3,14 +3,15 @@
 **Type:** Plan
 **Status:** Partially implemented
 **Last verified:** 2026-11-22
-**Code:** `m4dModels/ArtistAliases.cs`, `m4dModels/Song.cs` (`EffectiveArtists`, `HasArtistAlias`, `AppendNameEdit`), `m4dModels/ArtistSplitter.cs`, `m4d/Controllers/AdminController.cs` (`BatchArtists`), `m4d/ClientApp/src/models/Song.ts`
+**Code:** `m4d/ClientApp/src/models/artist-aliases.json`, `m4dModels/ArtistAliases.cs`, `m4dModels/Song.cs` (`EffectiveArtists`, `HasArtistAlias`, `AppendNameEdit`), `m4dModels/ArtistSplitter.cs`, `m4d/Controllers/AdminController.cs` (`BatchArtists`), `m4d/ClientApp/src/models/Song.ts`
 
 `ArtistAliases` names the spelling to use for an artist credited several ways ("Pink" is "P!nk",
-"Ke$ha" is "Kesha"). Shipped 2026-11-22, on the server: the splitter, `Song.EffectiveArtists`
-and the artist page lookup read every individual artist under the name to use, and
-`BatchArtists ApplyChanged` re-saves the songs that changes. The credit itself is left as the
-service wrote it. See [individual-artists](../songs/individual-artists.md) § 2.2, § 3.4, § 5.4
-and § 6.
+"Ke$ha" is "Kesha"). Shipped 2026-11-22: the splitter, `Song.EffectiveArtists` (server and
+client) and the artist page lookup read every individual artist under the name to use, the song
+page links an artist on any of their spellings in the credit, and `BatchArtists ApplyChanged`
+re-saves the songs that changes. The table is `m4d/ClientApp/src/models/artist-aliases.json`,
+shared by both sides. The credit itself is left as the service wrote it. See
+[individual-artists](../songs/individual-artists.md) § 2.2, § 2.4, § 3.4, § 5.4, § 6 and § 8.
 
 ## Running it
 
@@ -34,16 +35,7 @@ Ferran, Paxus and so on) have no leader credited alone, so they stay whole.
 
 ## What's left
 
-### 1. Fold on the client
-
-`Song.ts` replays `Artists` itself ([individual-artists](../songs/individual-artists.md) § 2.4)
-and doesn't know the table. So on the songs whose list a person or a service recorded, the
-song page still shows the recorded spelling. Its artist links work, because the artist page
-folds the name. Move the aliases into a JSON file that both C# and TypeScript read, as
-`artists-replay-cases.json` already is for the replay rules, and fold it in the client's
-effective artists.
-
-### 2. Optionally, rewrite credits
+### Optionally, rewrite credits
 
 Rewriting `Artist` itself ("Ke$ha" → "Kesha" in the credit) makes the song list and search
 results consistent. But it overrides what the service said, and it's what the review's merges

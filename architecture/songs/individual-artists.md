@@ -83,7 +83,7 @@ var credit = ArtistSplitter.CleanName(Artist);
 return credit.Length == 0 ? [] : [ArtistAliases.PreferredName(credit)];
 ```
 
-Each name is read under the name to use (`ArtistAliases`, a short table in code: "Pink" is P!nk,
+Each name is read under the name to use (`ArtistAliases`, from `m4d/ClientApp/src/models/artist-aliases.json`: "Pink" is P!nk,
 "Ke$ha" is Kesha). That includes a list a person or a service recorded, so the artist pages and
 the artist index see one artist without anyone's edit being overwritten. `Song.HasArtistAlias`
 says whether the recorded names, or the credit standing in for them, differ from what's read.
@@ -108,6 +108,12 @@ constantly.
 `m4d/ClientApp/src/models/Song.ts` replays the same rules, because the song editor applies edits
 locally before saving. C# and TypeScript share one JSON file of replay cases
 (`artists-replay-cases.json`) so the two implementations cannot drift.
+
+The alias table is shared the same way: `artist-aliases.json` sits beside `ArtistNames.ts`, which
+imports it (`preferredArtistName`, `artistSpellings`), and `m4dModels` embeds it
+(`m4dModels.artist-aliases.json`), so `Song.effectiveArtists` folds the same names as the server.
+Adding an alias is an edit to that file; the client picks it up on the next build and the server
+on the next restart.
 
 ---
 
@@ -390,7 +396,10 @@ reflect it. Anything verifying a derived list has to reload.
 `ArtistCredit.vue` renders the credit **verbatim** and overlays links: each stored artist is located
 as a substring of the credit and only those spans become links. So `Duke Ellington and His
 Orchestra` displays in full with just *Duke Ellington* linked. Names not found in the credit —
-typically pulled from a title's `feat.` clause — are appended as `(with X, Y)`.
+typically pulled from a title's `feat.` clause — are appended as `(with X, Y)`. An artist is
+located by any of their spellings (`artistSpellings`), the longest found first, so a "Pink" credit
+links P!nk on "Pink" instead of reading "Pink (with P!nk)", and "The New 101 Strings Orchestra"
+is linked whole as 101 Strings Orchestra.
 
 Matching is plain substring, longest-first is *not* applied, so a short name processed early can
 land inside a longer word (`Sam` inside `Samantha`). Rare and cosmetic.
@@ -670,10 +679,9 @@ harness when you want it built from a backup instead.
   [#277](https://github.com/music4dance/music4dance/issues/277). The artist index page has its own
   type-ahead, which needs no suggester ([§9.4](#94-type-ahead)); what's missing is typing an artist
   into the main search box and being completed there.
-- **Name variants are reconciled only on the server.** `ArtistAliases` folds `P!nk` / `Pink` in
-  `EffectiveArtists`, the splitter and the artist page lookup, but the client's replay doesn't
-  know the table, and `LØLØ` / `Lolo` isn't in it:
-  [plans/artist-alias-fixup](../plans/artist-alias-fixup.md).
+- **Name variants are reconciled only where the alias table names them.** `artist-aliases.json`
+  folds `P!nk` / `Pink` on both sides, but `LØLØ` / `Lolo` isn't in it. Credits themselves are
+  never rewritten: [plans/artist-alias-fixup](../plans/artist-alias-fixup.md).
 - **Classical credits that glue an ensemble to a person with no separator** (`Württemberg
   Philharmonic Orchestra and Jorge Rotter Aldo Antognazzi`) need a name dictionary to split. They
   are 1–5 song credits.

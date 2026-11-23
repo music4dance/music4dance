@@ -4,6 +4,8 @@
  * runs on the server. See architecture/songs/individual-artists.md.
  */
 
+import aliasTable from "./artist-aliases.json";
+
 export const ARTISTS_DELIMITER = "|";
 export const ARTIST_BOT_USER = "artist-bot";
 
@@ -45,6 +47,33 @@ export function artistKey(name?: string | null): string {
     .replace(/\p{Mn}/gu, "");
 }
 
+// Must match ArtistAliases.Key: the artistKey's letters and digits alone
+function aliasKey(name: string): string {
+  return artistKey(name).replace(/[^\p{L}\p{Nd}]/gu, "");
+}
+
+// Each alias's key, to its row in artist-aliases.json (shared with m4dModels/ArtistAliases.cs);
+// the first list to name a key wins, as on the server
+const aliasRows = new Map<string, string[]>();
+for (const names of aliasTable.aliases) {
+  for (const name of names) {
+    const key = aliasKey(name);
+    if (key && !aliasRows.has(key)) {
+      aliasRows.set(key, names);
+    }
+  }
+}
+
+/** Must match ArtistAliases.PreferredName: "Pink" is P!nk; a name without aliases comes back as is. */
+export function preferredArtistName(name: string): string {
+  return aliasRows.get(aliasKey(name))?.[0] ?? name;
+}
+
+/** Every name the artist is credited under, the one to use first; just the name without aliases. */
+export function artistSpellings(name: string): string[] {
+  return aliasRows.get(aliasKey(name)) ?? [name];
+}
+
 export interface ArtistCount {
   artist: string;
   count: number;
@@ -58,7 +87,8 @@ export function collaborators(
   artist: string,
   songs: { effectiveArtists: string[] }[],
 ): ArtistCount[] {
-  const self = artistKey(artist);
+  // The page's name may be an alias ("Pink"), while the songs read as the name to use
+  const self = artistKey(preferredArtistName(artist));
   const groups = new Map<string, Map<string, number>>();
   for (const song of songs) {
     const keys = new Set(song.effectiveArtists.map(artistKey));
@@ -106,23 +136,35 @@ export interface ArtistCreditLayout {
 
 /**
  * Splits a credit ("Dolly Parton & Kenny Rogers") into text segments so each individual artist
- * that appears in it can be linked in place. Matching is case-insensitive.
+ * that appears in it can be linked in place. Matching is case-insensitive, and an artist matches
+ * any of their spellings (artistSpellings), so P!nk is linked on the "Pink" in "Pink feat. X".
  */
 export function artistCreditLayout(credit: string, artists: string[]): ArtistCreditLayout {
   const lower = credit.toLowerCase();
   const matches: { start: number; end: number; artist: string }[] = [];
   const extra: string[] = [];
 
-  for (const artist of artists) {
-    const needle = artist.toLowerCase();
+  const find = (needle: string): number => {
     let start = needle ? lower.indexOf(needle) : -1;
     while (start !== -1 && matches.some((m) => start < m.end && start + needle.length > m.start)) {
       start = lower.indexOf(needle, start + 1);
     }
-    if (start === -1) {
-      extra.push(artist);
+    return start;
+  };
+
+  for (const artist of artists) {
+    // The longest of its spellings in the credit, so "The New 101 Strings Orchestra" is linked
+    // whole rather than on the "101 Strings Orchestra" inside it
+    const needles = [...new Set([artist, ...artistSpellings(artist)])]
+      .sort((a, b) => b.length - a.length)
+      .map((s) => s.toLowerCase());
+    const found = needles
+      .map((needle) => ({ needle, start: find(needle) }))
+      .find((f) => f.start !== -1);
+    if (found) {
+      matches.push({ start: found.start, end: found.start + found.needle.length, artist });
     } else {
-      matches.push({ start, end: start + needle.length, artist });
+      extra.push(artist);
     }
   }
 

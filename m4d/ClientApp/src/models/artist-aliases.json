@@ -1,0 +1,28 @@
+{
+  "_comment": "Names one artist is credited under: the first of each list is the one to use, the rest are the same artist. Names compare by their letters and digits alone, so case, accents, spaces and punctuation don't matter. A leader and their group (Andy Fortuna Productions) is the splitter's job, not this table's. Read by m4dModels/ArtistAliases.cs (embedded) and ArtistNames.ts; see architecture/songs/individual-artists.md.",
+  "aliases": [
+    [
+      "101 Strings Orchestra",
+      "101 String Orchestra",
+      "101 Strings",
+      "101 Strings Orch",
+      "The 101 Strings Orchestra",
+      "New 101 Strings Orchestra",
+      "The New 101 Strings Orchestra",
+      "New 101 String Orchestra",
+      "The New 101 String Orchestra",
+      "The New 101 Strings Orch"
+    ],
+    ["Lady A", "Lady Antebellum"],
+    ["P!nk", "Pink"],
+    ["Orquesta Yambao", "Yambao Orquesta"],
+    ["El Gran Combo De Puerto Rico", "El Gran Combo"],
+    ["Michael Paul Kramer", "Michael P. Kramer"],
+    ["Sasha Sloan", "Sasha Alex Sloan"],
+    ["Kesha", "Ke$ha"],
+    ["Village People", "The Village People"],
+    ["Bobby V.", "Bobby Valentino"],
+    ["Café Latino", "Cafe Latino"],
+    ["Son By Four", "Son By 4"]
+  ]
+}

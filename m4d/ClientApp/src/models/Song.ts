@@ -16,8 +16,10 @@ import { safeDanceDatabase } from "@/helpers/DanceEnvironmentManager";
 import {
   ARTIST_BOT_USER,
   type ArtistsSource,
+  artistKey,
   cleanArtistName,
   deserializeArtists,
+  preferredArtistName,
 } from "./ArtistNames";
 
 @jsonObject
@@ -64,12 +66,16 @@ export class Song extends TaggableObject {
   }
 
   /** The individual artists for display and linking: the explicit list, else the cleaned credit. */
+  // Each under the name to use (artist-aliases.json), as Song.EffectiveArtists on the server
   public get effectiveArtists(): string[] {
     if (this.artists) {
-      return this.artists;
+      const preferred = this.artists.map(preferredArtistName);
+      return preferred.filter(
+        (name, index) => preferred.findIndex((p) => artistKey(p) === artistKey(name)) === index,
+      );
     }
     const credit = cleanArtistName(this.artist);
-    return credit ? [credit] : [];
+    return credit ? [preferredArtistName(credit)] : [];
   }
 
   /** True when the individual artists say something beyond "the credit is a single artist". */
