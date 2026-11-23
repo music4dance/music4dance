@@ -32,7 +32,7 @@ exports[`shared-id-review page > renders the review page 1`] = `
         </div>
       </transition-stub>
       <!--v-if-->
-      <p id="queue-summary">51 pending pairs in 45 clusters. Sorted by the preview run 2026-11-10 01:30: the 4 clusters still pending that differed only in their artist credits (feat. included) come first, then the 7 close matches. That preview found 812 clusters with matching titles and artists, 140 that differ only by feat. and 25 with artists credited differently to merge (<a href="/SharedIds/Preview">show preview</a>). The 3 clusters left for later come last. </p>
+      <p id="queue-summary">51 pending pairs in 45 clusters. Sorted by the preview run 2026-11-10 09:30: the 4 clusters still pending that differed only in their artist credits (feat. included) come first, then the 7 close matches. That preview found 812 clusters with matching titles and artists, 140 that differ only by feat. and 25 with artists credited differently to merge (<a href="/SharedIds/Preview">show preview</a>). The 3 clusters left for later come last. </p>
       <div class="mb-3 d-flex flex-wrap gap-2">
         <form method="post" action="/SharedIds/Seed"><input type="hidden" name="__RequestVerificationToken" value="token"><button class="btn btn-outline-secondary" type="submit">Queue existing shared ids</button></form>
         <form method="post" action="/SharedIds/MergeMatching"><input type="hidden" name="__RequestVerificationToken" value="token"><button class="btn btn-outline-danger" type="submit">Merge all with matching title and artist</button></form>

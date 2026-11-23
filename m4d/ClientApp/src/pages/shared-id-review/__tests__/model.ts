@@ -120,7 +120,8 @@ export const model = {
   wouldMergeFeaturingCount: 140,
   wouldMergeCreditsCount: 25,
   deferredCount: 3,
-  sortedBy: "2026-11-10T09:30:00+00:00",
+  // No offset, so it reads as local time and the snapshot is the same in every time zone
+  sortedBy: "2026-11-10T09:30:00",
   message: "Merged 1, marked 0 not the same, left 2.",
   clusters: [featCluster, rejectedCluster, staleCluster],
 };
