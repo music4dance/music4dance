@@ -2,13 +2,13 @@
 
 **Type:** Runbook
 **Status:** Current. Both the test and production indexes are rolled out (confirmed 2026-10-01).
-**Last verified:** 2026-10-01
+**Last verified:** 2026-11-22 (After an alias change; the rest 2026-10-01)
 
 ## When to use
 
 - Rolling the `Artists` field out to a **new** index or environment (for example after a search
   index migration).
-- Re-running the splitter after a heuristic change.
+- Re-running the splitter after a heuristic change or an alias table change.
 - Repairing coverage, or rolling back.
 
 What `BatchArtists`, the save hook and the coverage check do is described in
@@ -43,6 +43,28 @@ Do the test index first. All steps are on **Admin → Initialization Tasks** unl
 Bump `ArtistSplitter.Version`, re-run the analysis harness and diff the reports, then **Report** and
 **ApplyChanged**. `Apply` is only needed to repair coverage — `ApplyChanged` skips songs whose log
 doesn't change, which is exactly the set with a missing index value.
+
+## After an alias change
+
+Rows added to `m4d/ClientApp/src/models/artist-aliases.json` (or a changed name to use) need a
+deploy, then **BatchArtists → Report** and **ApplyChanged**, test index first. One pass does both
+parts:
+
+- Songs with no list a person or a service recorded get one from the splitter, which puts each
+  name under the name to use (`artist-bot`; a "Ke$ha" credit gets Kesha).
+- Songs whose recorded list names an alias keep their log, and are re-saved so the index field
+  reads them under the name to use. The log marks these "alias, index only", and the summary
+  counts them as `AliasesReindexed`.
+
+Then check a few artist pages (`?name=Ke$ha` and `?name=Kesha` should show the same songs) and
+the artist index. The song page needs no data change: it reads the table from the client build.
+
+The first run, for the 2026-11-22 table (the Kesha, Café Latino and Son By Four rows, and
+"Productions" in the splitter's leader-and-group rule, `ArtistSplitter.Version` 4), was checked
+on the test index on 2026-11-22. On the 2026-11-03 snapshot about 270 songs were credited under a
+non-preferred spelling (112 of them the 101 Strings Orchestra's), plus 10 whose recorded
+individual artists named one, and 64 credits are a leader's "Productions" (59 Andy Fortuna, 5
+John Upegui and Steve Rice).
 
 ## Rollback
 

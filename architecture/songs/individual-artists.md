@@ -626,7 +626,7 @@ individual artists through the same `ArtistCredit` component.
 ## 11. Operations
 
 Production and test are both fully rolled out (2026-10-01). The procedures for a new index or
-environment, re-runs after a heuristic change, and rollback are in
+environment, re-runs after a heuristic or alias table change, and rollback are in
 [runbooks/artist-index-operations](../runbooks/artist-index-operations.md).
 
 ---
@@ -681,7 +681,8 @@ harness when you want it built from a backup instead.
   into the main search box and being completed there.
 - **Name variants are reconciled only where the alias table names them.** `artist-aliases.json`
   folds `P!nk` / `Pink` on both sides, but `LØLØ` / `Lolo` isn't in it. Credits themselves are
-  never rewritten: [plans/artist-alias-fixup](../plans/artist-alias-fixup.md).
+  never rewritten: [plans/artist-alias-fixup](../plans/artist-alias-fixup.md). After a table change,
+  see [artist-index-operations](../runbooks/artist-index-operations.md) § After an alias change.
 - **Classical credits that glue an ensemble to a person with no separator** (`Württemberg
   Philharmonic Orchestra and Jorge Rotter Aldo Antognazzi`) need a name dictionary to split. They
   are 1–5 song credits.

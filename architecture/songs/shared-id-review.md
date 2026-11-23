@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-18
+**Last verified:** 2026-11-22
 **Code:** `m4dModels/SharedIdLog.cs`, `m4dModels/SharedIdCandidate.cs`, `m4d/Utilities/MusicServiceManager.cs` (`UpdateFromTracks`, `GetISRCData`), `m4dModels/SharedIdTypes.cs` (clusters, choices, page), `m4dModels/SharedIdMatcher.cs` (match tiers), `m4dModels/FeaturedCleanup.cs`, `m4dModels/SharedIdOwnership.cs` (Sort out ids), `m4dModels/ArtistAliases.cs`, `m4dModels/SharedIdArtists.cs` (Merge artist), `m4d/Controllers/SharedIdsController.cs` (page, background tasks), `m4d/APIControllers/SharedIdsController.cs` (apply, track lookup, owners), `m4d/ViewModels/SharedIdReviewModel.cs` (page model, apply request), `m4d/ClientApp/src/pages/shared-id-review/` (page app), `m4d/Services/SharedIdPreviewStore.cs` (last preview and review sort), `m4d/Views/SharedIds/` (last preview), `e2e/tests/shared-ids.spec.ts`
 
 ## Overview
@@ -226,8 +226,9 @@ tooltips).
 - More automatic tiers, once a pattern in the close and different clusters is clear enough to
   merge without review.
 - Bring the matching and the feat. cleanup to the add-time title match:
-  [plans/add-song-matching-next](../plans/add-song-matching-next.md). Fold the aliases into
-  individual artists and artist pages: [plans/artist-alias-fixup](../plans/artist-alias-fixup.md).
+  [plans/add-song-matching-next](../plans/add-song-matching-next.md). Aliases are already folded
+  into individual artists and artist pages; rewriting credits is
+  [plans/artist-alias-fixup](../plans/artist-alias-fixup.md).
   [song-merge-algorithm](song-merge-algorithm.md) § Matching new songs by title compares the two
   matchers.
 
