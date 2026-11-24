@@ -488,11 +488,28 @@ public static class M4dApplicationExtensions
         // Partner API keys (m4d-api): hashes and client limits go to the partner-keys vault the
         // API reads. Without PartnerApi:KeyVaultUri, keys are still issued and the page shows the
         // vault command to run by hand.
-        var partnerVaultUri = configuration["PartnerApi:KeyVaultUri"];
-        if (!string.IsNullOrEmpty(partnerVaultUri))
+        // A value that isn't an absolute URI is treated as unset, with a warning, rather than
+        // crashing startup (a Staging UsageTableUri of "true" took m4d-test down, 2026-11-24)
+        Uri PartnerUri(string key)
+        {
+            var value = configuration[key];
+            if (string.IsNullOrEmpty(value))
+            {
+                return null;
+            }
+            if (Uri.TryCreate(value, UriKind.Absolute, out var uri))
+            {
+                return uri;
+            }
+            Console.WriteLine($"WARNING: {key} is not an absolute URI ('{value}'); treating it as unset");
+            return null;
+        }
+
+        var partnerVaultUri = PartnerUri("PartnerApi:KeyVaultUri");
+        if (partnerVaultUri != null)
         {
             services.AddSingleton<IPartnerKeyVault>(new PartnerKeyVault(
-                new Azure.Security.KeyVault.Secrets.SecretClient(new Uri(partnerVaultUri), azureCredential)));
+                new Azure.Security.KeyVault.Secrets.SecretClient(partnerVaultUri, azureCredential)));
         }
         else
         {
@@ -505,11 +522,11 @@ public static class M4dApplicationExtensions
 
         // The API's usage table, read by the usage pages; the web app's identity needs Storage
         // Table Data Reader on the API's storage account (m4d-api/infra/main.bicep)
-        var partnerUsageUri = configuration["PartnerApi:UsageTableUri"];
-        services.AddSingleton<IPartnerUsageReader>(string.IsNullOrEmpty(partnerUsageUri)
+        var partnerUsageUri = PartnerUri("PartnerApi:UsageTableUri");
+        services.AddSingleton<IPartnerUsageReader>(partnerUsageUri == null
             ? new UnconnectedPartnerUsageReader()
             : new PartnerUsageReader(new Azure.Data.Tables.TableClient(
-                new Uri(partnerUsageUri), UsageColumns.TableName, azureCredential)));
+                partnerUsageUri, UsageColumns.TableName, azureCredential)));
 
         // reCAPTCHA
         services.AddReCaptchaWithResilience(configuration);
