@@ -54,7 +54,9 @@ Skip this if the web app's `/PartnerKeys/Clients` page doesn't show the notice t
    ```
 
 2. Restart the web app (`az webapp restart -n m4d-test -g m4d-Web`). The vault and usage table
-   clients are created at startup, so a sentinel refresh doesn't pick these up.
+   clients are created at startup, so a sentinel refresh doesn't pick these up. A value that
+   isn't an absolute URL is treated as unset: the page shows the not-set notice again, and the
+   startup log has a `WARNING: PartnerApi:... is not an absolute URI` line.
 3. Check that the web app's managed identity has Key Vault Secrets Officer on the vault. The API's
    Bicep grants it, so this only fails if the identity was recreated:
 
