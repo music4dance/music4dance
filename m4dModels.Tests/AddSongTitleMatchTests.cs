@@ -4,9 +4,9 @@ namespace m4dModels.Tests;
 
 /// <summary>
 /// The add-time title match (SongIndex.MergeFromTitle, reached through MatchSongs): versions of a
-/// title that differ only in a remaster or single-version note match, a qualifier-only difference
-/// matches only when the lengths agree, artists compare under their aliases and without a
-/// leader's backing group, and length counts for every match type.
+/// title that differ only in a remaster or single-version note (or a feat. clause) match, a dash
+/// qualifier never matches the plain title, artists compare under their aliases, without a
+/// leader's backing group and without a feat. credit, and length counts for every match type.
 /// </summary>
 [TestClass]
 public class AddSongTitleMatchTests
@@ -78,6 +78,30 @@ public class AddSongTitleMatchTests
 
         Assert.IsNull(merge.Right);
         Assert.AreEqual(MatchType.None, merge.MatchType);
+    }
+
+    [TestMethod]
+    public async Task Artist_AFeaturedCreditMatchesTheSongOfItsPrimaryArtist()
+    {
+        // The track brings a guest ("feat.") onto the catalog's "The Artist" song: the same recording
+        // (NameMergedSong then moves the guest into the individual artists)
+        var dms = await CreateService("AddTitle_Featured");
+        var existing = await Save(dms, "Crazy Song", "The Artist", 208);
+
+        var merge = await Match(dms, await Incoming(dms, "Crazy Song", "The Artist feat. Crazy Man", 210));
+
+        Assert.AreEqual(existing.SongId, merge.Right?.SongId);
+    }
+
+    [TestMethod]
+    public async Task Title_AFeatClauseMatchesThePlainTitle()
+    {
+        var dms = await CreateService("AddTitle_FeatTitle");
+        var existing = await Save(dms, "Crazy Song", "The Artist", 208);
+
+        var merge = await Match(dms, await Incoming(dms, "Crazy Song (feat. Crazy Man)", "The Artist", 208));
+
+        Assert.AreEqual(existing.SongId, merge.Right?.SongId);
     }
 
     [TestMethod]

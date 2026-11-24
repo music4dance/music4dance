@@ -355,7 +355,7 @@ internal class SpotifyService : MusicService
             lock (s_resultsLock)
             {
                 // Same unbounded-but-periodically-cleared cache shape as
-                // MusicServiceManager.s_trackCache - a handful of tracks sharing the same
+                // MusicServiceManager's track cache - a handful of tracks sharing the same
                 // album/artist (common within one playlist) would otherwise re-fetch that
                 // album's/artist's genres from scratch on every track.
                 if (s_results.Count > 10000)

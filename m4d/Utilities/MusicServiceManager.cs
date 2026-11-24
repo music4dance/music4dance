@@ -490,11 +490,31 @@ public class MusicServiceManager(IConfiguration configuration)
         }
 
         var sid = $"\"{service.CID}:{id}\"";
-        if (s_trackCache.TryGetValue(sid, out var ret))
+        if (TrackCache.Count > 10000)
         {
-            return ret;
+            TrackCache.Clear();
         }
 
+        // Concurrent requests for one id share a single lookup (the Lazy), and only a successful
+        // lookup stays cached: a failure (a 429, a timeout, an unknown id) is retried next time
+        var cached = TrackCache.GetOrAdd(sid, _ => new Lazy<Task<ServiceTrack>>(
+            () => FetchMusicServiceTrack(id, service), LazyThreadSafetyMode.ExecutionAndPublication));
+        var ret = await cached.Value;
+        if (ret == null)
+        {
+            _ = TrackCache.TryRemove(new KeyValuePair<string, Lazy<Task<ServiceTrack>>>(sid, cached));
+        }
+
+        return ret;
+    }
+
+    // The bearer token a data-API call carries. A seam so tests needn't reach the token endpoint.
+    protected virtual Task<string> ServiceAuthorization(MusicService service, IPrincipal principal) =>
+        AdmAuthentication.GetServiceAuthorization(Configuration, service.Id, principal);
+
+    private async Task<ServiceTrack> FetchMusicServiceTrack(string id, MusicService service)
+    {
+        ServiceTrack ret = null;
         if (service.Id != ServiceType.Amazon)
         {
             try
@@ -511,12 +531,6 @@ public class MusicServiceManager(IConfiguration configuration)
             }
         }
 
-        if (s_trackCache.Count > 10000)
-        {
-            s_trackCache.Clear();
-        }
-
-        s_trackCache[sid] = ret;
         return ret;
     }
 
@@ -587,7 +601,10 @@ public class MusicServiceManager(IConfiguration configuration)
     /// </summary>
     internal static async Task<Song> NameMergedSong(DanceMusicCoreService dms, Song merged, Song incoming)
     {
-        var names = FeaturedCleanup.Propose(merged, [incoming]);
+        // The same knowledge the add-time match compared the two credits with, so the naming splits
+        // a credit (a leader, "A & B") the way the match did
+        var knowledge = await dms.SongIndex.CreditKnowledge(merged, incoming);
+        var names = FeaturedCleanup.Propose(merged, [incoming], knowledge);
         if (!merged.AppendNameEdit(new ApplicationUser(Song.M4dUser), names))
         {
             return merged;
@@ -637,8 +654,11 @@ public class MusicServiceManager(IConfiguration configuration)
         await dms.SongIndex.SaveSong(song);
     }
 
-    // Process-wide and read by concurrent requests and tests; a plain Dictionary corrupts under that
-    private static readonly ConcurrentDictionary<string, ServiceTrack> s_trackCache = new();
+    // Process-wide, so a track is looked up once across requests (the manager is built per request).
+    // Tests give their manager its own cache (TrackCache) so fixture data can't reach other managers.
+    private static readonly ConcurrentDictionary<string, Lazy<Task<ServiceTrack>>> s_sharedTrackCache = new();
+
+    internal ConcurrentDictionary<string, Lazy<Task<ServiceTrack>>> TrackCache { get; init; } = s_sharedTrackCache;
 
     public async Task<GenericPlaylist> LookupPlaylist(MusicService service, string url,
         IEnumerable<string> oldTrackList = null, IPrincipal principal = null,
@@ -1464,9 +1484,7 @@ public class MusicServiceManager(IConfiguration configuration)
             string auth = null;
             if (service != null)
             {
-                auth = await AdmAuthentication.GetServiceAuthorization(
-                    Configuration, service.Id,
-                    principal);
+                auth = await ServiceAuthorization(service, principal);
             }
 
             if (auth != null)

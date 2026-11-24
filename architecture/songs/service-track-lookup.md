@@ -102,8 +102,9 @@ more first. See [song-merge-algorithm](song-merge-algorithm.md) § Matching new 
 
 1. **`GetMusicServiceTrack(id, service)`** — fetches the track's own metadata from the live
    service API (`BuildTrackRequest` → `service.ParseTrackResults`), *not* a catalog lookup. Result
-   is memoized in a static, process-lifetime-only cache (`s_trackCache`, keyed `"{CID}:{id}"`,
-   cleared wholesale once it exceeds 10,000 entries — not an LRU). For Spotify, `ParseTrackResults`
+   is memoized in a static, process-lifetime-only cache (`s_sharedTrackCache`, keyed `"{CID}:{id}"`,
+   cleared wholesale once it exceeds 10,000 entries — not an LRU). Concurrent requests for one id
+   share one lookup, and a failed lookup (null) isn't kept, so the next request tries the service again. For Spotify, `ParseTrackResults`
    already reads `external_ids.isrc` into `ServiceTrack.ISRC`
    ([SpotifyService.cs:182-193](../../m4dModels/SpotifyService.cs#L182)), which step 3 uses.
 2. **`Song.UserCreateFromTrack`** — builds a transient, unsaved `Song` from the fetched track (row

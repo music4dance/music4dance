@@ -984,13 +984,19 @@ public class SongIndex
             songs = [.. songs.Concat(await SongsFromTitle(cleaned)).DistinctBy(s => s.SongId)];
         }
 
-        // Same title (version notes aside, or a qualifier when the lengths agree), a length within
+        // Same title (version notes and a feat. clause aside), a length within
         // SharedIdMatcher.LengthTolerance, and the same artist credit
+        var titleMatches = songs.Where(s =>
+            SharedIdMatcher.AddTitlesMatch(song, s) && !SharedIdMatcher.LengthsApart(song, s)).ToList();
+
+        // The incoming credit's evidence is the same for every candidate, so it's looked up once
+        var songKnowledge = titleMatches.Count > 0 && !string.IsNullOrWhiteSpace(song.Artist)
+            ? await ArtistKnowledgeOrNull(song)
+            : null;
         var candidates = new List<Song>();
-        foreach (var s in songs.Where(s =>
-                     SharedIdMatcher.AddTitlesMatch(song, s) && !SharedIdMatcher.LengthsApart(song, s)))
+        foreach (var s in titleMatches)
         {
-            if (await CreditsAgree(song, s))
+            if (await CreditsAgree(song, songKnowledge, s))
             {
                 candidates.Add(s);
             }
@@ -1046,20 +1052,45 @@ public class SongIndex
     }
 
     // Whether two credits name the same artist for the add-time match (SharedIdMatcher.CreditKey):
-    // a blank credit matches anything, as it does in the title-artist match. The catalog's artist
-    // knowledge is asked for the two credits (GetArtistKnowledge, which only queries the index for
-    // a credit with ambiguous separators), as the save hook does.
-    private async Task<bool> CreditsAgree(Song song, Song other)
+    // a blank credit matches anything, as it does in the title-artist match. The incoming song's
+    // knowledge is passed in (see MergeFromTitle); the candidate's is looked up here.
+    private async Task<bool> CreditsAgree(Song song, IArtistKnowledge songKnowledge, Song other)
     {
         if (string.IsNullOrWhiteSpace(song.Artist) || string.IsNullOrWhiteSpace(other.Artist))
         {
             return true;
         }
 
-        var knowledge = FeaturedCleanup.WithGroupLeaders(
-            FeaturedCleanup.Either(await GetArtistKnowledge(song), await GetArtistKnowledge(other)),
-            [song, other]);
+        var knowledge = CombineKnowledge(songKnowledge, await ArtistKnowledgeOrNull(other), song, other);
         return SharedIdMatcher.CreditKey(song.Artist, knowledge) == SharedIdMatcher.CreditKey(other.Artist, knowledge);
+    }
+
+    /// <summary>
+    /// The artist knowledge for comparing two songs' credits: the catalog's evidence for each
+    /// credit's ambiguous separators, and the leaders the two songs' own credits name. The add-time
+    /// match (MergeFromTitle) and the naming of a merge (MusicServiceManager.NameMergedSong) both use
+    /// it, so they split a credit the same way.
+    /// </summary>
+    public async Task<IArtistKnowledge> CreditKnowledge(Song song, Song other) =>
+        CombineKnowledge(await ArtistKnowledgeOrNull(song), await ArtistKnowledgeOrNull(other), song, other);
+
+    private static IArtistKnowledge CombineKnowledge(
+        IArtistKnowledge first, IArtistKnowledge second, Song song, Song other) =>
+        FeaturedCleanup.WithGroupLeaders(FeaturedCleanup.Either(first, second), [song, other]);
+
+    // The index's evidence for one credit, or none (strong rules only) when the lookup fails: a
+    // search error or throttle must not fail the add or import that is only asking for a match
+    private async Task<IArtistKnowledge> ArtistKnowledgeOrNull(Song song)
+    {
+        try
+        {
+            return await GetArtistKnowledge(song);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"Artist knowledge skipped for {song.SongId}: {ex.Message}");
+            return null;
+        }
     }
 
     private async Task<LocalMerger> MergeFromSongId(Song song)
