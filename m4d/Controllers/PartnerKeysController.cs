@@ -3,6 +3,8 @@ using m4d.Services;
 using m4d.Services.ServiceHealth;
 using m4d.ViewModels;
 
+using m4dApi;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -110,16 +112,59 @@ public class PartnerKeysController(
     }
 
     //
+    // GET: /PartnerKeys/Usage?clientId=acme
+    // The last 30 UTC days from the API's usage table, for an admin or the client's own developers
+    [Authorize(Roles = DeveloperOrAdmin)]
+    public async Task<ActionResult> Usage(string clientId, [FromServices] IPartnerUsageReader usage)
+    {
+        if (!await CanManage(clientId))
+        {
+            return Forbid();
+        }
+
+        var client = await keys.Client(clientId);
+        if (client == null)
+        {
+            return NotFound();
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        IReadOnlyList<PartnerUsageDay> rows = [];
+        string error = null;
+        if (usage.IsConnected)
+        {
+            try
+            {
+                rows = await usage.Days(clientId, today.AddDays(1 - PartnerUsageReport.TrailingDays), today);
+            }
+            catch (Exception ex) when (ex is Azure.RequestFailedException or Azure.Identity.AuthenticationFailedException)
+            {
+                logger.LogWarning(ex, "Couldn't read partner usage for {Client}", clientId);
+                error = "Usage isn't available right now. Try again in a few minutes.";
+            }
+        }
+
+        return View(new PartnerUsageModel
+        {
+            Client = client,
+            Report = PartnerUsageReport.Trailing(rows, today, client.SoftCap ?? PartnerDefaults.BuiltInSoftCap),
+            Connected = usage.IsConnected,
+            IsAdmin = User.IsInRole(AdminRole),
+            Error = error
+        });
+    }
+
+    //
     // POST: /PartnerKeys/SaveClient
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = AdminRole)]
     public async Task<ActionResult> SaveClient(string id, string name, double? ratePerSecond, int? burst,
-        long? dailyCap, bool disabled = false, bool create = false)
+        long? dailyCap, long? softCap, bool disabled = false, bool create = false)
     {
         try
         {
-            var manual = await keys.SaveClient(id, name, ratePerSecond, burst, dailyCap, disabled, create);
+            var manual = await keys.SaveClient(id, name, ratePerSecond, burst, dailyCap, disabled, create, softCap);
             return RedirectToAction(nameof(Clients), new
             {
                 message = create ? $"Added client {id}." : $"Saved client {id}.",

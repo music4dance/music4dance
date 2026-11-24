@@ -24,7 +24,7 @@ public interface IUsageTable
 /// </summary>
 public class StorageUsageTable(TableClient table) : IUsageTable
 {
-    public const string TotalColumn = "total";
+    public const string TotalColumn = UsageColumns.Total;
     private const int Attempts = 5;
     private bool _created;
 
@@ -56,7 +56,7 @@ public class StorageUsageTable(TableClient table) : IUsageTable
 
                 // Limited requests are stored but don't count toward the total the cap reads
                 var total = (entity.GetInt64(TotalColumn) ?? 0) +
-                    counts.Where(c => c.Key != UsageMeter.Limited).Sum(c => c.Value);
+                    counts.Where(c => UsageColumns.IsCounted(c.Key)).Sum(c => c.Value);
                 entity[TotalColumn] = total;
                 if (existing.HasValue)
                 {
@@ -92,13 +92,57 @@ public class StorageUsageTable(TableClient table) : IUsageTable
 public class UsageMeter(IUsageTable table, ILogger<UsageMeter> logger, TimeProvider time)
 {
     // Requests turned away by the rate limit or the daily cap; counted, but not toward the cap
-    public const string Limited = "limited";
+    public const string Limited = UsageColumns.Limited;
 
     private readonly Lock _gate = new();
     private Dictionary<(string Client, string Day), Dictionary<string, long>> _pending = [];
     private readonly Dictionary<(string Client, string Day), long> _stored = [];
 
+    // Events already noted on this instance, so each is counted or logged once per period
+    private readonly HashSet<(string Client, string Event, string Period)> _noticed = [];
+
     public static string Day(DateTimeOffset time) => time.UtcDateTime.ToString("yyyy-MM-dd");
+
+    private static string Minute(DateTimeOffset time) => time.UtcDateTime.ToString("yyyy-MM-ddTHH:mm");
+
+    /// <summary>
+    /// Counts a request the rate limit turned away. Returns true for the first one from this
+    /// client in this minute on this instance, which also counts a rate-limited minute.
+    /// </summary>
+    public bool RecordRateLimited(string clientId)
+    {
+        Record(clientId, Limited);
+        if (!Notice(clientId, UsageColumns.RateLimitedMinutes, Minute(time.GetUtcNow())))
+        {
+            return false;
+        }
+
+        Record(clientId, UsageColumns.RateLimitedMinutes);
+        return true;
+    }
+
+    /// <summary>
+    /// Counts a request the daily cap turned away. Returns true for the first one from this client
+    /// today on this instance.
+    /// </summary>
+    public bool RecordCapLimited(string clientId)
+    {
+        Record(clientId, Limited);
+        Record(clientId, UsageColumns.CapLimited);
+        return Notice(clientId, UsageColumns.CapLimited, Day(time.GetUtcNow()));
+    }
+
+    /// <summary>True the first time this instance sees <paramref name="eventName"/> for the client today.</summary>
+    public bool NoticeToday(string clientId, string eventName) =>
+        Notice(clientId, eventName, Day(time.GetUtcNow()));
+
+    private bool Notice(string clientId, string eventName, string period)
+    {
+        lock (_gate)
+        {
+            return _noticed.Add((clientId, eventName, period));
+        }
+    }
 
     public void Record(string clientId, string result)
     {
@@ -121,7 +165,7 @@ public class UsageMeter(IUsageTable table, ILogger<UsageMeter> logger, TimeProvi
         lock (_gate)
         {
             var pending = _pending.TryGetValue(key, out var counts)
-                ? counts.Where(c => c.Key != Limited).Sum(c => c.Value)
+                ? counts.Where(c => UsageColumns.IsCounted(c.Key)).Sum(c => c.Value)
                 : 0;
             return _stored.GetValueOrDefault(key) + pending;
         }
@@ -140,6 +184,9 @@ public class UsageMeter(IUsageTable table, ILogger<UsageMeter> logger, TimeProvi
             {
                 _ = _stored.Remove(old);
             }
+
+            // Minutes are yyyy-MM-ddTHH:mm, so this drops past minutes' days too
+            _ = _noticed.RemoveWhere(n => !n.Period.StartsWith(today, StringComparison.Ordinal));
 
             // Also read back the clients seen today with nothing new here, to pick up the counts
             // other instances flushed

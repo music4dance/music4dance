@@ -17,12 +17,16 @@
 </p>
 
 <p class="form-text">
-    <strong>Limit defaults:</strong> 20 requests/second, burst 50, daily cap 100,000. A blank limit
-    isn't pinned to these numbers: it's saved as empty, and the API applies its current default on
-    every request, so a client with blank limits follows any later change to the defaults. Those
-    are the API's built-in values; the <code>PARTNER_DEFAULT_RATE</code>,
-    <code>PARTNER_DEFAULT_BURST</code> and <code>PARTNER_DEFAULT_DAILY_CAP</code> app settings on
-    the function app override them. Enter a number only to give a client its own limit.
+    <strong>Limit defaults:</strong> 20 requests/second, burst 50, daily cap 100,000, soft limit
+    25,000 a day. The rate, burst and daily cap are hard limits (past them the API answers
+    <code>429</code>), sized to protect Search rather than to ration a partner. The soft limit
+    refuses nothing: crossing it logs a warning for an alert and highlights the day on the usage
+    page. A blank limit isn't pinned to these numbers: it's saved as empty, and the API applies its
+    current default on every request, so a client with blank limits follows any later change to the
+    defaults. Those are the API's built-in values; the <code>PARTNER_DEFAULT_RATE</code>,
+    <code>PARTNER_DEFAULT_BURST</code>, <code>PARTNER_DEFAULT_DAILY_CAP</code> and
+    <code>PARTNER_DEFAULT_SOFT_CAP</code> app settings on the function app override them. Enter a
+    number only to give a client its own limit.
 </p>
 
 @if (!Model.VaultConnected)
@@ -54,6 +58,7 @@
             {
                 <span class="badge bg-secondary ms-2">Disabled</span>
             }
+            @Html.ActionLink("Usage", "Usage", "PartnerKeys", new { clientId = client.Id }, new { @class = "btn btn-sm btn-outline-secondary float-end" })
         </div>
         <div class="card-body">
             <h5>Limits</h5>
@@ -61,7 +66,7 @@
             {
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="id" value="@client.Id" />
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <label class="form-label" for="name-@client.Id">Name</label>
                     <input class="form-control" id="name-@client.Id" name="name" value="@client.Name" maxlength="100" required />
                 </div>
@@ -76,6 +81,10 @@
                 <div class="col-sm-2">
                     <label class="form-label" for="cap-@client.Id">Daily cap</label>
                     <input class="form-control" id="cap-@client.Id" name="dailyCap" type="number" min="1" value="@client.DailyCap" placeholder="default (100,000)" />
+                </div>
+                <div class="col-sm-2">
+                    <label class="form-label" for="soft-@client.Id">Soft limit</label>
+                    <input class="form-control" id="soft-@client.Id" name="softCap" type="number" min="1" value="@client.SoftCap" placeholder="default (25,000)" />
                 </div>
                 <div class="col-sm-1 form-check ms-2">
                     <input class="form-check-input" id="disabled-@client.Id" name="disabled" type="checkbox" value="true" @(client.Disabled ? "checked" : "") />
@@ -131,7 +140,7 @@
         <input class="form-control" id="new-id" name="id" pattern="[a-z0-9][a-z0-9\-]{1,39}" maxlength="40" required
                placeholder="e.g. acme" title="2 to 40 lowercase letters, digits and dashes" />
     </div>
-    <div class="col-sm-3">
+    <div class="col-sm-2">
         <label class="form-label" for="new-name">Name</label>
         <input class="form-control" id="new-name" name="name" maxlength="100" required />
     </div>
@@ -146,6 +155,10 @@
     <div class="col-sm-2">
         <label class="form-label" for="new-cap">Daily cap</label>
         <input class="form-control" id="new-cap" name="dailyCap" type="number" min="1" placeholder="default (100,000)" />
+    </div>
+    <div class="col-sm-2">
+        <label class="form-label" for="new-soft">Soft limit</label>
+        <input class="form-control" id="new-soft" name="softCap" type="number" min="1" placeholder="default (25,000)" />
     </div>
     <div class="col-sm-auto">
         <button type="submit" class="btn btn-primary">Add</button>

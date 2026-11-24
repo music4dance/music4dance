@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
 
@@ -68,13 +69,32 @@ public class FakeUsageTable : IUsageTable
         foreach (var (column, count) in counts)
         {
             row[column] = row.GetValueOrDefault(column) + count;
-            if (column != UsageMeter.Limited)
+            if (UsageColumns.IsCounted(column))
             {
                 row[StorageUsageTable.TotalColumn] = row.GetValueOrDefault(StorageUsageTable.TotalColumn) + count;
             }
         }
 
         return Task.FromResult(row.GetValueOrDefault(StorageUsageTable.TotalColumn));
+    }
+}
+
+/// <summary>Keeps every message logged at Warning or above.</summary>
+public class ListLogger<T> : ILogger<T>
+{
+    public List<string> Warnings { get; } = [];
+
+    public IDisposable BeginScope<TState>(TState state) where TState : notnull => null;
+
+    public bool IsEnabled(LogLevel logLevel) => true;
+
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
+        Func<TState, Exception, string> formatter)
+    {
+        if (logLevel >= LogLevel.Warning)
+        {
+            Warnings.Add(formatter(state, exception));
+        }
     }
 }
 
@@ -86,6 +106,7 @@ public class FakePartners
     public FakeKeySource Vault { get; } = new();
     public FakeUsageTable Table { get; } = new();
     public FakeTimeProvider Time { get; } = new(new DateTimeOffset(2026, 11, 4, 20, 0, 0, TimeSpan.Zero));
+    public ListLogger<PartnerGate> GateLog { get; } = new();
     public PartnerKeyStore Store { get; }
     public UsageMeter Usage { get; }
     public PartnerGate Gate { get; }
@@ -103,7 +124,7 @@ public class FakePartners
         Store = new PartnerKeyStore(Vault, NullLogger<PartnerKeyStore>.Instance, Time);
         Usage = new UsageMeter(Table, NullLogger<UsageMeter>.Instance, Time);
         Gate = new PartnerGate(Store, new ClientRateLimiter(Time), Usage, defaults ?? new PartnerDefaults(),
-            Time, NullLogger<PartnerGate>.Instance);
+            Time, GateLog);
         if (load)
         {
             Store.Refresh(CancellationToken.None).GetAwaiter().GetResult();

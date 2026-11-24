@@ -45,6 +45,7 @@
             {
                 <span class="badge bg-secondary ms-2">Disabled</span>
             }
+            @Html.ActionLink("Usage, last 30 days", "Usage", "PartnerKeys", new { clientId = client.Id }, new { @class = "btn btn-sm btn-outline-secondary float-end" })
         </div>
         <div class="card-body">
             <partial name="_KeyTable" model="(client, false)" />

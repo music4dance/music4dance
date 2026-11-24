@@ -626,6 +626,9 @@ namespace m4dModels.Migrations
                     b.Property<double?>("RatePerSecond")
                         .HasColumnType("float");
 
+                    b.Property<long?>("SoftCap")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
                     b.ToTable("PartnerClients", (string)null);

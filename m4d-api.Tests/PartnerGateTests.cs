@@ -174,4 +174,76 @@ public class PartnerGateTests
         Assert.AreEqual(3, partners.Table.Rows[(FakePartners.ClientId, "2026-11-04")][UsageMeter.Limited]);
         Assert.AreEqual(0, partners.Usage.DailyTotal(FakePartners.ClientId));
     }
+
+    [TestMethod]
+    public async Task Admit_CountsCapRejectionsSeparatelyAndWarnsOncePerDay()
+    {
+        var partners = new FakePartners(new ClientConfig("Partner", DailyCap: 1));
+        partners.Usage.Record(FakePartners.ClientId, "exact");
+        for (var i = 0; i < 3; i++)
+        {
+            Assert.AreEqual(StatusCodes.Status429TooManyRequests,
+                Status(Admit(partners, Request($"Bearer {partners.Key}"))));
+        }
+
+        await partners.Usage.Flush(CancellationToken.None);
+
+        var row = partners.Table.Rows[(FakePartners.ClientId, "2026-11-04")];
+        Assert.AreEqual(3, row[UsageColumns.Limited]);
+        Assert.AreEqual(3, row[UsageColumns.CapLimited]);
+        Assert.IsFalse(row.ContainsKey(UsageColumns.RateLimitedMinutes));
+        Assert.AreEqual(1, partners.GateLog.Warnings.Count(w => w.Contains("daily cap")));
+    }
+
+    [TestMethod]
+    public async Task Admit_CountsEachMinuteTheRateLimitBitsOnce()
+    {
+        var partners = new FakePartners(new ClientConfig("Partner", RatePerSecond: 0.001, Burst: 1));
+        // Five calls: one admitted, four refused in the first minute; then two refused in the next
+        for (var i = 0; i < 5; i++)
+        {
+            _ = Admit(partners, Request($"Bearer {partners.Key}"));
+        }
+
+        partners.Time.Advance(TimeSpan.FromMinutes(1));
+        for (var i = 0; i < 2; i++)
+        {
+            _ = Admit(partners, Request($"Bearer {partners.Key}"));
+        }
+
+        await partners.Usage.Flush(CancellationToken.None);
+
+        var row = partners.Table.Rows[(FakePartners.ClientId, "2026-11-04")];
+        Assert.AreEqual(6, row[UsageColumns.Limited]);
+        Assert.AreEqual(2, row[UsageColumns.RateLimitedMinutes]);
+        Assert.IsFalse(row.ContainsKey(UsageColumns.CapLimited));
+        Assert.AreEqual(0, partners.Usage.DailyTotal(FakePartners.ClientId));
+        Assert.AreEqual(2, partners.GateLog.Warnings.Count(w => w.Contains("rate limit")));
+    }
+
+    [TestMethod]
+    public void Admit_PastTheSoftCapStillAdmitsAndWarnsOnce()
+    {
+        var partners = new FakePartners(new ClientConfig("Partner", DailyCap: 100, SoftCap: 2));
+        partners.Usage.Record(FakePartners.ClientId, "exact");
+        partners.Usage.Record(FakePartners.ClientId, "none");
+
+        Assert.IsTrue(Admit(partners, Request($"Bearer {partners.Key}")).Admitted);
+        Assert.IsTrue(Admit(partners, Request($"Bearer {partners.Key}")).Admitted);
+
+        Assert.AreEqual(1, partners.GateLog.Warnings.Count(w => w.Contains("soft daily limit")));
+    }
+
+    [TestMethod]
+    public void Admit_UsesTheDefaultSoftCapWhenTheClientHasNone()
+    {
+        var partners = new FakePartners(defaults: new PartnerDefaults(SoftCap: 1));
+        Assert.IsTrue(Admit(partners, Request($"Bearer {partners.Key}")).Admitted);
+        Assert.AreEqual(0, partners.GateLog.Warnings.Count);
+
+        partners.Usage.Record(FakePartners.ClientId, "exact");
+        Assert.IsTrue(Admit(partners, Request($"Bearer {partners.Key}")).Admitted);
+
+        Assert.AreEqual(1, partners.GateLog.Warnings.Count(w => w.Contains("soft daily limit of 1")));
+    }
 }

@@ -127,7 +127,8 @@ public record ClientConfig(
     double? RatePerSecond = null,
     int? Burst = null,
     long? DailyCap = null,
-    string Status = ClientConfig.Active)
+    string Status = ClientConfig.Active,
+    long? SoftCap = null)
 {
     public const string Active = "active";
     public const string Disabled = "disabled";
