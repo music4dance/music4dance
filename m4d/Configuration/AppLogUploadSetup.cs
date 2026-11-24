@@ -74,6 +74,13 @@ public static class AppLogUploadSetup
             {
                 Console.WriteLine($"[AppLog] WARNING: upload disabled, {error}");
             }
+            else if (AppConfigurationStartup.HasProvider(configuration)
+                && !AppConfigurationStartup.HasLoaded(configuration))
+            {
+                // AppConfigurationRecoveryService says so again if it recovers with the upload on.
+                Console.WriteLine("[AppLog] WARNING: upload off, because App Configuration didn't load at startup. "
+                    + "If AppLog:UploadContainer is set there, restart once it's back to turn the upload on");
+            }
             return services;
         }
 
@@ -84,6 +91,16 @@ public static class AppLogUploadSetup
             + settings.UploadContainer);
         return services;
     }
+
+    /// <summary>
+    /// For AppConfigurationRecoveryService: what to tell the admins when App Configuration
+    /// recovers after a failed startup load with the upload turned on, or null. The upload is
+    /// only registered at startup, so it stays off until a restart.
+    /// </summary>
+    public static string RestartNote(IConfiguration configuration) =>
+        Read(configuration, out _) != null
+            ? "The app log upload (AppLog:UploadContainer) only starts at startup: restart to turn it on."
+            : null;
 
     /// <summary>
     /// Registers a <see cref="LogFileUploader"/> for <paramref name="source"/>, copying to

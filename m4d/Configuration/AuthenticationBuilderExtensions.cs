@@ -152,9 +152,25 @@ public static class AuthenticationBuilderExtensions
             .LogWarning(
                 "External sign-in with {Scheme} failed: {Message}",
                 context.Scheme.Name, context.Failure?.Message);
-        context.Response.Redirect(RemoteFailureLoginPath);
+        context.Response.Redirect(RemoteFailureRedirect(context.Properties?.RedirectUri));
         context.HandleResponse();
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// The login page, carrying on the returnUrl the sign-in started with (ExternalLogin puts it
+    /// on its callback URL, which is the challenge's RedirectUri) so a retry ends up where the
+    /// user was going. The Login page drops a returnUrl that isn't local.
+    /// </summary>
+    internal static string RemoteFailureRedirect(string redirectUri)
+    {
+        var query = redirectUri?.IndexOf('?') is int at and >= 0 ? redirectUri[at..] : "";
+        var returnUrl = QueryHelpers.ParseQuery(query)
+            .FirstOrDefault(p => string.Equals(p.Key, "returnUrl", StringComparison.OrdinalIgnoreCase))
+            .Value.ToString();
+        return string.IsNullOrEmpty(returnUrl)
+            ? RemoteFailureLoginPath
+            : QueryHelpers.AddQueryString(RemoteFailureLoginPath, "returnUrl", returnUrl);
     }
 
     /// <summary>

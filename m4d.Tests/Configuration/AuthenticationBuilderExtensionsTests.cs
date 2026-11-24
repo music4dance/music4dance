@@ -30,4 +30,25 @@ public class AuthenticationBuilderExtensionsTests
             AuthenticationBuilderExtensions.RemoteFailureLoginPath,
             httpContext.Response.Headers.Location.ToString());
     }
+
+    [TestMethod]
+    public void RemoteFailureRedirect_CarriesTheSignInsReturnUrl()
+    {
+        var redirect = AuthenticationBuilderExtensions.RemoteFailureRedirect(
+            "/Identity/Account/ExternalLogin?handler=Callback&returnUrl=%2Fsong%2Fadvancedsearchform");
+
+        Assert.AreEqual(
+            AuthenticationBuilderExtensions.RemoteFailureLoginPath + "&returnUrl=%2Fsong%2Fadvancedsearchform",
+            redirect);
+    }
+
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("/Admin/SpotifyServiceAccountCallback")]
+    public void RemoteFailureRedirect_NoReturnUrl_IsThePlainLoginPath(string redirectUri)
+    {
+        Assert.AreEqual(
+            AuthenticationBuilderExtensions.RemoteFailureLoginPath,
+            AuthenticationBuilderExtensions.RemoteFailureRedirect(redirectUri));
+    }
 }
