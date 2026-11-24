@@ -80,13 +80,16 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
         return "Bearer " + token.access_token;
     }
 
+    // Runs on a thread-pool timer, where an exception takes down the process. A token with
+    // (almost) no time left starts a timer that can fire before the `new Timer(...)` result is
+    // stored in AccessTokenRenewer, so the renewer may still be null here.
     protected void OnTokenExpiredCallback(object stateInfo)
     {
         Logger.LogInformation("Disposing Access Token");
         var renewer = AccessTokenRenewer;
         AccessTokenRenewer = null;
         Token = null;
-        renewer.Dispose();
+        renewer?.Dispose();
     }
 
     // Forces the next GetAccessToken() call to fetch a fresh token, for use when the data API
