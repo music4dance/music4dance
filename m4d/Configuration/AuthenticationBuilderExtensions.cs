@@ -134,6 +134,27 @@ public static class AuthenticationBuilderExtensions
         options.ClientId = configured ? clientId : Unconfigured;
         options.ClientSecret = configured ? clientSecret : Unconfigured;
         GuardUnconfigured(options.Events, configured);
+        options.Events.OnRemoteFailure = HandleRemoteFailure;
+    }
+
+    internal const string RemoteFailureLoginPath = "/Identity/Account/Login?reason=remote-failure";
+
+    /// <summary>
+    /// A callback that fails (most often "Correlation failed": the correlation cookie expired,
+    /// was blocked, or the callback was replayed or opened in another browser) would otherwise
+    /// be an unhandled exception and a 500. Log it and send the user back to the login page,
+    /// which says the sign-in didn't complete.
+    /// </summary>
+    internal static Task HandleRemoteFailure(RemoteFailureContext context)
+    {
+        context.HttpContext.RequestServices?.GetService<ILoggerFactory>()
+            ?.CreateLogger(typeof(AuthenticationBuilderExtensions))
+            .LogWarning(
+                "External sign-in with {Scheme} failed: {Message}",
+                context.Scheme.Name, context.Failure?.Message);
+        context.Response.Redirect(RemoteFailureLoginPath);
+        context.HandleResponse();
+        return Task.CompletedTask;
     }
 
     /// <summary>

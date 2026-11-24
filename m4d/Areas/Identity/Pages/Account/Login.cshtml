@@ -8,6 +8,13 @@ ViewData["Title"] = "Log in";
 }
 
 <h1>@ViewData["Title"]</h1>
+@if (Model.Reason == "remote-failure")
+{
+    <div class="alert alert-warning" role="alert">
+        Signing in with an external account didn't complete. This can happen if the sign-in took too
+        long or your browser blocked cookies. Please try again.
+    </div>
+}
 @if (Model.Provider == "Spotify")
 {
     <div class="alert alert-primary" role="alert">
