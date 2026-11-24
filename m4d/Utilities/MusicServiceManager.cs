@@ -4,6 +4,7 @@ using Microsoft.Extensions.FileProviders;
 
 using Newtonsoft.Json;
 
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
@@ -636,7 +637,8 @@ public class MusicServiceManager(IConfiguration configuration)
         await dms.SongIndex.SaveSong(song);
     }
 
-    private static readonly Dictionary<string, ServiceTrack> s_trackCache = [];
+    // Process-wide and read by concurrent requests and tests; a plain Dictionary corrupts under that
+    private static readonly ConcurrentDictionary<string, ServiceTrack> s_trackCache = new();
 
     public async Task<GenericPlaylist> LookupPlaylist(MusicService service, string url,
         IEnumerable<string> oldTrackList = null, IPrincipal principal = null,
