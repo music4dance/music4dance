@@ -975,10 +975,26 @@ public class SongIndex
 
     internal async Task<LocalMerger> MergeFromTitle(Song song)
     {
-        var songs = await SongsFromTitle(song.Title);
+        // The title as given, and also without its remaster or single-version note, which can push
+        // the plain title out of the search's top results
+        var songs = (await SongsFromTitle(song.Title)).ToList();
+        var cleaned = SharedIdMatcher.WithoutVersionNotes(song.Title);
+        if (!string.IsNullOrWhiteSpace(cleaned) && cleaned != song.Title)
+        {
+            songs = [.. songs.Concat(await SongsFromTitle(cleaned)).DistinctBy(s => s.SongId)];
+        }
 
-        var candidates =
-            (from s in songs where song.TitleArtistEquivalent(s) select s).ToList();
+        // Same title (version notes aside, or a qualifier when the lengths agree), a length within
+        // SharedIdMatcher.LengthTolerance, and the same artist credit
+        var candidates = new List<Song>();
+        foreach (var s in songs.Where(s =>
+                     SharedIdMatcher.AddTitlesMatch(song, s) && !SharedIdMatcher.LengthsApart(song, s)))
+        {
+            if (await CreditsAgree(song, s))
+            {
+                candidates.Add(s);
+            }
+        }
 
         if (candidates.Count <= 0)
         {
@@ -1002,15 +1018,12 @@ public class SongIndex
             }
         }
 
-        // If not, try for a length match
+        // If not, try for a length match (within the same tolerance the shared-id review uses, since
+        // a service's lengths for one recording often differ by 5 to 10 seconds of fade or silence)
         if (match == null && song.Length.HasValue)
         {
             var songD = song;
-            foreach (var s in candidates
-                         .Where(
-                             s =>
-                                 songD.Length != null && s.Length.HasValue &&
-                                 Math.Abs(s.Length.Value - songD.Length.Value) < 5))
+            foreach (var s in candidates.Where(s => SharedIdMatcher.LengthsAgree(songD, s)))
             {
                 match = s;
                 type = MatchType.Length;
@@ -1030,6 +1043,23 @@ public class SongIndex
 
         return new LocalMerger
         { Left = song, Right = match, MatchType = type, Conflict = false };
+    }
+
+    // Whether two credits name the same artist for the add-time match (SharedIdMatcher.CreditKey):
+    // a blank credit matches anything, as it does in the title-artist match. The catalog's artist
+    // knowledge is asked for the two credits (GetArtistKnowledge, which only queries the index for
+    // a credit with ambiguous separators), as the save hook does.
+    private async Task<bool> CreditsAgree(Song song, Song other)
+    {
+        if (string.IsNullOrWhiteSpace(song.Artist) || string.IsNullOrWhiteSpace(other.Artist))
+        {
+            return true;
+        }
+
+        var knowledge = FeaturedCleanup.WithGroupLeaders(
+            FeaturedCleanup.Either(await GetArtistKnowledge(song), await GetArtistKnowledge(other)),
+            [song, other]);
+        return SharedIdMatcher.CreditKey(song.Artist, knowledge) == SharedIdMatcher.CreditKey(other.Artist, knowledge);
     }
 
     private async Task<LocalMerger> MergeFromSongId(Song song)
@@ -1689,7 +1719,8 @@ public class SongIndex
         return await SongsFromAzureResult(await DoSearch($"\"{name}\"", options, cruft));
     }
 
-    internal async Task<IEnumerable<Song>> SongsFromTitle(string title)
+    // Overridden by the in-memory test index, which has no search service behind it
+    protected internal virtual async Task<IEnumerable<Song>> SongsFromTitle(string title)
     {
         var options = new SearchOptions
         {

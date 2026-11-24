@@ -1,8 +1,8 @@
 # Add-Song Matching: What to Bring Over From the Shared-Id Review
 
 **Type:** Plan
-**Status:** Proposed
-**Last verified:** 2026-11-21
+**Status:** Steps 1–4 implemented in the working tree (not merged); 5 and 6 open
+**Last verified:** 2026-11-23
 **Code:** `m4dModels/SongIndex.cs` (`MergeFromTitle`, `FindMatchingSong`, `MatchSongs`), `m4d/Utilities/MusicServiceManager.cs` (`CreateSong`), `m4dModels/SharedIdMatcher.cs`, `m4dModels/FeaturedCleanup.cs`, `m4dModels/ArtistAliases.cs`
 
 Clearing the shared-id queue showed which differences between two copies of a song are
@@ -17,6 +17,49 @@ The shared-id review can be generous because a shared id has already linked the 
 person checks what isn't exact. The add-time match has neither. So bring over the parts that
 make names *compare* alike, which are safe on their own. Bring the looser tiers over only as far
 as length and the service's own data back them up.
+
+## Status and results (2026-11-23)
+
+**Implemented in the working tree, not merged:** 1 (artist key), 2 (version notes removed, search
+on the cleaned title), 3 (`LengthTolerance` on every match type, the Length match at 15 seconds)
+and 4 (`NameMergedSong` after a title match). The admin merge candidates' Level 3 filter now uses
+the same pairwise rule (`SharedIdMatcher.WithinLengthTolerance`), replacing the ±20 s median.
+**Open:** 5 and 6.
+
+**Changed from the proposal below:**
+
+- **The qualifier-only tier is dropped.** Step 2 proposed that "Song - Radio Edit" match "Song"
+  when the lengths agree. The snapshot showed that's not safe: `WithoutQualifiers` strips any
+  trailing dash part, so "Kinney - The Remainder" and "Kinney - Don't Talk Like" both become
+  "Kinney", and tracks of different titles by one artist match whenever they're 15 seconds
+  apart. Most of the 1,046 qualifier-only pairs in the first run were wrong merges (classical
+  movements, chant titles, album tracks). Only version notes (remaster, single version) join the
+  plain title at add time.
+- **Step 3's constant is one pairwise rule, not a median.** `MergeManager` and `MergeCluster`
+  both call `SharedIdMatcher.WithinLengthTolerance`. The old median rule let two songs 30 seconds
+  apart both stay, so it was replaced rather than kept at 15.
+
+**Snapshot check** (`local/index-2026-11-21.txt`, 102,985 songs, every song parsed; the audit is a
+throwaway test, not kept). Pairs were grouped by `AddTitleKey` and each pair run through the add-time
+predicates, with the catalog-wide artist knowledge from `ArtistKnowledge.FromCredits`:
+
+| | Pairs | Songs |
+| --- | --- | --- |
+| Old `TitleArtistEquivalent` pairs | 454 | |
+| Both old and new | 146 | |
+| New only (would now merge) | 218 | 424 |
+| Old only (no longer merge) | 308 | |
+
+- **New only, by reason:** 130 version notes ("- Remastered", "- 2004 Remaster", "- Single Version",
+  "- Remastered LP Version"), 83 artist aliases or backing groups ("Count Basie & His Orchestra"
+  and "Count Basie", "Pink" and "P!nk", "Kesha" and "Ke$ha", "Billy May & His Orchestra" and "Billy
+  May Orchestra"), and 5 with both. Read by hand: all 83 artist-alias pairs looked like the same recording at
+  a close length, and the Kesha/Ke$ha pair is the kind of spelling a person should still confirm.
+  Only about 10 version-note pairs were read, so that category needs a longer look before merge.
+- **Old only (lost), 308 pairs:** every one has lengths more than 15 seconds apart. The old rule
+  had no length check, so these are the wrong merges the guard exists to stop. Some are plausibly
+  the same song with a different edit (for example "White Wedding" at 252 and 505 seconds), and a
+  person can still merge those by hand.
 
 ## Proposed changes, most value first
 
@@ -52,14 +95,16 @@ Bring `SharedIdMatcher.LengthTolerance` (15 seconds) to the add-time match:
   both lengths are known and further apart than the tolerance.
 - The `Length` match's 5 seconds can widen to the same 15. The review found that a service's
   lengths for one recording often differ by 5 to 10 seconds of fade or silence.
-- A qualifier-only title difference (from 2) matches only within the tolerance.
+- A qualifier-only title difference (from 2) doesn't match at add time (decided by the snapshot, see
+  Status above). The length rule still applies to every match.
 
 Tempo, which can outweigh length in the review (`TemposAgree`), usually isn't known at add time.
 It could be rechecked after `UpdateAudioData` for an add by link, but that's not worth doing
 until 1 to 3 are in.
 
 This is also where `MergeManager.FilterLength` (the admin merge candidates' Level 3, ±20 s of the
-median) and `LengthTolerance` should become one constant.
+median) and `LengthTolerance` should become one constant. Done: both merge-candidate paths now call
+`SharedIdMatcher.WithinLengthTolerance`, which uses the same pairwise rule as the add-time match.
 
 ### 4. Name the merged song the way the review does
 
@@ -95,7 +140,7 @@ duplicates turning up.
 Steps 1 to 3 change one method (`MergeFromTitle`) and its caller's accept rule. Each can ship
 alone, with `MergeFromTitle` cases in `m4dModels.Tests` and `MusicServiceManagerTests`
 (`m4d.Tests`) cases for the differences the review
-found. Before shipping 1 and 2, run them against the latest snapshot:
+found. Before shipping 1 and 2, run them against the latest snapshot (done 2026-11-23, see Status above):
 
 - How many existing songs would now match another existing song?
 - Those pairs are what the add-time matcher would have merged. Review a sample by hand, the way

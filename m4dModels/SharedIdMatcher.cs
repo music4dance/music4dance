@@ -11,10 +11,39 @@ public static class SharedIdMatcher
     /// <summary>
     /// Songs whose lengths are further apart than this, in seconds, are almost certainly
     /// different recordings (a live take, an extended mix), so they aren't merged without review.
-    /// The title-based merge candidates use a looser 20 seconds from the median
-    /// (MergeManager.FilterLength).
+    /// The admin merge candidates and the add-time match use the same pairwise rule
+    /// (WithinLengthTolerance, LengthsAgree).
     /// </summary>
     public const int LengthTolerance = 15;
+
+    /// <summary>
+    /// The songs left once no two of them with lengths are LengthsApart: while some pair is, the
+    /// song apart from the most others goes (ties: the one furthest in total from the rest). Songs
+    /// without a length are kept. This is the title-based merge candidates' length filter, the
+    /// same pairwise rule the add-time match uses.
+    /// </summary>
+    public static List<Song> WithinLengthTolerance(IReadOnlyList<Song> songs)
+    {
+        var kept = songs.ToList();
+        while (true)
+        {
+            var withLength = kept.Where(s => s.Length is > 0).ToList();
+            var worst = withLength
+                .Select(s => (Song: s,
+                    Apart: withLength.Count(o => LengthsApart(s, o)),
+                    Spread: withLength.Sum(o => Math.Abs(s.Length.Value - o.Length.Value))))
+                .Where(x => x.Apart > 0)
+                .OrderByDescending(x => x.Apart)
+                .ThenByDescending(x => x.Spread)
+                .FirstOrDefault();
+            if (worst.Song == null)
+            {
+                return kept;
+            }
+
+            _ = kept.RemoveAll(s => ReferenceEquals(s, worst.Song));
+        }
+    }
 
     /// <summary>
     /// Songs whose tempos are all known and no further apart than this, in BPM, are taken to be
@@ -113,6 +142,40 @@ public static class SharedIdMatcher
     /// </summary>
     public static int TitleKey(string title) =>
         Song.CreateTitleHash(WithoutQualifiers(WithoutVersionNotes(ArtistSplitter.RemoveTitleFeaturing(title))));
+
+    /// <summary>
+    /// The title as the add-time match (SongIndex.MergeFromTitle) compares it: without the
+    /// remaster and single-version notes (WithoutVersionNotes), as Song.CreateTitleHash.
+    /// </summary>
+    public static int AddTitleKey(string title) => Song.CreateTitleHash(WithoutVersionNotes(title ?? ""));
+
+    /// <summary>
+    /// Whether two songs' titles match for the add-time match: the same AddTitleKey. A qualifier
+    /// difference ("Song - Radio Edit" against "Song") doesn't match here: WithoutQualifiers strips
+    /// any trailing dash part, so "Kinney - The Remainder" and "Kinney - Don't Talk Like" would
+    /// both become "Kinney", and a length within tolerance doesn't tell those apart.
+    /// </summary>
+    public static bool AddTitlesMatch(Song a, Song b) => AddTitleKey(a.Title) == AddTitleKey(b.Title);
+
+    /// <summary>
+    /// A credit as the add-time match compares it: its primary artist under the name to use
+    /// (ArtistAliases.PreferredCredit), without the leader's backing group (ArtistSplitter.RemoveBackingGroup,
+    /// with <paramref name="knowledge"/>), as Song.CreateTitleHash.
+    /// </summary>
+    public static int CreditKey(string credit, IArtistKnowledge knowledge = null) =>
+        Song.CreateTitleHash(ArtistSplitter.RemoveBackingGroup(ArtistAliases.PreferredCredit(credit ?? ""), knowledge));
+
+    /// <summary>Whether both songs have a length and the two are within LengthTolerance of each other.</summary>
+    public static bool LengthsAgree(Song a, Song b) =>
+        a.Length is > 0 && b.Length is > 0 && Math.Abs(a.Length.Value - b.Length.Value) <= LengthTolerance;
+
+    /// <summary>
+    /// Whether both songs have a length and they're further apart than LengthTolerance. A song
+    /// with no length is never apart from another, so the length check only bites when both are
+    /// known.
+    /// </summary>
+    public static bool LengthsApart(Song a, Song b) =>
+        a.Length is > 0 && b.Length is > 0 && Math.Abs(a.Length.Value - b.Length.Value) > LengthTolerance;
 
     // A note at the end of a title that a service adds to the same recording: "- Remastered
     // 2011", "(2011 Remaster)", "[Digitally Remastered]", "- Remastered Version", "- Single

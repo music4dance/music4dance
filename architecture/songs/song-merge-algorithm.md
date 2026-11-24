@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-21 (§ Matching new songs by title traced; § Merging and § Unmerging written with the code 2026-11-14; § Settling the fields traced 2026-11-04; § Matching new songs by service id traced 2026-11-03; the rest: code references checked, behavior not re-traced)
+**Last verified:** 2026-11-23 (§ Matching new songs by title and § Level 3 rewritten for the working-tree change, not yet merged; the snapshot audit is in the plan; § Matching new songs by title traced 2026-11-21; § Merging and § Unmerging written with the code 2026-11-14; § Settling the fields traced 2026-11-04; § Matching new songs by service id traced 2026-11-03; the rest: code references checked, behavior not re-traced)
 **Code:** `m4dModels/MergeManager.cs`, `m4d/Controllers/SongController.cs` (merge actions, `Unmerge`), `m4dModels/SongIndex.cs` (`SimpleMergeSongs`, `RenumberAlbums`, `UnmergeSong`, `BuildUnmerge`, service id matching), `m4dModels/Song.cs` (`GetAltids`, `GetUnmergeableSources`), `m4d/ClientApp/src/pages/song/components/FieldEditor.vue` (merged-value links), `m4d/ClientApp/src/pages/song/components/UnmergeSection.vue`
 
 ## Overview
@@ -57,12 +57,25 @@ reviews whatever isn't an exact match.
 **The add-time match.** `MergeFromTitle(song)`:
 
 1. Fetches up to 50 catalog songs by a full-text search of the new song's title as given
-   (`SongsFromTitle`).
-2. Keeps the ones that are `Song.TitleArtistEquivalent`: the same `Song.CreateTitleHash` title,
-   and the same `CreateTitleHash` artist credit or either credit blank.
+   (`SongsFromTitle`), and, when the title has a remaster or single-version note, of the title
+   without it too (the two results are merged).
+2. Keeps the ones that match, each of the three checks below:
+   - **Title**: the same `SharedIdMatcher.AddTitleKey`, the `CreateTitleHash` of the title
+     without its remaster or single-version notes (`SharedIdMatcher.WithoutVersionNotes`). So
+     "Song Name - Remastered 2011" matches "Song Name". A qualifier ("- Radio Edit", "- Live")
+     doesn't match here: `WithoutQualifiers` strips any trailing dash part, so "Kinney - The
+     Remainder" and "Kinney - Don't Talk Like" would both become "Kinney".
+   - **Length**: not `SharedIdMatcher.LengthsApart`. A song with no length is never apart from
+     another, so the check only bites when both lengths are known. It applies to every match type
+     below, not just the length one.
+   - **Artist**: a blank credit on either side matches. Otherwise each credit is compared under
+     its preferred name (`ArtistAliases.PreferredCredit`, so "Pink" is "P!nk") and without its
+     leader's backing group (`ArtistSplitter.RemoveBackingGroup`, so "Benny Goodman and His
+     Orchestra" is "Benny Goodman"). The catalog's artist knowledge is fetched for the two credits
+     (`GetArtistKnowledge`, which only queries the index for a credit with ambiguous separators).
 3. Of those, picks one that has the new song's first album (`MatchType.Exact`), else one whose
-   length is within 5 seconds (`MatchType.Length`), else the only candidate if there is just one
-   (`MatchType.Weak`).
+   length is within `SharedIdMatcher.LengthTolerance` (15 seconds, `MatchType.Length`), else the
+   only candidate if there is just one (`MatchType.Weak`).
 
 How each path uses the result:
 
@@ -78,20 +91,24 @@ others:
 | | Add time (`MergeFromTitle`) | Shared-id review (`SharedIdMatcher`) |
 | --- | --- | --- |
 | Why the songs are compared | Only their titles: any catalog song with a similar title | They share a Spotify, iTunes or ISRC id |
-| Title | `CreateTitleHash`: case, accents, punctuation, small words and bracketed text are ignored (apart from a dance name or BPM in brackets) | The same, or the same letters and digits (`SquashedTitle`). Version notes ("- Remastered 2011", "- Single Version") are removed, and so are qualifiers ("- Radio Edit", "- Live") that don't name a dance or a tempo (`TitleKey`). |
-| Artist | `CreateTitleHash` of the whole credit. "Pink" and "P!nk" differ, and so do "X feat. Y" and "X", or "Benny Goodman and His Orchestra" and "Benny Goodman". A blank credit matches any. | The credit under its preferred name (`ArtistAliases`), without the leader's backing group (`RemoveBackingGroup`). Later tiers also compare without feat. clauses, by individual artists, and by the lead artist alone. A song with no artist is never merged automatically. |
-| Length | Picks a candidate when lengths are within 5 seconds, but a `Weak` match ignores length | Over 15 seconds apart (`LengthTolerance`) keeps a cluster out of every Merge all task, unless every song has a tempo and they're within 2 BPM (`TemposAgree`) |
+| Title | `CreateTitleHash` of the title without its version notes (`AddTitleKey`): case, accents, punctuation, small words and bracketed text are ignored (apart from a dance name or BPM in brackets). Qualifiers ("- Radio Edit", "- Live") still differ. | The same, or the same letters and digits (`SquashedTitle`). Version notes ("- Remastered 2011", "- Single Version") are removed, and so are qualifiers ("- Radio Edit", "- Live") that don't name a dance or a tempo (`TitleKey`). |
+| Artist | The credit under its preferred name, without the leader's backing group, as the review does (`CreditKey`). "Pink" and "P!nk" match; "X feat. Y" and "X" still differ. A blank credit matches any. | The credit under its preferred name (`ArtistAliases`), without the leader's backing group (`RemoveBackingGroup`). Later tiers also compare without feat. clauses, by individual artists, and by the lead artist alone. A song with no artist is never merged automatically. |
+| Length | Every match type: lengths more than 15 seconds apart (`LengthsApart`) rule a candidate out, and the length match takes one within 15 seconds (`LengthsAgree`). A `Weak` match needs its length to be within 15 seconds too, when both are known. | Over 15 seconds apart (`LengthTolerance`) keeps a cluster out of every Merge all task, unless every song has a tempo and they're within 2 BPM (`TemposAgree`) |
 | Tempo | Not used. Tempo usually isn't known until after the match (`UpdateAudioData`). | Can outweigh length |
 | Album | The new song's first album on a candidate settles it (`Exact`) | Not used to match |
 | Evidence from the services | Only the ISRC lookup before the title match | Track lookups confirm artists (`FewerArtists`, Merge artist) and decide which song owns an id (Sort out ids) |
 | Names after the merge | The existing song keeps its title and artist | `FeaturedCleanup.Propose`: the title without its feat. clause or version notes, a credit that names every artist, and individual artists under their preferred names |
 | A doubtful match | Add by link or search: a new song. Imports: `Weak`, merged when only one candidate remains. | Left for a person to review |
 
-So adding a song creates a duplicate when the only difference is an alias, a feat. clause in the
-credit, a backing group, or a version note, unless a service id or ISRC links the two. These are
-exactly the differences that filled the shared-id queue. An import can also merge two recordings
-whose lengths are far apart, when only one candidate has the same title and artist. See
-[plans/add-song-matching-next](../plans/add-song-matching-next.md) for what to bring over.
+So adding a song still creates a duplicate when the difference is a feat. clause in the credit,
+a qualifier ("- Radio Edit", "- Acoustic"), or a version note the title match doesn't take off,
+unless a service id or ISRC links the two. Aliases, backing groups and version notes now match.
+Lengths more than 15 seconds apart never match by title (service ids and ISRCs still link songs
+whatever their lengths), so an import can no longer merge two
+recordings whose lengths are far apart, even when only one candidate has the same title and
+artist. The 2026-11-21 snapshot showed what the new rules change; see
+[plans/add-song-matching-next](../plans/add-song-matching-next.md) for the numbers and what's
+still to bring over.
 
 ## Merge Levels
 
@@ -121,24 +138,33 @@ The system uses **four** merge levels implemented in `MergeManager.cs`. **The le
 ### Level 3: Title + Artist + Length Filter (MEDIUM-STRICT)
 
 - **Same as Level 1** but adds length validation
-- **Length Filter**: Songs must be within ±20 seconds of the cluster **median** length
-- **Implementation**: Level 1 logic + `FilterLength()` method
+- **Length Filter**: pairwise. Any two songs in the cluster whose lengths are more than
+  `SharedIdMatcher.LengthTolerance` (15 seconds) apart are not both kept
+- **Implementation**: Level 1 logic + `SharedIdMatcher.WithinLengthTolerance()`, the same pairwise
+  rule the add-time match uses (`LengthsApart`). `MergeManager` and `MergeCluster` both call it.
 
-**FilterLength Algorithm** (median-based, robust to outliers):
+**WithinLengthTolerance Algorithm** (pairwise, drops the song that disagrees most):
 
-1. Collect lengths of all songs that have a length value
-2. Sort lengths and compute the **median** (middle value for odd count; average of two middle values for even count)
-3. Keep songs whose length is within 20 seconds of the median, plus all songs with no length data
+1. While some two songs with lengths are apart, find the song apart from the most others. Ties go
+   to the song furthest in total from the rest of the cluster.
+2. Drop that song and repeat.
+3. Songs with no length data are always kept.
 
-**Why median, not mean**: A single outlier (e.g. a 5-minute DJ remix in a cluster of 3-minute songs) skews the mean so far that all songs may fall outside the ±20s window. The median is unaffected by outlier magnitude and anchors to the majority cluster.
+The cluster is then checked pair by pair, so no two songs left are apart. This replaces the earlier
+rule, which kept songs within ±20 seconds of the cluster median (and before that the mean). A
+median or mean is anchored to the cluster as a whole, so two songs could both sit within 20 seconds
+of it while being 30 seconds apart, and a cluster of 180s, 190s, 200s, 210s kept all four.
 
 **Example**:
 
 ```
 Cluster: [180s, 195s, 300s]
-Mean  = 225s  → |180-225|=45 > 20 → all filtered out ❌
-Median= 195s  → |180-195|=15 ✓, |195-195|=0 ✓, |300-195|=105 → removes 300s ✅
+Pairs apart (more than 15s): 180–300, 195–300. 300s is apart from two others → dropped.
+Left: [180s, 195s]: 15 apart, not more than 15 → both kept.
 ```
+
+**Why pairwise**: the question a merge has to answer is whether two songs are the same recording,
+and that is a question about two lengths, not about the middle of a group.
 
 **Use Case**: Level 1 with length check to avoid merging live vs studio, extended vs radio edit
 
@@ -587,14 +613,15 @@ Common variations handled automatically:
 - `AccentedDanceNamesDetected`: Confirms "Bachata", "Sálsa", etc. properly detected
 - `NonDanceParenthesesStillIgnored`: Confirms "(Remaster)" still ignored
 
-**FilterLength Tests**: `m4dModels.Tests/FilterLengthTests.cs`
+**Length filter tests**: `m4dModels.Tests/WithinLengthToleranceTests.cs` (`SharedIdMatcher.WithinLengthTolerance`, replacing the median-based `FilterLengthTests`)
 
-- `FilterLength_SingleOutlier_RemovesOutlier`: Median keeps main cluster, drops lone outlier
-- `FilterLength_MultipleOutliers_KeepsMedianCluster`: Both high and low outliers removed
-- `FilterLength_NoLengthSongs_AllKept`: Songs with null length always pass through
-- `FilterLength_EvenCount_UsesAverageOfTwoMiddle`: Correct median for even-sized lists
-- `FilterLength_BoundaryExactly20_Excluded`: Exactly 20s difference = excluded (strict `<`)
-- Plus 6 additional edge-case tests
+- `Outlier_IsDropped`: a song 105 seconds from the other two is dropped
+- `ExactlyTheTolerance_IsKept_OneMoreSecondIsNot`: 15 seconds apart stays, 16 goes
+- `EvenCountWithADivergentEnd_KeepsAPairWithinTolerance`: four songs, two kept, no pair apart
+- `Chain_LeavesNoPairApart`: neighbours within tolerance but the ends not; the rule removes until no pair is apart
+- `NoLengths_AreAllKept`, `SongsWithoutLength_AreKeptBesideTheOthers`: songs with no length always stay
+
+**Add-time match tests**: `m4dModels.Tests/AddSongTitleMatchTests.cs` (through `MatchSongs`, with the sandbox index answering the title search)
 
 **MergeManager Tests**: `m4dModels.Tests/MergeManagerTests.cs`
 

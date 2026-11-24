@@ -121,7 +121,7 @@ Existing Amazon IDs remain stored in the database using a namespaced prefix:
 
 ## HTTP Infrastructure
 
-All service calls go through `MusicServiceManager.GetMusicServiceResults` (read) or `MusicServiceAction` (write), using a shared `HttpClientHelper.Client` singleton, per-service auth via `AdmAuthentication.GetServiceAuthorization`, and rate-limit backoff/retry. Karaoke results are filtered out of all search results before ranking. See [music-service-api-calls.md § HTTP Layer](music-service-api-calls.md#http-layer) for the rate-limit table, retry/pause behavior, and the track-ID cache.
+All service calls go through `MusicServiceManager.GetMusicServiceResults` (read) or `MusicServiceAction` (write), through the manager's `Http` property, which defaults to the shared `HttpClientHelper.Client` singleton and is replaced by tests with a fake handler ([testing-patterns](../dev-testing/testing-patterns.md) Pattern 6), per-service auth via `AdmAuthentication.GetServiceAuthorization`, and rate-limit backoff/retry. Karaoke results are filtered out of all search results before ranking. See [music-service-api-calls.md § HTTP Layer](music-service-api-calls.md#http-layer) for the rate-limit table, retry/pause behavior, and the track-ID cache.
 
 ---
 

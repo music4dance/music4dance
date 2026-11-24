@@ -4,6 +4,7 @@ using Microsoft.Extensions.FileProviders;
 
 using Newtonsoft.Json;
 
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
@@ -18,6 +19,10 @@ namespace m4d.Utilities;
 public class MusicServiceManager(IConfiguration configuration)
 {
     private IConfiguration Configuration { get; } = configuration;
+
+    // The client the music service requests go through. Tests set a fake handler here (no
+    // network); production uses the shared client.
+    internal HttpClient Http { get; init; } = HttpClientHelper.Client;
 
     private static readonly ILogger Logger = ApplicationLogging.CreateLogger<MusicServiceManager>();
 
@@ -528,9 +533,12 @@ public class MusicServiceManager(IConfiguration configuration)
         var song = await Song.UserCreateFromTrack(dms, user, track, danceId);
 
         var found = false;
-        var oldSong = await FindSongByISRC(dms, track.ISRC)
-            ?? await dms.SongIndex.FindMatchingSong(song);
+        var oldSong = await FindSongByISRC(dms, track.ISRC);
+        var matchedByTitle = oldSong == null;
+        oldSong ??= await dms.SongIndex.FindMatchingSong(song);
 
+        // The track's own song, kept for the feat. cleanup below once the catalog song is enriched
+        var incoming = song;
         if (oldSong != null)
         {
             found = true;
@@ -540,6 +548,11 @@ public class MusicServiceManager(IConfiguration configuration)
         _ = await UpdateSongAndServices(dms, song);
         _ = await UpdateFromTracks(dms, song, [track]);
         _ = await UpdateAudioData(dms, service, song);
+
+        if (found && matchedByTitle)
+        {
+            song = await NameMergedSong(dms, song, incoming);
+        }
 
         // Enrichment can add ids (an iTunes match, ISRCs for other Spotify ids) that the checks
         // above couldn't see; if a catalog song already holds one, attach the track to it instead
@@ -563,6 +576,24 @@ public class MusicServiceManager(IConfiguration configuration)
         }
 
         return song;
+    }
+
+    /// <summary>
+    /// Names a catalog song that an add matched by title (SongIndex.MergeFromTitle) the way the
+    /// shared-id review names a merge: a feat. credit the track brings moves into the individual
+    /// artists (FeaturedCleanup.Propose), and a remaster note doesn't overwrite a clean title. The
+    /// names are an edit by the music4dance account, and the song is reloaded to see them. Returns
+    /// the song with the names applied (or the same song when they already match).
+    /// </summary>
+    internal static async Task<Song> NameMergedSong(DanceMusicCoreService dms, Song merged, Song incoming)
+    {
+        var names = FeaturedCleanup.Propose(merged, [incoming]);
+        if (!merged.AppendNameEdit(new ApplicationUser(Song.M4dUser), names))
+        {
+            return merged;
+        }
+
+        return await Song.Create(merged.SongId, [.. merged.SongProperties], dms);
     }
 
     /// <summary>
@@ -606,7 +637,8 @@ public class MusicServiceManager(IConfiguration configuration)
         await dms.SongIndex.SaveSong(song);
     }
 
-    private static readonly Dictionary<string, ServiceTrack> s_trackCache = [];
+    // Process-wide and read by concurrent requests and tests; a plain Dictionary corrupts under that
+    private static readonly ConcurrentDictionary<string, ServiceTrack> s_trackCache = new();
 
     public async Task<GenericPlaylist> LookupPlaylist(MusicService service, string url,
         IEnumerable<string> oldTrackList = null, IPrincipal principal = null,
@@ -1444,7 +1476,7 @@ public class MusicServiceManager(IConfiguration configuration)
 
             try
             {
-                using var response = await HttpClientHelper.Client.SendAsync(req);
+                using var response = await Http.SendAsync(req);
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     var remaining = GetRateInfo(response.Headers, "X-RateLimit-Remaining");
@@ -1616,7 +1648,7 @@ public class MusicServiceManager(IConfiguration configuration)
 
         try
         {
-            using var response = await HttpClientHelper.Client.SendAsync(req);
+            using var response = await Http.SendAsync(req);
 
             if (response.IsSuccessStatusCode)
             {

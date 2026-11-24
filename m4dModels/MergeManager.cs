@@ -32,7 +32,7 @@ public class MergeManager
     /// 0 = Similar title + all other fields same/empty (Equivalent)
     /// 1 = Similar title + similar/empty artist (WeakEquivalent)  
     /// 2 = All songs with similar title only
-    /// 3 = Similar title + artist + length within 20s (TitleArtistEquivalent)
+    /// 3 = Similar title + artist + lengths within SharedIdMatcher.LengthTolerance of each other (TitleArtistEquivalent)
     /// </param>
     public async Task<IReadOnlyCollection<Song>> GetMergeCandidates(int n, int level)
     {
@@ -170,10 +170,10 @@ public class MergeManager
 
         foreach (var l in lumps.Values)
         {
-            // Level 3: filter out songs with divergent lengths (epsilon > 20s)
+            // Level 3: filter out songs whose lengths are too far apart from one another
             if (level == 3)
             {
-                l.Songs = FilterLength(l.Songs);
+                l.Songs = SharedIdMatcher.WithinLengthTolerance(l.Songs);
             }
 
             if (ret.Count + l.Songs.Count > remaining)
@@ -188,47 +188,6 @@ public class MergeManager
         }
 
         return ret;
-    }
-
-    /// <summary>
-    /// Filters out songs whose length diverges significantly (>20s) from the cluster median.
-    /// Uses median instead of mean for robustness to outliers.
-    /// </summary>
-    private static List<Song> FilterLength(List<Song> lump)
-    {
-        if (lump.Count < 2)
-        {
-            return lump;
-        }
-
-        // Get all songs with lengths
-        var songsWithLength = lump.Where(song => song.Length.HasValue).ToList();
-
-        // No songs have length, so this filter makes no sense
-        if (songsWithLength.Count == 0)
-        {
-            return lump;
-        }
-
-        // Calculate median length (more robust to outliers than mean)
-        var sortedLengths = songsWithLength.Select(s => s.Length.Value).OrderBy(l => l).ToList();
-        int median;
-
-        if (sortedLengths.Count % 2 == 0)
-        {
-            // Even count: average of two middle values
-            median = (sortedLengths[sortedLengths.Count / 2 - 1] + sortedLengths[sortedLengths.Count / 2]) / 2;
-        }
-        else
-        {
-            // Odd count: middle value
-            median = sortedLengths[sortedLengths.Count / 2];
-        }
-
-        // Filter: keep songs within 20s of median, or songs without length data
-        return lump.Where(song =>
-            !song.Length.HasValue || Math.Abs(song.Length.Value - median) < 20
-        ).ToList();
     }
 
     public void RemoveMergeCandidate(Song song)

@@ -128,7 +128,8 @@ tempo and they're all within `SharedIdMatcher.TempoTolerance` (2) BPM of each ot
 long fade or silence), and the review page shows a "Lengths m:ss apart, tempos agree" badge
 instead. Otherwise no Merge all task merges it (skip reason `LengthsDiffer`), and on the review page it gets a "Lengths m:ss
 apart" badge and starts as **Leave for later**; it can still be merged by hand. The title-based
-merge candidates use a looser 20 seconds from the median (`MergeManager.FilterLength`).
+merge candidates (Level 3, `SharedIdMatcher.WithinLengthTolerance`) use the same 15 seconds
+pairwise: no two songs they keep are further apart than that.
 
 **Preview merges** records each cluster's tier. Until the next restart, the review page sorts
 by it: clusters that differ only in their artist credits (`WithoutFeaturing`, `SameArtists`, `FewerArtists`) first, then close matches, then the rest. The tier is
