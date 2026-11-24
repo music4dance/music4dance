@@ -94,10 +94,10 @@ public class AppConfigurationRecoveryService(
         {
             message += $" Still not configured: {string.Join(", ", stillMissing)}.";
         }
-        var requestLogNote = RequestLogSetup.RestartNote(configuration);
-        if (requestLogNote != null)
+        foreach (var note in new[] { RequestLogSetup.RestartNote(configuration), AppLogUploadSetup.RestartNote(configuration) }
+            .Where(n => n != null))
         {
-            message += " " + requestLogNote;
+            message += " " + note;
         }
         logger.LogWarning("[AppConfigRecovery] {Message}", message);
 

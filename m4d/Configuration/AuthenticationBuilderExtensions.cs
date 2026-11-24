@@ -134,6 +134,43 @@ public static class AuthenticationBuilderExtensions
         options.ClientId = configured ? clientId : Unconfigured;
         options.ClientSecret = configured ? clientSecret : Unconfigured;
         GuardUnconfigured(options.Events, configured);
+        options.Events.OnRemoteFailure = HandleRemoteFailure;
+    }
+
+    internal const string RemoteFailureLoginPath = "/Identity/Account/Login?reason=remote-failure";
+
+    /// <summary>
+    /// A callback that fails (most often "Correlation failed": the correlation cookie expired,
+    /// was blocked, or the callback was replayed or opened in another browser) would otherwise
+    /// be an unhandled exception and a 500. Log it and send the user back to the login page,
+    /// which says the sign-in didn't complete.
+    /// </summary>
+    internal static Task HandleRemoteFailure(RemoteFailureContext context)
+    {
+        context.HttpContext.RequestServices?.GetService<ILoggerFactory>()
+            ?.CreateLogger(typeof(AuthenticationBuilderExtensions))
+            .LogWarning(
+                "External sign-in with {Scheme} failed: {Message}",
+                context.Scheme.Name, context.Failure?.Message);
+        context.Response.Redirect(RemoteFailureRedirect(context.Properties?.RedirectUri));
+        context.HandleResponse();
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// The login page, carrying on the returnUrl the sign-in started with (ExternalLogin puts it
+    /// on its callback URL, which is the challenge's RedirectUri) so a retry ends up where the
+    /// user was going. The Login page drops a returnUrl that isn't local.
+    /// </summary>
+    internal static string RemoteFailureRedirect(string redirectUri)
+    {
+        var query = redirectUri?.IndexOf('?') is int at and >= 0 ? redirectUri[at..] : "";
+        var returnUrl = QueryHelpers.ParseQuery(query)
+            .FirstOrDefault(p => string.Equals(p.Key, "returnUrl", StringComparison.OrdinalIgnoreCase))
+            .Value.ToString();
+        return string.IsNullOrEmpty(returnUrl)
+            ? RemoteFailureLoginPath
+            : QueryHelpers.AddQueryString(RemoteFailureLoginPath, "returnUrl", returnUrl);
     }
 
     /// <summary>

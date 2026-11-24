@@ -112,6 +112,13 @@ public class SongController : ContentController
             Filter.Dances = dances;
             Filter.Page = 1;
 
+            // DoAzureSearch rejects an unknown dance too, but the Dances count below parses the
+            // query first, and a malformed value (`?dances='`) throws there, giving a 500.
+            if (!Filter.DanceQuery.IsValid)
+            {
+                return BadRequest("Unknown dance in filter");
+            }
+
             if (string.IsNullOrWhiteSpace(Filter.SortOrder) && Filter.DanceQuery.Dances.Count() == 1)
             {
                 Filter.SortOrder = "Dances";

@@ -6,8 +6,8 @@ using m4d.Configuration;
 
 namespace m4d.Services;
 
-/// <summary>Where <see cref="RequestLogUploader"/> copies the request log: one append blob per file.</summary>
-public interface IRequestLogStore
+/// <summary>Where <see cref="LogFileUploader"/> copies a log: one append blob per file.</summary>
+public interface ILogFileStore
 {
     /// <summary>The length of every stored blob whose name starts with <paramref name="prefix"/>.</summary>
     Task<IReadOnlyDictionary<string, long>> GetLengthsAsync(string prefix, CancellationToken cancellationToken);
@@ -20,7 +20,7 @@ public interface IRequestLogStore
     Task AppendAsync(string name, long offset, ReadOnlyMemory<byte> content, CancellationToken cancellationToken);
 }
 
-public sealed class BlobRequestLogStore(BlobContainerClient container) : IRequestLogStore
+public sealed class BlobLogFileStore(BlobContainerClient container) : ILogFileStore
 {
     public async Task<IReadOnlyDictionary<string, long>> GetLengthsAsync(string prefix,
         CancellationToken cancellationToken)
@@ -54,27 +54,37 @@ public sealed class BlobRequestLogStore(BlobContainerClient container) : IReques
 }
 
 /// <summary>
-/// Copies the app request log from RequestLog:Directory (on /home) to blob storage, where a
-/// lifecycle rule keeps it 30 days. Starts with the app; first pass after
-/// <see cref="FirstDelay"/>, then every <see cref="Interval"/>.
+/// One log for <see cref="LogFileUploader"/> to copy: the files in <paramref name="Directory"/>
+/// named <paramref name="FilePrefix"/>*.txt.
+/// </summary>
+/// <param name="Name">The tag on the uploader's own log messages (<c>RequestLog</c>).</param>
+/// <param name="DeleteUploaded">Whether the uploader deletes a file once it's copied and
+/// <see cref="LogFileUploader.KeepAfterUpload"/> old. False when the logger that writes the files
+/// manages its own retention (the App Service file logger does).</param>
+public sealed record LogUploadSource(string Name, string Directory, string FilePrefix, bool DeleteUploaded);
+
+/// <summary>
+/// Copies a log's files from /home to blob storage, where a lifecycle rule keeps them 30 days:
+/// the app request log (<see cref="RequestLogSetup"/>) and the App Service file logger's
+/// Warning-and-above app log (<see cref="AppLogUploadSetup"/>), one uploader each. Starts with the
+/// app; first pass after <see cref="FirstDelay"/>, then every <see cref="Interval"/>.
 /// <list type="bullet">
 /// <item>Each pass lists the blobs once, then appends to each file's blob whatever whole lines
 /// the file has gained, so it keeps no state: after a restart it picks up from the blobs'
 /// lengths.</item>
-/// <item>It deletes a file once it's fully copied and hasn't been written for
-/// <see cref="KeepAfterUpload"/>. While uploads fail, files stay until the logger's
-/// RetainedFileCountLimit.</item>
-/// <item>It handles every request log file in the directory, not just this instance's, so files
+/// <item>When <see cref="LogUploadSource.DeleteUploaded"/>, it deletes a file once it's fully
+/// copied and hasn't been written for <see cref="KeepAfterUpload"/>. While uploads fail, files
+/// stay until the logger's RetainedFileCountLimit.</item>
+/// <item>It handles every matching file in the directory, not just this instance's, so files
 /// a previous instance left behind still get copied and cleaned up. Two uploaders on one file
 /// are safe: the source bytes are the same and each append is conditioned on the blob's
 /// length.</item>
 /// <item>Nothing a pass throws escapes: a failure is a warning, retried next pass. An exception
 /// out of a BackgroundService stops the host by default, which would take the site down.</item>
 /// </list>
-/// See architecture/observability/logging-and-diagnostics.md (App request log).
+/// See architecture/observability/logging-and-diagnostics.md (App request log, App log upload).
 /// </summary>
-public class RequestLogUploader(
-    RequestLogSetup.Settings settings, IRequestLogStore store, ILogger<RequestLogUploader> logger)
+public class LogFileUploader(LogUploadSource source, ILogFileStore store, ILogger<LogFileUploader> logger)
     : BackgroundService
 {
     public static readonly TimeSpan FirstDelay = TimeSpan.FromMinutes(5);
@@ -110,20 +120,20 @@ public class RequestLogUploader(
         }
         catch (Exception e) when (!stoppingToken.IsCancellationRequested)
         {
-            logger.LogWarning(e, "[RequestLog] Upload pass failed; retrying next pass");
+            logger.LogWarning(e, "[{Log}] Upload pass failed; retrying next pass", source.Name);
         }
     }
 
-    /// <summary>One pass over every request log file. Returns the bytes uploaded.</summary>
+    /// <summary>One pass over every file of the log. Returns the bytes uploaded.</summary>
     public async Task<long> UploadAsync(CancellationToken cancellationToken)
     {
-        if (!Directory.Exists(settings.Directory))
+        if (!Directory.Exists(source.Directory))
         {
             return 0;
         }
 
-        var files = new DirectoryInfo(settings.Directory)
-            .GetFiles(RequestLogSetup.FileNamePrefix + "*.txt")
+        var files = new DirectoryInfo(source.Directory)
+            .GetFiles(source.FilePrefix + "*.txt")
             .OrderBy(f => f.Name)
             .ToList();
         if (files.Count == 0)
@@ -131,7 +141,7 @@ public class RequestLogUploader(
             return 0;
         }
 
-        var stored = await store.GetLengthsAsync(RequestLogSetup.FileNamePrefix, cancellationToken);
+        var stored = await store.GetLengthsAsync(source.FilePrefix, cancellationToken);
         long total = 0;
         var uploadedFiles = 0;
         foreach (var file in files)
@@ -156,22 +166,23 @@ public class RequestLogUploader(
                 }
                 if (length < offset)
                 {
-                    logger.LogWarning("[RequestLog] {File} is shorter than its blob ({Length} < {Offset}); skipping it",
-                        file.Name, length, offset);
+                    logger.LogWarning("[{Log}] {File} is shorter than its blob ({Length} < {Offset}); skipping it",
+                        source.Name, file.Name, length, offset);
                 }
-                else if (length == offset && file.LastWriteTimeUtc < DateTime.UtcNow - KeepAfterUpload)
+                else if (source.DeleteUploaded && length == offset
+                    && file.LastWriteTimeUtc < DateTime.UtcNow - KeepAfterUpload)
                 {
                     file.Delete();
                 }
             }
             catch (Exception e) when (!cancellationToken.IsCancellationRequested)
             {
-                logger.LogWarning(e, "[RequestLog] Couldn't upload {File}; retrying next pass", file.Name);
+                logger.LogWarning(e, "[{Log}] Couldn't upload {File}; retrying next pass", source.Name, file.Name);
             }
         }
         if (total > 0)
         {
-            logger.LogInformation("[RequestLog] Uploaded {Bytes} bytes from {Files} file(s)", total, uploadedFiles);
+            logger.LogInformation("[{Log}] Uploaded {Bytes} bytes from {Files} file(s)", source.Name, total, uploadedFiles);
         }
         return total;
     }

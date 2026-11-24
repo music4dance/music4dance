@@ -25,6 +25,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 using System.Net;
+using System.Reflection;
 using System.Security.Claims;
 using System.Security.Principal;
 
@@ -197,6 +198,25 @@ public class SongControllerTests
 
         Assert.AreEqual(
             (int)HttpStatusCode.NotFound, controller.ControllerContext.HttpContext.Response.StatusCode);
+    }
+
+    [TestMethod]
+    [DataRow("'")]
+    [DataRow("XYZ")]
+    public async Task Search_InvalidDances_ReturnsBadRequest(string dances)
+    {
+        // Production 2026-11-21: `/song/search?dances=%27` threw "Invalid value format" while
+        // AzureSearch counted the query's dances, before DoAzureSearch's own check.
+        var controller = await CreateController(artistIndexEnabled: true);
+        // ContentController.OnActionExecutionAsync sets Filter from the request; it doesn't
+        // run in a unit test.
+        typeof(ContentController)
+            .GetProperty("Filter", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .SetValue(controller, SongFilter.Create(false, null));
+
+        var result = await controller.Search(null, dances);
+
+        Assert.IsInstanceOfType<BadRequestObjectResult>(result);
     }
 
     private static ServiceHealthManager CreateUnhealthySearch()

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 namespace m4d.Tests.Services;
 
 [TestClass]
-public class RequestLogUploaderTests
+public class LogFileUploaderTests
 {
     private const string Today = "requests-1a2b3c4d-20261116.0000.txt";
     private const string Yesterday = "requests-1a2b3c4d-20261115.0000.txt";
@@ -28,7 +28,7 @@ public class RequestLogUploaderTests
     public void DeleteDirectory() => Directory.Delete(_directory, recursive: true);
 
     /// <summary>Like an append blob with IfAppendPositionEqual: an append must start at the end.</summary>
-    private sealed class FakeStore : IRequestLogStore
+    private sealed class FakeStore : ILogFileStore
     {
         public Dictionary<string, List<byte>> Blobs { get; } = [];
         public List<(string Name, int Length)> Appends { get; } = [];
@@ -68,11 +68,14 @@ public class RequestLogUploaderTests
         }
     }
 
-    private RequestLogUploader Uploader(int chunkBytes = 1024 * 1024) => new(
-        new RequestLogSetup.Settings(_directory, "requests-1a2b3c4d-", 30, 100,
-            new Uri("https://m4dlogs.blob.core.windows.net/c")),
-        _store, NullLogger<RequestLogUploader>.Instance)
+    private LogFileUploader Uploader(int chunkBytes = 1024 * 1024) => new(
+        new LogUploadSource("RequestLog", _directory, RequestLogSetup.FileNamePrefix, DeleteUploaded: true),
+        _store, NullLogger<LogFileUploader>.Instance)
     { ChunkBytes = chunkBytes };
+
+    private LogFileUploader AppLogUploader() => new(
+        new LogUploadSource("AppLog", _directory, AppLogUploadSetup.FileNamePrefix, DeleteUploaded: false),
+        _store, NullLogger<LogFileUploader>.Instance);
 
     private void Write(string name, string text) => File.WriteAllText(Path.Combine(_directory, name), text);
 
@@ -218,7 +221,7 @@ public class RequestLogUploaderTests
         var uploader = Uploader();
         await uploader.UploadAsync(CancellationToken.None);
         File.SetLastWriteTimeUtc(Path.Combine(_directory, Yesterday),
-            DateTime.UtcNow - RequestLogUploader.KeepAfterUpload - TimeSpan.FromHours(1));
+            DateTime.UtcNow - LogFileUploader.KeepAfterUpload - TimeSpan.FromHours(1));
 
         await uploader.UploadAsync(CancellationToken.None);
 
@@ -269,6 +272,35 @@ public class RequestLogUploaderTests
         _store.ListFailures.Add(new OperationCanceledException(shutdown.Token));
 
         await Assert.ThrowsExactlyAsync<OperationCanceledException>(() => Uploader().TryUploadAsync(shutdown.Token));
+    }
+
+    [TestMethod]
+    public async Task AppLog_CopiesOnlyDiagnosticsFiles()
+    {
+        const string entry = "2026-11-23 00:06:51.000 +00:00 [Warning] Azure.Core: x\n  header\n";
+        Write("diagnostics-20261123.txt", entry);
+        Write(Today, "a request log line\n");
+
+        await AppLogUploader().UploadAsync(CancellationToken.None);
+
+        Assert.AreEqual(entry, _store.Text("diagnostics-20261123.txt"));
+        Assert.IsFalse(_store.Blobs.ContainsKey(Today));
+    }
+
+    [TestMethod]
+    public async Task AppLog_NeverDeletesFiles()
+    {
+        // The App Service file logger owns its retention, and the logs download reads /home.
+        const string old = "diagnostics-20261110.txt";
+        Write(old, "old\n");
+        var uploader = AppLogUploader();
+        await uploader.UploadAsync(CancellationToken.None);
+        File.SetLastWriteTimeUtc(Path.Combine(_directory, old), DateTime.UtcNow - TimeSpan.FromDays(10));
+
+        await uploader.UploadAsync(CancellationToken.None);
+
+        Assert.IsTrue(File.Exists(Path.Combine(_directory, old)));
+        Assert.AreEqual("old\n", _store.Text(old));
     }
 
     [TestMethod]

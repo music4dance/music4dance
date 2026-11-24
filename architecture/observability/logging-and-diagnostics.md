@@ -2,12 +2,13 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-19
+**Last verified:** 2026-11-23
 **Code:** `m4d/Configuration/M4dApplicationExtensions.cs` (logging setup),
 `m4d/Services/Diagnostics/` (`GcDiagnostics`, `GcSnapshot`, `DumpResult`),
 `m4d/Controllers/AdminController.cs`, `m4d/Views/Admin/Diagnostics.cshtml`,
-`m4d/Configuration/RequestLogSetup.cs`, `m4d/Middleware/RequestLogFieldsMiddleware.cs` and
-`m4d/Services/RequestLogUploader.cs` (app request log)
+`m4d/Configuration/RequestLogSetup.cs` and `m4d/Middleware/RequestLogFieldsMiddleware.cs` (app
+request log), `m4d/Configuration/AppLogUploadSetup.cs` (app log upload),
+`m4d/Services/LogFileUploader.cs` (copies both to blob storage)
 
 Where music4dance's application logs go, and what runtime memory diagnostics the app exposes.
 Security and traffic diagnostics on the same admin page are covered in
@@ -38,9 +39,11 @@ az webapp log config --name <app> --resource-group m4d-Web \
 - Logs land in `/home/LogFiles/Application/` on the instance. Read them through Kudu,
   `az webapp log download`, or `az webapp log tail`. See
   [runbooks/read-production-logs](../runbooks/read-production-logs.md).
-- It's a **rolling, quota-bound window**: free, but not durable or long-term, not queryable, and
-  without alerting.
-- The file logger writes one `diagnostics-YYYYMMDD.txt` per UTC day and keeps 2. Past its
+- On `/home` it's a **rolling window**: free, but not long-term, not queryable, and without
+  alerting. The [App log upload](#app-log-upload) copies it to blob storage for 30 days.
+- The file logger writes one `diagnostics-YYYYMMDD.txt` per UTC day and deletes the oldest past
+  `RetainedFileCountLimit`. Its default of 2 kept only about a day and a half (on 2026-11-23,
+  11-19 to 11-22 were gone), so `AddM4dLogging` keeps 7 (`AzureFileLogRetainedFiles`). Past its
   `FileSizeLimit` it **silently drops the rest of the day**. `AddM4dLogging` raises the limit
   from the 10 MB default to 50 MB (`AzureFileLogSizeLimitBytes`), because a Search throttling
   burst on 2026-11-18 filled 10 MB in about 8 minutes and hid the next 4¾ hours. Container
@@ -58,8 +61,58 @@ az webapp log config --name <app> --resource-group m4d-Web \
   When App Insights *was* wired in, its uncapped cost scaled with traffic and caused a billing
   surprise.
 
-Durable or queryable options, and what to do about those resources, are in
+Queryable options, and what to do about those resources, are in
 [plans/log-persistence-options](../plans/log-persistence-options.md).
+
+## App log upload
+
+App Service's "Application Logging (Blob)" isn't offered on Linux, so the app copies its own app
+log. When `AppLog:UploadContainer` is set, `AppLogUploadSetup` registers a second
+`LogFileUploader`, the same uploader as the [app request log](#app-request-log)'s (described
+there: 5 minutes after start, then hourly, whole lines appended to one append blob per file,
+resuming from the blobs' lengths, failures logged and retried). It copies
+`/home/LogFiles/Application/diagnostics-*.txt` to container `app-diagnostic-logs` in `m4dlogs`,
+under the same file names, and the lifecycle rule deletes them after 30 days.
+
+- **It never deletes files.** The file logger deletes its own past `RetainedFileCountLimit` (7),
+  and the `az webapp log download` the triage uses still reads `/home`. So 7 days is the buffer
+  while uploads fail.
+- **What can be lost:** the last hour before the file logger drops a day (it won't, while the
+  count is 7 and uploads work), and anything past the 50 MB daily cap, which is never written.
+- **Volume:** a normal day is under 1 MB; a Search throttling day can reach the 50 MB cap. Either
+  way, pennies.
+- **One instance writes the file.** The file names have no instance tag, so two instances on
+  one `/home` would both append to the same day file; the uploader copies whatever the file
+  holds. Production runs one instance.
+- **Reading it:** `python -I .claude/skills/analyze-logs/fetch_logs.py app-log --days 7` merges
+  the blobs into `local/logs/msc4dnc/LogFiles/Application/`, beside the `app-service` download.
+
+**Settings:**
+
+| Key | Default | Notes |
+| --- | --- | --- |
+| `AppLog:UploadContainer` | none | `https://m4dlogs.blob.core.windows.net/app-diagnostic-logs`. Unset, nothing is copied. Read at startup |
+| `AppLog:Directory` | `$HOME/LogFiles/Application` | Where the file logger writes on App Service; only set it to test locally |
+
+A bad value turns the upload off with `[AppLog] WARNING: upload disabled, ...` instead of failing
+startup. When it's on, startup prints `[AppLog] <directory>/diagnostics-* copied hourly to ...`.
+
+**One-time setup** (PowerShell, as an Owner of `m4d-Web`). The key has the `Production` label for
+the same reason as the request log's (see Environments under
+[App request log](#app-request-log)); it takes effect at the next restart or deploy:
+
+```powershell
+az storage container-rm create --storage-account m4dlogs -g m4d-Web -n app-diagnostic-logs
+$app = az webapp identity show -n msc4dnc -g m4d-Web --query principalId -o tsv
+$account = az storage account show -n m4dlogs -g m4d-Web --query id -o tsv
+az role assignment create --assignee-object-id $app --assignee-principal-type ServicePrincipal `
+  --role "Storage Blob Data Contributor" `
+  --scope "$account/blobServices/default/containers/app-diagnostic-logs"
+az storage account management-policy update --account-name m4dlogs -g m4d-Web `
+  --add policy.rules[0].definition.filters.prefixMatch app-diagnostic-logs/
+az appconfig kv set -n music4dance --label Production --key AppLog:UploadContainer `
+  --value https://m4dlogs.blob.core.windows.net/app-diagnostic-logs --yes
+```
 
 ## HTTP request logs
 
@@ -160,7 +213,7 @@ with a probe, 2026-11-16):
 - It deletes the oldest of its own files (its instance's prefix) past `RetainedFileCountLimit`. That
   counts files, not days: every restart and size rollover adds one.
 
-**Where the files go.** The logger writes to `/home/LogFiles/requests`, and `RequestLogUploader`
+**Where the files go.** The logger writes to `/home/LogFiles/requests`, and `LogFileUploader`
 copies them to container `app-request-logs` in `m4dlogs` every hour:
 
 - **Why `/home` and not straight to storage.** The logger writes and flushes every line, and a slow
@@ -279,9 +332,9 @@ recent dumps. Heap and full dumps are large; delete them after downloading. The 
 
 ## Future improvements
 
-- **Durable log storage, query and alerting:**
-  [plans/log-persistence-options](../plans/log-persistence-options.md) (Blob, Log Analytics with a
-  hard cap, or a tuned App Insights).
+- **Log query and alerting:**
+  [plans/log-persistence-options](../plans/log-persistence-options.md) (Log Analytics with a hard
+  cap, or a tuned App Insights).
 - **Memory history and trends, allocation tracking, and a memory-pressure health check:**
   [plans/memory-diagnostics-next](../plans/memory-diagnostics-next.md).
 
@@ -305,6 +358,9 @@ recent dumps. Heap and full dumps are large; delete them after downloading. The 
   response bytes for much less code. It writes to `/home` and `RequestLogUploader` copies it to
   blob storage hourly; writing to a mounted Azure Files share was considered and dropped for its
   transaction cost and stall risk.
+- 2026-11-23: App log upload. `RequestLogUploader` became `LogFileUploader`, one per log, and
+  copies `diagnostics-*.txt` to `app-diagnostic-logs` when `AppLog:UploadContainer` is set. The
+  file logger keeps 7 day files instead of 2. The triage had found 11-19 to 11-22 gone.
 
 ## Related
 

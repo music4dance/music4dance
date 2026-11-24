@@ -56,7 +56,12 @@ fetched it recently), skip the download. Otherwise:
 ```bash
 python -I .claude/skills/analyze-logs/fetch_logs.py app-service      # --app m4d-test for staging
 python -I .claude/skills/analyze-logs/fetch_logs.py requests --hours 48
+python -I .claude/skills/analyze-logs/fetch_logs.py app-log --days 7      # older app log days
 ```
+
+`/home` only keeps 7 day files of the app log. `app-log` fills in older days (up to 30) from
+the hourly copy in container `app-diagnostic-logs`, into the same `msc4dnc/LogFiles/Application/`
+folder, once `AppLog:UploadContainer` is set in production.
 
 `app-service` runs `az webapp log download` and merges the zip into
 `local/logs/msc4dnc/`. It skips the download if the last one is under 30 minutes old
