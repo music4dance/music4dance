@@ -1,3 +1,4 @@
+using System.Security.Principal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -30,11 +31,24 @@ public class CreateSongTests
         return (dms, (TestSongIndex)dms.SongIndex, await dms.FindUser("dwgray"));
     }
 
+    // Its own track cache, so fixture tracks (and failed lookups) never reach the process-wide cache
     private static MusicServiceManager Manager() =>
-        new(new Mock<IConfiguration>().Object)
+        new FixtureManager
         {
             Http = new HttpClient(new SpotifyFixtureHandler()),
+            TrackCache = new(),
         };
+
+    // A stub bearer token: the fixture doesn't check it, and the real token endpoint isn't a test dependency
+    private sealed class FixtureManager : MusicServiceManager
+    {
+        public FixtureManager() : base(new Mock<IConfiguration>().Object)
+        {
+        }
+
+        protected override Task<string> ServiceAuthorization(MusicService service, IPrincipal principal) =>
+            Task.FromResult("Bearer fixture-token");
+    }
 
     [TestMethod]
     public async Task CreateSong_NewTrack_BuildsTheSongFromTheTrack()

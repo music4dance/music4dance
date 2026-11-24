@@ -258,12 +258,28 @@ lookup, response parsing, the genre and artist follow-up requests) with no netwo
 answers from fixtures and returns 404 for anything it doesn't know.
 
 ```csharp
-var manager = new MusicServiceManager(new Mock<IConfiguration>().Object)
+var manager = new FixtureManager          // a test subclass, below
 {
     Http = new HttpClient(new SpotifyFixtureHandler()),
+    TrackCache = new(),
 };
 var song = await manager.CreateSong(
     dms, user, SpotifyFixtureHandler.TrackId, MusicService.GetService(ServiceType.Spotify));
+```
+
+Two more seams keep a test off the process-wide state. `TrackCache` is the manager's track cache: the
+default is shared by every manager in the process, so a test manager gets its own, and fixture tracks
+never reach other tests. And `ServiceAuthorization` is the app-token step (`protected virtual`); a
+test subclass overrides it to return a stub bearer token, so no test calls the token endpoint:
+
+```csharp
+private sealed class FixtureManager : MusicServiceManager
+{
+    public FixtureManager() : base(new Mock<IConfiguration>().Object) { }
+
+    protected override Task<string> ServiceAuthorization(MusicService service, IPrincipal principal) =>
+        Task.FromResult("Bearer fixture-token");
+}
 ```
 
 `m4d.Tests/Utilities/SpotifyFixtureHandler.cs` is the handler. Its Spotify responses are the

@@ -144,10 +144,12 @@ public static class SharedIdMatcher
         Song.CreateTitleHash(WithoutQualifiers(WithoutVersionNotes(ArtistSplitter.RemoveTitleFeaturing(title))));
 
     /// <summary>
-    /// The title as the add-time match (SongIndex.MergeFromTitle) compares it: without the
-    /// remaster and single-version notes (WithoutVersionNotes), as Song.CreateTitleHash.
+    /// The title as the add-time match (SongIndex.MergeFromTitle) compares it: without its feat.
+    /// clause (ArtistSplitter.RemoveTitleFeaturing) and its remaster and single-version notes
+    /// (WithoutVersionNotes), as Song.CreateTitleHash.
     /// </summary>
-    public static int AddTitleKey(string title) => Song.CreateTitleHash(WithoutVersionNotes(title ?? ""));
+    public static int AddTitleKey(string title) =>
+        Song.CreateTitleHash(WithoutVersionNotes(ArtistSplitter.RemoveTitleFeaturing(title ?? "")));
 
     /// <summary>
     /// Whether two songs' titles match for the add-time match: the same AddTitleKey. A qualifier
@@ -158,12 +160,14 @@ public static class SharedIdMatcher
     public static bool AddTitlesMatch(Song a, Song b) => AddTitleKey(a.Title) == AddTitleKey(b.Title);
 
     /// <summary>
-    /// A credit as the add-time match compares it: its primary artist under the name to use
-    /// (ArtistAliases.PreferredCredit), without the leader's backing group (ArtistSplitter.RemoveBackingGroup,
-    /// with <paramref name="knowledge"/>), as Song.CreateTitleHash.
+    /// A credit as the add-time match compares it: its primary artist (without a feat. credit,
+    /// ArtistSplitter.RemoveArtistFeaturing) under the name to use (ArtistAliases.PreferredCredit),
+    /// without the leader's backing group (ArtistSplitter.RemoveBackingGroup, with
+    /// <paramref name="knowledge"/>), as Song.CreateTitleHash. So "X feat. Y" and "X" have one key.
     /// </summary>
     public static int CreditKey(string credit, IArtistKnowledge knowledge = null) =>
-        Song.CreateTitleHash(ArtistSplitter.RemoveBackingGroup(ArtistAliases.PreferredCredit(credit ?? ""), knowledge));
+        Song.CreateTitleHash(ArtistSplitter.RemoveBackingGroup(
+            ArtistAliases.PreferredCredit(ArtistSplitter.RemoveArtistFeaturing(credit ?? "")), knowledge));
 
     /// <summary>Whether both songs have a length and the two are within LengthTolerance of each other.</summary>
     public static bool LengthsAgree(Song a, Song b) =>

@@ -48,10 +48,12 @@ Used for Spotify write operations (create playlist, set tracks, upload image). R
 ### In-Process Track Cache
 
 ```csharp
-private static readonly Dictionary<string, ServiceTrack> s_trackCache = [];
+private static readonly ConcurrentDictionary<string, Lazy<Task<ServiceTrack>>> s_sharedTrackCache = new();
 ```
 
-Key: `"{CID}:{trackId}"` (e.g., `"S:3X2p7fCVH4g5ITBGH8pEtZ"`). Cleared when count exceeds 10,000.
+Key: `"{CID}:{trackId}"` (e.g., `"S:3X2p7fCVH4g5ITBGH8pEtZ"`). Cleared when count exceeds 10,000. Concurrent
+requests for one track share a single lookup, and a failed lookup (null) is removed, so it isn't cached.
+A manager's `TrackCache` property points at this shared cache; tests give their own manager a separate one.
 
 ---
 
@@ -172,7 +174,7 @@ After returning, `ComputeTrackPurchaseInfo` decorates each `ServiceTrack` with `
 ### `GetMusicServiceTrack(id, service)`
 
 1. Strips any `[…]` suffix from the ID.
-2. Checks `s_trackCache`.
+2. Checks `s_sharedTrackCache`.
 3. Calls `service.BuildTrackRequest(id)`:
    - iTunes: `https://itunes.apple.com/lookup?id={id}&entity=song`
    - Spotify: `https://api.spotify.com/v1/tracks/{id}`
@@ -318,7 +320,7 @@ globally would have regressed those.
 - `SpotifyService.s_results` is now actually written to in `GetResults` (guarded by a
   `s_resultsLock` around every read/write/eviction, since `Dictionary<>` isn't thread-safe and this
   is hit concurrently by ASP.NET requests), so repeated albums/artists within one playlist are
-  fetched once — same unbounded-but-cleared-at-10k shape as `MusicServiceManager.s_trackCache`. A
+  fetched once — same unbounded-but-cleared-at-10k shape as `MusicServiceManager.s_sharedTrackCache`. A
   failed/null lookup is never cached, so a transient Spotify error doesn't get memoized as
   "no data" until the next eviction.
 - `LookupPlaylist` takes `maxTracks`, and `SongController.Playlist` passes its `matchLimit`, so

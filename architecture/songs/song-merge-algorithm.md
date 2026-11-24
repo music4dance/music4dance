@@ -155,6 +155,11 @@ rule, which kept songs within ±20 seconds of the cluster median (and before tha
 median or mean is anchored to the cluster as a whole, so two songs could both sit within 20 seconds
 of it while being 30 seconds apart, and a cluster of 180s, 190s, 200s, 210s kept all four.
 
+The admin merge candidate list is therefore narrower than it was. A pair 16 to 20 seconds apart
+that the median rule kept as candidates is now separated, so the list can drop a Level 3 lump of
+two songs that the old rule showed. This is intended: at 15 seconds, a pair is held to the same
+tolerance the add-time match uses, and a song that is still a duplicate can be merged by hand.
+
 **Example**:
 
 ```

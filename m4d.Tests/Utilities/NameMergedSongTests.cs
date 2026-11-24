@@ -8,8 +8,8 @@ namespace m4d.Tests.Utilities;
 /// <summary>
 /// An add that matches a catalog song by title names the song the way the shared-id review does
 /// (MusicServiceManager.NameMergedSong): a feat. credit the track brings moves into the individual
-/// artists, and a remaster note doesn't overwrite a clean title. CreateSong itself can't be run
-/// here (its service lookups are live HTTP), so these cover the naming step it calls.
+/// artists, and a remaster note doesn't overwrite a clean title. These cover the naming step on its
+/// own; CreateSongTests runs CreateSong end to end against the Spotify fixture.
 /// </summary>
 [TestClass]
 public class NameMergedSongTests
