@@ -13,7 +13,7 @@ namespace m4d.Configuration;
 /// <summary>
 /// The app request log: one line per request, written by ASP.NET Core's built-in W3C logger,
 /// with the visitor's IP (App Service's own HTTP log only sees Cloudflare's edge), and copied to
-/// blob storage every hour by <see cref="RequestLogUploader"/>. Off unless RequestLog:Enabled.
+/// blob storage every hour by <see cref="LogFileUploader"/>. Off unless RequestLog:Enabled.
 /// See architecture/observability/logging-and-diagnostics.md (App request log).
 /// </summary>
 public static class RequestLogSetup
@@ -23,7 +23,7 @@ public static class RequestLogSetup
     /// <summary>
     /// Files, not days: the logger starts a new file at every restart and at
     /// <see cref="DefaultFileSizeLimitMB"/>. With uploads working, the uploader deletes copied
-    /// files after <see cref="RequestLogUploader.KeepAfterUpload"/>, so this is only the cap
+    /// files after <see cref="LogFileUploader.KeepAfterUpload"/>, so this is only the cap
     /// while uploads fail: at most 30 x 100 MB on /home.
     /// </summary>
     public const int DefaultRetainedFileCountLimit = 30;
@@ -169,9 +169,9 @@ public static class RequestLogSetup
         services.AddW3CLogging(o => Configure(o, settings));
         if (settings.UploadContainer != null)
         {
-            services.AddSingleton<IRequestLogStore>(
-                new BlobRequestLogStore(new BlobContainerClient(settings.UploadContainer, credential)));
-            services.AddHostedService<RequestLogUploader>();
+            services.AddLogFileUploader(
+                new LogUploadSource("RequestLog", settings.Directory, FileNamePrefix, DeleteUploaded: true),
+                settings.UploadContainer, credential);
         }
         Console.WriteLine($"[RequestLog] Enabled: {Path.Combine(settings.Directory, settings.FileName)}*, "
             + $"keeping up to {settings.RetainedFileCountLimit} files of up to {settings.FileSizeLimitMB} MB, "

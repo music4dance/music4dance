@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace m4d.Tests.Middleware;
@@ -220,8 +221,7 @@ public class RequestLogTests
 
         Assert.IsTrue(IsRegistered(services));
 
-        Assert.IsTrue(services.Any(d => d.ImplementationType == typeof(RequestLogUploader)));
-        Assert.IsTrue(services.Any(d => d.ServiceType == typeof(IRequestLogStore)));
+        Assert.AreEqual(1, services.Count(d => d.ServiceType == typeof(IHostedService)));
     }
 
     [TestMethod]
@@ -233,7 +233,7 @@ public class RequestLogTests
 
         Assert.IsTrue(IsRegistered(services));
 
-        Assert.IsFalse(services.Any(d => d.ImplementationType == typeof(RequestLogUploader)));
+        Assert.IsFalse(services.Any(d => d.ServiceType == typeof(IHostedService)));
     }
 
     // --- RequestLogFieldsMiddleware ---

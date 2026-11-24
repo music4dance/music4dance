@@ -9,6 +9,7 @@ Usage:
   python -I fetch_logs.py app-service [--app msc4dnc|m4d-test] [--max-age 30] [--force]
                                       [--zip ZIP_OR_FOLDER ...]
   python -I fetch_logs.py requests [--from blob|home] [--hours 24]
+  python -I fetch_logs.py app-log [--days 7]
   python -I fetch_logs.py http [--hours 24]
   (--root DIR, before the command, moves the tree; default local/logs)
 
@@ -18,6 +19,9 @@ Layout under the root:
                 LogFiles/*_docker.log, deployments/. Each download covers a rolling 2 to 3
                 days; files from earlier downloads stay. A file is only replaced by a
                 longer copy, so a later, shorter copy never truncates what's there.
+                `app-log` adds the app log's hourly copy in blob storage (container
+                app-diagnostic-logs, AppLog:UploadContainer, kept 30 days) into
+                msc4dnc/LogFiles/Application/, for days /home no longer has.
   requests/     the app request log (RequestLog:Enabled, the built-in W3C logger), with the
                 visitor's IP behind Cloudflare: requests-<instance>-YYYYMMDD.NNNN.txt.
                 `requests` fetches it from container app-request-logs in m4dlogs (copied
@@ -55,6 +59,7 @@ ACCOUNT = "m4dlogs"
 RESOURCE_GROUP = "m4d-Web"
 CONTAINER = "insights-logs-appservicehttplogs"
 APP_CONTAINER = "app-request-logs"
+DIAG_CONTAINER = "app-diagnostic-logs"
 APPS = ("msc4dnc", "m4d-test")
 KUDU_DIR = "https://msc4dnc.scm.azurewebsites.net/api/vfs/LogFiles/requests/"
 HOUR = re.compile(r"/y=(\d{4})/m=(\d{2})/d=(\d{2})/h=(\d{2})/")
@@ -198,7 +203,7 @@ def fetch_app_service(args, root):
 
 # ---- requests -----------------------------------------------------------------------------
 
-def wanted_day_files(files, dest, hours, now):
+def wanted_day_files(files, dest, hours, now, pattern=DAY_FILE):
     """(name, local path, remote size) for the day files that cover the last `hours` hours
     and that are missing locally or shorter than the remote copy. The files are append-only
     and every source has the same bytes, so a local copy at least as long is kept (it may
@@ -207,30 +212,31 @@ def wanted_day_files(files, dest, hours, now):
     first_day = (now - timedelta(hours=hours)).date()
     wanted = []
     for f in files:
-        m = DAY_FILE.match(f["name"])
+        m = pattern.match(f["name"])
         if not m:
             continue
-        day = datetime(*map(int, m.groups())).date()
+        digits = "".join(m.groups())
+        day = datetime(int(digits[:4]), int(digits[4:6]), int(digits[6:8])).date()
         local = dest / f["name"]
         if day >= first_day and (not local.exists() or local.stat().st_size < f["size"]):
             wanted.append((f["name"], local, f["size"]))
     return wanted
 
 
-def blob_source():
-    """List and download from the app-request-logs container. When the local copy is
-    shorter, only the new byte range is downloaded and appended."""
-    files = json.loads(az_blob("storage", "blob", "list", "-c", APP_CONTAINER, "--num-results", "*",
+def blob_source(container=APP_CONTAINER):
+    """List and download from an uploader's container (app-request-logs by default). When the
+    local copy is shorter, only the new byte range is downloaded and appended."""
+    files = json.loads(az_blob("storage", "blob", "list", "-c", container, "--num-results", "*",
                                "--query", "[].{name:name,size:properties.contentLength}", "-o", "json"))
 
     def download(name, local, size):
         have = local.stat().st_size if local.exists() else 0
         if have == 0:
-            az_blob("storage", "blob", "download", "-c", APP_CONTAINER, "-n", name, "-f", str(local),
+            az_blob("storage", "blob", "download", "-c", container, "-n", name, "-f", str(local),
                     "--overwrite", "true", "-o", "none")
             return
         part = local.with_name(local.name + ".part")
-        az_blob("storage", "blob", "download", "-c", APP_CONTAINER, "-n", name, "-f", str(part),
+        az_blob("storage", "blob", "download", "-c", container, "-n", name, "-f", str(part),
                 "--start-range", str(have), "--end-range", str(size - 1), "--overwrite", "true",
                 "-o", "none")
         with open(local, "ab") as out:
@@ -282,6 +288,23 @@ def fetch_requests(args, root):
     stamp(root, f"requests:{args.source_from}")
     print(f"{len(wanted)} file(s) downloaded into {dest}")
     print_requests_status(root)
+
+
+# ---- app-log ------------------------------------------------------------------------------
+
+def fetch_app_log(args, root):
+    """The app log's blob copy, merged into msc4dnc/LogFiles/Application/ beside the
+    app-service download. Both are the same append-only bytes, so the longer copy wins."""
+    dest = root / "msc4dnc" / "LogFiles" / "Application"
+    files, download = blob_source(DIAG_CONTAINER)
+    wanted = wanted_day_files(files, dest, args.days * 24, utcnow(), DIAG_FILE)
+    dest.mkdir(parents=True, exist_ok=True)
+    for name, local, size in wanted:
+        download(name, local, size)
+        print("downloaded", name)
+    stamp(root, "app-log")
+    print(f"{len(wanted)} file(s) downloaded into {dest}")
+    print_app_status(root, read_stamps(root))
 
 
 # ---- http ---------------------------------------------------------------------------------
@@ -339,7 +362,8 @@ def first_line(path, pattern):
 def print_app_status(root, stamps):
     for app in APPS:
         diag = sorted((root / app).glob("LogFiles/Application/diagnostics-*.txt"))
-        print(f"{app}/  fetched {fmt_age(age(stamps, f'app-service:{app}'))}")
+        blob = f", app log from blob {fmt_age(age(stamps, 'app-log'))}" if app == "msc4dnc" else ""
+        print(f"{app}/  fetched {fmt_age(age(stamps, f'app-service:{app}'))}{blob}")
         if not diag:
             print("    no diagnostics-*.txt")
             continue
@@ -412,13 +436,16 @@ def main():
                    help="the hourly copy in blob storage (default) or /home through Kudu")
     r.add_argument("--hours", type=int, default=24, help="how far back to fetch (default 24)")
 
+    g = sub.add_parser("app-log", help="the app log's blob copy, into <root>/msc4dnc/LogFiles/Application")
+    g.add_argument("--days", type=int, default=7, help="how far back to fetch (default 7)")
+
     h = sub.add_parser("http", help="the App Service HTTP log, into <root>/http")
     h.add_argument("--hours", type=int, default=24, help="how far back to fetch (default 24)")
 
     args = ap.parse_args()
     root = Path(args.root)
     {"status": status, "app-service": fetch_app_service, "requests": fetch_requests,
-     "http": fetch_http}[args.command](args, root)
+     "app-log": fetch_app_log, "http": fetch_http}[args.command](args, root)
 
 
 if __name__ == "__main__":

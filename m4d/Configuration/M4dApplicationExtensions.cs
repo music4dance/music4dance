@@ -177,6 +177,11 @@ public static class M4dApplicationExtensions
         // RequestLog:UploadContainer is set. Off unless RequestLog:Enabled.
         services.AddM4dRequestLog(configuration, azureCredential);
 
+        // App log (LogFiles/Application/diagnostics-*.txt, Warning and above): copied hourly to
+        // blob storage when AppLog:UploadContainer is set, so it outlives the file logger's
+        // retention on /home.
+        services.AddM4dAppLogUpload(configuration, azureCredential);
+
         // Manual-testing escape hatch: write the Azure Search Properties field uncompressed.
         // Reads always handle both formats (see SongPropertyCompression.IsCompressed), so this only
         // affects what gets written going forward. Default on; flip off via a launch profile
@@ -659,10 +664,17 @@ public static class M4dApplicationExtensions
     /// <c>LogFiles/Application/diagnostics-YYYYMMDD.txt</c>. Past it, the provider silently drops
     /// every message until the next UTC day. Its 10 MB default filled in about 8 minutes of a
     /// Search throttling burst on 2026-11-18 (Azure.Core logs each 503 with its headers), which
-    /// hid the rest of that day's warnings and errors. It keeps 2 files, so this is ~100 MB of
-    /// <c>/home</c>.
+    /// hid the rest of that day's warnings and errors.
     /// </summary>
     internal const int AzureFileLogSizeLimitBytes = 50 * 1024 * 1024;
+
+    /// <summary>
+    /// How many day files the App Service file logger keeps; it deletes the oldest past this.
+    /// Its default of 2 left about a day and a half on <c>/home</c> (2026-11-23: 11-19 to 11-22
+    /// were gone). AppLogUploadSetup copies the files to blob storage hourly, so this is the
+    /// buffer while uploads fail. A normal day is under 1 MB; at worst 7 x 50 MB of /home.
+    /// </summary>
+    internal const int AzureFileLogRetainedFiles = 7;
 
     internal static void AddM4dLogging(ILoggingBuilder logging)
     {
@@ -670,7 +682,11 @@ public static class M4dApplicationExtensions
         logging.AddConsole();
         logging.AddAzureWebAppDiagnostics();
         _ = logging.Services.Configure<AzureFileLoggerOptions>(
-            options => options.FileSizeLimit = AzureFileLogSizeLimitBytes);
+            options =>
+            {
+                options.FileSizeLimit = AzureFileLogSizeLimitBytes;
+                options.RetainedFileCountLimit = AzureFileLogRetainedFiles;
+            });
     }
 
     public static async Task<WebApplication> UseM4dPipeline(

@@ -1,9 +1,10 @@
 # Durable Application Log Storage
 
 **Type:** Plan
-**Status:** Proposed. Filesystem logging (the old "Option 1") shipped 2026-09-04; everything here
-is optional next steps.
-**Last verified:** 2026-10-01
+**Status:** Proposed. Filesystem logging (the old "Option 1") shipped 2026-09-04. Durable storage
+shipped 2026-11-23 as the app's own upload instead of Option 2 (see below); what's left is query
+and alerting.
+**Last verified:** 2026-11-23
 
 Today production Warning+ logs live only in App Service's rolling filesystem window (see
 [logging-and-diagnostics](../observability/logging-and-diagnostics.md)). The options below go from
@@ -19,6 +20,11 @@ Goals:
 `logging.AddAzureWebAppDiagnostics()` is already wired in, so Option 2 needs no code change.
 
 ## Option 2 — App Service "Application Logging (Blob Storage)" (Pennies/month)
+
+> **Superseded 2026-11-23.** This setting is Windows-only; `msc4dnc` runs on Linux. The app now
+> copies `diagnostics-*.txt` to `m4dlogs/app-diagnostic-logs` itself
+> ([logging-and-diagnostics § App log upload](../observability/logging-and-diagnostics.md#app-log-upload)).
+> Kept below for the record.
 
 Same toggle, pointed at a Blob container instead of local disk. Needs a Storage Account and a container SAS URL. The `m4dlogs` account (Standard LRS, West US), created 2026-10-29 for HTTP request logs, can be reused, with a second lifecycle rule for the new container:
 
@@ -95,5 +101,5 @@ The `m4d-staging` Application Insights component and its `DefaultWorkspace-...-W
 ## Open decisions
 
 - [ ] Retention/quota values for the chosen option — currently Azure's default filesystem quota for Application Logging; revisit if it fills up faster than expected
-- [ ] Whether Option 2 (Blob) is still wanted for longer-than-rolling-window retention
+- [x] Longer-than-rolling-window retention: the app log upload (2026-11-23), not Option 2
 - [ ] Fate of the orphaned `m4d-staging` App Insights + Log Analytics workspace
