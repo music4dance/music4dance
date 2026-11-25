@@ -75,8 +75,7 @@ defineExpose({ danceLink, blogLink, canShowTempo, tempoText, synonymText });
       ({{ synonymText }})
     </span>
     <span v-if="showTempo && canShowTempo" style="font-size: 0.8rem" class="ms-2">
-      {{ tempoText }}</span
-    ><a
+      {{ tempoText }}</span><a
       v-if="showBlogLink && blogLink"
       :href="blogLink"
       target="_blank"

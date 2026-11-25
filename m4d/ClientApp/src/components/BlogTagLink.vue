@@ -22,8 +22,7 @@ const tagLink = computed(() => {
     <dd>
       <img :src="info" alt="tools" width="24" height="24" />
       Read the <a href="https://music4dance.blog">music4dance blog</a> entries about
-      <a :href="tagLink">{{ safeTitle }}</a
-      >.
+      <a :href="tagLink">{{ safeTitle }}</a>.
     </dd>
   </div>
 </template>

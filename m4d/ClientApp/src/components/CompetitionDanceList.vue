@@ -50,15 +50,13 @@ const competitionPageLink =
           that is defined by the
           <a :href="currentOrgs.primary.url" target="_blank">{{ currentOrgs.primary.name }}</a>
           and
-          <a :href="currentOrgs.secondary.url" target="_blank">{{ currentOrgs.secondary.name }}</a
-          >.
+          <a :href="currentOrgs.secondary.url" target="_blank">{{ currentOrgs.secondary.name }}</a>.
         </template>
         <template v-else>
           Competition {{ dancingType }} dancing is defined by the
           <a :href="currentOrgs.primary.url" target="_blank">{{ currentOrgs.primary.name }}</a>
           and
-          <a :href="currentOrgs.secondary.url" target="_blank">{{ currentOrgs.secondary.name }}</a
-          >.
+          <a :href="currentOrgs.secondary.url" target="_blank">{{ currentOrgs.secondary.name }}</a>.
         </template>
       </slot>
     </p>

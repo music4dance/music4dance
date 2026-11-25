@@ -56,8 +56,7 @@ const nextStep = computed(() => {
       </div>
 
       <p>
-        To use <strong>{{ featureName }}</strong
-        >, you must meet the following requirements:
+        To use <strong>{{ featureName }}</strong>, you must meet the following requirements:
       </p>
 
       <ul class="list-unstyled">
