@@ -1,9 +1,9 @@
 # Apple Music API Migration (and iTunes ISRC Backfill)
 
 **Type:** Plan
-**Status:** Proposed. An Apple Developer Program membership is available (confirmed 2026-11-03), so the Apple Music API route (option A) is unblocked.
-**Last verified:** 2026-11-03
-**Code:** `m4dModels/ITunesService.cs`, `m4d/Utilities/MusicServiceManager.cs` (`GetISRCData`, the iTunes 403 pause near the `iTunesCalls` counter), `m4d/Utilities/AdmAuthentication.cs`, `m4d/Controllers/SongController.cs` (`BatchISRC`), `m4d/ClientApp/src/models/Purchase.ts`, `m4d/ClientApp/src/components/AdminFooter.vue`
+**Status:** Proposed. The MusicKit key is set up and a developer token has been tested against the catalog API (2026-11-25), so stage 0 is ready to build.
+**Last verified:** 2026-11-25
+**Code:** `scripts/apple-music-token-test.mjs` (token smoke test), `m4dModels/ITunesService.cs`, `m4d/Utilities/MusicServiceManager.cs` (`GetISRCData`, the iTunes 403 pause near the `iTunesCalls` counter), `m4d/Utilities/AdmAuthentication.cs`, `m4d/Controllers/SongController.cs` (`BatchISRC`), `m4d/ClientApp/src/models/Purchase.ts`, `m4d/ClientApp/src/components/AdminFooter.vue`
 
 **Context:** This started (2026-09-23) as a plan to backfill ISRCs for iTunes-only songs. It
 turned out that the API we use for iTunes can't supply ISRCs, which led to a broader proposal: move
@@ -142,10 +142,38 @@ Yes, for this purpose. There are two token types:
   That's the part that involves an Apple Music subscription, and none of the staged plan below
   uses it.
 
-Setup: Certificates, Identifiers & Profiles → create a Media ID with MusicKit enabled → create a
-key with MusicKit → download the `.p8` (you can download it only once) and note the Key ID and
-Team ID. The membership has to stay current. If it lapses, token signing still works but Apple
-rejects the tokens, so keep the old iTunes path as a fallback (see stage 1).
+The membership has to stay current. If it lapses, token signing still works but Apple rejects
+the tokens, so keep the old iTunes path as a fallback (see stage 1).
+
+### Key setup (done 2026-11-25)
+
+1. Certificates, Identifiers & Profiles → Identifiers → **Media IDs**. Register one with
+   **MusicKit** only. ShazamKit (audio recognition) and Apple Music Feed (bulk catalog
+   downloads) aren't needed, and they can be enabled on the Media ID later if that changes.
+2. Keys → **+** → enable **Media Services (MusicKit, ShazamKit, Apple Music Feed)** → Configure →
+   link it to that Media ID → register.
+3. Download `AuthKey_<KEYID>.p8`; Apple allows only one download. Note the Key ID (from the
+   filename) and the Team ID (Membership details). Keep the `.p8` in the password manager. Never
+   commit it or paste its contents anywhere. If it leaks, revoke it and create a new key; the
+   only follow-up is a new Key ID and secret value. (The first key was revoked for this reason.)
+4. Configuration. Team ID and Key ID aren't secret; the private key is.
+   - Local: `dotnet user-secrets` on `m4d`: `AppleMusic:TeamId`, `AppleMusic:KeyId`, and
+     `AppleMusic:PrivateKey` (the whole PEM, including the BEGIN/END lines; user secrets keep
+     the line breaks).
+   - Production: Key Vault `music4dance` secret `AppleMusic-PrivateKey`
+     (`az keyvault secret set --vault-name music4dance --name AppleMusic-PrivateKey --file AuthKey_<KEYID>.p8`).
+     Then add App Configuration keys `AppleMusic:TeamId` and `AppleMusic:KeyId` as plain values
+     and `AppleMusic:PrivateKey` as a Key Vault reference. The app identity's existing access
+     policy (Get, List) already covers it. Not done yet.
+5. Smoke test:
+   `node scripts/apple-music-token-test.mjs <path>/AuthKey_<KEYID>.p8 <TEAM_ID> [ids]`.
+   It signs a one-hour token, does a batch `songs?ids=` lookup, then a reverse `filter[isrc]`
+   lookup.
+
+Token format: ES256 JWT, header `{"alg":"ES256","kid":<KeyId>}`, claims
+`{"iss":<TeamId>,"iat":<now>,"exp":<now + at most 15777000s>}`. The signature must be raw
+`r||s` (IEEE P1363), not DER. In .NET, `ECDsa.ImportFromPem` plus `SignData(...,
+HashAlgorithmName.SHA256)` produces P1363 by default.
 
 ### Why migrate
 
@@ -197,11 +225,28 @@ swap, not a new service.
 
 ### Things to verify early (in stage 0)
 
-- The maximum `ids=` batch size, and that every stored iTunes `trackId` resolves as a catalog
-  song id in the `us` storefront.
+Findings from the smoke test on 2026-11-25, with 5 stored ids from the test data:
+
+- **Stored iTunes ids are catalog song ids.** One `songs?ids=` call returned 4 of the 5, each
+  with `attributes.isrc`. `1072024229` isn't in the `us` storefront, and it was silently left
+  out of `data`, as expected. Plan for a "not found" record in the backfill.
+- **`filter[isrc]` must be URL-encoded** (`filter%5Bisrc%5D=`). Sending the raw brackets returns
+  **401**, not 400, which looks like an auth failure. Any 401 from the new code should be
+  checked for this before anyone suspects the key.
+- **Reverse lookup can return a different id for the same recording.** `USUG11500952` (The
+  Weeknd, "In the Night", stored as `1017804211`) returned only `1440858507`, which is the same
+  song on the same album, re-issued under a new id. So stage 2 can't assume the ISRC result is
+  the id we already hold. It needs a rule for choosing among results, and should probably skip
+  songs that already have *any* `I` id rather than add a second one for the same album. The
+  same thing may happen in stage 1: an old stored id could still resolve while Apple's
+  canonical id has changed.
+
+Still open:
+
+- The maximum `ids=` batch size (documented as 300; not yet tested beyond 5).
+- What share of the 851 `INR` ids resolve in `us`.
 - Observed rate limit: log 429s and throughput during the backfill.
-- Whether `filter[isrc]` returns multiple songs per ISRC (it does for compilations). Stage 2
-  needs a rule for choosing among them, probably preferring the album we already have.
+- Whether `filter[isrc]` returns multiple songs per ISRC (expected for compilations).
 - Storefront choice: `us` everywhere, or configurable.
 
 ## Beyond the catalog API
@@ -361,6 +406,9 @@ Deezer before using its API, at any revenue level.
 
 Resolved:
 
+- The MusicKit key is created and a developer token works against the catalog API
+  (2026-11-25). See [Key setup](#key-setup-done-2026-11-25) and
+  [Things to verify early](#things-to-verify-early-in-stage-0).
 - An Apple Developer Program membership is available (2026-11-03), so option A is the primary
   ISRC source and the staged migration can start.
 - Deezer's terms bar commercial use with no revenue threshold (2026-11-03), so Deezer is out of
