@@ -1627,6 +1627,68 @@ public class SongIndex
     }
 
     /// <summary>
+    /// Streams every song matching <paramref name="search"/> and <paramref name="parameters"/>
+    /// in SongId order, paging with a key-set cursor (SongId greater than the last id seen)
+    /// instead of $skip. For batches that edit the songs they visit: with $skip, an edit that
+    /// takes a song out of the result set shifts every later page, so the next page starts past
+    /// songs that were never visited. A cursor isn't affected, and has no 100K $skip limit.
+    /// The caller's OrderBy is ignored.
+    /// </summary>
+    public virtual async IAsyncEnumerable<Song> StreamAllBySongId(
+        string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft)
+    {
+        const int azurePageSize = 1000;
+        search = new KeywordQuery(search).Keywords;
+
+        var originalFilter = parameters.Filter;
+        var originalSize = parameters.Size;
+        var originalSkip = parameters.Skip;
+        var originalIncludeTotalCount = parameters.IncludeTotalCount;
+        var originalOrderBy = parameters.OrderBy.ToList();
+
+        parameters.Size = azurePageSize;
+        parameters.Skip = null;
+        parameters.IncludeTotalCount = false;
+        parameters.OrderBy.Clear();
+        parameters.OrderBy.Add($"{SongIdField} asc");
+
+        string lastId = null;
+
+        try
+        {
+            while (true)
+            {
+                var cursor = lastId == null ? null : $"{SongIdField} gt '{lastId}'";
+                parameters.Filter = originalFilter == null
+                    ? cursor
+                    : cursor == null ? originalFilter : $"({originalFilter}) and {cursor}";
+
+                var response = await DoSearch(search, parameters, cruft);
+                var results = response.GetResults().ToList();
+                if (results.Count == 0)
+                    yield break;
+
+                lastId = results[^1].Document.GetString(SongIdField);
+                foreach (var song in await CreateSongs(results))
+                    yield return song;
+
+                if (results.Count < azurePageSize)
+                    yield break;
+            }
+        }
+        finally
+        {
+            parameters.Filter = originalFilter;
+            parameters.Size = originalSize;
+            parameters.Skip = originalSkip;
+            parameters.IncludeTotalCount = originalIncludeTotalCount;
+            parameters.OrderBy.Clear();
+            foreach (var order in originalOrderBy)
+                parameters.OrderBy.Add(order);
+        }
+    }
+
+    /// <summary>
     /// Fetches ALL songs matching <paramref name="search"/> and <paramref name="parameters"/>
     /// by paging through Azure Search in batches of 1000 (the API maximum per request).
     /// Suitable for admin/bulk operations where the full result set is needed for
