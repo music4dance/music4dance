@@ -20,6 +20,9 @@ public class ErrorChecker : PageChecker, IDisposable
         @"Ads running",
         @"Ads are",
         @"Usage tracking:",
+        // Injected by the Visual Studio / C# Dev Kit dev tooling (Browser Link / hot reload),
+        // never served in production; it trips Chrome's "unload is not allowed" policy.
+        @"/_vs/browserLink",
     ];
 
     [TestMethod]
