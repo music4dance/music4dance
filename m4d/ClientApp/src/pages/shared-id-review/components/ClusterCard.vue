@@ -271,11 +271,13 @@ const ownerText: Record<string, string> = {
 
         <ul v-if="choice.owners" class="small owners">
           <li v-for="owner in choice.owners" :key="owner.id">
-            <strong>{{ owner.id }}</strong
-            ><span v-if="owner.shared === false" class="text-muted"> (one song's)</span>
+            <strong>{{ owner.id }}</strong><span v-if="owner.shared === false" class="text-muted">
+              (one song's)</span
+            >
             {{ ownerText[owner.status] }}
-            <template v-if="owner.status === 'Owned'">{{ choice.songLabel(owner.song) }}</template
-            ><span v-if="owner.reason" class="text-muted">: {{ owner.reason }}</span>
+            <template v-if="owner.status === 'Owned'">{{
+              choice.songLabel(owner.song)
+            }}</template><span v-if="owner.reason" class="text-muted">: {{ owner.reason }}</span>
           </li>
           <li v-if="choice.owners.length === 0" class="text-muted">The songs changed: reload.</li>
         </ul>

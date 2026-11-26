@@ -15,8 +15,7 @@ const menuContext: MenuContext = getMenuContext();
 <template>
   <PageFrame id="app" :breadcrumbs="breadcrumbs">
     <h1>
-      Info for <em>{{ model.displayName }}</em
-      >'s Profile
+      Info for <em>{{ model.displayName }}</em>'s Profile
     </h1>
     <div>
       <UserProfile :model="model" :menu-context="menuContext" />

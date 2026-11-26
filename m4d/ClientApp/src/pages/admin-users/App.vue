@@ -262,15 +262,13 @@ function mergeUrl(userName: string): string {
 
       <div class="col-md-2">
         <p v-for="{ role, count } in roleStats" :key="role">
-          <b>{{ role }}</b
-          >: {{ count }}
+          <b>{{ role }}</b>: {{ count }}
         </p>
       </div>
 
       <div class="col-md-2">
         <p v-for="{ login, count } in loginStats" :key="login">
-          <b>{{ login }}</b
-          >: {{ count }}
+          <b>{{ login }}</b>: {{ count }}
         </p>
       </div>
 
