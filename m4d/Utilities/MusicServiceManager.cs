@@ -1246,14 +1246,33 @@ public class MusicServiceManager(IConfiguration configuration)
         }
 
         var tracks = await LookupAppleMusicSongs(ids);
+        var (added, held) = await AttachAppleISRCs(dms, song, edit, tracks);
+
+        // "ISRCs added" says whether a song with a dead id still got an ISRC from another id, so
+        // the log alone lists the songs that are left without one
         var missing = ids.Except(tracks.Select(t => t.TrackId)).ToList();
         if (missing.Count > 0)
         {
             Logger.LogInformation(
-                "Apple Music has no {Storefront} song for {Ids} ({Title} by {Artist}, {SongId})",
-                AppleMusicStorefront, string.Join(",", missing), song.Title, song.Artist, song.SongId);
+                "Apple Music has no {Storefront} song for {Ids} ({Title} by {Artist}, {SongId}); ISRCs added: {Added}",
+                AppleMusicStorefront, string.Join(",", missing), song.Title, song.Artist, song.SongId, added);
         }
 
+        if (held.Count > 0)
+        {
+            Logger.LogInformation(
+                "Apple Music ISRCs {Isrcs} for {Title} by {Artist} ({SongId}) are already on other songs; see the shared-ids report",
+                string.Join(",", held), song.Title, song.Artist, song.SongId);
+        }
+
+        return added > 0 && await dms.SongIndex.EditSong(itunes.ApplicationUser, song, edit);
+    }
+
+    // Attaches each track's ISRC to the album entry carrying its iTunes id. Returns how many were
+    // added, and the ISRCs withheld because another song already holds them.
+    private static async Task<(int Added, IList<string> Held)> AttachAppleISRCs(
+        DanceMusicCoreService dms, Song song, Song edit, IList<ServiceTrack> tracks)
+    {
         var seenISRCs = new HashSet<string>(
             edit.Albums.SelectMany(
                 a => a.GetPurchaseIdentifiers(ServiceType.ISRC, PurchaseType.Song)));
@@ -1277,7 +1296,7 @@ public class MusicServiceManager(IConfiguration configuration)
 
         if (found.Count == 0)
         {
-            return false;
+            return (0, []);
         }
 
         var claims = new Dictionary<string, string>();
@@ -1288,13 +1307,15 @@ public class MusicServiceManager(IConfiguration configuration)
 
         // An ISRC already held by another song is reported as a likely duplicate, not attached
         var held = await dms.SharedIds.CheckIds(song, claims, "Apple Music ISRC lookup");
-        var changed = false;
-        foreach (var (album, track) in found.Where(f => !held.Contains(IsrcKey(f.Track.ISRC))))
-        {
-            changed |= album.AddPurchaseId(PurchaseType.Song, ServiceType.ISRC, track.ISRC);
-        }
+        var added = found
+            .Where(f => !held.Contains(IsrcKey(f.Track.ISRC)))
+            .Count(f => f.Album.AddPurchaseId(PurchaseType.Song, ServiceType.ISRC, f.Track.ISRC));
+        var withheld = found
+            .Where(f => held.Contains(IsrcKey(f.Track.ISRC)))
+            .Select(f => f.Track.ISRC)
+            .ToList();
 
-        return changed && await dms.SongIndex.EditSong(itunes.ApplicationUser, song, edit);
+        return (added, withheld);
     }
 
     // Not yet configurable (see the storefront question in the migration plan)
