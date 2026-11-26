@@ -169,6 +169,11 @@ the tokens, so keep the old iTunes path as a fallback (see stage 1).
    `node scripts/apple-music-token-test.mjs <path>/AuthKey_<KEYID>.p8 <TEAM_ID> [ids]`.
    It signs a one-hour token, does a batch `songs?ids=` lookup, then a reverse `filter[isrc]`
    lookup.
+6. Moving the key between machines through a password manager: use the one-line form, which is
+   the base64 PKCS#8 body with the BEGIN/END lines and line breaks removed. The test script
+   accepts a file holding it (for example `AuthKey_<KEYID>.oneline.txt`), and the stage 0 token
+   provider should accept both forms: `ImportFromPem` when the value has a BEGIN line, otherwise
+   `ImportPkcs8PrivateKey(Convert.FromBase64String(...))`.
 
 Token format: ES256 JWT, header `{"alg":"ES256","kid":<KeyId>}`, claims
 `{"iss":<TeamId>,"iat":<now>,"exp":<now + at most 15777000s>}`. The signature must be raw

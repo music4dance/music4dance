@@ -1,6 +1,6 @@
 // Smoke test for an Apple Music API developer token.
-// Usage: node scripts/apple-music-token-test.mjs <path/to/AuthKey_KEYID.p8> <TEAM_ID> [songId,songId,...]
-// Key ID is taken from the AuthKey_<KEYID>.p8 filename (override with APPLE_KEY_ID).
+// Usage: node scripts/apple-music-token-test.mjs <path/to/AuthKey_KEYID.p8 or .oneline.txt> <TEAM_ID> [songId,songId,...]
+// Key ID is taken from the AuthKey_<KEYID> filename (override with APPLE_KEY_ID).
 // No dependencies: uses Node's built-in crypto and fetch.
 import { createPrivateKey, sign } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -11,7 +11,7 @@ if (!keyPath || !teamId) {
   console.error("Usage: node scripts/apple-music-token-test.mjs <AuthKey_KEYID.p8> <TEAM_ID> [ids]");
   process.exit(1);
 }
-const keyId = process.env.APPLE_KEY_ID ?? basename(keyPath).match(/AuthKey_(\w+)\.p8/)?.[1];
+const keyId = process.env.APPLE_KEY_ID ?? basename(keyPath).match(/AuthKey_([A-Z0-9]+)/)?.[1];
 if (!keyId) {
   console.error("Could not read the Key ID from the filename; set APPLE_KEY_ID.");
   process.exit(1);
@@ -23,7 +23,11 @@ const now = Math.floor(Date.now() / 1000);
 const header = { alg: "ES256", kid: keyId };
 const claims = { iss: teamId, iat: now, exp: now + 60 * 60 }; // 1 hour is plenty for a test
 const signingInput = `${b64url(JSON.stringify(header))}.${b64url(JSON.stringify(claims))}`;
-const key = createPrivateKey(readFileSync(keyPath));
+// Accepts the .p8 PEM, or a one-line file holding just the base64 body (no BEGIN/END lines).
+const keyText = readFileSync(keyPath, "utf8");
+const key = keyText.includes("-----BEGIN")
+  ? createPrivateKey(keyText)
+  : createPrivateKey({ key: Buffer.from(keyText.replace(/\s+/g, ""), "base64"), format: "der", type: "pkcs8" });
 // JWT ES256 wants the raw r||s signature, not DER.
 const signature = sign("sha256", Buffer.from(signingInput), { key, dsaEncoding: "ieee-p1363" });
 const token = `${signingInput}.${b64url(signature)}`;
