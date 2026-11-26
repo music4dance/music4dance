@@ -2,11 +2,12 @@
 
 **Type:** Plan
 **Status:** In progress. Stage 0 (developer token plus `BatchISRCApple`) is built and tested
-against the live API (2026-11-25). The production configuration is in place, and a first
-10-song run over `INR` against production succeeded; the full run is next. Stages 1-4
-(including 2b, stale-id repair) are proposed.
+against the live API (2026-11-25). The production configuration is in place, and the backfill
+has been run over all of `INR` in production (2026-11-26): what's left is 750 songs whose iTunes
+ids are all dead, plus 49 whose ISRCs are already on other songs. Stages 1-4 (including 2b,
+stale-id repair) are proposed.
 **Last verified:** 2026-11-26
-**Code:** `scripts/apple-music-token-test.mjs` (token smoke test), `m4d/Utilities/AppleMusicAuthentication.cs` (developer token), `MusicServiceManager.GetAppleISRCData` / `LookupAppleMusicSongs`, `m4d.Tests/Utilities/AppleMusicTests.cs`, `m4dModels/ITunesService.cs`, `m4d/Utilities/MusicServiceManager.cs` (`GetISRCData`, the iTunes 403 pause near the `iTunesCalls` counter), `m4d/Utilities/AdmAuthentication.cs`, `m4d/Controllers/SongController.cs` (`BatchISRC`), `m4d/ClientApp/src/models/Purchase.ts`, `m4d/ClientApp/src/components/AdminFooter.vue`
+**Code:** `scripts/apple-music-token-test.mjs` (token smoke test), `m4d/Utilities/AppleMusicAuthentication.cs` (developer token), `MusicServiceManager.GetAppleISRCData` / `LookupAppleMusicSongs`, `SongIndex.StreamAllBySongId` (batch paging), `m4d.Tests/Utilities/AppleMusicTests.cs`, `m4dModels/ITunesService.cs`, `m4d/Utilities/MusicServiceManager.cs` (`GetISRCData`, the iTunes 403 pause near the `iTunesCalls` counter), `m4d/Utilities/AdmAuthentication.cs`, `m4d/Controllers/SongController.cs` (`BatchISRC`), `m4d/ClientApp/src/models/Purchase.ts`, `m4d/ClientApp/src/components/AdminFooter.vue`
 
 **Context:** This started (2026-09-23) as a plan to backfill ISRCs for iTunes-only songs. It
 turned out that the API we use for iTunes can't supply ISRCs, which led to a broader proposal: move
@@ -227,8 +228,13 @@ swap, not a new service.
      at 300). It attaches each ISRC to the album carrying that id, dedupes like `GetISRCData`,
      and sends the ISRCs through `SharedIds.CheckIds`, so an ISRC already on another song is
      reported as a duplicate rather than attached. Ids missing from the storefront are logged
-     (`Apple Music has no us song for …`); no marker is stored, since a retry costs one call.
-     Edits are made as `batch-i`.
+     (`Apple Music has no us song for … ; ISRCs added: N`, where N says whether another id still
+     supplied an ISRC), and so are withheld ISRCs (`… are already on other songs`). No marker is
+     stored, since a retry costs one call. Edits are made as `batch-i`.
+   - `BatchProcess` now streams with `SongIndex.StreamAllBySongId`, a `SongId` cursor, instead
+     of `$skip`. With `$skip`, a batch whose edits take songs out of its own filter (as this one
+     does for "no ISRC") starts each later page past unvisited songs; the first full run skipped
+     hundreds this way.
    - `BatchISRCApple` (Admin footer → Update → ISRC (Apple Music)) skips songs that already have
      an ISRC, like `BatchISRC`. Without configuration it aborts on the first song.
    - Tests: token format and signature (both key forms), the backfill against a fake lookup, and
@@ -314,11 +320,28 @@ First production run (2026-11-25, `BatchISRCApple` with `count=10` over `INR`):
   two ISRCs on one album. That's accurate to the data. Splitting merged recordings is a
   separate question.
 
+Full backfill (2026-11-26, three runs over `INR` from a dev instance against production):
+
+- **`INR` was much bigger than the search page showed.** The search hides songs with no dance
+  tags or unconfirmed dances (cruft), but batches include them, so the first run covered about
+  2,000 songs rather than the 803 the search showed. The 851 count in [Goal](#goal) undercounts
+  the same way. Many hidden ones are classical tracks.
+- **Run 1** added ISRCs to 1,282 songs, but skipped many songs because of `$skip` paging (see
+  above). **Run 2** (same code) picked up most of those. **Run 3**, with the `SongId` cursor,
+  visited every remaining song and added 1.
+- **What's left:** 750 songs whose iTunes ids are all dead, and 49 whose ISRCs are already held
+  by another song. Those are likely duplicate songs (several releases of Mark Ronson "Valerie",
+  Akon "Beautiful", Carlos Libedinsky tracks) and are in the shared-ids report.
+- **Dead ids overall:** 1,069 songs have at least one dead id, 2,620 ids in all; 319 of those
+  songs got an ISRC from another, working id. That's the input for stage 2b. The list is
+  rebuilt from the run logs by a script in `local/` (not checked in).
+- **Rate limit:** 14 429s across about 3,800 calls (5, 9 and 0 in the three runs), all cleared
+  by the existing 15s wait. At
+  one call per song the limit isn't a constraint.
+
 Still open:
 
-- The maximum `ids=` batch size (documented as 300; not yet tested beyond 5).
-- What share of the 851 `INR` ids resolve in `us` (half of the first 10).
-- Observed rate limit: log 429s and throughput during the backfill.
+- The maximum `ids=` batch size (documented as 300; not yet tested beyond about 10).
 - Whether `filter[isrc]` returns multiple songs per ISRC (expected for compilations).
 - Storefront choice: `us` everywhere, or configurable.
 
@@ -473,8 +496,6 @@ Deezer before using its API, at any revenue level.
 
 ## Open questions
 
-- How many iTunes ids fail to resolve in the Apple Music `us` catalog? That decides whether the
-  Deezer route above is ever worth pursuing.
 - Curated playlists: is add-only refresh (new playlist, re-share) acceptable?
 
 Resolved:
@@ -486,7 +507,11 @@ Resolved:
   ISRC source and the staged migration can start.
 - Deezer's terms bar commercial use with no revenue threshold (2026-11-03), so Deezer is out of
   scope unless Deezer approves it in writing.
-- Counts (2026-11-04): 33,101 songs have an iTunes id, and 851 of them have no ISRC (`INR`).
+- Counts (2026-11-04): 33,101 songs have an iTunes id, and 851 of them have no ISRC (`INR`), as
+  the search page counts them (hidden songs excluded).
+- How many iTunes ids fail to resolve (2026-11-26): after the backfill, 750 songs have no working
+  iTunes id. That's a stale-id repair job (stage 2b), not a case for Deezer, which only matters
+  if repair leaves a large set with no ISRC source.
 
 ## Sources
 
