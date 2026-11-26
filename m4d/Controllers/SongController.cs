@@ -2036,6 +2036,23 @@ public class SongController : ContentController
             });
     }
 
+    // ISRCs from the Apple Music API for songs with an iTunes id and no ISRC. Run it with the
+    // purchase filter INR (on iTunes, no ISRC).
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult BatchISRCApple(int count = -1)
+    {
+        UseVue = UseVue.No;
+        return BatchProcess(
+            async (dms, song) =>
+            {
+                if (song.GetPurchaseId(ServiceType.ISRC) != null)
+                    return null;
+                return await MusicServiceManager.GetAppleISRCData(dms, song)
+                    ? song
+                    : null;
+            }, count: count);
+    }
+
     // Re-checks tempo/meter against dance-specific validation rules (see DanceValidation in
     // DanceLib) for songs already carrying a tempo, not just newly-imported ones. Filter the
     // song list down to the dance being rolled out (e.g. dance:Quickstep) before running this.

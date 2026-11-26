@@ -107,7 +107,9 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
 
     protected AccessToken Token { get; set; }
 
-    private async Task<AccessToken> CreateToken()
+    // Fetches a token from the service's OAuth endpoint. Overridden where the token is signed
+    // locally instead (the Apple Music developer token).
+    protected virtual async Task<AccessToken> CreateToken()
     {
         Logger.LogInformation("Creating Access Token");
 
@@ -274,6 +276,15 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
     {
         AdmAuthentication auth = null;
 
+        // Apple Music has only the app-level developer token (no user tokens yet), so this comes
+        // before the per-user cache, whose entries are Spotify tokens. Unconfigured means no token.
+        if (serviceType == ServiceType.ITunes)
+        {
+            return AppleMusicAuthentication.IsConfigured(configuration)
+                ? s_appleMusic ??= new AppleMusicAuthentication(configuration)
+                : null;
+        }
+
         if (principal is ServiceAccountPrincipal serviceAccount)
         {
             return await SetupServiceAccount(configuration, serviceAccount);
@@ -410,6 +421,7 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
     public static void Clear()
     {
         s_spotify = null;
+        s_appleMusic = null;
         s_users.Clear();
         s_serviceAccounts.Clear();
     }
@@ -417,6 +429,7 @@ public abstract class AdmAuthentication(IConfiguration configuration) : CoreAuth
     protected string RefreshToken;
 
     private static AdmAuthentication s_spotify;
+    private static AdmAuthentication s_appleMusic;
 
     // ConcurrentDictionary: SetupService/EvictUser/Clear are all hit concurrently by different
     // requests, and a plain Dictionary isn't safe for concurrent read/write.
