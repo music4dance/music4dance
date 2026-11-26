@@ -1916,7 +1916,9 @@ public class SongController : ContentController
                         var parameters = dms.SongIndex.AzureParmsFromFilter(capturedFilter);
                         var save = new List<Song>();
 
-                        await foreach (var song in dms.SongIndex.StreamAll(
+                        // Paged by SongId, not $skip: the edits below can take songs out of
+                        // the filter, which would shift $skip pages past unvisited songs
+                        await foreach (var song in dms.SongIndex.StreamAllBySongId(
                             capturedFilter.AzureSearchText, parameters, CruftFilter.AllCruft))
                         {
                             try
