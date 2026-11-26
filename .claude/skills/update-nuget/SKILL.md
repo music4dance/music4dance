@@ -34,8 +34,9 @@ argument, since they represent a major framework-version upgrade (e.g.
 ## Projects in scope
 
 `DanceLib/DanceLibrary.csproj`, `m4dModels/m4dModels.csproj`, `m4d/m4d.csproj`,
-`SelfCrawler/SelfCrawler.csproj`, and the `*.Tests.csproj` projects
-(`DanceTests`, `m4dModels.Tests`, `m4d.Tests`). All target `net10.0`.
+`m4d-api/m4d-api.csproj`, `SelfCrawler/SelfCrawler.csproj`, and the
+`*.Tests.csproj` projects (`DanceTests`, `m4dModels.Tests`, `m4d.Tests`,
+`m4d-api.Tests`). All target `net10.0`.
 
 There are also `m4dModels.Sandbox` and `m4d.Sandbox` in the solution, which
 carry a few package references of their own — `--outdated` lists them, so
@@ -68,7 +69,12 @@ There is also a local tool manifest at `m4d/.config/dotnet-tools.json`
      `Microsoft.NETCore.*` — must stay on the `10.x` line matching the
      project's `net10.0` target. If `Latest` shows an `11.x` version, that's a
      framework upgrade, not a routine bump — flag it to the user and skip it
-     unless they explicitly ask for a framework upgrade.
+     unless they explicitly ask for a framework upgrade. `Latest` hides any
+     newer `10.0.x` patch behind the `11.x` release, so also run
+     `dotnet list music4dance.sln package --outdated --highest-minor` to see
+     the patch these packages should move to (routine, apply directly).
+     Third-party packages that version with ASP.NET Core (e.g.
+     `AspNet.Security.OAuth.Spotify` `11.x`) move with the framework too.
    - **Major version bumps** on any other package (e.g. `5.x` → `6.x`) — list
      these separately and ask the user before applying, since they can carry
      breaking API changes.
@@ -101,8 +107,11 @@ There is also a local tool manifest at `m4d/.config/dotnet-tools.json`
 6. **Build the whole solution:**
 
    ```sh
-   dotnet build music4dance.sln
+   dotnet build music4dance.sln -warnaserror
    ```
+
+   Use `-warnaserror` to match CI-SERVER: a bump that adds a warning (such
+   as the `doesn't support net10.0` one below) must fail here, not in CI.
 
    Note `dotnet build` can fail with file locks if a dev server (`dotnet
    watch` / IIS Express) is holding the output assemblies — check for that
@@ -115,9 +124,10 @@ There is also a local tool manifest at `m4d/.config/dotnet-tools.json`
    dotnet test DanceTests/DanceLibrary.Tests.csproj
    dotnet test m4dModels.Tests/m4dModels.Tests.csproj
    dotnet test m4d.Tests/m4d.Tests.csproj
+   dotnet test m4d-api.Tests/m4d-api.Tests.csproj
    ```
 
-   Run all three projects, not a subset: a package bump can break code
+   Run all four projects, not a subset: a package bump can break code
    nowhere near the package you touched. All tests must pass before you
    commit. If any fail, bisect to the offending bump and either revert it or
    confirm the fix with the user — **do not open a PR on a red suite.**
@@ -199,7 +209,7 @@ There is also a local tool manifest at `m4d/.config/dotnet-tools.json`
       (an `11.x` release that doesn't match `net10.0`, a breaking API
       change) — this is the most useful part of the PR for the reviewer;
     - the `dotnet-ef` tool version, if it moved;
-    - build and test status, stating that all three test projects passed and
+    - build and test status, stating that all four test projects passed and
       that SelfCrawler was intentionally excluded.
 
     End the body with:
@@ -225,9 +235,19 @@ There is also a local tool manifest at `m4d/.config/dotnet-tools.json`
   step back to the last version that builds clean — as of 2026-09,
   `Microsoft.Build.Tasks.Core` / `Microsoft.Build.Utilities.Core` 18.10.1
   warn and 18.8.2 doesn't, while `Microsoft.NET.Test.Sdk` 18.10.1 is fine.
-  As of 2026-10, 18.11.0 still warns, so those two stay on 18.8.2.
+  As of 2026-10, 18.11.0 still warns, and as of 2026-11 18.12.2 still warns
+  (while `Microsoft.NET.Test.Sdk` 18.12.0 is fine), so those two stay on
+  18.8.2.
 - `dotnet add package --no-restore` makes a large batch of bumps much faster;
-  follow the batch with one `dotnet restore music4dance.sln`.
-- The build emits three pre-existing `EF1001` internal-API warnings in
-  `m4dModels/DanceMusicContext.cs`. They are baseline noise, not something a
-  bump introduced.
+  follow the batch with one `dotnet restore music4dance.sln`. Because of
+  Central Package Management, editing the `Version` attributes in
+  `Directory.Packages.props` directly works just as well and doesn't strip
+  the trailing newline.
+- The quickest migration check after an EF Core bump is, from `m4d/`,
+  `dotnet tool restore` and then
+  `dotnet ef migrations has-pending-model-changes --project ../m4dModels --no-build`.
+  It prints a host-startup stack trace before the verdict. That trace is
+  expected; read the last line ("No changes have been made to the model...").
+- The build should be warning-clean. The `EF1001` internal-API use in
+  `m4dModels/DanceMusicContext.cs` is suppressed with a scoped `#pragma`, so
+  any warning at all is new and comes from the bump.
