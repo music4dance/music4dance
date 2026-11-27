@@ -338,4 +338,37 @@ public class AppleMusicLiveTests
         Assert.AreEqual("1017804211", tracks[0].TrackId);
         Assert.AreEqual("USUG11500952", tracks[0].ISRC);
     }
+
+    [TestMethod]
+    [TestCategory("Manual")]
+    public async Task GetMusicServiceTrack_StoredITunesId_ComesFromAppleMusic()
+    {
+        if (Environment.GetEnvironmentVariable("M4D_APPLE_MUSIC_LIVE") != "1")
+        {
+            Assert.Inconclusive("Set M4D_APPLE_MUSIC_LIVE=1 to call the Apple Music API.");
+            return;
+        }
+
+        var configuration = new ConfigurationBuilder().AddUserSecrets(SecretsId).Build();
+        if (!AppleMusicAuthentication.IsConfigured(configuration))
+        {
+            Assert.Inconclusive("Set Authentication:AppleMusic:TeamId, :KeyId and :PrivateKey in m4d's user secrets.");
+            return;
+        }
+
+        AdmAuthentication.Clear();
+        MusicServiceManager.ResumeAppleMusicLookups();
+        var manager = new MusicServiceManager(configuration)
+        {
+            TrackCache = new System.Collections.Concurrent.ConcurrentDictionary<string, Lazy<Task<ServiceTrack>>>(),
+        };
+
+        var track = await manager.GetMusicServiceTrack("1440858507", MusicService.GetService(ServiceType.ITunes));
+
+        Assert.IsNotNull(track);
+        Assert.AreEqual("USUG11500952", track.ISRC, "Only the Apple Music API returns ISRCs");
+        Assert.AreEqual("1440858094", track.CollectionId);
+        Assert.AreEqual("In the Night", track.Name);
+        Assert.IsNotNull(track.SampleUrl);
+    }
 }

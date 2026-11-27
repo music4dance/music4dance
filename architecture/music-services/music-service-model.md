@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01 (code references checked; behavior not re-traced)
+**Last verified:** 2026-11-26 (iTunes fields from the Apple Music API added; the rest checked 2026-10-01)
 **Code:** `m4dModels/MusicService.cs`, `m4dModels/ServiceTrack.cs`, `m4dModels/AlbumDetails.cs`
 
 > For the higher-level integration overview (registered services, HTTP infrastructure, purchase filtering) see [music-service-integration.md](music-service-integration.md).
@@ -53,21 +53,27 @@ Additional overridable hooks: `BuildLookupRequest` (album/playlist URLs), `GetNe
 
 `ServiceTrack` (m4dModels/ServiceTrack.cs) is what every parse method produces. It carries one recording as seen by the external service:
 
-| Field          | Source (iTunes)        | Source (Spotify)               |
-| -------------- | ---------------------- | ------------------------------ |
-| `Service`      | `ServiceType.ITunes`   | `ServiceType.Spotify`          |
-| `TrackId`      | `trackId`              | `id`                           |
-| `CollectionId` | `collectionId`         | `album.id`                     |
-| `Name`         | `trackName`            | `name`                         |
-| `Artist`       | `artistName`           | `artists[0].name`              |
-| `Album`        | `collectionName`       | `album.name`                   |
-| `Duration`     | `trackTimeMillis÷1000` | `duration_ms÷1000`             |
-| `TrackNumber`  | `trackNumber`          | `track_number` (+ disc offset) |
-| `Genres`       | `[primaryGenreName]`   | fetched from album/artist hrefs |
-| `SampleUrl`    | `PreviewUrl`           | `preview_url`                  |
-| `ImageUrl`     | `artworkUrl30`         | smallest image in `album.images` |
-| `IsPlayable`   | (not present)          | `is_playable`                  |
-| `AudioData`    | (filled later)         | `EchoTrack` (filled separately)|
+iTunes track lookups come from the Apple Music API when it's configured (stage 1 of the
+[migration plan](../plans/apple-music-api-migration.md)); iTunes search and the fallback lookup
+still use the legacy iTunes API. Apple Music fields are under `attributes` unless noted.
+
+| Field          | Source (iTunes, legacy) | Source (iTunes, Apple Music)            | Source (Spotify)               |
+| -------------- | ----------------------- | --------------------------------------- | ------------------------------ |
+| `Service`      | `ServiceType.ITunes`    | `ServiceType.ITunes`                    | `ServiceType.Spotify`          |
+| `TrackId`      | `trackId`               | `id`                                    | `id`                           |
+| `CollectionId` | `collectionId`          | `relationships.albums.data[0].id`       | `album.id`                     |
+| `Name`         | `trackName`             | `name`                                  | `name`                         |
+| `Artist`       | `artistName`            | `artistName`                            | `artists[0].name`              |
+| `Album`        | `collectionName`        | `albumName`                             | `album.name`                   |
+| `Duration`     | `trackTimeMillis÷1000`  | `durationInMillis÷1000`                 | `duration_ms÷1000`             |
+| `TrackNumber`  | `trackNumber`           | `trackNumber`                           | `track_number` (+ disc offset) |
+| `ReleaseDate`  | `releaseDate`           | `releaseDate` (date only)               | (not set)                      |
+| `Genres`       | `[primaryGenreName]`    | first of `genreNames` other than "Music" | fetched from album/artist hrefs |
+| `SampleUrl`    | `previewUrl`            | `previews[0].url`                       | `preview_url`                  |
+| `ImageUrl`     | `artworkUrl30`          | `artwork.url` at 30x30                  | smallest image in `album.images` |
+| `ISRC`         | (not present)           | `isrc`                                  | `external_ids.isrc`            |
+| `IsPlayable`   | (not present)           | (not set)                               | `is_playable`                  |
+| `AudioData`    | (filled later)          | (filled later)                          | `EchoTrack` (filled separately)|
 
 `AltId` is reserved for AMG IDs (no longer populated). `AlbumLink`, `SongLink`, and `PurchaseInfo` are computed by `MusicServiceManager.ComputeTrackPurchaseInfo` after search results are returned.
 

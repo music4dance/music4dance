@@ -4,10 +4,11 @@
 **Status:** In progress. Stage 0 (developer token plus `BatchISRCApple`) is built and tested
 against the live API (2026-11-25). The production configuration is in place, and the backfill
 has been run over all of `INR` in production (2026-11-26): what's left is 750 songs whose iTunes
-ids are all dead, plus 49 whose ISRCs are already on other songs. Stages 1-4 (including 2b,
-stale-id repair) are proposed.
+ids are all dead, plus 49 whose ISRCs are already on other songs. Stage 1 (iTunes id lookups
+through the Apple Music API) is built and tested against the live API (2026-11-26). Stages 2-4
+(including 2b, stale-id repair) are proposed.
 **Last verified:** 2026-11-26
-**Code:** `scripts/apple-music-token-test.mjs` (token smoke test), `m4d/Utilities/AppleMusicAuthentication.cs` (developer token), `MusicServiceManager.GetAppleISRCData` / `LookupAppleMusicSongs`, `SongIndex.StreamAllFromSnapshot` (batch paging), `m4d.Tests/Utilities/AppleMusicTests.cs`, `m4dModels/ITunesService.cs`, `m4d/Utilities/MusicServiceManager.cs` (`GetISRCData`, the iTunes 403 pause near the `iTunesCalls` counter), `m4d/Utilities/AdmAuthentication.cs`, `m4d/Controllers/SongController.cs` (`BatchISRC`), `m4d/ClientApp/src/models/Purchase.ts`, `m4d/ClientApp/src/components/AdminFooter.vue`
+**Code:** `scripts/apple-music-token-test.mjs` (token smoke test), `m4d/Utilities/AppleMusicAuthentication.cs` (developer token), `MusicServiceManager.GetAppleISRCData` / `LookupAppleMusicSongs`, `SongIndex.StreamAllFromSnapshot` (batch paging), `m4d.Tests/Utilities/AppleMusicTests.cs`, `MusicServiceManager.FetchAppleMusicTrack` (stage 1 lookup), `m4d.Tests/Utilities/AppleMusicTrackLookupTests.cs`, `m4dModels/ITunesService.cs` (`ParseAppleMusicSong`), `m4d/Utilities/MusicServiceManager.cs` (`GetISRCData`, the iTunes 403 pause near the `iTunesCalls` counter), `m4d/Utilities/AdmAuthentication.cs`, `m4d/Controllers/SongController.cs` (`BatchISRC`), `m4d/ClientApp/src/models/Purchase.ts`, `m4d/ClientApp/src/components/AdminFooter.vue`
 
 **Context:** This started (2026-09-23) as a plan to backfill ISRCs for iTunes-only songs. It
 turned out that the API we use for iTunes can't supply ISRCs, which led to a broader proposal: move
@@ -259,6 +260,59 @@ swap, not a new service.
    `ServiceTrack.ISRC` so `UpdateAudioData` can fill ISRCs for iTunes the same way it does for
    Spotify. Gate the switch with a config flag and fall back to the legacy endpoint when no
    token is configured (dev environments, contributors without keys).
+   As built (2026-11-26):
+   - `FetchMusicServiceTrack` asks the Apple Music API first for an iTunes id when the token is
+     configured and `AppleMusic:TrackLookup` isn't `false`. That setting is the kill switch, read
+     on each lookup and on by default, so a deploy turns stage 1 on wherever stage 0's
+     configuration is in place. Only `false` turns it off: a mistyped value (`off`, `0`) leaves it
+     on rather than breaking every lookup. Only numeric (catalog) ids go to Apple. All `GetMusicServiceTrack` callers (sample data, song creation
+     from an iTunes id, the shared-id review lookups) get it.
+   - It uses `songs?ids={id}`, not `songs/{id}`: an id that isn't in the storefront comes back as
+     empty `data` instead of a 404 with a warning. `include=albums` isn't
+     needed, because the default response already holds the album id in
+     `relationships.albums.data[0].id`.
+   - **A storefront miss is final, by design.** When Apple's `us` catalog doesn't return an id,
+     the lookup returns nothing and the legacy API isn't asked. The backfill checked 2,620 such
+     ids, and the legacy lookup knew none of them; the only difference found ran the other way
+     (`100799`, `100821`: in Apple's catalog, unknown to the legacy lookup). Asking anyway would
+     spend the legacy API's 20-calls-a-minute quota for nothing. The cost, if the assumption is
+     wrong: a track only the legacy lookup knows can't be added by its iTunes id, gets no iTunes
+     sample, and shows no track in the shared-id review. If such a case turns up, the rule is in
+     `FetchAppleMusicTrack`.
+   - If the Apple Music request fails, that lookup falls back to the legacy API. A rejected token
+     (401/403 after the refresh retries) or a key that can't be read also suspends Apple Music
+     lookups for 15 minutes, so a lapsed membership doesn't cost three failed calls per lookup.
+     A 429 isn't waited out the way a batch waits (up to 8 × 15s): the lookup falls back at once
+     and Apple lookups pause for 1 minute, since someone may be waiting on it. A 5xx or network
+     error falls back for that lookup only.
+   - The track cache keeps a fallback's result only if it has an ISRC: while Apple Music lookups
+     are on, an iTunes track without one most likely came from the legacy API, and keeping it
+     would stop a later `GetISRCData` from getting the ISRC. Failed lookups (exceptions) aren't
+     kept either.
+   - The legacy API's 403 pause never ran: it sat in a `catch (WebException)` that HttpClient
+     responses never reach. A legacy 403 now pauses the legacy API for 15 minutes straight away,
+     without the old 60s × 5 retries, which would hold a lookup someone is waiting on for 5
+     minutes. Apple Music lookups aren't paused.
+   - Legacy parsing returned a null `Task` (which throws when awaited) for an empty result or an
+     item that isn't a song; it now returns a null track.
+   - `ITunesService.ParseTrackResults` reads either shape, and `ParseAppleMusicSong` maps a song
+     resource: `CollectionId` from the album relationship, `Genres` from the first of `genreNames`
+     other than the catch-all "Music" (the legacy `primaryGenreName`), and the artwork template at
+     30x30 (the legacy `artworkUrl30`). `releaseDate` is a date with no time. `LookupAppleMusicSongs`
+     (stage 0) uses the same parser, so its tracks now carry the album id too.
+   - `UpdateAudioData` fills ISRCs from iTunes, as it does from Spotify, when Apple Music lookups
+     are on and the song has no ISRC (`GetISRCData` now takes the service).
+   - Samples: the legacy parser read `track.PreviewUrl`, but JObject member names are
+     case-sensitive and the field is `previewUrl`, so iTunes never supplied a sample. Both parsers
+     now fill it. `GetSampleData` also tries iTunes when Spotify's track has no preview, not only
+     when there's no Spotify track.
+   - Search (`ParseSearchResults`) still uses the legacy API; that's stage 3.
+   - Tests: both response shapes (and the legacy empty and non-song cases), the artwork
+     placeholders, the routing (configured, not configured, switched off, a mistyped switch, a
+     non-numeric id), the storefront miss, the fallback after a rejected token, a 5xx and a 429,
+     what the cache keeps, the legacy 403 pause, and an opt-in live lookup.
+   - Open: `GetSampleData` writes the permanent "no sample" marker even when the lookups failed
+     rather than finding no preview ([#444](https://github.com/music4dance/music4dance/issues/444)).
 2. **Reverse ISRC enrichment.** Add a new batch that attaches iTunes ids to songs that have
    ISRCs but no `I`, via `filter[isrc]`. This is new value and doesn't change existing flows.
 
