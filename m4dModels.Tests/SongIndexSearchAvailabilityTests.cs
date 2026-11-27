@@ -70,6 +70,75 @@ public class SongIndexSearchAvailabilityTests
         manager.Verify(m => m.ReportSearchSuccess(), Times.Once);
     }
 
+    // What Azure.Core throws once a request has run past ClientOptions.Retry.NetworkTimeout on
+    // every try (seen on 2026-11-27 from SongIndex.FindSong via SongController.Details)
+    // The first try timed out; the SDK's retry was refused by the open SearchCircuitBreaker
+    private static AggregateException NetworkTimeout() =>
+        new("Retry failed after 2 tries.",
+            new TaskCanceledException("The operation was cancelled because it exceeded the configured timeout of 0:01:40."),
+            new RequestFailedException(503, "Azure Search circuit breaker is open: the service was throttling, so this request wasn't sent"));
+
+    [TestMethod]
+    public async Task Search_NetworkTimeout_ThrowsRecognizedUnavailableExceptionWithoutRetrying()
+    {
+        var client = new Mock<SearchClient>();
+        client.Setup(c => c.SearchAsync<SearchDocument>(
+                It.IsAny<string>(), It.IsAny<SearchOptions>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(NetworkTimeout());
+        var index = new FaultInjectingSongIndex(client.Object, Mock.Of<ISearchServiceManager>());
+
+        var ex = await Assert.ThrowsExactlyAsync<InvalidOperationException>(
+            () => index.Search("test", new SearchOptions()));
+
+        Assert.IsTrue(ex.Message.Contains("Azure Search service is unavailable"));
+        client.Verify(
+            c => c.SearchAsync<SearchDocument>(
+                It.IsAny<string>(), It.IsAny<SearchOptions>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task FindSong_NetworkTimeout_ThrowsRecognizedUnavailableException()
+    {
+        var client = new Mock<SearchClient>();
+        client.Setup(c => c.GetDocumentAsync<SearchDocument>(
+                It.IsAny<string>(), It.IsAny<GetDocumentOptions>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(NetworkTimeout());
+        var index = new FaultInjectingSongIndex(client.Object, Mock.Of<ISearchServiceManager>());
+
+        var ex = await Assert.ThrowsExactlyAsync<InvalidOperationException>(
+            () => index.FindSong(Guid.NewGuid()));
+
+        Assert.IsTrue(ex.Message.Contains("Azure Search service is unavailable"));
+        Assert.IsInstanceOfType<AggregateException>(ex.InnerException);
+    }
+
+    [TestMethod]
+    public async Task FindSong_NotFound_StillReturnsNull()
+    {
+        var client = new Mock<SearchClient>();
+        client.Setup(c => c.GetDocumentAsync<SearchDocument>(
+                It.IsAny<string>(), It.IsAny<GetDocumentOptions>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new RequestFailedException(404, "Not Found"));
+        var index = new FaultInjectingSongIndex(client.Object, Mock.Of<ISearchServiceManager>());
+
+        Assert.IsNull(await index.FindSong(Guid.NewGuid()));
+    }
+
+    [TestMethod]
+    public void IsSearchTimeout_OnlyMatchesCancellations()
+    {
+        Assert.IsTrue(SongIndex.IsSearchTimeout(NetworkTimeout()));
+        Assert.IsTrue(SongIndex.IsSearchTimeout(new TaskCanceledException()));
+        Assert.IsTrue(SongIndex.IsSearchTimeout(
+            new AggregateException(new TaskCanceledException(), new TaskCanceledException())));
+        Assert.IsFalse(SongIndex.IsSearchTimeout(new RequestFailedException(400, "Bad Request")));
+        Assert.IsFalse(SongIndex.IsSearchTimeout(new RequestFailedException(503, "Service Unavailable")));
+        Assert.IsFalse(SongIndex.IsSearchTimeout(
+            new AggregateException(new TaskCanceledException(), new RequestFailedException(400, "Bad Request"))));
+        Assert.IsFalse(SongIndex.IsSearchTimeout(new AggregateException()));
+    }
+
     [TestMethod]
     public async Task Search_OtherClientError_StillUsesRetryWithoutSelectFallback()
     {

@@ -16,6 +16,17 @@ namespace m4d.Services.ServiceHealth;
 /// </summary>
 /// <remarks>
 /// <para>
+/// Query attempts also get a <see cref="QueryNetworkTimeout"/> in place of the SDK's 100 s, and a
+/// query whose retry times out as well opens the breaker, like a <c>503</c>. Azure AI Search stalls
+/// for 15 to 20 s about every 12 hours, then answers every held query at once; a first attempt cut
+/// off at 15 s is retried and its retry comes back when the stall ends, so a stall that short
+/// still succeeds. On 2026-11-27 a stall lasted 75 s under scraper load, and requests hung for up
+/// to 100 s before the breaker opened on a <c>503</c>: with a second timeout opening it, they fail
+/// after about 31 s and the rest fail fast. The retry after that is refused by the open breaker,
+/// so a query sends at most two attempts while Search is stalled. Document writes keep the
+/// client's timeout.
+/// </para>
+/// <para>
 /// It sits at <see cref="HttpPipelinePosition.PerRetry"/>, ahead of Azure.Core's logging policy,
 /// so a short-circuited attempt writes no <c>Error response</c> (and no headers) to the log, and
 /// the SDK's own retries of a throttled query stop as soon as the first attempt fails. On
@@ -45,6 +56,7 @@ public sealed class SearchCircuitBreaker : HttpPipelinePolicy
     internal const string ServiceName = "SearchService";
     internal static readonly TimeSpan DefaultBreakDuration = TimeSpan.FromSeconds(30);
     internal static readonly TimeSpan DefaultProbeTimeout = TimeSpan.FromSeconds(10);
+    internal static readonly TimeSpan DefaultQueryNetworkTimeout = TimeSpan.FromSeconds(15);
 
     private readonly record struct Attempt(long Generation, bool Probe);
 
@@ -74,6 +86,12 @@ public sealed class SearchCircuitBreaker : HttpPipelinePolicy
     internal TimeSpan BreakDuration { get; set; } = DefaultBreakDuration;
     internal TimeSpan ProbeTimeout { get; set; } = DefaultProbeTimeout;
 
+    /// <summary>
+    /// The network timeout for each query attempt (document writes keep the client's). Outside
+    /// Search's periodic stalls no query took longer than 3.3 s from 2026-11-23 to 11-27.
+    /// </summary>
+    internal TimeSpan QueryNetworkTimeout { get; set; } = DefaultQueryNetworkTimeout;
+
     /// <summary>True from the first throttled response until a probe succeeds.</summary>
     public bool IsOpen
     {
@@ -98,6 +116,7 @@ public sealed class SearchCircuitBreaker : HttpPipelinePolicy
         }
 
         var attempt = Enter();
+        message.NetworkTimeout ??= QueryNetworkTimeout;
         try
         {
             ProcessNext(message, pipeline);
@@ -105,6 +124,11 @@ public sealed class SearchCircuitBreaker : HttpPipelinePolicy
         catch (Exception ex) when (attempt.Probe)
         {
             ProbeFailed(attempt, message, ex);
+            throw;
+        }
+        catch (Exception ex) when (IsRetryTimeout(message, ex))
+        {
+            Open(attempt, "a retried query timed out");
             throw;
         }
         Record(attempt, message.Response.Status);
@@ -119,6 +143,7 @@ public sealed class SearchCircuitBreaker : HttpPipelinePolicy
         }
 
         var attempt = Enter();
+        message.NetworkTimeout ??= QueryNetworkTimeout;
         try
         {
             await ProcessNextAsync(message, pipeline).ConfigureAwait(false);
@@ -128,10 +153,20 @@ public sealed class SearchCircuitBreaker : HttpPipelinePolicy
             ProbeFailed(attempt, message, ex);
             throw;
         }
+        catch (Exception ex) when (IsRetryTimeout(message, ex))
+        {
+            Open(attempt, "a retried query timed out");
+            throw;
+        }
         Record(attempt, message.Response.Status);
     }
 
     private static bool IsThrottled(int status) => status == 503 || status == 429;
+
+    // Azure.Core's network timeout (not the caller giving up) on an attempt that was already a retry
+    private static bool IsRetryTimeout(HttpMessage message, Exception ex) =>
+        ex is OperationCanceledException && !message.CancellationToken.IsCancellationRequested &&
+        message.ProcessingContext.RetryNumber >= 1;
 
     // IndexDocuments: POST /indexes('name')/docs/search.index
     private static bool IsDocumentWrite(HttpMessage message) =>
@@ -189,7 +224,7 @@ public sealed class SearchCircuitBreaker : HttpPipelinePolicy
         }
         else if (IsThrottled(status))
         {
-            Open(attempt, status);
+            Open(attempt, $"Azure Search returned {status}");
         }
         // Any other response from a request sent while closed changes nothing: in particular a
         // success from one sent before the breaker opened doesn't close it, only a probe does
@@ -213,7 +248,7 @@ public sealed class SearchCircuitBreaker : HttpPipelinePolicy
         Reopen(attempt, $"the probe request failed ({ex.GetType().Name})");
     }
 
-    private void Open(Attempt attempt, int status)
+    private void Open(Attempt attempt, string reason)
     {
         lock (_lock)
         {
@@ -228,9 +263,9 @@ public sealed class SearchCircuitBreaker : HttpPipelinePolicy
         }
 
         _logger.LogWarning(
-            "Search circuit breaker opened for {Service}: Azure Search returned {Status}; failing requests fast for {Seconds}s",
-            HealthServiceName, status, BreakDuration.TotalSeconds);
-        _serviceHealth?.MarkUnavailable(HealthServiceName, $"Azure Search returned {status}; circuit breaker open");
+            "Search circuit breaker opened for {Service}: {Reason}; failing requests fast for {Seconds}s",
+            HealthServiceName, reason, BreakDuration.TotalSeconds);
+        _serviceHealth?.MarkUnavailable(HealthServiceName, $"{reason}; circuit breaker open");
     }
 
     private void Reopen(Attempt attempt, string reason)
