@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-11-20
+**Last verified:** 2026-11-27
 **Code:** `m4d/Services/ServiceHealth/`, `m4d/Services/DatabaseRecoveryService.cs`,
 `m4d/Services/AppConfigurationRecoveryService.cs`, `m4d/Configuration/AppConfigurationStartup.cs`,
 `m4d/Configuration/SecretBackedServices.cs`,
@@ -96,6 +96,15 @@ so throttling on one doesn't fail the other.
   `DoSearch` maps to the same "unavailable" error as above. Because it runs on each retry and
   ahead of Azure.Core's logging policy, the SDK's retries of a throttled request stop after one
   more attempt, and a short-circuited attempt writes nothing to the log.
+- **Timeouts.** Each query attempt gets a 15 s network timeout (`QueryNetworkTimeout`) in place of
+  the SDK's 100 s; document writes keep the client's. Search stalls for 15 to 20 s about every 12
+  hours, then answers every held query at once, so a first attempt cut off at 15 s is retried and
+  its retry normally succeeds. A query whose *retry* also times out opens the breaker, like a
+  `503`, and the attempt after that is refused, so a query sends at most two attempts while Search
+  is stalled. `SongIndex.FindSong` and `DoSearch` map the resulting timeout (`AggregateException`
+  of timeouts and refused retries) to the "unavailable" error. On 2026-11-27 a 75 s stall under
+  scraper load kept requests hanging up to 100 s, two of them ending in a `500`; now they'd see the
+  unavailable page after about 31 s.
 - **Probing.** After the break, one request goes through as a probe while the others keep failing
   fast. A response below 500 closes it and marks the service healthy; a 5xx, a `429` or an
   exception reopens it for another 30 seconds; a probe the caller cancels just frees the slot. A
@@ -439,6 +448,8 @@ one when it clears.
 - 2026-11-20: Five Azure Monitor metric alerts on `msc4dnc` (slow, very slow, 5xx, health
   check, traffic spike) to the `m4d-admins` action group: phase 1a of
   [plans/site-monitoring-and-alerting](../plans/site-monitoring-and-alerting.md).
+- 2026-11-27: 15 s network timeout for Search queries; a timed-out retry opens the breaker;
+  Search timeouts map to "unavailable" instead of a `500`.
 
 ## Related
 

@@ -433,4 +433,62 @@ public class SearchCircuitBreakerTests
         Assert.AreEqual(SearchCircuitBreakers.PageServiceName,
             breakers.For(SearchCircuitBreakers.PageServiceName).HealthServiceName);
     }
+
+    [TestMethod]
+    public async Task Query_FirstAttemptTimesOut_RetrySucceedsWithBreakerClosed()
+    {
+        // Search's periodic stall: the first attempt is cut off, the retry is answered when the
+        // stall ends
+        _breaker.QueryNetworkTimeout = TimeSpan.FromMilliseconds(300);
+        _search.Hold = true;
+
+        var get = Get();
+        await WaitForCalls(2);
+        _search.Release(HttpStatusCode.OK);
+        _ = await get;
+
+        Assert.AreEqual(2, _search.Calls);
+        Assert.IsFalse(_breaker.IsOpen);
+    }
+
+    [TestMethod]
+    public async Task Query_RetryAlsoTimesOut_OpensBreakerAndRefusesTheNextRetry()
+    {
+        _breaker.QueryNetworkTimeout = TimeSpan.FromMilliseconds(50);
+        _search.Hold = true;
+
+        var ex = await Assert.ThrowsExactlyAsync<AggregateException>(() => Get());
+
+        Assert.IsTrue(_breaker.IsOpen);
+        Assert.IsFalse(_health.IsServiceHealthy(SearchCircuitBreaker.ServiceName));
+        Assert.AreEqual(2, _search.Calls, "The third attempt is refused without being sent");
+        Assert.IsTrue(m4dModels.SongIndex.IsSearchTimeout(ex), "SongIndex reports it as Search unavailable");
+    }
+
+    [TestMethod]
+    public async Task Query_CallerCancels_DoesNotOpenBreaker()
+    {
+        _search.Hold = true;
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(50));
+
+        _ = await Assert.ThrowsAsync<OperationCanceledException>(() => Get(cts.Token));
+
+        Assert.IsFalse(_breaker.IsOpen);
+    }
+
+    [TestMethod]
+    public async Task Write_KeepsTheClientNetworkTimeout()
+    {
+        _breaker.QueryNetworkTimeout = TimeSpan.FromMilliseconds(50);
+        _search.Hold = true;
+
+        var write = Write();
+        await WaitForCalls(1);
+        await Task.Delay(250);
+        _search.Release(HttpStatusCode.OK);
+        _ = await write;
+
+        Assert.AreEqual(1, _search.Calls);
+        Assert.IsFalse(_breaker.IsOpen);
+    }
 }

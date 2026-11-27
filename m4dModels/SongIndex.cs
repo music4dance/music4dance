@@ -119,12 +119,37 @@ public class SongIndex
             // Re-throw with a message that will be caught by upper layers
             throw new InvalidOperationException("Azure Search service is unavailable", ex);
         }
+        catch (Exception ex) when (IsSearchTimeout(ex))
+        {
+            throw SearchTimedOut(ex);
+        }
         catch (RequestFailedException e)
         {
             Trace.WriteLineIf(TraceLevels.General.TraceVerbose, e.Message);
             return null;
         }
     }
+
+    /// <summary>
+    /// True when Azure.Core gave up on a Search request because it ran past
+    /// <c>ClientOptions.Retry.NetworkTimeout</c>: a <see cref="TaskCanceledException"/>, or, once
+    /// the SDK's retries are used up, an <see cref="AggregateException"/> of the tries, each a
+    /// timeout or a throttling <c>503</c>/<c>429</c> (the <c>SearchCircuitBreaker</c> refusing a
+    /// retry throws one). SongIndex's queries don't pass a cancellation token, so a cancellation
+    /// here can only be that timeout. On 2026-11-27 a Search stall let two <c>/song/details</c>
+    /// requests time out at 100 s, have their retry refused by the open breaker, and end in a
+    /// <c>500</c>, because nothing recognized the exception as "Search is unavailable". A lone
+    /// <see cref="RequestFailedException"/> doesn't count: <see cref="FindSong"/> callers rely on
+    /// it returning null.
+    /// </summary>
+    public static bool IsSearchTimeout(Exception ex) =>
+        ex is OperationCanceledException ||
+        (ex is AggregateException agg && agg.InnerExceptions.Count > 0 &&
+         agg.InnerExceptions.All(e =>
+             e is OperationCanceledException || e is RequestFailedException { Status: 503 or 429 }));
+
+    private static InvalidOperationException SearchTimedOut(Exception ex) =>
+        new("Azure Search service is unavailable: the request timed out", ex);
 
     public async Task<IEnumerable<Song>> FindSongs(IEnumerable<Guid> ids)
     {
@@ -2169,6 +2194,12 @@ public class SongIndex
             // field-selection mismatch and would just hammer an already-overloaded service
             // with an immediate, un-backed-off second attempt.
             throw new InvalidOperationException("Azure Search service is unavailable", ex);
+        }
+        catch (Exception ex) when (IsSearchTimeout(ex))
+        {
+            // Retrying without select would wait out another full network timeout against a
+            // service that's already too slow to answer
+            throw SearchTimedOut(ex);
         }
         catch (Exception ex)
         {
