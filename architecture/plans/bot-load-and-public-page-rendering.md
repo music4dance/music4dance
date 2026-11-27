@@ -223,6 +223,30 @@ week before (9.9 over 2026-11-08 to 11-12).
   real search engine. Moz DotBot gets most of the 429s. People: about 790 clients and 2,500
   page views.
 
+#### With the edge cache (2026-11-26, Thanksgiving)
+
+24 hours, 2026-11-26 05:00 to 2026-11-27 05:00 UTC, from the app request log, so only what
+reached the origin. 80,500 requests (67,700 pages), **0.7 server-hours**, against 19.1 on
+2026-11-20. The Chrome/48 crawler is gone, and with Phase 2 the edge answers most repeat page
+views.
+
+- **ShapBot (Parallel Web Systems, Google Cloud) is the costliest agent**: 12,200 requests from
+  10 addresses, a quarter of server time. It crawls overnight (23:00 to 07:00 UTC, about 1,900
+  an hour), mostly `/song/album`, and runs our scripts (4,000 `/api/health/status` calls).
+  `IsSpider` sees it and `CrawlerThrottle` sent it about 620 429s. Applebot is next (19%).
+- **A residential-proxy farm with no JS**: a `Chrome/145` Mac user agent, about 10,800 page
+  requests from about 10,000 addresses (BytePlus and Zerodesktop ranges among them), no
+  referrer, walking song details, `/song`, search forms and `/identity/account/*`. Cheap
+  (6 server-minutes) because the pages are cache misses that still render fast.
+- **One short 5xx burst**: Azure Search itself returned 503 at 00:23:41, the circuit breaker
+  opened for 30 s, and 16 requests failed (ShapBot's album crawl was running).
+- Vulnerability scanners with browser user agents (`/.env`, `/.github/workflows`, guessed
+  `/vclient/assets` paths) were being counted as people, because a 404 for a bundle counted
+  as running JS. The analyzer now needs a successful bundle or API call, and calls a browser
+  client whose pages are mostly 404s a scanner. People: about 1,070 clients and 1,750 page
+  views (a holiday).
+- Meta's AI crawler: 9,900 requests, 2,500 of them `/identity/account/*` again.
+
 ### 1.2 What a public page costs
 
 The sizes below were measured with `curl` against production.

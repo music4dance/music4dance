@@ -18,10 +18,11 @@ Usage: python -I analyze_http_logs.py <log-dir> [--top N] [--since T] [--until T
 Every request is put in a group (search engine, AI crawler, SEO tool, social preview,
 monitor, other bot, scripted tool, browser, ...) and a family (Googlebot, GPTBot,
 "Chrome desktop", ...). Clients (IP + user agent) with a browser user agent are split
-three ways by what they did over the whole window:
+by what they did over the whole window. A client whose pages are mostly 404s (20 or more
+pages) is a vulnerability scanner. The rest split three ways:
 
-- never ran the page's JavaScript (no bundle, no /api call, no cookie our scripts set):
-  scrapers wearing a browser user agent;
+- never ran the page's JavaScript (no bundle or /api call that succeeded, no cookie our
+  scripts set): scrapers and vulnerability scanners wearing a browser user agent;
 - ran it, but fetched no page themselves, or fetched exactly one page with no referrer
   and no cookie: rendering farms and rotating headless browsers (and a few people who
   typed the URL in for a single page);
@@ -412,13 +413,22 @@ def main():
             continue
         s = stats[(r[IP], r[UA])]
         s[k] += 1
-        s["js"] += k != "page" or r[JSCOOKIE] or r[AUTH]
+        # A bundle or API call counts only when it succeeded: scanners guess asset and API
+        # paths (/vclient/assets/..., /api/v1/...) and get 404s or apex 308s.
+        ok = r[STATUS].startswith("2") or r[STATUS] == "304"
+        s["js"] += (k != "page" and ok) or r[JSCOOKIE] or r[AUTH]
         s["cookie"] += r[JSCOOKIE] or r[AUTH]
         if k == "page" and referrer_source(r[REFERER]) not in (None, "(none/direct)"):
             s["extref"] += 1
+        if k == "page" and r[STATUS] == "404":
+            s["page404"] += 1
     browser_group = {}
     for client, s in stats.items():
-        if not s["js"]:
+        if s["page"] >= 20 and s["page404"] * 2 >= s["page"]:
+            # Mostly 404s: a vulnerability scanner guessing paths (/.env, /.github/...,
+            # /wp-*.php) with a browser user agent, even if it also loaded a real page.
+            browser_group[client] = "scanner"
+        elif not s["js"]:
             browser_group[client] = "nojs"
         elif s["page"] == 0 and s["api"] >= 10:
             # Many API calls but never a page of its own: a rendering farm running our
