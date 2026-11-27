@@ -1,9 +1,13 @@
 # Apple Music API Migration (and iTunes ISRC Backfill)
 
 **Type:** Plan
-**Status:** Proposed. The MusicKit key is set up and a developer token has been tested against the catalog API (2026-11-25), so stage 0 is ready to build.
-**Last verified:** 2026-11-25
-**Code:** `scripts/apple-music-token-test.mjs` (token smoke test), `m4dModels/ITunesService.cs`, `m4d/Utilities/MusicServiceManager.cs` (`GetISRCData`, the iTunes 403 pause near the `iTunesCalls` counter), `m4d/Utilities/AdmAuthentication.cs`, `m4d/Controllers/SongController.cs` (`BatchISRC`), `m4d/ClientApp/src/models/Purchase.ts`, `m4d/ClientApp/src/components/AdminFooter.vue`
+**Status:** In progress. Stage 0 (developer token plus `BatchISRCApple`) is built and tested
+against the live API (2026-11-25). The production configuration is in place, and the backfill
+has been run over all of `INR` in production (2026-11-26): what's left is 750 songs whose iTunes
+ids are all dead, plus 49 whose ISRCs are already on other songs. Stages 1-4 (including 2b,
+stale-id repair) are proposed.
+**Last verified:** 2026-11-26
+**Code:** `scripts/apple-music-token-test.mjs` (token smoke test), `m4d/Utilities/AppleMusicAuthentication.cs` (developer token), `MusicServiceManager.GetAppleISRCData` / `LookupAppleMusicSongs`, `SongIndex.StreamAllFromSnapshot` (batch paging), `m4d.Tests/Utilities/AppleMusicTests.cs`, `m4dModels/ITunesService.cs`, `m4d/Utilities/MusicServiceManager.cs` (`GetISRCData`, the iTunes 403 pause near the `iTunesCalls` counter), `m4d/Utilities/AdmAuthentication.cs`, `m4d/Controllers/SongController.cs` (`BatchISRC`), `m4d/ClientApp/src/models/Purchase.ts`, `m4d/ClientApp/src/components/AdminFooter.vue`
 
 **Context:** This started (2026-09-23) as a plan to backfill ISRCs for iTunes-only songs. It
 turned out that the API we use for iTunes can't supply ISRCs, which led to a broader proposal: move
@@ -62,7 +66,7 @@ out), the responses contain no ISRCs. The ISRCs have to come from a different so
 
 Implementation sketch:
 
-1. Add config `AppleMusic:TeamId`, `AppleMusic:KeyId`, `AppleMusic:PrivateKey` (user secrets /
+1. Add config `Authentication:AppleMusic:TeamId`, `:KeyId`, `:PrivateKey` (user secrets /
    Key Vault) and a small token provider that signs and caches the JWT. It plugs in the same way
    `AdmAuthentication.GetServiceAuthorization` supplies Spotify auth.
 2. `MusicServiceManager.GetAppleISRCData(dms, IEnumerable<Song>)` works like `GetISRCData`:
@@ -157,23 +161,24 @@ the tokens, so keep the old iTunes path as a fallback (see stage 1).
    commit it or paste its contents anywhere. If it leaks, revoke it and create a new key; the
    only follow-up is a new Key ID and secret value. (The first key was revoked for this reason.)
 4. Configuration. Team ID and Key ID aren't secret; the private key is.
-   - Local: `dotnet user-secrets` on `m4d`: `AppleMusic:TeamId`, `AppleMusic:KeyId`, and
-     `AppleMusic:PrivateKey` (the whole PEM, including the BEGIN/END lines; user secrets keep
-     the line breaks).
+   - Local: `dotnet user-secrets` on `m4d`: `Authentication:AppleMusic:TeamId`,
+     `Authentication:AppleMusic:KeyId`, and `Authentication:AppleMusic:PrivateKey` (the whole
+     PEM, or the one-line form below). The `Authentication:` prefix matches the Spotify keys.
    - Production: Key Vault `music4dance` secret `AppleMusic-PrivateKey`
      (`az keyvault secret set --vault-name music4dance --name AppleMusic-PrivateKey --file AuthKey_<KEYID>.p8`).
-     Then add App Configuration keys `AppleMusic:TeamId` and `AppleMusic:KeyId` as plain values
-     and `AppleMusic:PrivateKey` as a Key Vault reference. The app identity's existing access
-     policy (Get, List) already covers it. Not done yet.
+     Then add App Configuration keys `Authentication:AppleMusic:TeamId` and
+     `Authentication:AppleMusic:KeyId` as plain values and `Authentication:AppleMusic:PrivateKey`
+     as a Key Vault reference. The app identity's existing access
+     policy (Get, List) already covers it. Done (2026-11-26).
 5. Smoke test:
    `node scripts/apple-music-token-test.mjs <path>/AuthKey_<KEYID>.p8 <TEAM_ID> [ids]`.
    It signs a one-hour token, does a batch `songs?ids=` lookup, then a reverse `filter[isrc]`
    lookup.
 6. Moving the key between machines through a password manager: use the one-line form, which is
    the base64 PKCS#8 body with the BEGIN/END lines and line breaks removed. The test script
-   accepts a file holding it (for example `AuthKey_<KEYID>.oneline.txt`), and the stage 0 token
-   provider should accept both forms: `ImportFromPem` when the value has a BEGIN line, otherwise
-   `ImportPkcs8PrivateKey(Convert.FromBase64String(...))`.
+   accepts a file holding it (for example `AuthKey_<KEYID>.oneline.txt`), and so does
+   `AppleMusicAuthentication`: `ImportFromPem` when the value has a BEGIN line, otherwise
+   `ImportPkcs8PrivateKey` on the base64 body with whitespace removed.
 
 Token format: ES256 JWT, header `{"alg":"ES256","kid":<KeyId>}`, claims
 `{"iss":<TeamId>,"iat":<now>,"exp":<now + at most 15777000s>}`. The signature must be raw
@@ -207,6 +212,45 @@ swap, not a new service.
    developer-token provider behind `AdmAuthentication.GetServiceAuthorization` for
    `ServiceType.ITunes`. Only the new code path uses it at first. Ship `BatchISRCApple`. This
    proves the key, token, and rate behavior on 851 songs with low blast radius.
+   As built (2026-11-25):
+   - `AppleMusicAuthentication` subclasses `AdmAuthentication` and overrides `CreateToken` to
+     sign the JWT locally (12-hour lifetime), so caching, the renewal timer and the
+     invalidate-and-retry on 401 are shared with Spotify. It reads the configuration each time it
+     signs, so a key that arrives after startup is picked up. Key-parse errors report only the
+     exception type, never the key text.
+   - `SetupService` returns it for `ServiceType.ITunes` (before the per-user cache, whose entries
+     are Spotify tokens), or nothing when the three values aren't all set.
+   - `GetMusicServiceResults` attaches the token only to `api.music.apple.com` requests. Legacy
+     `itunes.apple.com` calls still go without auth and keep the 403 pause, which the new calls
+     skip. Apple Music calls and 429s have their own counters (`AppleMusicCalls`,
+     `AppleMusic429s`), and each 429 is logged as a warning, to measure the unpublished limit.
+   - `GetAppleISRCData` makes one `songs?ids=` call per song with all of its iTunes ids (chunked
+     at 300). It attaches each ISRC to the album carrying that id, dedupes like `GetISRCData`,
+     and sends the ISRCs through `SharedIds.CheckIds`, so an ISRC already on another song is
+     reported as a duplicate rather than attached. Ids missing from the storefront are logged
+     (`Apple Music has no us song for … ; ISRCs added: N`, where N says whether another id still
+     supplied an ISRC), and so are withheld ISRCs (`… are already on other songs`). No marker is
+     stored, since a retry costs one call. Edits are made as `batch-i`.
+   - `BatchProcess` now streams with `SongIndex.StreamAllFromSnapshot` instead of `$skip`
+     paging. With `$skip`, a batch whose edits take songs out of its own filter (as this one
+     does for "no ISRC") starts each later page past unvisited songs; the first full run skipped
+     hundreds this way. The snapshot first lists the matching SongIds in the filter's own order
+     (relevance when it has none, `SongId` breaking ties), before any edits, then loads the
+     songs by id, 250 at a time, in that order. Every batch keeps the sort the admin chose, and
+     a count-limited run lists only `count` ids. Each load re-applies the filter, so a song that
+     leaves it during the run (someone else's edit) is skipped. Songs that start matching during
+     the run aren't visited. The id pass still pages with `$skip`, so it has the 100K limit that
+     `StreamAll` has. Run 3 used an earlier version that paged by a `SongId` cursor and ignored
+     the chosen sort.
+   - `BatchISRCApple` (Admin footer → Update → ISRC (Apple Music)) skips songs that already have
+     an ISRC, like `BatchISRC`. Without configuration it aborts on the first song.
+   - Tests: token format and signature (both key forms), the backfill against a fake lookup, and
+     an opt-in live test (`M4D_APPLE_MUSIC_LIVE=1`, key from user secrets) that passed.
+
+   To run it: filter songs with purchase filter `INR`, then Update → ISRC (Apple Music). Try a
+   small run first by editing the URL to `count=20`, and check the log for 429s and "has no us
+   song" lines.
+
 1. **Id lookup.** Point `ITunesService`'s track-lookup template at
    `api.music.apple.com/v1/catalog/{storefront}/songs/{id}` (plus `?include=albums` for the
    collection id), and rewrite `InternalParseTrackResults` for the `data[].attributes` shape:
@@ -217,6 +261,26 @@ swap, not a new service.
    token is configured (dev environments, contributors without keys).
 2. **Reverse ISRC enrichment.** Add a new batch that attaches iTunes ids to songs that have
    ISRCs but no `I`, via `filter[isrc]`. This is new value and doesn't change existing flows.
+
+   2b. **Stale-id repair.** Some stored iTunes ids are dead: Apple returns them in no
+   storefront, and the legacy lookup doesn't know them either (see the
+   [first production run](#things-to-verify-early-in-stage-0)). They're most likely
+   delisted or re-issued under a new id, and they probably also give broken purchase links
+   today. Two passes:
+   - **Flag.** A batch that looks up every song's iTunes ids (`songs?ids=`, up to 300 per call,
+     so the whole catalog of about 33,000 songs is roughly 110 calls when batched across songs)
+     and records the ids Apple doesn't return. Check a few storefronts before calling an id
+     dead, since `us` alone can't tell delisted from region-locked. Record it with a
+     `FailedLookup`-style marker or a report first, not a delete.
+   - **Re-resolve.** For a song with a dead id: if it has an ISRC (often from Spotify), use
+     `filter[isrc]` (stage 2's lookup) to find the current id. Otherwise fall back to
+     title/artist search (stage 3). Replace the dead id on its album entry instead of adding a
+     second one, and remove dead ids only after a replacement is found or the id has failed
+     on more than one run.
+
+   The ISRC backfill is unaffected: a dead id simply yields no ISRC, and the song stays in
+   `INR`. Running the backfill first sizes the problem, because its "has no us song" log lines
+   are the first list of candidates.
 3. **Search.** Switch title/artist search to `/v1/catalog/{sf}/search?types=songs&term=…`.
    This is the riskiest stage, because match quality feeds `MatchSongAndService` and the
    drop-target lookup. Run old and new side by side on a sample and compare before flipping.
@@ -246,11 +310,45 @@ Findings from the smoke test on 2026-11-25, with 5 stored ids from the test data
   same thing may happen in stage 1: an old stored id could still resolve while Apple's
   canonical id has changed.
 
+First production run (2026-11-25, `BatchISRCApple` with `count=10` over `INR`):
+
+- 5 of the 10 songs got ISRCs, each on the album carrying its id, with codes matching what the API
+  returns. A Dutch-registered code (`NLB630000023`, Ricky Martin "She Bangs") is correct, so
+  the registrant prefix doesn't have to match the artist's country.
+- 5 ids returned nothing. None of them is in any of 9 other storefronts (ca, gb, es, de, au, jp,
+  br, nl and us; `mx` returned a 500), and the legacy US lookup has no result for them either.
+  They're dead ids, not region-locked ones. Two of those songs have other ids that still work;
+  three (Adiemus "African Tango", Glenn Crytzer "Tea", Johnny Nocturne "Lemon Twist") now
+  have no working iTunes id. See stage 2b.
+- The Apple Music API isn't narrower than the legacy API: two ids (`100799`, `100821`, Paulina
+  Rubio) resolve in every storefront through the new API but return nothing from the legacy
+  lookup.
+- One song entry ("Baila Casanova") holds both the English and the Spanish recording, so it got
+  two ISRCs on one album. That's accurate to the data. Splitting merged recordings is a
+  separate question.
+
+Full backfill (2026-11-26, three runs over `INR` from a dev instance against production):
+
+- **`INR` was much bigger than the search page showed.** The search hides songs with no dance
+  tags or unconfirmed dances (cruft), but batches include them, so the first run covered about
+  2,000 songs rather than the 803 the search showed. The 851 count in [Goal](#goal) undercounts
+  the same way. Many hidden ones are classical tracks.
+- **Run 1** added ISRCs to 1,282 songs, but skipped many songs because of `$skip` paging (see
+  above). **Run 2** (same code) picked up most of those. **Run 3**, with the paging fix,
+  visited every remaining song and added 1.
+- **What's left:** 750 songs whose iTunes ids are all dead, and 49 whose ISRCs are already held
+  by another song. Those are likely duplicate songs (several releases of Mark Ronson "Valerie",
+  Akon "Beautiful", Carlos Libedinsky tracks) and are in the shared-ids report.
+- **Dead ids overall:** 1,069 songs have at least one dead id, 2,620 ids in all; 319 of those
+  songs got an ISRC from another, working id. That's the input for stage 2b. The list is
+  rebuilt from the run logs by a script in `local/` (not checked in).
+- **Rate limit:** 14 429s across about 3,800 calls (5, 9 and 0 in the three runs), all cleared
+  by the existing 15s wait. At
+  one call per song the limit isn't a constraint.
+
 Still open:
 
-- The maximum `ids=` batch size (documented as 300; not yet tested beyond 5).
-- What share of the 851 `INR` ids resolve in `us`.
-- Observed rate limit: log 429s and throughput during the backfill.
+- The maximum `ids=` batch size (documented as 300; not yet tested beyond about 10).
 - Whether `filter[isrc]` returns multiple songs per ISRC (expected for compilations).
 - Storefront choice: `us` everywhere, or configurable.
 
@@ -327,7 +425,7 @@ Overall order (the Spotify playlist cleanup in
 
 1. Link switch.
 2. Stage 0 (tokens plus ISRC backfill).
-3. Stages 1-2.
+3. Stages 1-2, then 2b (stale-id repair).
 4. Customer export.
 5. Curated account playlists. This needs the subscription and a decision on add-only refresh.
 
@@ -405,8 +503,6 @@ Deezer before using its API, at any revenue level.
 
 ## Open questions
 
-- How many iTunes ids fail to resolve in the Apple Music `us` catalog? That decides whether the
-  Deezer route above is ever worth pursuing.
 - Curated playlists: is add-only refresh (new playlist, re-share) acceptable?
 
 Resolved:
@@ -418,7 +514,11 @@ Resolved:
   ISRC source and the staged migration can start.
 - Deezer's terms bar commercial use with no revenue threshold (2026-11-03), so Deezer is out of
   scope unless Deezer approves it in writing.
-- Counts (2026-11-04): 33,101 songs have an iTunes id, and 851 of them have no ISRC (`INR`).
+- Counts (2026-11-04): 33,101 songs have an iTunes id, and 851 of them have no ISRC (`INR`), as
+  the search page counts them (hidden songs excluded).
+- How many iTunes ids fail to resolve (2026-11-26): after the backfill, 750 songs have no working
+  iTunes id. That's a stale-id repair job (stage 2b), not a case for Deezer, which only matters
+  if repair leaves a large set with no ISRC source.
 
 ## Sources
 

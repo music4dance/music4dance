@@ -1627,6 +1627,132 @@ public class SongIndex
     }
 
     /// <summary>
+    /// Streams every song matching <paramref name="search"/> and <paramref name="parameters"/>, in
+    /// the order the parameters ask for, for batches that edit the songs they visit. Paging the
+    /// songs with $skip goes wrong there: an edit that takes a song out of the result set, or moves
+    /// it in the sort (as Modified does on every edit), shifts every later page, so pages skip or
+    /// repeat songs. Instead this lists the matching SongIds first, an id-only pass that finishes
+    /// before any edits, then loads the songs by id in that order. Each load re-applies the filter,
+    /// so a song that has left it since the id pass is skipped. <paramref name="limit"/> caps the
+    /// ids listed (-1 for all). The id pass pages with $skip, so it has the 100K $skip limit.
+    /// </summary>
+    public virtual async IAsyncEnumerable<Song> StreamAllFromSnapshot(
+        string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft,
+        int limit = -1)
+    {
+        var ids = await SnapshotSongIds(search, parameters, cruft, limit);
+        search = new KeywordQuery(search).Keywords;
+
+        var saved = SavedSearchOptions.Save(parameters);
+        try
+        {
+            foreach (var chunk in ids.Chunk(SnapshotLoadSize))
+            {
+                var byId = $"search.in({SongIdField}, '{string.Join(",", chunk)}', ',')";
+                saved.Restore(parameters);
+                parameters.Filter = saved.Filter == null ? byId : $"({saved.Filter}) and {byId}";
+                parameters.Size = chunk.Length;
+                parameters.Skip = null;
+                parameters.IncludeTotalCount = false;
+                parameters.OrderBy.Clear();
+                // The songs are matched to the snapshot by SongId, so a Select must include it
+                if (parameters.Select.Count > 0 && !parameters.Select.Contains(SongIdField))
+                    parameters.Select.Add(SongIdField);
+
+                var response = await DoSearch(search, parameters, cruft);
+                var songs = (await CreateSongs(response.GetResults()))
+                    .Where(s => s != null)
+                    .ToDictionary(s => s.SongId);
+                foreach (var id in chunk)
+                {
+                    if (Guid.TryParse(id, out var songId) && songs.TryGetValue(songId, out var song))
+                        yield return song;
+                }
+            }
+        }
+        finally
+        {
+            saved.Restore(parameters);
+        }
+    }
+
+    // Songs loaded per request by StreamAllFromSnapshot: about 10KB of ids in the filter
+    private const int SnapshotLoadSize = 250;
+
+    /// <summary>
+    /// The SongIds matching <paramref name="search"/> and <paramref name="parameters"/>, in the
+    /// order the parameters ask for (relevance when they give none), with SongId breaking ties so
+    /// that $skip pages neither overlap nor leave gaps. See <see cref="StreamAllFromSnapshot"/>.
+    /// </summary>
+    public virtual async Task<List<string>> SnapshotSongIds(
+        string search, SearchOptions parameters, CruftFilter cruft = CruftFilter.NoCruft,
+        int limit = -1)
+    {
+        const int azurePageSize = 1000;
+        search = new KeywordQuery(search).Keywords;
+
+        var saved = SavedSearchOptions.Save(parameters);
+        List<string> order = saved.OrderBy.Count > 0 ? [.. saved.OrderBy] : ["search.score() desc"];
+        if (!order.Any(o => o.Split(' ', StringSplitOptions.RemoveEmptyEntries)[0] == SongIdField))
+            order.Add($"{SongIdField} asc");
+
+        var ids = new List<string>();
+        try
+        {
+            while (true)
+            {
+                saved.Restore(parameters);
+                parameters.Skip = ids.Count;
+                parameters.Size = azurePageSize;
+                parameters.IncludeTotalCount = false;
+                parameters.OrderBy.Clear();
+                parameters.OrderBy.AddRange(order);
+                parameters.Select.Clear();
+                parameters.Select.Add(SongIdField);
+
+                var response = await DoSearch(search, parameters, cruft);
+                var results = response.GetResults().ToList();
+                foreach (var result in results)
+                {
+                    ids.Add(result.Document.GetString(SongIdField)
+                        ?? throw new InvalidOperationException($"A search result has no {SongIdField}"));
+                    if (limit > 0 && ids.Count >= limit)
+                        return ids;
+                }
+
+                if (results.Count < azurePageSize)
+                    return ids;
+            }
+        }
+        finally
+        {
+            saved.Restore(parameters);
+        }
+    }
+
+    // The SearchOptions fields the streaming methods change, so they can hand them back as they were
+    private sealed record SavedSearchOptions(
+        string Filter, int? Size, int? Skip, bool? IncludeTotalCount,
+        List<string> OrderBy, List<string> Select)
+    {
+        public static SavedSearchOptions Save(SearchOptions options) =>
+            new(options.Filter, options.Size, options.Skip, options.IncludeTotalCount,
+                [.. options.OrderBy], [.. options.Select]);
+
+        public void Restore(SearchOptions options)
+        {
+            options.Filter = Filter;
+            options.Size = Size;
+            options.Skip = Skip;
+            options.IncludeTotalCount = IncludeTotalCount;
+            options.OrderBy.Clear();
+            options.OrderBy.AddRange(OrderBy);
+            options.Select.Clear();
+            options.Select.AddRange(Select);
+        }
+    }
+
+    /// <summary>
     /// Fetches ALL songs matching <paramref name="search"/> and <paramref name="parameters"/>
     /// by paging through Azure Search in batches of 1000 (the API maximum per request).
     /// Suitable for admin/bulk operations where the full result set is needed for

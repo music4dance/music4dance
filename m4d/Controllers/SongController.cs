@@ -1916,8 +1916,12 @@ public class SongController : ContentController
                         var parameters = dms.SongIndex.AzureParmsFromFilter(capturedFilter);
                         var save = new List<Song>();
 
-                        await foreach (var song in dms.SongIndex.StreamAll(
-                            capturedFilter.AzureSearchText, parameters, CruftFilter.AllCruft))
+                        // From a snapshot of the matching ids, in the filter's order: the
+                        // edits below can take songs out of the filter or move them in the
+                        // sort, which would make $skip pages skip or repeat songs
+                        await foreach (var song in dms.SongIndex.StreamAllFromSnapshot(
+                            capturedFilter.AzureSearchText, parameters, CruftFilter.AllCruft,
+                            count > 0 ? count : -1))
                         {
                             try
                             {
@@ -2034,6 +2038,23 @@ public class SongController : ContentController
                     ? song
                     : null;
             });
+    }
+
+    // ISRCs from the Apple Music API for songs with an iTunes id and no ISRC. Run it with the
+    // purchase filter INR (on iTunes, no ISRC).
+    [Authorize(Roles = "dbAdmin")]
+    public ActionResult BatchISRCApple(int count = -1)
+    {
+        UseVue = UseVue.No;
+        return BatchProcess(
+            async (dms, song) =>
+            {
+                if (song.GetPurchaseId(ServiceType.ISRC) != null)
+                    return null;
+                return await MusicServiceManager.GetAppleISRCData(dms, song)
+                    ? song
+                    : null;
+            }, count: count);
     }
 
     // Re-checks tempo/meter against dance-specific validation rules (see DanceValidation in

@@ -24,6 +24,9 @@ public class MusicServiceManager(IConfiguration configuration)
     // network); production uses the shared client.
     internal HttpClient Http { get; init; } = HttpClientHelper.Client;
 
+    // The wait after a 429. Tests shorten it.
+    internal TimeSpan ThrottleDelay { get; init; } = TimeSpan.FromSeconds(15);
+
     private static readonly ILogger Logger = ApplicationLogging.CreateLogger<MusicServiceManager>();
 
     private static readonly Regex MeterRegex = new(@"^\d+/\d+$", RegexOptions.Compiled);
@@ -1231,6 +1234,168 @@ public class MusicServiceManager(IConfiguration configuration)
         return changed && await dms.SongIndex.EditSong(user, song, edit);
     }
 
+    // Stage 0 of the Apple Music API migration: the ISRC backfill for songs that have an iTunes id
+    // but no ISRC. The stored iTunes track ids are Apple Music catalog song ids, so this is an
+    // exact lookup, not a search. An id that isn't in the storefront is logged and skipped.
+    public async Task<bool> GetAppleISRCData(DanceMusicCoreService dms, Song song)
+    {
+        var itunes = MusicService.GetService(ServiceType.ITunes);
+        var edit = await Song.Create(song, dms);
+
+        var ids = song.GetPurchaseIds(itunes).Where(IsCatalogId).Distinct().ToList();
+        if (ids.Count == 0)
+        {
+            return false;
+        }
+
+        var tracks = await LookupAppleMusicSongs(ids);
+        var (added, held) = await AttachAppleISRCs(dms, song, edit, tracks);
+
+        // "ISRCs added" says whether a song with a dead id still got an ISRC from another id, so
+        // the log alone lists the songs that are left without one
+        var missing = ids.Except(tracks.Select(t => t.TrackId)).ToList();
+        if (missing.Count > 0)
+        {
+            Logger.LogInformation(
+                "Apple Music has no {Storefront} song for {Ids} ({Title} by {Artist}, {SongId}); ISRCs added: {Added}",
+                AppleMusicStorefront, string.Join(",", missing), song.Title, song.Artist, song.SongId, added);
+        }
+
+        if (held.Count > 0)
+        {
+            Logger.LogInformation(
+                "Apple Music ISRCs {Isrcs} for {Title} by {Artist} ({SongId}) are already on other songs; see the shared-ids report",
+                string.Join(",", held), song.Title, song.Artist, song.SongId);
+        }
+
+        return added > 0 && await dms.SongIndex.EditSong(itunes.ApplicationUser, song, edit);
+    }
+
+    // Attaches each track's ISRC to the album entry carrying its iTunes id. Returns how many were
+    // added, and the ISRCs withheld because another song already holds them.
+    private static async Task<(int Added, IList<string> Held)> AttachAppleISRCs(
+        DanceMusicCoreService dms, Song song, Song edit, IList<ServiceTrack> tracks)
+    {
+        var seenISRCs = new HashSet<string>(
+            edit.Albums.SelectMany(
+                a => a.GetPurchaseIdentifiers(ServiceType.ISRC, PurchaseType.Song)));
+
+        var found = new List<(AlbumDetails Album, ServiceTrack Track)>();
+        foreach (var track in tracks.Where(t => !string.IsNullOrWhiteSpace(t.ISRC)))
+        {
+            if (!seenISRCs.Add(track.ISRC))
+            {
+                continue;
+            }
+
+            var album = edit.Albums.FirstOrDefault(
+                a => a.GetPurchaseIdentifiers(ServiceType.ITunes, PurchaseType.Song)
+                    .Contains(track.TrackId));
+            if (album != null)
+            {
+                found.Add((album, track));
+            }
+        }
+
+        if (found.Count == 0)
+        {
+            return (0, []);
+        }
+
+        var claims = new Dictionary<string, string>();
+        foreach (var (_, track) in found)
+        {
+            _ = claims.TryAdd(IsrcKey(track.ISRC), DescribeTrack(track));
+        }
+
+        // An ISRC already held by another song is reported as a likely duplicate, not attached
+        var held = await dms.SharedIds.CheckIds(song, claims, "Apple Music ISRC lookup");
+        var added = found
+            .Where(f => !held.Contains(IsrcKey(f.Track.ISRC)))
+            .Count(f => f.Album.AddPurchaseId(PurchaseType.Song, ServiceType.ISRC, f.Track.ISRC));
+        var withheld = found
+            .Where(f => held.Contains(IsrcKey(f.Track.ISRC)))
+            .Select(f => f.Track.ISRC)
+            .ToList();
+
+        return (added, withheld);
+    }
+
+    // Not yet configurable (see the storefront question in the migration plan)
+    public const string AppleMusicStorefront = "us";
+
+    // The documented maximum for songs?ids=
+    private const int AppleMusicBatchSize = 300;
+
+    private static bool IsCatalogId(string id) => id.Length > 0 && id.All(char.IsAsciiDigit);
+
+    // Looks up catalog songs by id, in batches. Ids that aren't in the storefront are left out of
+    // the result, as Apple leaves them out of the response. Virtual so tests needn't call Apple.
+    public virtual async Task<IList<ServiceTrack>> LookupAppleMusicSongs(IReadOnlyCollection<string> ids)
+    {
+        if (!AppleMusicAuthentication.IsConfigured(Configuration))
+        {
+            throw new AbortBatchException(
+                "Apple Music isn't configured (Authentication:AppleMusic:TeamId, KeyId and PrivateKey)");
+        }
+
+        var itunes = MusicService.GetService(ServiceType.ITunes);
+        var tracks = new List<ServiceTrack>();
+        foreach (var chunk in ids.Chunk(AppleMusicBatchSize))
+        {
+            dynamic results;
+            try
+            {
+                results = await GetMusicServiceResults(
+                    $"https://api.music.apple.com/v1/catalog/{AppleMusicStorefront}/songs?ids={string.Join(",", chunk)}",
+                    itunes);
+            }
+            // A key that can't be read, or a token Apple still rejects after the refresh retries,
+            // fails the same way for every song; stop instead of failing each one
+            catch (MusicServiceRequestException e)
+                when (e.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
+            {
+                throw new AbortBatchException(
+                    $"Apple Music rejected the developer token ({(int)e.StatusCode}); check {AppleMusicAuthentication.TeamIdKey}, {AppleMusicAuthentication.KeyIdKey} and {AppleMusicAuthentication.PrivateKeyKey}",
+                    e);
+            }
+            // The key couldn't be read (AppleMusicAuthentication.ImportPrivateKey). WebException is
+            // also an InvalidOperationException; a network failure stays a per-song error.
+            catch (InvalidOperationException e) when (e is not WebException)
+            {
+                throw new AbortBatchException(e.Message, e);
+            }
+
+            if (results?.data == null)
+            {
+                continue;
+            }
+
+            foreach (var song in results.data)
+            {
+                var attributes = song.attributes;
+                int? duration = null;
+                if (attributes?.durationInMillis != null)
+                {
+                    duration = ((int)attributes.durationInMillis + 500) / 1000;
+                }
+
+                tracks.Add(new ServiceTrack
+                {
+                    Service = ServiceType.ITunes,
+                    TrackId = (string)song.id,
+                    ISRC = (string)attributes?.isrc,
+                    Name = (string)attributes?.name,
+                    Artist = (string)attributes?.artistName,
+                    Album = (string)attributes?.albumName,
+                    Duration = duration,
+                });
+            }
+        }
+
+        return tracks;
+    }
+
     #endregion
 
     #region Edit
@@ -1452,13 +1617,20 @@ public class MusicServiceManager(IConfiguration configuration)
         MusicService service,
         IPrincipal principal = null)
     {
-        if (CheckPaused(service))
+        // ServiceType.ITunes covers two APIs: the legacy iTunes Search/Lookup API (no auth, the
+        // 403 pause) and the Apple Music API (developer token, 429s)
+        var appleMusic = service?.Id == ServiceType.ITunes &&
+            Uri.TryCreate(request, UriKind.Absolute, out var parsed) &&
+            AppleMusicAuthentication.IsAppleMusicRequest(parsed);
+
+        if (!appleMusic && CheckPaused(service))
         {
             return null;
         }
 
         var retries = 5;
         var authRetries = 2;
+        var appleThrottleRetries = AppleMusicThrottleRetries;
         while (true)
         {
             string responseString = null;
@@ -1482,7 +1654,7 @@ public class MusicServiceManager(IConfiguration configuration)
             using var req = new HttpRequestMessage(HttpMethod.Get, requestUri);
             req.Headers.Add("Accept", "application/json");
             string auth = null;
-            if (service != null)
+            if (service != null && (service.Id != ServiceType.ITunes || appleMusic))
             {
                 auth = await ServiceAuthorization(service, principal);
             }
@@ -1512,10 +1684,26 @@ public class MusicServiceManager(IConfiguration configuration)
                 else if ((int)response.StatusCode == 429 /*HttpStatusCode.TooManyRequests*/)
                 {
                     // Wait algorithm failed, pause for 15 seconds
+                    if (appleMusic)
+                    {
+                        // Apple doesn't publish its limit; these show what it is in practice
+                        AppleMusic429s += 1;
+                        if (appleThrottleRetries-- <= 0)
+                        {
+                            // A long throttle or a hard quota; stop rather than retry forever
+                            throw new AbortBatchException(
+                                $"Apple Music returned 429 {AppleMusicThrottleRetries + 1} times in a row for {requestUri.GetLeftPart(UriPartial.Path)}");
+                        }
+
+                        Logger.LogWarning(
+                            "Apple Music returned 429 after {Calls} calls ({Count} so far); waiting 15s",
+                            AppleMusicCalls, AppleMusic429s);
+                    }
+
                     Trace.WriteLineIf(
                         TraceLevels.General.TraceInfo,
                         "Exceeded EchoNest Limits: Caught");
-                    await Task.Delay(15 * 1000);
+                    await Task.Delay(ThrottleDelay);
                     continue;
                 }
                 else if (response.StatusCode == HttpStatusCode.Unauthorized && authRetries-- > 0)
@@ -1591,7 +1779,11 @@ public class MusicServiceManager(IConfiguration configuration)
             if (service != null)
             {
                 responseString = service.PreprocessResponse(responseString);
-                if (service.Id == ServiceType.ITunes)
+                if (appleMusic)
+                {
+                    AppleMusicCalls += 1;
+                }
+                else if (service.Id == ServiceType.ITunes)
                 {
                     iTunesCalls += 1;
                 }
@@ -1635,6 +1827,14 @@ public class MusicServiceManager(IConfiguration configuration)
     public static int iTunesCalls { get; private set; }
 
     public static int spotifyCalls { get; private set; }
+
+    public static int AppleMusicCalls { get; private set; }
+
+    public static int AppleMusic429s { get; private set; }
+
+    // Consecutive 429s for one Apple Music request before the batch stops: 8 waits of 15s is two
+    // minutes. The full backfill saw 14 429s in about 3,800 calls, each cleared by a single wait.
+    private const int AppleMusicThrottleRetries = 8;
 
     private static bool PauseExpired => _pauseITunes.AddMinutes(15) < DateTime.Now;
     private static DateTime _pauseITunes = DateTime.MinValue;
