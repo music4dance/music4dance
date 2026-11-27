@@ -36,6 +36,10 @@ public class SearchCircuitBreakerTests
         // While set, requests wait for Release to choose their response
         public bool Hold { get; set; }
 
+        // The first this many requests are held (until cancelled or released); later ones answer
+        // with Status at once
+        public int HoldFirst { get; set; }
+
         public void Release(HttpStatusCode status)
         {
             lock (_held)
@@ -48,9 +52,9 @@ public class SearchCircuitBreakerTests
         protected override async Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            _ = Interlocked.Increment(ref Calls);
+            var call = Interlocked.Increment(ref Calls);
             var status = Status;
-            if (Hold)
+            if (Hold || call <= HoldFirst)
             {
                 var held = new TaskCompletionSource<HttpStatusCode>(TaskCreationOptions.RunContinuationsAsynchronously);
                 lock (_held)
@@ -439,13 +443,10 @@ public class SearchCircuitBreakerTests
     {
         // Search's periodic stall: the first attempt is cut off, the retry is answered when the
         // stall ends
-        _breaker.QueryNetworkTimeout = TimeSpan.FromMilliseconds(300);
-        _search.Hold = true;
+        _breaker.QueryNetworkTimeout = TimeSpan.FromMilliseconds(50);
+        _search.HoldFirst = 1;
 
-        var get = Get();
-        await WaitForCalls(2);
-        _search.Release(HttpStatusCode.OK);
-        _ = await get;
+        _ = await Get();
 
         Assert.AreEqual(2, _search.Calls);
         Assert.IsFalse(_breaker.IsOpen);
@@ -490,5 +491,37 @@ public class SearchCircuitBreakerTests
 
         Assert.AreEqual(1, _search.Calls);
         Assert.IsFalse(_breaker.IsOpen);
+    }
+
+    [TestMethod]
+    public async Task BulkRead_KeepsTheClientNetworkTimeout()
+    {
+        _breaker.QueryNetworkTimeout = TimeSpan.FromMilliseconds(50);
+        _search.Hold = true;
+
+        Task<Response<SearchDocument>> get;
+        using (m4dModels.SearchBulkRead.Scope())
+        {
+            get = Get();
+        }
+        await WaitForCalls(1);
+        await Task.Delay(250);
+        _search.Release(HttpStatusCode.OK);
+        _ = await get;
+
+        Assert.AreEqual(1, _search.Calls);
+        Assert.IsFalse(_breaker.IsOpen);
+    }
+
+    [TestMethod]
+    public async Task Open_RefusalNamesWhyTheBreakerOpened()
+    {
+        _breaker.QueryNetworkTimeout = TimeSpan.FromMilliseconds(50);
+        _search.Hold = true;
+        _ = await Assert.ThrowsExactlyAsync<AggregateException>(() => Get());
+
+        var refused = await GetFails();
+
+        StringAssert.Contains(refused.Message, "a retried query timed out");
     }
 }

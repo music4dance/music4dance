@@ -2,12 +2,15 @@ using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
 
+using m4dModels;
+
 namespace m4d.Services.ServiceHealth;
 
 /// <summary>
 /// A circuit breaker in the HTTP pipeline of the <c>SearchClient</c>s for one Azure AI Search
 /// service, shared by those clients since they share that service's capacity (one per service:
-/// see <see cref="SearchCircuitBreakers"/>). A <c>503</c> or <c>429</c> opens it; while it's open
+/// see <see cref="SearchCircuitBreakers"/>). A <c>503</c> or <c>429</c>, or a query whose retry also
+/// times out, opens it; while it's open
 /// every query attempt fails at once with a <see cref="RequestFailedException"/> of status 503,
 /// without sending anything. When <see cref="BreakDuration"/> has passed, one request goes
 /// through as a probe while the rest keep failing fast: a response below 500 closes the breaker,
@@ -23,8 +26,12 @@ namespace m4d.Services.ServiceHealth;
 /// still succeeds. On 2026-11-27 a stall lasted 75 s under scraper load, and requests hung for up
 /// to 100 s before the breaker opened on a <c>503</c>: with a second timeout opening it, they fail
 /// after about 31 s and the rest fail fast. The retry after that is refused by the open breaker,
-/// so a query sends at most two attempts while Search is stalled. Document writes keep the
-/// client's timeout.
+/// so a query sends at most two attempts while Search is stalled. The cost is that every query in
+/// flight when a stall starts sends its retry about 15 s in, doubling the queries Search is holding;
+/// opening on the first timeout would avoid that but fail every ordinary stall. Document writes,
+/// and bulk reads tagged by <see cref="SearchBulkRead"/> (pages of hundreds of documents, which
+/// can legitimately take longer), keep the client's timeout and don't open the breaker on a
+/// timeout, so an admin backup can't take Search away from the site.
 /// </para>
 /// <para>
 /// It sits at <see cref="HttpPipelinePosition.PerRetry"/>, ahead of Azure.Core's logging policy,
@@ -67,6 +74,7 @@ public sealed class SearchCircuitBreaker : HttpPipelinePolicy
 
     private DateTimeOffset? _openUntil;
     private DateTimeOffset? _probeStarted;
+    private string _openReason;
     private long _generation;
     private long _shortCircuited;
 
@@ -115,8 +123,12 @@ public sealed class SearchCircuitBreaker : HttpPipelinePolicy
             return;
         }
 
+        var bulk = SearchBulkRead.IsBulk(message);
         var attempt = Enter();
-        message.NetworkTimeout ??= QueryNetworkTimeout;
+        if (!bulk)
+        {
+            message.NetworkTimeout ??= QueryNetworkTimeout;
+        }
         try
         {
             ProcessNext(message, pipeline);
@@ -126,7 +138,7 @@ public sealed class SearchCircuitBreaker : HttpPipelinePolicy
             ProbeFailed(attempt, message, ex);
             throw;
         }
-        catch (Exception ex) when (IsRetryTimeout(message, ex))
+        catch (Exception ex) when (!bulk && IsRetryTimeout(message, ex))
         {
             Open(attempt, "a retried query timed out");
             throw;
@@ -142,8 +154,12 @@ public sealed class SearchCircuitBreaker : HttpPipelinePolicy
             return;
         }
 
+        var bulk = SearchBulkRead.IsBulk(message);
         var attempt = Enter();
-        message.NetworkTimeout ??= QueryNetworkTimeout;
+        if (!bulk)
+        {
+            message.NetworkTimeout ??= QueryNetworkTimeout;
+        }
         try
         {
             await ProcessNextAsync(message, pipeline).ConfigureAwait(false);
@@ -153,7 +169,7 @@ public sealed class SearchCircuitBreaker : HttpPipelinePolicy
             ProbeFailed(attempt, message, ex);
             throw;
         }
-        catch (Exception ex) when (IsRetryTimeout(message, ex))
+        catch (Exception ex) when (!bulk && IsRetryTimeout(message, ex))
         {
             Open(attempt, "a retried query timed out");
             throw;
@@ -201,7 +217,7 @@ public sealed class SearchCircuitBreaker : HttpPipelinePolicy
             {
                 _ = Interlocked.Increment(ref _shortCircuited);
                 throw new RequestFailedException(503,
-                    "Azure Search circuit breaker is open: the service was throttling, so this request wasn't sent");
+                    $"Azure Search circuit breaker is open ({_openReason}), so this request wasn't sent");
             }
 
             _probeStarted = now;
@@ -259,6 +275,7 @@ public sealed class SearchCircuitBreaker : HttpPipelinePolicy
             _generation++;
             _openUntil = _time.GetUtcNow() + BreakDuration;
             _probeStarted = null;
+            _openReason = reason;
             _ = Interlocked.Exchange(ref _shortCircuited, 0);
         }
 
@@ -285,7 +302,7 @@ public sealed class SearchCircuitBreaker : HttpPipelinePolicy
             "Search circuit breaker for {Service} stays open: {Reason}; {ShortCircuited} requests failed fast so far, next probe in {Seconds}s",
             HealthServiceName, reason, ShortCircuited, BreakDuration.TotalSeconds);
         _serviceHealth?.MarkUnavailable(HealthServiceName,
-            $"Azure Search still throttling ({reason}); circuit breaker open");
+            $"Azure Search still unavailable ({reason}); circuit breaker open");
     }
 
     private void Close(Attempt attempt)

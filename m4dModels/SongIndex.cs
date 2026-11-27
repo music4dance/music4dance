@@ -135,21 +135,26 @@ public class SongIndex
     /// <c>ClientOptions.Retry.NetworkTimeout</c>: a <see cref="TaskCanceledException"/>, or, once
     /// the SDK's retries are used up, an <see cref="AggregateException"/> of the tries, each a
     /// timeout or a throttling <c>503</c>/<c>429</c> (the <c>SearchCircuitBreaker</c> refusing a
-    /// retry throws one). SongIndex's queries don't pass a cancellation token, so a cancellation
-    /// here can only be that timeout. On 2026-11-27 a Search stall let two <c>/song/details</c>
-    /// requests time out at 100 s, have their retry refused by the open breaker, and end in a
-    /// <c>500</c>, because nothing recognized the exception as "Search is unavailable". A lone
+    /// retry throws one). A cancellation counts only when <paramref name="cancellationToken"/>
+    /// (the caller's token, if the query passed one) wasn't cancelled: a caller giving up says
+    /// nothing about Search. On 2026-11-27 a Search stall let two <c>/song/details</c> requests
+    /// time out at 100 s, have their retry refused by the open breaker, and end in a <c>500</c>,
+    /// because nothing recognized the exception as "Search is unavailable". A lone
     /// <see cref="RequestFailedException"/> doesn't count: <see cref="FindSong"/> callers rely on
     /// it returning null.
     /// </summary>
-    public static bool IsSearchTimeout(Exception ex) =>
-        ex is OperationCanceledException ||
-        (ex is AggregateException agg && agg.InnerExceptions.Count > 0 &&
-         agg.InnerExceptions.All(e =>
-             e is OperationCanceledException || e is RequestFailedException { Status: 503 or 429 }));
+    public static bool IsSearchTimeout(Exception ex, CancellationToken cancellationToken = default) =>
+        !cancellationToken.IsCancellationRequested &&
+        (ex is OperationCanceledException ||
+         (ex is AggregateException agg && agg.InnerExceptions.Count > 0 &&
+          agg.InnerExceptions.All(e =>
+              e is OperationCanceledException || e is RequestFailedException { Status: 503 or 429 })));
 
     private static InvalidOperationException SearchTimedOut(Exception ex) =>
-        new("Azure Search service is unavailable: the request timed out", ex);
+        new(ex is AggregateException agg && !agg.InnerExceptions.Any(e => e is OperationCanceledException)
+                ? "Azure Search service is unavailable: every attempt was throttled or refused"
+                : "Azure Search service is unavailable: the request timed out",
+            ex);
 
     public async Task<IEnumerable<Song>> FindSongs(IEnumerable<Guid> ids)
     {
@@ -1981,7 +1986,11 @@ public class SongIndex
                 parameters.Filter = $"({ModifiedField} lt {modifiedStr}) or ({ModifiedField} eq {modifiedStr} and {SongIdField} lt '{lastId}')";
             }
 
-            var response = await Client.SearchAsync<SearchDocument>("*", parameters, cancellationToken);
+            Response<SearchResults<SearchDocument>> response;
+            using (SearchBulkRead.Scope())
+            {
+                response = await Client.SearchAsync<SearchDocument>("*", parameters, cancellationToken);
+            }
 
             var batchCount = 0;
             foreach (var res in response.Value.GetResults())
@@ -2173,6 +2182,8 @@ public class SongIndex
             parameters.Select.Add(PropertiesField);
         }
 
+        // A page of hundreds of documents is a bulk read: it keeps the client's network timeout
+        using var bulk = SearchBulkRead.Scope(SearchBulkRead.IsBulk(parameters));
         try
         {
             var result = await Client.SearchAsync<SearchDocument>(search, parameters);

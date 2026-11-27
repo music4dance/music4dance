@@ -76,7 +76,7 @@ public class SongIndexSearchAvailabilityTests
     private static AggregateException NetworkTimeout() =>
         new("Retry failed after 2 tries.",
             new TaskCanceledException("The operation was cancelled because it exceeded the configured timeout of 0:01:40."),
-            new RequestFailedException(503, "Azure Search circuit breaker is open: the service was throttling, so this request wasn't sent"));
+            new RequestFailedException(503, "Azure Search circuit breaker is open (a retried query timed out), so this request wasn't sent"));
 
     [TestMethod]
     public async Task Search_NetworkTimeout_ThrowsRecognizedUnavailableExceptionWithoutRetrying()
@@ -137,6 +137,25 @@ public class SongIndexSearchAvailabilityTests
         Assert.IsFalse(SongIndex.IsSearchTimeout(
             new AggregateException(new TaskCanceledException(), new RequestFailedException(400, "Bad Request"))));
         Assert.IsFalse(SongIndex.IsSearchTimeout(new AggregateException()));
+    }
+
+    [TestMethod]
+    public void IsSearchTimeout_CallerCancellationIsNotATimeout()
+    {
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        Assert.IsFalse(SongIndex.IsSearchTimeout(new TaskCanceledException(), cts.Token));
+        Assert.IsTrue(SongIndex.IsSearchTimeout(new TaskCanceledException(), CancellationToken.None));
+    }
+
+    [TestMethod]
+    public void SearchBulkRead_IsPagesOfHundredsOfDocuments()
+    {
+        Assert.IsFalse(SearchBulkRead.IsBulk(new SearchOptions()));
+        Assert.IsFalse(SearchBulkRead.IsBulk(new SearchOptions { Size = 100 }));
+        Assert.IsTrue(SearchBulkRead.IsBulk(new SearchOptions { Size = 250 }));
+        Assert.IsTrue(SearchBulkRead.IsBulk(new SearchOptions { Size = 1000 }));
     }
 
     [TestMethod]

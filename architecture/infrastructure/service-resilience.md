@@ -101,7 +101,12 @@ so throttling on one doesn't fail the other.
   hours, then answers every held query at once, so a first attempt cut off at 15 s is retried and
   its retry normally succeeds. A query whose *retry* also times out opens the breaker, like a
   `503`, and the attempt after that is refused, so a query sends at most two attempts while Search
-  is stalled. `SongIndex.FindSong` and `DoSearch` map the resulting timeout (`AggregateException`
+  is stalled. The cost: every query in flight when a stall starts sends its retry about 15 s in,
+  doubling what Search is holding (opening on the first timeout would fail every ordinary stall).
+  Bulk reads (a query for 250 or more documents, or the key-set scan, tagged by `SearchBulkRead`:
+  backups, reindex passes, exports) keep the client's timeout like writes and never open the
+  breaker on a timeout, so an admin job can't take Search away from the site. While the breaker
+  is open, refused attempts say why it opened. `SongIndex.FindSong` and `DoSearch` map the resulting timeout (`AggregateException`
   of timeouts and refused retries) to the "unavailable" error. On 2026-11-27 a 75 s stall under
   scraper load kept requests hanging up to 100 s, two of them ending in a `500`; now they'd see the
   unavailable page after about 31 s.
