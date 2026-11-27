@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-01 (code references checked; the Amazon section was updated from the renewal plan)
+**Last verified:** 2026-11-26 (iTunes track lookup moved to the Apple Music API; the rest checked 2026-10-01)
 **Code:** `m4dModels/MusicService.cs` (and the per-service subclasses), `m4d/Utilities/MusicServiceManager.cs`,
 `m4d/ClientApp/src/models/Purchase.ts`, `m4d/ClientApp/src/helpers/ServiceMatcher.ts`
 
@@ -82,12 +82,20 @@ Services are registered at static-class initialization time and looked up by eit
 
 - **Links:** `https://itunes.apple.com/album/id{albumId}?i={songId}&uo=4&at=11lwtf` (requires both IDs)
 - **Search:** `https://itunes.apple.com/search?term={artist+title}&media=music&entity=song&limit=200`
-- **Track lookup:** `https://itunes.apple.com/lookup?id={songId}&entity=song`
-- **Auth:** No user-level OAuth. Rate limited by Apple; handled in `MusicServiceManager.GetMusicServiceResults` — HTTP 403 triggers a 60-second retry loop up to 5 times, then pauses the service for 15 minutes via `_pauseITunes`.
+- **Track lookup:** the Apple Music API, `https://api.music.apple.com/v1/catalog/us/songs?ids={songId}`,
+  when the developer token is configured (`Authentication:AppleMusic:*`) and `AppleMusic:TrackLookup`
+  isn't `false`. Otherwise, or when the Apple Music request fails, the legacy
+  `https://itunes.apple.com/lookup?id={songId}&entity=song`. Stored iTunes ids are Apple Music catalog
+  ids, so nothing is migrated. See the
+  [Apple Music API migration plan](../plans/apple-music-api-migration.md) (stage 1).
+- **Auth:** No user-level OAuth. The Apple Music API takes a developer token (`AppleMusicAuthentication`);
+  in a batch its 429s get the 15-second wait, and a one-track lookup falls back instead. The legacy
+  API takes none and is rate limited by Apple; handled in `MusicServiceManager.GetMusicServiceResults` —
+  an HTTP 403 pauses the legacy API for 15 minutes via `_pauseITunes`.
 
 **Capabilities:**
 
-- Full `ParseSearchResults` / `ParseTrackResults` — populates title, artist, album, track number, duration, image, genre, preview URL
+- Full `ParseSearchResults` / `ParseTrackResults` — populates title, artist, album, track number, duration, image, genre, preview URL, and (Apple Music lookups only) ISRC
 - Filters results to `kind == "song"` only
 - No pagination support (returns up to 200 results in a single call)
 - Used as fallback source for sample audio URLs when Spotify doesn't have a preview

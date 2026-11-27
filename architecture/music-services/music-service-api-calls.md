@@ -2,7 +2,7 @@
 
 **Type:** Reference
 **Status:** Current
-**Last verified:** 2026-10-08 (service-account branch added; the rest checked 2026-10-01)
+**Last verified:** 2026-11-26 (iTunes track lookup through the Apple Music API; service-account branch 2026-10-08; the rest checked 2026-10-01)
 **Code:** `m4d/Utilities/MusicServiceManager.cs`, `m4d/Utilities/AdmAuthentication.cs`
 
 `m4d/Utilities/MusicServiceManager.cs` is the single class responsible for all external music-service HTTP calls. It is injected as a scoped service (takes `IConfiguration` in its constructor).
@@ -17,7 +17,7 @@ All reads go through `GetMusicServiceResults`; all writes go through `MusicServi
 
 ### `GetMusicServiceResults(request, service, principal?)`
 
-1. Checks `CheckPaused(service)` — if iTunes is currently paused (after repeated 403s), returns `null` immediately.
+1. Checks `CheckPaused(service)` — if the legacy iTunes API is currently paused (after a 403), returns `null` immediately. Apple Music API requests are never paused.
 2. Builds an `HttpRequestMessage(GET, request)` with `Accept: application/json`.
 3. Calls `AdmAuthentication.GetServiceAuthorization(Configuration, service.Id, principal)` to get the `Authorization` header value.
    - For Spotify with no `principal`: uses the app-level client-credentials token.
@@ -32,16 +32,15 @@ All reads go through `GetMusicServiceResults`; all writes go through `MusicServi
 | Condition                           | Action                                                  |
 | ----------------------------------- | ------------------------------------------------------- |
 | `X-RateLimit-Remaining` 1–19        | Sleep 3 s (pre-emptive throttle)                        |
-| HTTP 429 (Too Many Requests)        | Sleep 15 s, retry (infinite loop)                       |
-| iTunes HTTP 403, retries > 0        | Sleep 60 s, decrement retry counter (up to 5 attempts)  |
-| iTunes HTTP 403, retries exhausted  | Set `_pauseITunes = DateTime.Now`, throw `AbortBatchException` |
-| `_pauseITunes` set < 15 min ago     | `CheckPaused` returns true → entire service call skipped |
+| HTTP 429 (Too Many Requests)        | Sleep 15 s (`ThrottleDelay`), retry; for Apple Music only `appleThrottleRetries` times (8 by default, 0 for a one-track lookup), then throw `AppleMusicThrottledException` (an `AbortBatchException`) |
+| Legacy iTunes HTTP 403              | Set `_pauseITunes = DateTime.Now`, throw `AbortBatchException` (no retries: the old 60 s × 5 loop would hold an interactive lookup for 5 minutes) |
+| `_pauseITunes` set < 15 min ago     | `CheckPaused` returns true → entire legacy iTunes call skipped |
 
 ### `MusicServiceAction(request, input, method, service, principal, contentType?)`
 
 Used for Spotify write operations (create playlist, set tracks, upload image). Requires a valid `principal` with Spotify OAuth. Returns deserialized JSON or null on failure.
 
-**Failure path:** neither `GetMusicServiceResults` nor `MusicServiceAction` call `EnsureSuccessStatusCode`. On any status other than 200 or 429 (`GetMusicServiceResults` also now handles 401 — see below), `responseString` is never set, so the code falls into `if (responseString == null) throw new WebException(response.ReasonPhrase)`. This constructed `WebException` has no `Response` object, so the `catch (WebException we)` block's `we.Response is HttpWebResponse r` check is always false and the exception is simply rethrown. `MusicServiceAction` (the write path) still has no branch that inspects a 401/403 from the data endpoint itself and retries — left alone deliberately, since blindly retrying a non-idempotent POST (create playlist, add track) on a stale-token 401 risks a duplicate write. A dead *refresh* token on the write path is still caught one layer up, in `AdmAuthentication.GetServiceAuthorization` (called to build the `Authorization` header before the request is even sent) — see [§ Spotify Refresh-Token Expiration Handling](#spotify-refresh-token-expiration-handling).
+**Failure path:** neither `GetMusicServiceResults` nor `MusicServiceAction` call `EnsureSuccessStatusCode`. On any status other than 200 or 429 (`GetMusicServiceResults` also now handles 401 — see below), `responseString` is never set, so `GetMusicServiceResults` throws `MusicServiceRequestException` (a `WebException` carrying the status code) and `MusicServiceAction` throws a plain `WebException`. HttpClient reports every status as a response, so all status handling (429, 401, the legacy iTunes 403) is in the response branches; there is no `catch (WebException)` path any more. `MusicServiceAction` (the write path) still has no branch that inspects a 401/403 from the data endpoint itself and retries — left alone deliberately, since blindly retrying a non-idempotent POST (create playlist, add track) on a stale-token 401 risks a duplicate write. A dead *refresh* token on the write path is still caught one layer up, in `AdmAuthentication.GetServiceAuthorization` (called to build the `Authorization` header before the request is even sent) — see [§ Spotify Refresh-Token Expiration Handling](#spotify-refresh-token-expiration-handling).
 
 **`GetMusicServiceResults` 401 handling (read path only):** a data-API 401 (`WWW-Authenticate: ... error="invalid_token"`) is treated separately from the generic failure path — before falling into the `responseString == null` branch, a `response.StatusCode == HttpStatusCode.Unauthorized` check (bounded to 2 retries via a local `authRetries` counter) calls `AdmAuthentication.InvalidateServiceAuthorization(configuration, service.Id, principal)` and `continue`s the retry loop. This covers the case where a token was valid by our own bookkeeping (cached, not yet past its locally-tracked expiry) but Spotify rejects it anyway — observed in practice on `BatchISRC`/`BatchEchoNest`-style long-running batches using the **app-level** client-credentials token (`GetISRCData`/`GetMusicServiceTrack` are called with no `principal`, so `AdmAuthentication.SetupService` resolves to the static `s_spotify` singleton, not a user's `SpotUserAuthentication`). Without this, nothing ever cleared the cached app-level `Token` except its own internal expiry `Timer`, so once Spotify rejected it early, every remaining item in the batch kept resending the same dead token — each failure caught and logged individually by `SongController.BatchProcess`'s per-item `catch (Exception e)`, so the batch appeared to silently stop making progress rather than aborting outright. Retries are bounded because a persistently-rejected token (e.g. genuinely bad credentials) should still surface as an error rather than loop.
 
@@ -129,7 +128,7 @@ UpdateAudioData(dms, service, sd)
     └─ [Spotify only] GetEchoData(dms, sd)
            └─ ValidateAndCorrectTempo(dms, sd)
     └─ [Spotify or iTunes] GetSampleData(dms, sd)
-    └─ [Spotify only, if no ISRC yet] GetISRCData(dms, sd)
+    └─ [Spotify, or iTunes through the Apple Music API; if no ISRC yet] GetISRCData(dms, sd, service)
 ```
 
 ---
@@ -175,11 +174,24 @@ After returning, `ComputeTrackPurchaseInfo` decorates each `ServiceTrack` with `
 
 1. Strips any `[…]` suffix from the ID.
 2. Checks `s_sharedTrackCache`.
-3. Calls `service.BuildTrackRequest(id)`:
+3. For iTunes, when the Apple Music developer token is configured and `AppleMusic:TrackLookup`
+   isn't `false`, asks the Apple Music API first (`FetchAppleMusicTrack`):
+   `https://api.music.apple.com/v1/catalog/us/songs?ids={id}` (`ITunesService.BuildAppleMusicSongsRequest`).
+   Only numeric (catalog) ids go to Apple. An id that isn't in the storefront comes back as
+   empty `data` and is the answer (null, no legacy call), by design: see the migration plan's
+   stage 1. If the request fails, the lookup falls through to step 4. A rejected token (401/403
+   after the refresh retries) or a key that can't be read also suspends Apple Music lookups for
+   15 minutes (`s_appleMusicSuspendedUntil`). A 429 isn't waited out: it falls back at once and
+   suspends them for 1 minute. Any value of `AppleMusic:TrackLookup` other than `false` leaves
+   them on.
+4. Otherwise calls `service.BuildTrackRequest(id)`:
    - iTunes: `https://itunes.apple.com/lookup?id={id}&entity=song`
    - Spotify: `https://api.spotify.com/v1/tracks/{id}`
-4. Calls `GetMusicServiceResults`, then `service.ParseTrackResults`.
-5. Stores result (including null) in cache.
+5. Calls `GetMusicServiceResults`, then `service.ParseTrackResults`. `ITunesService` parses
+   either shape: `data[]` (Apple Music, with the ISRC) or `results[]` (legacy, no ISRC).
+6. Caches only a successful result. A null (not found or failed), an exception, and, while
+   Apple Music lookups are on, an iTunes track with no ISRC (most likely a legacy fallback) are
+   looked up again next time.
 
 Amazon is explicitly skipped — `GetMusicServiceTrack` returns null immediately for `ServiceType.Amazon`.
 
@@ -241,7 +253,7 @@ Only runs when the song has exactly one dance rating. Uses `dance.ValidateTempo(
 ### `GetSampleData(dms, song)`
 
 1. Tries each Spotify track ID via `GetMusicServiceTrack(id, spotify)` → `track.SampleUrl`.
-2. If Spotify has no preview URL, tries each iTunes track ID the same way.
+2. If Spotify has no preview URL (no track, or a track without one), tries each iTunes track ID the same way.
 3. Writes `song.Sample = sampleUrl ?? "."` (`.` is the sentinel meaning "tried, none found").
 4. Committed under `batch-s` (if Spotify found it) or `batch-i` (if iTunes found it) or `batch-s` as fallback.
 

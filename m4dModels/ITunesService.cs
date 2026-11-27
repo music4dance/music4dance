@@ -16,6 +16,16 @@ public class ITunesService : MusicService
     {
     }
 
+    // The Apple Music API (MusicKit) catalog lookup. The stored iTunes track ids are Apple Music
+    // catalog song ids. songs?ids= returns 200 with the ids it doesn't have left out of data, where
+    // songs/{id} would return 404, so the one-id lookup uses it too. The default response already
+    // holds the album id (relationships.albums), so include=albums isn't needed.
+    private const string AppleMusicSongsRequest = "https://api.music.apple.com/v1/catalog/{0}/songs?ids={1}";
+
+    public static string BuildAppleMusicSongsRequest(string storefront, IEnumerable<string> ids) =>
+        string.Format(AppleMusicSongsRequest, Uri.EscapeDataString(storefront),
+            string.Join(",", ids.Select(Uri.EscapeDataString)));
+
     protected override string BuildPurchaseLink(PurchaseType pt, string album, string song)
     {
         // TODO: itunes would need a different kind of link for album only lookup...
@@ -50,17 +60,70 @@ public class ITunesService : MusicService
     {
         if (results == null)
         {
-            return null;
+            return Task.FromResult<ServiceTrack>(null);
         }
+
+        // An Apple Music API response (data[]) or a legacy lookup response (results[])
+        if (results.data != null)
+        {
+            var songs = results.data;
+            ServiceTrack song = songs.Count > 0 ? ParseAppleMusicSong(songs[0]) : null;
+            return Task.FromResult(song);
+        }
+
         var tracks = results.results;
-        return tracks.Count > 0 ? InternalParseTrackResults(tracks[0]) : null;
+        return tracks == null || tracks.Count == 0
+            ? Task.FromResult<ServiceTrack>(null)
+            : InternalParseTrackResults(tracks[0]);
+    }
+
+    // One song resource from the Apple Music API, mapped to the fields the legacy lookup fills
+    public static ServiceTrack ParseAppleMusicSong(dynamic song)
+    {
+        var attributes = song.attributes;
+        int? duration = null;
+        if (attributes?.durationInMillis != null)
+        {
+            duration = ((int)attributes.durationInMillis + 500) / 1000;
+        }
+
+        // genreNames ends with the catch-all "Music"; the first is the legacy primaryGenreName
+        var genre = ((IEnumerable<dynamic>)attributes?.genreNames ?? [])
+            .Select(g => (string)g)
+            .FirstOrDefault(g => !string.IsNullOrWhiteSpace(g) && g != "Music");
+
+        // The artwork url is a template ({w}x{h}bb.jpg, sometimes {w}x{h}{c}.{f}); 30x30 is the
+        // size the legacy lookup's artworkUrl30 has
+        var artwork = (string)attributes?.artwork?.url;
+
+        var albums = song.relationships?.albums?.data;
+        var isrc = (string)attributes?.isrc;
+
+        return new ServiceTrack
+        {
+            Service = ServiceType.ITunes,
+            TrackId = (string)song.id,
+            CollectionId = albums != null && albums.Count > 0 ? (string)albums[0].id : null,
+            Name = (string)attributes?.name,
+            Artist = (string)attributes?.artistName,
+            Album = (string)attributes?.albumName,
+            ImageUrl = artwork?.Replace("{w}", "30").Replace("{h}", "30").Replace("{c}", "bb").Replace("{f}", "jpg"),
+            ReleaseDate = (string)attributes?.releaseDate,
+            Duration = duration,
+            Genres = genre == null ? null : [genre],
+            TrackNumber = (int?)attributes?.trackNumber,
+            SampleUrl = attributes?.previews != null && attributes.previews.Count > 0
+                ? (string)attributes.previews[0].url
+                : null,
+            ISRC = string.IsNullOrWhiteSpace(isrc) ? null : GetService(ServiceType.ISRC).NormalizeId(isrc),
+        };
     }
 
     private Task<ServiceTrack> InternalParseTrackResults(dynamic track)
     {
         if (!string.Equals("song", (string)track.kind))
         {
-            return null;
+            return Task.FromResult<ServiceTrack>(null);
         }
 
         int? duration = null;
@@ -83,7 +146,8 @@ public class ITunesService : MusicService
             Duration = duration,
             Genres = [track.primaryGenreName],
             TrackNumber = track.trackNumber,
-            SampleUrl = track.PreviewUrl
+            // JObject member names are case-sensitive: PreviewUrl was always null
+            SampleUrl = track.previewUrl
         });
     }
 }
