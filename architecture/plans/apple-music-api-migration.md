@@ -7,7 +7,7 @@ has been run over all of `INR` in production (2026-11-26): what's left is 750 so
 ids are all dead, plus 49 whose ISRCs are already on other songs. Stages 1-4 (including 2b,
 stale-id repair) are proposed.
 **Last verified:** 2026-11-26
-**Code:** `scripts/apple-music-token-test.mjs` (token smoke test), `m4d/Utilities/AppleMusicAuthentication.cs` (developer token), `MusicServiceManager.GetAppleISRCData` / `LookupAppleMusicSongs`, `SongIndex.StreamAllBySongId` (batch paging), `m4d.Tests/Utilities/AppleMusicTests.cs`, `m4dModels/ITunesService.cs`, `m4d/Utilities/MusicServiceManager.cs` (`GetISRCData`, the iTunes 403 pause near the `iTunesCalls` counter), `m4d/Utilities/AdmAuthentication.cs`, `m4d/Controllers/SongController.cs` (`BatchISRC`), `m4d/ClientApp/src/models/Purchase.ts`, `m4d/ClientApp/src/components/AdminFooter.vue`
+**Code:** `scripts/apple-music-token-test.mjs` (token smoke test), `m4d/Utilities/AppleMusicAuthentication.cs` (developer token), `MusicServiceManager.GetAppleISRCData` / `LookupAppleMusicSongs`, `SongIndex.StreamAllFromSnapshot` (batch paging), `m4d.Tests/Utilities/AppleMusicTests.cs`, `m4dModels/ITunesService.cs`, `m4d/Utilities/MusicServiceManager.cs` (`GetISRCData`, the iTunes 403 pause near the `iTunesCalls` counter), `m4d/Utilities/AdmAuthentication.cs`, `m4d/Controllers/SongController.cs` (`BatchISRC`), `m4d/ClientApp/src/models/Purchase.ts`, `m4d/ClientApp/src/components/AdminFooter.vue`
 
 **Context:** This started (2026-09-23) as a plan to backfill ISRCs for iTunes-only songs. It
 turned out that the API we use for iTunes can't supply ISRCs, which led to a broader proposal: move
@@ -231,10 +231,17 @@ swap, not a new service.
      (`Apple Music has no us song for … ; ISRCs added: N`, where N says whether another id still
      supplied an ISRC), and so are withheld ISRCs (`… are already on other songs`). No marker is
      stored, since a retry costs one call. Edits are made as `batch-i`.
-   - `BatchProcess` now streams with `SongIndex.StreamAllBySongId`, a `SongId` cursor, instead
-     of `$skip`. With `$skip`, a batch whose edits take songs out of its own filter (as this one
+   - `BatchProcess` now streams with `SongIndex.StreamAllFromSnapshot` instead of `$skip`
+     paging. With `$skip`, a batch whose edits take songs out of its own filter (as this one
      does for "no ISRC") starts each later page past unvisited songs; the first full run skipped
-     hundreds this way.
+     hundreds this way. The snapshot first lists the matching SongIds in the filter's own order
+     (relevance when it has none, `SongId` breaking ties), before any edits, then loads the
+     songs by id, 250 at a time, in that order. Every batch keeps the sort the admin chose, and
+     a count-limited run lists only `count` ids. Each load re-applies the filter, so a song that
+     leaves it during the run (someone else's edit) is skipped. Songs that start matching during
+     the run aren't visited. The id pass still pages with `$skip`, so it has the 100K limit that
+     `StreamAll` has. Run 3 used an earlier version that paged by a `SongId` cursor and ignored
+     the chosen sort.
    - `BatchISRCApple` (Admin footer → Update → ISRC (Apple Music)) skips songs that already have
      an ISRC, like `BatchISRC`. Without configuration it aborts on the first song.
    - Tests: token format and signature (both key forms), the backfill against a fake lookup, and
@@ -327,7 +334,7 @@ Full backfill (2026-11-26, three runs over `INR` from a dev instance against pro
   2,000 songs rather than the 803 the search showed. The 851 count in [Goal](#goal) undercounts
   the same way. Many hidden ones are classical tracks.
 - **Run 1** added ISRCs to 1,282 songs, but skipped many songs because of `$skip` paging (see
-  above). **Run 2** (same code) picked up most of those. **Run 3**, with the `SongId` cursor,
+  above). **Run 2** (same code) picked up most of those. **Run 3**, with the paging fix,
   visited every remaining song and added 1.
 - **What's left:** 750 songs whose iTunes ids are all dead, and 49 whose ISRCs are already held
   by another song. Those are likely duplicate songs (several releases of Mark Ronson "Valerie",
