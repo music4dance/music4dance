@@ -45,8 +45,12 @@ public partial class SongIndexStreamBySongIdTests
                     .Skip(options.Skip ?? 0)
                     .Take(options.Size ?? 50)
                     .ToList();
+                // Like the index, return only the selected fields
+                var withId = options.Select.Count == 0 || options.Select.Contains(SongIndex.SongIdField);
                 var results = ids.Select(id => SearchModelFactory.SearchResult(
-                    new SearchDocument { [SongIndex.SongIdField] = id, [SongIndex.PropertiesField] = "" },
+                    withId
+                        ? new SearchDocument { [SongIndex.SongIdField] = id, [SongIndex.PropertiesField] = "" }
+                        : new SearchDocument { [SongIndex.PropertiesField] = "" },
                     1.0, null)).ToList();
                 return Response.FromValue(
                     SearchModelFactory.SearchResults(results, null, null, null, null),
@@ -117,5 +121,24 @@ public partial class SongIndexStreamBySongIdTests
         Assert.AreEqual(25, options.Size);
         Assert.AreEqual(50, options.Skip);
         CollectionAssert.AreEqual(new[] { "Modified desc" }, options.OrderBy.ToList());
+    }
+
+    [TestMethod]
+    public async Task StreamAllBySongId_SelectWithoutSongId_StillAdvancesTheCursor()
+    {
+        var filters = new List<string>();
+        var index = new FakeSongIndex(FakeClient(Ids(1500), filters).Object, Mock.Of<ISearchServiceManager>());
+        var options = new SearchOptions();
+        options.Select.Add(SongIndex.PropertiesField);
+
+        var visited = 0;
+        await foreach (var _ in index.StreamAllBySongId(null, options, CruftFilter.AllCruft))
+        {
+            visited += 1;
+        }
+
+        Assert.AreEqual(1500, visited);
+        Assert.HasCount(2, filters);
+        CollectionAssert.AreEqual(new[] { SongIndex.PropertiesField }, options.Select.ToList());
     }
 }

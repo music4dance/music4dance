@@ -1645,6 +1645,10 @@ public class SongIndex
         var originalSkip = parameters.Skip;
         var originalIncludeTotalCount = parameters.IncludeTotalCount;
         var originalOrderBy = parameters.OrderBy.ToList();
+        // The cursor is read from each page's last SongId, so a Select must include it
+        var addedSelect = parameters.Select.Count > 0 && !parameters.Select.Contains(SongIdField);
+        if (addedSelect)
+            parameters.Select.Add(SongIdField);
 
         parameters.Size = azurePageSize;
         parameters.Skip = null;
@@ -1668,7 +1672,9 @@ public class SongIndex
                 if (results.Count == 0)
                     yield break;
 
-                lastId = results[^1].Document.GetString(SongIdField);
+                lastId = results[^1].Document.GetString(SongIdField)
+                    ?? throw new InvalidOperationException(
+                        $"{nameof(StreamAllBySongId)} needs {SongIdField} in each result");
                 foreach (var song in await CreateSongs(results))
                     yield return song;
 
@@ -1685,6 +1691,8 @@ public class SongIndex
             parameters.OrderBy.Clear();
             foreach (var order in originalOrderBy)
                 parameters.OrderBy.Add(order);
+            if (addedSelect)
+                _ = parameters.Select.Remove(SongIdField);
         }
     }
 

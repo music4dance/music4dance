@@ -1,4 +1,8 @@
+#nullable disable
+
+using System.Net;
 using System.Security.Cryptography;
+using System.Security.Principal;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -43,13 +47,13 @@ public class AppleMusicAuthenticationTests
         Assert.HasCount(3, parts);
 
         var header = DecodePart(parts[0]);
-        Assert.AreEqual("ES256", (string?)header["alg"]);
-        Assert.AreEqual("KEYID12345", (string?)header["kid"]);
+        Assert.AreEqual("ES256", (string)header["alg"]);
+        Assert.AreEqual("KEYID12345", (string)header["kid"]);
 
         var claims = DecodePart(parts[1]);
-        Assert.AreEqual("TEAMID1234", (string?)claims["iss"]);
-        Assert.AreEqual(Now.ToUnixTimeSeconds(), (long?)claims["iat"]);
-        Assert.AreEqual(Now.ToUnixTimeSeconds() + 3600, (long?)claims["exp"]);
+        Assert.AreEqual("TEAMID1234", (string)claims["iss"]);
+        Assert.AreEqual(Now.ToUnixTimeSeconds(), (long)claims["iat"]);
+        Assert.AreEqual(Now.ToUnixTimeSeconds() + 3600, (long)claims["exp"]);
 
         // ES256 in a JWT is the raw 64-byte r||s signature, not DER
         var signature = DecodeSignature(parts[2]);
@@ -105,14 +109,14 @@ public class AppleMusicAuthenticationTests
     [TestMethod]
     public void IsConfigured_RequiresAllThreeValues()
     {
-        var partial = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        var partial = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string>
         {
             [AppleMusicAuthentication.TeamIdKey] = "TEAMID1234",
             [AppleMusicAuthentication.KeyIdKey] = "KEYID12345",
         }).Build();
         Assert.IsFalse(AppleMusicAuthentication.IsConfigured(partial));
 
-        var full = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        var full = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string>
         {
             [AppleMusicAuthentication.TeamIdKey] = "TEAMID1234",
             [AppleMusicAuthentication.KeyIdKey] = "KEYID12345",
@@ -225,6 +229,78 @@ public class GetAppleISRCDataTests
     {
         var manager = new MusicServiceManager(new ConfigurationBuilder().Build());
         await Assert.ThrowsAsync<AbortBatchException>(() => manager.LookupAppleMusicSongs(["111"]));
+    }
+}
+
+// How LookupAppleMusicSongs fails when Apple, or the key, won't let it through: these fail the same
+// way for every song, so they stop the batch instead of being retried or logged once per song
+[TestClass]
+public class LookupAppleMusicSongsFailureTests
+{
+    private static IConfiguration Configured(string privateKey) =>
+        new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string>
+        {
+            [AppleMusicAuthentication.TeamIdKey] = "TEAMID1234",
+            [AppleMusicAuthentication.KeyIdKey] = "KEYID12345",
+            [AppleMusicAuthentication.PrivateKeyKey] = privateKey,
+        }).Build();
+
+    // Answers every request with one status code and counts the requests
+    private sealed class StatusHandler(HttpStatusCode status) : HttpMessageHandler
+    {
+        public int Requests { get; private set; }
+
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            Requests += 1;
+            return Task.FromResult(new HttpResponseMessage(status) { Content = new StringContent("{}") });
+        }
+    }
+
+    // A stub token, so these tests don't depend on signing
+    private sealed class StubTokenManager(IConfiguration configuration) : MusicServiceManager(configuration)
+    {
+        protected override Task<string> ServiceAuthorization(MusicService service, IPrincipal principal) =>
+            Task.FromResult("Bearer stub-token");
+    }
+
+    [TestInitialize]
+    [TestCleanup]
+    public void ClearCachedAuthentication() => AdmAuthentication.Clear();
+
+    [TestMethod]
+    public async Task LookupAppleMusicSongs_KeepsGetting429_AbortsTheBatch()
+    {
+        var handler = new StatusHandler((HttpStatusCode)429);
+        var manager = new StubTokenManager(Configured("x"))
+        {
+            Http = new HttpClient(handler),
+            ThrottleDelay = TimeSpan.Zero,
+        };
+
+        await Assert.ThrowsAsync<AbortBatchException>(() => manager.LookupAppleMusicSongs(["111"]));
+        Assert.AreEqual(9, handler.Requests, "The first try and 8 retries");
+    }
+
+    [TestMethod]
+    public async Task LookupAppleMusicSongs_TokenRejected_AbortsTheBatch()
+    {
+        var handler = new StatusHandler(HttpStatusCode.Unauthorized);
+        var manager = new StubTokenManager(Configured("x")) { Http = new HttpClient(handler) };
+
+        await Assert.ThrowsAsync<AbortBatchException>(() => manager.LookupAppleMusicSongs(["111"]));
+        Assert.AreEqual(3, handler.Requests, "The first try and 2 retries with a fresh token");
+    }
+
+    [TestMethod]
+    public async Task LookupAppleMusicSongs_KeyCannotBeRead_AbortsTheBatch()
+    {
+        var handler = new StatusHandler(HttpStatusCode.OK);
+        var manager = new MusicServiceManager(Configured("not a key")) { Http = new HttpClient(handler) };
+
+        await Assert.ThrowsAsync<AbortBatchException>(() => manager.LookupAppleMusicSongs(["111"]));
+        Assert.AreEqual(0, handler.Requests);
     }
 }
 

@@ -24,6 +24,9 @@ public class MusicServiceManager(IConfiguration configuration)
     // network); production uses the shared client.
     internal HttpClient Http { get; init; } = HttpClientHelper.Client;
 
+    // The wait after a 429. Tests shorten it.
+    internal TimeSpan ThrottleDelay { get; init; } = TimeSpan.FromSeconds(15);
+
     private static readonly ILogger Logger = ApplicationLogging.CreateLogger<MusicServiceManager>();
 
     private static readonly Regex MeterRegex = new(@"^\d+/\d+$", RegexOptions.Compiled);
@@ -1340,9 +1343,29 @@ public class MusicServiceManager(IConfiguration configuration)
         var tracks = new List<ServiceTrack>();
         foreach (var chunk in ids.Chunk(AppleMusicBatchSize))
         {
-            var results = await GetMusicServiceResults(
-                $"https://api.music.apple.com/v1/catalog/{AppleMusicStorefront}/songs?ids={string.Join(",", chunk)}",
-                itunes);
+            dynamic results;
+            try
+            {
+                results = await GetMusicServiceResults(
+                    $"https://api.music.apple.com/v1/catalog/{AppleMusicStorefront}/songs?ids={string.Join(",", chunk)}",
+                    itunes);
+            }
+            // A key that can't be read, or a token Apple still rejects after the refresh retries,
+            // fails the same way for every song; stop instead of failing each one
+            catch (MusicServiceRequestException e)
+                when (e.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
+            {
+                throw new AbortBatchException(
+                    $"Apple Music rejected the developer token ({(int)e.StatusCode}); check {AppleMusicAuthentication.TeamIdKey}, {AppleMusicAuthentication.KeyIdKey} and {AppleMusicAuthentication.PrivateKeyKey}",
+                    e);
+            }
+            // The key couldn't be read (AppleMusicAuthentication.ImportPrivateKey). WebException is
+            // also an InvalidOperationException; a network failure stays a per-song error.
+            catch (InvalidOperationException e) when (e is not WebException)
+            {
+                throw new AbortBatchException(e.Message, e);
+            }
+
             if (results?.data == null)
             {
                 continue;
@@ -1607,6 +1630,7 @@ public class MusicServiceManager(IConfiguration configuration)
 
         var retries = 5;
         var authRetries = 2;
+        var appleThrottleRetries = AppleMusicThrottleRetries;
         while (true)
         {
             string responseString = null;
@@ -1664,6 +1688,13 @@ public class MusicServiceManager(IConfiguration configuration)
                     {
                         // Apple doesn't publish its limit; these show what it is in practice
                         AppleMusic429s += 1;
+                        if (appleThrottleRetries-- <= 0)
+                        {
+                            // A long throttle or a hard quota; stop rather than retry forever
+                            throw new AbortBatchException(
+                                $"Apple Music returned 429 {AppleMusicThrottleRetries + 1} times in a row for {requestUri.GetLeftPart(UriPartial.Path)}");
+                        }
+
                         Logger.LogWarning(
                             "Apple Music returned 429 after {Calls} calls ({Count} so far); waiting 15s",
                             AppleMusicCalls, AppleMusic429s);
@@ -1672,7 +1703,7 @@ public class MusicServiceManager(IConfiguration configuration)
                     Trace.WriteLineIf(
                         TraceLevels.General.TraceInfo,
                         "Exceeded EchoNest Limits: Caught");
-                    await Task.Delay(15 * 1000);
+                    await Task.Delay(ThrottleDelay);
                     continue;
                 }
                 else if (response.StatusCode == HttpStatusCode.Unauthorized && authRetries-- > 0)
@@ -1800,6 +1831,10 @@ public class MusicServiceManager(IConfiguration configuration)
     public static int AppleMusicCalls { get; private set; }
 
     public static int AppleMusic429s { get; private set; }
+
+    // Consecutive 429s for one Apple Music request before the batch stops: 8 waits of 15s is two
+    // minutes. The full backfill saw 14 429s in about 3,800 calls, each cleared by a single wait.
+    private const int AppleMusicThrottleRetries = 8;
 
     private static bool PauseExpired => _pauseITunes.AddMinutes(15) < DateTime.Now;
     private static DateTime _pauseITunes = DateTime.MinValue;
